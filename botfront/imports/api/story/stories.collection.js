@@ -7,6 +7,7 @@ import { StorySchema } from './stories.schema';
 
 export const Stories = new Mongo.Collection('stories');
 
+
 // Deny all client-side updates on the Projects collection
 Stories.deny({
     insert() {
@@ -20,18 +21,18 @@ Stories.deny({
     },
 });
 
+Meteor.startup(() => {
+    if (Meteor.isServer) {
+        Stories._ensureIndex({ 'textIndex.contents': 'text', 'textIndex.info': 'text' });
+    }
+});
+
 if (Meteor.isServer) {
-    Meteor.publish('smartStories', function(projectId, query) {
+    Meteor.publish('stories.selected', function(projectId, selectedIds) {
         checkIfCan('stories:r', projectId);
+        check(selectedIds, [String]);
         check(projectId, String);
-        check(query, Object);
-        return Stories.find({ projectId, ...query });
-    });
-    Meteor.publish('stories.inGroup', function(projectId, groupId) {
-        checkIfCan('stories:r', projectId);
-        check(groupId, String);
-        check(projectId, String);
-        return Stories.find({ projectId, storyGroupId: groupId });
+        return Stories.find({ projectId, _id: { $in: selectedIds } });
     });
 
     Meteor.publish('stories.light', function(projectId) {
@@ -40,7 +41,11 @@ if (Meteor.isServer) {
             checkIfScope(projectId, ['nlu-data:r', 'response:r', 'nlu-data:x'], this.userId);
             return Stories.find({ projectId }, { fields: { _id: 1 } });
         }
-        return Stories.find({ projectId }, { fields: { title: true, checkpoints: true, storyGroupId: true } });
+        return Stories.find({ projectId }, {
+            fields: {
+                title: true, checkpoints: true, storyGroupId: true, rules: true,
+            },
+        });
     });
     Meteor.publish('stories.events', function(projectId) {
         checkIfCan('responses:r', projectId);

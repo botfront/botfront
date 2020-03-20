@@ -358,7 +358,7 @@ export const getStoriesAndDomain = async (projectId, language) => {
     };
     appMethodLogger.debug('Selecting story groups');
     const storyGroups = StoryGroups.find(
-        { projectId }, { fields: { _id: 1, name: 1 } },
+        { projectId, smartGroup: { $exists: false } }, { fields: { _id: 1, name: 1 } },
     ).fetch();
 
     let selectedStoryGroups = storyGroups.filter(sg => sg.selected);
@@ -394,7 +394,7 @@ export const getStoriesAndDomain = async (projectId, language) => {
 
     const stories = [];
     selectedStoryGroups.forEach(({ _id, name }) => {
-        const storiesForThisSG = storiesBySG[_id]
+        const storiesForThisSG = (storiesBySG[_id] || [])
             .map(story => appendBranchCheckpoints(story))
             .map(story => insertSmartPayloads(story))
             .reduce((acc, story) => [...acc, ...flattenStory((story))], [])

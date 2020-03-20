@@ -98,12 +98,14 @@ describe('## Import', () => {
                         _id: newProjectId,
                         name: newProjectName,
                         nlu_models: newNluModels,
+                        storyGroups: newStoryGroupOrder,
                         ...newProject
                     } = await Projects.findOne({ _id: projectId }, {}).lean();
                     const {
                         _id: exportFileProjectId,
                         name: exportFileProjectName,
                         nlu_models: exportFileNluModels,
+                        storyGroups: exportFileStoryGroupOrder,
                         ...exportFileProject
                     } = { ...exportPayloads[1].project };
                     newProject.training = exportFileProject.training;
@@ -140,6 +142,7 @@ describe('## Import', () => {
                             modelId: docModelId,
                             storyGroupId: docStoryGroupId,
                             checkpoints: docCheckpoints,
+                            children: docChildren,
                             ...doc
                         } = await allCollections[col]
                             .findOne({ $or: [{ projectId }, { modelId }, { _id: modelId }, { checkpoints }] })
@@ -149,6 +152,7 @@ describe('## Import', () => {
                             modelId: exportFileModelId,
                             storyGroupId: exportFileStoryGroupId,
                             checkpoints: exportFileCheckpoints,
+                            children: exportFileChildren,
                             ...exportFileDoc
                         } = { ...exportPayloads[1][col][0] };
 

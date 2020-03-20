@@ -87,14 +87,15 @@ export const StorySchema = new SimpleSchema({
     'events.$': { type: String },
     branches: { type: Array, defaultValue: [] },
     'branches.$': { type: intermediateSchemas[intermediateSchemas.length - 1][1] },
-    storyGroupId: {
-        type: String,
-    },
+    storyGroupId: String,
     projectId: { type: String },
     selected: { type: true, optional: true },
     checkpoints: { type: Array, optional: true },
     'checkpoints.$': { type: Array },
     'checkpoints.$.$': { type: String },
+    textIndex: { type: Object, optional: true },
+    'textIndex.info': { type: String, optional: true },
+    'textIndex.contents': { type: String, optional: true },
     rules: { type: Array, optional: true },
     'rules.$': { type: RulesSchema },
 });

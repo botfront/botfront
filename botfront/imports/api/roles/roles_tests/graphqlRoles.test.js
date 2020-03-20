@@ -20,6 +20,8 @@ if (Meteor.isServer) {
 
     import rolesDataResolver from '../../graphql/rolesData/resolvers/rolesDataResolver';
 
+    import storiesResolver from '../../graphql/story/resolvers/storiesResolver';
+
     import { setScopes } from '../../../lib/scopes';
     import { Projects } from '../../project/project.collection';
     import {
@@ -246,6 +248,12 @@ if (Meteor.isServer) {
             args: {},
             acceptedRoles: writers.roles,
             acceptWrongProjectScope: true,
+        },
+        {
+            name: 'search stories',
+            query: storiesResolver.Query.stories,
+            args: { projectId },
+            acceptedRoles: readers.stories,
         },
     ];
 

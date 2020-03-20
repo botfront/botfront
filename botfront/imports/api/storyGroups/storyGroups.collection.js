@@ -4,7 +4,6 @@ import { check } from 'meteor/check';
 
 import { checkIfCan } from '../../lib/scopes';
 import { StoryGroupSchema } from './storyGroups.schema';
-import { createIntroStoryGroup } from './storyGroups.methods';
 
 export const StoryGroups = new Mongo.Collection('storyGroups');
 
@@ -31,9 +30,6 @@ if (Meteor.isServer) {
     Meteor.publish('storiesGroup', function(projectId) {
         checkIfCan(['stories:r', 'nlu-data:x'], projectId);
         check(projectId, String);
-        if (!StoryGroups.findOne({ projectId, introStory: true })) {
-            createIntroStoryGroup(projectId);
-        }
         return StoryGroups.find({ projectId });
     });
 }

@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy */
 
 describe('redux working language', function() {
     beforeEach(function() {
@@ -50,7 +50,7 @@ describe('redux working language', function() {
         cy.visit('/project/bf/stories');
         selectLanguage('French');
         checkLanguage('French');
-        cy.dataCy('incoming-page')
+        cy.dataCy('incoming-sidebar-link')
             .click({ force: true });
         checkLanguage('French');
         cy.dataCy('nlu-sidebar-link')

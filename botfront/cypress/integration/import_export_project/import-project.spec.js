@@ -1,5 +1,4 @@
 /* global Cypress cy: true */
-import { changeAPIUrl } from './export-project.spec';
 
 const storyGroupName = 'Account';
 const slotName = 'test_slot';
@@ -14,6 +13,23 @@ const responseText = 'which account would you like to access';
 
 const entityName = 'open';
 const entityValue = 'check';
+
+const changeAPIUrl = (url) => {
+    cy.visit('/project/test_project/settings');
+    cy.dataCy('project-settings-more')
+        .click();
+    cy.dataCy('admin-settings-menu')
+        .find('a')
+        .contains('Docker Compose')
+        .click();
+    cy.dataCy('docker-api-host')
+        .click();
+    cy.dataCy('docker-api-host')
+        .find('input')
+        .clear()
+        .type(`${url}{enter}`);
+    cy.get('.primary.button').first().click();
+};
 
 describe('Importing a project', function() {
     beforeEach(function() {
@@ -87,29 +103,11 @@ describe('Importing a project', function() {
 
         it('should import the right number and names of story groups', function() {
             cy.visit('/project/test_project/stories');
-            cy.dataCy('browser-item')
-                .contains('Default stories')
-                .click({ force: true });
-            cy.dataCy('delete-story')
-                .last()
-                .click({ force: true });
-            cy.dataCy('confirm-yes')
-                .last()
-                .click({ force: true });
-            cy.dataCy('delete-story')
-                .last()
-                .click({ force: true });
-            cy.dataCy('confirm-yes')
-                .last()
-                .click({ force: true });
-
+            cy.deleteStoryOrGroup('Default stories', 'story-group');
             importProject();
-
             cy.visit('/project/test_project/stories');
-            cy.dataCy('browser-item')
-                .contains(storyGroupName)
-                .should('exist');
-            cy.dataCy('browser-item').should('have.lengthOf', 4);
+            cy.dataCy('story-group-menu-item', storyGroupName).should('exist');
+            cy.get('[type="story-group"]').should('have.lengthOf', 4);
         });
 
         it('should import story contents', function() {
@@ -118,9 +116,7 @@ describe('Importing a project', function() {
             cy.visit('/project/test_project/stories');
             cy.dataCy('toggle-md')
                 .click();
-            cy.dataCy('browser-item')
-                .contains(storyGroupName)
-                .click();
+            cy.browseToStory('Account', 'Account');
             cy.contains('* access_account').should('exist');
             cy.contains(' - utter_g2FiL5tLA').should('exist');
             cy.contains('* access_account_checking').should('exist');

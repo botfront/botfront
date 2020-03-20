@@ -42,6 +42,7 @@ const responses = new Schema({
         max: 5,
         min: 0,
     },
+    textIndex: String,
     metadata: {
         default: undefined,
         type: {

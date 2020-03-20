@@ -77,7 +77,7 @@ describe('Bot responses', function() {
         cy.wait(100);
         cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
         cy.get('dimmer').should('not.exist');
-        cy.wait(100);
+        cy.wait(1000);
         cy.dataCy('template-intent').contains('utter_test_A').should('exist');
         cy.dataCy('response-text').contains('new response').should('exist');
         // verify original language has not changed
@@ -156,11 +156,8 @@ describe('Bot responses', function() {
     });
 
     it('should disable response name input if the response is used in a story', function() {
-        cy.visit('/project/bf/stories');
-        cy.dataCy('add-item').click();
-        cy.dataCy('add-item-input')
-            .find('input')
-            .type('myTest{enter}');
+        cy.createStoryGroup();
+        cy.createStoryInGroup();
         cy.wait(250);
         cy.dataCy('toggle-md').click();
         cy.get('.ace_content').click({ force: true });
@@ -221,10 +218,7 @@ describe('Bot responses', function() {
 
     it('be able to edit a response with the response editor in the visual story editor', function() {
         cy.visit('/project/bf/stories');
-        cy.dataCy('add-item').click();
-        cy.dataCy('add-item-input')
-            .find('input')
-            .type('myTest{enter}');
+        cy.createStoryInGroup({ groupName: 'Default stories', storyName: 'myTest' });
         cy.dataCy('story-title').should('have.value', 'myTest');
         cy.dataCy('toggle-md').click();
         cy.get('.ace_content').click({ force: true });
@@ -242,8 +236,7 @@ describe('Bot responses', function() {
         cy.dataCy('template-intent').contains('utter_test_A').should('exist');
 
         cy.visit('/project/bf/stories');
-        cy.dataCy('browser-item').find('span').contains('myTest').click();
-        cy.dataCy('story-title').should('have.value', 'myTest');
+        cy.browseToStory('myTest');
         cy.dataCy('bot-response-input').contains('aa').should('exist').trigger('mouseover');
         cy.dataCy('edit-responses').click({ force: true });
         cy.dataCy('response-editor').should('exist');
@@ -259,7 +252,6 @@ describe('Bot responses', function() {
 
         cy.dataCy('bot-response-input').contains('edited by response editor').should('exist');
         cy.dataCy('bot-response-input').type('edited by visual story');
-        cy.dataCy('browser-item').contains('myTest').click();
 
         cy.dataCy('edit-responses').click({ force: true });
         cy.dataCy('variations-tab').click();
@@ -268,34 +260,5 @@ describe('Bot responses', function() {
         cy.dataCy('response-editor').find('[data-cy=bot-response-input]').contains('edited by visual story');
         cy.dataCy('metadata-tab').click();
         cy.dataCy('toggle-force-open').find('[data-cy=toggled-true]').should('exist');
-    });
-
-    it('should be able to create a response in the visual editor and edit it with the response editor', function() {
-        cy.visit('/project/bf/stories');
-        cy.dataCy('add-item').click();
-        cy.dataCy('add-item-input')
-            .find('input')
-            .type('myTest{enter}');
-        cy.dataCy('story-title').should('have.value', 'myTest');
-
-        cy.dataCy('single-story-editor').trigger('mouseover');
-        cy.dataCy('add-bot-line').click({ force: true });
-        cy.dataCy('from-text-template').click({ force: true });
-
-        cy.dataCy('bot-response-input').click().find('textarea').type('hi')
-            .blur();
-        cy.dataCy('single-story-editor').trigger('mouseover');
-        cy.dataCy('edit-responses').click({ force: true });
-        cy.get('[data-cy=response-editor] [data-cy=bot-response-input]').should('exist');
-        cy.get('[data-cy=response-editor] [data-cy=bot-response-input]').should('have.text', 'hi');
-        cy.dataCy('response-editor').find('[data-cy=bot-response-input]').click().find('textarea')
-            .clear()
-            .type('bye')
-            .blur();
-        cy.wait(200); // ensure that graphql calls completes
-        cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
-        cy.wait(200); // ensure that graphql calls completes
-        cy.dataCy('bot-response-input').should('exist');
-        cy.dataCy('bot-response-input').should('have.text', 'bye');
     });
 });

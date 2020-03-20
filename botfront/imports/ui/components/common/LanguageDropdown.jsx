@@ -35,7 +35,9 @@ const LanguageDropdown = ({
             multiple={multiple}
             value={selectedLanguage}
             options={languageOptions}
-            onChange={(_e, { value }) => handleLanguageChange(value)}
+            onChange={(_e, { value }) => {
+                handleLanguageChange(value);
+            }}
             data-cy='language-selector'
         />
     );

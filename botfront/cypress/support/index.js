@@ -17,6 +17,7 @@
 
 import './chat.commands';
 import gql from 'graphql-tag';
+import './story.commands';
 
 const axios = require('axios');
 require('cypress-plugin-retries');
@@ -216,9 +217,17 @@ Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', de
         .then(() => cy.createNLUModelProgramatically(projectId, '', defaultLanguage));
 });
 
-Cypress.Commands.add('dataCy', dataCySelector => cy.get(`[data-cy=${dataCySelector}]`));
+Cypress.Commands.add('dataCy', (dataCySelector, content = null, filter = null) => {
+    let result;
+    if (!content) result = cy.get(`[data-cy=${dataCySelector}]`);
+    else result = cy.get(`[data-cy=${dataCySelector}]:contains(${content})`);
+    if (!filter) return result;
+    return result.filter(filter);
+});
 
 Cypress.Commands.add('findCy', { prevSubject: 'element' }, (subject, dataCySelector) => subject.find(`[data-cy=${dataCySelector}]`));
+
+Cypress.Commands.add('escapeModal', () => cy.get('.modals.dimmer').click('topRight'));
 
 Cypress.Commands.add(
     'upload',
@@ -461,6 +470,19 @@ Cypress.Commands.add('waitForResolve', (url, maxTries = 1000) => new Cypress.Pro
         }
     }
 }));
+
+Cypress.Commands.add('getWindowMethod', (methodName) => {
+    cy.window().then(window => new Cypress.Promise((resolve, reject) => {
+        let i = 0;
+        const checkIfExists = () => {
+            if (i > 200) return reject();
+            if (window[methodName]) return resolve(window[methodName]);
+            i += 1;
+            return setTimeout(checkIfExists, 50);
+        };
+        checkIfExists();
+    }));
+});
 
 Cypress.Commands.add('importProject', (projectId = 'bf', fixture) => cy.fixture(fixture, 'utf8')
     .then((data) => {

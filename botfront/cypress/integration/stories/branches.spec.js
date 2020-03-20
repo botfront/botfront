@@ -3,14 +3,27 @@
 describe('branches', function() {
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
+        cy.createStoryGroup();
+        cy.createStoryInGroup();
     });
 
     afterEach(function() {
         cy.deleteProject('bf');
     });
+    
+    const newBranchNameOne = 'newBranchNameOne';
+    const newBranchNameTwo = 'newBranchNameTwo';
+
+    const clickFirstBranchTitle = () => {
+        cy.dataCy('branch-label')
+            .first()
+            .click({ force: true })
+            .wait(1000)
+            .find('span')
+            .click({ force: true });
+    };
 
     it('should be able to add a branch, edit the content and it should be saved', function() {
-        cy.visit('/project/bf/stories');
         cy.dataCy('toggle-md').click({ force: true });
         cy.get('[data-cy=open-chat]').click();
         cy.dataCy('create-branch').click({ force: true });
@@ -25,8 +38,9 @@ describe('branches', function() {
             .wait(50)
             .type('xxx', { force: true })
             .blur();
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/stories'); // reload page
         cy.get('[data-cy=open-chat]').click();
+        cy.browseToStory();
         cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('branch-label').should('have.lengthOf', 2);
         cy.dataCy('branch-label')
@@ -41,7 +55,6 @@ describe('branches', function() {
     });
 
     it('should be able to be create a third branch, and delete branches', function() {
-        cy.visit('/project/bf/stories');
         cy.get('[data-cy=open-chat]').click();
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('branch-label').should('have.lengthOf', 2);
@@ -90,7 +103,6 @@ describe('branches', function() {
     });
 
     it('should be able to persist the opened branches across the app', function() {
-        cy.visit('/project/bf/stories');
         cy.get('[data-cy=open-chat]').click();
         cy.dataCy('create-branch').click({ force: true });
 
@@ -99,6 +111,7 @@ describe('branches', function() {
         cy.dataCy('branch-label').should('have.lengthOf', 3);
         cy.contains('NLU').click({ force: true });
         cy.contains('Stories').click({ force: true });
+        cy.browseToStory();
         cy.dataCy('branch-label').should('have.lengthOf', 3);
         cy.dataCy('branch-label')
             .eq(2)
@@ -106,7 +119,6 @@ describe('branches', function() {
     });
 
     it('should be able to merge deleted story branches', function() {
-        cy.visit('/project/bf/stories');
         cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('open-chat').click();
         cy.dataCy('create-branch').click({ force: true });
@@ -148,5 +160,50 @@ describe('branches', function() {
         cy.dataCy('confirm-yes')
             .click({ force: true });
         cy.contains('xxx');
+    });
+
+    it('should save branch title on blur and Enter, discard on esc', function() {
+        cy.dataCy('create-branch').click({ force: true });
+
+        // test Enter
+        clickFirstBranchTitle();
+        cy.dataCy('branch-label')
+            .find('input')
+            .click()
+            .clear()
+            .type(`${newBranchNameOne}{Enter}`);
+        cy.dataCy('branch-label')
+            .first()
+            .find('span')
+            .contains(newBranchNameOne)
+            .should('exist');
+
+        // test blur
+        clickFirstBranchTitle();
+        cy.dataCy('branch-label')
+            .find('input')
+            .click()
+            .clear()
+            .type(`${newBranchNameTwo}`)
+            .blur();
+        cy.dataCy('branch-label')
+            .first()
+            .find('span')
+            .contains(newBranchNameTwo)
+            .should('exist');
+
+        // test esc
+        clickFirstBranchTitle();
+        cy.dataCy('branch-label')
+            .find('input')
+            .click()
+            .type('edited{esc}{Enter}');
+        cy.dataCy('branch-label')
+            .first()
+            .find('span')
+            .contains(newBranchNameTwo)
+            .should('exist')
+            .contains(`${newBranchNameTwo}edited`)
+            .should('not.exist');
     });
 });

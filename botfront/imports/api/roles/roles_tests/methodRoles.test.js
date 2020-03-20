@@ -75,7 +75,7 @@ if (Meteor.isServer) {
         },
         {
             name: 'policies.save',
-            roles: writers.projects,
+            roles: writers.stories,
             args: [{ projectId }],
         },
         {
@@ -358,14 +358,9 @@ if (Meteor.isServer) {
             args: [{ projectId }],
         },
         {
-            name: 'storyGroups.removeFocus',
-            roles: writers.stories,
-            args: [projectId],
-        },
-        {
-            name: 'storyGroups.deleteChildStories',
-            roles: writers.stories,
-            args: [null, projectId],
+            name: 'storyGroups.setExpansion',
+            roles: readers.stories,
+            args: [{ projectId }],
         },
         {
             name: 'user.create',

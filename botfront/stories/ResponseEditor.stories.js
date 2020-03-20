@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { storiesOf } from '@storybook/react';
 import { withKnobs, boolean } from '@storybook/addon-knobs';
-import ResponseEditor from '../imports/ui/components/templates/templates-list/ResponseEditor';
+import ResponseEditor from '../imports/ui/components/templates/templates-list/BotResponseEditor';
 import { withProjectContext } from '../.storybook/decorators';
 
 const sampleResponse = {

@@ -12,6 +12,7 @@ import { wrapMeteorCallback } from '../utils/Errors';
 import ChangesSaved from '../utils/ChangesSaved';
 import SaveButton from '../utils/SaveButton';
 import AceField from '../utils/AceField';
+import { Can, can } from '../../../lib/scopes';
 
 class CorePolicy extends React.Component {
     constructor(props) {
@@ -59,7 +60,7 @@ class CorePolicy extends React.Component {
                     return newModel;
                 }}
             >
-                <AceField name='policies' mode='yaml' label={null} />
+                <AceField name='policies' mode='yaml' label={null} readOnly={!can('stories:w', projectId)} />
                 <ErrorsField />
                 {showConfirmation && (
                     <ChangesSaved
@@ -71,7 +72,9 @@ class CorePolicy extends React.Component {
                         )}
                     />
                 )}
-                <SaveButton saved={saved} saving={saving} />
+                <Can I='stories:w' projectId={projectId}>
+                    <SaveButton saved={saved} saving={saving} />
+                </Can>
             </AutoForm>
         );
     };

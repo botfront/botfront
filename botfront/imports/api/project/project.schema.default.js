@@ -57,6 +57,8 @@ export const ProjectsSchema = new SimpleSchema({
     },
 
     defaultDomain: { type: DefaultDomainSchema, optional: true },
+    storyGroups: { type: Array, defaultValue: [] },
+    'storyGroups.$': { type: String },
 }, { tracker: Tracker });
 
 ProjectsSchema.messageBox.messages({

@@ -41,10 +41,10 @@ export function setStoryMode(mode) {
     };
 }
 
-export function setStoryGroup(groupIndex) {
+export function setStoriesCurrent(storyIds) {
     return {
-        type: types.SET_STORY_GROUP,
-        groupIndex,
+        type: types.SET_STORIES_CURRENT,
+        storyIds,
     };
 }
 
