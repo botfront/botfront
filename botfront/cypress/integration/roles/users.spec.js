@@ -1,6 +1,6 @@
 /* global cy:true */
 
-describe('users:r can access but not edit user data', () => {
+describe('users:r can not edit user data', () => {
     before(() => {
         cy.removeDummyRoleAndUser();
         cy.deleteProject('bf');
@@ -22,7 +22,7 @@ describe('users:r can access but not edit user data', () => {
         cy.deleteProject('bf');
         cy.removeDummyRoleAndUser();
     });
-    it('should be able to view a read only version of all project settings tabs as projects:r', () => {
+    it('should not show edit features in the users page', () => {
         cy.visit('/admin');
         cy.dataCy('users-link').click({ force: true });
         cy.dataCy('edit-user').first().click();
@@ -32,40 +32,7 @@ describe('users:r can access but not edit user data', () => {
     });
 });
 
-
-describe('users:w can edit user data', () => {
-    before(() => {
-        cy.removeDummyRoleAndUser();
-        cy.deleteProject('bf');
-        cy.wait(2000);
-        cy.createProject('bf', 'My Project', 'en');
-        cy.createDummyRoleAndUser({ permission: ['users:w'] });
-    });
-
-    beforeEach(() => {
-        cy.deleteProject('bf');
-        cy.createProject('bf', 'My Project', 'en').then(() => cy.login({ admin: false }));
-    });
-    afterEach(() => {
-        cy.logout();
-        cy.deleteProject('bf');
-    });
-
-    after(() => {
-        cy.deleteProject('bf');
-        cy.removeDummyRoleAndUser();
-    });
-    it('should be able to view a read only version of all project settings tabs as projects:r', () => {
-        cy.visit('/admin');
-        cy.dataCy('users-link').click({ force: true });
-        cy.dataCy('edit-user').first().click();
-        cy.get('.disabled.required.field').should('have.length', 0); // check ALL fields are not disabled
-        cy.dataCy('save-user').should('exist');
-        cy.get('.ui.pointing.secondary.menu').children().should('have.length', 3); // can view all menu tabs
-    });
-});
-
-describe('users:w can edit user data', () => {
+describe('visibility of the Users link in the admin sidebar', () => {
     before(() => {
         cy.removeDummyRoleAndUser();
         cy.deleteProject('bf');
@@ -87,7 +54,7 @@ describe('users:w can edit user data', () => {
         cy.deleteProject('bf');
         cy.removeDummyRoleAndUser();
     });
-    it('should be able to view a read only version of all project settings tabs as projects:r', () => {
+    it('the "Users" link is hidden in the admin sidebar when the user does not have users:r permission', () => {
         cy.visit('/admin');
         cy.dataCy('users-link').should('not.exist');
     });
