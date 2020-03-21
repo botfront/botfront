@@ -23,11 +23,14 @@ export default function StoriesPageMenu() {
     } = useContext(ProjectContext);
 
     return (
-        <PageMenu title='Stories' icon='book'>
+        <PageMenu title='Stories' icon='book' className='stories-page-menu'>
             <Menu.Item id='stories-language-dropdown'>
                 <LanguageDropdown />
             </Menu.Item>
-            <Menu.Menu position='right'>
+            <Menu.Menu className='stories-page-menu-searchbar'>
+                <SearchBar />
+            </Menu.Menu>
+            <Menu.Menu position='right' className='training-menu'>
                 <Menu.Item>
                     {!isTraining(project) && status === 'success' && (
                         <Popup
@@ -84,9 +87,6 @@ export default function StoriesPageMenu() {
                             )}
                         />
                     )}
-                </Menu.Item>
-                <Menu.Item>
-                    <SearchBar />
                 </Menu.Item>
                 <Menu.Item>
                     <TrainButton project={project} instance={instance} projectId={projectId} />

@@ -1,6 +1,10 @@
 .ui.search.story-search-bar {
+    width: 100%;
+    margin-right: 0em;
+    margin-left: 1em;
     .ui.icon.input {
         top: 0.5px;
+        width: 100%;
     }
     input.prompt {
         height: 2.6em;
@@ -31,6 +35,7 @@
     .results.transition.visible {
         height: 50vh;
         overflow-y: scroll;
+        width: 100%;
     }
     .result {
         padding-right: 0.5em;
@@ -60,11 +65,11 @@
             padding: 0;
             overflow: wrap;
             word-wrap: break-word;
-            width: 40%;
+            max-width: 40%;
             box-sizing: border-box;
         }
         .story-name {
-            width: 40%;
+            max-width: 40%;
             overflow: wrap;
             box-sizing: border-box;
             word-wrap: break-word;
