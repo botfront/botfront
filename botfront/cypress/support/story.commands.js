@@ -78,6 +78,10 @@ Cypress.Commands.add('toggleStoryGroupCollapsed', ({ groupName = 'Groupo' }) => 
     cy.dataCy('story-group-menu-item', groupName, filter).find('[data-cy=toggle-expansion-story-group]').click({ force: true });
 });
 
+Cypress.Commands.add('toggleStoryGroupFocused', (groupName = 'Groupo') => {
+    cy.dataCy('story-group-menu-item', groupName, '[type="story-group"]').findCy('focus-story-group').click({ force: true });
+});
+
 Cypress.Commands.add('selectStories', (firstName = 'Groupo (1)', n = 1, direction = 'down') => {
     findStoryAndSelect(firstName, 'first');
     const key = direction === 'down' ? 'ArrowDown' : direction === 'up' ? 'ArrowUp' : null;
