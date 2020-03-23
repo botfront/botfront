@@ -313,14 +313,24 @@ if (Meteor.isServer) {
             args: [{ projectId }],
         },
         {
+            name: 'stories.insert',
+            roles: writers.stories,
+            args: [[{ projectId }]],
+        },
+        {
             name: 'stories.update',
             roles: writers.stories,
-            args: [{ projectId }, projectId],
+            args: [{ projectId }],
+        },
+        {
+            name: 'stories.update',
+            roles: writers.stories,
+            args: [[{ projectId }]],
         },
         {
             name: 'stories.delete',
             roles: writers.stories,
-            args: [{ projectId }, projectId],
+            args: [{ projectId }],
         },
         {
             name: 'stories.addCheckpoints',

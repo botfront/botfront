@@ -12,10 +12,21 @@ import { auditLogIfOnServer } from '../../lib/utils';
 
 export const checkStoryNotEmpty = story => story.story && !!story.story.replace(/\s/g, '').length;
 
+const logStoryUpdate = (story, projectId, originStory) => auditLogIfOnServer('Story updated', {
+    resId: story._id,
+    user: Meteor.user(),
+    type: 'updated',
+    projectId,
+    operation: 'stories.updated',
+    after: { story },
+    before: { story: originStory },
+    resType: 'story',
+});
+
 Meteor.methods({
     async 'stories.insert'(story) {
-        checkIfCan('stories:w', Array.isArray(story) ? story[0].projectId : story.projectId);
         const projectId = Array.isArray(story) ? story[0].projectId : story.projectId;
+        checkIfCan('stories:w', projectId);
         check(story, Match.OneOf(Object, [Object]));
         let result;
         const storyGroups = {};
@@ -67,6 +78,7 @@ Meteor.methods({
         if (Array.isArray(story)) {
             if (story.some(s => s.projectId !== projectId)) throw new Error(); // ensure homegeneous set
             const originStories = Stories.find({ _id: { $in: story.map(({ _id }) => _id) } }).fetch();
+            logStoryUpdate(story, projectId, originStories);
             return story.map(({ _id, ...rest }) => Stories.update(
                 { _id },
                 {
@@ -81,6 +93,7 @@ Meteor.methods({
         const originStory = Stories.findOne({ _id });
 
         if (!path) {
+            logStoryUpdate(story, projectId, originStory);
             return Stories.update({ _id }, {
                 $set: {
                     ...rest,
@@ -113,16 +126,7 @@ Meteor.methods({
             );
             deleteResponsesRemovedFromStories(removedEvents, projectId);
         }
-        auditLogIfOnServer('Story updated', {
-            resId: story._id,
-            user: Meteor.user(),
-            type: 'updated',
-            projectId,
-            operation: 'stories.updated',
-            after: { story },
-            before: { story: originStory },
-            resType: 'story',
-        });
+        logStoryUpdate(story, projectId, originStory);
         return result;
     },
 
