@@ -88,6 +88,18 @@ services:
     env_file:
       - .env
 
+  redis:
+    image: redis
+    container_name: botfront-redis
+    restart: always
+    networks: ["botfront-network"]
+    entrypoint: redis-server
+    volumes:
+    - ./botfront-db:/lock/db
+    ports:
+    - "6379:6379"
+    env_file:
+      - .env
 
 networks:
   botfront-network: {}
