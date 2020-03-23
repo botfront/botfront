@@ -1,4 +1,4 @@
-/* global cy */
+/* global cy expect */
 const storyGroupOne = 'Default stories';
 
 describe('story tree navigation', function() {
@@ -9,6 +9,21 @@ describe('story tree navigation', function() {
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
     });
+
+    const checkItemAtIndex = (index, value) => {
+        /*
+            the default rety behaviour is to retry the command before the .should
+            this means dataCy().eq().should does NOT requery the dom when it retries.
+            if the first attempt doesn't succeed none of them will
+
+            to fix this we put the element at index check in the callback of a
+            should function so the dataCy query is retried.  this is only
+            needed for the first .eq after a change.
+        */
+        cy.dataCy('story-group-menu-item').should((e) => {
+            expect(e[index].innerText).to.be.equal(value);
+        });
+    };
     
     it('should be possible to delete a story group', function() {
         cy.visit('/project/bf/stories');
@@ -81,7 +96,7 @@ describe('story tree navigation', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('story-group-menu-item').eq(4).should('have.text', 'Get started');
         cy.moveStoryOrGroup({ name: 'Get started' }, { name: 'Default stories' });
-        cy.dataCy('story-group-menu-item').eq(3).should('have.text', 'Get started');
+        checkItemAtIndex(3, 'Get started');
         cy.dataCy('story-group-menu-item').eq(4).should('have.text', 'Intro stories');
     });
 
@@ -94,12 +109,13 @@ describe('story tree navigation', function() {
         cy.moveStoryOrGroup({ name: 'Default stories (3)' }, { name: 'Intro stories' }); // grab first selected item
         cy.dataCy('story-group-menu-item').eq(1).should('have.text', 'Greetings');
         cy.dataCy('story-group-menu-item').eq(2).should('have.text', 'Intro stories');
+        checkItemAtIndex(4, 'Default stories (3)');
         cy.dataCy('story-group-menu-item').eq(4).should('have.text', 'Default stories (3)');
         cy.dataCy('story-group-menu-item').eq(5).should('have.text', 'Farewells');
     
         cy.moveStoryOrGroup({ name: 'Farewells' }, { name: 'Default stories' }); // grab second selected item and move em back
         cy.dataCy('story-group-menu-item').eq(1).should('have.text', 'Greetings');
-        cy.dataCy('story-group-menu-item').eq(2).should('have.text', 'Default stories (3)');
+        checkItemAtIndex(2, 'Default stories (3)');
         cy.dataCy('story-group-menu-item').eq(3).should('have.text', 'Farewells');
         cy.dataCy('story-group-menu-item').eq(5).should('have.text', 'Get started');
     });
@@ -109,20 +125,20 @@ describe('story tree navigation', function() {
         cy.dataCy('story-group-menu-item').eq(1).should('have.text', 'Farewells');
         cy.dataCy('story-group-menu-item').eq(4).should('have.text', 'Get started');
         cy.moveStoryOrGroup({ name: 'Get started' }, { name: 'Farewells' });
-        cy.dataCy('story-group-menu-item').eq(1).should('have.text', 'Get started');
+        checkItemAtIndex(1, 'Get started');
     
         cy.moveStoryOrGroup({ name: 'Get started' }, { name: 'Farewells' });
-        cy.dataCy('story-group-menu-item').eq(1).should('have.text', 'Farewells');
+        checkItemAtIndex(1, 'Farewells');
         cy.dataCy('story-group-menu-item').eq(2).should('have.text', 'Get started');
     
         cy.selectStories('Get started', 2);
         cy.moveStoryOrGroup({ name: 'Get started' }, { name: 'Farewells' });
-        cy.dataCy('story-group-menu-item').eq(1).should('have.text', 'Get started');
+        checkItemAtIndex(1, 'Get started');
         cy.dataCy('story-group-menu-item').eq(2).should('have.text', 'Greetings');
     
         cy.selectStories('Get started', 2);
         cy.moveStoryOrGroup({ name: 'Get started' }, { name: 'Farewells' });
-        cy.dataCy('story-group-menu-item').eq(1).should('have.text', 'Farewells');
+        checkItemAtIndex(1, 'Farewells');
         cy.dataCy('story-group-menu-item').eq(2).should('have.text', 'Get started');
         cy.dataCy('story-group-menu-item').eq(3).should('have.text', 'Greetings');
     });
@@ -132,6 +148,7 @@ describe('story tree navigation', function() {
         cy.selectStories('Farewells', 2);
         cy.moveStoryOrGroup({ name: 'Get started' }, { name: 'Default stories' });
         cy.moveStoryOrGroup({ name: 'Intro stories' }, { name: 'Default stories' });
+        checkItemAtIndex(4, 'Get started');
         cy.dataCy('story-group-menu-item').eq(4).should('have.text', 'Get started');
         cy.dataCy('story-group-menu-item').eq(0).should('have.text', 'Intro stories');
         cy.dataCy('story-title').should('have.length', 2);
@@ -143,12 +160,13 @@ describe('story tree navigation', function() {
         cy.visit('/project/bf/stories');
         cy.moveStoryOrGroup({ name: 'Intro stories' }, { name: 'Farewells' });
         cy.dataCy('story-group-menu-item').eq(0).should('have.text', 'Intro stories'); // move above group instead
-        cy.dataCy('story-group-menu-item').eq(4).should('have.text', 'Greetings');
+        checkItemAtIndex(4, 'Greetings');
         cy.moveStoryOrGroup({ name: 'Greetings' }); // attempt moving to root
         cy.dataCy('story-group-menu-item').eq(4).should('have.text', 'Greetings'); // don't move at all
         cy.moveStoryOrGroup({ name: 'Greetings' }, { index: 1 }); // attempt moving to root between two groups
-        cy.dataCy('story-group-menu-item').eq(2).should('have.text', 'Greetings'); // moved into group above
+        checkItemAtIndex(2, 'Greetings'); // moved into group above
         cy.moveStoryOrGroup({ name: 'Greetings' }, { index: 2 }); // attempt moving to last position in root
+        checkItemAtIndex(4, 'Greetings');
         cy.dataCy('story-group-menu-item').eq(4).should('have.text', 'Greetings'); // moved into group above
     });
 
