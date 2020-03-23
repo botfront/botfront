@@ -1,4 +1,4 @@
-/* global cy Cypress:true */
+/* global cy Cypress */
 
 const findGroupAndOpenIfClosed = (groupName, saveToAlias = 'alias') => {
     cy.dataCy('story-group-menu-item', groupName).should('exist')
@@ -76,4 +76,31 @@ Cypress.Commands.add('renameStoryOrGroup', (name = 'Groupo', newName = 'Groupa',
 Cypress.Commands.add('toggleStoryGroupCollapsed', ({ groupName = 'Groupo' }) => {
     const filter = '[type="story-group"]';
     cy.dataCy('story-group-menu-item', groupName, filter).find('[data-cy=toggle-expansion-story-group]').click({ force: true });
+});
+
+Cypress.Commands.add('selectStories', (firstName = 'Groupo (1)', n = 1, direction = 'down') => {
+    findStoryAndSelect(firstName, 'first');
+    const key = direction === 'down' ? 'ArrowDown' : direction === 'up' ? 'ArrowUp' : null;
+    let i = 0;
+    while (i < n - 1) {
+        cy.get('@first').trigger('keydown', { force: true, key, shiftKey: true });
+        i += 1;
+    }
+});
+
+Cypress.Commands.add('moveStoryOrGroup', ({ name: originName, type: originType = null }, { name: destinationName, type: destinationType = null, index = null } = {}) => {
+    cy.dataCy('story-group-menu-item', originName, originType ? `[type="${originType}"]` : null).then((origin) => {
+        cy.getWindowMethod('getParentAndIndex').then((getParentAndIndex) => {
+            cy.wrap(getParentAndIndex(origin[0].id.replace('story-menu-item-', ''))).as('origin');
+        });
+    });
+    if (!destinationName) cy.wrap([{ id: 'story-menu-item-root' }]).as('destination');
+    else cy.dataCy('story-group-menu-item', destinationName, destinationType ? `[type="${destinationType}"]` : null).as('destination');
+
+    cy.getWindowMethod('moveItem').then((moveItem) => {
+        cy.get('@destination').then(destination => cy.get('@origin').then((origin) => {
+            moveItem(origin, { parentId: destination[0].id.replace('story-menu-item-', ''), ...(Number.isInteger(index) ? { index } : {}) });
+        }));
+    });
+    cy.wait(300);
 });

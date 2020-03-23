@@ -85,6 +85,14 @@ export default function StoryGroupTree(props) {
     const draggingHandle = {
         current: document.getElementsByClassName('drag-handle dragging')[0] || null,
     };
+    if (window.Cypress) {
+        window.moveItem = handleDragEnd;
+        window.getParentAndIndex = (id) => {
+            const { parentId } = tree.items[id];
+            const index = tree.items[parentId].children.findIndex(cid => cid === id);
+            return { parentId, index };
+        };
+    }
     const selectionIsNonContiguous = useMemo(
         () => (activeStories || []).some((s, i, a) => {
             if (!(s in tree.items)) return false;
@@ -111,7 +119,7 @@ export default function StoryGroupTree(props) {
         return { index, siblingIds, parentId };
     };
 
-    const getItemDataFromDOMNode = node => node.attributes['item-id'].nodeValue;
+    const getItemDataFromDOMNode = node => node.id.replace('story-menu-item-', '');
 
     const selectSingleItemAndResetFocus = (item) => {
         lastFocusedItem.current = item;
