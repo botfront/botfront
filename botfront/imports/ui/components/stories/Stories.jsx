@@ -103,6 +103,8 @@ function Stories(props) {
             if (storyA.text > storyB.text) return 1;
             return 0;
         });
+    
+    const injectProjectIdInStory = useCallback(story => ({ ...story, projectId }), [projectId]);
 
     const storiesReshaped = useMemo(reshapeStories, [stories]);
 
@@ -121,9 +123,11 @@ function Stories(props) {
         wrapMeteorCallback(f),
     ), [projectId]);
 
-    const handleStoryDeletion = useCallback((story, f) => Meteor.call('stories.delete', { ...story, projectId }, wrapMeteorCallback(f)), [projectId]);
+    const handleStoryDeletion = useCallback((story, f) => Meteor.call('stories.delete', injectProjectIdInStory(story), wrapMeteorCallback(f)), [projectId]);
 
-    const handleStoryUpdate = useCallback((story, f) => Meteor.call('stories.update', { ...story, projectId }, wrapMeteorCallback(f)), [projectId]);
+    const handleStoryUpdate = useCallback((story, f) => Meteor.call(
+        'stories.update', !Array.isArray(story) ? injectProjectIdInStory(story) : story.map(injectProjectIdInStory), wrapMeteorCallback(f),
+    ), [projectId]);
 
     return (
         <Loading loading={!ready}>
