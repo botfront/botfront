@@ -95,7 +95,7 @@ describe('Training', function() {
     });
     
     it('Should train and serve a model containing branches and links', function() {
-        cy.importViaUi('branch_link_project.json');
+        cy.importViaUi('branch_link_project.json', 'bf');
         cy.train();
         cy.dataCy('open-chat').click({ force: true });
         cy.dataCy('restart-chat').click({ force: true });

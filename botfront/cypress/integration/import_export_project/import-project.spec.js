@@ -43,7 +43,7 @@ describe('Importing a project', function() {
     });
 
     const importProject = () => {
-        cy.importViaUi('botfront_project_import.json');
+        cy.importViaUi('botfront_project_import.json', 'test_project');
     };
 
     describe('Importing a Botfront project', function() {

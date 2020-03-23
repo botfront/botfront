@@ -288,8 +288,8 @@ Cypress.Commands.add('getBranchEditor', depth => cy.getBranchContainer(depth).fi
 
 
 // get the contents of the visual editor for a branch
-Cypress.Commands.add('importViaUi', (fixtureName) => {
-    cy.visit('/project/bf/settings');
+Cypress.Commands.add('importViaUi', (fixtureName, projectId) => {
+    cy.visit(`/project/${projectId}/settings`);
         
     cy.contains('Import/Export').click();
     cy.dataCy('import-type-dropdown')
@@ -305,6 +305,6 @@ Cypress.Commands.add('importViaUi', (fixtureName) => {
         .click();
     cy.dataCy('import-button')
         .click();
-
+    cy.wait(1000);
     cy.dataCy('project-import-success').should('exist');
 });
