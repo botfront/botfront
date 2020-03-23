@@ -121,9 +121,9 @@ function Stories(props) {
         wrapMeteorCallback(f),
     ), [projectId]);
 
-    const handleStoryDeletion = useCallback((story, f) => Meteor.call('stories.delete', story, projectId, wrapMeteorCallback(f)), [projectId]);
+    const handleStoryDeletion = useCallback((story, f) => Meteor.call('stories.delete', { ...story, projectId }, wrapMeteorCallback(f)), [projectId]);
 
-    const handleStoryUpdate = useCallback((story, f) => Meteor.call('stories.update', story, projectId, wrapMeteorCallback(f)), [projectId]);
+    const handleStoryUpdate = useCallback((story, f) => Meteor.call('stories.update', { ...story, projectId }, wrapMeteorCallback(f)), [projectId]);
 
     return (
         <Loading loading={!ready}>

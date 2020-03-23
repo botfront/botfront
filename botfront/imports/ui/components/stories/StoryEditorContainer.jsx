@@ -46,7 +46,6 @@ const StoryEditorContainer = ({
     branchPath,
     changeStoryPath,
     collapsed,
-    projectId,
 }) => {
     const { stories } = useContext(ConversationOptionsContext);
     const { slots } = useContext(ProjectContext);
@@ -68,8 +67,8 @@ const StoryEditorContainer = ({
                 _id: story._id,
                 ...content,
                 path: typeof path === 'string' ? [path] : path,
+                projectId: story.projectId,
             },
-            projectId,
             options,
             wrapMeteorCallback(options.callback || (() => {})),
         );
