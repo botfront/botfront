@@ -285,3 +285,26 @@ Cypress.Commands.add('getBranchContainer', (depth) => {
 
 // get the contents of the visual editor for a branch
 Cypress.Commands.add('getBranchEditor', depth => cy.getBranchContainer(depth).find('.story-visual-editor').first());
+
+
+// get the contents of the visual editor for a branch
+Cypress.Commands.add('importViaUi', (fixtureName) => {
+    cy.visit('/project/bf/settings');
+        
+    cy.contains('Import/Export').click();
+    cy.dataCy('import-type-dropdown')
+        .click();
+    cy.dataCy('import-type-dropdown')
+        .find('span')
+        .contains('Botfront')
+        .click();
+    cy.fixture(fixtureName, 'utf8').then((content) => {
+        cy.dataCy('upload-dropzone').upload(content, 'data.json');
+    });
+    cy.dataCy('export-with-conversations')
+        .click();
+    cy.dataCy('import-button')
+        .click();
+
+    cy.dataCy('project-import-success').should('exist');
+});

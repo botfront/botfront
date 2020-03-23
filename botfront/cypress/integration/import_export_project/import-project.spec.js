@@ -43,23 +43,7 @@ describe('Importing a project', function() {
     });
 
     const importProject = () => {
-        cy.visit('/project/test_project/settings');
-        cy.contains('Import/Export').click();
-        cy.dataCy('import-type-dropdown')
-            .click();
-        cy.dataCy('import-type-dropdown')
-            .find('span')
-            .contains('Botfront')
-            .click();
-        cy.fixture('botfront_project_import.json', 'utf8').then((content) => {
-            cy.dataCy('upload-dropzone').upload(content, 'data.json');
-        });
-        cy.dataCy('export-with-conversations')
-            .click();
-        
-        cy.dataCy('import-button')
-            .click();
-        cy.dataCy('project-import-success').should('exist');
+        cy.importViaUi('botfront_project_import.json');
     };
 
     describe('Importing a Botfront project', function() {

@@ -95,23 +95,7 @@ describe('Training', function() {
     });
     
     it('Should train and serve a model containing branches and links', function() {
-        cy.visit('/project/bf/settings');
-        cy.contains('Import/Export').click();
-        cy.dataCy('import-type-dropdown')
-            .click();
-        cy.dataCy('import-type-dropdown')
-            .find('span')
-            .contains('Botfront')
-            .click();
-        cy.fixture('branch_link_project.json', 'utf8').then((content) => {
-            cy.dataCy('upload-dropzone').upload(content, 'data.json');
-        });
-        cy.dataCy('export-with-conversations')
-            .click();
-        cy.dataCy('import-button')
-            .click();
-
-        cy.dataCy('project-import-success').should('exist');
+        cy.importViaUi('branch_link_project.json');
         cy.train();
         cy.dataCy('open-chat').click({ force: true });
         cy.dataCy('restart-chat').click({ force: true });
