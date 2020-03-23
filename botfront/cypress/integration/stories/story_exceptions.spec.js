@@ -3,8 +3,10 @@
 describe('story exceptions', function() {
     const init = () => {
         cy.visit('/project/bf/stories');
+        cy.createStoryGroup({ groupName: 'Exception test group' });
+        cy.createStoryInGroup({ storyName: 'Execption test story', groupName: 'Exception test group' });
+        cy.browseToStory('Execption test story', 'Exception test group');
         cy.dataCy('toggle-md').click({ force: true });
-        cy.browseToStory('Greetings', 'Default stories');
     };
     afterEach(function() {
         cy.logout();
