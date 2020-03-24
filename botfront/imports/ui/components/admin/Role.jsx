@@ -82,6 +82,7 @@ const Role = (props) => {
         upsertRolesData({
             variables: {
                 roleData: {
+                    _id: role._id,
                     name: role.name,
                     description: role.description,
                     children: role.children,
@@ -107,7 +108,7 @@ const Role = (props) => {
     };
 
     const disabled = roleData && roleData.deletable === false;
-
+    
     return (
         <>
             <PageMenu icon='shield alternate' title={roleName || 'New Role'} />
@@ -136,9 +137,9 @@ const Role = (props) => {
                             onSubmit={handleSubmit}
                             disabled={disabled || !can('roles:w', { anyScope: true })}
                         >
-                            <AutoField name='name' />
-                            <AutoField name='description' />
-                            <SelectField name='children' options={rolesOptions} />
+                            <AutoField name='name' data-cy='role-name-input' />
+                            <AutoField name='description' data-cy='role-description-input' />
+                            <SelectField name='children' options={rolesOptions} data-cy='role-children-dropdown' />
                             <ErrorsField />
                             {can('roles:w', { anyScope: true }) && (
                             <><SaveButton disabled={disabled} saved={saved} />

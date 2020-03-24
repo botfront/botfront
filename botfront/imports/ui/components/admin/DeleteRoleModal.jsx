@@ -20,7 +20,7 @@ const DeleteRoleModal = (props) => {
     return (
         <Modal open>
             <Modal.Header>{`Delete ${roleName}`}</Modal.Header>
-            <Modal.Content>
+            <Modal.Content data-cy='delete-role-modal'>
                 There might be users with that role, what role do you want them to fallback to ?
                 <br />
                 <br />
@@ -33,6 +33,7 @@ const DeleteRoleModal = (props) => {
                     selection
                     placeholder='Select a fallback role'
                     fluid
+                    data-cy='select-fallback-role'
                 />
                 <br />
                 {error && (

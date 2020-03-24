@@ -1,6 +1,8 @@
 import { Roles } from 'meteor/alanning:roles';
 
-import { upsertRolesData, getRolesData, deleteRolesData } from '../mongo/rolesData';
+import {
+    upsertRolesData, getRolesData, deleteRolesData, removeRoleAndReassignUsers,
+} from '../mongo/rolesData';
 import { checkIfCan } from '../../../../lib/scopes';
 import { auditLog } from '../../../../../server/logger';
 
@@ -36,7 +38,13 @@ export default {
         upsertRolesData: async (_parent, args, context) => {
             checkIfCan('roles:w', { anyScope: true }, context.user._id);
             const updatedRoleData = { ...args.roleData };
-            const roleInDb = await getRolesData(updatedRoleData.name);
+            // if both _id and name are undefined it can cause random roles to be deleted
+            // so we make sure at least one of them is defined before we continue
+            let query;
+            if (updatedRoleData._id) query = { _id: updatedRoleData._id };
+            else if (updatedRoleData.name) query = { name: updatedRoleData.name };
+            if (!query) throw new Error('One of _id or name is required in upsertRolesData');
+            const roleInDb = await getRolesData(query);
             // We have to overwrite the deletable property to be sure no one tempers with it
             updatedRoleData.deletable = roleInDb.deletable;
 
@@ -57,6 +65,17 @@ export default {
                     operation: 'role-created',
                     resId: correspondingMeteorRole.id,
                     after: { role: correspondingMeteorRole },
+                    resType: 'role',
+                });
+            }
+            if (roleInDb && roleInDb[0] && roleInDb[0].name && roleInDb[0].name !== updatedRoleData.name) {
+                await removeRoleAndReassignUsers(roleInDb[0].name, updatedRoleData.name);
+                auditLog('Removed a role', {
+                    user: context.user,
+                    type: 'deleted',
+                    operation: 'role-deleted',
+                    resId: roleInDb.name,
+                    before: { role: roleInDb.name },
                     resType: 'role',
                 });
             }
@@ -87,17 +106,7 @@ export default {
             checkIfCan('roles:w', { anyScope: true }, context.user._id);
             const oldRole = args.name;
             const fallbackRole = args.fallback;
-            const oldRoleAssignements = await Meteor.roleAssignment.find({ 'role._id': oldRole }).fetch();
-
-            oldRoleAssignements.forEach((roleAssignment) => {
-                const userId = roleAssignment.user._id;
-                Roles.removeUsersFromRoles(userId, oldRole);
-                if (roleAssignment.scope) {
-                    Roles.addUsersToRoles(userId, fallbackRole, roleAssignment.scope);
-                } else {
-                    Roles.addUsersToRoles(userId, fallbackRole);
-                }
-            });
+            removeRoleAndReassignUsers(oldRole, fallbackRole);
             auditLog('Removed a role', {
                 user: context.user,
                 type: 'deleted',
