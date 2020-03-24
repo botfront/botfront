@@ -162,7 +162,7 @@ describe('story tree navigation', function() {
         cy.dataCy('story-group-menu-item').eq(0).should('have.text', 'Intro stories'); // move above group instead
         checkItemAtIndex(4, 'Greetings');
         cy.moveStoryOrGroup({ name: 'Greetings' }); // attempt moving to root
-        cy.dataCy('story-group-menu-item').eq(4).should('have.text', 'Greetings'); // don't move at all
+        checkItemAtIndex(4, 'Greetings'); // don't move at all
         cy.moveStoryOrGroup({ name: 'Greetings' }, { index: 1 }); // attempt moving to root between two groups
         checkItemAtIndex(2, 'Greetings'); // moved into group above
         cy.moveStoryOrGroup({ name: 'Greetings' }, { index: 2 }); // attempt moving to last position in root
