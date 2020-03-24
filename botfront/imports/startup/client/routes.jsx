@@ -6,7 +6,7 @@ import {
 import DocumentTitle from 'react-document-title';
 import { Meteor } from 'meteor/meteor';
 import { Provider } from 'react-redux';
-
+// comment
 import { ApolloProvider } from 'react-apollo';
 import { ApolloProvider as ApolloHooksProvider } from '@apollo/react-hooks';
 import apolloClient from './apollo';
