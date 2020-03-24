@@ -1,4 +1,8 @@
 # Botfront.
+<p align="center">
+<a href="https://botfront.io">
+    <img src="botfront_animation.gif" width="100%">
+</a>
 
 <p align="center">
 <a href="(https://github.com/botfront/botfront/actions">

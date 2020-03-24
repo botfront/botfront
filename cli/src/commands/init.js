@@ -18,6 +18,7 @@ import {
     consoleError,
     stopSpinner,
     displayNpmUpdateMessage,
+    randomString,
 } from '../utils';
 
 const access = promisify(fs.access);
@@ -63,7 +64,7 @@ export async function initCommand(
     }
 }
 
-export async function copyTemplateFilesToProjectDir(targetAbsolutePath, images, update, mongoAuth = true) {
+export async function copyTemplateFilesToProjectDir(targetAbsolutePath, images, update, mongoAuth = true, mongoPassword = randomString()) {
     try {
         const templateDir = path.resolve(__dirname, '..', '..', 'project-template');
         await access(templateDir, fs.constants.R_OK);
@@ -73,7 +74,7 @@ export async function copyTemplateFilesToProjectDir(targetAbsolutePath, images, 
         } else {
             await copy(templateDir, targetAbsolutePath, { clobber: false });
         }
-        updateProjectFile(targetAbsolutePath, images, mongoAuth);
+        updateProjectFile(targetAbsolutePath, images, mongoAuth, mongoPassword);
     } catch (e) {
         consoleError(e);
     }

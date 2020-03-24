@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import windowSize from 'react-window-size';
 import DocumentTitle from 'react-document-title';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Header } from 'semantic-ui-react';
@@ -14,8 +13,6 @@ class AccountLayout extends React.Component {
     render() {
         const {
             route: { name },
-            windowHeight,
-            windowWidth,
             children,
         } = this.props;
 
@@ -39,9 +36,9 @@ class AccountLayout extends React.Component {
         };
 
         const loginBoxContainer = {
-            marginTop: `${windowHeight / 2 - 166}px`,
+            marginTop: 'calc(50vh - 166px)',
             width: '332px',
-            marginLeft: `${windowWidth / 2 - 166}px`,
+            marginLeft: 'calc(50vw - 166px)',
         };
 
         return (
@@ -62,8 +59,6 @@ AccountLayout.propTypes = {
         name: PropTypes.string,
         path: PropTypes.string,
     }).isRequired,
-    windowHeight: PropTypes.number.isRequired,
-    windowWidth: PropTypes.number.isRequired,
     children: PropTypes.object.isRequired,
 };
 
@@ -74,5 +69,5 @@ const AccountLayoutContainer = withTracker(() => {
     return {
         settings,
     };
-})(windowSize(AccountLayout));
+})(AccountLayout);
 export default AccountLayoutContainer;

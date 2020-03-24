@@ -232,7 +232,7 @@ export const addlinkCheckpoints = (stories) => {
 export const extractDomain = (
     stories,
     slots,
-    templates = {},
+    responses = {},
     defaultDomain = {},
     crashOnStoryWithErrors = true,
 ) => {
@@ -250,17 +250,17 @@ export const extractDomain = (
         {
             stories,
             slots,
-            templates,
+            responses,
             defaultDomain,
             crashOnStoryWithErrors,
         },
     );
     const initialDomain = {
-        actions: new Set([...(defaultDomain.actions || []), ...Object.keys(templates)]),
+        actions: new Set([...(defaultDomain.actions || []), ...Object.keys(responses)]),
         intents: new Set(defaultDomain.intents || []),
         entities: new Set(defaultDomain.entities || []),
         forms: new Set(defaultDomain.forms || []),
-        templates: { ...(defaultDomain.templates || {}), ...templates },
+        responses: { ...(defaultDomain.responses || {}), ...responses },
         slots: defaultDomain.slots || {},
     };
     let domains = stories.map((story) => {
@@ -271,7 +271,6 @@ export const extractDomain = (
                 const val = new StoryController({
                     story: story.story ? story.story : story,
                     slots,
-                    templates,
                     triggerRules: story.rules,
                 });
                 return val.extractDomain();
@@ -281,8 +280,7 @@ export const extractDomain = (
                 intents: [],
                 actions: [],
                 forms: [],
-                slots: [],
-                templates: [],
+                slots: {},
             };
         } catch (e) {
             if (crashOnStoryWithErrors) {
@@ -300,7 +298,6 @@ export const extractDomain = (
                     intents: [],
                     actions: [],
                     forms: [],
-                    templates: {},
                     slots: {},
                 };
             }
@@ -313,8 +310,8 @@ export const extractDomain = (
             intents: new Set([...d1.intents, ...d2.intents]),
             actions: new Set([...d1.actions, ...d2.actions]),
             forms: new Set([...d1.forms, ...d2.forms]),
-            templates: { ...d1.templates, ...d2.templates },
             slots: { ...d1.slots, ...d2.slots },
+            responses: d1.responses,
         }),
         initialDomain,
     );
@@ -324,16 +321,16 @@ export const extractDomain = (
         intents: Array.from(domains.intents),
         actions: Array.from(domains.actions),
         forms: Array.from(domains.forms),
-        templates: domains.templates,
+        responses: domains.responses,
         slots: domains.slots,
     });
     return domains;
 };
 
-export const getAllTemplates = async (projectId, language = '') => {
-    // fetches templates and turns them into nested key-value format
-    const templates = await newGetBotResponses({ projectId, language });
-    return templates.reduce((acc, curr) => {
+export const getAllResponses = async (projectId, language = '') => {
+    // fetches responses and turns them into nested key-value format
+    const responses = await newGetBotResponses({ projectId, language });
+    return responses.reduce((acc, curr) => {
         const { key, payload, ...rest } = curr;
         const content = { ...yaml.safeLoad(payload), ...rest };
         if (!(key in acc)) return { ...acc, [key]: [content] };
@@ -358,7 +355,7 @@ export const getStoriesAndDomain = async (projectId, language) => {
     };
     appMethodLogger.debug('Selecting story groups');
     const storyGroups = StoryGroups.find(
-        { projectId, smartGroup: { $exists: false } }, { fields: { _id: 1, name: 1 } },
+        { projectId, smartGroup: { $exists: false } }, { fields: { _id: 1, name: 1, selected: 1 } },
     ).fetch();
 
     let selectedStoryGroups = storyGroups.filter(sg => sg.selected);
@@ -377,12 +374,12 @@ export const getStoriesAndDomain = async (projectId, language) => {
     ).fetch();
 
     appMethodLogger.debug('Generating domain');
-    const templates = await getAllTemplates(projectId, language);
+    const responses = await getAllResponses(projectId, language);
     const slots = Slots.find({ projectId }).fetch();
     const domain = extractDomain(
         allStories.reduce((acc, story) => [...acc, ...flattenStory(story)], []),
         slots,
-        templates,
+        responses,
         defaultDomain,
     );
 

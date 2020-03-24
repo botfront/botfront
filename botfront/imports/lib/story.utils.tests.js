@@ -4,7 +4,7 @@ import {
     appendBranchCheckpoints,
     flattenStory,
     addlinkCheckpoints,
-    getAllTemplates,
+    getAllResponses,
     aggregateEvents,
     insertSmartPayloads,
 } from './story.utils';
@@ -787,33 +787,33 @@ describe('proper flattening of stories', function() {
 });
 
 if (Meteor.isServer) {
-    describe('getAllTemplates', () => {
+    describe('getAllResponses', () => {
         it('fetch English responses', async () => {
-            const response = await getAllTemplates('test', 'en');
+            const response = await getAllResponses('test', 'en');
             expect(response).to.be.deep.equal(
                 responsesExported.en,
             );
         });
         it('fetch ZZ responses', async () => {
-            const response = await getAllTemplates('test', 'zz');
+            const response = await getAllResponses('test', 'zz');
             expect(response).to.be.deep.equal(
                 responsesExported.zz,
             );
         });
         it('fetch English and ZZ responses', async () => {
-            const response = await getAllTemplates('test', ['en', 'zz']);
+            const response = await getAllResponses('test', ['en', 'zz']);
             expect(response).to.be.deep.equal(
                 responsesExported['en-zz'],
             );
         });
         it('fetch all responses', async () => {
-            const response = await getAllTemplates('test');
+            const response = await getAllResponses('test');
             expect(response).to.be.deep.equal(
                 responsesExported['en-zz'],
             );
         });
         it('fetch no responses', async () => {
-            const response = await getAllTemplates('test', 'nonexisting');
+            const response = await getAllResponses('test', 'nonexisting');
             expect(response).to.be.deep.equal({});
         });
     });

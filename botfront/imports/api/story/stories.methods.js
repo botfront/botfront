@@ -15,10 +15,12 @@ export const checkStoryNotEmpty = story => story.story && !!story.story.replace(
 Meteor.methods({
     async 'stories.insert'(story) {
         checkIfCan('stories:w', Array.isArray(story) ? story[0].projectId : story.projectId);
+        const projectId = Array.isArray(story) ? story[0].projectId : story.projectId;
         check(story, Match.OneOf(Object, [Object]));
         let result;
         const storyGroups = {};
         if (Array.isArray(story)) {
+            if (story.some(s => s.projectId !== projectId)) throw new Error(); // ensure homegeneous set
             const stories = story.map((s) => {
                 const _id = s._id || uuidv4();
                 storyGroups[s.storyGroupId] = [...(storyGroups[s.storyGroupId] || []), _id];
@@ -38,7 +40,7 @@ Meteor.methods({
             user: Meteor.user(),
             type: 'created',
             resId: result,
-            projectId: story.projectId,
+            projectId,
             operation: 'stories.created',
             after: { story },
             resType: 'story',
@@ -56,13 +58,14 @@ Meteor.methods({
         });
     },
 
-    async 'stories.update'(story, projectId, options = {}) {
-        checkIfCan('stories:w', story.projectId);
+    async 'stories.update'(story, options = {}) {
+        const projectId = Array.isArray(story) ? story[0].projectId : story.projectId;
+        checkIfCan('stories:w', projectId);
         check(story, Match.OneOf(Object, [Object]));
-        check(projectId, String);
         check(options, Object);
         const { noClean } = options;
         if (Array.isArray(story)) {
+            if (story.some(s => s.projectId !== projectId)) throw new Error(); // ensure homegeneous set
             const originStories = Stories.find({ _id: { $in: story.map(({ _id }) => _id) } }).fetch();
             return story.map(({ _id, ...rest }) => Stories.update(
                 { _id },
@@ -123,16 +126,15 @@ Meteor.methods({
         return result;
     },
 
-    async 'stories.delete'(story, projectId) {
+    async 'stories.delete'(story) {
         checkIfCan('stories:w', story.projectId);
         check(story, Object);
-        check(projectId, String);
         const result = StoryGroups.update(
             { _id: story.storyGroupId },
             { $pull: { children: story._id } },
         );
         Stories.remove(story);
-        deleteResponsesRemovedFromStories(story.events, projectId);
+        deleteResponsesRemovedFromStories(story.events, story.projectId);
         auditLogIfOnServer('Story deleted', {
             resId: story._id,
             user: Meteor.user(),

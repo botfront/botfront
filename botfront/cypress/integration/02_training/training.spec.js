@@ -7,7 +7,8 @@ describe('Training', function() {
         cy.dataCy('story-editor')
             .get('textarea')
             .focus()
-            .type('{selectAll}{backSpace}{backSpace}* chitchat.greet\n  - utter_hi   ', { force: true });
+            .type('{selectAll}{backSpace}{backSpace}* chitchat.greet\n  - utter_hi   ', { force: true })
+            .blur();
     }
 
     before(function() {
@@ -71,5 +72,26 @@ describe('Training', function() {
         cy.testChatInput('hi', 'utter_hi');
         cy.newChatSesh('fr');
         cy.testChatInput('salut', 'utter_hi');
+    });
+
+    it('Should only train focused stories', function() {
+        createStories();
+        cy.get('.eye.icon.focused').should('have.length', 0);
+        cy.toggleStoryGroupFocused();
+        cy.get('.eye.icon.focused').should('have.length', 1);
+        cy.train();
+        cy.dataCy('open-chat').click({ force: true });
+        cy.newChatSesh('en');
+        cy.testChatInput('/get_started', 'utter_default');
+        cy.testChatInput('/chitchat.greet', 'utter_hi');
+        cy.toggleStoryGroupFocused();
+        cy.get('.eye.icon.focused').should('have.length', 0);
+        cy.toggleStoryGroupFocused('Intro stories');
+        cy.get('.eye.icon.focused').should('have.length', 1);
+        cy.train();
+        cy.dataCy('open-chat').click({ force: true });
+        cy.newChatSesh('en');
+        cy.testChatInput('/get_started', 'utter_get_started');
+        cy.testChatInput('/chitchat.greet', 'utter_default');
     });
 });

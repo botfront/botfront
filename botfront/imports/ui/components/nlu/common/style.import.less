@@ -56,6 +56,11 @@
     margin: 0;
     border: 1px solid transparent;
     border-radius: 4px;
+    max-width: 100%;
+    word-break: break-word;
+    i.icon.small {
+        display: inline;
+    }
     cursor: default;
 
     &.disabled {
@@ -73,9 +78,9 @@
     }
     &:not(.uneditable){
         .content-on-label {
-        min-width: 130px;
-        position: relative;
-        bottom: 1px;
+            min-width: 130px;
+            position: relative;
+            bottom: 1px;
         }
     }
     &:not(.disabled):not(.uneditable):hover, &.selected {

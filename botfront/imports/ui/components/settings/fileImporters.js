@@ -31,7 +31,7 @@ export const handleImportDomain = (files, { projectId, fileReader: [_, setFileLi
     if (!files.length) return;
     setImportingState(true);
     files.forEach(({
-        slots, templates, filename, lastModified,
+        slots, responses, filename, lastModified,
     }, idx) => {
         const callback = (error) => {
             if (!error) setFileList({ delete: { filename, lastModified } });
@@ -46,22 +46,22 @@ export const handleImportDomain = (files, { projectId, fileReader: [_, setFileLi
                 return apolloClient
                     .mutate({
                         mutation: createResponses,
-                        variables: { projectId, responses: templates },
+                        variables: { projectId, responses },
                     })
                     .then((res) => {
                         if (!res || !res.data) {
                             return wrapMeteorCallback(callback)({
-                                message: 'Templates not inserted',
+                                message: 'Responses not inserted',
                             });
                         }
-                        const notUpserted = templates.filter(
+                        const notUpserted = responses.filter(
                             ({ key }) => !res.data.createAndOverwriteResponses
                                 .map(d => d.key)
                                 .includes(key),
                         );
                         if (notUpserted.length) {
                             wrapMeteorCallback(callback)({
-                                message: `Templates ${notUpserted.join(
+                                message: `Responses ${notUpserted.join(
                                     ', ',
                                 )} not inserted.`,
                             });

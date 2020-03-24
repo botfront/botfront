@@ -2,7 +2,6 @@ import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { Segment } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
-import windowSize from 'react-window-size';
 import { Link, browserHistory } from 'react-router';
 import { withTracker } from 'meteor/react-meteor-data';
 import SimpleSchema from 'simpl-schema';
@@ -123,5 +122,5 @@ const LoginContainer = withTracker(() => {
     return {
         settings,
     };
-})(windowSize(LoginComponent));
+})(LoginComponent);
 export default LoginContainer;

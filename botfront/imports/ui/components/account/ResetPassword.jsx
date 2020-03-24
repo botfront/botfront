@@ -7,7 +7,6 @@ import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import {
     AutoForm, ErrorsField, SubmitField, TextField,
 } from 'uniforms-semantic';
-import windowSize from 'react-window-size';
 import { Meteor } from 'meteor/meteor';
 import ReCAPTCHA from 'react-google-recaptcha';
 import PropTypes from 'prop-types';
@@ -115,7 +114,6 @@ class ResetPassword extends React.Component {
 
 ResetPassword.propTypes = {
     settings: PropTypes.object,
-    ready: PropTypes.bool.isRequired,
 };
 
 ResetPassword.defaultProps = {
@@ -127,4 +125,4 @@ export default withTracker(() => {
     return {
         settings,
     };
-})(windowSize(ResetPassword));
+})(ResetPassword);

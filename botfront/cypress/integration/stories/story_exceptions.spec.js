@@ -3,12 +3,14 @@
 describe('story exceptions', function() {
     const init = () => {
         cy.visit('/project/bf/stories');
+        cy.createStoryGroup({ groupName: 'Exception test group' });
+        cy.createStoryInGroup({ storyName: 'Exception test story', groupName: 'Exception test group' });
+        cy.browseToStory('Exception test story', 'Exception test group');
         cy.dataCy('toggle-md').click({ force: true });
-        cy.browseToStory('Greetings', 'Default stories');
     };
     afterEach(function() {
-        cy.logout();
-        cy.deleteProject('bf');
+        // cy.logout();
+        // cy.deleteProject('bf');
     });
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr');
@@ -53,8 +55,8 @@ describe('story exceptions', function() {
     it('should not display errors if no intents in destinationStory', function() {
         type('  - action_yep');
         cy.dataCy('top-menu-warning-alert').should('exist');
-        cy.linkStory('Greetings', 'Farewells');
-        cy.browseToStory('Farewells', 'Default stories');
+        cy.linkStory('Farewells', 'Exception test story');
+        cy.browseToStory('Exception test story', 'Exception test group');
         cy.get('.connected-story-alert').should('exist');
         cy.dataCy('top-menu-warning-alert').should('not.exist');
     });
