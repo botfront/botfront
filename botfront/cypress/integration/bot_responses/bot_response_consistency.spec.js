@@ -33,7 +33,7 @@ describe('Bot responses', function() {
     });
 
     afterEach(function() {
-        // cy.deleteProject('bf');
+        cy.deleteProject('bf');
     });
 
     const checkResponsesDeleted = () => {
