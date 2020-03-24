@@ -24,14 +24,16 @@ export default function StoriesPageMenu() {
 
     return (
         <PageMenu title='Stories' icon='book' className='stories-page-menu'>
-            <Menu.Item id='stories-language-dropdown'>
-                <LanguageDropdown />
-            </Menu.Item>
+            <Menu.Menu className='language-dropdown-menu'>
+                <Menu.Item id='stories-language-dropdown'>
+                    <LanguageDropdown />
+                </Menu.Item>
+            </Menu.Menu>
             <Menu.Menu className='stories-page-menu-searchbar'>
                 <SearchBar />
             </Menu.Menu>
             <Menu.Menu position='right' className='training-menu'>
-                <Menu.Item>
+                <Menu.Item className='training-status'>
                     {!isTraining(project) && status === 'success' && (
                         <Popup
                             trigger={(
@@ -88,7 +90,7 @@ export default function StoriesPageMenu() {
                         />
                     )}
                 </Menu.Item>
-                <Menu.Item>
+                <Menu.Item className='training-button'>
                     <TrainButton project={project} instance={instance} projectId={projectId} />
                 </Menu.Item>
             </Menu.Menu>
