@@ -9,6 +9,18 @@ class StoryException {
     }
 }
 
+const RASA_BUILT_IN_ACTIONS = [
+    'action_listen',
+    'action_restart',
+    'action_session_start',
+    'action_default_fallback',
+    'action_deactivate_form',
+    'action_revert_fallback_events',
+    'action_default_ask_affirmation',
+    'action_default_ask_rephrase',
+    'action_back',
+];
+
 export class StoryController {
     constructor({
         story, slots, onUpdate = () => {}, onMdType = () => {}, isABranch = false,
@@ -80,7 +92,7 @@ export class StoryController {
 
     validateAction = () => {
         this.form = null;
-        if (!this.hasInvalidChars(this.response)) {
+        if (!this.hasInvalidChars(this.response) && !RASA_BUILT_IN_ACTIONS.includes(this.response)) {
             this.domain.actions.add(this.response);
             this.lines[this.idx].gui = { type: 'action', data: { name: this.response } };
         }
@@ -243,7 +255,6 @@ export class StoryController {
             actions: new Set(),
             slots: this.domain.slots,
             forms: new Set(),
-            templates: {},
         };
         this.prefix = null;
         this.content = null;
