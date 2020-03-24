@@ -1,6 +1,6 @@
 <p align="center">
 <a href="https://botfront.io">
-    <img src="botfront/docs/images/botfront_animation.gif" width="100%">
+    <img src="botfront_animation.gif" width="100%">
 </a>
 
 <p align="center">
