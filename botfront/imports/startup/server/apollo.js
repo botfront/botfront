@@ -51,7 +51,12 @@ export const runAppolloServer = () => {
     });
 
     WebApp.connectHandlers.use('/health', (req, res) => {
-        axios.get('http://localhost:3000/graphql?query=query%20%7BhealthCheck%7D').then((response) => {
+        const { authorization } = req.headers;
+        axios.get('http://localhost:3000/graphql?query=query%20%7BhealthCheck%7D', {
+            headers: {
+                authorization,
+            },
+        }).then((response) => {
             // handle success
             if (response.data) {
                 if (response.data && response.data.data && response.data.data.healthCheck) {
