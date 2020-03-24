@@ -305,6 +305,6 @@ Cypress.Commands.add('importViaUi', (fixtureName, projectId) => {
         .click();
     cy.dataCy('import-button')
         .click();
-    cy.wait(1000);
+    cy.wait(2000);
     cy.dataCy('project-import-success').should('exist');
 });

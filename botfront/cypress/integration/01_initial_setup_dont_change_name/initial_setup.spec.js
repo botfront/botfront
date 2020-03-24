@@ -1,17 +1,18 @@
 /* global cy Cypress:true */
 
-describe('intial setup', function() {
-    before(function() {
+describe('intial setup', function () {
+    before(function () {
         if (!Cypress.env('MODE') || Cypress.env('MODE') !== 'CI_RUN') {
-            cy.exec('mongo bf --host localhost:27017 --eval "db.dropDatabase();"');
+            cy.exec('mongo bf --host localhost:27017 -u root -p tNomeeroZLbx --authenticationDatabase admin --eval "db.dropDatabase();"');
             // wipping the db also wipe the indexes we need to recreate thoses
-            cy.exec('mongo bf --host localhost:27017 --eval "db.botResponses.createIndex({key:1, projectId:1}, {unique: true});"');
+            cy.exec('mongo bf --host localhost:27017 -u root -p tNomeeroZLbx --authenticationDatabase admin --eval "db.botResponses.createIndex({key:1, projectId:1}, {unique: true});"');
             cy.wait(1000);
         }
         cy.waitForResolve(Cypress.env('baseUrl'));
     });
 
-    after(function() {
+
+    after(function () {
         cy.deleteProject('bf');
     });
 
