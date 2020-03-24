@@ -1,7 +1,9 @@
 .ui.search.story-search-bar {
     width: 100%;
-    margin-right: 0em;
-    margin-left: 1em;
+    max-width: 500px;
+    // margin-right: 0em;
+    // margin-left: auto;
+    padding-right: 1em;
     .ui.icon.input {
         top: 0.5px;
         width: 100%;
@@ -9,17 +11,18 @@
     input.prompt {
         height: 2.6em;
         border-radius: .28571429rem;
-        border-style: none;
-        visibility: hidden;
-        &:focus {
+        // border-style: none;
+        // visibility: hidden;
+        // &:focus {
             border-style: solid;
             visibility: visible;
-        }
+        // }
     }
     &:hover {
         input.prompt {
-            border-style: solid;
-            visibility: visible;
+    //         border-style: solid;
+    //         visibility: visible;
+            border-color: rgb(188, 188, 188);
         }
     }
     &.has-text{
@@ -81,4 +84,6 @@
     }
 }
 
-
+.page-name {
+    width: 180px;
+}

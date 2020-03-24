@@ -18,12 +18,14 @@ export function PageMenu(props) {
     } = props;
     return (
         <Menu borderless className={`top-menu ${className}`}>
-            <Menu.Item>
-                <Menu.Header as='h3'>
-                    <Icon name={icon} />
-                    {` ${title}`}
-                </Menu.Header>
-            </Menu.Item>
+            <Menu.Menu className='page-name'>
+                <Menu.Item>
+                    <Menu.Header as='h3'>
+                        <Icon name={icon} />
+                        {` ${title}`}
+                    </Menu.Header>
+                </Menu.Item>
+            </Menu.Menu>
             {children}
         </Menu>
     );
