@@ -657,8 +657,9 @@
 }
 
 .stories-page-menu {
+    max-width: 100%;
     .training-menu{
-        width: 445px;
+        min-width: 270px;
         .item.training-status {
             padding-right: 1em;
             margin-right: 0;
@@ -674,12 +675,11 @@
         width:220px;
         min-width: 220px;
     }
-}
-.stories-page-menu-searchbar {
-    width: 100%;
-    max-width: 500px;
-    box-sizing: border-box;
-    padding-top: 5px;
-    margin-left: 4em;
-    margin-right: 4em;
+    .stories-page-menu-searchbar {
+        max-width: 550px;
+        min-width: 200px;
+        width: 100%;
+        // box-sizing: border-box;
+        padding-top: 5px;
+    }
 }
