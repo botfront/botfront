@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.22.0](https://github.com/botfront/botfront/compare/v0.21.3...v0.22.0) (2020-03-25)
+
+
+### Bug Fixes
+
+* correct dragged item offset on scroll ([a742491](https://github.com/botfront/botfront/commit/a7424918c476a4ac54b20a9486df956a86289d2b))
+
 ### [0.21.3](https://github.com/botfront/botfront/compare/v0.21.2...v0.21.3) (2020-03-20)
 
 
