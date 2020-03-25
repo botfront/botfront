@@ -29,6 +29,9 @@ export default function StoriesPageMenu() {
             </Menu.Item>
             <Menu.Menu position='right'>
                 <Menu.Item>
+                    <SearchBar />
+                </Menu.Item>
+                <Menu.Item>
                     {!isTraining(project) && status === 'success' && (
                         <Popup
                             trigger={(
@@ -84,9 +87,6 @@ export default function StoriesPageMenu() {
                             )}
                         />
                     )}
-                </Menu.Item>
-                <Menu.Item>
-                    <SearchBar />
                 </Menu.Item>
                 <Menu.Item>
                     <TrainButton project={project} instance={instance} projectId={projectId} />
