@@ -1,4 +1,4 @@
-/* global cy:true */
+/* global cy Cypress */
 
 const getBranchContainer = (depth) => {
     /*
@@ -30,13 +30,17 @@ const addBlock = (depth) => {
         .findCy('utterance-input')
         .find('input')
         .type('I love typing into boxes.{enter}');
+    cy.get('@intent-labels').then((prevLabels) => {
+        cy.dataCy('intent-label').should('have.length', prevLabels.length + 1);
+    });
     getBranchEditor(depth)
         .findCy('intent-label')
         .click({ force: true })
         .type('myTestIntent{enter}');
-    getBranchEditor(depth)
-        .findCy('save-new-user-input')
+    cy.dataCy('save-new-user-input')
         .click({ force: true });
+    cy.dataCy('save-new-user-input').should('not.exist');
+    cy.dataCy('intent-label').as('intent-labels'); // update intent-labels
 };
 
 describe('story visual editor', function() {
@@ -51,6 +55,7 @@ describe('story visual editor', function() {
     });
 
     it('should append the contents of the last branch when the second last branch is deleted', function () {
+        cy.wrap([]).as('intent-labels'); // initial intent-labels
         // create 2 levels of branches
         cy.dataCy('create-branch')
             .click();
