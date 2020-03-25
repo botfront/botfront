@@ -1,20 +1,13 @@
 /* global cy:true */
 
 describe('Project Endpoints', function() {
-    before(function() {
-        cy.createProject('bf', 'My Project', 'fr');
-    });
-
-    after(function() {
-        cy.deleteProject('bf');
-    });
-
     beforeEach(function() {
-        cy.login();
+        cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
     });
 
     afterEach(function() {
         cy.logout();
+        cy.deleteProject('bf');
     });
 
     describe('Endpoints', function() {

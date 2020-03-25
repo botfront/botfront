@@ -16,7 +16,7 @@ import { createIntroStoryGroup, createDefaultStoryGroup, createStoriesWithTrigge
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
 import { Slots } from '../slots/slots.collection';
-import { flattenStory, extractDomain, getAllTemplates } from '../../lib/story.utils';
+import { flattenStory, extractDomain, getAllResponses } from '../../lib/story.utils';
 import BotResponses from '../graphql/botResponses/botResponses.model';
 
 
@@ -238,7 +238,7 @@ if (Meteor.isServer) {
             check(projectId, String);
             let { defaultDomain } = Projects.findOne({ _id: projectId }, { defaultDomain: 1 }) || { defaultDomain: { content: {} } };
             defaultDomain = yamlLoad(defaultDomain.content);
-            const templates = await getAllTemplates(projectId);
+            const templates = await getAllResponses(projectId);
 
             try {
                 const stories = Stories.find({ projectId }).fetch();

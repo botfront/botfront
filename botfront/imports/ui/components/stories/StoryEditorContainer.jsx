@@ -49,6 +49,7 @@ const StoryEditorContainer = ({
     branchPath,
     changeStoryPath,
     collapsed,
+    projectId,
 }) => {
     const { stories } = useContext(ConversationOptionsContext);
     const { slots } = useContext(ProjectContext);

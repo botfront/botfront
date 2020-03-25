@@ -295,21 +295,8 @@ Cypress.Commands.add('createUser', (lastName, email, roles, projectId) => {
 
 Cypress.Commands.add('deleteUser', (email) => {
     cy.visit('/');
-    cy.login();
-    cy.window().then(
-        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-            try {
-                Meteor.call('user.removeByEmail', email, (err, result) => {
-                    if (err) {
-                        reject(err);
-                    }
-                    resolve(result);
-                });
-            } catch (e) {
-                reject(e);
-            }
-        }),
-    );
+    cy.logout();
+    cy.login().then(() => cy.MeteorCall('user.removeByEmail', [email]));
 });
 
 

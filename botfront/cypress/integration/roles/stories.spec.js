@@ -26,6 +26,7 @@ describe('story permissions', function() {
     });
 
     after(() => {
+        cy.logout();
         cy.deleteProject('bf');
         cy.removeDummyRoleAndUser();
     });
