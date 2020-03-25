@@ -26,8 +26,9 @@ describe('story permissions', function() {
     });
 
     after(() => {
+        cy.login().then(() => cy.removeDummyRoleAndUser());
+        cy.logout();
         cy.deleteProject('bf');
-        cy.removeDummyRoleAndUser();
     });
 
     it('Editing buttons/icons should not exist', function() {

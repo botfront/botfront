@@ -19,6 +19,7 @@ describe('Permission on the trigger rules modal', function() {
         cy.get('div.modal div.grouped.fields').should('have.class', 'disabled');
         cy.dataCy('delete-triggers').should('not.exist');
         cy.dataCy('submit-triggers').should('not.exist');
+        cy.logout().then(() => cy.login()); // login as admin
         cy.removeDummyRoleAndUser();
     });
 });
