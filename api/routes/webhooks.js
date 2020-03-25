@@ -28,8 +28,8 @@ exports.restartRasa = async function (req, res) {
 
     });
     const now = new Date().toISOString();
-    const url = `apis/apps/v1/namespaces/${namespace}/deployments/rasa-deployment`
-    const data = { 'spec': { 'template': { 'meta': { 'annotation': { 'kubectl.kubernetes.io/restartedAt': now } } } } };
+    const url = `apis/apps/v1/namespaces/${namespace}/deployments/botfront-project-rasa-deployment`
+    const data = { 'spec': { 'template': { 'metadata': { 'annotations': { 'kubectl.kubernetes.io/restartedAt': now } } } } };
     try {
         const response = await axiosRestartRasa.patch(url, data);
         return res.status(response.status).send();
