@@ -1,22 +1,24 @@
 /* eslint-disable import/order */
-import { Projects } from '../api/project/project.collection';
 import React from 'react';
 
-let canExport = () => true;
-let checkIfCanExport = () => {};
-let getScopesForUserExport = () => {
-    const projects = Projects.find({}, { fields: {} }).fetch();
-    return projects.map(project => project._id);
-};
-let areScopeReadyExport = () => true;
-let setScopesExport = () => {};
-let CanExport = props => (
+const canExport = () => true;
+const checkIfCanExport = () => {};
+const getUserScopesExport = () => {};
+const checkIfScopeExport = () => {};
+const getScopesForUserExport = () => {};
+const isUserPermissionGlobalExport = () => {};
+const areScopeReadyExport = () => true;
+const setScopesExport = () => {};
+const CanExport = props => (
     <>
         {props.children}
     </>
 );
 
 
+export const getUserScopes = getUserScopesExport;
+export const checkIfScope = checkIfScopeExport;
+export const isUserPermissionGlobal = isUserPermissionGlobalExport;
 export const getScopesForUser = getScopesForUserExport;
 export const can = canExport;
 export const checkIfCan = checkIfCanExport;

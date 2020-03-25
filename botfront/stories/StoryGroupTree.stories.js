@@ -131,7 +131,7 @@ function StoryGroupTreeWrapped() {
                 />
             </div>
             <div>
-                {activeStories.map(s => <h1>{s.title}</h1>)}
+                {activeStories.map(s => <h1>{s}</h1>)}
             </div>
         </SplitPane>
     );
