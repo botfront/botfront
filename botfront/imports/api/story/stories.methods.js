@@ -104,12 +104,13 @@ Meteor.methods({
 
     async 'stories.delete'(story) {
         check(story, Object);
+        const storyInDb = Stories.findOne({ _id: story._id });
         const result = StoryGroups.update(
             { _id: story.storyGroupId },
             { $pull: { children: story._id } },
         );
         Stories.remove(story);
-        deleteResponsesRemovedFromStories(story.events, story.projectId);
+        deleteResponsesRemovedFromStories(storyInDb.events, story.projectId);
         return result;
     },
 

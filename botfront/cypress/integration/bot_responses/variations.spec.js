@@ -8,8 +8,8 @@ describe('Bot responses', function() {
     });
 
     afterEach(function() {
-        cy.deleteProject('bf');
         cy.logout();
+        cy.deleteProject('bf');
     });
     const addVariation = (text) => {
         cy.dataCy('add-variation').click({ force: true });
