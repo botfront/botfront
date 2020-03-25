@@ -6,8 +6,8 @@ describe('Bot responses', function() {
         cy.createProject('bf', 'My Project', 'en').then(() => cy.login());
     });
     afterEach(function() {
-        cy.deleteProject('bf');
         cy.logout();
+        cy.deleteProject('bf');
     });
     it('should create a quick reply response using the response editor', function() {
         cy.visit('/project/bf/dialogue/templates');

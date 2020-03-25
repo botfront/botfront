@@ -313,7 +313,6 @@ const StoryEditorContainer = ({
                 },
             });
             storyControllers[parentPath.join()].setMd(newParentStory);
-            storyControllers[parentPath.join()].saveUpdate();
         } else {
             const updatedBranches = [
                 ...branches.slice(0, index),

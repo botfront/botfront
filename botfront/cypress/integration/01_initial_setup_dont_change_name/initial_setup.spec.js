@@ -20,17 +20,17 @@ describe('intial setup', function() {
         cy.url().should('be', '/setup/welcome');
         cy.get('[data-cy=start-setup]').click();
 
-        cy.get('#uniforms-0000-0001').type('Testing');
-        cy.get('#uniforms-0000-0003').type('McTest');
-        cy.get('#uniforms-0000-0005').type('test@test.com');
-        cy.get('#uniforms-0000-0007').type('aaaaaaaa00');
-        cy.get('#uniforms-0000-0009').type('aaaaaaa{enter}');
+        cy.get('#uniforms-0001-0001').type('Testing');
+        cy.get('#uniforms-0001-0003').type('McTest');
+        cy.get('#uniforms-0001-0005').type('test@test.com');
+        cy.get('#uniforms-0001-0007').type('aaaaaaaa00');
+        cy.get('#uniforms-0001-0009').type('aaaaaaa{enter}');
 
         cy.contains('The passwords are not matching');
         cy.contains('Your password should contain at least');
 
-        cy.get('#uniforms-0000-0007').type('{selectall}{del}Aaaaaaaa00');
-        cy.get('#uniforms-0000-0009').type('{selectall}{del}Aaaaaaaa00{enter}');
+        cy.get('#uniforms-0001-0007').type('{selectall}{del}Aaaaaaaa00');
+        cy.get('#uniforms-0001-0009').type('{selectall}{del}Aaaaaaaa00{enter}');
 
         cy.get('[data-cy=account-step]').click();
         cy.contains('Create').click();

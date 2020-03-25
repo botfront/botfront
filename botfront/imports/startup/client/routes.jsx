@@ -94,6 +94,18 @@ const authenticateAdminPage = () => (nextState, replace, callback) => {
     });
 };
 
+const validateCanSetup = () => (nextState, replace, callback) => {
+    Meteor.call('users.checkEmpty', (err, result) => {
+        if (result === false) {
+            replace({
+                pathname: '/403',
+                state: { nextPathname: nextState.location.pathname },
+            });
+        }
+        callback();
+    });
+};
+
 Meteor.startup(() => {
     render(
         <DocumentTitle title='Botfront.'>
@@ -101,7 +113,7 @@ Meteor.startup(() => {
                 <ApolloHooksProvider client={apolloClient}>
                     <Provider store={store}>
                         <Router history={browserHistory}>
-                            <Route exact path='/setup' component={SetupLayout}>
+                            <Route exact path='/setup' component={SetupLayout} onEnter={validateCanSetup()}>
                                 <Route path='/setup/welcome' component={Welcome} name='Welcome' />
                                 <Route path='/setup/account' component={SetupSteps} name='Account' />
                             </Route>

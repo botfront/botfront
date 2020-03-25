@@ -129,19 +129,20 @@ Meteor.methods({
     async 'stories.delete'(story) {
         checkIfCan('stories:w', story.projectId);
         check(story, Object);
+        const storyInDb = Stories.findOne({ _id: story._id });
         const result = StoryGroups.update(
             { _id: story.storyGroupId },
             { $pull: { children: story._id } },
         );
         Stories.remove(story);
-        deleteResponsesRemovedFromStories(story.events, story.projectId);
+        deleteResponsesRemovedFromStories(storyInDb.events, story.projectId);
         auditLogIfOnServer('Story deleted', {
             resId: story._id,
             user: Meteor.user(),
             type: 'deleted',
             operation: 'stories.deleted',
-            projectId,
-            before: { story },
+            projectId: story.projectId,
+            before: { storyInDb },
             resType: 'story',
         });
         return result;
