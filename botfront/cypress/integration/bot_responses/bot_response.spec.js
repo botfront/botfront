@@ -10,8 +10,8 @@ describe('Bot responses', function() {
     });
 
     afterEach(function() {
-        cy.deleteProject('bf');
         cy.logout();
+        cy.deleteProject('bf');
     });
 
     const addTextResponse = (name, content) => {
