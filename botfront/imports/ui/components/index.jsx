@@ -2,7 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import { getScopesForUser, areScopeReady, can } from '../../lib/scopes';
+import {
+    getUserScopes, areScopeReady, can,
+} from '../../lib/scopes';
 
 
 class Index extends React.Component {
@@ -47,7 +49,7 @@ class Index extends React.Component {
         if (Meteor.userId()) {
             Tracker.autorun(() => {
                 if (Meteor.user() && areScopeReady() && projectsReady) {
-                    const projects = getScopesForUser(Meteor.userId(), '');
+                    const projects = getUserScopes(Meteor.userId());
                     router.push(this.roleRouting(projects[0]));
                 }
             });
