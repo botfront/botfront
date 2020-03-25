@@ -11,8 +11,8 @@ describe('Bot responses', function() {
     });
 
     afterEach(function() {
-        cy.deleteProject('bf');
         cy.logout();
+        cy.deleteProject('bf');
     });
     it('should create a custom response using the response editor', function() {
         cy.visit('/project/bf/dialogue/templates');

@@ -33,6 +33,7 @@ describe('Bot responses', function() {
     });
 
     afterEach(function() {
+        cy.logout();
         cy.deleteProject('bf');
     });
 
