@@ -146,38 +146,23 @@
     }
 }
 
-.story-line{
-    &>.icon{
-        visibility: collapse;
-        position: absolute;
+.has-exceptions {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    .icon {
+        top: -2px;
+        position: relative;
     }
-    &.has-warning{
-        .exception-wrapper{
-            border-color: #FFD700;
-            border-width: 1px;
-            border-style: solid;
-            margin-left: 0px;
-            padding-top: 5px;
-            padding-bottom: 5px;
-        }
-        .icon.warning-indicator{
-            position: static;
-            visibility: visible;
-        }
+    .exception-wrapper-target {
+        border: 1px solid;
+        padding: 5px 0;
     }
-    &.has-error{
-        .exception-wrapper{
-            border-color: red;
-            border-width: 1px;
-            border-style: solid;
-            margin-left: 0px;
-            padding-top: 5px;
-            padding-bottom: 5px;
-        }
-        .icon.error-indicator{
-            position: static;
-            visibility: visible
-        }
+    &.warning .exception-wrapper-target {
+        border-color: #FFD700;
+    }
+    &.error .exception-wrapper-target {
+        border-color: red;
     }
 }
 
@@ -187,31 +172,9 @@
     align-items: center;
 }
 
-.single-story-container{ 
-    .story-line {
-        .responses-container {
-            .flex-right {
-                .utterance-container.metadata-response {
-                    // only color metadata responses in the story editor
-                    &:not(.image) {
-                        background-color: rgb(224, 247, 224);
-                    }
-                    &.image{
-                        .inner {
-                            img{
-                                background-color: rgb(224, 247, 224);
-                                padding: 0.5em;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
 .responses-container {
     width: 44rem;
+    max-width: 90%;
     display: inline-flex;
     position: relative;
     flex-direction: column;
@@ -282,7 +245,21 @@
             position: relative;
             top: -2px;
         }
-
+        
+        .utterance-container.metadata-response {
+            // only color metadata responses in the story editor
+            &:not(.image) {
+                background-color: rgb(224, 247, 224);
+            }
+            &.image{
+                .inner {
+                    img{
+                        background-color: rgb(224, 247, 224);
+                        padding: 0.5em;
+                    }
+                }
+            }
+        }
     }
     
     .response-name {
@@ -291,11 +268,12 @@
         opacity: 0;
         visibility: hidden;
         transition: opacity 0.1s ease-in-out;
-        padding-left: 5px;
+        padding: 0 5px;
         width: 135px;
         text-overflow: ellipsis;
         overflow: hidden;
         position: relative;
+        text-align: right;
     }
 
     .floating-icon-button.ellipsis.horizontal { // inside response container, - 1 px to account for its border
@@ -412,7 +390,7 @@ div.add-entity-wrap {
     min-height: 2em;
     margin: auto;
     justify-content: space-between;
-    max-width: 80%;
+    max-width: 90%;
     padding: 0.2em;
     border-radius: 0.28571429rem;
 
@@ -456,11 +434,9 @@ div.add-entity-wrap {
     .floating-icon-button {
         width: 0;
         opacity: 0;
-        margin-top: 5px;
     }
 
     &:hover {
-        max-width: ~"calc(80%)";
         .viewOnHover {
             visibility: visible;
         }
@@ -511,17 +487,6 @@ div.add-entity-wrap {
         font-size: @size;
     }
     .createsizeclasses(@i + 1);
-}
-
-.story-line{
-    display: flex;
-    align-items: center;
-    width: 100%;
-    .red.exclamation{
-        align-self: center;
-        align-items: center;
-        padding: 0px;
-    }
 }
 
 .createsizeclasses();

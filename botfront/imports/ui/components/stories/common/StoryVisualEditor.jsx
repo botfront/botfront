@@ -117,43 +117,6 @@ export default class StoryVisualEditor extends React.Component {
         }
     };
 
-    renderActionLine = (i, l, exceptions) => (
-        <React.Fragment key={`action${i + l.data.name}`}>
-            <div className={`utterance-container ${exceptions.severity}`} agent='na'>
-                <ExceptionWrapper exceptions={exceptions}>
-                    <ActionLabel
-                        value={l.data.name}
-                        onChange={v => this.handleChangeActionOrSlot('action', i, { name: v })
-                        }
-                    />
-                    <FloatingIconButton
-                        icon='trash'
-                        onClick={() => this.handleDeleteLine(i)}
-                    />
-                </ExceptionWrapper>
-            </div>
-            {this.renderAddLine(i)}
-        </React.Fragment>
-    );
-
-    renderSlotLine = (i, l, exceptions) => (
-        <React.Fragment key={`slot${i + l.data.name}`}>
-            <div className={`utterance-container ${exceptions.severity}`} agent='na'>
-                <ExceptionWrapper exceptions={exceptions}>
-                    <SlotLabel
-                        value={l.data}
-                        onChange={v => this.handleChangeActionOrSlot('slot', i, v)}
-                    />
-                    <FloatingIconButton
-                        icon='trash'
-                        onClick={() => this.handleDeleteLine(i)}
-                    />
-                </ExceptionWrapper>
-            </div>
-            {this.renderAddLine(i)}
-        </React.Fragment>
-    );
-
     renderAddLine = (index) => {
         const { lineInsertIndex } = this.state;
         const { story } = this.props;
@@ -205,9 +168,46 @@ export default class StoryVisualEditor extends React.Component {
         );
     };
 
+    renderActionLine = (i, l, exceptions) => (
+        <React.Fragment key={`action${i + l.data.name}`}>
+            <div className='utterance-container' agent='na'>
+                <ExceptionWrapper exceptions={exceptions}>
+                    <ActionLabel
+                        value={l.data.name}
+                        onChange={v => this.handleChangeActionOrSlot('action', i, { name: v })
+                        }
+                    />
+                    <FloatingIconButton
+                        icon='trash'
+                        onClick={() => this.handleDeleteLine(i)}
+                    />
+                </ExceptionWrapper>
+            </div>
+            {this.renderAddLine(i)}
+        </React.Fragment>
+    );
+
+    renderSlotLine = (i, l, exceptions) => (
+        <React.Fragment key={`slot${i + l.data.name}`}>
+            <div className='utterance-container' agent='na'>
+                <ExceptionWrapper exceptions={exceptions}>
+                    <SlotLabel
+                        value={l.data}
+                        onChange={v => this.handleChangeActionOrSlot('slot', i, v)}
+                    />
+                    <FloatingIconButton
+                        icon='trash'
+                        onClick={() => this.handleDeleteLine(i)}
+                    />
+                </ExceptionWrapper>
+            </div>
+            {this.renderAddLine(i)}
+        </React.Fragment>
+    );
+
     renderBadLine = (index, line, exceptions) => (
         <React.Fragment key={`BadLine-${index}`}>
-            <div className={`utterance-container ${exceptions.severity}`} agent='na'>
+            <div className='utterance-container' agent='na'>
                 <ExceptionWrapper exceptions={exceptions}>
                     <BadLineLabel lineMd={line.md} lineIndex={index} />
                     <FloatingIconButton
@@ -222,7 +222,7 @@ export default class StoryVisualEditor extends React.Component {
 
     renderFormLine = (index, line, exceptions) => (
         <React.Fragment key={`FormLine-${index}`}>
-            <div className={`utterance-container ${exceptions.severity}`} agent='na'>
+            <div className='utterance-container' agent='na'>
                 <ExceptionWrapper exceptions={exceptions}>
                     <GenericLabel
                         label={line.gui.type}
@@ -263,14 +263,16 @@ export default class StoryVisualEditor extends React.Component {
                 const { name } = line.gui.data;
                 return (
                     <React.Fragment key={`bot-${index}-${name}-${language}`}>
-                        <BotResponsesContainer
-                            deletable
-                            exceptions={exceptions}
-                            name={name}
-                            initialValue={responses[name]}
-                            onChange={newResponse => this.handleBotResponseChange(name, newResponse)}
-                            onDeleteAllResponses={() => this.handleDeleteLine(index)}
-                        />
+                        <ExceptionWrapper exceptions={exceptions}>
+                            <BotResponsesContainer
+                                deletable
+                                exceptions={exceptions}
+                                name={name}
+                                initialValue={responses[name]}
+                                onChange={newResponse => this.handleBotResponseChange(name, newResponse)}
+                                onDeleteAllResponses={() => this.handleDeleteLine(index)}
+                            />
+                        </ExceptionWrapper>
                         {this.renderAddLine(index)}
                     </React.Fragment>
                 );
@@ -278,13 +280,14 @@ export default class StoryVisualEditor extends React.Component {
             if (line.gui.type === 'user') {
                 return (
                     <React.Fragment key={`user-${index}-${line.md || ''}-${language}`}>
-                        <UserUtteranceContainer
-                            exceptions={exceptions}
-                            value={line.gui.data[0]} // for now, data is a singleton
-                            onInput={v => this.handleSaveUserUtterance(index, v)}
-                            onDelete={() => this.handleDeleteLine(index)}
-                            onAbort={() => this.handleDeleteLine(index)}
-                        />
+                        <ExceptionWrapper exceptions={exceptions}>
+                            <UserUtteranceContainer
+                                value={line.gui.data[0]} // for now, data is a singleton
+                                onInput={v => this.handleSaveUserUtterance(index, v)}
+                                onDelete={() => this.handleDeleteLine(index)}
+                                onAbort={() => this.handleDeleteLine(index)}
+                            />
+                        </ExceptionWrapper>
                         {this.renderAddLine(index)}
                     </React.Fragment>
                 );
@@ -306,7 +309,6 @@ export default class StoryVisualEditor extends React.Component {
 
 StoryVisualEditor.propTypes = {
     story: PropTypes.instanceOf(StoryController),
-  
 };
 
 StoryVisualEditor.defaultProps = {

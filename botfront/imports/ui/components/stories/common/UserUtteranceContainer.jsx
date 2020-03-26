@@ -8,12 +8,10 @@ import FloatingIconButton from '../../common/FloatingIconButton';
 import UserUtteranceViewer from '../../nlu/common/UserUtteranceViewer';
 import { ProjectContext } from '../../../layouts/context';
 import UtteranceInput from '../../utils/UtteranceInput';
-import ExceptionWrapper from './ExceptionWrapper';
-
 
 const UtteranceContainer = (props) => {
     const {
-        value, onInput, onDelete, onAbort, deletable, exceptions,
+        value, onInput, onDelete, onAbort, deletable,
     } = props;
     const [mode, setMode] = useState(!value ? 'input' : 'view');
     const { parseUtterance, getUtteranceFromPayload } = useContext(ProjectContext);
@@ -109,28 +107,26 @@ const UtteranceContainer = (props) => {
     };
 
     return (
-        <ExceptionWrapper exceptions={exceptions}>
-            <div
-                className='utterance-container exception-wrapper'
-                // This ternary ensures that the mode is not set to input when we have a parsed utterance
-                // This makes some css work
-                // css will be broken if this is removed
-                mode={!!stateValue ? 'view' : mode}
-                agent='user'
-                ref={containerBody}
-            >
-                <div className='inner'>{render()}</div>
-                {deletable && (
-                    <FloatingIconButton
-                        icon='trash'
-                        onClick={() => {
-                            if (mode === 'input') return onAbort();
-                            return onDelete();
-                        }}
-                    />
-                )}
-            </div>
-        </ExceptionWrapper>
+        <div
+            className='utterance-container exception-wrapper-target'
+            // This ternary ensures that the mode is not set to input when we have a parsed utterance
+            // This makes some css work
+            // css will be broken if this is removed
+            mode={!!stateValue ? 'view' : mode}
+            agent='user'
+            ref={containerBody}
+        >
+            <div className='inner'>{render()}</div>
+            {deletable && (
+                <FloatingIconButton
+                    icon='trash'
+                    onClick={() => {
+                        if (mode === 'input') return onAbort();
+                        return onDelete();
+                    }}
+                />
+            )}
+        </div>
     );
 };
 
@@ -141,13 +137,11 @@ UtteranceContainer.propTypes = {
     // onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
     onAbort: PropTypes.func.isRequired,
-    exceptions: PropTypes.array,
 };
 
 UtteranceContainer.defaultProps = {
     value: null,
     deletable: true,
-    exceptions: [{ type: null }],
 };
 
 export default UtteranceContainer;
