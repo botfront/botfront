@@ -29,10 +29,10 @@ export default function StoriesPageMenu() {
                     <LanguageDropdown />
                 </Menu.Item>
             </Menu.Menu>
-            <Menu.Menu className='stories-page-menu-searchbar'>
+            <Menu.Menu position='right' className='stories-page-menu-searchbar'>
                 <SearchBar />
             </Menu.Menu>
-            <Menu.Menu position='right' className='training-menu'>
+            <Menu.Menu className='training-menu'>
                 <Menu.Item className='training-status'>
                     {!isTraining(project) && status === 'success' && (
                         <Popup
