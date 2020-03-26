@@ -54,7 +54,7 @@ async function removeDynamicallyBuiltImages(){
         await docker.command(`rmi ${folderName}_rasa ${folderName}_actions`);
     } catch (e) {
         // Do nothing - just in case the images do not exists
-    }``
+    }
 }
 
 export async function doMinorUpdate() {
