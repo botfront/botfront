@@ -1,5 +1,16 @@
 .viewOnHover {
     visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.1s ease-in-out;
+}
+
+.hoverTarget {
+    &:hover {
+        .viewOnHover {
+            opacity: 1;
+            visibility: visible;
+        }
+    }
 }
 
 .floating-icon-button {
@@ -36,6 +47,7 @@
             background: rgba(0, 0, 0, 0.05);
             .viewOnHover {
                 visibility: visible;
+                opacity: 1;
             }
         }
     }
@@ -68,6 +80,7 @@
             background: rgba(0, 0, 0, 0.05);
             .viewOnHover {
                 visibility: visible;
+                opacity: 1;
             }
         }
         .rt-tr-group:not(:last-child) {

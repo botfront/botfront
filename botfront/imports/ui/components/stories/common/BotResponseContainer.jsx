@@ -4,12 +4,10 @@ import PropTypes from 'prop-types';
 import { Input, Button, Image } from 'semantic-ui-react';
 import TextareaAutosize from 'react-autosize-textarea';
 import QuickReplies from './QuickReplies';
-import FloatingIconButton from '../../common/FloatingIconButton';
-
 
 const BotResponseContainer = (props) => {
     const {
-        value, onDelete, onChange, deletable, focus, onFocus, editCustom, tag, hasMetadata,
+        value, onDelete, onChange, focus, onFocus, editCustom, tag, hasMetadata,
     } = props;
 
     const [input, setInput] = useState();
@@ -53,7 +51,7 @@ const BotResponseContainer = (props) => {
         if (e.key === 'Shift') {
             setshiftPressed(true);
         }
-        if (e.key === 'Backspace' && !input && deletable) {
+        if (e.key === 'Backspace' && !input) {
             e.preventDefault();
             onDelete();
         }
@@ -148,20 +146,17 @@ const BotResponseContainer = (props) => {
             agent='bot'
             data-cy='bot-response-input'
         >
-            <div className={`inner ${hasMetadata ? 'metadata-response' : ''}`}>
+            <div className={`${hasMetadata ? 'metadata-response' : ''}`}>
                 {hasText && !isImageResponse && renderText()}
                 {isImageResponse && renderImage()}
                 {isQRResponse && renderButtons()}
                 {isCustom && renderCustom()}
-                {/* hasButtons && value.buttons !== null && renderButtons() */}
             </div>
-            {deletable && <FloatingIconButton icon='trash' onClick={() => onDelete()} />}
         </div>
     );
 };
 
 BotResponseContainer.propTypes = {
-    deletable: PropTypes.bool,
     value: PropTypes.object.isRequired,
     focus: PropTypes.bool,
     onFocus: PropTypes.func.isRequired,
@@ -173,7 +168,6 @@ BotResponseContainer.propTypes = {
 };
 
 BotResponseContainer.defaultProps = {
-    deletable: true,
     focus: false,
     editCustom: () => {},
     tag: null,

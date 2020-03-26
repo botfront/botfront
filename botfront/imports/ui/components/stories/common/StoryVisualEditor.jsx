@@ -6,6 +6,7 @@ import { isEqual } from 'lodash';
 import { OOS_LABEL } from '../../constants.json';
 import { StoryController, NEW_INTENT } from '../../../../lib/story_controller';
 import FloatingIconButton from '../../common/FloatingIconButton';
+import IconButton from '../../common/IconButton';
 import UserUtterancesContainer from './UserUtterancesContainer';
 import BotResponsesContainer from './BotResponsesContainer';
 import AddStoryLine from './AddStoryLine';
@@ -170,70 +171,58 @@ export default class StoryVisualEditor extends React.Component {
 
     renderActionLine = (i, l, exceptions) => (
         <React.Fragment key={`action${i + l.data.name}`}>
-            <div className='utterance-container' agent='na'>
-                <ExceptionWrapper exceptions={exceptions}>
+            <ExceptionWrapper exceptions={exceptions}>
+                <div className='story-line'>
                     <ActionLabel
                         value={l.data.name}
                         onChange={v => this.handleChangeActionOrSlot('action', i, { name: v })}
                     />
-                    <FloatingIconButton
-                        icon='trash'
-                        onClick={() => this.handleDeleteLine(i)}
-                    />
-                </ExceptionWrapper>
-            </div>
+                    <IconButton onClick={() => this.handleDeleteLine(i)} icon='trash' />
+                </div>
+            </ExceptionWrapper>
             {this.renderAddLine(i)}
         </React.Fragment>
     );
 
     renderSlotLine = (i, l, exceptions) => (
         <React.Fragment key={`slot${i + l.data.name}`}>
-            <div className='utterance-container' agent='na'>
-                <ExceptionWrapper exceptions={exceptions}>
+            <ExceptionWrapper exceptions={exceptions}>
+                <div className='story-line'>
                     <SlotLabel
                         value={l.data}
                         onChange={v => this.handleChangeActionOrSlot('slot', i, v)}
                     />
-                    <FloatingIconButton
-                        icon='trash'
-                        onClick={() => this.handleDeleteLine(i)}
-                    />
-                </ExceptionWrapper>
-            </div>
+                    <IconButton onClick={() => this.handleDeleteLine(i)} icon='trash' />
+                </div>
+            </ExceptionWrapper>
             {this.renderAddLine(i)}
         </React.Fragment>
     );
 
     renderBadLine = (index, line, exceptions) => (
         <React.Fragment key={`BadLine-${index}`}>
-            <div className='utterance-container' agent='na'>
-                <ExceptionWrapper exceptions={exceptions}>
+            <ExceptionWrapper exceptions={exceptions}>
+                <div className='story-line'>
                     <BadLineLabel lineMd={line.md} lineIndex={index} />
-                    <FloatingIconButton
-                        icon='trash'
-                        onClick={() => this.handleDeleteLine(index)}
-                    />
-                </ExceptionWrapper>
-            </div>
+                    <IconButton onClick={() => this.handleDeleteLine(index)} icon='trash' />
+                </div>
+            </ExceptionWrapper>
             {this.renderAddLine(index)}
         </React.Fragment>
     );
 
     renderFormLine = (index, line, exceptions) => (
         <React.Fragment key={`FormLine-${index}`}>
-            <div className='utterance-container' agent='na'>
-                <ExceptionWrapper exceptions={exceptions}>
+            <ExceptionWrapper exceptions={exceptions}>
+                <div className='story-line'>
                     <GenericLabel
                         label={line.gui.type}
                         value={line.gui.data.name}
                         color={line.gui.type === 'form' ? 'yellow' : 'olive'}
                     />
-                    <FloatingIconButton
-                        icon='trash'
-                        onClick={() => this.handleDeleteLine(index)}
-                    />
-                </ExceptionWrapper>
-            </div>
+                    <IconButton onClick={() => this.handleDeleteLine(index)} icon='trash' />
+                </div>
+            </ExceptionWrapper>
             {this.renderAddLine(index)}
         </React.Fragment>
     );

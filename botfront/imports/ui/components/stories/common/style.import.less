@@ -40,17 +40,7 @@
 
         .utterances-container {
             border-color: #eee;
-            .viewOnHover {
-                opacity: 0.8;
-                visibility: visible;
-            }
             
-            .floating-icon-button {
-                outline: none;
-            }
-            .flex-right > .floating-icon-button > .viewOnHover {
-                opacity: 0.5;
-            }
             .response-name {
                 visibility: visible;
                 white-space: nowrap;
@@ -64,15 +54,6 @@
 
     .item {
         overflow: visible;
-    }
-
-    .utterance-container {
-        margin-top: 2px;
-        margin-bottom: 2px;
-    }
-
-    .floating-icon-button {
-        margin: 0;
     }
 
     .dropdown.dropdown-button-trigger .menu .header {
@@ -138,16 +119,14 @@
 }
 
 .has-exceptions {
+    position: relative;
+    left: -20px;
     display: flex;
     align-items: center;
     width: 100%;
-    .icon {
+    .warning-indicator, .error-indicator {
         top: -2px;
         position: relative;
-    }
-    .exception-wrapper-target {
-        border: 1px solid;
-        padding: 5px 0;
     }
     &.warning .exception-wrapper-target {
         border-color: #FFD700;
@@ -174,38 +153,7 @@
     margin: 0 30px 0 0;
     color: #212121;
     min-height: 40px;
-    padding: 5px 0;
-
-    .utterance-container {
-        max-width: 80%;
-        color: #212121;
-        .inner {
-            width: 100%;
-            .ui.button.edit-custom-response {
-                background-color: rgba(0,0,0,0);
-            }
-        }
-
-        &[agent="bot"] {
-            width: 100%;
-        }
-
-        textarea {
-            width: 100%;
-            padding-top: 4px;
-            outline: none;
-            background-color: transparent;
-            resize: none !important;
-            border: none;
-            border-color: transparent;
-            margin-left: 6px;
-            border-bottom: 1px solid transparent;
-            font: inherit;
-            &:hover {
-                border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-            }
-        }
-    }
+    padding: 9px 0 5px; // 4px extra because of .utterance-container bottom margin
 
     .side-by-side.top-right {
         position: absolute;
@@ -218,53 +166,21 @@
     .utterance-container {
         z-index: 2;
     }
-
-    .flex-right {
-        display: inline-flex;
-        justify-content: space-between;
-        align-items: flex-end;
-
-        .viewOnHover {
-            opacity: 0;
-            transition: opacity 0.1s ease-in-out;
-            position: relative;
-            top: -2px;
-        }
-        
-        .utterance-container.metadata-response {
-            // only color metadata responses in the story editor
-            &:not(.image) {
-                background-color: rgb(224, 247, 224);
-            }
-            &.image{
-                .inner {
-                    img{
-                        background-color: rgb(224, 247, 224);
-                        padding: 0.5em;
-                    }
-                }
-            }
-        }
-    }
     
     .response-name {
+        max-width: 22%;
+        z-index: 1;
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
         color: #767676;
         font-size: 0.78571429rem;
         opacity: 0;
-        visibility: hidden;
         transition: opacity 0.1s ease-in-out;
         padding: 0 5px;
         text-overflow: ellipsis;
         overflow: hidden;
-        position: relative;
         text-align: right;
-    }
-
-    .floating-icon-button.ellipsis.horizontal { // inside response container, - 1 px to account for its border
-        .viewOnHover.ellipsis::before {
-            left: 29px;
-            position: relative;
-        }
     }
 
     .ui.small.image {
@@ -276,9 +192,43 @@
     }
 }
 
+.story-line {
+    display: inline-flex;
+    justify-content: flex-start;
+    align-items: center;
+
+    .icon-button {
+        position: relative;
+        top: 0.5px;
+        left: 5px;
+        opacity: 0;
+        transition: opacity 0.1s ease-in-out;
+    }
+
+    &:hover {
+        .icon-button {
+            opacity: 0.8;
+        }
+    }
+    
+    .utterance-container.metadata-response {
+        // only color metadata responses in the story editor
+        &:not(.image) {
+            background-color: rgb(224, 247, 224);
+        }
+        &.image {
+            img{
+                background-color: rgb(224, 247, 224);
+                padding: 0.5em;
+            }
+        }
+    }
+}
+
 .floating-icon-button.ellipsis.horizontal {
     width: 200px;
     height: 10px;
+    margin: 0 0 1px;
     transition: opacity, height 0.1s ease-in-out;
     .viewOnHover.ellipsis {
         text-align: left;
@@ -304,14 +254,6 @@
 .ui.search {
     .prompt {
         border-radius: 0.28571429rem;
-    }
-}
-
-.hoverTarget {
-    &:hover {
-        .viewOnHover {
-            visibility: visible;
-        }
     }
 }
 
@@ -365,72 +307,54 @@ div.add-entity-wrap {
     cursor: pointer;
 }
 
-.utterance-container:last-child { // make up for space taken by ellipsis
-    margin-bottom: 5px;
-}
-
 .utterance-container {
-    display: flex;
+    color: #212121;
     min-height: 2em;
-    margin: auto;
-    justify-content: space-between;
-    max-width: 90%;
-    padding: 0.2em;
+    max-width: 75%;
+    display: inline-block;
+    line-height: 1.2;
+    padding: 5px 10px;
     border-radius: 0.28571429rem;
+    margin-bottom: 4px;
 
-    &[mode="input"]{
+    .ui.primary.button {
+        padding-left: 0.8em;
+        padding-right: 0.8em;
+        margin: 6px;
+    }
+
+    .quick-replies {
+        .last-button {
+            display: inline-block;
+        }
+    }
+
+    .ui.button.edit-custom-response {
+        background-color: rgba(0,0,0,0);
+    }
+
+    textarea {
         width: 100%;
-        .inner {
-            width: 100%;
-        }
-        .grey.trash {
-            margin-top: 9px;
-        }
-    }
-
-    .utterance-viewer {
-        padding-right: 2px;
-    }
-
-    .inner {
-        display: inline-block;
-        line-height: 1.2;
-        margin: auto 4px;
-        padding: 5px;
-
-        .ui.primary.button {
-            padding-left: 0.8em;
-            padding-right: 0.8em;
-            margin: 6px;
-        }
-
-        .quick-replies {
-            .last-button {
-                display: inline-block;
-            }
+        padding-top: 4px;
+        outline: none;
+        background-color: transparent;
+        resize: none !important;
+        border: none;
+        border-color: transparent;
+        margin-left: 6px;
+        border-bottom: 1px solid transparent;
+        font: inherit;
+        &:hover {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.2);
         }
     }
 
     .entity-container {
         margin-left: 4px;
     }
-    
-    .floating-icon-button {
-        width: 0;
-        opacity: 0;
-    }
 
-    &:hover {
-        .viewOnHover {
-            visibility: visible;
-        }
-        .floating-icon-button {
-            width: 16px;
-            opacity: 1;
-        }
-    }
-
-    &:not([agent="user"]) {
+    &[agent="bot"] {
+        width: ~"calc(75% - 24px + 8px)";
         margin-left: 24px;
         background: rgba(0, 0, 0, 0.04);
         &.image {
@@ -438,12 +362,10 @@ div.add-entity-wrap {
             margin-left: 4px;
         }
     }
-    &[agent="na"] {
-        margin-left: 0;
-        background: none;
-        padding-left: 0;
-    }
     &[agent="user"] {
+        &[mode="input"] {
+            width: 75%;
+        }
         margin-left: 8px;
         background: rgba(0, 0, 0, 0.08);
     }

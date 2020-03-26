@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import IconButton from '../../common/IconButton';
@@ -9,6 +9,8 @@ const BotResponsesContainer = (props) => {
     const {
         deletable, value, onChange, onDelete,
     } = props;
+
+    const somethingIsBeingInput = useMemo(() => value.some(d => d === null), [value]);
 
     const handleDeleteDisjunct = (index) => {
         const newUtterance = [...value.slice(0, index), ...value.slice(index + 1)];
@@ -44,15 +46,23 @@ const BotResponsesContainer = (props) => {
         <React.Fragment
             key={payload ? `${payload.intent}${JSON.stringify(payload.entities)}` : 'new'}
         >
-            <div className='flex-right'>
+            <div className='story-line'>
                 <UserUtteranceContainer
-                    deletable={deletable && value.length > 1}
                     value={payload}
                     onInput={content => handleUpdateDisjunct(index, content)}
-                    onDelete={() => handleDeleteDisjunct(index)}
-                    onAbort={() => handleDeleteDisjunct(index)}
-                    onAdd={() => handleInsertDisjunct(index)}
+                    onAbort={() => { if (value.length > 1) handleDeleteDisjunct(index); }}
                 />
+                {deletable
+                    && (!somethingIsBeingInput || !payload)
+                    && value.length > 1 && (
+                    <IconButton
+                        onClick={() => handleDeleteDisjunct(index)}
+                        icon='trash'
+                    />
+                )}
+                {!somethingIsBeingInput && (
+                    <IconButton onClick={() => handleInsertDisjunct(index)} icon='add' />
+                )}
             </div>
         </React.Fragment>
     );

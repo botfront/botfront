@@ -4,14 +4,13 @@ import React, {
 import PropTypes from 'prop-types';
 import { Button } from 'semantic-ui-react';
 import { OOS_LABEL } from '../../constants.json';
-import FloatingIconButton from '../../common/FloatingIconButton';
 import UserUtteranceViewer from '../../nlu/common/UserUtteranceViewer';
 import { ProjectContext } from '../../../layouts/context';
 import UtteranceInput from '../../utils/UtteranceInput';
 
 const UtteranceContainer = (props) => {
     const {
-        value, onInput, onDelete, onAbort, deletable, onAdd,
+        value, onInput, onAbort,
     } = props;
     const [mode, setMode] = useState(!value ? 'input' : 'view');
     const { parseUtterance, getUtteranceFromPayload } = useContext(ProjectContext);
@@ -108,42 +107,23 @@ const UtteranceContainer = (props) => {
     return (
         <div
             className='utterance-container'
-            // This ternary ensures that the mode is not set to input when we have a parsed utterance
-            // This makes some css work
-            // css will be broken if this is removed
             mode={!!stateValue ? 'view' : mode}
             agent='user'
             ref={containerBody}
         >
-            <div className='inner'>{render()}</div>
-            {mode !== 'input' && (
-                <FloatingIconButton icon='add' onClick={() => onAdd()} />
-            )}
-            {deletable && (
-                <FloatingIconButton
-                    icon='trash'
-                    onClick={() => {
-                        if (mode === 'input') return onAbort();
-                        return onDelete();
-                    }}
-                />
-            )}
+            {render()}
         </div>
     );
 };
 
 UtteranceContainer.propTypes = {
-    deletable: PropTypes.bool,
     value: PropTypes.object,
     onInput: PropTypes.func.isRequired,
-    onDelete: PropTypes.func.isRequired,
     onAbort: PropTypes.func.isRequired,
-    onAdd: PropTypes.func.isRequired,
 };
 
 UtteranceContainer.defaultProps = {
     value: null,
-    deletable: true,
 };
 
 export default UtteranceContainer;

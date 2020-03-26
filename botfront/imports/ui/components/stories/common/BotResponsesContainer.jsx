@@ -93,12 +93,11 @@ const BotResponsesContainer = (props) => {
         <React.Fragment
             key={`${response.text}-${(sequenceArray[index + 1] || {}).text}-${index}`}
         >
-            <div className='flex-right'>
+            <div className='story-line'>
                 <BotResponseContainer
                     tag={tag}
-                    deletable={deletable && sequenceArray.length > 1}
                     value={response}
-                    onDelete={() => handleDeleteResponse(index)}
+                    onDelete={() => { if (sequenceArray.length > 1) handleDeleteResponse(index); }}
                     onAbort={() => {}}
                     onChange={(newContent, enter) => handleChangeResponse(newContent, index, enter)}
                     focus={focus === index}
@@ -106,9 +105,7 @@ const BotResponsesContainer = (props) => {
                     editCustom={() => setEditorOpen(true)}
                     hasMetadata={template && checkMetadataSet(template.metadata)}
                 />
-                {index === sequenceArray.length - 1 && name && (
-                    <div className='response-name'>{name}</div>
-                )}
+                {deletable && sequenceArray.length > 1 && <IconButton onClick={() => handleDeleteResponse(index)} icon='trash' />}
             </div>
         </React.Fragment>
     );
@@ -144,6 +141,7 @@ const BotResponsesContainer = (props) => {
                     <IconButton onClick={onDeleteAllResponses} icon='trash' />
                 )}
             </div>
+            <div className='response-name'>{name}</div>
         </div>
     );
 };
