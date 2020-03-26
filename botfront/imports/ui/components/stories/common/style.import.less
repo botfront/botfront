@@ -178,14 +178,16 @@
 
     .utterance-container {
         max-width: 80%;
-        min-width: 80%;
         color: #212121;
-        .inner{
+        .inner {
             width: 100%;
             .ui.button.edit-custom-response {
                 background-color: rgba(0,0,0,0);
-                // font-weight: 400;
             }
+        }
+
+        &[agent="bot"] {
+            width: 100%;
         }
 
         textarea {
@@ -201,11 +203,6 @@
             font: inherit;
             &:hover {
                 border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-                // resize: horizontal !important;
-            }
-
-            &:focus {
-                border-bottom: 1px solid rgba(0, 0, 0, 0.4);
             }
         }
     }
@@ -226,10 +223,6 @@
         display: inline-flex;
         justify-content: space-between;
         align-items: flex-end;
-        
-        .utterance-container {
-            width: 100%;
-        }
 
         .viewOnHover {
             opacity: 0;
@@ -261,7 +254,6 @@
         visibility: hidden;
         transition: opacity 0.1s ease-in-out;
         padding: 0 5px;
-        width: 135px;
         text-overflow: ellipsis;
         overflow: hidden;
         position: relative;

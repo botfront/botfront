@@ -243,7 +243,7 @@ class Project extends React.Component {
             'nlu.insertExamplesWithLanguage',
             projectId,
             workingLanguage,
-            utterances,
+            utterances.filter(u => u.text),
             wrapMeteorCallback((err, res) => callback(err, res)),
         );
     }

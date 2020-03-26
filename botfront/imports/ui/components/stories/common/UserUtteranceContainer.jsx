@@ -11,7 +11,7 @@ import UtteranceInput from '../../utils/UtteranceInput';
 
 const UtteranceContainer = (props) => {
     const {
-        value, onInput, onDelete, onAbort, deletable,
+        value, onInput, onDelete, onAbort, deletable, onAdd,
     } = props;
     const [mode, setMode] = useState(!value ? 'input' : 'view');
     const { parseUtterance, getUtteranceFromPayload } = useContext(ProjectContext);
@@ -101,7 +101,6 @@ const UtteranceContainer = (props) => {
             <UserUtteranceViewer
                 value={fetchedData || value}
                 disableEditing
-                // onChange={v => onChange(v)}
             />
         );
     };
@@ -117,6 +116,9 @@ const UtteranceContainer = (props) => {
             ref={containerBody}
         >
             <div className='inner'>{render()}</div>
+            {mode !== 'input' && (
+                <FloatingIconButton icon='add' onClick={() => onAdd()} />
+            )}
             {deletable && (
                 <FloatingIconButton
                     icon='trash'
@@ -134,9 +136,9 @@ UtteranceContainer.propTypes = {
     deletable: PropTypes.bool,
     value: PropTypes.object,
     onInput: PropTypes.func.isRequired,
-    // onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
     onAbort: PropTypes.func.isRequired,
+    onAdd: PropTypes.func.isRequired,
 };
 
 UtteranceContainer.defaultProps = {

@@ -70,7 +70,8 @@ const responseFixtures = {
         text: 'I love peanutes too\n\nCan I call u l8r?'
     }
 }
-const utteranceFixtures = { utteranceOne, utteranceTwo, utteranceThree };
+const utteranceFixtures = [utteranceOne, utteranceTwo, utteranceThree]
+    .reduce((acc, curr) => ({ ...acc, [curr.text]: curr }), {});
 
 const getCanonicalExamples = ({ intent, entities }) => ([
     { intent: 'YAY', text: 'HUHUHU HUHUHUUH UUHUUH AHUAHS', entities: [] },
@@ -126,7 +127,7 @@ export const withProjectContext = (story) => {
                 parseUtterance,
                 addUtterancesToTrainingData: (content, callback) => {
                     updateUtterances(
-                        content.reduce((acc, curr) => ({ ...acc, [curr.text]: curr }), utterances),
+                        content.filter(u => u.text).reduce((acc, curr) => ({ ...acc, [curr.text]: curr }), utterances),
                     );
                     callback();
                 },

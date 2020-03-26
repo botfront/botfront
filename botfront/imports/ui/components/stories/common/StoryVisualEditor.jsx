@@ -174,8 +174,7 @@ export default class StoryVisualEditor extends React.Component {
                 <ExceptionWrapper exceptions={exceptions}>
                     <ActionLabel
                         value={l.data.name}
-                        onChange={v => this.handleChangeActionOrSlot('action', i, { name: v })
-                        }
+                        onChange={v => this.handleChangeActionOrSlot('action', i, { name: v })}
                     />
                     <FloatingIconButton
                         icon='trash'
