@@ -50,7 +50,11 @@ async function postUpLaunch(spinner) {
 async function removeDynamicallyBuiltImages(){
     const folderName = path.basename(fixDir())
     const docker = new Docker({});
-    await docker.command(`rmi ${folderName}_rasa ${folderName}_actions`);
+    try {
+        await docker.command(`rmi ${folderName}_rasa ${folderName}_actions`);
+    } catch (e) {
+        // Do nothing - just in case the images do not exists
+    }``
 }
 
 export async function doMinorUpdate() {
