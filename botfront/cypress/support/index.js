@@ -323,16 +323,19 @@ Cypress.Commands.add('createRole', (name, desc, permissions) => {
 
 Cypress.Commands.add('deleteRole', (name, fallback) => {
     cy.visit('/');
-    cy.login().then(() => cy.window()
-        .then(
-            ({ __APOLLO_CLIENT__ }) => __APOLLO_CLIENT__.mutate({
-                mutation: DELETE_ROLE_DATA,
-                variables: {
-                    name,
-                    fallback,
-                },
-            }),
-        ));
+    cy.login().then(() => {
+        cy.visit('/');
+        cy.window()
+            .then(
+                ({ __APOLLO_CLIENT__ }) => __APOLLO_CLIENT__.mutate({
+                    mutation: DELETE_ROLE_DATA,
+                    variables: {
+                        name,
+                        fallback,
+                    },
+                }),
+            );
+    });
 });
 
 Cypress.Commands.add('createDummyRoleAndUser', ({
