@@ -13,14 +13,14 @@ import { auditLogIfOnServer } from '../../lib/utils';
 export const checkStoryNotEmpty = story => story.story && !!story.story.replace(/\s/g, '').length;
 
 const logStoryUpdate = (story, projectId, originStory) => auditLogIfOnServer('Story updated', {
-    resId: story._id,
+    resId: Array.isArray(story) ? story.map(({ _id }) => _id).join(', ') : story._id,
     user: Meteor.user(),
     type: 'updated',
     projectId,
     operation: 'stories.updated',
     after: { story },
     before: { story: originStory },
-    resType: 'story',
+    resType: (Array.isArray(story) && story.length > 1) ? 'stories' : 'story',
 });
 
 Meteor.methods({
