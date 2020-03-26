@@ -14,6 +14,7 @@ describe('nlu tagging in training data', function() {
     });
 
     afterEach(function() {
+        cy.logout();
         cy.deleteProject('bf');
     });
 

@@ -11,6 +11,8 @@ describe('responses:r restricted permissions', () => {
         cy.createProject('bf', 'My Project', 'en');
         cy.addResponses('bf', responses);
         cy.createDummyRoleAndUser({ permission: ['responses:r'] });
+        cy.wait(2000);
+        cy.logout();
     });
 
     beforeEach(() => {
