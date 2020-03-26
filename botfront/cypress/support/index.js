@@ -84,6 +84,7 @@ Cypress.Commands.add('login', ({
 } = {}) => {
     const withEmail = email || admin ? ADMIN_EMAIL : SPECIAL_USER_EMAIL;
     if (visit) cy.visit('/');
+    cy.logout();
     cy.window().then(
         ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
             Meteor.logout((err) => {

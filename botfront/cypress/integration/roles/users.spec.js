@@ -16,6 +16,8 @@ describe('users:r can not edit user data', () => {
     });
 
     after(() => {
+        cy.logout();
+        cy.deleteProject('bf');
         cy.removeDummyRoleAndUser();
     });
     it('should not show edit features in the users page', () => {
@@ -44,6 +46,8 @@ describe('visibility of the Users link in the admin sidebar', () => {
     });
 
     after(() => {
+        cy.logout();
+        cy.deleteProject('bf');
         cy.removeDummyRoleAndUser();
     });
     it('the "Users" link is hidden in the admin sidebar when the user does not have users:r permission', () => {
