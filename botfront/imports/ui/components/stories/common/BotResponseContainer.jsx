@@ -144,7 +144,7 @@ const BotResponseContainer = (props) => {
 
     return (
         <div
-            className={`utterance-container bot-response ${extraClass} ${metadataClass}`}
+            className={`utterance-container ${extraClass} ${metadataClass}`}
             agent='bot'
             data-cy='bot-response-input'
         >

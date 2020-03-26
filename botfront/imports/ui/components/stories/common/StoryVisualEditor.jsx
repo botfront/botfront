@@ -6,7 +6,7 @@ import { isEqual } from 'lodash';
 import { OOS_LABEL } from '../../constants.json';
 import { StoryController, NEW_INTENT } from '../../../../lib/story_controller';
 import FloatingIconButton from '../../common/FloatingIconButton';
-import UserUtteranceContainer from './UserUtteranceContainer';
+import UserUtterancesContainer from './UserUtterancesContainer';
 import BotResponsesContainer from './BotResponsesContainer';
 import AddStoryLine from './AddStoryLine';
 import ActionLabel from '../ActionLabel';
@@ -67,12 +67,12 @@ export default class StoryVisualEditor extends React.Component {
         story.deleteLine(index);
     };
 
-    handleSaveUserUtterance = (index, value) => {
+    handleSaveUserUtterance = (index, data) => {
         const { story } = this.props;
-        const { addUtteranceToTrainingData } = this.context;
-        addUtteranceToTrainingData(value, (err) => {
+        const { addUtterancesToTrainingData } = this.context;
+        addUtterancesToTrainingData(data, (err) => {
             if (!err) {
-                const updatedLine = { type: 'user', data: [value] };
+                const updatedLine = { type: 'user', data };
                 story.replaceLine(index, updatedLine);
             }
         });
@@ -281,11 +281,10 @@ export default class StoryVisualEditor extends React.Component {
                 return (
                     <React.Fragment key={`user-${index}-${line.md || ''}-${language}`}>
                         <ExceptionWrapper exceptions={exceptions}>
-                            <UserUtteranceContainer
-                                value={line.gui.data[0]} // for now, data is a singleton
-                                onInput={v => this.handleSaveUserUtterance(index, v)}
+                            <UserUtterancesContainer
+                                value={line.gui.data}
+                                onChange={v => this.handleSaveUserUtterance(index, v)}
                                 onDelete={() => this.handleDeleteLine(index)}
-                                onAbort={() => this.handleDeleteLine(index)}
                             />
                         </ExceptionWrapper>
                         {this.renderAddLine(index)}

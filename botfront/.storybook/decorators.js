@@ -124,8 +124,10 @@ export const withProjectContext = (story) => {
                 entities,
                 responses,
                 parseUtterance,
-                addUtteranceToTrainingData: (content, callback) => {
-                    updateUtterances({ utterances, [content.text]: content });
+                addUtterancesToTrainingData: (content, callback) => {
+                    updateUtterances(
+                        content.reduce((acc, curr) => ({ ...acc, [curr.text]: curr }), utterances),
+                    );
                     callback();
                 },
                 upsertResponse: (title, content) => new Promise((resolve) => {

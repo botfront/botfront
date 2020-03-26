@@ -114,7 +114,7 @@ const BotResponsesContainer = (props) => {
     );
 
     return (
-        <div className='responses-container exception-wrapper-target'>
+        <div className='utterances-container exception-wrapper-target'>
             {!template && (
                 <Placeholder>
                     <Placeholder.Line />
