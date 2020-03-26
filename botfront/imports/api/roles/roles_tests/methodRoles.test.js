@@ -310,22 +310,22 @@ if (Meteor.isServer) {
         {
             name: 'stories.insert',
             roles: writers.stories,
-            args: [{ projectId }],
+            args: [{ projectId }], // singleton
         },
         {
             name: 'stories.insert',
             roles: writers.stories,
-            args: [[{ projectId }]],
+            args: [[{ projectId }]], // aray
         },
         {
             name: 'stories.update',
             roles: writers.stories,
-            args: [{ projectId }],
+            args: [{ projectId }], // singleton
         },
         {
             name: 'stories.update',
             roles: writers.stories,
-            args: [[{ projectId }]],
+            args: [[{ projectId }]], // array
         },
         {
             name: 'stories.delete',
