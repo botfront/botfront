@@ -47,20 +47,28 @@ async function postUpLaunch(spinner) {
     console.log('\n');
 }
 
+async function removeDynamicallyBuiltImages(){
+    const folderName = path.basename(fixDir())
+    const docker = new Docker({});
+    await docker.command(`rmi ${folderName}_rasa ${folderName}_actions`);
+}
+
 export async function doMinorUpdate() {
     const botfrontVersion = getBotfrontVersion();
     const projectVersion = getProjectVersion();
     const mongoPassword = getMongoPassword();
-    console.log(mongoPassword)
     if (isMajorUpdateWithVersion(projectVersion, botfrontVersion)){
         return console.log(boxen(`Project was made with Botfront ${chalk.blueBright(projectVersion)} and the currently installed version is ${chalk.green(botfrontVersion)}, which is a major update.\nPlease follow the instructions in the migration guide: ${chalk.cyan.bold('https://botfront.io/docs/migration')}.`));
     }
 
     if (isMinorUpdateWithVersion(projectVersion, botfrontVersion)) {
         await copyTemplateFilesToProjectDir(fixDir(), {}, true, true, mongoPassword);
-        return console.log(boxen(`Your project was migrated but ${chalk.magenta.bold('you still have ONE step do do manually')}.\nPlease see the ${chalk.cyan.bold('Minor versions')} section of the migration guide:\n${chalk.cyan.bold('https://botfront.io/docs/migration#minor-versions')}.`));
+        removeDynamicallyBuiltImages()
+        return console.log(boxen('Your project was updated successfully 👌.'));
     }
+
     return console.log(boxen('Everything is up to date 👌.'));
+
 }
 export async function dockerComposeUp({ verbose = false, exclude = [], ci = false }, workingDir, spinner) {
     spinner = spinner
