@@ -302,27 +302,27 @@ Cypress.Commands.add('deleteUser', (email) => {
 
 Cypress.Commands.add('createRole', (name, desc, permissions) => {
     cy.visit('/');
-    cy.login();
-    cy.window()
-        .then(
-            ({ __APOLLO_CLIENT__ }) => __APOLLO_CLIENT__.mutate({
-                mutation: UPSERT_ROLES_DATA,
-                variables: {
-                    roleData: {
-                        name,
-                        description: desc,
-                        children: permissions,
+    cy.login().then(() => {
+        cy.window()
+            .then(
+                ({ __APOLLO_CLIENT__ }) => __APOLLO_CLIENT__.mutate({
+                    mutation: UPSERT_ROLES_DATA,
+                    variables: {
+                        roleData: {
+                            name,
+                            description: desc,
+                            children: permissions,
+                        },
                     },
-                },
-            }),
-        );
+                }),
+            );
+    });
 });
 
 
 Cypress.Commands.add('deleteRole', (name, fallback) => {
     cy.visit('/');
-    cy.login();
-    cy.window()
+    cy.login().then(() => cy.window()
         .then(
             ({ __APOLLO_CLIENT__ }) => __APOLLO_CLIENT__.mutate({
                 mutation: DELETE_ROLE_DATA,
@@ -331,7 +331,7 @@ Cypress.Commands.add('deleteRole', (name, fallback) => {
                     fallback,
                 },
             }),
-        );
+        ));
 });
 
 Cypress.Commands.add('createDummyRoleAndUser', ({

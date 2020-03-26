@@ -3,14 +3,11 @@
 describe('users:r can not edit user data', () => {
     before(() => {
         cy.removeDummyRoleAndUser();
-        cy.deleteProject('bf');
         cy.wait(2000);
-        cy.createProject('bf', 'My Project', 'en');
         cy.createDummyRoleAndUser({ permission: ['users:r'] });
     });
 
     beforeEach(() => {
-        cy.deleteProject('bf');
         cy.createProject('bf', 'My Project', 'en').then(() => cy.login({ admin: false }));
     });
     afterEach(() => {
@@ -19,7 +16,6 @@ describe('users:r can not edit user data', () => {
     });
 
     after(() => {
-        cy.deleteProject('bf');
         cy.removeDummyRoleAndUser();
     });
     it('should not show edit features in the users page', () => {
@@ -35,14 +31,11 @@ describe('users:r can not edit user data', () => {
 describe('visibility of the Users link in the admin sidebar', () => {
     before(() => {
         cy.removeDummyRoleAndUser();
-        cy.deleteProject('bf');
         cy.wait(2000);
-        cy.createProject('bf', 'My Project', 'en');
         cy.createDummyRoleAndUser({ permission: ['projects:w'] });
     });
 
     beforeEach(() => {
-        cy.deleteProject('bf');
         cy.createProject('bf', 'My Project', 'en').then(() => cy.login({ admin: false }));
     });
     afterEach(() => {
@@ -51,7 +44,6 @@ describe('visibility of the Users link in the admin sidebar', () => {
     });
 
     after(() => {
-        cy.deleteProject('bf');
         cy.removeDummyRoleAndUser();
     });
     it('the "Users" link is hidden in the admin sidebar when the user does not have users:r permission', () => {

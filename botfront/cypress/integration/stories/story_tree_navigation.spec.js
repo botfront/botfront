@@ -3,6 +3,7 @@ const storyGroupOne = 'Default stories';
 
 describe('story tree navigation', function() {
     afterEach(function() {
+        cy.logout();
         cy.deleteProject('bf');
     });
 
