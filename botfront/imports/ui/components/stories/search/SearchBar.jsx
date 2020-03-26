@@ -33,13 +33,13 @@ const SearchBar = (props) => {
     const [results, setResults] = useState([]);
     const [searching, setSearching] = useState(false);
 
-    const searchStories = debounce(async () => {
+    const searchStories = debounce(async (searchInputValue) => {
         const { data } = await apolloClient.query({
             query: SEARCH_STORIES,
             variables: {
                 projectId,
                 language,
-                queryString,
+                queryString: searchInputValue,
             },
         });
         setSearching(false);
