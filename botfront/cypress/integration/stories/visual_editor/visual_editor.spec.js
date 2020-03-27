@@ -191,8 +191,8 @@ describe('story visual editor', function () {
             },
         ]]);
         cy.visit('/project/bf/nlu/models');
-        cy.get('.black.gem').click({ force: true });
-        cy.get('.black.gem').should('not.exist');
+        cy.dataCy('icon-gem', null, '.active').click({ force: true });
+        cy.dataCy('icon-gem', null, '.active').should('not.exist');
         cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'en', [
             {
                 text: 'bonjour not canonical recent',

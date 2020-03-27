@@ -20,7 +20,7 @@ describe('NLU Batch Insert', function() {
             .type('intent1{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
-        cy.get('.black.gem').click();
+        cy.dataCy('icon-gem', null, '.active').click();
         cy.contains('hello')
             .closest('.rt-tr')
             .findCy('icon-trash')
