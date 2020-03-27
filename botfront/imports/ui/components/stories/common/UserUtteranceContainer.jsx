@@ -2,7 +2,7 @@ import React, {
     useState, useEffect, useContext, useRef,
 } from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'semantic-ui-react';
+import { Button, Modal } from 'semantic-ui-react';
 import { OOS_LABEL } from '../../constants.json';
 import UserUtteranceViewer from '../../nlu/common/UserUtteranceViewer';
 import { ProjectContext } from '../../../layouts/context';
@@ -17,6 +17,7 @@ const UtteranceContainer = (props) => {
     const [stateValue, setStateValue] = useState(value);
     const [input, setInput] = useState();
     const [fetchedData, setFetchedData] = useState(value || null);
+    const [modalOpen, setModalOpen] = useState(false);
     const containerBody = useRef();
 
     useEffect(() => {
@@ -100,6 +101,7 @@ const UtteranceContainer = (props) => {
             <UserUtteranceViewer
                 value={fetchedData || value}
                 disableEditing
+                onClickIntentLabel={() => setModalOpen(true)}
             />
         );
     };
@@ -112,6 +114,27 @@ const UtteranceContainer = (props) => {
             ref={containerBody}
         >
             {render()}
+            {modalOpen && (
+                <Modal
+                    size='tiny'
+                    open
+                >
+                    <Modal.Content>
+                        <h3><i>Editing training data for...</i></h3>
+                        <h1>{(fetchedData || value).intent}</h1>
+                        {((fetchedData || value).entities || []).map(e => (
+                            <span><strong>{e.entity}: </strong> {e.value}&nbsp;</span>
+                        ))}
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button
+                            content='Cancel'
+                            color='red'
+                            onClick={() => setModalOpen(false)}
+                        />
+                    </Modal.Actions>
+                </Modal>
+            )}
         </div>
     );
 };

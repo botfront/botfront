@@ -15,6 +15,7 @@ const Intent = React.forwardRef((props, ref) => {
         onChange,
         disabled,
         enableReset,
+        onClick,
     } = props;
     const { addIntent, intents: contextIntents } = useContext(ProjectContext);
     const [popupOpen, setPopupOpen] = useState(false);
@@ -115,12 +116,16 @@ const Intent = React.forwardRef((props, ref) => {
     if (disabled) extraClass = `${extraClass} disabled`;
     if (value === OOS_LABEL || !value) extraClass = `${extraClass} null`;
     if (!allowEditing) extraClass = `${extraClass} uneditable`;
+    if (!allowEditing && onClick) extraClass = `${extraClass} cursor pointer`;
+
+    const onClickTrigger = !allowEditing && onClick
+        ? { onClick } : {};
 
     return (
         <div className={`intent-label ${extraClass}`} data-cy='intent-label'>
             <Popup
                 trigger={(
-                    <div className='content-on-label'>
+                    <div className='content-on-label' {...onClickTrigger}>
                         <Icon name='tag' size='small' />
                         <span>{value || 'no intent'}</span>
                     </div>
@@ -155,6 +160,7 @@ Intent.propTypes = {
     enableReset: PropTypes.bool,
     onChange: PropTypes.func,
     disabled: PropTypes.bool,
+    onClick: PropTypes.func,
 };
 
 Intent.defaultProps = {
@@ -164,6 +170,7 @@ Intent.defaultProps = {
     onChange: () => {},
     disabled: false,
     enableReset: false,
+    onClick: null,
 };
 
 export default Intent;

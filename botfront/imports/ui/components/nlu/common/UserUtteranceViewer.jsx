@@ -9,7 +9,7 @@ import Entity from './EntityLabel';
 
 function UserUtteranceViewer(props) {
     const {
-        value, onChange, disableEditing, projectId, showIntent, disabled,
+        value, onChange, disableEditing, projectId, showIntent, disabled, onClickIntentLabel,
     } = props;
     const { text, intent, entities } = value;
     const [textSelection, setSelection] = useState(null);
@@ -291,6 +291,7 @@ function UserUtteranceViewer(props) {
                             allowAdditions
                             onChange={newIntent => onChange({ ...value, intent: newIntent })}
                             disabled={disabled}
+                            {...(onClickIntentLabel ? { onClick: onClickIntentLabel } : {})}
                         />
                     )}
                 </>
@@ -307,6 +308,7 @@ UserUtteranceViewer.propTypes = {
     showIntent: PropTypes.bool,
     onChange: PropTypes.func,
     projectId: PropTypes.string.isRequired,
+    onClickIntentLabel: PropTypes.func,
 };
 
 UserUtteranceViewer.defaultProps = {
@@ -314,6 +316,7 @@ UserUtteranceViewer.defaultProps = {
     showIntent: true,
     disabled: false,
     onChange: () => {},
+    onClickIntentLabel: null,
 };
 
 
