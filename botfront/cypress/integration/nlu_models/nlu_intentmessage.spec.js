@@ -52,7 +52,7 @@ describe('NLU Intent warning message displays', function() {
         cy.dataCy('canonical-spinner').should('not.exist', 1);
         cy.contains('hello')
             .closest('.rt-tr')
-            .find('[data-cy=trash] .viewOnHover')
+            .findCy('icon-trash')
             .first()
             .click({ force: true });
         cy.wait(100);
@@ -60,7 +60,7 @@ describe('NLU Intent warning message displays', function() {
         // delete example
         cy.contains('hi guys')
             .closest('.rt-tr')
-            .find('[data-cy=trash] .viewOnHover')
+            .findCy('icon-trash')
             .first()
             .click({ force: true });
         cy.wait(100);

@@ -90,18 +90,17 @@ describe('NLU canonical examples', function () {
             .last()
             .click({ force: true });
         cy.get('.s-alert-box-inner').should('exist');
-        cy.dataCy('gem')
-            .children()
-            .should('have.class', 'black');
+        cy.dataCy('icon-gem')
+            .should('have.class', 'active');
         // just match the first part of the message as linebreaks may happen and are difficult to match
         cy.get('.s-alert-box-inner').should('contain.text',
             'The previous canonical example with');
         cy.dataCy('icon-gem')
             .first()
-            .should('have.class', 'grey');
+            .should('not.have.class', 'active');
         cy.dataCy('icon-gem')
             .last()
-            .should('have.class', 'black');
+            .should('have.class', 'active');
     });
 
 
@@ -161,6 +160,6 @@ describe('NLU canonical examples', function () {
         cy.dataCy('intent-label').contains('intenttest').should('exist');
         cy.dataCy('save-new-user-input').click();
         cy.visit('/project/bf/nlu/models');
-        cy.dataCy('icon-gem').should('have.class', 'black');
+        cy.dataCy('icon-gem').should('have.class', 'active');
     });
 });
