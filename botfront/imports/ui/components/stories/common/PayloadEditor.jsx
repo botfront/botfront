@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Grid, Icon, Input } from 'semantic-ui-react';
 import IntentLabel from '../../nlu/common/IntentLabel';
 import EntityDropdown from '../../nlu/common/EntityDropdown';
-import FloatingIconButton from '../../common/FloatingIconButton';
+import IconButton from '../../common/IconButton';
 import DashedButton from './DashedButton';
 import { ProjectContext } from '../../../layouts/context';
 
@@ -94,7 +94,7 @@ const PayloadEditor = (props) => {
                                     onChange({ intent, entities: newEnts });
                                 }}
                             />
-                            <FloatingIconButton
+                            <IconButton
                                 icon='trash'
                                 onClick={() => {
                                     const newEnts = [

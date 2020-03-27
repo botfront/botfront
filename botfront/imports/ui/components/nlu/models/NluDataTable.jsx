@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-    Checkbox, Tab, Grid, Loader, Popup, Icon,
+    Checkbox, Tab, Grid, Loader, Popup, Icon, Button,
 } from 'semantic-ui-react';
 import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
@@ -14,7 +14,7 @@ import NLUExampleEditMode from '../../example_editor/NLUExampleEditMode';
 import EntityUtils from '../../utils/EntityUtils';
 import IntentLabel from '../common/IntentLabel';
 import Filters from './Filters';
-import FloatingIconButton from '../../common/FloatingIconButton';
+import IconButton from '../../common/IconButton';
 import UserUtteranceViewer from '../common/UserUtteranceViewer';
 
 export default class NluDataTable extends React.Component {
@@ -183,27 +183,38 @@ export default class NluDataTable extends React.Component {
                 }
 
                 return (
-                    <FloatingIconButton
-                        toolTip={toolTip}
-                        toolTipInverted={!canonical}
-                        icon='gem'
-                        color={canonical ? 'black' : undefined}
-                        onClick={async () => {
-                            // need to recreate a set since state do not detect update through mutations
-                            this.setState({ waiting: new Set(waiting.add(props.row.example._id)) });
-                            const result = await onSwitchCanonical(props.row.example);
-                            if (result.change) {
-                                Alert.warning(`The previous canonical example with the same intent 
-                                and entity - entity value combination 
-                                (if applicable) with this example has been unmarked canonical`, {
-                                    position: 'top-right',
-                                    timeout: 5000,
-                                });
-                            }
-                            waiting.delete(props.row.example._id);
-                            this.setState({ waiting: new Set(waiting) });
-                        }}
-                        iconClass={canonical ? '' : undefined} // remove the on hover class if canonical
+                    <Popup
+                        position='top center'
+                        disabled={toolTip === null}
+                        trigger={(
+                            <div>
+                                <IconButton
+                                    active={canonical}
+                                    icon='gem'
+                                    color={canonical ? 'purple' : 'white'}
+                                    basic={!canonical}
+                                    disabled={toolTip === null}
+                                    onClick={async () => {
+                                    // need to recreate a set since state do not detect update through mutations
+                                        this.setState({ waiting: new Set(waiting.add(props.row.example._id)) });
+                                        const result = await onSwitchCanonical(props.row.example);
+                                        if (result.change) {
+                                            Alert.warning(`The previous canonical example with the same intent 
+                                        and entity - entity value combination 
+                                        (if applicable) with this example has been unmarked canonical`, {
+                                                position: 'top-right',
+                                                timeout: 5000,
+                                            });
+                                        }
+                                        waiting.delete(props.row.example._id);
+                                        this.setState({ waiting: new Set(waiting) });
+                                    }}
+                                    data-cy='icon-gem'
+                                />
+                            </div>
+                        )}
+                        inverted={!canonical}
+                        content={toolTip}
                     />
                 );
             },
@@ -216,13 +227,23 @@ export default class NluDataTable extends React.Component {
             Cell: (props) => {
                 const canonical = props.row.example.canonical ? props.row.example.canonical : false;
                 return (
-                    <FloatingIconButton
-                        toolTip={canonical ? <>Cannot delete a canonical example</> : null}
-                        toolTipInverted
-                        disabled={canonical}
-                        icon='trash'
-                        onClick={() => onDeleteExample(props.value)}
-                        iconClass={canonical ? 'disabled-delete' : undefined}
+                    <Popup
+                        position='top center'
+                        disabled={!canonical}
+                        trigger={(
+                            <div>
+                                <IconButton
+                                    icon='trash'
+                                    color='white'
+                                    basic
+                                    disabled={canonical}
+                                    onClick={() => onDeleteExample(props.value)}
+                                    data-cy='icon-trash'
+                                />
+                            </div>
+                        )}
+                        inverted
+                        content='Cannot delete a canonical example'
                     />
                 );
             },

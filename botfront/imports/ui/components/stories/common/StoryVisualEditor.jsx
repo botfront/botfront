@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import shortid from 'shortid';
 import { isEqual } from 'lodash';
 
+import { Icon } from 'semantic-ui-react';
 import { OOS_LABEL } from '../../constants.json';
 import { StoryController, NEW_INTENT } from '../../../../lib/story_controller';
-import FloatingIconButton from '../../common/FloatingIconButton';
 import IconButton from '../../common/IconButton';
 import UserUtterancesContainer from './UserUtterancesContainer';
 import BotResponsesContainer from './BotResponsesContainer';
@@ -160,10 +160,8 @@ export default class StoryVisualEditor extends React.Component {
             );
         }
         return (
-            <FloatingIconButton
-                icon='ellipsis horizontal'
-                className='ellipsis horizontal'
-                size='medium'
+            <Icon
+                name='ellipsis horizontal'
                 onClick={() => this.setState({ lineInsertIndex: index })}
             />
         );

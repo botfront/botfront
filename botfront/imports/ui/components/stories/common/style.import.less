@@ -199,7 +199,6 @@
 
     .icon-button {
         position: relative;
-        top: 0.5px;
         left: 5px;
         opacity: 0;
         transition: opacity 0.1s ease-in-out;
@@ -225,14 +224,14 @@
     }
 }
 
-.floating-icon-button.ellipsis.horizontal {
+.ellipsis.horizontal {
     width: 200px;
     height: 10px;
     margin: 0 0 1px;
-    transition: opacity, height 0.1s ease-in-out;
-    .viewOnHover.ellipsis {
-        text-align: left;
-        width: 200px;
+    opacity: 0;
+    cursor: pointer;
+    transition: opacity, height 0.05s ease-in-out;
+    i {
         opacity: 0;
         outline: none;
         transform: scale(0.75) translateY(-5px);
@@ -244,12 +243,12 @@
         }
     }
     &:hover {
-        .viewOnHover.ellipsis {
-            visibility: visible;
-            opacity: 1;
-        }
+        opacity: 1;
+        height: 16px;
     }
 }
+
+
 
 .ui.search {
     .prompt {
@@ -293,8 +292,8 @@
         div.ui.input {
             width: ~"calc(100% - 32px)";
         }
-        .floating-icon-button {
-            line-height: 2.5em;
+        .icon-button {
+            margin-left: 6px;
         }
     }
 }

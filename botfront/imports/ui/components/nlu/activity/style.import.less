@@ -1,35 +1,9 @@
-.viewOnHover {
-    visibility: hidden;
-    opacity: 0;
-    transition: opacity 0.1s ease-in-out;
-}
-
-.hoverTarget {
-    &:hover {
-        .viewOnHover {
-            opacity: 1;
-            visibility: visible;
-        }
-    }
-}
-
-.floating-icon-button {
-    width: 16px;
-    margin: auto 0;
-    float: right;
-}
-
 .virtual-table {
     height: 100vh;
     width: 100%;
     
     .row-wrapper {
         outline: none;
-    }
-    
-    .floating-icon-button {
-        right: 30px;
-        margin-right: 6px;
     }
 
     .row {
@@ -45,10 +19,6 @@
 
         &:not(.header):hover {
             background: rgba(0, 0, 0, 0.05);
-            .viewOnHover {
-                visibility: visible;
-                opacity: 1;
-            }
         }
     }
 
@@ -62,6 +32,9 @@
 }
 
 .ReactTable {
+    .icon-button {
+        width: 23px;
+    }
     border: 0 !important;
     .rt-tbody {
         > :first-child {
@@ -78,10 +51,6 @@
         }
         .rt-tr:not(.-padRow):hover {
             background: rgba(0, 0, 0, 0.05);
-            .viewOnHover {
-                visibility: visible;
-                opacity: 1;
-            }
         }
         .rt-tr-group:not(:last-child) {
             border-bottom: 0;
