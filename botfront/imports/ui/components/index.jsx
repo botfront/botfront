@@ -22,7 +22,7 @@ class Index extends React.Component {
         if (Meteor.userId()) {
             Tracker.autorun(() => {
                 if (Meteor.user() && areScopeReady() && projectsReady) {
-                    const projectIds = getScopesForUser(Meteor.userId(), 'owner');
+                    const projectIds = getScopesForUser(Meteor.userId(), 'owner') || Projects.find({}, { fields: {} }).fetch().map(project => project._id);
                     if (projectIds.length === 0) router.push('/404');
                     const projects = Projects.find({ _id: { $in: projectIds } }, { fields: { name: 1 } }).fetch();
                     const projectsWithoutChitchat = projects.filter(({ name }) => !name.match('chitchat'));
