@@ -192,6 +192,36 @@
     }
 }
 
+@keyframes turnOrToTrash {
+    0% {
+        content: 'or';
+    }
+    50% {
+        opacity: 0.4;
+    }
+    100% {
+        content: "\f1f8";
+    }
+}
+
+.or-icon-button() {
+    i.icon:before {
+        position: relative;
+        color: #999;
+        left: -1px;
+        top: -1px;
+        content: 'or';
+        font-variant: small-caps;
+        font-size: 10pt;
+        font-weight: 1000;
+        font-family: @fontFamily;
+    }
+}
+
+.icon-button.single-face-or {
+    .or-icon-button;
+}
+
 .story-line {
     display: inline-flex;
     justify-content: flex-start;
@@ -204,9 +234,23 @@
         transition: opacity 0.1s ease-in-out;
     }
 
+    &:not(:hover) {
+        .icon-button.double-face-or {
+            opacity: 0.8;
+            &.ui.button.icon.grey { background-color: transparent !important; }
+            .or-icon-button;
+        }
+    }
+
     &:hover {
         .icon-button {
             opacity: 0.8;
+        }
+        .icon-button.double-face-or i.icon:before {
+            animation: turnOrToTrash 0.15s linear;
+        }
+        .ui.button.icon.grey.icon-button.double-face-or {
+            transition: background-color 0.15s ease-in-out;
         }
     }
     

@@ -58,10 +58,11 @@ const UserUtterancesContainer = (props) => {
                     <IconButton
                         onClick={() => handleDeleteDisjunct(index)}
                         icon='trash'
+                        className={payload && index !== value.length - 1 ? 'double-face-or' : ''}
                     />
                 )}
-                {!somethingIsBeingInput && (
-                    <IconButton onClick={() => handleInsertDisjunct(index)} icon='add' />
+                {!somethingIsBeingInput && index === value.length - 1 && (
+                    <IconButton onClick={() => handleInsertDisjunct(index)} icon='add' className='single-face-or' />
                 )}
             </div>
         </React.Fragment>
