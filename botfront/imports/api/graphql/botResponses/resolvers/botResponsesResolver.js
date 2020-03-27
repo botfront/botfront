@@ -115,17 +115,18 @@ export default {
             const responseBefore = await getBotResponse(args.projectId, args.key);
             const response = await upsertResponse(args);
             const { projectId, ...botResponsesModified } = response;
-
-            auditLog('Upserted response', {
-                user: auth.user,
-                type: 'updated',
-                projectId: args.projectId,
-                operation: 'response-updated',
-                resId: args.key,
-                before: { botResponse: responseBefore },
-                after: { botResponse: response },
-                resType: 'response',
-            });
+            if (args.logging) {
+                auditLog('Upserted response', {
+                    user: auth.user,
+                    type: 'updated',
+                    projectId: args.projectId,
+                    operation: 'response-updated',
+                    resId: args.key,
+                    before: { botResponse: responseBefore },
+                    after: { botResponse: response },
+                    resType: 'response',
+                });
+            }
             pubsub.publish(RESPONSES_MODIFIED, { projectId, botResponsesModified });
             return response;
         },

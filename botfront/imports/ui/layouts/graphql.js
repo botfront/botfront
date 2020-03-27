@@ -22,8 +22,8 @@ export const GET_BOT_RESPONSES = gql`
 `;
 
 export const UPSERT_BOT_RESPONSE = gql`
-mutation upsertResponse($projectId: String!, $key: String!, $language: String!, $newPayload: Any, $index: Int = -1) {
-    upsertResponse(projectId: $projectId, key: $key, language: $language, newPayload: $newPayload, index: $index) {
+mutation upsertResponse($projectId: String!, $key: String!, $language: String!, $newPayload: Any, $index: Int = -1, $logging: Boolean = true) {
+    upsertResponse(projectId: $projectId, key: $key, language: $language, newPayload: $newPayload, index: $index, logging: $logging) {
         key
     }
 }`;

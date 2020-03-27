@@ -166,8 +166,13 @@ const BotResponseEditor = (props) => {
     const handleSequenceChange = (updatedSequence, index) => {
         const { metadata, ...rest } = updatedSequence;
         const content = safeDump(rest);
-        const tempvar = updateSequence(newBotResponse, content, index);
-        setNewBotResponse(tempvar);
+        if (isNew) {
+            const tempvar = updateSequence(newBotResponse, content, index);
+            setNewBotResponse(tempvar);
+
+            return;
+        }
+        upsertResponse(name, updatedSequence, index);
     };
 
     const getActiveSequence = () => {
@@ -204,7 +209,7 @@ const BotResponseEditor = (props) => {
             return;
         } if ((!isNew || checkResponseEmpty(validResponse)) && !renameError) {
             const newPayload = getRefreshData();
-            upsertResponse(name, newPayload, 0).then(() => { // update the content of the first variation to ensure consistency in visual story editor
+            upsertResponse(name, newPayload, 0, false).then(() => { // update the content of the first variation to ensure consistency in visual story editor
                 closeModal();
             });
         }
