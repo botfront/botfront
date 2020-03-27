@@ -5,7 +5,7 @@ import IconButton from '../../common/IconButton';
 import UserUtteranceContainer from './UserUtteranceContainer';
 import { NEW_INTENT } from '../../../../lib/story_controller';
 
-const BotResponsesContainer = (props) => {
+const UserUtterancesContainer = (props) => {
     const {
         deletable, value, onChange, onDelete,
     } = props;
@@ -77,17 +77,17 @@ const BotResponsesContainer = (props) => {
     );
 };
 
-BotResponsesContainer.propTypes = {
+UserUtterancesContainer.propTypes = {
     deletable: PropTypes.bool,
     value: PropTypes.array.isRequired,
     onChange: PropTypes.func,
     onDelete: PropTypes.func,
 };
 
-BotResponsesContainer.defaultProps = {
+UserUtterancesContainer.defaultProps = {
     deletable: true,
     onChange: () => {},
     onDelete: null,
 };
 
-export default BotResponsesContainer;
+export default UserUtterancesContainer;
