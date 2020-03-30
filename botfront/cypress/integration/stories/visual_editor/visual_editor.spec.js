@@ -104,6 +104,7 @@ describe('story visual editor', function () {
             .as('response');
 
         cy.visit('/project/bf/dialogue/templates/');
+        cy.wait('500');
         cy.get('@response').then((response) => {
             cy.log(response);
             cy.get('[role=row]')
