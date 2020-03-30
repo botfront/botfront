@@ -42,6 +42,7 @@ export const runAppolloServer = () => {
     server.applyMiddleware({
         app: WebApp.connectHandlers,
         path: '/graphql',
+        bodyParserConfig: { limit: process.env.GRAPHQL_REQUEST_SIZE_LIMIT || '200kb' },
     });
 
     WebApp.connectHandlers.use('/graphql', (req, res) => {
