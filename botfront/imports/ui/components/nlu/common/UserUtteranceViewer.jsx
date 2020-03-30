@@ -9,7 +9,7 @@ import Entity from './EntityLabel';
 
 function UserUtteranceViewer(props) {
     const {
-        value, onChange, disableEditing, projectId, showIntent, disabled, onClickIntentLabel,
+        value, onChange, disableEditing, projectId, showIntent, disabled, onClick,
     } = props;
     const { text, intent, entities } = value;
     const [textSelection, setSelection] = useState(null);
@@ -235,7 +235,11 @@ function UserUtteranceViewer(props) {
     const color = disabled ? { color: 'grey' } : {};
 
     return (
-        <div className='utterance-viewer' data-cy='utterance-text'>
+        <div
+            className={`utterance-viewer ${onClick ? 'cursor pointer' : ''}`}
+            data-cy='utterance-text'
+            {...(onClick ? { onClick } : {})}
+        >
             {textContent.map(element => (
                 <React.Fragment key={`${element.start}-${element.index}`}>
                     {element.type === 'text' && (
@@ -291,7 +295,6 @@ function UserUtteranceViewer(props) {
                             allowAdditions
                             onChange={newIntent => onChange({ ...value, intent: newIntent })}
                             disabled={disabled}
-                            {...(onClickIntentLabel ? { onClick: onClickIntentLabel } : {})}
                         />
                     )}
                 </>
@@ -308,7 +311,7 @@ UserUtteranceViewer.propTypes = {
     showIntent: PropTypes.bool,
     onChange: PropTypes.func,
     projectId: PropTypes.string.isRequired,
-    onClickIntentLabel: PropTypes.func,
+    onClick: PropTypes.func,
 };
 
 UserUtteranceViewer.defaultProps = {
@@ -316,7 +319,7 @@ UserUtteranceViewer.defaultProps = {
     showIntent: true,
     disabled: false,
     onChange: () => {},
-    onClickIntentLabel: null,
+    onClick: null,
 };
 
 

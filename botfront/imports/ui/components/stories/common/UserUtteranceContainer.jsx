@@ -101,7 +101,7 @@ const UtteranceContainer = (props) => {
             <UserUtteranceViewer
                 value={fetchedData || value}
                 disableEditing
-                onClickIntentLabel={() => setModalOpen(true)}
+                onClick={() => setModalOpen(true)}
             />
         );
     };
