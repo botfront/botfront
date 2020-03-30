@@ -29,19 +29,6 @@ async function logUtterance(modelId, parseData, callback, env = 'development') {
     );
 }
 
-async function create(req, res) {
-    try {
-        const model = await NLUModels.findOne({ _id: req.body.modelId }, { _id: 1 });
-        if (!model) throw new Error('An existing modelId is required');
-        const { modelId, parse_data } = req.body;
-        logUtterance(modelId, parse_data, (utterance, error) => {
-            if (error) return res.status(400).json({ error: error.name });
-            return res.status(200).json(utterance);
-        });
-    } catch (err) {
-        res.status(400).json({ error: err.toString().replace(/.*Error: /, '') });
-    }
-}
 
 const logUtterancesFromTracker = async function(projectId, tracker, filter = () => true, env = 'development') {
     try {
@@ -76,4 +63,4 @@ const logUtterancesFromTracker = async function(projectId, tracker, filter = () 
     }
 };
 
-module.exports = { create, logUtterance, logUtterancesFromTracker };
+module.exports = { logUtterance, logUtterancesFromTracker };
