@@ -14,7 +14,8 @@ class AdminSidebar extends React.Component {
             left: '0px',
             paddingBottom: '1em',
             background: 'rgb(27, 28, 29)',
-            overflowY: 'scroll',
+            overflowY: 'auto',
+            overflowX: 'hidden',
         };
         return (
             <Menu vertical inverted pointing style={style}>
