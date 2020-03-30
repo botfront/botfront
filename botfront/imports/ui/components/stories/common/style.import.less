@@ -205,9 +205,14 @@
 }
 
 .or-icon-button() {
+    &:hover {
+        i.icon:before {
+            color: darken(#8d99a2, 10%);
+        }
+    }
     i.icon:before {
         position: relative;
-        color: #999;
+        color: darken(#acbac4, 10%);
         left: -1px;
         top: -1px;
         content: 'or';
@@ -223,12 +228,14 @@
 }
 
 .story-line {
+    z-index: 2;
     display: inline-flex;
     justify-content: flex-start;
     align-items: center;
 
     .icon-button {
         position: relative;
+        top: -2px;
         left: 5px;
         opacity: 0;
         transition: opacity 0.1s ease-in-out;
