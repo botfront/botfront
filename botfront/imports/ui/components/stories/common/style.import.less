@@ -193,25 +193,8 @@
     }
 }
 
-@keyframes turnOrToTrash {
-    0% {
-        content: 'or';
-    }
-    50% {
-        opacity: 0.4;
-    }
-    100% {
-        content: "\f1f8";
-    }
-}
-
-.or-icon-button() {
-    &:hover {
-        i.icon:before {
-            color: darken(#8d99a2, 10%);
-        }
-    }
-    i.icon:before {
+.or-label() {
+    i.icon.add:before {
         position: relative;
         color: darken(#acbac4, 10%);
         left: -0.5px;
@@ -224,8 +207,20 @@
     }
 }
 
-.icon-button.single-face-or {
-    .or-icon-button;
+.or-labela {
+    opacity: 0.8 !important;
+    background-color: transparent !important;
+    cursor: default !important;
+    .or-label;
+}
+
+.or-icon-button {
+    &:hover {
+        i.icon:before {
+            color: darken(#8d99a2, 10%);
+        }
+    }
+    .or-label;
 }
 
 .story-line {
@@ -245,23 +240,9 @@
         transition: opacity 0.1s ease-in-out;
     }
 
-    &:not(:hover) {
-        .icon-button.double-face-or {
-            opacity: 0.8;
-            &.ui.button.icon.grey { background-color: transparent !important; }
-            .or-icon-button;
-        }
-    }
-
     &:hover {
         .icon-button {
             opacity: 0.8;
-        }
-        .icon-button.double-face-or i.icon:before {
-            animation: turnOrToTrash 0.15s linear;
-        }
-        .ui.button.icon.grey.icon-button.double-face-or {
-            transition: background-color 0.15s ease-in-out;
         }
     }
     

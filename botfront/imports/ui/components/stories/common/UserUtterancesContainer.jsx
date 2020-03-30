@@ -52,17 +52,19 @@ const UserUtterancesContainer = (props) => {
                     onInput={content => handleUpdateDisjunct(index, content)}
                     onAbort={() => { if (value.length > 1) handleDeleteDisjunct(index); }}
                 />
+                {payload && index !== value.length - 1 && (
+                    <IconButton icon='add' className='or-labela' color='other' />
+                )}
+                {!somethingIsBeingInput && index === value.length - 1 && (
+                    <IconButton onClick={() => handleInsertDisjunct(index)} icon='add' className='or-icon-button' />
+                )}
                 {deletable
                     && (!somethingIsBeingInput || !payload)
                     && value.length > 1 && (
                     <IconButton
                         onClick={() => handleDeleteDisjunct(index)}
                         icon='trash'
-                        className={payload && index !== value.length - 1 ? 'double-face-or' : ''}
                     />
-                )}
-                {!somethingIsBeingInput && index === value.length - 1 && (
-                    <IconButton onClick={() => handleInsertDisjunct(index)} icon='add' className='single-face-or' />
                 )}
             </div>
         </React.Fragment>
