@@ -53,7 +53,7 @@ const UserUtterancesContainer = (props) => {
                     onAbort={() => { if (value.length > 1) handleDeleteDisjunct(index); }}
                 />
                 {payload && index !== value.length - 1 && (
-                    <IconButton icon='add' className='or-labela' color='other' />
+                    <IconButton icon='add' className='or-label' color='other' />
                 )}
                 {!somethingIsBeingInput && index === value.length - 1 && (
                     <IconButton onClick={() => handleInsertDisjunct(index)} icon='add' className='or-icon-button' />
