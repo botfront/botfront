@@ -100,10 +100,10 @@ if (Meteor.isServer) {
         Roles.addRolesToParent(['incoming:r', 'triggers:r', 'stories:r', 'responses:r', 'nlu-data:r', 'analytics:r'], 'projects:r');
         createRole(
             'projects:w',
-            'Can edit project meta information and settings. Extends `projects:r`. If no `projectId` constraint is specified this permission allows adding, editing, and removing projects.',
+            'Can edit and use all ressources related to a project, settings. Extends `projects:r`. If no `projectId` constraint is specified this permission allows adding, editing, and removing projects.',
         );
-        Roles.addRolesToParent('projects:r', 'projects:w');
-        
+        Roles.addRolesToParent(['projects:r', 'nlu-data:x', 'incoming:w', 'triggers:w', 'stories:w', 'responses:w', 'nlu-data:w'], 'projects:w');
+
         createRole('global-settings:r', 'Can access global settings.');
         createRole('global-settings:w', 'Can edit global settings. Extends `global-settings:r.`');
         Roles.addRolesToParent('global-settings:r', 'global-settings:w');

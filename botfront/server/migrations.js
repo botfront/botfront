@@ -104,7 +104,7 @@ const migrateResponses = () => {
                     const newTemplates = [];
                     const duplicates = [];
                     templates.forEach((t, index) => {
-                    // Delete irrelevant fields and set new _id
+                        // Delete irrelevant fields and set new _id
                         delete t.match;
                         delete t.followUp;
                         t.projectId = p._id;
@@ -335,6 +335,18 @@ Migrations.add({
         });
     },
 });
+
+
+Migrations.add({
+    version: 13,
+    up: () => {
+        Roles.deleteRole('nlu-editor');
+    },
+    down: () => {
+
+    },
+});
+
 Meteor.startup(() => {
     Migrations.migrateTo('latest');
 });
