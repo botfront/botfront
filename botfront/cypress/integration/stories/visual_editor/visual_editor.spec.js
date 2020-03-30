@@ -18,7 +18,7 @@ describe('story visual editor', function () {
 
     it('should persist a user utterance, a bot response, and display add-user-line option appropriately', function() {
         cy.importNluData('bf', 'nlu_sample_en.json', 'en');
-        /* cy.train();
+        cy.train();
         cy.visit('/project/bf/stories');
         cy.browseToStory('Groupo (1)');
 
@@ -35,12 +35,12 @@ describe('story visual editor', function () {
         cy.dataCy('save-new-user-input').click({ force: true });
 
         cy.contains('Hello'); // checks that text has been saved
-*/
-        // cy.dataCy('add-user-line').should('not.exist'); // cannot have adjacent user utterances
+
+        cy.dataCy('add-user-line').should('not.exist'); // cannot have adjacent user utterances
 
         cy.dataCy('add-bot-line').click({ force: true });
 
-        // cy.contains('Hello'); // checks that text has been saved
+        cy.contains('Hello'); // checks that text has been saved
 
         cy.dataCy('from-text-template').click({ force: true });
         cy.dataCy('bot-response-input')
@@ -96,11 +96,11 @@ describe('story visual editor', function () {
         cy.dataCy('save-button').click({ force: true });
 
         cy.dataCy('toggle-md').click({ force: true });
-        // cy.dataCy('story-editor')
-        //     .find('.ace_line').eq(0)
-        //     .should('have.text', '* myTestIntent');
+        cy.dataCy('story-editor')
+            .find('.ace_line').eq(0)
+            .should('have.text', '* myTestIntent');
         cy.dataCy('story-editor').find('.ace_line')
-            .eq(1).invoke('text')
+            .eq(2).invoke('text')
             .then((response) => {
                 cy.visit('/project/bf/dialogue/templates/');
                 cy.get('.rt-tbody > :nth-child(2)')
@@ -119,7 +119,7 @@ describe('story visual editor', function () {
             .contains('myTestIntent')
             .should('exist'); // there nlu example is there too
     });
-/*
+
     it('should be able to add an image bot response', function () {
         cy.dataCy('add-bot-line').click({ force: true });
         cy.dataCy('from-image-template').click({ force: true });
@@ -200,5 +200,5 @@ describe('story visual editor', function () {
         cy.visit('/project/bf/stories');
         cy.browseToStory('Greetings');
         cy.get('[role = "application"]').should('have.text', 'bonjour not canonical recent');
-    }); */
+    });
 });
