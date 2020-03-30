@@ -46,8 +46,8 @@ const BotResponseContainer = (props) => {
     function handleTextBlur(e) {
         const tagRegex = new RegExp(tag);
         if (e.relatedTarget && !!e.relatedTarget.id.match(tagRegex)) return;
-        if (isTextResponse) onChange({ text: formatNewlines(input) }, false);
-        if (isQRResponse) { onChange({ text: formatNewlines(input), buttons: value.buttons }, false); }
+        if (isTextResponse && input !== value.text) onChange({ text: formatNewlines(input) }, false);
+        if (isQRResponse && input !== value.text) { onChange({ text: formatNewlines(input), buttons: value.buttons }, false); }
         if (isImageResponse) { onChange({ text: formatNewlines(input), image: value.image }, false); }
     }
 

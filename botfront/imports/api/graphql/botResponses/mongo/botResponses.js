@@ -138,7 +138,7 @@ export const deleteResponse = async (projectId, key) => {
     if (!response) return;
     const { deleteImageWebhook: { url, method } } = getImageWebhooks();
     if (url && method) deleteImages(getImageUrls(response), projectId, url, method);
-    return BotResponses.findOneAndDelete({ _id: response._id }); // eslint-disable-line consistent-return
+    return BotResponses.findOneAndDelete({ _id: response._id }).lean(); // eslint-disable-line consistent-return
 };
 
 export const getBotResponse = async (projectId, key) => BotResponses.findOne({

@@ -112,20 +112,21 @@ export default {
         },
         upsertResponse: async (_, args, auth) => {
             checkIfCan('responses:w', args.projectId, auth.user._id);
-            const responseBefore = getBotResponse(args.projectId, args.key);
+            const responseBefore = await getBotResponse(args.projectId, args.key);
             const response = await upsertResponse(args);
             const { projectId, ...botResponsesModified } = response;
-
-            auditLog('Upserted response', {
-                user: auth.user,
-                type: 'updated',
-                projectId: args.projectId,
-                operation: 'response-updated',
-                resId: args.key,
-                before: { botResponse: responseBefore },
-                after: { botResponse: response },
-                resType: 'response',
-            });
+            if (args.logging) {
+                auditLog('Upserted response', {
+                    user: auth.user,
+                    type: 'updated',
+                    projectId: args.projectId,
+                    operation: 'response-updated',
+                    resId: args.key,
+                    before: { botResponse: responseBefore },
+                    after: { botResponse: response },
+                    resType: 'response',
+                });
+            }
             pubsub.publish(RESPONSES_MODIFIED, { projectId, botResponsesModified });
             return response;
         },
@@ -138,14 +139,16 @@ export default {
             });
             auditLog('Created response', {
                 user: auth.user,
-                type: 'updated',
+                type: 'created',
                 projectId: args.projectId,
                 operation: 'response-created',
                 resId: args.response.key,
-                after: { response },
+                // eslint-disable-next-line no-underscore-dangle
+                after: { response: response._doc },
                 resType: 'response',
             });
-            return { success: !!response.id };
+            
+            return { success: !!response._id };
         },
         async createResponses(_, args, auth) {
             checkIfCan('responses:w', args.projectId, auth.user._id);

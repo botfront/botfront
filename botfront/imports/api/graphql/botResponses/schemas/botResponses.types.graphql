@@ -38,6 +38,7 @@ type Mutation {
         newPayload: Any
         key: String!
         index: Int = -1
+        logging: Boolean
     ): BotResponse
 
     createResponse(projectId: String!, response: BotResponseInput): updateResponse!
