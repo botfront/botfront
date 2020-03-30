@@ -156,6 +156,7 @@
     padding: 9px 0 5px; // 4px extra because of .utterance-container bottom margin
 
     .side-by-side.top-right {
+        max-width: 70px;
         position: absolute;
         top: 5px;
         right: 5px;
@@ -228,14 +229,17 @@
 }
 
 .story-line {
-    z-index: 2;
     display: inline-flex;
     justify-content: flex-start;
     align-items: center;
 
-    .icon-button {
-        position: relative;
+    .utterance-container ~ .icon-button {
         top: -2px;
+    }
+
+    .icon-button {
+        z-index: 2;
+        position: relative;
         left: 5px;
         opacity: 0;
         transition: opacity 0.1s ease-in-out;
@@ -381,6 +385,10 @@ div.add-entity-wrap {
 
     .ui.button.edit-custom-response {
         background-color: rgba(0,0,0,0);
+    }
+
+    input { // chrome input height fix
+        height: 30px;
     }
 
     textarea {

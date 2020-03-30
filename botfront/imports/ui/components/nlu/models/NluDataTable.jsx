@@ -191,8 +191,7 @@ export default class NluDataTable extends React.Component {
                                 <IconButton
                                     active={canonical}
                                     icon='gem'
-                                    color={canonical ? 'purple' : 'white'}
-                                    basic={!canonical}
+                                    basic
                                     disabled={toolTip === null}
                                     onClick={async () => {
                                     // need to recreate a set since state do not detect update through mutations
@@ -234,7 +233,6 @@ export default class NluDataTable extends React.Component {
                             <div>
                                 <IconButton
                                     icon='trash'
-                                    color='white'
                                     basic
                                     disabled={canonical}
                                     onClick={() => onDeleteExample(props.value)}
