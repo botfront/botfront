@@ -151,15 +151,7 @@ describe('NLU canonical examples', function () {
 
         cy.dataCy('add-user-line').click({ force: true });
         cy.dataCy('user-line-from-input').click({ force: true });
-        cy.dataCy('utterance-input')
-            .find('input')
-            .type('this example should be canonical{enter}');
-        cy.dataCy('intent-label').should('have.length', 2);
-        cy.dataCy('intent-label').last().click();
-        cy.dataCy('intent-dropdown').last().find('input')
-            .type('intenttest{enter}');
-        cy.dataCy('intent-label').contains('intenttest').should('exist');
-        cy.dataCy('save-new-user-input').click();
+        cy.addUserUtterance('this example should be canonical', 'intenttest', 1);
         cy.visit('/project/bf/nlu/models');
         cy.dataCy('icon-gem').should('have.class', 'active');
     });

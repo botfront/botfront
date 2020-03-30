@@ -108,3 +108,17 @@ Cypress.Commands.add('moveStoryOrGroup', ({ name: originName, type: originType =
     });
     cy.wait(300);
 });
+
+Cypress.Commands.add('addUserUtterance', (text, intent, index = 0, options = {}) => {
+    const { checkForIntent = false } = options;
+    cy.dataCy('utterance-input')
+        .find('input')
+        .type(`${text}{enter}`);
+    cy.dataCy('intent-label').should('have.length', index + 1);
+    if (checkForIntent) cy.dataCy('intent-label').eq(index).should('have.text', intent);
+    cy.dataCy('intent-label').eq(index).click();
+    cy.get('.intent-dropdown input')
+        .click({ force: true })
+        .type(`${intent}{enter}`);
+    cy.dataCy('save-new-user-input').click({ force: true });
+});
