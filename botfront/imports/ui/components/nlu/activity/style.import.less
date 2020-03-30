@@ -28,13 +28,21 @@
 }
 
 .ReactTable {
-    border-radius: 4px;
-}
-
-.ReactTable {
-    .icon-button {
+    .ui.button.icon-button.basic {
         width: 23px;
+        background: none !important;
+        box-shadow: none !important;
+
+        &:hover {
+            background: none !important;
+        }
+
+        &.active {
+            color: #000 !important;
+        }
     }
+
+    border-radius: 4px;
     border: 0 !important;
     .rt-tbody {
         > :first-child {
