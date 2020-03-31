@@ -16,9 +16,9 @@ describe('story visual editor', function () {
         cy.createStoryInGroup();
     });
 
-    it('should persist a user utterance, a bot response, and display add-user-line option appropriately', function() {
+    it('should persist a user utterance, a bot response, and display add-user-line option appropriately', function () {
         cy.importNluData('bf', 'nlu_sample_en.json', 'en');
-        cy.train();
+        cy.train(10000);
         cy.visit('/project/bf/stories');
         cy.browseToStory('Groupo (1)');
 

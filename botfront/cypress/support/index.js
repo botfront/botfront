@@ -264,10 +264,10 @@ Cypress.Commands.add('importNluData', (projectId = 'bf', fixture, lang = 'en', o
     return cy.wait(500);
 });
 
-Cypress.Commands.add('train', () => {
+Cypress.Commands.add('train', (waitTime = 5000) => {
     cy.visit('/project/bf/stories');
     cy.dataCy('train-button').click();
-    cy.wait(5000);
+    cy.wait(waitTime);
     cy.dataCy('train-button').should('not.have.class', 'disabled');
 });
 
