@@ -111,111 +111,111 @@ describe('story visual editor', function () {
             .should('exist'); // there nlu example is there too
     });
 
-    // it('should be able to add an image bot response', function () {
-    //     cy.dataCy('add-bot-line').click({ force: true });
-    //     cy.dataCy('from-image-template').click({ force: true });
-    //     cy.dataCy('image-url-input')
-    //         .find('input')
-    //         .type(`${IMAGE_URL}{enter}`);
-    //     cy.get('img.small.image')
-    //         .should('have.attr', 'src', IMAGE_URL);
-    // });
+    it('should be able to add an image bot response', function () {
+        cy.dataCy('add-bot-line').click({ force: true });
+        cy.dataCy('from-image-template').click({ force: true });
+        cy.dataCy('image-url-input')
+            .find('input')
+            .type(`${IMAGE_URL}{enter}`);
+        cy.get('img.small.image')
+            .should('have.attr', 'src', IMAGE_URL);
+    });
 
-    // it('should rerender on language change', function () {
-    //     cy.importNluData('bf', 'nlu_sample_en.json', 'en');
+    it('should rerender on language change', function () {
+        cy.importNluData('bf', 'nlu_sample_en.json', 'en');
 
-    //     cy.browseToStory('Get started');
-    //     cy.dataCy('bot-response-input')
-    //         .find('textarea')
-    //         .type('I agree let\'s do it!!')
-    //         .blur();
+        cy.browseToStory('Get started');
+        cy.dataCy('bot-response-input')
+            .find('textarea')
+            .type('I agree let\'s do it!!')
+            .blur();
 
-    //     cy.dataCy('language-selector').click().find('div').contains('German')
-    //         .click({ force: true });
-    //     cy.dataCy('single-story-editor').should('not.contain', 'Let\'s get started!');
-    //     cy.dataCy('single-story-editor').should('not.contain', 'I agree let\'s do it!!');
+        cy.dataCy('language-selector').click().find('div').contains('German')
+            .click({ force: true });
+        cy.dataCy('single-story-editor').should('not.contain', 'Let\'s get started!');
+        cy.dataCy('single-story-editor').should('not.contain', 'I agree let\'s do it!!');
 
-    //     cy.dataCy('language-selector').click().find('div').contains('English')
-    //         .click({ force: true });
-    //     cy.dataCy('single-story-editor').should('contain', 'Let\'s get started!');
-    //     cy.dataCy('single-story-editor').should('contain', 'I agree let\'s do it!!');
+        cy.dataCy('language-selector').click().find('div').contains('English')
+            .click({ force: true });
+        cy.dataCy('single-story-editor').should('contain', 'Let\'s get started!');
+        cy.dataCy('single-story-editor').should('contain', 'I agree let\'s do it!!');
 
-    //     cy.dataCy('language-selector').click().find('div').contains('German')
-    //         .click({ force: true });
-    //     cy.dataCy('single-story-editor').should('not.contain', 'Let\'s get started!');
-    //     cy.dataCy('single-story-editor').should('not.contain', 'I agree let\'s do it!!');
+        cy.dataCy('language-selector').click().find('div').contains('German')
+            .click({ force: true });
+        cy.dataCy('single-story-editor').should('not.contain', 'Let\'s get started!');
+        cy.dataCy('single-story-editor').should('not.contain', 'I agree let\'s do it!!');
 
-    //     cy.dataCy('language-selector').click().find('div').contains('English')
-    //         .click({ force: true });
-    //     cy.dataCy('single-story-editor').should('contain', 'Let\'s get started!');
-    //     cy.dataCy('single-story-editor').should('contain', 'I agree let\'s do it!!');
-    // });
+        cy.dataCy('language-selector').click().find('div').contains('English')
+            .click({ force: true });
+        cy.dataCy('single-story-editor').should('contain', 'Let\'s get started!');
+        cy.dataCy('single-story-editor').should('contain', 'I agree let\'s do it!!');
+    });
 
-    // it('should use the canonical example if one is available', function () {
-    //     cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'en', [
-    //         {
-    //             text: 'bonjour canonical',
-    //             intent: 'chitchat.greet',
-    //             canonical: true,
-    //         },
-    //     ]]);
-    //     cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'en', [
-    //         {
-    //             text: 'bonjour not canonical',
-    //             intent: 'chitchat.greet',
-    //             canonical: false,
+    it('should use the canonical example if one is available', function () {
+        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'en', [
+            {
+                text: 'bonjour canonical',
+                intent: 'chitchat.greet',
+                canonical: true,
+            },
+        ]]);
+        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'en', [
+            {
+                text: 'bonjour not canonical',
+                intent: 'chitchat.greet',
+                canonical: false,
 
-    //         },
-    //     ]]);
-    //     cy.visit('/project/bf/stories');
-    //     cy.browseToStory('Greetings');
-    //     cy.get('[role = "application"]').should('have.text', 'bonjour canonical');
-    // });
+            },
+        ]]);
+        cy.visit('/project/bf/stories');
+        cy.browseToStory('Greetings');
+        cy.get('[role = "application"]').should('have.text', 'bonjour canonical');
+    });
 
-    // it('should use the most recent example if no canonical is available', function () {
-    //     cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'en', [
-    //         {
-    //             text: 'bonjour not canonical',
-    //             intent: 'chitchat.greet',
-    //         },
-    //     ]]);
-    //     cy.visit('/project/bf/nlu/models');
-    //     cy.dataCy('icon-gem', null, '.active').click({ force: true });
-    //     cy.dataCy('icon-gem', null, '.active').should('not.exist');
-    //     cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'en', [
-    //         {
-    //             text: 'bonjour not canonical recent',
-    //             intent: 'chitchat.greet',
-    //         },
-    //     ]]);
-    //     cy.visit('/project/bf/stories');
-    //     cy.browseToStory('Greetings');
-    //     cy.get('[role = "application"]').should('have.text', 'bonjour not canonical recent');
-    // });
+    it('should use the most recent example if no canonical is available', function () {
+        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'en', [
+            {
+                text: 'bonjour not canonical',
+                intent: 'chitchat.greet',
+            },
+        ]]);
+        cy.visit('/project/bf/nlu/models');
+        cy.dataCy('icon-gem', null, '.active').click({ force: true });
+        cy.dataCy('icon-gem', null, '.active').should('not.exist');
+        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'en', [
+            {
+                text: 'bonjour not canonical recent',
+                intent: 'chitchat.greet',
+            },
+        ]]);
+        cy.visit('/project/bf/stories');
+        cy.browseToStory('Greetings');
+        cy.get('[role = "application"]').should('have.text', 'bonjour not canonical recent');
+    });
 
-    // it('should add user utterance payload disjuncts, delete them, and Md representation should match', function () {
-    //     cy.visit('/project/bf/stories');
-    //     cy.browseToStory('Greetings', 'Default stories');
-    //     cy.dataCy('icon-add').click({ force: true });
-    //     cy.addUserUtterance('Bye', 'chitchat.bye', 1);
-    //     cy.dataCy('toggle-md').click();
-    //     cy.dataCy('story-editor')
-    //         .find('.ace_line').eq(0)
-    //         .should('have.text', '* chitchat.greet OR chitchat.bye');
-    //     cy.dataCy('toggle-visual').click();
-    //     cy.dataCy('icon-trash').first().click({ force: true });
-    //     cy.dataCy('toggle-md').click();
-    //     cy.dataCy('story-editor')
-    //         .find('.ace_line').eq(0)
-    //         .should('have.text', '* chitchat.bye');
-    // });
+    it('should add user utterance payload disjuncts, delete them, and Md representation should match', function () {
+        cy.visit('/project/bf/stories');
+        cy.browseToStory('Greetings', 'Default stories');
+        cy.dataCy('icon-add').click({ force: true });
+        cy.addUserUtterance('Bye', 'chitchat.bye', 1);
+        cy.dataCy('toggle-md').click();
+        cy.dataCy('story-editor')
+            .find('.ace_line').eq(0)
+            .should('have.text', '* chitchat.greet OR chitchat.bye');
+        cy.dataCy('toggle-visual').click();
+        cy.dataCy('icon-trash').first().click({ force: true });
+        cy.dataCy('toggle-md').click();
+        cy.dataCy('story-editor')
+            .find('.ace_line').eq(0)
+            .should('have.text', '* chitchat.bye');
+    });
 
-    // it('should not utterance payload disjunct if some disjunct already has identical payload', function () {
-    //     cy.visit('/project/bf/stories');
-    //     cy.browseToStory('Greetings', 'Default stories');
-    //     cy.dataCy('intent-label').should('have.length', 1);
-    //     cy.dataCy('icon-add').click({ force: true });
-    //     cy.addUserUtterance('Hello', 'chitchat.greet', 1);
-    //     cy.dataCy('intent-label').should('have.length', 1);
-    // });
+    it('should not utterance payload disjunct if some disjunct already has identical payload', function () {
+        cy.visit('/project/bf/stories');
+        cy.browseToStory('Greetings', 'Default stories');
+        cy.dataCy('intent-label').should('have.length', 1);
+        cy.dataCy('icon-add').click({ force: true });
+        cy.addUserUtterance('Hello', 'chitchat.greet', 1);
+        cy.dataCy('intent-label').should('have.length', 1);
+    });
 });
