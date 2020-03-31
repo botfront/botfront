@@ -118,6 +118,7 @@ export const writers = {
     analytics: [
         'incoming:w',
         'global-admin',
+        'projects:w',
     ],
     activity: [
         'nlu-data:w',
@@ -143,7 +144,6 @@ export const writers = {
     ],
     globalSettings: [
         'global-settings:w',
-        'projects:w',
         'global-admin',
     ],
     stories: [
