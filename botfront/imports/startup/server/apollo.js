@@ -42,6 +42,7 @@ export const runAppolloServer = () => {
     server.applyMiddleware({
         app: WebApp.connectHandlers,
         path: '/graphql',
+        bodyParserConfig: { limit: process.env.GRAPHQL_REQUEST_SIZE_LIMIT || '200kb' },
     });
 
     WebApp.connectHandlers.use('/graphql', (req, res) => {
@@ -51,7 +52,13 @@ export const runAppolloServer = () => {
     });
 
     WebApp.connectHandlers.use('/health', (req, res) => {
-        axios.get('http://localhost:3000/graphql?query=query%20%7BhealthCheck%7D').then((response) => {
+        const { authorization } = req.headers;
+        const headersObject = authorization ? {
+            headers: {
+                authorization,
+            },
+        } : {};
+        axios.get('http://localhost:3000/graphql?query=query%20%7BhealthCheck%7D', headersObject).then((response) => {
             // handle success
             if (response.data) {
                 if (response.data && response.data.data && response.data.data.healthCheck) {
@@ -59,7 +66,7 @@ export const runAppolloServer = () => {
                     res.end();
                 }
             } else {
-                res.statusCode = 503;
+                res.statusCode = 401;
                 res.end();
             }
         }).catch(function (error) {
