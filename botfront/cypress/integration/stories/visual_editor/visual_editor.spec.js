@@ -141,16 +141,6 @@ describe('story visual editor', function () {
             .click({ force: true });
         cy.dataCy('single-story-editor').should('contain', 'Let\'s get started!');
         cy.dataCy('single-story-editor').should('contain', 'I agree let\'s do it!!');
-
-        cy.dataCy('language-selector').click().find('div').contains('German')
-            .click({ force: true });
-        cy.dataCy('single-story-editor').should('not.contain', 'Let\'s get started!');
-        cy.dataCy('single-story-editor').should('not.contain', 'I agree let\'s do it!!');
-
-        cy.dataCy('language-selector').click().find('div').contains('English')
-            .click({ force: true });
-        cy.dataCy('single-story-editor').should('contain', 'Let\'s get started!');
-        cy.dataCy('single-story-editor').should('contain', 'I agree let\'s do it!!');
     });
 
     it('should use the canonical example if one is available', function () {
