@@ -1,4 +1,5 @@
 import React from 'react';
+import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withTracker } from 'meteor/react-meteor-data';
@@ -12,7 +13,7 @@ import { Button } from 'semantic-ui-react';
 import { InstanceSchema } from '../../../api/instances/instances.schema';
 import { Instances as InstancesCollection } from '../../../api/instances/instances.collection';
 import { wrapMeteorCallback } from '../utils/Errors';
-import { can } from '../../../lib/scopes';
+import { can, checkIfCan } from '../../../lib/scopes';
 import restartRasa from './restartRasa';
 import { GlobalSettings } from '../../../api/globalSettings/globalSettings.collection';
 
@@ -83,19 +84,23 @@ Instances.defaultProps = {
 const InstancesContainer = withTracker((props) => {
     const { projectId } = props;
     const handler = Meteor.subscribe('nlu_instances', projectId);
-    const restartRasaHandler = Meteor.subscribe('restartRasaWebhook', projectId);
     const instance = InstancesCollection.findOne({ projectId });
-    const {
-        settings: {
-            private: {
-                webhooks: { restartRasaWebhook },
-            },
-        },
-    } = GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.restartRasaWebhook': 1 } });
+    if (can('projects:w', projectId)) {
+        const restartRasaHandler = Meteor.subscribe('restartRasaWebhook', projectId);
+        const settings = GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.restartRasaWebhook': 1 } });
+        const restartRasaWebhook = get(settings, 'private.webhooks.restartRasaWebhook', {});
+
+        return {
+            ready: handler.ready() && restartRasaHandler.ready(),
+            instance,
+            webhook: restartRasaWebhook,
+        };
+    }
+    
     return {
-        ready: handler.ready() && restartRasaHandler.ready(),
+        ready: handler.ready(),
         instance,
-        webhook: restartRasaWebhook,
+        webhook: {},
     };
 })(Instances);
 

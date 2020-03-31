@@ -2,7 +2,7 @@ import { AutoForm, ErrorsField } from 'uniforms-semantic';
 import { withTracker } from 'meteor/react-meteor-data';
 import 'react-s-alert/dist/s-alert-default.css';
 import { connect } from 'react-redux';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, get } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Menu } from 'semantic-ui-react';
@@ -188,8 +188,6 @@ const CredentialsContainer = withTracker(({ projectId }) => {
     const handler = Meteor.subscribe('credentials', projectId);
     const handlerproj = Meteor.subscribe('projects', projectId);
 
-    const restartRasaHandler = Meteor.subscribe('restartRasaWebhook', projectId);
-
 
     const credentials = {};
     CredentialsCollection.find({ projectId })
@@ -209,20 +207,24 @@ const CredentialsContainer = withTracker(({ projectId }) => {
         },
     );
 
-    const {
-        settings: {
-            private: {
-                webhooks: { restartRasaWebhook },
-            },
-        },
-    } = GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.restartRasaWebhook': 1 } });
 
-
+    if (can('projects:w', projectId)) {
+        const restartRasaHandler = Meteor.subscribe('restartRasaWebhook', projectId);
+        const settings = GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.restartRasaWebhook': 1 } });
+        const restartRasaWebhook = get(settings, 'private.webhooks.restartRasaWebhook', {});
+       
+        return {
+            ready: (handler.ready() && handlerproj.ready() && restartRasaHandler.ready()),
+            credentials,
+            projectSettings,
+            webhook: restartRasaWebhook,
+        };
+    }
     return {
-        ready: (handler.ready() && handlerproj.ready() && restartRasaHandler.ready()),
+        ready: (handler.ready() && handlerproj.ready()),
         credentials,
         projectSettings,
-        webhook: restartRasaWebhook,
+        webhook: {},
     };
 })(Credentials);
 

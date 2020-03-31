@@ -2,7 +2,7 @@ import { AutoForm, ErrorsField } from 'uniforms-semantic';
 import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, get } from 'lodash';
 import React from 'react';
 import { Menu } from 'semantic-ui-react';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
@@ -188,15 +188,6 @@ Endpoints.defaultProps = {
 
 const EndpointsContainer = withTracker(({ projectId }) => {
     const handler = Meteor.subscribe('endpoints', projectId);
-    const restartRasaHandler = Meteor.subscribe('restartRasaWebhook', projectId);
-    const {
-        settings: {
-            private: {
-                webhooks: { restartRasaWebhook },
-            },
-        },
-    } = GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.restartRasaWebhook': 1 } });
-
     const projectSettings = ProjectsCollection.findOne(
         { _id: projectId },
         {
@@ -214,13 +205,25 @@ const EndpointsContainer = withTracker(({ projectId }) => {
         .forEach((endpoint) => {
             endpoints[endpoint.environment ? endpoint.environment : 'development'] = endpoint;
         });
-    const ready = handler.ready() && restartRasaHandler.ready();
 
+    if (can('projects:w', projectId)) {
+        const restartRasaHandler = Meteor.subscribe('restartRasaWebhook', projectId);
+        const settings = GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.restartRasaWebhook': 1 } });
+        const restartRasaWebhook = get(settings, 'private.webhooks.restartRasaWebhook', {});
+        const ready = handler.ready() && restartRasaHandler.ready();
+        return {
+            ready,
+            endpoints,
+            projectSettings,
+            webhook: restartRasaWebhook,
+        };
+    }
+    
     return {
-        ready,
+        ready: handler.ready(),
         endpoints,
         projectSettings,
-        webhook: restartRasaWebhook,
+        webhook: {},
     };
 })(Endpoints);
 
