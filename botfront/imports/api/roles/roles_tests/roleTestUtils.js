@@ -107,10 +107,12 @@ export const writers = {
     nluData: [
         'nlu-data:w',
         'incoming:w',
+        'projects:w',
         'global-admin',
     ],
     responses: [
         'responses:w',
+        'projects:w',
         'global-admin',
     ],
     analytics: [
@@ -121,34 +123,42 @@ export const writers = {
         'nlu-data:w',
         'nlu-data:w',
         'incoming:w',
+        'projects:w',
         'global-admin',
     ],
     incoming: [
         'incoming:w',
+        'projects:w',
         'global-admin',
     ],
     roles: [
         'roles:w',
+        'projects:w',
         'global-admin',
     ],
     projects: [
+        'projects:w',
         'projects:w',
         'global-admin',
     ],
     globalSettings: [
         'global-settings:w',
+        'projects:w',
         'global-admin',
     ],
     stories: [
         'stories:w',
+        'projects:w',
         'global-admin',
     ],
     triggers: [
         'triggers:w',
+        'projects:w',
         'global-admin',
     ],
     users: [
         'users:w',
+        'projects:w',
         'global-admin',
     ],
 };
