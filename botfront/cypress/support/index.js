@@ -503,7 +503,7 @@ Cypress.Commands.add('train', () => {
     cy.visit('/project/bf/stories');
     cy.dataCy('train-button').click();
     cy.wait(5000);
-    cy.dataCy('train-button').should('not.have.class', 'disabled');
+    cy.get('[data-cy=train-button]', { timeout: 100000 }).should('not.have.class', 'disabled');
 });
 
 const MONTHS = [
