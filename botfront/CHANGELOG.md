@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.21.4-ee.0](https://github.com/botfront/botfront/compare/v0.20.3-ee.3...v0.21.4-ee.0) (2020-03-31)
+
+
+### Features
+
+* seach stories by title and content ([45be252](https://github.com/botfront/botfront/commit/45be2522beefddcd4199cec2dc9b7cc7439d8d05))
+* **dnd tree:** better behavior ([b44ae15](https://github.com/botfront/botfront/commit/b44ae15306a5a003e4e63e84f0dc6ea886126173))
+* **dnd tree:** extract logic to hook ([5e25eca](https://github.com/botfront/botfront/commit/5e25ecadce95c4f2be5ec6ce5987e71196b7de92))
+* **dnd tree:** inline name editing ([e187633](https://github.com/botfront/botfront/commit/e187633bc8a4b4b572562b154a023ed8651a3167))
+* **dnd tree:** no ellipsis menu ([9295f85](https://github.com/botfront/botfront/commit/9295f85c805373d909f442c3e5f6b77b8fb01eed))
+* **permalinks:** initial commit ([a307bf2](https://github.com/botfront/botfront/commit/a307bf2cbdadd328bb39c11e6ce2c0e2f99cd449))
+* dnd tree poc wip initial commit ([123ad0a](https://github.com/botfront/botfront/commit/123ad0ad16e44f94375c0cfd6e626cef1d7f4e61))
+
+
+### Bug Fixes
+
+* a typo in the story rules editor ([c785022](https://github.com/botfront/botfront/commit/c78502219e4f7270481e4b41f62de37d06e9e7de))
+* correct dragged item offset on scroll ([a742491](https://github.com/botfront/botfront/commit/a7424918c476a4ac54b20a9486df956a86289d2b))
+* duplicate story insertion bug ([83a063e](https://github.com/botfront/botfront/commit/83a063e83b87390e95d793a86799789de91fb008))
+* mongo credentials are overwritten on update ([#520](https://github.com/botfront/botfront/issues/520)) ([84570e3](https://github.com/botfront/botfront/commit/84570e3b04a8aa641ff1cb322a9a613c086575ef))
+* project creation ([6751775](https://github.com/botfront/botfront/commit/6751775a4533bd8a6da34a9e556104ddcfead482))
+* roles are duplicated on name change ([bcfddcd](https://github.com/botfront/botfront/commit/bcfddcd98ac48b983f01d1ce5b9e327b6c46713d))
+* routing for users with global scope ([6b1e82f](https://github.com/botfront/botfront/commit/6b1e82fdd72868a21e639e89c549501a3683db86))
+* training with empty story groups ([120056b](https://github.com/botfront/botfront/commit/120056b710493d082821a578232be376d0f237aa))
+
 ## [0.22.0-ee.0](https://github.com/botfront/botfront/compare/v0.20.3-ee.3...v0.22.0-ee.0) (2020-03-25)
 
 
