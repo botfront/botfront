@@ -42,6 +42,7 @@ export default class NLUPlayground extends React.Component {
     handleAutoSaveExample = () => {
         const { defaultIntent, instance, model: { language } } = this.props;
         const { example } = this.state;
+        // treat new lines as new examples
         example.text.split('\n').forEach((exampleText) => {
             Meteor.call(
                 'rasa.parse',
@@ -49,8 +50,10 @@ export default class NLUPlayground extends React.Component {
                 [{ text: exampleText, lang: language }],
                 (err, exampleMatch) => {
                     if (err) return;
-                    const { intent: { name } } = exampleMatch;
-                    this.handleSaveExample({ ...example, text: exampleText, intent: name || defaultIntent });
+                    const { intent: { name }, entities } = exampleMatch;
+                    this.handleSaveExample({
+                        ...example, text: exampleText, intent: name || defaultIntent, entities,
+                    });
                 },
             );
         });
