@@ -93,12 +93,14 @@ export default class NluDataTable extends React.Component {
                 width: 200,
                 filterMethod: (filter, rows) => matchSorter(rows, filter.value, { keys: ['intent'] }),
                 Cell: props => this.canonicalTooltip(
-                    <IntentLabel
-                        value={props.value}
-                        allowEditing={!props.row.example.canonical}
-                        allowAdditions
-                        onChange={intent => this.onEditExample({ ...props.row.example, intent })}
-                    />,
+                    <span className='example-intent-cell'>
+                        <IntentLabel
+                            value={props.value}
+                            allowEditing={!props.row.example.canonical}
+                            allowAdditions
+                            onChange={intent => this.onEditExample({ ...props.row.example, intent })}
+                        />
+                    </span>,
                     props.row.example.canonical,
                 ),
             },
