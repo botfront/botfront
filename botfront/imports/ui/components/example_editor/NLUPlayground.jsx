@@ -14,6 +14,7 @@ export default class NLUPlayground extends React.Component {
 
     getInitialState = () => ({
         example: this.getEmptyExample(),
+        exampleList: [],
         editMode: false,
     });
 
@@ -38,19 +39,36 @@ export default class NLUPlayground extends React.Component {
         this.setState(this.getInitialState());
     };
 
+    handleAutoSaveExample = () => {
+        const { defaultIntent, instance, model: { language } } = this.props;
+        const { example } = this.state;
+        example.text.split('\n').forEach((exampleText) => {
+            Meteor.call(
+                'rasa.parse',
+                instance,
+                [{ text: exampleText, lang: language }],
+                (err, exampleMatch) => {
+                    if (err) return;
+                    const { intent: { name } } = exampleMatch;
+                    this.handleSaveExample({ ...example, text: exampleText, intent: name || defaultIntent });
+                },
+            );
+        });
+    };
+
     render() {
         const {
-            model, instance, projectId, intents, entities, testMode,
+            model, instance, projectId, intents, entities, testMode, defaultIntent,
         } = this.props;
         const { example, example: { text } = {}, editMode } = this.state;
 
         const styleTextArea = {
             marginBottom: '10px',
         };
-
+        const examples = example.text.split('\n');
         return (
             <div>
-                {!editMode ? (
+                {!editMode || examples.length > 1 ? (
                     <div>
                         <Form>
                             <ExampleTextEditor
@@ -58,6 +76,8 @@ export default class NLUPlayground extends React.Component {
                                 style={styleTextArea}
                                 example={example}
                                 onChange={this.onTextChanged}
+                                onEnter={defaultIntent ? this.handleAutoSaveExample : () => {}}
+                                allowMultiple
                             />
                         </Form>
                         {testMode && (
@@ -96,8 +116,10 @@ NLUPlayground.propTypes = {
     model: PropTypes.object.isRequired,
     instance: PropTypes.object.isRequired,
     testMode: PropTypes.bool,
+    defaultIntent: PropTypes.string,
 };
 
 NLUPlayground.defaultProps = {
     testMode: false,
+    defaultIntent: null,
 };

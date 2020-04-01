@@ -103,4 +103,17 @@ export default class ExampleUtils {
         const { intent: { confidence } = {} } = parseData;
         return confidence;
     }
+
+    static sameCanonicalGroup(example, payload) {
+        // check if these examples are in the same canonical group
+        return (example.intent === payload.intent
+        && example.entities.length === payload.entities.length
+        && example.entities.every(entity => payload.entities.find(
+            payloadEntity => (
+                payloadEntity.entity === entity.entity
+                    && payloadEntity.value === entity.value
+            ),
+        ))
+        );
+    }
 }
