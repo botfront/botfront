@@ -90,11 +90,13 @@ if (Meteor.isServer) {
 
         createRole('incoming:r', 'Can read incoming data. Extends `stories:r`.');
         Roles.addRolesToParent('stories:r', 'incoming:r');
-        createRole('incoming:w', 'Can process incoming data. Extends `stories:r`, `nlu-data:w`, `incoming:r`');
+        createRole('incoming:w', 'Can process incoming data. Extends `nlu-data:w`, `incoming:r`');
         Roles.addRolesToParent(['incoming:r', 'nlu-data:w'], 'incoming:w');
 
         createRole('analytics:r', 'Can read analytics data. Extends `incoming:r`');
         Roles.addRolesToParent('incoming:r', 'analytics:r');
+        createRole('analytics:w', 'Can edit analytics dashboards. Extends `analytics:r`');
+        Roles.addRolesToParent('analytics:r', 'analytics:w');
 
         createRole('projects:r', 'Can read everything in a project and access a project settings.');
         Roles.addRolesToParent(['incoming:r', 'triggers:r', 'stories:r', 'responses:r', 'nlu-data:r', 'analytics:r'], 'projects:r');
@@ -102,7 +104,7 @@ if (Meteor.isServer) {
             'projects:w',
             'Can edit and use all ressources related to a project, settings. Extends `projects:r`. If no `projectId` constraint is specified this permission allows adding, editing, and removing projects.',
         );
-        Roles.addRolesToParent(['projects:r', 'nlu-data:x', 'incoming:w', 'triggers:w', 'stories:w', 'responses:w', 'nlu-data:w'], 'projects:w');
+        Roles.addRolesToParent(['projects:r', 'nlu-data:x', 'analytics:w', 'incoming:w', 'triggers:w', 'stories:w', 'responses:w', 'nlu-data:w'], 'projects:w');
 
         createRole('global-settings:r', 'Can access global settings.');
         createRole('global-settings:w', 'Can edit global settings. Extends `global-settings:r.`');
@@ -117,10 +119,10 @@ if (Meteor.isServer) {
         createRole('users:w', 'Can add, edit, or remove user details and roles. Extends `users:r`');
         Roles.addRolesToParent(['users:r', 'roles:r'], 'users:w');
 
-        createRole('project-admin', 'Can access and edit all resources of a project. Extends `projects:w`,`users:w`  ');
+        createRole('project-admin', 'Can access and edit all resources of a project. Extends `projects:w`, `users:w`  ');
         Roles.addRolesToParent(['projects:w', 'users:w'], 'project-admin');
         createRole('global-admin', 'Can access and edit all resources of all projects and edit global settigs. Extends All permissions ');
-        Roles.addRolesToParent(['users:w', 'projects:w', 'nlu-data:x', 'triggers:w', 'responses:w', 'stories:w', 'roles:r', 'roles:w', 'analytics:r', 'incoming:w', 'global-settings:w'], 'global-admin');
+        Roles.addRolesToParent(['project-admin', 'roles:w', 'global-settings:w'], 'global-admin');
     };
 
     Meteor.startup(function() {
