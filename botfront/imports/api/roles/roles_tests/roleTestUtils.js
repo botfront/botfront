@@ -134,11 +134,9 @@ export const writers = {
     ],
     roles: [
         'roles:w',
-        'projects:w',
         'global-admin',
     ],
     projects: [
-        'projects:w',
         'projects:w',
         'global-admin',
     ],
@@ -158,7 +156,6 @@ export const writers = {
     ],
     users: [
         'users:w',
-        'projects:w',
         'global-admin',
     ],
 };
@@ -166,6 +163,7 @@ export const writers = {
 export const otherRoles = {
     nluDataX: [
         'nlu-data:x',
+        'projects:w',
         'global-admin',
     ],
 };
