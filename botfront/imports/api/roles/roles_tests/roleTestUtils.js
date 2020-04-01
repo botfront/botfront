@@ -107,24 +107,29 @@ export const writers = {
     nluData: [
         'nlu-data:w',
         'incoming:w',
+        'projects:w',
         'global-admin',
     ],
     responses: [
         'responses:w',
+        'projects:w',
         'global-admin',
     ],
     analytics: [
         'incoming:w',
         'global-admin',
+        'projects:w',
     ],
     activity: [
         'nlu-data:w',
         'nlu-data:w',
         'incoming:w',
+        'projects:w',
         'global-admin',
     ],
     incoming: [
         'incoming:w',
+        'projects:w',
         'global-admin',
     ],
     roles: [
@@ -141,10 +146,12 @@ export const writers = {
     ],
     stories: [
         'stories:w',
+        'projects:w',
         'global-admin',
     ],
     triggers: [
         'triggers:w',
+        'projects:w',
         'global-admin',
     ],
     users: [
@@ -156,6 +163,7 @@ export const writers = {
 export const otherRoles = {
     nluDataX: [
         'nlu-data:x',
+        'projects:w',
         'global-admin',
     ],
 };
