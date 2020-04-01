@@ -223,7 +223,7 @@ const NLUModel = (props) => {
             return text ? (
                 <Popup
                     trigger={(
-                        <Label className='nlu-modified-label' color={color}>
+                        <Label className='nlu-modified-label' color={color} size='mini'>
                             {text}
                         </Label>
                     )}
