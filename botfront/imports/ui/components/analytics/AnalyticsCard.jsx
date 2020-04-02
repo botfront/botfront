@@ -82,9 +82,7 @@ function AnalyticsCard(props) {
     const downloadCSV = () => {
         const csvData = generateCSV(exportData, { ...queryParams, ...exportQueryParams }, bucketSize, projectTimezoneOffset, graphParams.columns);
         const csvBlob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
-        const start = applyTimezoneOffset(startDate, projectTimezoneOffset);
-        const end = applyTimezoneOffset(endDate, projectTimezoneOffset);
-        const fileName = `${projectName}-${title.replace(/ /g, '')}-(${start.toISOString()})-(${end.toISOString()})`;
+        const fileName = `${projectName}-${title.replace(/ /g, '')}-(${startDate.toISOString()})-(${endDate.toISOString()})`;
         if (!window.Cypress) { // prevent file from downloading during tests
             saveAs(csvBlob, `${fileName}.csv`);
         }
