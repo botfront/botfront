@@ -20,13 +20,12 @@ import ProjectSidebarComponent from '../components/project/ProjectSidebar';
 import { Projects } from '../../api/project/project.collection';
 import { getNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
 import {
-    setProjectId, setWorkingLanguage, setShowChat, setAnalyticsLanguages,
+    setProjectId, setWorkingLanguage, setShowChat,
 } from '../store/actions/actions';
 import { Credentials } from '../../api/credentials';
 import { Instances } from '../../api/instances/instances.collection';
 import { Slots } from '../../api/slots/slots.collection';
 import 'semantic-ui-css/semantic.min.css';
-import store from '../store/store';
 import { GlobalSettings } from '../../api/globalSettings/globalSettings.collection';
 import { ProjectContext } from './context';
 import { setsAreIdentical } from '../../lib/utils';
@@ -415,7 +414,7 @@ Project.defaultProps = {
 
 const ProjectContainer = withTracker((props) => {
     const {
-        params: { project_id: projectId }, projectId: storeProjectId, changeWorkingLanguage, changeProjectId, changeAnalyticsLanguages,
+        params: { project_id: projectId }, projectId: storeProjectId, workingLanguage, changeWorkingLanguage, changeProjectId,
     } = props;
     if (!projectId) return browserHistory.replace({ pathname: '/404' });
     const projectHandler = Meteor.subscribe('projects', projectId);
@@ -464,13 +463,7 @@ const ProjectContainer = withTracker((props) => {
     const projectLanguages = ready ? getNluModelLanguages(project.nlu_models, true) : [];
 
     // update working language
-    if (!store.getState().settings.get('workingLanguage') && defaultLanguage) {
-        changeWorkingLanguage(defaultLanguage);
-    }
-    // update analytics language
-    if (!store.getState().analytics.get('analyticsLanguages').toJS().length && projectLanguages) {
-        changeAnalyticsLanguages(projectLanguages.map(l => l.value));
-    }
+    if (!workingLanguage && defaultLanguage) changeWorkingLanguage(defaultLanguage);
 
     return {
         loading: !ready,
@@ -492,7 +485,6 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = {
     changeWorkingLanguage: setWorkingLanguage,
-    changeAnalyticsLanguages: setAnalyticsLanguages,
     changeProjectId: setProjectId,
     changeShowChat: setShowChat,
 };
