@@ -26,7 +26,7 @@ if (Meteor.isServer) {
             );
             const importAxios = axios.create();
             addLoggingInterceptors(importAxios, appMethodLogger);
-            const importRequest = importAxios.put(
+            const importRequest = await importAxios.put(
                 `${apiHost}/project/${projectId}/import`,
                 projectFile,
                 { maxContentLength: 100000000 },
@@ -35,6 +35,9 @@ if (Meteor.isServer) {
                 .catch(err => (
                     { error: { header: 'Import Failed', text: generateErrorText(err) } }
                 ));
+            if (importRequest.error) {
+                throw new Meteor.Error(500, importRequest.error.text);
+            }
             return importRequest;
         },
     });
