@@ -47,6 +47,15 @@ describe('nlu editor modal tests', () => {
         cy.dataCy('nlu-editor-modal').find('[data-cy=icon-trash]').first().click();
         cy.dataCy('save-nlu').should('not.have.class', 'disabled');
     });
+    it('should not be able to save changes when there is an invalid example', () => {
+        cy.visit('/project/bf/stories');
+        cy.browseToStory();
+        cy.dataCy('utterance-text').click();
+        cy.dataCy('example-text-editor-input').click().type('Hello jim\nI will go to costco{enter}');
+        cy.get('.example-data-table').find('[data-cy=intent-label]').should('have.length', 4);
+        cy.dataCy('nlu-modification-label').contains('new').should('exist');
+        cy.dataCy('nlu-modification-label').contains('invalid').should('exist');
+    });
     it('should show a popup on Cancel when any change has been made', () => {
         cy.visit('/project/bf/stories');
         cy.browseToStory();

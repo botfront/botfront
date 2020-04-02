@@ -5,7 +5,7 @@ import {
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import ModalContent from './ModalContent';
+import NluModalContent from './NluModalContent';
 import UserUtteranceViewer from '../../../nlu/common/UserUtteranceViewer';
 
 const NluEditor = (props) => {
@@ -20,7 +20,7 @@ const NluEditor = (props) => {
             <div className='nlu-editor-top-content'>
                 <UserUtteranceViewer value={payload} disableEditing />
             </div>
-            <ModalContent payload={payload} closeModal={() => setModalOpen(false)} />
+            <NluModalContent payload={payload} closeModal={() => setModalOpen(false)} />
         </Segment>
 
     );
