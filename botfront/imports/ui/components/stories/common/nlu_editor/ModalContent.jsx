@@ -35,6 +35,7 @@ const NLUModel = (props) => {
         entities,
         examples: existingExamples,
         closeModal,
+        ready,
     } = props;
 
     const checkPayloadsMatch = example => example.intent === payload.intent
@@ -66,10 +67,9 @@ const NLUModel = (props) => {
 
     const [cancelPopupOpen, setCancelPopupOpen] = useState(false);
     const [examples, setExamples] = useReducer(exampleReducer, []);
-    const [deletedExamples, setDeletedExamples] = useState([]);
     const [newCanonical, setNewCanonical] = useState(null);
     const hasInvalidExamples = useMemo(
-        () => examples.some(example => example.invalid === true),
+        () => examples.some(example => example.invalid === true && !example.deleted),
         [examples],
     );
 
@@ -127,15 +127,6 @@ const NLUModel = (props) => {
         setExamples(updatedExamples);
     };
 
-    // const onDeleteExample = (itemId) => {
-    //     const removeIndex = examples.findIndex(({ _id }) => _id === itemId);
-    //     setExamples([
-    //         ...examples.slice(0, removeIndex),
-    //         ...examples.slice(removeIndex + 1),
-    //     ]);
-    //     setDeletedExamples([...deletedExamples, itemId]);
-    // };
-
     const onSwitchCanonical = async (example) => {
         const updatedExamples = [...examples];
         const newCanonicalIndex = examples.findIndex((exampleMatch) => {
@@ -170,7 +161,6 @@ const NLUModel = (props) => {
             'nlu.saveExampleChanges',
             model._id,
             examples,
-            deletedExamples,
             newCanonical,
             () => {
                 closeModal();
@@ -179,12 +169,11 @@ const NLUModel = (props) => {
     };
 
     const handleCancel = (e) => {
-        const madeChanges = deletedExamples.length > 0
-            || examples.some(({
-                edited, isNew, invalid, canonicalEdited,
-            }) => (
-                edited || isNew || invalid || canonicalEdited
-            ));
+        const madeChanges = examples.some(({
+            edited, isNew, invalid, canonicalEdited, deleted,
+        }) => (
+            edited || isNew || invalid || canonicalEdited || deleted
+        ));
         if (!madeChanges) {
             e.preventDefault();
             closeModal();
@@ -237,7 +226,12 @@ const NLUModel = (props) => {
             return text ? (
                 <Popup
                     trigger={(
-                        <Label className='nlu-modified-label' color={color} size='mini'>
+                        <Label
+                            className='nlu-modified-label'
+                            color={color}
+                            size='mini'
+                            data-cy='nlu-modification-label'
+                        >
                             {text}
                         </Label>
                     )}
@@ -251,79 +245,85 @@ const NLUModel = (props) => {
         Header: '',
         width: 70,
     };
-
     return (
-        <Container>
-            <>
-                <br />
-                {instance && (
-                    <div id='playground'>
-                        <NLUPlayground
-                            testMode
-                            model={model}
-                            projectId={projectId}
-                            instance={instance}
-                            floated='right'
-                            entities={entities}
-                            intents={getIntentForDropdown(false)}
-                            onSave={example => onNewExamples([example])}
-                            postSaveAction='clear'
-                            defaultIntent={payload.intent}
+        !ready
+            ? (
+                <div>loading</div>
+            )
+            : (
+                <Container>
+                    <>
+                        <br />
+                        {instance && (
+                            <div id='playground'>
+                                <NLUPlayground
+                                    testMode
+                                    model={model}
+                                    projectId={projectId}
+                                    instance={instance}
+                                    floated='right'
+                                    entities={entities}
+                                    intents={getIntentForDropdown(false)}
+                                    onSave={example => onNewExamples([example])}
+                                    postSaveAction='clear'
+                                    defaultIntent={payload.intent}
+                                />
+                            </div>
+                        )}
+                    </>
+                    <br />
+                    <NluDataTable
+                        onEditExample={onEditExample}
+                        onDeleteExample={onDeleteExample}
+                        onSwitchCanonical={onSwitchCanonical}
+                        examples={examples}
+                        entities={entities}
+                        intents={intents}
+                        projectId={projectId}
+                        hideHeader
+                        conditionalRowFormatter={getRowStyle}
+                        className='example-data-table   '
+                        extraColumns={labelColumn}
+                    />
+                    <div className='nlu-modal-buttons'>
+                        <Popup
+                            disabled={!hasInvalidExamples}
+                            trigger={(
+                                <span>
+                                    <Button
+                                        color='blue'
+                                        onClick={saveAndExit}
+                                        disabled={hasInvalidExamples}
+                                        data-cy='save-nlu'
+                                    >
+                                Save and exit
+                                    </Button>
+                                </span>
+                            )}
+                            header='Cannot save changes'
+                            content='You must fix invalid utterances prior to saving'
+                        />
+                        <Popup
+                            trigger={(
+                                <Button onClick={handleCancel} data-cy='cancel-nlu-changes'>
+                                    Cancel
+                                </Button>
+                            )}
+                            content={(
+                                <ConfirmPopup
+                                    description='Are you sure? All the data you entered above will be discarded!'
+                                    onYes={closeModal}
+                                    onNo={() => setCancelPopupOpen(false)}
+                                />
+                            )}
+                            on='click'
+                            open={cancelPopupOpen}
+                            onClose={() => setCancelPopupOpen(false)}
+                            onOpen={() => setCancelPopupOpen(true)}
                         />
                     </div>
-                )}
-            </>
-            <br />
-            <NluDataTable
-                onEditExample={onEditExample}
-                onDeleteExample={onDeleteExample}
-                onSwitchCanonical={onSwitchCanonical}
-                examples={examples}
-                entities={entities}
-                intents={intents}
-                projectId={projectId}
-                hideHeader
-                conditionalRowFormatter={getRowStyle}
-                className='example-data-table   '
-                extraColumns={labelColumn}
-            />
-            <div className='nlu-modal-buttons'>
-                <Popup
-                    disabled={!hasInvalidExamples}
-                    trigger={(
-                        <span>
-                            <Button
-                                color='blue'
-                                onClick={saveAndExit}
-                                disabled={hasInvalidExamples}
-                            >
-                                Save and exit
-                            </Button>
-                        </span>
-                    )}
-                    header='Cannot save changes'
-                    content='You must fix invalid utterances prior to saving'
-                />
-                <Popup
-                    trigger={(
-                        <Button onClick={handleCancel} color='red' basic>
-                            Cancel
-                        </Button>
-                    )}
-                    content={(
-                        <ConfirmPopup
-                            description='Are you sure? All the data you entered above will be discarded!'
-                            onYes={closeModal}
-                            onNo={() => setCancelPopupOpen(false)}
-                        />
-                    )}
-                    on='click'
-                    open={cancelPopupOpen}
-                    onClose={() => setCancelPopupOpen(false)}
-                    onOpen={() => setCancelPopupOpen(true)}
-                />
-            </div>
-        </Container>
+                </Container>
+            )
     );
 };
 
@@ -332,7 +332,6 @@ NLUModel.propTypes = {
     projectId: PropTypes.string,
     intents: PropTypes.array,
     ready: PropTypes.bool,
-    project: PropTypes.object,
     payload: PropTypes.object.isRequired,
     examples: PropTypes.array,
     entities: PropTypes.array,
@@ -345,7 +344,6 @@ NLUModel.defaultProps = {
     ready: false,
     projectId: '',
     model: {},
-    project: {},
     examples: [],
     entities: [],
 };

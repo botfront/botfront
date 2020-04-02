@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    Modal, Icon, Segment,
+    Modal, Segment,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -16,7 +16,7 @@ const NluEditor = (props) => {
     } = props;
 
     const renderModalContent = () => (
-        <Segment className='nlu-editor-modal'>
+        <Segment className='nlu-editor-modal' data-cy='nlu-editor-modal'>
             <div className='nlu-editor-top-content'>
                 <UserUtteranceViewer value={payload} disableEditing />
             </div>

@@ -122,3 +122,20 @@ Cypress.Commands.add('addUserUtterance', (text, intent, index = 0, options = {})
         .type(`${intent}{enter}`);
     cy.dataCy('save-new-user-input').click({ force: true });
 });
+
+Cypress.Commands.add('addUtteranceLine', ({
+    intent, entities = null,
+}) => {
+    cy.dataCy('user-line-from-payload').click({ force: true });
+    cy.dataCy('intent-label').click();
+    cy.dataCy('intent-dropdown').find('input')
+        .type(`${intent}{enter}`);
+    if (entities) {
+        entities.forEach((entity) => {
+            cy.dataCy('add-entity').click();
+            cy.dataCy('entity-dropdown').find('input').type(`${entity.name}{enter}`);
+            cy.dataCy('entity-value-input').click().type(`${entity.value}{enter}`);
+        });
+    }
+    cy.dataCy('save-user-utterance').click();
+});

@@ -124,7 +124,7 @@ export default class NluDataTable extends React.Component {
                     const exampleId = props.row.example._id;
                     if (editExampleMode === exampleId) {
                         return (
-                            <Form className='example-editor-form'>
+                            <Form className='example-editor-form' data-cy='example-editor-form'>
                                 <ExampleTextEditor
                                     inline
                                     autofocus
