@@ -32,6 +32,7 @@ type AnalyticsCard {
     valueType: AnalyticsGraphValueType!
     include: [String]
     exclude: [String]
+    wide: Boolean
 }
 
 enum AnalyticsGraphValueType {

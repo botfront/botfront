@@ -15,10 +15,10 @@ export const formatDataForTable = (data) => {
     return formattedData;
 };
 
-const getXAxisTickInterval = (data, nTicksIncoming, size) => {
+const getXAxisTickInterval = (data, nTicksIncoming, wide) => {
     // nTicksIncomming is the number snap points on the x axis
     // reduce the number of ticks on the X axis so that text does not overlap
-    const maxTicks = size === 'wide' ? 14 : 7;
+    const maxTicks = wide ? 14 : 7;
     const nTicks = nTicksIncoming > maxTicks ? maxTicks : nTicksIncoming;
     const tickSpacing = data.length > nTicks
         ? Math.floor(data.length / nTicks)
@@ -84,11 +84,11 @@ const formatDateBuckets = (data, bucketSize, projectTimezoneOffset) => data
         };
     });
 
-export const calculateTemporalBuckets = (startDate, endDate, chartType, size) => {
+export const calculateTemporalBuckets = (startDate, endDate, chartType, wide) => {
     // calculate if a time period is broken into hours, days or weeks
     const nDays = Math.round(((endDate.valueOf() - startDate.valueOf()) / 86400000));
-    if (nDays <= 1 && size !== 'wide') return { nTicks: 12, nBuckets: 24, bucketSize: 'hour' };
-    if (nDays <= 3 && size === 'wide') return { nTicks: 12, nBuckets: 24, bucketSize: 'hour' };
+    if (nDays <= 1 && !wide) return { nTicks: 12, nBuckets: 24, bucketSize: 'hour' };
+    if (nDays <= 3 && wide) return { nTicks: 12, nBuckets: 24, bucketSize: 'hour' };
     if (nDays <= 7) return { nTicks: nDays, nBuckets: nDays, bucketSize: 'day' };
     if (nDays <= 90) return { nTicks: 7, nBuckets: nDays, bucketSize: 'day' };
     if (chartType === 'table') return { nTicks: 7, nBuckets: nDays, bucketSize: 'day' };

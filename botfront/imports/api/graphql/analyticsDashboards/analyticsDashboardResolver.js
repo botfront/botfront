@@ -39,5 +39,6 @@ export default {
         valueType: ({ valueType }) => valueType,
         include: ({ include }) => include,
         exclude: ({ exclude }) => exclude,
+        wide: ({ wide }) => wide,
     },
 };

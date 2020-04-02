@@ -34,7 +34,6 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
                 temporal: true, envs, queryName: 'conversationCounts', langs,
             },
             query: visitCounts,
-            size: 'wide',
             graphParams: {
                 x: 'bucket',
                 y: [{ abs: 'count' }, { abs: 'hits', rel: 'proportion' }],

@@ -35,8 +35,8 @@ function AnalyticsCard(props) {
             valueType,
             exclude,
             include,
+            wide,
         },
-        size,
         onChangeSettings,
         onReorder,
     } = props;
@@ -47,7 +47,7 @@ function AnalyticsCard(props) {
     const uniqueChartOptions = [...new Set(chartTypeOptions)];
 
     const [settingsOpen, setSettingsOpen] = useState(false);
-    const { nTicks, nBuckets, bucketSize } = calculateTemporalBuckets(startDate, endDate, chartType, size);
+    const { nTicks, nBuckets, bucketSize } = calculateTemporalBuckets(startDate, endDate, chartType, wide);
     const [activateDownload, setActivateDownload] = useState(false);
 
     const [, drag] = useDrag({
@@ -99,7 +99,7 @@ function AnalyticsCard(props) {
 
     const renderChart = () => {
         const { dataToDisplay, paramsToUse } = getDataToDisplayAndParamsToUse({
-            data, queryParams, graphParams, nTicks, valueType, bucketSize, projectTimezoneOffset, size,
+            data, queryParams, graphParams, nTicks, valueType, bucketSize, projectTimezoneOffset, wide,
         });
         if (!dataToDisplay.length) return <Message color='yellow'><Icon name='calendar times' data-cy='no-data-message' />No data to show for selected period!</Message>;
         if (chartType === 'pie') return <PieChart {...paramsToUse} data={dataToDisplay} />;
@@ -156,7 +156,7 @@ function AnalyticsCard(props) {
 
     return (
         <div
-            className={`analytics-card ${size === 'wide' ? 'wide' : ''}`}
+            className={`analytics-card ${wide ? 'wide' : ''}`}
             ref={node => drag(drop(node))}
             data-cy='analytics-card'
         >
@@ -209,6 +209,14 @@ function AnalyticsCard(props) {
                         />
                     </Button.Group>
                 )}
+                <Button
+                    className='export-card-button'
+                    data-cy='toggle-wide'
+                    basic
+                    size='medium'
+                    icon={wide ? 'zoom out' : 'zoom in'}
+                    onClick={() => onChangeSettings({ wide: !wide })}
+                />
             </span>
             {titleDescription ? (
                 <Popup
@@ -243,7 +251,6 @@ AnalyticsCard.propTypes = {
     settings: PropTypes.object.isRequired,
     onChangeSettings: PropTypes.func.isRequired,
     onReorder: PropTypes.func,
-    size: PropTypes.string,
 };
 
 AnalyticsCard.defaultProps = {
@@ -253,7 +260,6 @@ AnalyticsCard.defaultProps = {
     graphParams: {},
     exportQueryParams: {},
     onReorder: null,
-    size: 'standard',
 };
 
 export default AnalyticsCard;

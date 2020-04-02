@@ -15,6 +15,7 @@ const dashboardFields = gql`
             valueType
             include
             exclude
+            wide
         }
         languages
         envs
