@@ -20,7 +20,6 @@ const UtteranceContainer = (props) => {
     const [input, setInput] = useState();
     const [fetchedData, setFetchedData] = useState(value || null);
     const [modalOpen, setModalOpen] = useState(false);
-    const [nluEditorOpen, setNluEditorOpen] = useState(false);
     const containerBody = useRef();
 
     useEffect(() => {
@@ -120,29 +119,10 @@ const UtteranceContainer = (props) => {
             {modalOpen && (
                 <>
                     <NluEditor
-                        setModalOpen={newState => setNluEditorOpen(newState)}
-                        open={nluEditorOpen}
+                        setModalOpen={newState => setModalOpen(newState)}
+                        open
                         payload={value}
                     />
-                    <Modal
-                        size='tiny'
-                        open
-                    >
-                        <Modal.Content>
-                            <h3><i>Editing training data for...</i></h3>
-                            <h1>{(fetchedData || value).intent}</h1>
-                            {((fetchedData || value).entities || []).map(e => (
-                                <span><strong>{e.entity}: </strong> {e.value}&nbsp;</span>
-                            ))}
-                        </Modal.Content>
-                        <Modal.Actions>
-                            <Button
-                                content='Cancel'
-                                color='red'
-                                onClick={() => setModalOpen(false)}
-                            />
-                        </Modal.Actions>
-                    </Modal>
                 </>
             )}
         </div>
