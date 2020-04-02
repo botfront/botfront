@@ -121,16 +121,17 @@ export default class NluDataTable extends React.Component {
                 Cell: (props) => {
                     const canonical = props.row.example.canonical ? props.row.example.canonical : false;
                     const { editExampleMode } = this.state;
-                    if (editExampleMode === props.row.example._id) {
+                    const exampleId = props.row.example._id;
+                    if (editExampleMode === exampleId) {
                         return (
                             <Form className='example-editor-form'>
                                 <ExampleTextEditor
-                                    // highlightEntities={false}
                                     inline
                                     autofocus
                                     example={props.row.example}
                                     onBlur={this.handleExampleTextareaBlur}
                                     onEnter={this.handleExampleTextareaBlur}
+                                    disableNewEntities={editExampleMode === exampleId}
                                 />
                             </Form>
                         );
@@ -167,6 +168,7 @@ export default class NluDataTable extends React.Component {
                         toolTip={canonical ? <>Cannot edit a canonical example</> : null}
                         toolTipInverted
                         disabled={canonical}
+                        basic
                         icon='edit'
                         onClick={e => this.handleEditExampleClick(e, exampleId)}
                         iconClass={canonical ? 'disabled-delete' : undefined}
@@ -268,6 +270,8 @@ export default class NluDataTable extends React.Component {
                                 />
                             </div>
                         )}
+                        inverted
+                        content='Cannot delete a canonical example'
                     />
                 );
             },

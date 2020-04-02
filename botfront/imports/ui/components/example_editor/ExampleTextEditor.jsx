@@ -29,6 +29,8 @@ export class ExampleTextEditor extends React.Component {
         if (highlightEntities) {
             // CREATE ENTITY LISTENER
             document.addEventListener('mouseup', () => {
+                const { disableNewEntities } = this.props;
+                if (disableNewEntities) return;
                 if (this.inputSelectionRef === null) return;
                 const { example: { text } = {} } = this.state;
                 const { anchorNode } = window.getSelection() || {};
@@ -232,6 +234,7 @@ ExampleTextEditor.propTypes = {
     inline: PropTypes.bool,
     onBlur: PropTypes.func,
     autofocus: PropTypes.bool,
+    disableNewEntities: PropTypes.bool,
 };
 
 ExampleTextEditor.defaultProps = {
@@ -242,4 +245,5 @@ ExampleTextEditor.defaultProps = {
     inline: false,
     onBlur: () => {},
     autofocus: false,
+    disableNewEntities: false,
 };
