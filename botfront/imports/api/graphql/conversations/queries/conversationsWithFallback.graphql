@@ -4,7 +4,7 @@ query ConversationsWithFallback(
     $langs: [String] = [],
     $from: Float,
     $to: Float,
-    $fallbacks: [String] = ["action_botfront_fallback"],
+    $include: [String] = ["action_botfront_fallback"],
     $nBuckets: Int = 7,
 ) {
     conversationCounts(
@@ -14,7 +14,7 @@ query ConversationsWithFallback(
         langs: $langs,
         from: $from,
         to: $to,
-        include: $fallbacks,
+        include: $include,
         nBuckets: $nBuckets,
     ) {
         bucket, hits, count, proportion

@@ -18,6 +18,8 @@ import rolesDataTypes from './rolesData/schemas';
 import rolesDataResolver from './rolesData/resolvers/rolesDataResolver';
 import trackerStoreResolver from './trackerStore/resolvers/trackerStoreResolver';
 import trackerStoreTypes from './trackerStore/schemas';
+import analyticsDashboardResolver from './analyticsDashboards/analyticsDashboardResolver';
+import analyticsDashboardTypes from './analyticsDashboards/analyticsDashboards.types.graphql';
 
 
 export const resolvers = [
@@ -31,6 +33,7 @@ export const resolvers = [
     configResolver,
     storiesResolver,
     trackerStoreResolver,
+    analyticsDashboardResolver,
 ];
 
 export const typeDefs = mergeTypes([
@@ -44,6 +47,7 @@ export const typeDefs = mergeTypes([
     commonTypes,
     configTypes,
     storiesTypes,
+    analyticsDashboardTypes,
 ], { all: true });
 
 export const schemaDirectives = {

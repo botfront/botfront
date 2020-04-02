@@ -1,0 +1,47 @@
+type Query {
+    listDashboards(projectId: String!, _id: String): [AnalyticsDashboard]
+}
+
+type Mutation {
+    updateDashboard(
+        projectId: String!
+        _id: String!
+        name: String
+        cards: [Any]
+        languages: [String]
+        envs: [String]
+    ): AnalyticsDashboard
+}
+
+type AnalyticsDashboard {
+    _id: String!
+    name: String!
+    projectId: String!
+    cards: [AnalyticsCard]!
+    languages: [String]!
+    envs: [String]!
+}
+
+type AnalyticsCard {
+    name: String!
+    type: String!
+    visible: Boolean!
+    startDate: Moment!
+    endDate: Moment!
+    chartType: AnalyticsGraphChartType!
+    valueType: AnalyticsGraphValueType!
+    include: [String]
+    exclude: [String]
+}
+
+enum AnalyticsGraphValueType {
+    absolute
+    relative
+}
+
+enum AnalyticsGraphChartType {
+    line
+    bar
+    pie
+    table
+}
