@@ -121,12 +121,20 @@ const NLUModel = (props) => {
 
     const onDeleteExample = (itemId) => {
         const removeIndex = examples.findIndex(({ _id }) => _id === itemId);
-        setExamples([
-            ...examples.slice(0, removeIndex),
-            ...examples.slice(removeIndex + 1),
-        ]);
-        setDeletedExamples([...deletedExamples, itemId]);
+        const updatedExamples = [...examples];
+        const oldExample = { ...updatedExamples[removeIndex] };
+        updatedExamples[removeIndex] = { ...oldExample, deleted: !oldExample.deleted };
+        setExamples(updatedExamples);
     };
+
+    // const onDeleteExample = (itemId) => {
+    //     const removeIndex = examples.findIndex(({ _id }) => _id === itemId);
+    //     setExamples([
+    //         ...examples.slice(0, removeIndex),
+    //         ...examples.slice(removeIndex + 1),
+    //     ]);
+    //     setDeletedExamples([...deletedExamples, itemId]);
+    // };
 
     const onSwitchCanonical = async (example) => {
         const updatedExamples = [...examples];
@@ -185,6 +193,7 @@ const NLUModel = (props) => {
 
     const getRowStyle = (example) => {
         if (!example) return {};
+        if (example.deleted) return { style: { backgroundColor: 'rgb(245, 245, 245)', pointerEvents: 'none', opacity: 0.5 } };
         if (!checkPayloadsMatch(example)) { return { style: { backgroundColor: 'rgb(255, 230, 230)' } }; }
         if (example.isNew) return { style: { backgroundColor: 'rgb(230, 255, 240)' } };
         if (example.edited) return { style: { backgroundColor: 'rgb(230, 252, 255)' } };
@@ -197,14 +206,19 @@ const NLUModel = (props) => {
         Cell: (cellProps) => {
             const {
                 original: {
-                    edited, isNew, entities: cellEntities, intent,
+                    edited, isNew, deleted, entities: cellEntities, intent,
                 } = {},
             } = cellProps;
             let text;
             let color;
             let title;
             let message;
-            if (!checkPayloadsMatch({ intent, entities: cellEntities })) {
+            if (deleted) {
+                text = 'deleted';
+                color = '';
+                title = 'Deleted Example';
+                message = 'You just deleted this user utterance and it will be removed from the training set when you save';
+            } else if (!checkPayloadsMatch({ intent, entities: cellEntities })) {
                 text = 'invalid';
                 color = 'red';
                 title = 'Invalid Example';

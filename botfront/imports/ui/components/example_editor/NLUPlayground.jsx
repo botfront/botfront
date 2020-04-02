@@ -83,7 +83,7 @@ export default class NLUPlayground extends React.Component {
                                 allowMultiple
                             />
                         </Form>
-                        {testMode && (
+                        {testMode && examples.length < 2 && (
                             <NLUExampleTester
                                 text={text}
                                 model={model}

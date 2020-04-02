@@ -125,7 +125,7 @@ export default class NluDataTable extends React.Component {
                         return (
                             <Form className='example-editor-form'>
                                 <ExampleTextEditor
-                                    highlightEntities={false}
+                                    // highlightEntities={false}
                                     inline
                                     autofocus
                                     example={props.row.example}
@@ -163,7 +163,7 @@ export default class NluDataTable extends React.Component {
                 const { editExampleMode } = this.state;
                 if (editExampleMode === props.row.example._id) return <></>;
                 return (
-                    <FloatingIconButton
+                    <IconButton
                         toolTip={canonical ? <>Cannot edit a canonical example</> : null}
                         toolTipInverted
                         disabled={canonical}
@@ -249,6 +249,9 @@ export default class NluDataTable extends React.Component {
             filterable: false,
             Cell: (props) => {
                 const canonical = props.row.example.canonical ? props.row.example.canonical : false;
+                const { deleted } = props.row.example;
+                let className = canonical ? 'disabled-delete' : '';
+                className += props.row.example.deleted ? 'always-interactable' : '';
                 return (
                     <Popup
                         position='top center'
@@ -256,16 +259,15 @@ export default class NluDataTable extends React.Component {
                         trigger={(
                             <div>
                                 <IconButton
-                                    icon='trash'
+                                    icon={deleted ? 'redo' : 'trash'}
                                     basic
                                     disabled={canonical}
                                     onClick={() => onDeleteExample(props.value)}
                                     data-cy='icon-trash'
+                                    className={className}
                                 />
                             </div>
                         )}
-                        inverted
-                        content='Cannot delete a canonical example'
                     />
                 );
             },

@@ -44,15 +44,20 @@ Meteor.methods({
             throw formatError(e);
         }
     },
-    async 'nlu.saveExampleChanges'(modelId, examples, deleted) {
+    async 'nlu.saveExampleChanges'(modelId, examples) {
         check(modelId, String);
         check(examples, Array);
-        check(deleted, Array);
-        await NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { _id: { $in: deleted } } } });
+        
         const edited = [];
         const newExamples = [];
         const canonicalEdited = [];
+        const deleted = [];
+
         examples.forEach((example) => {
+            if (example.deleted) {
+                deleted.push(example._id);
+                return;
+            }
             if (example.isNew) newExamples.push(example);
             if (example.edited) edited.push(example);
             if (example.canonicalEdited) {
@@ -65,6 +70,8 @@ Meteor.methods({
                 canonicalEdited.push({ ...example, canonical: !example.canonical });
             }
         });
+        
+        await NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { _id: { $in: deleted } } } });
         await Meteor.callWithPromise('nlu.insertExamples', modelId, newExamples);
         await Meteor.callWithPromise('nlu.updateManyExamples', modelId, edited);
         canonicalEdited.forEach(example => Meteor.call('nlu.switchCanonical', modelId, example));
