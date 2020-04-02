@@ -1,11 +1,8 @@
-import React from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
+import React, { useContext, useMemo } from 'react';
 import { Container } from 'semantic-ui-react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { OrderedMap } from 'immutable';
+import moment from 'moment';
 import { useDrop } from 'react-dnd-cjs';
-import { setAnalyticsCardSettings, swapAnalyticsCards } from '../../store/actions/actions';
 import AnalyticsCard from './AnalyticsCard';
 import conversationLengths from '../../../api/graphql/conversations/queries/conversationLengths.graphql';
 import conversationDurations from '../../../api/graphql/conversations/queries/conversationDurations.graphql';
@@ -13,23 +10,28 @@ import intentFrequencies from '../../../api/graphql/conversations/queries/intent
 import visitCounts from '../../../api/graphql/conversations/queries/visitCounts.graphql';
 import fallbackCounts from '../../../api/graphql/conversations/queries/fallbackCounts.graphql';
 import conversationsWithFallback from '../../../api/graphql/conversations/queries/conversationsWithFallback.graphql';
-import { Projects } from '../../../api/project/project.collection';
+import { ProjectContext } from '../../layouts/context';
+import { setsAreIdentical } from '../../../lib/utils';
 
-function AnalyticsDashboard(props) {
+function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
     const {
-        projectId, environment, cardSettings, changeCardSettings, swapCards, projectName, queryLanguages,
-    } = props;
+        cards,
+        languages,
+        envs,
+    } = dashboard;
 
-    const envs = [environment];
-    if (environment === 'development') envs.push(null);
+    const { projectLanguages } = useContext(ProjectContext);
 
-    const cards = {
+    const langs = useMemo(() => (setsAreIdentical(languages, projectLanguages.map(l => l.value))
+        ? [] : languages), [languages]); // empty array if all languages are selected
+
+    const cardTypes = {
         visitCounts: {
             chartTypeOptions: ['line', 'table'],
             title: 'Visits & Engagement',
             titleDescription: 'Visits: the total number of conversations in a given temporal window. Engagements: of those conversations, those with length one or more.',
             queryParams: {
-                temporal: true, projectId, envs, queryName: 'conversationCounts', queryLanguages,
+                temporal: true, envs, queryName: 'conversationCounts', langs,
             },
             query: visitCounts,
             size: 'wide',
@@ -61,7 +63,7 @@ function AnalyticsDashboard(props) {
             title: 'Conversation Length',
             titleDescription: 'The number of user utterances contained in a conversation.',
             queryParams: {
-                projectId, envs, queryName: 'conversationLengths', queryLanguages,
+                envs, queryName: 'conversationLengths', langs,
             },
             exportQueryParams: { limit: 100000 },
             query: conversationLengths,
@@ -87,7 +89,7 @@ function AnalyticsDashboard(props) {
             title: 'Top 10 Intents',
             titleDescription: 'The number of user utterances classified as having a given intent.',
             queryParams: {
-                projectId, envs, queryName: 'intentFrequencies', queryLanguages,
+                envs, queryName: 'intentFrequencies', langs,
             },
             exportQueryParams: { limit: 100000 },
             query: intentFrequencies,
@@ -115,7 +117,7 @@ function AnalyticsDashboard(props) {
             title: 'Conversation Duration',
             titleDescription: 'The number of seconds elapsed between the first and the last message of a conversation.',
             queryParams: {
-                projectId, envs, queryName: 'conversationDurations', cutoffs: [30, 60, 90, 120, 180], queryLanguages,
+                envs, queryName: 'conversationDurations', cutoffs: [30, 60, 90, 120, 180], langs,
             },
             query: conversationDurations,
             graphParams: {
@@ -141,7 +143,7 @@ function AnalyticsDashboard(props) {
             title: 'Conversations with Fallback',
             titleDescription: 'The number of conversations in which a fallback action was triggered.',
             queryParams: {
-                temporal: true, envs, projectId, queryName: 'conversationCounts', queryLanguages,
+                temporal: true, envs, queryName: 'conversationCounts', langs,
             },
             query: conversationsWithFallback,
             graphParams: {
@@ -169,7 +171,7 @@ function AnalyticsDashboard(props) {
             title: 'Fallback Rate',
             titleDescription: 'The number of times a fallback action was triggered.',
             queryParams: {
-                temporal: true, envs, projectId, queryName: 'actionCounts', queryLanguages,
+                temporal: true, envs, queryName: 'actionCounts', langs,
             },
             query: fallbackCounts,
             graphParams: {
@@ -196,18 +198,35 @@ function AnalyticsDashboard(props) {
     
     const [, drop] = useDrop({ accept: 'card' });
 
+    const handleChangeCardSettings = index => update => onUpdateDashboard({
+        cards: [
+            ...cards.slice(0, index),
+            { ...cards[index], ...update },
+            ...cards.slice(index + 1),
+        ],
+    });
+
+    const handleSwapCards = index => (draggedCardName) => {
+        const draggedCardIndex = cards.findIndex(c => c.name === draggedCardName);
+        const updatedCards = [...cards];
+        updatedCards[index] = cards[draggedCardIndex];
+        updatedCards[draggedCardIndex] = cards[index];
+        onUpdateDashboard({ cards: updatedCards });
+    };
+
     return (
         <Container>
             <div className='analytics-dashboard' ref={drop}>
-                {cardSettings.entrySeq().map(([cardName, settings]) => (
+                {cards.map(({
+                    name, type, startDate, endDate, ...settings
+                }, index) => (
                     <AnalyticsCard
-                        key={cardName}
-                        cardName={cardName}
-                        {...cards[cardName]}
-                        settings={settings.toJS()}
-                        onChangeSettings={(setting, value) => changeCardSettings(cardName, setting, value)}
-                        onReorder={swapCards}
-                        projectName={projectName}
+                        key={name}
+                        cardName={name}
+                        {...cardTypes[type]}
+                        settings={{ ...settings, startDate: moment(startDate), endDate: moment(endDate) }}
+                        onChangeSettings={handleChangeCardSettings(index)}
+                        onReorder={handleSwapCards(index)}
                     />
                 ))}
             </div>
@@ -216,36 +235,10 @@ function AnalyticsDashboard(props) {
 }
 
 AnalyticsDashboard.propTypes = {
-    projectId: PropTypes.string.isRequired,
-    environment: PropTypes.string.isRequired,
-    cardSettings: PropTypes.instanceOf(OrderedMap).isRequired,
-    changeCardSettings: PropTypes.func.isRequired,
-    swapCards: PropTypes.func.isRequired,
-    projectName: PropTypes.string,
-    queryLanguages: PropTypes.array,
+    dashboard: PropTypes.object.isRequired,
+    onUpdateDashboard: PropTypes.func.isRequired,
 };
 
-AnalyticsDashboard.defaultProps = {
-    projectName: 'Botfront',
-    queryLanguages: [],
-};
+AnalyticsDashboard.defaultProps = {};
 
-const AnalyticsDashboardTracker = withTracker(({ projectId }) => {
-    const { name: projectName } = Projects.findOne({ _id: projectId }, { fields: { name: true } });
-    return {
-        projectName,
-    };
-})(AnalyticsDashboard);
-
-const mapStateToProps = state => ({
-    projectId: state.settings.get('projectId'),
-    environment: state.settings.get('workingDeploymentEnvironment'),
-    cardSettings: state.analytics.get('cardSettings'),
-});
-
-const mapDispatchToProps = {
-    changeCardSettings: setAnalyticsCardSettings,
-    swapCards: swapAnalyticsCards,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(AnalyticsDashboardTracker);
+export default AnalyticsDashboard;

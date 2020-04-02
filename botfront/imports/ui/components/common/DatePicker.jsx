@@ -102,7 +102,7 @@ function DatePicker({
         <Popup
             flowing
             position={position}
-            pinned={!!position}
+            // pinned={!!position}
             className='date-picker'
             open={popupOpen}
             onClose={handlePopupState}

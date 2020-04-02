@@ -91,6 +91,7 @@ if (Meteor.isServer) {
                 updatedAt: 1,
                 instance: 1,
                 training: 1,
+                timezoneOffset: 1,
                 nluThreshold: 1,
             },
         });

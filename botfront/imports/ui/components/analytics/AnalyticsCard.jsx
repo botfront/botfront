@@ -1,7 +1,7 @@
 import {
     Button, Popup, Loader, Message, Icon,
 } from 'semantic-ui-react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery, useLazyQuery } from '@apollo/react-hooks';
 import { useDrag, useDrop } from 'react-dnd-cjs';
@@ -14,8 +14,8 @@ import PieChart from '../charts/PieChart';
 import BarChart from '../charts/BarChart';
 import LineChart from '../charts/LineChart';
 import SettingsPortal from './SettingsPortal';
-import { Projects } from '../../../api/project/project.collection';
 import Table from '../charts/Table';
+import { ProjectContext } from '../../layouts/context';
 
 function AnalyticsCard(props) {
     const {
@@ -34,28 +34,21 @@ function AnalyticsCard(props) {
             chartType,
             valueType,
             exclude,
-            responses,
+            include,
         },
         size,
         onChangeSettings,
         onReorder,
-        projectName,
     } = props;
+
+    const { project: { _id: projectId, name: projectName = 'Botfront', timezoneOffset: projectTimezoneOffset = 0 } } = useContext(ProjectContext);
     
     const displayAbsoluteRelative = 'rel' in graphParams;
     const uniqueChartOptions = [...new Set(chartTypeOptions)];
 
     const [settingsOpen, setSettingsOpen] = useState(false);
     const { nTicks, nBuckets, bucketSize } = calculateTemporalBuckets(startDate, endDate, chartType, size);
-    const [projectTimezoneOffset, setProjectTimezoneOffset] = useState(0);
     const [activateDownload, setActivateDownload] = useState(false);
-
-    useEffect(() => {
-        const {
-            timezoneOffset,
-        } = Projects.findOne({ _id: queryParams.projectId }, { fields: { timezoneOffset: 1 } });
-        setProjectTimezoneOffset(timezoneOffset || 0);
-    }, []);
 
     const [, drag] = useDrag({
         item: { type: 'card', cardName },
@@ -67,19 +60,17 @@ function AnalyticsCard(props) {
         accept: 'card',
         canDrop: () => false,
         hover({ cardName: draggedCard }) {
-            if (draggedCard !== cardName) {
-                onReorder(draggedCard, cardName);
-            }
+            if (draggedCard !== cardName) onReorder(draggedCard);
         },
     });
     const variables = {
-        projectId: queryParams.projectId,
-        envs: queryParams.envs,
-        langs: queryParams.queryLanguages,
+        projectId,
+        envs: [...queryParams.envs, ...(queryParams.envs.includes('development') ? [null] : [])],
+        langs: queryParams.langs,
         from: applyTimezoneOffset(startDate, projectTimezoneOffset).valueOf() / 1000,
         to: applyTimezoneOffset(endDate, projectTimezoneOffset).valueOf() / 1000,
         ...(exclude ? { exclude } : {}),
-        fallbacks: responses || [],
+        ...(include ? { include } : {}),
         nBuckets,
         limit: chartType === 'table' ? 100000 : undefined,
     };
@@ -121,16 +112,16 @@ function AnalyticsCard(props) {
     };
     
     const renderExtraOptionsLink = () => {
-        if (!exclude && !responses) return null;
+        if (!exclude && !include) return null;
         let text; let values; let setting;
         if (exclude) {
             text = 'Excluded intents';
             values = exclude;
             setting = 'exclude';
-        } else if (responses) {
+        } else if (include) {
             text = 'Fallback actions';
-            values = responses;
-            setting = 'responses';
+            values = include;
+            setting = 'include';
         }
         return (
             <>
@@ -139,7 +130,7 @@ function AnalyticsCard(props) {
                     onClose={() => setSettingsOpen(false)}
                     open={settingsOpen}
                     values={values}
-                    onChange={newVal => onChangeSettings(setting, newVal)}
+                    onChange={newVal => onChangeSettings({ [setting]: newVal })}
                 />
                 <button type='button' className='extra-options-linklike' onClick={() => setSettingsOpen(!settingsOpen)}>
                     {`${text} (${values.length})`}
@@ -177,8 +168,7 @@ function AnalyticsCard(props) {
                         startDate={startDate}
                         endDate={endDate}
                         onConfirm={(newStart, newEnd) => {
-                            onChangeSettings('startDate', newStart);
-                            onChangeSettings('endDate', newEnd);
+                            onChangeSettings({ startDate: newStart, endDate: newEnd });
                         }}
                     />
                 </div>
@@ -201,7 +191,7 @@ function AnalyticsCard(props) {
                                 icon={getIconName(chartOption)}
                                 key={chartOption}
                                 className={chartType === chartOption ? 'selected' : ''}
-                                onClick={() => onChangeSettings('chartType', chartOption)}
+                                onClick={() => onChangeSettings({ chartType: chartOption })}
                                 data-cy={`${chartOption}-chart-button`}
                             />
                         ))}
@@ -211,12 +201,12 @@ function AnalyticsCard(props) {
                     <Button.Group basic size='small' className='unit-selector'>
                         <Button
                             icon='hashtag'
-                            onClick={() => onChangeSettings('valueType', 'absolute')}
+                            onClick={() => onChangeSettings({ valueType: 'absolute' })}
                             className={valueType === 'absolute' ? 'selected' : ''}
                         />
                         <Button
                             icon='percent'
-                            onClick={() => onChangeSettings('valueType', 'relative')}
+                            onClick={() => onChangeSettings({ valueType: 'relative' })}
                             className={valueType === 'relative' ? 'selected' : ''}
                         />
                     </Button.Group>
@@ -256,7 +246,6 @@ AnalyticsCard.propTypes = {
     onChangeSettings: PropTypes.func.isRequired,
     onReorder: PropTypes.func,
     size: PropTypes.string,
-    projectName: PropTypes.string,
 };
 
 AnalyticsCard.defaultProps = {
@@ -267,7 +256,6 @@ AnalyticsCard.defaultProps = {
     exportQueryParams: {},
     onReorder: null,
     size: 'standard',
-    projectName: 'Botfront',
 };
 
 export default AnalyticsCard;
