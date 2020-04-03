@@ -25,7 +25,7 @@ import { setWorkingLanguage } from '../../../../store/actions/actions';
 import ExampleUtils from '../../../utils/ExampleUtils';
 
 
-const NLUModel = (props) => {
+const NLUModalContent = (props) => {
     const {
         model,
         projectId,
@@ -44,7 +44,7 @@ const NLUModel = (props) => {
             payloadEntity => payloadEntity.entity === entity.entity,
         ));
 
-    const exampleReducer = (state, action) => action
+    const exampleReducer = (state, updatedExamples) => updatedExamples
         .map(example => ({ ...example, invalid: !checkPayloadsMatch(example) }))
         .sort((exampleA, exampleB) => {
             if (exampleA.invalid) {
@@ -66,7 +66,12 @@ const NLUModel = (props) => {
         });
 
     const [cancelPopupOpen, setCancelPopupOpen] = useState(false);
-    const [examples, setExamples] = useReducer(exampleReducer, []);
+    /*
+        while this is not the recomended use of a useReducer hook it is
+        preferable to useState as it ensures the validity check and sort
+        will always be called when the examples state is updated
+    */
+    const [examples, setExamples] = useReducer(exampleReducer, []); // the example reducer applies a sort and validity check
     const [newCanonical, setNewCanonical] = useState(null);
     const hasInvalidExamples = useMemo(
         () => examples.some(example => example.invalid === true && !example.deleted),
@@ -267,6 +272,7 @@ const NLUModel = (props) => {
                                     onSave={example => onNewExamples([example])}
                                     postSaveAction='clear'
                                     defaultIntent={payload.intent}
+                                    saveOnEnter
                                 />
                             </div>
                         )}
@@ -327,7 +333,7 @@ const NLUModel = (props) => {
     );
 };
 
-NLUModel.propTypes = {
+NLUModalContent.propTypes = {
     model: PropTypes.object,
     projectId: PropTypes.string,
     intents: PropTypes.array,
@@ -339,7 +345,7 @@ NLUModel.propTypes = {
     closeModal: PropTypes.func.isRequired,
 };
 
-NLUModel.defaultProps = {
+NLUModalContent.defaultProps = {
     intents: [],
     ready: false,
     projectId: '',
@@ -347,8 +353,6 @@ NLUModel.defaultProps = {
     examples: [],
     entities: [],
 };
-
-// NLUModel.contextType = ProjectContext;
 
 const NLUDataLoaderContainer = withTracker((props) => {
     const { projectId, workingLanguage } = props;
@@ -415,7 +419,7 @@ const NLUDataLoaderContainer = withTracker((props) => {
         project,
         examples: common_examples,
     };
-})(NLUModel);
+})(NLUModalContent);
 
 const mapStateToProps = state => ({
     workingLanguage: state.settings.get('workingLanguage'),

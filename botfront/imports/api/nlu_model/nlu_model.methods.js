@@ -5,7 +5,7 @@ import {
     uniq, uniqBy, sortBy, intersectionBy,
 } from 'lodash';
 import {
-    formatError, getModelIdsFromProjectId,
+    formatError, getModelIdsFromProjectId, getProjectIdFromModelId,
 } from '../../lib/utils';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
@@ -17,6 +17,7 @@ import {
     canonicalizeExamples,
 } from './nlu_model.utils';
 import { Projects } from '../project/project.collection';
+import { checkIfCan } from '../../lib/scopes';
 
 const getModelWithTrainingData = (projectId, language) => {
     const modelIds = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }).nlu_models;
@@ -45,6 +46,7 @@ Meteor.methods({
         }
     },
     async 'nlu.saveExampleChanges'(modelId, examples) {
+        checkIfCan('nlu:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
         check(examples, Array);
         
@@ -111,6 +113,7 @@ Meteor.methods({
         }
     },
     async 'nlu.updateManyExamples'(modelId, items) {
+        checkIfCan('nlu:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
         check(items, Array);
         const updatedExamples = uniqBy(items, 'text');
@@ -123,7 +126,7 @@ Meteor.methods({
         const pullItems = intersectionBy(examples, updatedExamples, 'text').map(({ text }) => text);
         await NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { text: { $in: pullItems } } } });
         await NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { _id: { $in: updatedExamples.map(({ _id }) => _id) } } } });
-        await NLUModels.update({ _id: modelId }, { $push: { 'training_data.common_examples': { $each: updatedExamples, $position: 0 } } });
+        return NLUModels.update({ _id: modelId }, { $push: { 'training_data.common_examples': { $each: updatedExamples, $position: 0 } } });
     },
 
     async 'nlu.switchCanonical'(modelId, item) {

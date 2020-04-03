@@ -39,10 +39,11 @@ export default class NLUPlayground extends React.Component {
         this.setState(this.getInitialState());
     };
 
-    handleAutoSaveExample = () => {
+    handleParseAndSave = () => {
         const { defaultIntent, instance, model: { language } } = this.props;
         const { example } = this.state;
         // treat new lines as new examples
+        console.log('hmmmm');
         example.text.split('\n').forEach((exampleText) => {
             Meteor.call(
                 'rasa.parse',
@@ -61,7 +62,7 @@ export default class NLUPlayground extends React.Component {
 
     render() {
         const {
-            model, instance, projectId, intents, entities, testMode, defaultIntent,
+            model, instance, projectId, intents, entities, testMode, saveOnEnter,
         } = this.props;
         const { example, example: { text } = {}, editMode } = this.state;
 
@@ -79,7 +80,7 @@ export default class NLUPlayground extends React.Component {
                                 style={styleTextArea}
                                 example={example}
                                 onChange={this.onTextChanged}
-                                onEnter={defaultIntent ? this.handleAutoSaveExample : () => {}}
+                                onEnter={saveOnEnter ? this.handleParseAndSave : () => {}}
                                 allowMultiple
                             />
                         </Form>
@@ -120,9 +121,11 @@ NLUPlayground.propTypes = {
     instance: PropTypes.object.isRequired,
     testMode: PropTypes.bool,
     defaultIntent: PropTypes.string,
+    saveOnEnter: PropTypes.bool,
 };
 
 NLUPlayground.defaultProps = {
     testMode: false,
     defaultIntent: null,
+    saveOnEnter: false,
 };

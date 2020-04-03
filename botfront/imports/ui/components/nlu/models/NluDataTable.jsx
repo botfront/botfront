@@ -137,13 +137,24 @@ export default class NluDataTable extends React.Component {
                         );
                     }
                     return this.canonicalTooltip(
-                        <UserUtteranceViewer
-                            value={props.value}
-                            onChange={this.onEditExample}
-                            projectId=''
-                            disableEditing={canonical}
-                            showIntent={false}
-                        />,
+                        <div className='example-table-row'>
+                            <UserUtteranceViewer
+                                value={props.value}
+                                onChange={this.onEditExample}
+                                projectId=''
+                                disableEditing={canonical}
+                                showIntent={false}
+                            />
+                            <IconButton
+                                toolTip={canonical ? <>Cannot edit a canonical example</> : null}
+                                toolTipInverted
+                                disabled={canonical}
+                                basic
+                                icon='edit'
+                                onClick={e => this.handleEditExampleClick(e, exampleId)}
+                                iconClass={canonical ? 'disabled-delete' : undefined}
+                            />
+                        </div>,
                         canonical,
                     );
                 },
@@ -153,29 +164,6 @@ export default class NluDataTable extends React.Component {
 
         firstColumns = intentColumns.concat(firstColumns.concat(extraColumns || []));
         
-        firstColumns.push({
-            accessor: '_id',
-            filterable: false,
-            Header: '',
-            width: 30,
-            Cell: (props) => {
-                const canonical = props.row.example.canonical ? props.row.example.canonical : false;
-                const exampleId = props.row.example._id;
-                const { editExampleMode } = this.state;
-                if (editExampleMode === props.row.example._id) return <></>;
-                return (
-                    <IconButton
-                        toolTip={canonical ? <>Cannot edit a canonical example</> : null}
-                        toolTipInverted
-                        disabled={canonical}
-                        basic
-                        icon='edit'
-                        onClick={e => this.handleEditExampleClick(e, exampleId)}
-                        iconClass={canonical ? 'disabled-delete' : undefined}
-                    />
-                );
-            },
-        });
         firstColumns.push({
             accessor: '_id',
             filterable: false,

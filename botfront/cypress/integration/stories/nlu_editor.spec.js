@@ -25,7 +25,9 @@ describe('nlu editor modal tests', () => {
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
         cy.dataCy('nlu-editor-modal').find('[data-cy=icon-trash]').last().click();
-        cy.dataCy('icon-edit').first().click();
+        cy.get('.example-table-row').first().trigger('mouseover');
+        cy.dataCy('icon-edit').should('exist'); // check appear on hover works correctly
+        cy.dataCy('icon-edit').first().click({ force: true });
         cy.dataCy('example-editor-form').find('[data-cy=example-text-editor-input]').type(' tonight{enter}');
         cy.dataCy('example-text-editor-input').click().type('I will go to costco{enter}');
         cy.dataCy('nlu-modification-label').contains('deleted').should('exist');
@@ -69,7 +71,7 @@ describe('nlu editor modal tests', () => {
         cy.dataCy('nlu-editor-modal').find('[data-cy=icon-trash]').first().click();
         cancelChanges();
         cy.dataCy('utterance-text').click();
-        cy.dataCy('icon-edit').first().click();
+        cy.dataCy('icon-edit').first().click({ force: true });
         cy.dataCy('example-editor-form').find('[data-cy=example-text-editor-input]').type(' tonight{enter}');
         cancelChanges();
         cy.dataCy('utterance-text').click();

@@ -9,3 +9,16 @@ div.chitchat div.ui.dropdown {
 .always-interactable {
   pointer-events: all;
 }
+.example-table-row {
+  display: flex;
+  .ui.basic.button.icon-button {
+    margin-left: 0.75em;
+    visibility: hidden;
+  }
+  &:hover {
+    .ui.basic.button.icon-button {
+      margin-left: 0.5em;
+      visibility: visible;
+    }
+  }
+}
