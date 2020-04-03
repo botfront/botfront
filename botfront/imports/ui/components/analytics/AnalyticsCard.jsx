@@ -123,7 +123,7 @@ function AnalyticsCard(props) {
             values = exclude;
             setting = 'exclude';
         } else if (include) {
-            text = 'Fallback actions';
+            text = 'Included actions';
             values = include;
             setting = 'include';
         }
