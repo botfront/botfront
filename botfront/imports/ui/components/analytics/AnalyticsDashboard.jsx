@@ -214,22 +214,24 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
     };
 
     return (
-        <Container>
-            <div className='analytics-dashboard' ref={drop}>
-                {cards.map(({
-                    name, type, startDate, endDate, ...settings
-                }, index) => (
-                    <AnalyticsCard
-                        key={name}
-                        cardName={name}
-                        {...cardTypes[type]}
-                        settings={{ ...settings, startDate: moment(startDate), endDate: moment(endDate) }}
-                        onChangeSettings={handleChangeCardSettings(index)}
-                        onReorder={handleSwapCards(index)}
-                    />
-                ))}
-            </div>
-        </Container>
+        <div style={{ overflowY: 'auto', height: 'calc(100% - 49px', marginTop: '0' }}>
+            <Container>
+                <div className='analytics-dashboard' ref={drop}>
+                    {cards.map(({
+                        name, type, startDate, endDate, ...settings
+                    }, index) => (
+                        <AnalyticsCard
+                            key={name}
+                            cardName={name}
+                            {...cardTypes[type]}
+                            settings={{ ...settings, startDate: moment(startDate), endDate: moment(endDate) }}
+                            onChangeSettings={handleChangeCardSettings(index)}
+                            onReorder={handleSwapCards(index)}
+                        />
+                    ))}
+                </div>
+            </Container>
+        </div>
     );
 }
 

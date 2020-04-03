@@ -105,3 +105,20 @@
 .ui.button.export-card-button{
     margin: 0px 0px 0px 12px;
 }
+
+.top-menu-red-dropzone {
+    z-index: 3;
+    position: absolute;
+    height: 49px;
+    width: 100%;
+    border-bottom: dashed @red 5px;
+    background-color: fade(@red, 10%);
+    padding-top: 12px;
+    &.hover {
+        background-color: fade(@red, 100%);
+        border-bottom: none;
+        .ui.header.red {
+            color: #fff !important;
+        }
+    }
+}

@@ -220,7 +220,7 @@ function AnalyticsCard(props) {
                     data-cy='toggle-wide'
                     basic
                     size='medium'
-                    icon={wide ? 'zoom out' : 'zoom in'}
+                    icon={wide ? 'compress' : 'expand'}
                     onClick={() => onChangeSettings({ wide: !wide })}
                 />
             </span>

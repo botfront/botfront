@@ -129,6 +129,7 @@ if (Meteor.isServer) {
             try {
                 if (!project) throw new Meteor.Error('Project not found');
                 const projectBefore = Projects.findOne({ _id: projectId }); // Delete project
+                await AnalyticsDashboards.deleteOne({ projectId }); // Delete dashboards
                 NLUModels.remove({ _id: { $in: project.nlu_models } }); // Delete NLU models
                 Activity.remove({ modelId: { $in: project.nlu_models } }).exec(); // Delete Logs
                 Instances.remove({ projectId: project._id }); // Delete instances

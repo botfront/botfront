@@ -4,7 +4,9 @@ import React, {
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import moment from 'moment';
-import { Menu, Dropdown } from 'semantic-ui-react';
+import {
+    Menu, Dropdown, Icon, Header,
+} from 'semantic-ui-react';
 import { useDrop } from 'react-dnd-cjs';
 import { connect } from 'react-redux';
 import { useMutation, useQuery } from '@apollo/react-hooks';
@@ -88,6 +90,8 @@ function AnalyticsContainer(props) {
                 endDate: moment().endOf('day').toISOString(),
                 chartType: ['conversationLengths', 'intentFrequencies', 'conversationDurations'].includes(type) ? 'bar' : 'line',
                 valueType: 'absolute',
+                include: ['fallbackCounts', 'conversationsWithFallback'].includes(type) ? ['action_botfront_fallback'] : undefined,
+                exclude: ['intentFrequencies'].includes(type) ? ['get_started'] : undefined,
             },
             ...dashboard.cards,
         ],
@@ -106,19 +110,6 @@ function AnalyticsContainer(props) {
         }),
     });
 
-    const buttonProps = () => {
-        let text = 'Add card';
-        let icon = 'plus';
-        let className = 'icon';
-        if (canDrop) {
-            text = 'Drop to delete card';
-            icon = 'trash';
-            className += ' red';
-            if (!isOver) className += ' translucent';
-        }
-        return { text, icon, className };
-    };
-
     const cardTypes = [
         ['visitCounts', 'Visits & Engagement'],
         ['conversationLengths', 'Conversation Length'],
@@ -129,54 +120,61 @@ function AnalyticsContainer(props) {
     ];
 
     const renderAddResponse = () => (
-        <div ref={drop}>
-            <Dropdown
-                {...buttonProps()}
-                floating
-                labeled
-                button
-            >
-                <Dropdown.Menu>
-                    {cardTypes.map(([type, name]) => (
-                        <Dropdown.Item
-                            key={type}
-                            text={name}
-                            onClick={() => handleNewCardInDashboard(type, name)}
-                        />
-                    ))}
-                </Dropdown.Menu>
-            </Dropdown>
-        </div>
+        <Dropdown
+            className='icon'
+            text='Add card'
+            icon='plus'
+            floating
+            labeled
+            button
+        >
+            <Dropdown.Menu>
+                {cardTypes.map(([type, name]) => (
+                    <Dropdown.Item
+                        key={type}
+                        text={name}
+                        onClick={() => handleNewCardInDashboard(type, name)}
+                    />
+                ))}
+            </Dropdown.Menu>
+        </Dropdown>
     );
 
     return (
         <>
-            <PageMenu title='Analytics' icon='chart bar' className='analytics-top-menu'>
-                <Menu.Item className='env-select'>
-                    <EnvSelector
-                        availableEnvs={availableEnvs}
-                        value={dashboard.envs[0]} // multi env not supported
-                        envChange={env => handleUpdateDashboard({ envs: [env] })}
-                    />
-                </Menu.Item>
-                <Menu.Item>
-                    <LanguageDropdown
-                        handleLanguageChange={languages => handleUpdateDashboard(
-                            languages.length
-                                ? { languages }
-                                : { languages: projectLanguages.map(l => l.value) },
-                        )
-                        }
-                        selectedLanguage={dashboard.languages}
-                        multiple
-                    />
-                </Menu.Item>
-                <Menu.Menu position='right'>
-                    <Menu.Item>
-                        {renderAddResponse()}
+            {canDrop && (
+                <div className={`top-menu-red-dropzone ${isOver ? 'hover' : ''}`} ref={drop}>
+                    <Header as='h3' color='red' textAlign='center'><Icon name='trash' />Drop here to delete</Header>
+                </div>
+            )}
+            <div>
+                <PageMenu title='Analytics' icon='chart bar' className='analytics-top-menu'>
+                    <Menu.Item className='env-select'>
+                        <EnvSelector
+                            availableEnvs={availableEnvs}
+                            value={dashboard.envs[0]} // multi env not supported
+                            envChange={env => handleUpdateDashboard({ envs: [env] })}
+                        />
                     </Menu.Item>
-                </Menu.Menu>
-            </PageMenu>
+                    <Menu.Item>
+                        <LanguageDropdown
+                            handleLanguageChange={languages => handleUpdateDashboard(
+                                languages.length
+                                    ? { languages }
+                                    : { languages: projectLanguages.map(l => l.value) },
+                            )
+                            }
+                            selectedLanguage={dashboard.languages}
+                            multiple
+                        />
+                    </Menu.Item>
+                    <Menu.Menu position='right'>
+                        <Menu.Item>
+                            {renderAddResponse()}
+                        </Menu.Item>
+                    </Menu.Menu>
+                </PageMenu>
+            </div>
             <React.Suspense fallback={<div className='analytics-dashboard' />}>
                 <Loading loading={loading}>
                     <Dashboard
