@@ -88,7 +88,7 @@ const InstancesContainer = withTracker((props) => {
     if (can('projects:w', projectId)) {
         const restartRasaHandler = Meteor.subscribe('restartRasaWebhook', projectId);
         const settings = GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.restartRasaWebhook': 1 } });
-        const restartRasaWebhook = get(settings, 'private.webhooks.restartRasaWebhook', {});
+        const restartRasaWebhook = get(settings, 'settings.private.webhooks.restartRasaWebhook', {});
 
         return {
             ready: handler.ready() && restartRasaHandler.ready(),
