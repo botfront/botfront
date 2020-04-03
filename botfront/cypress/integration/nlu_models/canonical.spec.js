@@ -25,19 +25,20 @@ describe('NLU canonical examples', function () {
         cy.contains('Examples').click();
         cy.dataCy('icon-gem')
             .last()
-            .should('have.class', 'grey');
+            .should('not.have.class', 'active');
         cy.dataCy('icon-gem')
             .first()
-            .should('have.class', 'black');
+            .should('have.class', 'active');
         cy.dataCy('icon-gem')
             .last()
             .click({ force: true });
         cy.wait(100);
         cy.dataCy('icon-gem')
-            .should('have.class', 'black');
+            .last()
+            .should('have.class', 'active');
         cy.dataCy('icon-gem')
             .first()
-            .should('have.class', 'grey');
+            .should('not.have.class', 'active');
     });
 
     it('should display a popup for canonical example', function () {
@@ -51,7 +52,7 @@ describe('NLU canonical examples', function () {
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
         cy.dataCy('icon-gem')
-            .should('have.class', 'black');
+            .should('have.class', 'active');
         cy.dataCy('icon-gem')
             .trigger('mouseover');
         cy.get('.popup').should('exist');
@@ -69,7 +70,7 @@ describe('NLU canonical examples', function () {
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
         cy.dataCy('icon-trash')
-            .should('have.class', 'disabled-delete');
+            .should('have.class', 'disabled');
         cy.dataCy('intent-label').trigger('mouseover');
         cy.get('.popup').should('contain', 'Cannot edit');
         cy.dataCy('utterance-text').trigger('mouseover');
@@ -90,18 +91,17 @@ describe('NLU canonical examples', function () {
             .last()
             .click({ force: true });
         cy.get('.s-alert-box-inner').should('exist');
-        cy.dataCy('gem')
-            .children()
-            .should('have.class', 'black');
+        cy.dataCy('icon-gem')
+            .should('have.class', 'active');
         // just match the first part of the message as linebreaks may happen and are difficult to match
         cy.get('.s-alert-box-inner').should('contain.text',
             'The previous canonical example with');
         cy.dataCy('icon-gem')
             .first()
-            .should('have.class', 'grey');
+            .should('not.have.class', 'active');
         cy.dataCy('icon-gem')
             .last()
-            .should('have.class', 'black');
+            .should('have.class', 'active');
     });
 
 
@@ -142,7 +142,7 @@ describe('NLU canonical examples', function () {
         cy.wait(200);
         cy.dataCy('icon-gem').eq(5).click({ force: true });
         cy.wait(200);
-        cy.get('.black[data-cy=icon-gem]').should('have.length', 6);
+        cy.dataCy('icon-gem', null, '.active').should('have.length', 6);
     });
     
     it('should tag the first example for an intent created in the visual editor as canonical', function () {
@@ -151,16 +151,8 @@ describe('NLU canonical examples', function () {
 
         cy.dataCy('add-user-line').click({ force: true });
         cy.dataCy('user-line-from-input').click({ force: true });
-        cy.dataCy('utterance-input')
-            .find('input')
-            .type('this example should be canonical{enter}');
-        cy.dataCy('intent-label').should('have.length', 2);
-        cy.dataCy('intent-label').last().click();
-        cy.dataCy('intent-dropdown').last().find('input')
-            .type('intenttest{enter}');
-        cy.dataCy('intent-label').contains('intenttest').should('exist');
-        cy.dataCy('save-new-user-input').click();
+        cy.addUserUtterance('this example should be canonical', 'intenttest', 1);
         cy.visit('/project/bf/nlu/models');
-        cy.dataCy('icon-gem').should('have.class', 'black');
+        cy.dataCy('icon-gem').should('have.class', 'active');
     });
 });

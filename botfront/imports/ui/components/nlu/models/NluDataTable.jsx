@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-    Checkbox, Tab, Grid, Loader, Popup, Icon,
+    Checkbox, Tab, Grid, Loader, Popup, Icon, Form,
 } from 'semantic-ui-react';
 import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
@@ -10,12 +10,12 @@ import ReactTable from 'react-table-v6';
 import matchSorter from 'match-sorter';
 import getColor from '../../../../lib/getColors';
 import { _cleanQuery, includeSynonyms } from '../../../../lib/filterExamples';
-import NLUExampleEditMode from '../../example_editor/NLUExampleEditMode';
 import EntityUtils from '../../utils/EntityUtils';
 import IntentLabel from '../common/IntentLabel';
 import Filters from './Filters';
-import FloatingIconButton from '../../common/FloatingIconButton';
+import IconButton from '../../common/IconButton';
 import UserUtteranceViewer from '../common/UserUtteranceViewer';
+import { ExampleTextEditor } from '../../example_editor/ExampleTextEditor';
 
 export default class NluDataTable extends React.Component {
     constructor(props) {
@@ -28,6 +28,7 @@ export default class NluDataTable extends React.Component {
                 query: '',
             },
             onlyCanonical: false,
+            editExampleMode: null,
         };
     }
 
@@ -92,32 +93,18 @@ export default class NluDataTable extends React.Component {
                 width: 200,
                 filterMethod: (filter, rows) => matchSorter(rows, filter.value, { keys: ['intent'] }),
                 Cell: props => this.canonicalTooltip(
-                    <IntentLabel
-                        value={props.value}
-                        allowEditing={!props.row.example.canonical}
-                        allowAdditions
-                        onChange={intent => this.onEditExample({ ...props.row.example, intent })}
-                    />,
+                    <span className='example-intent-cell'>
+                        <IntentLabel
+                            value={props.value}
+                            allowEditing={!props.row.example.canonical}
+                            allowAdditions
+                            onChange={intent => this.onEditExample({ ...props.row.example, intent })}
+                        />
+                    </span>,
                     props.row.example.canonical,
                 ),
             },
         ];
-        const expanderColumn = [{
-            expander: true,
-            Expander: (row) => {
-                if (row.row.example.canonical) {
-                    return null;
-                }
-                return (
-                    <div>
-                        {row.isExpanded
-                            ? <Icon size='large' name='caret down' />
-                            : <Icon size='large' name='caret right' />
-                        }
-                    </div>
-                );
-            },
-        }];
 
         let firstColumns = [
             {
@@ -133,14 +120,41 @@ export default class NluDataTable extends React.Component {
                 Header: 'Example',
                 Cell: (props) => {
                     const canonical = props.row.example.canonical ? props.row.example.canonical : false;
+                    const { editExampleMode } = this.state;
+                    const exampleId = props.row.example._id;
+                    if (editExampleMode === exampleId) {
+                        return (
+                            <Form className='example-editor-form' data-cy='example-editor-form'>
+                                <ExampleTextEditor
+                                    inline
+                                    autofocus
+                                    example={props.row.example}
+                                    onBlur={this.handleExampleTextareaBlur}
+                                    onEnter={this.handleExampleTextareaBlur}
+                                    disableNewEntities={editExampleMode === exampleId}
+                                />
+                            </Form>
+                        );
+                    }
                     return this.canonicalTooltip(
-                        <UserUtteranceViewer
-                            value={props.value}
-                            onChange={this.onEditExample}
-                            projectId=''
-                            disableEditing={canonical}
-                            showIntent={false}
-                        />,
+                        <div className='example-table-row'>
+                            <UserUtteranceViewer
+                                value={props.value}
+                                onChange={this.onEditExample}
+                                projectId=''
+                                disableEditing={canonical}
+                                showIntent={false}
+                            />
+                            <IconButton
+                                toolTip={canonical ? <>Cannot edit a canonical example</> : null}
+                                toolTipInverted
+                                disabled={canonical}
+                                basic
+                                icon='edit'
+                                onClick={e => this.handleEditExampleClick(e, exampleId)}
+                                iconClass={canonical ? 'disabled-delete' : undefined}
+                            />
+                        </div>,
                         canonical,
                     );
                 },
@@ -148,8 +162,8 @@ export default class NluDataTable extends React.Component {
             },
         ];
 
-        firstColumns = expanderColumn.concat(intentColumns.concat(firstColumns.concat(extraColumns || [])));
-
+        firstColumns = intentColumns.concat(firstColumns.concat(extraColumns || []));
+        
         firstColumns.push({
             accessor: '_id',
             filterable: false,
@@ -183,27 +197,37 @@ export default class NluDataTable extends React.Component {
                 }
 
                 return (
-                    <FloatingIconButton
-                        toolTip={toolTip}
-                        toolTipInverted={!canonical}
-                        icon='gem'
-                        color={canonical ? 'black' : undefined}
-                        onClick={async () => {
-                            // need to recreate a set since state do not detect update through mutations
-                            this.setState({ waiting: new Set(waiting.add(props.row.example._id)) });
-                            const result = await onSwitchCanonical(props.row.example);
-                            if (result.change) {
-                                Alert.warning(`The previous canonical example with the same intent 
-                                and entity - entity value combination 
-                                (if applicable) with this example has been unmarked canonical`, {
-                                    position: 'top-right',
-                                    timeout: 5000,
-                                });
-                            }
-                            waiting.delete(props.row.example._id);
-                            this.setState({ waiting: new Set(waiting) });
-                        }}
-                        iconClass={canonical ? '' : undefined} // remove the on hover class if canonical
+                    <Popup
+                        position='top center'
+                        disabled={toolTip === null}
+                        trigger={(
+                            <div>
+                                <IconButton
+                                    active={canonical}
+                                    icon='gem'
+                                    basic
+                                    disabled={toolTip === null}
+                                    onClick={async () => {
+                                    // need to recreate a set since state do not detect update through mutations
+                                        this.setState({ waiting: new Set(waiting.add(props.row.example._id)) });
+                                        const result = await onSwitchCanonical(props.row.example);
+                                        if (result.change) {
+                                            Alert.warning(`The previous canonical example with the same intent 
+                                        and entity - entity value combination 
+                                        (if applicable) with this example has been unmarked canonical`, {
+                                                position: 'top-right',
+                                                timeout: 5000,
+                                            });
+                                        }
+                                        waiting.delete(props.row.example._id);
+                                        this.setState({ waiting: new Set(waiting) });
+                                    }}
+                                    data-cy='icon-gem'
+                                />
+                            </div>
+                        )}
+                        inverted={!canonical}
+                        content={toolTip}
                     />
                 );
             },
@@ -215,14 +239,27 @@ export default class NluDataTable extends React.Component {
             filterable: false,
             Cell: (props) => {
                 const canonical = props.row.example.canonical ? props.row.example.canonical : false;
+                const { deleted } = props.row.example;
+                let className = canonical ? 'disabled-delete' : '';
+                className += props.row.example.deleted ? 'always-interactable' : '';
                 return (
-                    <FloatingIconButton
-                        toolTip={canonical ? <>Cannot delete a canonical example</> : null}
-                        toolTipInverted
-                        disabled={canonical}
-                        icon='trash'
-                        onClick={() => onDeleteExample(props.value)}
-                        iconClass={canonical ? 'disabled-delete' : undefined}
+                    <Popup
+                        position='top center'
+                        disabled={!canonical}
+                        trigger={(
+                            <div>
+                                <IconButton
+                                    icon={deleted ? 'redo' : 'trash'}
+                                    basic
+                                    disabled={canonical}
+                                    onClick={() => onDeleteExample(props.value)}
+                                    data-cy='icon-trash'
+                                    className={className}
+                                />
+                            </div>
+                        )}
+                        inverted
+                        content='Cannot delete a canonical example'
                     />
                 );
             },
@@ -246,6 +283,17 @@ export default class NluDataTable extends React.Component {
 
     collapseExpanded = () => this.setState({ expanded: {} });
 
+    handleExampleTextareaBlur = (example) => {
+        this.setState({ editExampleMode: null });
+        this.onEditExample(example);
+    }
+
+    handleEditExampleClick = (event, exampleId) => {
+        const { editExampleMode } = this.state;
+        if (editExampleMode === exampleId) return;
+        this.setState({ editExampleMode: exampleId });
+    }
+
     scrapFilter() {
         const { filter: { intents: intentsFilter, entities: entitiesFilter, query } } = this.state;
         const { intents, entities } = this.props;
@@ -257,13 +305,16 @@ export default class NluDataTable extends React.Component {
         };
     }
 
+
     render() {
         const headerStyle = { textAlign: 'left', fontWeight: 800, paddingBottom: '10px' };
         const columns = this.getColumns();
-        const { hideHeader, intents, entities } = this.props;
+        const {
+            hideHeader, intents, entities, conditionalRowFormatter, className,
+        } = this.props;
         const { expanded, onlyCanonical } = this.state;
         return (
-            <Tab.Pane as='div'>
+            <Tab.Pane as='div' className={className}>
                 {!hideHeader && (
                     <Grid style={{ paddingBottom: '12px' }}>
                         <Grid.Row>
@@ -344,21 +395,11 @@ export default class NluDataTable extends React.Component {
                                 ...headerStyle,
                             },
                         })}
-                        className=''
-                        SubComponent={(row) => {
-                            if (row.row.example.canonical) return undefined;
-                            return (
-                                <NLUExampleEditMode
-                                    floated='right'
-                                    example={row.original}
-                                    entities={entities}
-                                    intents={this.getIntentForDropdown(false)}
-                                    onSave={this.onEditExample}
-                                    onCancel={() => this.setState({ expanded: {} })}
-                                    postSaveAction='close'
-                                />
-                            );
+                        getTrProps={(__, rowInfo = {}) => {
+                            if (!conditionalRowFormatter) return {};
+                            return conditionalRowFormatter(rowInfo.original);
                         }}
+                        className=''
                     />
                 </div>
             </Tab.Pane>
@@ -376,10 +417,13 @@ NluDataTable.propTypes = {
     extraColumns: PropTypes.array,
     intentColumns: PropTypes.arrayOf(PropTypes.object),
     onSwitchCanonical: PropTypes.func.isRequired,
+    conditionalRowFormatter: PropTypes.func.isRequired,
+    className: PropTypes.string,
 };
 
 NluDataTable.defaultProps = {
     hideHeader: false,
     extraColumns: [],
     intentColumns: null,
+    className: '',
 };

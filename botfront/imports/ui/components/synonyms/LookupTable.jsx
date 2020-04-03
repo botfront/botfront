@@ -8,7 +8,7 @@ import matchSorter from 'match-sorter';
 import AddLookupTableRow from './AddLookupTableRow';
 import LookupTableValueEditorViewer from './LookupTableValueEditorViewer';
 import LookupTableEditorViewer from './LookupTableListEditorViewer';
-import FloatingIconButton from '../common/FloatingIconButton';
+import IconButton from '../common/IconButton';
 
 export default class LookupTable extends React.Component {
     getColumns() {
@@ -59,8 +59,10 @@ export default class LookupTable extends React.Component {
             width: 35,
             className: 'center',
             Cell: ({ value }) => (
-                <FloatingIconButton
+                <IconButton
                     icon='trash'
+                    basic
+                    color='white'
                     onClick={() => onItemDeleted(value)}
                 />
             ),

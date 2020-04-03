@@ -1,13 +1,13 @@
 /* eslint-disable import/order */
-import { Projects } from '../api/project/project.collection';
+/* eslint-disable prefer-const */
 import React from 'react';
 
 let canExport = () => true;
 let checkIfCanExport = () => {};
-let getScopesForUserExport = () => {
-    const projects = Projects.find({}, { fields: {} }).fetch();
-    return projects.map(project => project._id);
-};
+let getUserScopesExport = () => {};
+let checkIfScopeExport = () => {};
+let getScopesForUserExport = () => {};
+let isUserPermissionGlobalExport = () => {};
 let areScopeReadyExport = () => true;
 let setScopesExport = () => {};
 let CanExport = props => (
@@ -17,6 +17,9 @@ let CanExport = props => (
 );
 
 
+export const getUserScopes = getUserScopesExport;
+export const checkIfScope = checkIfScopeExport;
+export const isUserPermissionGlobal = isUserPermissionGlobalExport;
 export const getScopesForUser = getScopesForUserExport;
 export const can = canExport;
 export const checkIfCan = checkIfCanExport;

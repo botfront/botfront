@@ -40,6 +40,7 @@ const UserUtterancePopupContent = (props) => {
                             setModalOpen(false);
                             onCreateFromPayload(payload);
                         }}
+                        data-cy='save-user-utterance'
                     />
                     <Button
                         content='Cancel'
