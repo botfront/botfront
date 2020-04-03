@@ -10,11 +10,10 @@ const UserUtterancesContainer = (props) => {
         deletable, value, onChange, onDelete,
     } = props;
 
-    const somethingIsBeingInput = useMemo(() => value.some(d => d === null), [value]);
+    const somethingIsBeingInput = useMemo(() => value.some(disjunct => disjunct === null), [value]);
 
     const handleDeleteDisjunct = (index) => {
-        const newUtterance = [...value.slice(0, index), ...value.slice(index + 1)];
-        if (newUtterance.length) {
+        if (value.length > 1) {
             return onChange([...value.slice(0, index), ...value.slice(index + 1)]);
         }
         return onDelete();

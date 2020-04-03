@@ -1,15 +1,16 @@
 /* eslint-disable import/order */
+/* eslint-disable prefer-const */
 import React from 'react';
 
-const canExport = () => true;
-const checkIfCanExport = () => {};
-const getUserScopesExport = () => {};
-const checkIfScopeExport = () => {};
-const getScopesForUserExport = () => {};
-const isUserPermissionGlobalExport = () => {};
-const areScopeReadyExport = () => true;
-const setScopesExport = () => {};
-const CanExport = props => (
+let canExport = () => true;
+let checkIfCanExport = () => {};
+let getUserScopesExport = () => {};
+let checkIfScopeExport = () => {};
+let getScopesForUserExport = () => {};
+let isUserPermissionGlobalExport = () => {};
+let areScopeReadyExport = () => true;
+let setScopesExport = () => {};
+let CanExport = props => (
     <>
         {props.children}
     </>
