@@ -22,7 +22,7 @@ function AnalyticsCard(props) {
         cardName,
         displayDateRange,
         chartTypeOptions,
-        title,
+        title: genericTitle,
         titleDescription,
         query,
         queryParams,
@@ -42,6 +42,8 @@ function AnalyticsCard(props) {
     } = props;
 
     const { project: { _id: projectId, name: projectName = 'Botfront', timezoneOffset: projectTimezoneOffset = 0 } } = useContext(ProjectContext);
+
+    const title = cardName || genericTitle;
     
     const displayAbsoluteRelative = 'rel' in graphParams;
     const uniqueChartOptions = [...new Set(chartTypeOptions)];
@@ -56,13 +58,17 @@ function AnalyticsCard(props) {
             isDragging: monitor.isDragging(),
         }),
     });
-    const [, drop] = useDrop({
+    const [{ canDrop, isOver }, drop] = useDrop({
         accept: 'card',
-        canDrop: () => false,
-        hover({ cardName: draggedCard }) {
+        drop: ({ cardName: draggedCard }) => {
             if (draggedCard !== cardName) onReorder(draggedCard);
         },
+        collect: monitor => ({
+            isOver: monitor.isOver(),
+            canDrop: monitor.canDrop(),
+        }),
     });
+
     const variables = {
         projectId,
         envs: [...queryParams.envs, ...(queryParams.envs.includes('development') ? [null] : [])],
@@ -156,7 +162,7 @@ function AnalyticsCard(props) {
 
     return (
         <div
-            className={`analytics-card ${wide ? 'wide' : ''}`}
+            className={`analytics-card ${wide ? 'wide' : ''} ${canDrop ? (isOver ? 'upload-target' : 'faded-upload-target') : ''}`}
             ref={node => drag(drop(node))}
             data-cy='analytics-card'
         >

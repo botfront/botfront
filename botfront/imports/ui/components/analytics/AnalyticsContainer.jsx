@@ -3,7 +3,9 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
-import { Menu } from 'semantic-ui-react';
+import moment from 'moment';
+import { Menu, Dropdown } from 'semantic-ui-react';
+import { useDrop } from 'react-dnd-cjs';
 import { connect } from 'react-redux';
 import { useMutation, useQuery } from '@apollo/react-hooks';
 import { LIST_DASHBOARDS, UPDATE_DASHBOARD } from './graphql';
@@ -50,7 +52,7 @@ function AnalyticsContainer(props) {
 
     useEffect(() => {
         if (!workingDashboard && !loading && !error) {
-            changeWorkingDashboard(dashboards[0]._id);
+            changeWorkingDashboard(dashboards[0]._id); // for now we only support a single dashboard, hence [0]
         }
     }, [dashboards]);
 
@@ -69,6 +71,83 @@ function AnalyticsContainer(props) {
             updateDashboard: { ...dashboard, ...update },
         },
     });
+
+    const findName = (name) => {
+        const sameNamed = dashboard.cards.filter(c => c.name === name);
+        if (!sameNamed.length) return name;
+        return `${name} (${sameNamed.length + 1})`;
+    };
+
+    const handleNewCardInDashboard = (type, name) => handleUpdateDashboard({
+        cards: [
+            {
+                name: findName(name),
+                type,
+                visible: true,
+                startDate: moment().subtract(6, 'days').startOf('day').toISOString(),
+                endDate: moment().endOf('day').toISOString(),
+                chartType: ['conversationLengths', 'intentFrequencies', 'conversationDurations'].includes(type) ? 'bar' : 'line',
+                valueType: 'absolute',
+            },
+            ...dashboard.cards,
+        ],
+    });
+
+    const handleDeleteCardInDashboard = name => handleUpdateDashboard({
+        cards: dashboard.cards.filter(c => c.name !== name),
+    });
+
+    const [{ canDrop, isOver }, drop] = useDrop({
+        accept: 'card',
+        drop: ({ cardName }) => handleDeleteCardInDashboard(cardName),
+        collect: monitor => ({
+            isOver: monitor.isOver(),
+            canDrop: monitor.canDrop(),
+        }),
+    });
+
+    const buttonProps = () => {
+        let text = 'Add card';
+        let icon = 'plus';
+        let className = 'icon';
+        if (canDrop) {
+            text = 'Drop to delete card';
+            icon = 'trash';
+            className += ' red';
+            if (!isOver) className += ' translucent';
+        }
+        return { text, icon, className };
+    };
+
+    const cardTypes = [
+        ['visitCounts', 'Visits & Engagement'],
+        ['conversationLengths', 'Conversation Length'],
+        ['intentFrequencies', 'Top 10 Intents'],
+        ['conversationDurations', 'Conversation Duration'],
+        ['conversationsWithFallback', 'Conversations with Fallback'],
+        ['fallbackCounts', 'Fallback Rate'],
+    ];
+
+    const renderAddResponse = () => (
+        <div ref={drop}>
+            <Dropdown
+                {...buttonProps()}
+                floating
+                labeled
+                button
+            >
+                <Dropdown.Menu>
+                    {cardTypes.map(([type, name]) => (
+                        <Dropdown.Item
+                            key={type}
+                            text={name}
+                            onClick={() => handleNewCardInDashboard(type, name)}
+                        />
+                    ))}
+                </Dropdown.Menu>
+            </Dropdown>
+        </div>
+    );
 
     return (
         <>
@@ -92,6 +171,11 @@ function AnalyticsContainer(props) {
                         multiple
                     />
                 </Menu.Item>
+                <Menu.Menu position='right'>
+                    <Menu.Item>
+                        {renderAddResponse()}
+                    </Menu.Item>
+                </Menu.Menu>
             </PageMenu>
             <React.Suspense fallback={<div className='analytics-dashboard' />}>
                 <Loading loading={loading}>
