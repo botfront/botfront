@@ -19,10 +19,18 @@ export class ExampleTextEditor extends React.Component {
     }
 
     componentDidMount() {
-        const { highlightEntities } = this.props;
+        const { highlightEntities, autofocus } = this.props;
+        const { example } = this.state;
+        if (autofocus) {
+            this.inputSelectionRef.ref.current.focus();
+            this.inputSelectionRef.ref.current.setSelectionRange(example.text.length, example.text.length);
+        }
+
         if (highlightEntities) {
             // CREATE ENTITY LISTENER
             document.addEventListener('mouseup', () => {
+                const { disableNewEntities } = this.props;
+                if (disableNewEntities) return;
                 if (this.inputSelectionRef === null) return;
                 const { example: { text } = {} } = this.state;
                 const { anchorNode } = window.getSelection() || {};
@@ -102,7 +110,7 @@ export class ExampleTextEditor extends React.Component {
                 changeBegin = i;
                 return true;
             }
-
+            
             return false;
         });
 
@@ -157,10 +165,16 @@ export class ExampleTextEditor extends React.Component {
         }).filter(e => !_.isNull(e));
 
         // Update state
-        Object.assign(example, { text, entities });
-        this.setState({ example });
-        onChange(example);
+        const updatedExample = { ...example, text, entities };
+        this.setState({ example: updatedExample });
+        onChange(updatedExample);
     };
+
+    handleBlur = () => {
+        const { onBlur } = this.props;
+        const { example } = this.state;
+        onBlur(example);
+    }
 
     highLightEntitiesInText = () => {
         const { example: { entities, text } = {} } = this.state;
@@ -180,26 +194,30 @@ export class ExampleTextEditor extends React.Component {
     }
 
     handleKeyPress = (e) => {
-        if (e.key === 'Enter') {
-            this.props.onEnter(); // eslint-disable-line
+        const { onEnter } = this.props;
+        const { example } = this.state;
+        if (e.key === 'Enter' && onEnter) {
+            e.preventDefault();
+            onEnter(example);
         }
     };
 
     render() {
         const { example: { text = '' } = {} } = this.state;
-        const { highlightEntities } = this.props;
-
+        const { highlightEntities, inline } = this.props;
         return (
-            <div ref={(node) => { this.selectionAnchorRef = node; }}>
+            <div ref={(node) => { this.selectionAnchorRef = node; }} className='example-editor-container'>
                 <TextArea
+                    className={inline ? 'inline-example-editor' : ''}
                     ref={(node) => { this.inputSelectionRef = node; }}
                     name='text'
                     placeholder='User says...'
                     autoheight='true'
-                    rows={1}
+                    rows={(text && text.split('\n').length) || 1}
                     value={text}
                     onKeyPress={this.handleKeyPress}
                     onChange={this.handleTextChange}
+                    onBlur={this.handleBlur}
                     data-cy='example-text-editor-input'
                 />
                 {highlightEntities && this.highLightEntitiesInText()}
@@ -213,11 +231,19 @@ ExampleTextEditor.propTypes = {
     onChange: PropTypes.func,
     onEnter: PropTypes.func,
     highlightEntities: PropTypes.bool,
+    inline: PropTypes.bool,
+    onBlur: PropTypes.func,
+    autofocus: PropTypes.bool,
+    disableNewEntities: PropTypes.bool,
 };
 
 ExampleTextEditor.defaultProps = {
     example: emptyExample(),
     onChange: () => {},
-    onEnter: () => {},
+    onEnter: null,
     highlightEntities: true,
+    inline: false,
+    onBlur: () => {},
+    autofocus: false,
+    disableNewEntities: false,
 };

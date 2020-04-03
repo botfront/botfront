@@ -48,11 +48,11 @@ describe('NLU Intent warning message displays', function() {
         
         // delete example
         cy.dataCy('icon-gem').first().click(); // unmark canonical on the first example so it can be deleted
-        cy.get('.black.gem').should('have.length', 1);
+        cy.dataCy('icon-gem', null, '.active').should('have.length', 1);
         cy.dataCy('canonical-spinner').should('not.exist', 1);
         cy.contains('hello')
             .closest('.rt-tr')
-            .find('[data-cy=trash] .viewOnHover')
+            .findCy('icon-trash')
             .first()
             .click({ force: true });
         cy.wait(100);
@@ -60,7 +60,7 @@ describe('NLU Intent warning message displays', function() {
         // delete example
         cy.contains('hi guys')
             .closest('.rt-tr')
-            .find('[data-cy=trash] .viewOnHover')
+            .findCy('icon-trash')
             .first()
             .click({ force: true });
         cy.wait(100);

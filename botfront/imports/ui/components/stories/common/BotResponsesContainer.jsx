@@ -6,7 +6,6 @@ import { Placeholder } from 'semantic-ui-react';
 import IconButton from '../../common/IconButton';
 import BotResponseEditor from '../../templates/templates-list/BotResponseEditor';
 import BotResponseContainer from './BotResponseContainer';
-import ExceptionWrapper from './ExceptionWrapper';
 
 import { checkMetadataSet } from '../../../../lib/botResponse.utils';
 
@@ -17,7 +16,6 @@ const BotResponsesContainer = (props) => {
         onChange,
         onDeleteAllResponses,
         deletable,
-        exceptions,
         enableEditPopup,
         tag,
     } = props;
@@ -95,12 +93,11 @@ const BotResponsesContainer = (props) => {
         <React.Fragment
             key={`${response.text}-${(sequenceArray[index + 1] || {}).text}-${index}`}
         >
-            <div className='flex-right'>
+            <div className='story-line'>
                 <BotResponseContainer
                     tag={tag}
-                    deletable={deletable && sequenceArray.length > 1}
                     value={response}
-                    onDelete={() => handleDeleteResponse(index)}
+                    onDelete={() => { if (sequenceArray.length > 1) handleDeleteResponse(index); }}
                     onAbort={() => {}}
                     onChange={(newContent, enter) => handleChangeResponse(newContent, index, enter)}
                     focus={focus === index}
@@ -108,47 +105,44 @@ const BotResponsesContainer = (props) => {
                     editCustom={() => setEditorOpen(true)}
                     hasMetadata={template && checkMetadataSet(template.metadata)}
                 />
-                {index === sequenceArray.length - 1 && name && (
-                    <div className='response-name'>{name}</div>
-                )}
+                {deletable && sequenceArray.length > 1 && <IconButton onClick={() => handleDeleteResponse(index)} icon='trash' />}
             </div>
         </React.Fragment>
     );
 
     return (
-        <ExceptionWrapper exceptions={exceptions}>
-            <div className='responses-container exception-wrapper'>
-                {!template && (
-                    <Placeholder>
-                        <Placeholder.Line />
-                        <Placeholder.Line />
-                    </Placeholder>
+        <div className='utterances-container exception-wrapper-target'>
+            {!template && (
+                <Placeholder>
+                    <Placeholder.Line />
+                    <Placeholder.Line />
+                </Placeholder>
+            )}
+            {getSequence().map(renderResponse)}
+            <div className='side-by-side right narrow top-right'>
+                {enableEditPopup && (
+                    <IconButton
+                        icon='ellipsis vertical'
+                        onClick={() => setEditorOpen(true)}
+                        data-cy='edit-responses'
+                        className={template && checkMetadataSet(template.metadata) ? 'light-green' : 'grey'}
+                        color={null} // prevent default color overiding the color set by the class
+                    />
                 )}
-                {getSequence().map(renderResponse)}
-                <div className='side-by-side right narrow top-right'>
-                    {enableEditPopup && (
-                        <IconButton
-                            icon='ellipsis vertical'
-                            onClick={() => setEditorOpen(true)}
-                            data-cy='edit-responses'
-                            className={template && checkMetadataSet(template.metadata) ? 'light-green' : 'grey'}
-                            color={null} // prevent default color overiding the color set by the class
-                        />
-                    )}
-                    {editorOpen && (
-                        <BotResponseEditor
-                            open={editorOpen}
-                            name={name}
-                            closeModal={() => setEditorOpen(false)}
-                            renameable={false}
-                        />
-                    )}
-                    { deletable && onDeleteAllResponses && (
-                        <IconButton onClick={onDeleteAllResponses} icon='trash' />
-                    )}
-                </div>
+                {editorOpen && (
+                    <BotResponseEditor
+                        open={editorOpen}
+                        name={name}
+                        closeModal={() => setEditorOpen(false)}
+                        renameable={false}
+                    />
+                )}
+                { deletable && onDeleteAllResponses && (
+                    <IconButton onClick={onDeleteAllResponses} icon='trash' />
+                )}
             </div>
-        </ExceptionWrapper>
+            <div className='response-name'>{name}</div>
+        </div>
     );
 };
 
@@ -158,7 +152,6 @@ BotResponsesContainer.propTypes = {
     initialValue: PropTypes.object,
     onChange: PropTypes.func,
     onDeleteAllResponses: PropTypes.func,
-    exceptions: PropTypes.array,
     enableEditPopup: PropTypes.bool,
     tag: PropTypes.string,
 };
@@ -169,7 +162,6 @@ BotResponsesContainer.defaultProps = {
     initialValue: null,
     onChange: () => {},
     onDeleteAllResponses: null,
-    exceptions: [{ type: null }],
     enableEditPopup: true,
     tag: null,
 };

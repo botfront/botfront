@@ -170,10 +170,6 @@ export class StoryController {
         this.intent = this.content.split(' OR ').map(disj => disj.trim());
         this.response = null;
         this.form = null;
-        if (this.intent[0] === NEW_INTENT) {
-            this.lines[this.idx].gui = { type: 'user', data: [null] };
-            return;
-        }
         try {
             const intentData = [];
             this.intent.forEach((disj) => {
@@ -188,14 +184,18 @@ export class StoryController {
                     throw new Error();
                 }
                 if (this.hasInvalidChars(intent)) throw new Error();
-                this.domain.intents.add(intent);
-                entityPairs
-                    .map(e => e[0])
-                    .forEach(entity => this.domain.entities.add(entity));
-                intentData.push({
-                    intent,
-                    entities: entityPairs.map(e => ({ entity: e[0], value: e[1] })),
-                });
+                if (intent === NEW_INTENT) {
+                    intentData.push(null);
+                } else {
+                    this.domain.intents.add(intent);
+                    entityPairs
+                        .map(e => e[0])
+                        .forEach(entity => this.domain.entities.add(entity));
+                    intentData.push({
+                        intent,
+                        entities: entityPairs.map(e => ({ entity: e[0], value: e[1] })),
+                    });
+                }
             });
             this.lines[this.idx].gui = { type: 'user', data: intentData };
         } catch (e) {

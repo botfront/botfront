@@ -108,3 +108,34 @@ Cypress.Commands.add('moveStoryOrGroup', ({ name: originName, type: originType =
     });
     cy.wait(300);
 });
+
+Cypress.Commands.add('addUserUtterance', (text, intent, index = 0, options = {}) => {
+    const { checkForIntent = false } = options;
+    cy.dataCy('utterance-input')
+        .find('input')
+        .type(`${text}{enter}`);
+    cy.dataCy('intent-label').should('have.length', index + 1);
+    if (checkForIntent) cy.dataCy('intent-label').eq(index).should('have.text', intent);
+    cy.dataCy('intent-label').eq(index).click();
+    cy.get('.intent-dropdown input')
+        .click({ force: true })
+        .type(`${intent}{enter}`);
+    cy.dataCy('save-new-user-input').click({ force: true });
+});
+
+Cypress.Commands.add('addUtteranceLine', ({
+    intent, entities = null,
+}) => {
+    cy.dataCy('user-line-from-payload').click({ force: true });
+    cy.dataCy('intent-label').click();
+    cy.dataCy('intent-dropdown').find('input')
+        .type(`${intent}{enter}`);
+    if (entities) {
+        entities.forEach((entity) => {
+            cy.dataCy('add-entity').click();
+            cy.dataCy('entity-dropdown').find('input').type(`${entity.name}{enter}`);
+            cy.dataCy('entity-value-input').click().type(`${entity.value}{enter}`);
+        });
+    }
+    cy.dataCy('save-user-utterance').click();
+});

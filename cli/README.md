@@ -1,6 +1,6 @@
 <p align="center">
 <a href="https://botfront.io">
-    <img src="botfront/docs/images/botfront_animation.gif" width="100%">
+    <img src="botfront_animation.gif" width="100%">
 </a>
 
 <p align="center">
@@ -90,23 +90,16 @@ npm install -g botfront
 
 Then just run `botfront`to get started.
 
-<img src="/botfront/docs/terminalizer/botfront-setup.gif?raw=true" width="100%">
+<!-- broken image. commented out as I'm not sure it should be deleted -->
+<!-- <img src="/botfront/docs/terminalizer/botfront-setup.gif?raw=true" width="100%"> -->
+
 <br/>
 <h2 name="documentation" align="center">Documentation</h2>
 
-The [official documentation](https://botfront.io/docs/getting-started/setup) of Botfront is hosted on [botfront.io](https://botfront.io/docs/getting-started/setup). It is automatically built and updated on every new release.
+The [official documentation](https://botfront.io/docs/getting-started/setup) of Botfront is hosted on [botfront.io](https://botfront.io/docs/getting-started/setup). It is automatically built and updated on every new release. Once you've installed the cli you can also use `botfront docs` to open it.
 
-If you need run the documentation elsewhere you can build a Docker container as follows:
-```bash
-# From the root of the repo
-docker build -t botfront/botfront-docs botfront/docs
-```
 
-To serve the docs on port 8080 (e.g. `https://localhost:8080`):
-```bash
-docker run -p 8080:80 botfront/botfront-docs
-```
-<br/>
+
 <h2 name="development" align="center">Development</h2>
 
 ### Installation
@@ -129,7 +122,22 @@ Botfront needs to be connected to other services, especially Rasa. To do this, y
 
 1. Create a Botfront project with `botfront init` (somewhere else, not in the repo)
 2. Start your project with `botfront up -e botfront`. This will run all services except the Botfront app, since you are going to run it with Meteor locally
-3. Run Botfront with `meteor npm run start:docker-compose.dev`. Botfront will be available at [http://localhost:3000](http://localhost:3000)
+3. Go back to the botfront checkout `cd botfront/botfront` and run Botfront with `meteor npm run start:docker-compose.dev`. Botfront will be available at [http://localhost:3000](http://localhost:3000) so open your browser and happy editing :smile_cat:
+
+### TroubleShooting
+
+Some [botfront cli](https://github.com/botfront/botfront/blob/master/cli/src/cli.js) commands that may help if you run into problems:
+
+```shell
+botfront init     # create a new botfront project
+botfront logs     # show the logs!
+botfront killall  # stop all docker services
+botfront down     # stop all botfront services
+botfront up       # restart botfront
+botfront docs     # open the docs in your browser
+```
+
+Note that these should be run from the same directory as your botfront project
 
 ### Contribute
 

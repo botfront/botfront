@@ -2,24 +2,24 @@ import React, {
     useState, useEffect, useContext, useRef,
 } from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'semantic-ui-react';
+import { Button, Modal } from 'semantic-ui-react';
 import { OOS_LABEL } from '../../constants.json';
-import FloatingIconButton from '../../common/FloatingIconButton';
 import UserUtteranceViewer from '../../nlu/common/UserUtteranceViewer';
 import { ProjectContext } from '../../../layouts/context';
 import UtteranceInput from '../../utils/UtteranceInput';
-import ExceptionWrapper from './ExceptionWrapper';
+import NluEditor from './nlu_editor/NluEditor';
 
 
 const UtteranceContainer = (props) => {
     const {
-        value, onInput, onDelete, onAbort, deletable, exceptions,
+        value, onInput, onAbort,
     } = props;
     const [mode, setMode] = useState(!value ? 'input' : 'view');
     const { parseUtterance, getUtteranceFromPayload } = useContext(ProjectContext);
     const [stateValue, setStateValue] = useState(value);
     const [input, setInput] = useState();
     const [fetchedData, setFetchedData] = useState(value || null);
+    const [modalOpen, setModalOpen] = useState(false);
     const containerBody = useRef();
 
     useEffect(() => {
@@ -103,51 +103,40 @@ const UtteranceContainer = (props) => {
             <UserUtteranceViewer
                 value={fetchedData || value}
                 disableEditing
-                // onChange={v => onChange(v)}
+                onClick={() => setModalOpen(true)}
             />
         );
     };
 
     return (
-        <ExceptionWrapper exceptions={exceptions}>
-            <div
-                className='utterance-container exception-wrapper'
-                // This ternary ensures that the mode is not set to input when we have a parsed utterance
-                // This makes some css work
-                // css will be broken if this is removed
-                mode={!!stateValue ? 'view' : mode}
-                agent='user'
-                ref={containerBody}
-            >
-                <div className='inner'>{render()}</div>
-                {deletable && (
-                    <FloatingIconButton
-                        icon='trash'
-                        onClick={() => {
-                            if (mode === 'input') return onAbort();
-                            return onDelete();
-                        }}
+        <div
+            className='utterance-container'
+            mode={!!stateValue ? 'view' : mode}
+            agent='user'
+            ref={containerBody}
+        >
+            {render()}
+            {modalOpen && (
+                <>
+                    <NluEditor
+                        setModalOpen={newState => setModalOpen(newState)}
+                        open
+                        payload={value}
                     />
-                )}
-            </div>
-        </ExceptionWrapper>
+                </>
+            )}
+        </div>
     );
 };
 
 UtteranceContainer.propTypes = {
-    deletable: PropTypes.bool,
     value: PropTypes.object,
     onInput: PropTypes.func.isRequired,
-    // onChange: PropTypes.func.isRequired,
-    onDelete: PropTypes.func.isRequired,
     onAbort: PropTypes.func.isRequired,
-    exceptions: PropTypes.array,
 };
 
 UtteranceContainer.defaultProps = {
     value: null,
-    deletable: true,
-    exceptions: [{ type: null }],
 };
 
 export default UtteranceContainer;

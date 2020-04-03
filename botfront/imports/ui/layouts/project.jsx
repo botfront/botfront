@@ -237,13 +237,13 @@ class Project extends React.Component {
         return Date.now();
     }
 
-    addUtteranceToTrainingData = (utterance, callback = () => { }) => {
+    addUtterancesToTrainingData = (utterances, callback = () => { }) => {
         const { projectId, workingLanguage } = this.props;
         Meteor.call(
             'nlu.insertExamplesWithLanguage',
             projectId,
             workingLanguage,
-            [utterance],
+            utterances.filter(u => u.text),
             wrapMeteorCallback((err, res) => callback(err, res)),
         );
     }
@@ -340,7 +340,7 @@ class Project extends React.Component {
                                     addIntent: this.addIntent,
                                     getUtteranceFromPayload: this.getUtteranceFromPayload,
                                     parseUtterance: this.parseUtterance,
-                                    addUtteranceToTrainingData: this.addUtteranceToTrainingData,
+                                    addUtterancesToTrainingData: this.addUtterancesToTrainingData,
                                     getCanonicalExamples: this.getCanonicalExamples,
                                     refreshEntitiesAndIntents: this.refreshEntitiesAndIntents,
                                 }}

@@ -14,6 +14,7 @@ export default class NLUPlayground extends React.Component {
 
     getInitialState = () => ({
         example: this.getEmptyExample(),
+        exampleList: [],
         editMode: false,
     });
 
@@ -38,19 +39,40 @@ export default class NLUPlayground extends React.Component {
         this.setState(this.getInitialState());
     };
 
+    handleParseAndSave = () => {
+        const { defaultIntent, instance, model: { language } } = this.props;
+        const { example } = this.state;
+        // treat new lines as new examples
+        console.log('hmmmm');
+        example.text.split('\n').forEach((exampleText) => {
+            Meteor.call(
+                'rasa.parse',
+                instance,
+                [{ text: exampleText, lang: language }],
+                (err, exampleMatch) => {
+                    if (err) return;
+                    const { intent: { name }, entities } = exampleMatch;
+                    this.handleSaveExample({
+                        ...example, text: exampleText, intent: name || defaultIntent, entities,
+                    });
+                },
+            );
+        });
+    };
+
     render() {
         const {
-            model, instance, projectId, intents, entities, testMode,
+            model, instance, projectId, intents, entities, testMode, saveOnEnter,
         } = this.props;
         const { example, example: { text } = {}, editMode } = this.state;
 
         const styleTextArea = {
             marginBottom: '10px',
         };
-
+        const examples = example.text.split('\n');
         return (
             <div>
-                {!editMode ? (
+                {!editMode || examples.length > 1 ? (
                     <div>
                         <Form>
                             <ExampleTextEditor
@@ -58,9 +80,11 @@ export default class NLUPlayground extends React.Component {
                                 style={styleTextArea}
                                 example={example}
                                 onChange={this.onTextChanged}
+                                onEnter={saveOnEnter ? this.handleParseAndSave : () => {}}
+                                allowMultiple
                             />
                         </Form>
-                        {testMode && (
+                        {testMode && examples.length < 2 && (
                             <NLUExampleTester
                                 text={text}
                                 model={model}
@@ -96,8 +120,12 @@ NLUPlayground.propTypes = {
     model: PropTypes.object.isRequired,
     instance: PropTypes.object.isRequired,
     testMode: PropTypes.bool,
+    defaultIntent: PropTypes.string,
+    saveOnEnter: PropTypes.bool,
 };
 
 NLUPlayground.defaultProps = {
     testMode: false,
+    defaultIntent: null,
+    saveOnEnter: false,
 };

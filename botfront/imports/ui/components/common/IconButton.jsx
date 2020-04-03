@@ -2,13 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'semantic-ui-react';
 
-export default function IconButton(props) {
+const IconButton = React.forwardRef((props, ref) => {
     const {
-        onClick, icon, size, color, 'data-cy': dataCy, disabled, basic, id, className,
+        onClick, icon, size, color, 'data-cy': dataCy, disabled, basic, id, className, active,
     } = props;
 
     return (
         <Button
+            ref={ref}
             size={size}
             onClick={onClick}
             color={color}
@@ -17,10 +18,11 @@ export default function IconButton(props) {
             data-cy={typeof dataCy === 'string' ? dataCy : `icon-${icon}`}
             disabled={disabled}
             basic={basic}
+            active={active}
             {...id ? { id } : {}}
         />
     );
-}
+});
 
 IconButton.propTypes = {
     onClick: PropTypes.func,
@@ -32,6 +34,7 @@ IconButton.propTypes = {
     basic: PropTypes.bool,
     id: PropTypes.string,
     className: PropTypes.string,
+    active: PropTypes.bool,
 };
 
 IconButton.defaultProps = {
@@ -43,4 +46,7 @@ IconButton.defaultProps = {
     basic: false,
     id: null,
     className: '',
+    active: false,
 };
+
+export default IconButton;

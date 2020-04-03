@@ -188,7 +188,7 @@ SearchBar.propTypes = {
     projectId: PropTypes.string.isRequired,
     language: PropTypes.string.isRequired,
     router: PropTypes.object.isRequired,
-    storyGroups: PropTypes.object.isRequired,
+    storyGroups: PropTypes.array.isRequired,
     ready: PropTypes.bool.isRequired,
     setActiveStories: PropTypes.func.isRequired,
     activeStories: PropTypes.array.isRequired,

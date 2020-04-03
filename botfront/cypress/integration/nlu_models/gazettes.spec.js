@@ -121,7 +121,7 @@ describe('gazette', function() {
         it('should delete the created gazette', function() {
             visitGazette('bf');
             getGazetteRow()
-                .find('[data-cy=trash] .viewOnHover')
+                .findCy('icon-trash')
                 .click({ force: true });
             cy.get('body').should('not.contain', sortedGazetteValues);
             cy.contains(sortedGazetteValues).should('not.exist');

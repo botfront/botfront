@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.21.4](https://github.com/botfront/botfront/compare/v0.22.0...v0.21.4) (2020-03-31)
+
+
+
 ### [0.21.3](https://github.com/botfront/botfront/compare/v0.21.2...v0.21.3) (2020-03-20)
 
 

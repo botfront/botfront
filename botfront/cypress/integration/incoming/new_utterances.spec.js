@@ -142,7 +142,7 @@ describe('incoming page', function() {
         cy.dataCy('intent-label')
             .contains('fruit')
             .should('exist');
-        cy.dataCy('icon-gem').should('have.class', 'black');
+        cy.dataCy('icon-gem').should('have.class', 'active');
     });
 
     it('should be able to invalidate utterances', function() {
