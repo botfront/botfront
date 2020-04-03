@@ -84,6 +84,7 @@ const PayloadEditor = (props) => {
                         <Grid.Column>
                             <Input
                                 key={`value-for-${entity.entity}`}
+                                data-cy='entity-value-input'
                                 value={entity.entityValue}
                                 onChange={(e, { value }) => {
                                     const newEnts = [
@@ -111,6 +112,7 @@ const PayloadEditor = (props) => {
             {entities.every(e => e.entityValue && e.entityValue.trim() !== '') ? (
                 <div className='add-entity-wrap'>
                     <DashedButton
+                        data-cy='add-entity'
                         color='blue'
                         size='mini'
                         onClick={() => onChange({

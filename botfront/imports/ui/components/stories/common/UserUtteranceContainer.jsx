@@ -7,6 +7,8 @@ import { OOS_LABEL } from '../../constants.json';
 import UserUtteranceViewer from '../../nlu/common/UserUtteranceViewer';
 import { ProjectContext } from '../../../layouts/context';
 import UtteranceInput from '../../utils/UtteranceInput';
+import NluEditor from './nlu_editor/NluEditor';
+
 
 const UtteranceContainer = (props) => {
     const {
@@ -115,25 +117,13 @@ const UtteranceContainer = (props) => {
         >
             {render()}
             {modalOpen && (
-                <Modal
-                    size='tiny'
-                    open
-                >
-                    <Modal.Content>
-                        <h3><i>Editing training data for...</i></h3>
-                        <h1>{(fetchedData || value).intent}</h1>
-                        {((fetchedData || value).entities || []).map(e => (
-                            <span><strong>{e.entity}: </strong> {e.value}&nbsp;</span>
-                        ))}
-                    </Modal.Content>
-                    <Modal.Actions>
-                        <Button
-                            content='Cancel'
-                            color='red'
-                            onClick={() => setModalOpen(false)}
-                        />
-                    </Modal.Actions>
-                </Modal>
+                <>
+                    <NluEditor
+                        setModalOpen={newState => setModalOpen(newState)}
+                        open
+                        payload={value}
+                    />
+                </>
             )}
         </div>
     );
