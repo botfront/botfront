@@ -5,6 +5,7 @@ import { Form } from 'semantic-ui-react';
 import NLUExampleTester from './NLUExampleTester';
 import NLUExampleEditMode from './NLUExampleEditMode';
 import { ExampleTextEditor } from './ExampleTextEditor';
+import { wrapMeteorCallback } from '../utils/Errors';
 
 export default class NLUPlayground extends React.Component {
     constructor(props) {
@@ -43,19 +44,20 @@ export default class NLUPlayground extends React.Component {
         const { defaultIntent, instance, model: { language } } = this.props;
         const { example } = this.state;
         // treat new lines as new examples
-        console.log('hmmmm');
         example.text.split('\n').forEach((exampleText) => {
             Meteor.call(
                 'rasa.parse',
                 instance,
                 [{ text: exampleText, lang: language }],
-                (err, exampleMatch) => {
-                    if (err) return;
+                wrapMeteorCallback((err, exampleMatch) => {
+                    if (err) {
+                        this.handleSaveExample({ ...example, intent: defaultIntent });
+                    }
                     const { intent: { name }, entities } = exampleMatch;
                     this.handleSaveExample({
                         ...example, text: exampleText, intent: name || defaultIntent, entities,
                     });
-                },
+                }),
             );
         });
     };

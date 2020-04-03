@@ -11,13 +11,17 @@ div.chitchat div.ui.dropdown {
 }
 .example-table-row {
   display: flex;
-  .ui.basic.button.icon-button {
-    margin-left: 0.75em;
+}
+
+.rt-tr-group {
+  .icon-button {
     visibility: hidden;
+    &.active{
+      visibility: visible;
+    }
   }
   &:hover {
-    .ui.basic.button.icon-button {
-      margin-left: 0.5em;
+    .icon-button {
       visibility: visible;
     }
   }

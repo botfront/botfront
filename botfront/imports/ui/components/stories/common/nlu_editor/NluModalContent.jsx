@@ -64,14 +64,13 @@ const NLUModalContent = (props) => {
             if (exampleB.invalid || exampleB.isNew || exampleB.edited) return 1;
             return 0;
         });
-
-    const [cancelPopupOpen, setCancelPopupOpen] = useState(false);
     /*
         while this is not the recomended use of a useReducer hook it is
         preferable to useState as it ensures the validity check and sort
-        will always be called when the examples state is updated
+        will always be called when the examples are updated
     */
     const [examples, setExamples] = useReducer(exampleReducer, []); // the example reducer applies a sort and validity check
+    const [cancelPopupOpen, setCancelPopupOpen] = useState(false);
     const [newCanonical, setNewCanonical] = useState(null);
     const hasInvalidExamples = useMemo(
         () => examples.some(example => example.invalid === true && !example.deleted),

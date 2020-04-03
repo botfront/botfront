@@ -24,7 +24,7 @@ describe('nlu editor modal tests', () => {
         cy.visit('/project/bf/stories');
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
-        cy.dataCy('nlu-editor-modal').find('[data-cy=icon-trash]').last().click();
+        cy.dataCy('nlu-editor-modal').find('[data-cy=icon-trash]').last().click({ force: true });
         cy.get('.example-table-row').first().trigger('mouseover');
         cy.dataCy('icon-edit').should('exist'); // check appear on hover works correctly
         cy.dataCy('icon-edit').first().click({ force: true });
@@ -45,11 +45,12 @@ describe('nlu editor modal tests', () => {
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
         cy.dataCy('example-text-editor-input').click().type('Hello jim{enter}');
+        cy.dataCy('nlu-modification-label').contains('invalid').should('exist');
         cy.dataCy('save-nlu').should('have.class', 'disabled');
-        cy.dataCy('nlu-editor-modal').find('[data-cy=icon-trash]').first().click();
+        cy.dataCy('nlu-editor-modal').find('[data-cy=icon-trash]').first().click({ force: true });
         cy.dataCy('save-nlu').should('not.have.class', 'disabled');
     });
-    it('should not be able to save changes when there is an invalid example', () => {
+    it('should create multiple examples when pasting multiple lines', () => {
         cy.visit('/project/bf/stories');
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
@@ -63,32 +64,40 @@ describe('nlu editor modal tests', () => {
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
         cy.dataCy('example-text-editor-input').click().type('Hello jim{enter}');
+        cy.dataCy('nlu-modification-label').contains('invalid').should('exist');
         cancelChanges();
         cy.dataCy('utterance-text').click();
         cy.dataCy('example-text-editor-input').click().type('I will go to costco{enter}');
+        cy.dataCy('nlu-modification-label').contains('new').should('exist');
         cancelChanges();
         cy.dataCy('utterance-text').click();
-        cy.dataCy('nlu-editor-modal').find('[data-cy=icon-trash]').first().click();
+        cy.dataCy('nlu-editor-modal').find('[data-cy=icon-trash]').first().click({ force: true });
+        cy.dataCy('nlu-modification-label').contains('deleted').should('exist');
         cancelChanges();
         cy.dataCy('utterance-text').click();
         cy.dataCy('icon-edit').first().click({ force: true });
         cy.dataCy('example-editor-form').find('[data-cy=example-text-editor-input]').type(' tonight{enter}');
+        cy.dataCy('nlu-modification-label').contains('edited').should('exist');
         cancelChanges();
         cy.dataCy('utterance-text').click();
-        cy.dataCy('icon-gem').first().click();
+        cy.dataCy('icon-gem').first().click({ force: true });
+        cy.dataCy('icon-gem').first().should('have.class', 'active');
         cancelChanges();
     });
     it('should modify canonical', () => {
         cy.visit('/project/bf/stories');
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
-        cy.dataCy('icon-gem').first().click();
+        cy.dataCy('icon-gem').first().click({ force: true });
+        cy.dataCy('icon-gem').first().should('have.class', 'active');
         cy.dataCy('example-text-editor-input').click().type('I will probably go to costco{enter}');
+        cy.get('.example-data-table').find('[data-cy=intent-label]').should('have.length', 2);
         cy.dataCy('save-nlu').click();
         cy.dataCy('nlu-editor-modal').should('not.exist');
         cy.dataCy('utterance-text').click();
         cy.dataCy('icon-gem').eq(1).should('have.class', 'active');
-        cy.dataCy('icon-gem').first().click();
+        cy.dataCy('icon-gem').first().click({ force: true });
+        cy.dataCy('icon-gem').first().should('have.class', 'active');
         cy.dataCy('save-nlu').click();
         cy.dataCy('nlu-editor-modal').should('not.exist');
         cy.dataCy('utterance-text').click();
