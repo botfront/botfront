@@ -12,6 +12,8 @@ import { aggregateEvents } from '../imports/lib/story.utils';
 import { indexBotResponse } from '../imports/api/graphql/botResponses/mongo/botResponses';
 import { indexStory } from '../imports/api/story/stories.index';
 import Activity from '../imports/api/graphql/activity/activity.model';
+import AnalyticsDashboards from '../imports/api/graphql/analyticsDashboards/analyticsDashboards.model';
+import { defaultDashboard } from '../imports/api/graphql/analyticsDashboards/generateDefaults';
 
 /* globals Migrations */
 
@@ -336,14 +338,20 @@ Migrations.add({
     },
 });
 
-
-Migrations.add({
+Migrations.add({ // EE-SPECIFIC!
     version: 13,
     up: () => {
         Roles.deleteRole('nlu-editor');
     },
     down: () => {
+    },
+});
 
+Migrations.add({ // EE-SPECIFIC!
+    version: 14,
+    up: () => {
+        Projects.find().fetch()
+            .forEach(project => AnalyticsDashboards.create(defaultDashboard(project)));
     },
 });
 

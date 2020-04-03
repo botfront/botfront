@@ -18,6 +18,8 @@ import { Stories } from '../story/stories.collection';
 import { Slots } from '../slots/slots.collection';
 import { flattenStory, extractDomain, getAllResponses } from '../../lib/story.utils';
 import BotResponses from '../graphql/botResponses/botResponses.model';
+import AnalyticsDashboards from '../graphql/analyticsDashboards/analyticsDashboards.model';
+import { defaultDashboard } from '../graphql/analyticsDashboards/generateDefaults';
 
 
 if (Meteor.isServer) {
@@ -72,6 +74,7 @@ if (Meteor.isServer) {
             let _id;
             try {
                 _id = createProject(item);
+                AnalyticsDashboards.create(defaultDashboard({ _id, ...item }));
                 createEndpoints({ _id, ...item });
                 createCredentials({ _id, ...item });
                 createPolicies({ _id, ...item });
