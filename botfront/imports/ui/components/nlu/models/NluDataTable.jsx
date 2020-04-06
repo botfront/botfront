@@ -83,10 +83,10 @@ export default class NluDataTable extends React.Component {
 
     getColumns() {
         const {
-            extraColumns, onDeleteExample, onSwitchCanonical,
+            extraColumns, onDeleteExample, onSwitchCanonical, projectId,
         } = this.props;
+        const canEdit = can('nlu-data:w', projectId);
         let { intentColumns } = this.props;
-        const { projectId } = this.props;
         const { waiting } = this.state;
         intentColumns = intentColumns || [
             {
@@ -98,7 +98,7 @@ export default class NluDataTable extends React.Component {
                     <span className='example-intent-cell'>
                         <IntentLabel
                             value={props.value}
-                            allowEditing={!props.row.example.canonical && can('nlu-data:w', projectId)}
+                            allowEditing={!props.row.example.canonical && canEdit}
                             allowAdditions
                             onChange={intent => this.onEditExample({ ...props.row.example, intent })}
                         />
@@ -147,15 +147,17 @@ export default class NluDataTable extends React.Component {
                                 disableEditing={canonical}
                                 showIntent={false}
                             />
-                            <IconButton
-                                toolTip={canonical ? <>Cannot edit a canonical example</> : null}
-                                toolTipInverted
-                                disabled={canonical}
-                                basic
-                                icon='edit'
-                                onClick={e => this.handleEditExampleClick(e, exampleId)}
-                                iconClass={canonical ? 'disabled-delete' : undefined}
-                            />
+                            {canEdit && (
+                                <IconButton
+                                    toolTip={canonical ? <>Cannot edit a canonical example</> : null}
+                                    toolTipInverted
+                                    disabled={canonical}
+                                    basic
+                                    icon='edit'
+                                    onClick={e => this.handleEditExampleClick(e, exampleId)}
+                                    iconClass={canonical ? 'disabled-delete' : undefined}
+                                />
+                            )}
                         </div>,
                         canonical,
                     );
@@ -176,7 +178,7 @@ export default class NluDataTable extends React.Component {
                 const canonical = props.row.example.canonical ? props.row.example.canonical : false;
                 let toolTip = (<div>Mark as canonical</div>);
 
-                if (!canonical && !can('nlu-data:w', projectId)) return null; // don't show anything
+                if (!canonical && !canEdit) return null; // don't show anything
 
                 if (canonical) {
                     toolTip = (
@@ -204,14 +206,14 @@ export default class NluDataTable extends React.Component {
                 return (
                     <Popup
                         position='top center'
-                        disabled={toolTip === null || !can('nlu-data:w', projectId)}
+                        disabled={toolTip === null || !canEdit}
                         trigger={(
                             <div>
                                 <IconButton
                                     active={canonical}
                                     icon='gem'
                                     basic
-                                    disabled={toolTip === null || !can('nlu-data:w', projectId)}
+                                    disabled={toolTip === null || !canEdit}
                                     onClick={async () => {
                                     // need to recreate a set since state do not detect update through mutations
                                         this.setState({ waiting: new Set(waiting.add(props.row.example._id)) });
@@ -240,7 +242,7 @@ export default class NluDataTable extends React.Component {
             width: 30,
         });
 
-        if (can('nlu-data:w', projectId)) {
+        if (canEdit) {
             firstColumns.push({
                 accessor: '_id',
                 filterable: false,

@@ -54,8 +54,9 @@ describe('nlu-data:r restricted permissions', () => {
     it('should not show edit features in examples, synonyms, gazettes', () => {
         cy.visit('/');
         cy.dataCy('intent-label').should('exist').should('have.class', 'uneditable');
-        cy.get('.caret.right.larger').should('not.exist');
         cy.dataCy('icon-trash').should('not.exist');
+        cy.dataCy('utterance-text').first().trigger('mouseover');
+        cy.dataCy('icon-edit').should('not.exist');
         cy.dataCy('icon-gem').should('exist').should('have.class', 'disabled');
         cy.get('.ui.pointing.secondary.menu').contains('Synonyms').click();
         cy.get('.ReactTable').should('exist').should('contain', 'doodad');

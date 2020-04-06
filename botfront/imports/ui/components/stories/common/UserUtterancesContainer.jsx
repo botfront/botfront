@@ -5,11 +5,13 @@ import IconButton from '../../common/IconButton';
 import UserUtteranceContainer from './UserUtteranceContainer';
 import UserUtterancePopupContent from './UserUtterancePopupContent';
 import { NEW_INTENT } from '../../../../lib/story_controller';
+import { can } from '../../../../lib/scopes';
 
 const UserUtterancesContainer = (props) => {
     const {
-        deletable, value, onChange, onDelete,
+        deletable, value, onChange, onDelete, projectId,
     } = props;
+    const canEdit = can('stories:w', projectId);
 
     const somethingIsBeingInput = useMemo(() => value.some(disjunct => disjunct === null), [value]);
 
@@ -55,7 +57,7 @@ const UserUtterancesContainer = (props) => {
                 {payload && index !== value.length - 1 && (
                     <IconButton icon='add' className='or-label' color='other' />
                 )}
-                {!somethingIsBeingInput && index === value.length - 1 && (
+                {!somethingIsBeingInput && index === value.length - 1 && canEdit && (
                     <UserUtterancePopupContent
                         trigger={<IconButton icon='add' className='or-icon-button' />}
                         onCreateFromInput={() => handleInsertDisjunct(index)}
@@ -63,6 +65,7 @@ const UserUtterancesContainer = (props) => {
                     />
                 )}
                 {deletable
+                    && canEdit
                     && (!somethingIsBeingInput || !payload)
                     && value.length > 1 && (
                     <IconButton
@@ -78,7 +81,7 @@ const UserUtterancesContainer = (props) => {
         <div className='utterances-container exception-wrapper-target'>
             {value.map(renderResponse)}
             <div className='side-by-side right narrow top-right'>
-                {deletable && onDelete && <IconButton onClick={onDelete} icon='trash' />}
+                {deletable && onDelete && canEdit && <IconButton onClick={onDelete} icon='trash' />}
             </div>
         </div>
     );
@@ -89,6 +92,7 @@ UserUtterancesContainer.propTypes = {
     value: PropTypes.array.isRequired,
     onChange: PropTypes.func,
     onDelete: PropTypes.func,
+    projectId: PropTypes.string.isRequired,
 };
 
 UserUtterancesContainer.defaultProps = {
