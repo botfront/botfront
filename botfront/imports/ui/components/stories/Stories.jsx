@@ -7,6 +7,7 @@ import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import SplitPane from 'react-split-pane';
+import shortId from 'shortid';
 import { setStoriesCurrent } from '../../store/actions/actions';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Stories as StoriesCollection } from '../../../api/story/stories.collection';
@@ -60,6 +61,7 @@ function Stories(props) {
     const [slotsModal, setSlotsModal] = useState(false);
     const [policiesModal, setPoliciesModal] = useState(false);
     const [resizing, setResizing] = useState(false);
+    const [storyEditorsKey, setStoryEditorsKey] = useState(shortId.generate());
 
     const getQueryParams = () => {
         const { location: { query } } = router;
@@ -129,6 +131,10 @@ function Stories(props) {
         'stories.update', !Array.isArray(story) ? injectProjectIdInStory(story) : story.map(injectProjectIdInStory), wrapMeteorCallback(f),
     ), [projectId]);
 
+    const handleReloadStories = () => {
+        setStoryEditorsKey(shortId.generate());
+    };
+
     return (
         <Loading loading={!ready}>
             <ConversationOptionsContext.Provider
@@ -143,6 +149,7 @@ function Stories(props) {
                     addStory: handleNewStory,
                     deleteStory: handleStoryDeletion,
                     updateStory: handleStoryUpdate,
+                    reloadStories: handleReloadStories,
                 }}
             >
                 {modalWrapper(
@@ -183,6 +190,7 @@ function Stories(props) {
                         <StoryEditors
                             projectId={projectId}
                             selectedIds={activeStories.map(cleanId)}
+                            key={storyEditorsKey}
                         />
                     </Container>
                 </SplitPane>

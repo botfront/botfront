@@ -499,11 +499,11 @@ Cypress.Commands.add('importNluData', (projectId = 'bf', fixture, lang = 'en', o
     return cy.wait(500);
 });
 
-Cypress.Commands.add('train', () => {
+Cypress.Commands.add('train', (waitTime = 100000) => {
     cy.visit('/project/bf/stories');
     cy.dataCy('train-button').click();
     cy.wait(5000);
-    cy.get('[data-cy=train-button]', { timeout: 100000 }).should('not.have.class', 'disabled');
+    cy.get('[data-cy=train-button]', { timeout: waitTime }).should('not.have.class', 'disabled');
 });
 
 const MONTHS = [
@@ -665,3 +665,26 @@ Cypress.Commands.add('getBranchContainer', (depth) => {
 
 // get the contents of the visual editor for a branch
 Cypress.Commands.add('getBranchEditor', depth => cy.getBranchContainer(depth).find('.story-visual-editor').first());
+
+
+// get the contents of the visual editor for a branch
+Cypress.Commands.add('importViaUi', (fixtureName, projectId) => {
+    cy.visit(`/project/${projectId}/settings`);
+        
+    cy.contains('Import/Export').click();
+    cy.dataCy('import-type-dropdown')
+        .click();
+    cy.dataCy('import-type-dropdown')
+        .find('span')
+        .contains('Botfront')
+        .click();
+    cy.fixture(fixtureName, 'utf8').then((content) => {
+        cy.dataCy('upload-dropzone').upload(content, 'data.json');
+    });
+    cy.dataCy('export-with-conversations')
+        .click();
+    cy.dataCy('import-button')
+        .click();
+    cy.wait(2000);
+    cy.dataCy('project-import-success').should('exist');
+});

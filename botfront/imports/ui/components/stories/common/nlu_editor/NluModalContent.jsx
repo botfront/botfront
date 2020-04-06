@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import React, {
-    useState, useEffect, useReducer, useMemo,
+    useState, useEffect, useReducer, useMemo, useContext,
 } from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
@@ -23,6 +23,7 @@ import { Projects } from '../../../../../api/project/project.collection';
 import { extractEntities } from '../../../nlu/models/nluModel.utils';
 import { setWorkingLanguage } from '../../../../store/actions/actions';
 import ExampleUtils from '../../../utils/ExampleUtils';
+import { ConversationOptionsContext } from '../../Context';
 
 
 const NLUModalContent = (props) => {
@@ -64,19 +65,19 @@ const NLUModalContent = (props) => {
             if (exampleB.invalid || exampleB.isNew || exampleB.edited) return 1;
             return 0;
         });
-
-    const [cancelPopupOpen, setCancelPopupOpen] = useState(false);
     /*
         while this is not the recomended use of a useReducer hook it is
         preferable to useState as it ensures the validity check and sort
-        will always be called when the examples state is updated
+        will always be called when the examples are updated
     */
     const [examples, setExamples] = useReducer(exampleReducer, []); // the example reducer applies a sort and validity check
-    const [newCanonical, setNewCanonical] = useState(null);
+    const [cancelPopupOpen, setCancelPopupOpen] = useState(false);
+    const [shouldForceRefresh, setShouldForceRefresh] = useState(false);
     const hasInvalidExamples = useMemo(
         () => examples.some(example => example.invalid === true && !example.deleted),
         [examples],
     );
+    const { reloadStories } = useContext(ConversationOptionsContext);
 
     useEffect(() => {
         const incomingExamples = existingExamples.filter(
@@ -133,6 +134,7 @@ const NLUModalContent = (props) => {
     };
 
     const onSwitchCanonical = async (example) => {
+        setShouldForceRefresh(true);
         const updatedExamples = [...examples];
         const newCanonicalIndex = examples.findIndex((exampleMatch) => {
             if (example._id === exampleMatch._id) return true;
@@ -157,7 +159,6 @@ const NLUModalContent = (props) => {
             };
         }
         setExamples(updatedExamples);
-        setNewCanonical(updatedExamples[newCanonicalIndex]);
         return { changed: clearOldCanonical };
     };
 
@@ -166,8 +167,10 @@ const NLUModalContent = (props) => {
             'nlu.saveExampleChanges',
             model._id,
             examples,
-            newCanonical,
             () => {
+                if (shouldForceRefresh) {
+                    if (shouldForceRefresh) reloadStories();
+                }
                 closeModal();
             },
         );
