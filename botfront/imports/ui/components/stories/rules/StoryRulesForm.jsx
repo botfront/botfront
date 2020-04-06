@@ -158,7 +158,7 @@ function StoryRulesForm({
         url: { type: Array, optional: true },
         'url.$': { type: Object, optional: false },
         'url.$.path': { type: String, optional: false, regEx: noSpaces },
-        'url.$.fullMatch': { type: Boolean, optional: true },
+        'url.$.partialMatch': { type: Boolean, optional: true },
         url__DISPLAYIF: { type: Boolean, optional: true },
         numberOfVisits: { type: Number, optional: true, min: 1 },
         numberOfVisits__DISPLAYIF: { type: Boolean, optional: true },
@@ -391,8 +391,8 @@ function StoryRulesForm({
                                                     name='path'
                                                 />
                                                 <AutoField
-                                                    name='fullMatch'
-                                                    label='Match this page only and not subsequent paths'
+                                                    name='partialMatch'
+                                                    label='Match this page and subsequent paths'
                                                 />
                                             </NestField>
                                         </ListItemField>
