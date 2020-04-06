@@ -156,7 +156,9 @@ function StoryRulesForm({
         timeLimit: { type: Number, optional: true },
         timeLimit__DISPLAYIF: { type: Boolean, optional: true },
         url: { type: Array, optional: true },
-        'url.$': { type: String, optional: false, regEx: noSpaces },
+        'url.$': { type: Object, optional: false },
+        'url.$.path': { type: String, optional: false, regEx: noSpaces },
+        'url.$.fullMatch': { type: Boolean, optional: true },
         url__DISPLAYIF: { type: Boolean, optional: true },
         numberOfVisits: { type: Number, optional: true, min: 1 },
         numberOfVisits__DISPLAYIF: { type: Boolean, optional: true },
@@ -381,8 +383,19 @@ function StoryRulesForm({
 
 
                                 <OptionalField name='url' label='Trigger based on browsing history' getError={getEnabledError}>
+                                    
                                     <ListField name=''>
-                                        <ListItemField name='$' />
+                                        <ListItemField name='$'>
+                                            <NestField>
+                                                <AutoField
+                                                    name='path'
+                                                />
+                                                <AutoField
+                                                    name='fullMatch'
+                                                    label='Match this page only and not subsequent paths'
+                                                />
+                                            </NestField>
+                                        </ListItemField>
                                     </ListField>
                                 </OptionalField>
                                 <OptionalField
