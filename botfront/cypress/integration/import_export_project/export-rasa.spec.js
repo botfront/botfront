@@ -42,7 +42,8 @@ describe('Exporting a Project', function() {
             // French should be available
             // English should not be available
             cy.visit('/project/bf/settings');
-            cy.contains('Import/Export').click();
+            cy.dataCy('project-settings-menu-import-export').click({ force: true });
+            cy.dataCy('project-settings-menu-import-export').should('have.class', 'active');
             cy.dataCy('port-project-menu')
                 .find('.item')
                 .contains('Export')
@@ -77,9 +78,8 @@ describe('Exporting a Project', function() {
                 .should('not.have.class', 'disabled');
             
             // english and french should be available
-            cy.contains('Endpoints').click({ force: true });
-            cy.dataCy('endpoints-environment-menu').should('exist');
-            cy.contains('Import/Export').click({ force: true });
+            cy.dataCy('project-settings-menu-import-export').click();
+            cy.dataCy('project-settings-menu-import-export').should('have.class', 'active');
             cy.dataCy('port-project-menu')
                 .find('.item')
                 .contains('Export')
