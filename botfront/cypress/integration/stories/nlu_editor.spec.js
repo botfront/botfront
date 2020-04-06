@@ -12,7 +12,7 @@ describe('nlu editor modal tests', () => {
         cy.createStoryGroup();
         cy.createStoryInGroup();
         cy.browseToStory();
-        cy.addUtteranceLine({ intent: 'shopping', entities: [{ value: 'provigo', name: 'shop' }] });
+        cy.addUtteranceLine({ intent: 'shopping', entities: [{ value: 'costco', name: 'shop' }] });
         cy.importNluData('bf', 'nlu_entity_sample.json', 'en');
         cy.train();
     });
@@ -100,6 +100,7 @@ describe('nlu editor modal tests', () => {
         cy.dataCy('icon-gem').first().should('have.class', 'active');
         cy.dataCy('save-nlu').click();
         cy.dataCy('nlu-editor-modal').should('not.exist');
+        cy.dataCy('utterance-text').contains('I will probably go to').should('exist');
         cy.dataCy('utterance-text').click();
         cy.dataCy('icon-gem').first().should('have.class', 'active');
         cy.dataCy('icon-gem').eq(1).should('not.have.class', 'active');
