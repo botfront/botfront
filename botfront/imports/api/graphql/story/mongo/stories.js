@@ -13,7 +13,7 @@ const combineSearches = (search, responseKeys, intents) => {
 export const searchStories = async (projectId, language, search) => {
     const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
     const nluModels = project.nlu_models;
-    const searchRegex = new RegExp(search);
+    const searchRegex = new RegExp(search, 'i');
     const model = NLUModels.findOne(
         { _id: { $in: nluModels }, language },
     );
