@@ -1,5 +1,5 @@
 import {
-    Button, Popup, Loader, Message, Icon,
+    Button, Popup, Loader, Message, Icon, Input,
 } from 'semantic-ui-react';
 import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
@@ -44,6 +44,7 @@ function AnalyticsCard(props) {
     const { project: { _id: projectId, name: projectName = 'Botfront', timezoneOffset: projectTimezoneOffset = 0 } } = useContext(ProjectContext);
 
     const title = cardName || genericTitle;
+    const [nameEdited, setNameEdited] = useState(null);
     
     const displayAbsoluteRelative = 'rel' in graphParams;
     const uniqueChartOptions = [...new Set(chartTypeOptions)];
@@ -57,6 +58,7 @@ function AnalyticsCard(props) {
         collect: monitor => ({
             isDragging: monitor.isDragging(),
         }),
+        canDrag: () => nameEdited === null,
     });
     const [{ canDrop, isOver }, drop] = useDrop({
         accept: 'card',
@@ -160,6 +162,16 @@ function AnalyticsCard(props) {
         setActivateDownload(true);
     };
 
+    const submitNameChange = () => {
+        if (nameEdited.trim()) onChangeSettings({ name: nameEdited.trim() });
+        setNameEdited(null);
+    };
+
+    const handleKeyDownInput = (e) => {
+        if (e.key === 'Enter') submitNameChange();
+        if (e.key === 'Escape') setNameEdited(null);
+    };
+
     return (
         <div
             className={`analytics-card ${wide ? 'wide' : ''} ${canDrop ? (isOver ? 'upload-target' : 'faded-upload-target') : ''}`}
@@ -224,14 +236,25 @@ function AnalyticsCard(props) {
                     onClick={() => onChangeSettings({ wide: !wide })}
                 />
             </span>
-            {titleDescription ? (
-                <Popup
-                    trigger={<span className='title'>{title}</span>}
-                    content={titleDescription}
-                />
-            ) : (
-                <span className='title'>{title}</span>
-            )}
+            {nameEdited === null
+                ? (
+                    <Popup
+                        trigger={<span className='title' onDoubleClick={() => setNameEdited(title)}>{title}</span>}
+                        content={titleDescription}
+                    />
+                )
+                : (
+                    <Input
+                        onChange={(_, { value }) => setNameEdited(value)}
+                        value={nameEdited}
+                        autoFocus
+                        fluid
+                        className='title'
+                        onKeyDown={handleKeyDownInput}
+                        onBlur={submitNameChange}
+                    />
+                )
+            }
             {renderExtraOptionsLink()}
             <div className='graph-render-zone' data-cy='analytics-chart'>
                 {(!error && !loading && data) ? (
