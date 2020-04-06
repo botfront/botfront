@@ -23,7 +23,7 @@ describe('story visual editor', function () {
         cy.browseToStory('Groupo (1)');
 
         cy.dataCy('add-user-line').click({ force: true });
-        cy.dataCy('user-line-from-input').click({ force: true });
+        cy.dataCy('user-line-from-input').last().click({ force: true });
         cy.addUserUtterance('Hello', 'chitchat.greet', 0, { checkForIntent: true });
 
         cy.contains('Hello'); // checks that text has been saved
@@ -197,6 +197,7 @@ describe('story visual editor', function () {
         cy.visit('/project/bf/stories');
         cy.browseToStory('Greetings', 'Default stories');
         cy.dataCy('icon-add').click({ force: true });
+        cy.dataCy('user-line-from-input').first().click({ force: true });
         cy.addUserUtterance('Bye', 'chitchat.bye', 1);
         cy.dataCy('toggle-md').click();
         cy.dataCy('story-editor')
@@ -215,6 +216,7 @@ describe('story visual editor', function () {
         cy.browseToStory('Greetings', 'Default stories');
         cy.dataCy('intent-label').should('have.length', 1);
         cy.dataCy('icon-add').click({ force: true });
+        cy.dataCy('user-line-from-input').first().click({ force: true });
         cy.addUserUtterance('Hello', 'chitchat.greet', 1);
         cy.dataCy('intent-label').should('have.length', 1);
     });

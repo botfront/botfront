@@ -45,7 +45,7 @@ describe('test stories searching ui', () => {
         cy.createStoryInGroup({ groupName: 'test group', storyName: 'types of fruit' });
         searchStories('types', 'types of fruit');
         cy.dataCy('story-title').should('have.value', 'types of fruit');
-        cy.dataCy('user-line-from-input').click({ force: true });
+        cy.dataCy('user-line-from-input').last().click({ force: true });
         cy.focused().type('kiwi{enter}');
         cy.dataCy('intent-label').click();
         cy.focused().type('fruit_name{enter}');
