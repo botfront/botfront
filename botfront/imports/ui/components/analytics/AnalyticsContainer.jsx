@@ -148,7 +148,7 @@ function AnalyticsContainer(props) {
                 </div>
             )}
             <div>
-                <PageMenu title='Analytics' icon='chart bar' className='analytics-top-menu'>
+                <PageMenu title='Analytics' icon='chart bar'>
                     <Menu.Item className='env-select'>
                         <EnvSelector
                             availableEnvs={availableEnvs}
