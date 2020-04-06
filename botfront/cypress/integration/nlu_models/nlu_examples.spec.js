@@ -20,22 +20,22 @@ describe('NLU Batch Insert', function() {
             .type('intent1{enter}');
         cy.get('[data-cy=save-button]').click();
         cy.contains('Examples').click();
-        cy.get('.black.gem').click();
+        cy.dataCy('icon-gem', null, '.active').click();
         cy.contains('hello')
             .closest('.rt-tr')
-            .find('[data-cy=trash] .viewOnHover')
+            .findCy('icon-trash')
             .first()
             .click({ force: true });
         cy.wait(100);
         cy.contains('coucou')
             .closest('.rt-tr')
-            .find('[data-cy=trash] .viewOnHover')
+            .findCy('icon-trash')
             .first()
             .click({ force: true });
         cy.wait(100);
         cy.contains('salut')
             .closest('.rt-tr')
-            .find('[data-cy=trash] .viewOnHover')
+            .findCy('icon-trash')
             .first()
             .click({ force: true });
         cy.get('[data-cy=trash]').should('not.exist');
@@ -101,7 +101,7 @@ describe('NLU Synonyms', function() {
 
         // Delete first synonym
         cy.get(':nth-child(1) > .rt-tr')
-            .find('[data-cy=trash] .viewOnHover')
+            .findCy('icon-trash')
             .click({ force: true });
         // verify it's deleted
         cy.get(':nth-child(1) > .rt-tr > .lookup-value > div > p').should(($p) => {
@@ -114,7 +114,7 @@ describe('NLU Synonyms', function() {
 
         // Delete the remaining synonym
         cy.get(':nth-child(1) > .rt-tr')
-            .find('[data-cy=trash] .viewOnHover')
+            .findCy('icon-trash')
             .click({ force: true });
     });
 });

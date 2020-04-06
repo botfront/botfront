@@ -12,30 +12,6 @@ export const slots = [
     { name: 'boolSlot1', type: 'bool' }, { name: 'boolSlot2', type: 'bool' }, { name: 'boolSlot3', type: 'bool' },
 ];
 
-const responseOne = {
-    key: 'utter_yay',
-    values: [{
-        lang: 'en',
-        sequence: [
-            { content: 'text: YAY!!' },
-            { content: 'text: BOO!!' },
-            { content: 'text: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
-        ],
-    }],
-};
-
-const responseTwo = {
-    key: 'utter_boo',
-    values: [{
-        lang: 'en',
-        sequence: [
-            { content: 'text: I love peanutes too' },
-            { content: 'text: Can I call you l8r' },
-            { content: 'text: <3' },
-        ],
-    }],
-};
-
 const intentsFixture = ['intent1', 'intent2', 'intent3', 'intent4'];
 const entitiesFixture = ['entity1', 'entity2', 'entity3', 'entity4'];
 
@@ -84,8 +60,18 @@ Ahab leaves Starbuck in charge of the Pequod. Moby Dick smashes the three boats 
 Starbuck begs Ahab to desist, but Ahab vows to slay the white whale, even if he would have to dive through the globe itself to get his revenge.`,
 };
 
-const responseFixtures = [responseOne, responseTwo];
-const utterances = { utteranceOne, utteranceTwo, utteranceThree };
+const responseFixtures = { 
+    utter_yay: {
+        __typename: 'TextPayload',
+        text: 'YAY!!\n\nBOO!\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut\n                  labore et dolore magna aliqua.',
+    },
+    utter_boo: {
+        __typename: 'TextPayload',
+        text: 'I love peanutes too\n\nCan I call u l8r?'
+    }
+}
+const utteranceFixtures = [utteranceOne, utteranceTwo, utteranceThree]
+    .reduce((acc, curr) => ({ ...acc, [curr.text]: curr }), {});
 
 const getCanonicalExamples = ({ intent, entities }) => ([
     { intent: 'YAY', text: 'HUHUHU HUHUHUUH UUHUUH AHUAHS', entities: [] },
@@ -112,81 +98,45 @@ const parseUtterance = u => ({
     text: u,
 });
 
-const responses = [
-    {
-        key: 'utter_default_response',
-        _id:'testId',
-        values: [{
-            lang: 'en',
-            sequence: [
-                { content: 'text: fetched response!!' },
-                { content: 'text: fetched response!!' },
-                { content: 'text: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
-            ],
-        }],
-    }
-]
-
-const getResponse = key => {
-    const responseMatch = responses.find(({ key: resKey }) => resKey === key) || {
-        key,
-        _id:'testId',
-        values: [{
-            lang: 'en',
-            sequence: [
-                { content: 'text: fetched response!!' },
-                { content: 'text: fetched response!!' },
-                { content: 'text: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
-            ],
-        }],
-    }
-    return responseMatch;
-};
-
-const insertResponse = (newResponse) => {
-    responses.push(response)
-}
-
-const updateResponse = () => {
-    return (updatedResponse, callback = () => {}) => {
-        const indexMatch = responses.findIndex(({ _id: resId}) => resId === updatedResponse._id)
-        console.log(indexMatch)
-        responses[indexMatch] = updatedResponse
-    }
-}
-
-const getUtteranceFromPayload = (intent, callback) => {
-    callback(
-        null,
-        [
-            ...Object.values(utterances).filter(u => u.intent === intent.intent),
-            { intent, entities: [], text: 'not found' },
-        ][0],
-    );
-};
-
 export const withProjectContext = (story) => {
     const [responses, updateResponses] = useState(responseFixtures);
     const [entities, setEntities] = useState(entitiesFixture);
     const [intents, setIntents] = useState(intentsFixture);
+    const [utterances, updateUtterances] = useState(utteranceFixtures)
 
     const addEntity = entity => setEntities(Array.from(new Set([...entities, entity])));
     const addIntent = intent => setIntents(Array.from(new Set([...intents, intent])));
+    const getUtteranceFromPayload = (payload, callback) => {
+        callback(
+            null,
+            [
+                ...Object.values(utterances).filter(u => u.intent === payload.intent),
+                { ...payload, text: 'not found' },
+            ][0],
+        );
+    };
 
     return (
         <ProjectContext.Provider
             value={{
-                project: { _id: 'bf' },
+                project: { _id: 'bf', storyGroups: ['0', '1', '2', '3', '4', '5', '6'] },
                 slots,
                 intents,
                 entities,
                 responses,
                 parseUtterance,
+                addUtterancesToTrainingData: (content, callback) => {
+                    updateUtterances(
+                        content.filter(u => u.text).reduce((acc, curr) => ({ ...acc, [curr.text]: curr }), utterances),
+                    );
+                    callback();
+                },
+                upsertResponse: (title, content) => new Promise((resolve) => {
+                    updateResponses({ ...responses, [title]: content });
+                    return resolve({ ...responses, [title]: content })
+                }),
                 addEntity,
                 addIntent,
-                getResponse,
-                insertResponse,
-                updateResponse,
                 getUtteranceFromPayload,
                 updateResponses,
                 projectLanguages: [

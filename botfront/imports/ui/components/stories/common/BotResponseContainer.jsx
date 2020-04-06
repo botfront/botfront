@@ -10,11 +10,10 @@ import { NativeTypes } from 'react-dnd-html5-backend-cjs';
 import { useDrop } from 'react-dnd-cjs';
 import TextareaAutosize from 'react-autosize-textarea';
 import QuickReplies from './QuickReplies';
-import FloatingIconButton from '../../common/FloatingIconButton';
 
 const BotResponseContainer = (props) => {
     const {
-        value, onDelete, onChange, deletable, focus, onFocus, editCustom, uploadImage, tag, hasMetadata, metadata, editable,
+        value, onDelete, onChange, focus, onFocus, editCustom, uploadImage, tag, hasMetadata, metadata, editable,
     } = props;
 
     const [input, setInput] = useState();
@@ -59,7 +58,7 @@ const BotResponseContainer = (props) => {
         if (e.key === 'Shift') {
             setshiftPressed(true);
         }
-        if (e.key === 'Backspace' && !input && deletable) {
+        if (e.key === 'Backspace' && !input) {
             e.preventDefault();
             onDelete();
         }
@@ -219,25 +218,22 @@ const BotResponseContainer = (props) => {
 
     return (
         <div
-            className={`utterance-container bot-response ${extraClass} ${metadataClass} ${editable ? '' : 'read-only'}`}
+            className={`utterance-container ${extraClass} ${metadataClass} ${editable ? '' : 'read-only'}`}
             agent='bot'
             data-cy='bot-response-input'
             {...getCustomStyle()}
         >
-            <div className={`inner ${canDrop && isOver ? 'upload-target' : ''} ${hasMetadata ? 'metadata-response' : ''}`}>
+            <div className={`${canDrop && isOver ? 'upload-target' : ''} ${hasMetadata ? 'metadata-response' : ''}`}>
                 {hasText && !isImageResponse && renderText()}
                 {isImageResponse && renderImage()}
                 {isQRResponse && renderButtons()}
                 {isCustom && renderCustom()}
-                {/* hasButtons && value.buttons !== null && renderButtons() */}
             </div>
-            {deletable && <FloatingIconButton icon='trash' onClick={() => onDelete()} />}
         </div>
     );
 };
 
 BotResponseContainer.propTypes = {
-    deletable: PropTypes.bool,
     value: PropTypes.object.isRequired,
     focus: PropTypes.bool,
     onFocus: PropTypes.func.isRequired,
@@ -252,7 +248,6 @@ BotResponseContainer.propTypes = {
 };
 
 BotResponseContainer.defaultProps = {
-    deletable: true,
     focus: false,
     editCustom: () => {},
     tag: null,

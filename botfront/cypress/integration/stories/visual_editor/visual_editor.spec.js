@@ -23,24 +23,13 @@ describe('story visual editor', function () {
         cy.browseToStory('Groupo (1)');
 
         cy.dataCy('add-user-line').click({ force: true });
-        cy.dataCy('user-line-from-input').click({ force: true });
-        cy.dataCy('utterance-input')
-            .find('input')
-            .type('Hello{enter}');
-        cy.dataCy('intent-label').contains('chitchat.greet')
-            .click({ force: true });
-        cy.get('.intent-dropdown input')
-            .click({ force: true })
-            .type('myTestIntent{enter}');
-        cy.dataCy('save-new-user-input').click({ force: true });
+        cy.dataCy('user-line-from-input').last().click({ force: true });
+        cy.addUserUtterance('Hello', 'chitchat.greet', 0, { checkForIntent: true });
 
         cy.contains('Hello'); // checks that text has been saved
 
         cy.dataCy('add-user-line').should('not.exist'); // cannot have adjacent user utterances
-
         cy.dataCy('add-bot-line').click({ force: true });
-
-        cy.contains('Hello'); // checks that text has been saved
 
         cy.dataCy('from-text-template').click({ force: true });
         cy.dataCy('bot-response-input')
@@ -98,7 +87,7 @@ describe('story visual editor', function () {
         cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('story-editor')
             .find('.ace_line').eq(0)
-            .should('have.text', '* myTestIntent');
+            .should('have.text', '* chitchat.greet');
         cy.dataCy('story-editor').find('.ace_line')
             .eq(2).invoke('text')
             .as('response');
@@ -118,7 +107,7 @@ describe('story visual editor', function () {
         cy.visit('/project/bf/nlu/models');
         cy.get('[role=row]')
             .contains('[role=row]', 'Hello')
-            .contains('myTestIntent')
+            .contains('chitchat.greet')
             .should('exist'); // there nlu example is there too
     });
 
@@ -191,8 +180,8 @@ describe('story visual editor', function () {
             },
         ]]);
         cy.visit('/project/bf/nlu/models');
-        cy.get('.black.gem').click({ force: true });
-        cy.get('.black.gem').should('not.exist');
+        cy.dataCy('icon-gem', null, '.active').click({ force: true });
+        cy.dataCy('icon-gem', null, '.active').should('not.exist');
         cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'en', [
             {
                 text: 'bonjour not canonical recent',
@@ -202,5 +191,33 @@ describe('story visual editor', function () {
         cy.visit('/project/bf/stories');
         cy.browseToStory('Greetings');
         cy.get('[role = "application"]').should('have.text', 'bonjour not canonical recent');
+    });
+
+    it('should add user utterance payload disjuncts, delete them, and Md representation should match', function () {
+        cy.visit('/project/bf/stories');
+        cy.browseToStory('Greetings', 'Default stories');
+        cy.dataCy('icon-add').click({ force: true });
+        cy.dataCy('user-line-from-input').first().click({ force: true });
+        cy.addUserUtterance('Bye', 'chitchat.bye', 1);
+        cy.dataCy('toggle-md').click();
+        cy.dataCy('story-editor')
+            .find('.ace_line').eq(0)
+            .should('have.text', '* chitchat.greet OR chitchat.bye');
+        cy.dataCy('toggle-visual').click();
+        cy.dataCy('icon-trash').first().click({ force: true });
+        cy.dataCy('toggle-md').click();
+        cy.dataCy('story-editor')
+            .find('.ace_line').eq(0)
+            .should('have.text', '* chitchat.bye');
+    });
+
+    it('should not utterance payload disjunct if some disjunct already has identical payload', function () {
+        cy.visit('/project/bf/stories');
+        cy.browseToStory('Greetings', 'Default stories');
+        cy.dataCy('intent-label').should('have.length', 1);
+        cy.dataCy('icon-add').click({ force: true });
+        cy.dataCy('user-line-from-input').first().click({ force: true });
+        cy.addUserUtterance('Hello', 'chitchat.greet', 1);
+        cy.dataCy('intent-label').should('have.length', 1);
     });
 });

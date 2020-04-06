@@ -42,7 +42,7 @@ describe('Story play button', function() {
     it('should disable the play button when a story does not start with a user utterance', () => {
         cy.visit('/project/bf/stories');
         cy.browseToStory('Test Story', 'Test Group');
-        cy.get('.utterance-container').findCy('icon-trash').click({ force: true });
+        cy.dataCy('icon-trash').first().click({ force: true });
         cy.dataCy('play-story').click();
         cy.dataCy('chat-pane').should('not.exist');
     });

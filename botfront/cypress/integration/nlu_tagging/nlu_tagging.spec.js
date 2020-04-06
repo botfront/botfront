@@ -45,7 +45,7 @@ describe('nlu tagging in training data', function() {
 
     it('should delete the training data', function() {
         cy.visit('/project/bf/nlu/models');
-        cy.get('.rt-tbody .rt-tr:first [data-cy=trash] .viewOnHover').click({
+        cy.get('.rt-tbody .rt-tr:first [data-cy=icon-trash]').click({
             force: true,
         });
         cy.get('.rt-tbody .rt-tr:first').should('not.contain', utterance);

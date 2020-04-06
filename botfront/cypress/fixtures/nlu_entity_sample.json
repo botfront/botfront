@@ -1,0 +1,72 @@
+{
+    "rasa_nlu_data": {
+      "common_examples": [
+        {
+          "text": "I am going to costco",
+          "intent": "shopping",
+          "entities": [
+            {
+                "start": 14,
+                "end": 20,
+                "value": "costco",
+                "entity": "shop"
+            }
+        ]
+        },
+        {
+          "text": "I am going to costco and the park",
+          "intent": "shopping",
+          "entities": [
+            {
+                "start": 14,
+                "end": 20,
+                "value": "costco",
+                "entity": "shop"
+            },
+            {
+                "start": 29,
+                "end": 33,
+                "value": "park",
+                "entity": "place"
+            }
+        ]
+        },
+        {
+          "text": "I am going to provigo",
+          "intent": "shopping",
+          "entities": [
+            {
+                "start": 14,
+                "end": 21,
+                "value": "provigo",
+                "entity": "shop"
+            }
+        ]
+        },
+        {
+          "text": "I am going to the mall",
+          "intent": "shopping",
+          "entities": [
+            {
+                "start": 18,
+                "end": 22,
+                "value": "mall",
+                "entity": "place"
+            }
+        ]
+        },
+        {
+          "text": "hello",
+          "intent": "hi",
+          "entities": []
+        },
+        {
+            "text": "I'm going shopping",
+            "intent": "shopping",
+            "entities": []
+        }
+      ],
+      "entity_synonyms": [],
+      "fuzzy_gazette": []
+    }
+}

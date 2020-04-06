@@ -55,6 +55,39 @@ Meteor.methods({
             throw formatError(e);
         }
     },
+    async 'nlu.saveExampleChanges'(modelId, examples) {
+        checkIfCan('nlu:w', getProjectIdFromModelId(modelId));
+        check(modelId, String);
+        check(examples, Array);
+        
+        const edited = [];
+        const newExamples = [];
+        const canonicalEdited = [];
+        const deleted = [];
+
+        examples.forEach((example) => {
+            if (example.deleted) {
+                deleted.push(example._id);
+                return;
+            }
+            if (example.isNew) newExamples.push(example);
+            if (example.edited) edited.push(example);
+            if (example.canonicalEdited) {
+                /*
+                    the nlu.switchCanonical method toggles the
+                    canonical state of the example. to set the canonical
+                    value to the current value we nee to toggle it before
+                    calling the nlu.switchCanonical method
+                */
+                canonicalEdited.push({ ...example, canonical: !example.canonical });
+            }
+        });
+        
+        await NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { _id: { $in: deleted } } } });
+        await Meteor.callWithPromise('nlu.insertExamples', modelId, newExamples);
+        await Meteor.callWithPromise('nlu.updateManyExamples', modelId, edited);
+        canonicalEdited.forEach(example => Meteor.call('nlu.switchCanonical', modelId, example));
+    },
 
     async 'nlu.insertExamples'(modelId, items) {
         checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
@@ -111,6 +144,22 @@ Meteor.methods({
         } catch (e) {
             throw formatError(e);
         }
+    },
+    async 'nlu.updateManyExamples'(modelId, items) {
+        checkIfCan('nlu:w', getProjectIdFromModelId(modelId));
+        check(modelId, String);
+        check(items, Array);
+        const updatedExamples = uniqBy(items, 'text');
+        if (items.length === 0) {
+            return 0;
+        }
+
+        const model = NLUModels.findOne({ _id: modelId }, { fields: { 'training_data.common_examples': 1 } });
+        const examples = model && model.training_data && model.training_data.common_examples.map(e => ExampleUtils.stripBare(e));
+        const pullItems = intersectionBy(examples, updatedExamples, 'text').map(({ text }) => text);
+        await NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { text: { $in: pullItems } } } });
+        await NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { _id: { $in: updatedExamples.map(({ _id }) => _id) } } } });
+        return NLUModels.update({ _id: modelId }, { $push: { 'training_data.common_examples': { $each: updatedExamples, $position: 0 } } });
     },
 
     async 'nlu.switchCanonical'(modelId, item) {

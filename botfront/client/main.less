@@ -25,6 +25,7 @@
 @import '../imports/ui/components/templates/style.import.less';
 @import '../imports/ui/components/stories/rules/style.import.less';
 @import '../imports/ui/components/stories/search/style.import.less';
+@import '../imports/ui/components/stories/common/nlu_editor/style.import.less';
 
 @sidebar-bg: rgb(45, 47, 74);
 @sidebar-size: 190px;
@@ -52,7 +53,7 @@
 }
 
 .cursor {
-    &.pointer { cursor: pointer; }
+    &.pointer { cursor: pointer; * { cursor: pointer; } }
     &.text { cursor: text; }
 }
 
@@ -63,6 +64,10 @@
     & + :not(.no-margin) {
         margin-top: 1rem;
     }
+}
+
+.item {
+    outline: none;
 }
 
 html {

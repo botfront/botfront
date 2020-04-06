@@ -1,5 +1,5 @@
 /* eslint-disable import/order */
-// import { Projects } from '../api/project/project.collection';
+/* eslint-disable prefer-const */
 import React from 'react';
 
 let canExport = () => true;
@@ -57,7 +57,7 @@ CanExport = connect(
 export const getUserScopes = getUserScopesExport;
 export const checkIfScope = checkIfScopeExport;
 export const isUserPermissionGlobal = isUserPermissionGlobalExport;
-export const getScopesForUser = getScopesForUserExport; // returns an empty array when scope is global, use getUserScopes for a list of all projects
+export const getScopesForUser = getScopesForUserExport;
 export const can = canExport;
 export const checkIfCan = checkIfCanExport;
 export const areScopeReady = areScopeReadyExport;
