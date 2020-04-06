@@ -1,0 +1,20 @@
+type Query {
+    trackerStore(
+        senderId: String!
+        projectId: String!
+        after: Int
+        maxEvents: Int
+    ): trackerStoreInfo
+}
+
+type Mutation {
+    insertTrackerStore(senderId: String!, projectId: String!, tracker: Any): trackerStoreInfo!
+    updateTrackerStore(senderId: String!, projectId: String!, tracker: Any): trackerStoreInfo!
+}
+
+
+type trackerStoreInfo{
+    tracker: Any,
+    lastIndex: Int,
+    lastTimestamp: Float
+}

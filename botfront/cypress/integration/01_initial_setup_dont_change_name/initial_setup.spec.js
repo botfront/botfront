@@ -1,6 +1,6 @@
 /* global cy Cypress:true */
 
-describe('intial setup', function() {
+describe('intial setup', function () {
     before(function() {
         if (!Cypress.env('MODE') || Cypress.env('MODE') !== 'CI_RUN') {
             cy.exec('mongo bf --host localhost:27017 --eval "db.dropDatabase();"');
@@ -11,7 +11,8 @@ describe('intial setup', function() {
         cy.waitForResolve(Cypress.env('baseUrl'));
     });
 
-    after(function() {
+
+    after(function () {
         cy.deleteProject('bf');
     });
 

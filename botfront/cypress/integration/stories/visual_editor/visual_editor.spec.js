@@ -16,9 +16,9 @@ describe('story visual editor', function () {
         cy.createStoryInGroup();
     });
 
-    it('should persist a user utterance, a bot response, and display add-user-line option appropriately', function() {
+    it('should persist a user utterance, a bot response, and display add-user-line option appropriately', function () {
         cy.importNluData('bf', 'nlu_sample_en.json', 'en');
-        cy.train();
+        cy.train(10000);
         cy.visit('/project/bf/stories');
         cy.browseToStory('Groupo (1)');
 
@@ -90,19 +90,17 @@ describe('story visual editor', function () {
             .should('have.text', '* chitchat.greet');
         cy.dataCy('story-editor').find('.ace_line')
             .eq(2).invoke('text')
-            .as('response');
-
-        cy.visit('/project/bf/dialogue/templates/');
-        cy.get('@response').then((response) => {
-            cy.log(response);
-            cy.get('[role=row]')
-                .contains('[role=row]', response.replace('-', '').trim())
-                .should('exist') // there's a row with our text and response hash
-                .find('.icon.edit')
-                .click();
-        });
-        cy.dataCy('postback_option').contains('postback option').should('exist');
-        cy.dataCy('web_url_option').contains('web_url option').should('exist');
+            .then((response) => {
+                cy.visit('/project/bf/dialogue/templates/');
+                cy.get('.rt-tbody > :nth-child(2)')
+                    .find('[role=row]')
+                    .contains('[role=row]', response.replace('-', '').trim())
+                    .should('exist') // there's a row with our text and response hash
+                    .find('.icon.edit')
+                    .click();
+                cy.dataCy('postback_option').contains('postback option').should('exist');
+                cy.dataCy('web_url_option').contains('web_url option').should('exist');
+            });
 
         cy.visit('/project/bf/nlu/models');
         cy.get('[role=row]')

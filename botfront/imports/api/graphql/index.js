@@ -13,6 +13,9 @@ import nluResolvers from './nlu/resolvers';
 import nluTypes from './nlu/schemas';
 import storiesTypes from './story/schemas/stories.types.graphql';
 import storiesResolver from './story/resolvers/storiesResolver';
+import trackerStoreResolver from './trackerStore/resolvers/trackerStoreResolver';
+import trackerStoreTypes from './trackerStore/schemas';
+
 
 export const resolvers = [
     conversationsResolver,
@@ -22,6 +25,7 @@ export const resolvers = [
     commonResolver,
     configResolver,
     storiesResolver,
+    trackerStoreResolver,
 ];
 
 export const typeDefs = mergeTypes([
@@ -29,6 +33,7 @@ export const typeDefs = mergeTypes([
     ...botResponsesTypes,
     ...activityTypes,
     ...nluTypes,
+    ...trackerStoreTypes,
     commonTypes,
     configTypes,
     storiesTypes,

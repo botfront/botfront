@@ -131,7 +131,7 @@
             "_id": "6c7756de-748c-4f10-b8b4-58129b3ab4f1",
             "name": "My First Model",
             "language": "en",
-            "config": "pipeline:\n  - name: WhitespaceTokenizer\n  - name: CountVectorsFeaturizer\n  - name: EmbeddingIntentClassifier\n  - BILOU_flag: true\n    name: CRFEntityExtractor\n    features:\n      - [low, title, upper]\n      - [low, bias, prefix5, prefix2, suffix5, suffix3, suffix2, upper, title, digit, pattern]\n      - [low, title, upper]\n  - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: EntitySynonymMapper",
+            "config": "pipeline:\n  - name: WhitespaceTokenizer\n  - name: CountVectorsFeaturizer\n  - name: DIETClassifier\n  - BILOU_flag: true\n    name: CRFEntityExtractor\n    features:\n      - [low, title, upper]\n      - [low, bias, prefix5, prefix2, suffix5, suffix3, suffix2, upper, title, digit, pattern]\n      - [low, title, upper]\n  - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: EntitySynonymMapper",
             "evaluations": [],
             "intents": [],
             "chitchat_intents": [],
@@ -360,7 +360,7 @@
         {
             "_id": "be6f8f74-37b1-4576-9d5c-6a1cb62de95f",
             "projectId": "bf",
-            "policies": "policies:\n  #- name: KerasPolicy\n    #epochs: 200\n  - name: FallbackPolicy\n  - name: AugmentedMemoizationPolicy\n  - name: MemoizationPolicy",
+            "policies": "policies:\n  #- name: KerasPolicy\n    #epochs: 200\n  - name: FallbackPolicy\n  - name: AugmentedMemoizationPolicy",
             "createdAt": "2019-10-09T15:06:03.984Z",
             "updatedAt": "2019-10-09T15:06:34.656Z"
         }

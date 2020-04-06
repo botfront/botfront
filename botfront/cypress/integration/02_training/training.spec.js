@@ -24,11 +24,11 @@ describe('Training', function() {
         cy.wait(1000);
         cy.request('DELETE', `${Cypress.env('RASA_URL')}/model`);
     });
-
+    
     afterEach(function() {
         cy.deleteProject('bf');
     });
-
+    
     it('Should train and serve a model containing only stories (no NLU) and adding a language should work', function() {
         createStories();
         cy.train();
@@ -92,5 +92,21 @@ describe('Training', function() {
         cy.newChatSesh('en');
         cy.testChatInput('/get_started', 'utter_get_started');
         cy.testChatInput('/chitchat.greet', 'utter_default');
+    });
+    
+    it('Should train and serve a model containing branches and links', function() {
+        cy.importViaUi('branch_link_project.json', 'bf');
+        cy.train();
+        cy.dataCy('open-chat').click({ force: true });
+        cy.dataCy('restart-chat').click({ force: true });
+        // coffee path
+        cy.testChatInput('/hi', 'utter_coffee');
+        cy.testChatInput('/yes', 'utter_sugar');
+        cy.testChatInput('/yes', 'utter_ok');
+        // tea path
+        cy.testChatInput('/hi', 'utter_coffee');
+        cy.testChatInput('/no', 'utter_tea');
+        cy.testChatInput('/yes', 'utter_sugar');
+        cy.testChatInput('/no', 'utter_oknosugar');
     });
 });
