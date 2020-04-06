@@ -1,5 +1,4 @@
-import { getConversationsIncludingAction } from '../mongo/conversationsIncludingAction';
-import { getConversationsWithEngagement } from '../mongo/conversationsWithEngagement';
+import { getConversationCounts } from '../mongo/conversationCounts';
 import { checkIfCan } from '../../../../lib/scopes';
 
 export default {
@@ -7,13 +6,7 @@ export default {
         async conversationCounts(parent, args, context) {
             checkIfCan('analytics:r', args.projectId, context.user._id);
             if (!args.projectId) throw new Error('ProjectId is required');
-            let aggr;
-            switch (args.subtype) {
-            case 'engagement': aggr = getConversationsWithEngagement; break;
-            case 'fallback': aggr = getConversationsIncludingAction; break;
-            default: throw new Error('Subtype is required');
-            }
-            return aggr(args);
+            return getConversationCounts(args);
         },
     },
     ConversationCount: {

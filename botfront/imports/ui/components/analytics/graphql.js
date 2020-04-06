@@ -13,8 +13,10 @@ const dashboardFields = gql`
             endDate
             chartType
             valueType
-            include
-            exclude
+            includeIntents
+            excludeIntents
+            includeActions
+            excludeActions
             wide
         }
         languages

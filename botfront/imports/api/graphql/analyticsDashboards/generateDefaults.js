@@ -12,12 +12,13 @@ export const defaultDashboard = (project) => {
         cards: [
             {
                 name: 'Visits & Engagement',
-                type: 'visitCounts',
+                type: 'conversationsWithIntent',
                 visible: true,
                 startDate,
                 endDate,
                 chartType: 'line',
                 valueType: 'absolute',
+                excludeIntents: ['get_started'],
                 wide: true,
             },
             {
@@ -37,7 +38,7 @@ export const defaultDashboard = (project) => {
                 endDate,
                 chartType: 'bar',
                 valueType: 'absolute',
-                exclude: ['get_started'],
+                excludeIntents: ['get_started'],
             },
             {
                 name: 'Conversation Duration',
@@ -50,23 +51,23 @@ export const defaultDashboard = (project) => {
             },
             {
                 name: 'Conversations with Fallback',
-                type: 'conversationsWithFallback',
+                type: 'conversationsWithAction',
                 visible: true,
                 startDate,
                 endDate,
                 chartType: 'line',
                 valueType: 'absolute',
-                include: ['action_botfront_fallback'],
+                includeActions: ['action_botfront_fallback'],
             },
             {
                 name: 'Fallback Rate',
-                type: 'fallbackCounts',
+                type: 'actionCounts',
                 visible: true,
                 startDate,
                 endDate,
                 chartType: 'line',
                 valueType: 'absolute',
-                include: ['action_botfront_fallback'],
+                includeActions: ['action_botfront_fallback'],
             },
         ],
     });

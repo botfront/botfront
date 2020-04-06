@@ -22,7 +22,6 @@ function AnalyticsCard(props) {
         cardName,
         displayDateRange,
         chartTypeOptions,
-        title: genericTitle,
         titleDescription,
         query,
         queryParams,
@@ -33,8 +32,10 @@ function AnalyticsCard(props) {
             startDate,
             chartType,
             valueType,
-            exclude,
-            include,
+            includeActions,
+            excludeActions,
+            includeIntents,
+            excludeIntents,
             wide,
         },
         onChangeSettings,
@@ -43,7 +44,6 @@ function AnalyticsCard(props) {
 
     const { project: { _id: projectId, name: projectName = 'Botfront', timezoneOffset: projectTimezoneOffset = 0 } } = useContext(ProjectContext);
 
-    const title = cardName || genericTitle;
     const [nameEdited, setNameEdited] = useState(null);
     
     const displayAbsoluteRelative = 'rel' in graphParams;
@@ -77,8 +77,10 @@ function AnalyticsCard(props) {
         langs: queryParams.langs,
         from: applyTimezoneOffset(startDate, projectTimezoneOffset).valueOf() / 1000,
         to: applyTimezoneOffset(endDate, projectTimezoneOffset).valueOf() / 1000,
-        ...(exclude ? { exclude } : {}),
-        ...(include ? { include } : {}),
+        includeActions,
+        excludeActions,
+        includeIntents,
+        excludeIntents,
         nBuckets,
         limit: chartType === 'table' ? 100000 : undefined,
     };
@@ -90,7 +92,7 @@ function AnalyticsCard(props) {
     const downloadCSV = () => {
         const csvData = generateCSV(exportData, { ...queryParams, ...exportQueryParams }, bucketSize, projectTimezoneOffset, graphParams.columns);
         const csvBlob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
-        const fileName = `${projectName}-${title.replace(/ /g, '')}-(${startDate.toISOString()})-(${endDate.toISOString()})`;
+        const fileName = `${projectName}-${cardName.replace(/ /g, '')}-(${startDate.toISOString()})-(${endDate.toISOString()})`;
         if (!window.Cypress) { // prevent file from downloading during tests
             saveAs(csvBlob, `${fileName}.csv`);
         }
@@ -118,15 +120,15 @@ function AnalyticsCard(props) {
     };
     
     const renderExtraOptionsLink = () => {
-        if (!exclude && !include) return null;
+        if (!includeIntents && !excludeIntents && !includeActions && !excludeActions) return null;
         let text; let values; let setting;
-        if (exclude) {
+        if (excludeIntents) {
             text = 'Excluded intents';
-            values = exclude;
+            values = excludeIntents;
             setting = 'exclude';
-        } else if (include) {
+        } else if (includeActions) {
             text = 'Included actions';
-            values = include;
+            values = includeActions;
             setting = 'include';
         }
         return (
@@ -239,7 +241,7 @@ function AnalyticsCard(props) {
             {nameEdited === null
                 ? (
                     <Popup
-                        trigger={<span className='title' onDoubleClick={() => setNameEdited(title)}>{title}</span>}
+                        trigger={<span className='title' onDoubleClick={() => setNameEdited(cardName)}>{cardName}</span>}
                         content={titleDescription}
                     />
                 )
@@ -269,7 +271,6 @@ function AnalyticsCard(props) {
 
 AnalyticsCard.propTypes = {
     cardName: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
     titleDescription: PropTypes.string,
     displayDateRange: PropTypes.bool,
     chartTypeOptions: PropTypes.arrayOf(PropTypes.oneOf(['line', 'bar', 'pie', 'table'])),

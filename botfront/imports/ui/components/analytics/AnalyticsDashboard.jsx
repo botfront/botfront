@@ -7,9 +7,8 @@ import AnalyticsCard from './AnalyticsCard';
 import conversationLengths from '../../../api/graphql/conversations/queries/conversationLengths.graphql';
 import conversationDurations from '../../../api/graphql/conversations/queries/conversationDurations.graphql';
 import intentFrequencies from '../../../api/graphql/conversations/queries/intentFrequencies.graphql';
-import visitCounts from '../../../api/graphql/conversations/queries/visitCounts.graphql';
-import fallbackCounts from '../../../api/graphql/conversations/queries/fallbackCounts.graphql';
-import conversationsWithFallback from '../../../api/graphql/conversations/queries/conversationsWithFallback.graphql';
+import actionCounts from '../../../api/graphql/conversations/queries/actionCounts.graphql';
+import conversationCounts from '../../../api/graphql/conversations/queries/conversationCounts.graphql';
 import { ProjectContext } from '../../layouts/context';
 import { setsAreIdentical } from '../../../lib/utils';
 
@@ -26,21 +25,20 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
         ? [] : languages), [languages]); // empty array if all languages are selected
 
     const cardTypes = {
-        visitCounts: {
+        conversationsWithIntent: {
             chartTypeOptions: ['line', 'table'],
-            title: 'Visits & Engagement',
             titleDescription: 'Visits: the total number of conversations in a given temporal window. Engagements: of those conversations, those with length one or more.',
             queryParams: {
                 temporal: true, envs, queryName: 'conversationCounts', langs,
             },
-            query: visitCounts,
+            query: conversationCounts,
             graphParams: {
                 x: 'bucket',
                 y: [{ abs: 'count' }, { abs: 'hits', rel: 'proportion' }],
                 formats: {
                     bucket: v => v.toLocaleDateString(),
                     count: v => `${v} visit${v !== 1 ? 's' : ''}`,
-                    engagements: v => `${v} engagement${v !== 1 ? 's' : ''}`,
+                    hits: v => `${v} conversation${v !== 1 ? 's' : ''}`,
                     proportion: v => `${v}%`,
                 },
                 rel: { y: [{ abs: 'proportion' }] },
@@ -59,7 +57,6 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
         },
         conversationLengths: {
             chartTypeOptions: ['bar', 'pie', 'table'],
-            title: 'Conversation Length',
             titleDescription: 'The number of user utterances contained in a conversation.',
             queryParams: {
                 envs, queryName: 'conversationLengths', langs,
@@ -85,7 +82,6 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
         },
         intentFrequencies: {
             chartTypeOptions: ['bar', 'pie', 'table'],
-            title: 'Top 10 Intents',
             titleDescription: 'The number of user utterances classified as having a given intent.',
             queryParams: {
                 envs, queryName: 'intentFrequencies', langs,
@@ -95,7 +91,6 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
             graphParams: {
                 x: 'name',
                 y: [{ abs: 'count', rel: 'frequency' }],
-
                 columns: [
                     { header: 'Intent Name', accessor: 'name' },
                     { header: 'Count', accessor: 'count' },
@@ -113,7 +108,6 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
         },
         conversationDurations: {
             chartTypeOptions: ['bar', 'pie', 'table'],
-            title: 'Conversation Duration',
             titleDescription: 'The number of seconds elapsed between the first and the last message of a conversation.',
             queryParams: {
                 envs, queryName: 'conversationDurations', cutoffs: [30, 60, 90, 120, 180], langs,
@@ -137,25 +131,27 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
                 axisBottom: { legendOffset: 36, legendPosition: 'middle' },
             },
         },
-        conversationsWithFallback: {
+        conversationsWithAction: {
             chartTypeOptions: ['line', 'table'],
-            title: 'Conversations with Fallback',
             titleDescription: 'The number of conversations in which a fallback action was triggered.',
             queryParams: {
                 temporal: true, envs, queryName: 'conversationCounts', langs,
             },
-            query: conversationsWithFallback,
+            query: conversationCounts,
             graphParams: {
                 x: 'bucket',
                 y: [{ abs: 'hits', rel: 'proportion' }],
                 formats: {
                     bucket: v => v.toLocaleDateString(),
+                    // count: v => `${v} visit${v !== 1 ? 's' : ''}`,
                     proportion: v => `${v}%`,
+                    hits: v => `${v} conversation${v !== 1 ? 's' : ''}`,
                 },
                 columns: [
                     { header: 'Date', accessor: 'bucket', temporal: true },
                     { header: 'Count', accessor: 'hits' },
                     { header: 'Proportion', accessor: 'proportion' },
+                    // { header: 'Visits', accessor: 'count' },
                 ],
                 rel: { y: [{ abs: 'proportion' }] },
                 axisTitleY: { absolute: 'Number of Fallbacks', relative: 'Fallback Ratio' },
@@ -165,25 +161,27 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
                 axisBottom: { legendOffset: 36, legendPosition: 'middle' },
             },
         },
-        fallbackCounts: {
+        actionCounts: {
             chartTypeOptions: ['line', 'table'],
-            title: 'Fallback Rate',
             titleDescription: 'The number of times a fallback action was triggered.',
             queryParams: {
                 temporal: true, envs, queryName: 'actionCounts', langs,
             },
-            query: fallbackCounts,
+            query: actionCounts,
             graphParams: {
                 x: 'bucket',
                 y: [{ abs: 'hits', rel: 'proportion' }],
                 formats: {
                     bucket: v => v.toLocaleDateString(),
+                    // count: v => `${v} visit${v !== 1 ? 's' : ''}`,
                     proportion: v => `${v}%`,
+                    hits: v => `${v} occurence${v !== 1 ? 's' : ''}`,
                 },
                 columns: [
                     { header: 'Date', accessor: 'bucket', temporal: true },
                     { header: 'Count', accessor: 'hits' },
                     { header: 'Proportion', accessor: 'proportion' },
+                    // { header: 'Visits', accessor: 'count' },
                 ],
                 rel: { y: [{ abs: 'proportion' }] },
                 axisTitleY: { absolute: 'Number of Fallbacks', relative: 'Fallback Ratio' },

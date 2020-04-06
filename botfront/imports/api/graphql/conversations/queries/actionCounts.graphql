@@ -1,22 +1,23 @@
-query VisitCounts(
+query ActionCounts(
     $projectId: String!,
     $envs: [String] = ["development", null],
     $langs: [String] = [],
     $from: Float,
     $to: Float,
     $nBuckets: Int = 7,
-    $exclude: [String] = ["get_started"],
+    $include: [String],
+    $exclude: [String]
 ) {
-    conversationCounts(
+    actionCounts(
         projectId: $projectId,
-        subtype: "engagement",
         envs: $envs,
         langs: $langs,
         from: $from,
         to: $to,
-        exclude: $exclude,
         nBuckets: $nBuckets,
+        include: $include,
+        exclude: $exclude
     ) {
-        bucket, hits, count, proportion,
+        bucket, hits, count, proportion
     }
 }

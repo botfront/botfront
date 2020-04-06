@@ -37,8 +37,10 @@ export default {
         endDate: ({ endDate }) => endDate,
         chartType: ({ chartType }) => chartType,
         valueType: ({ valueType }) => valueType,
-        include: ({ include }) => include,
-        exclude: ({ exclude }) => exclude,
+        includeActions: ({ includeActions }) => includeActions,
+        excludeActions: ({ excludeActions }) => excludeActions,
+        includeIntents: ({ includeIntents }) => includeIntents,
+        excludeIntents: ({ excludeIntents }) => excludeIntents,
         wide: ({ wide }) => wide,
     },
 };

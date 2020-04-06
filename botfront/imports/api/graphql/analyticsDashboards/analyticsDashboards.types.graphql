@@ -30,8 +30,10 @@ type AnalyticsCard {
     endDate: Moment!
     chartType: AnalyticsGraphChartType!
     valueType: AnalyticsGraphValueType!
-    include: [String]
-    exclude: [String]
+    includeActions: [String]
+    excludeActions: [String]
+    includeIntents: [String]
+    excludeIntents: [String]
     wide: Boolean
 }
 

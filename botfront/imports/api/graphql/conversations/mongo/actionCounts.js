@@ -9,6 +9,7 @@ export const getActionCounts = async ({
     to = new Date().getTime(),
     nBuckets,
     include,
+    exclude,
 }) => fillInEmptyBuckets(await Conversations.aggregate([
     {
         $match: {
@@ -66,7 +67,8 @@ export const getActionCounts = async ({
                         if: {
                             $and: [
                                 { $eq: ['$tracker.events.event', 'action'] },
-                                { $in: ['$tracker.events.name', include] },
+                                ...(include && include.length ? [{ $in: ['$tracker.events.name', include] }] : []),
+                                ...(exclude && exclude.length ? [{ $not: { $in: ['$tracker.events.name', exclude] } }] : []),
                             ],
                         },
                         then: 1,

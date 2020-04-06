@@ -1,20 +1,26 @@
-query FallbackCounts(
+query ConversationCounts(
     $projectId: String!,
     $envs: [String] = ["development", null],
     $langs: [String] = [],
     $from: Float,
     $to: Float,
-    $include: [String] = ["action_botfront_fallback"],
     $nBuckets: Int = 7,
+    $includeIntents: [String],
+    $excludeIntents: [String],
+    $includeActions: [String],
+    $excludeActions: [String]
 ) {
-    actionCounts(
+    conversationCounts(
         projectId: $projectId,
         envs: $envs,
         langs: $langs,
         from: $from,
         to: $to,
-        include: $include,
         nBuckets: $nBuckets,
+        includeIntents: $includeIntents,
+        excludeIntents: $excludeIntents,
+        includeActions: $includeActions,
+        excludeActions: $excludeActions
     ) {
         bucket, hits, count, proportion
     }
