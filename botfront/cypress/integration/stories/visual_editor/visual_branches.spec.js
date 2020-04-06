@@ -25,6 +25,7 @@ const addBlock = (depth) => {
         .click({ force: true });
     getBranchEditor(depth)
         .findCy('user-line-from-input')
+        .last()
         .click({ force: true });
     getBranchEditor(depth)
         .findCy('utterance-input')

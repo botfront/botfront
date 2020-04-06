@@ -150,7 +150,7 @@ describe('NLU canonical examples', function () {
         cy.browseToStory('Farewells');
 
         cy.dataCy('add-user-line').click({ force: true });
-        cy.dataCy('user-line-from-input').click({ force: true });
+        cy.dataCy('user-line-from-input').last().click({ force: true });
         cy.addUserUtterance('this example should be canonical', 'intenttest', 1);
         cy.visit('/project/bf/nlu/models');
         cy.dataCy('icon-gem').should('have.class', 'active');

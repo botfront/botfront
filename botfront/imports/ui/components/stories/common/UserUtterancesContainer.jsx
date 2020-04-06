@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import IconButton from '../../common/IconButton';
 import UserUtteranceContainer from './UserUtteranceContainer';
+import UserUtterancePopupContent from './UserUtterancePopupContent';
 import { NEW_INTENT } from '../../../../lib/story_controller';
 
 const UserUtterancesContainer = (props) => {
@@ -33,10 +34,10 @@ const UserUtterancesContainer = (props) => {
         return onChange([...value.slice(0, index), content, ...value.slice(index + 1)]);
     };
 
-    const handleInsertDisjunct = (index) => {
+    const handleInsertDisjunct = (index, payload) => {
         onChange([
             ...value.slice(0, index + 1),
-            { intent: NEW_INTENT },
+            payload || { intent: NEW_INTENT },
             ...value.slice(index + 1),
         ]);
     };
@@ -55,7 +56,11 @@ const UserUtterancesContainer = (props) => {
                     <IconButton icon='add' className='or-label' color='other' />
                 )}
                 {!somethingIsBeingInput && index === value.length - 1 && (
-                    <IconButton onClick={() => handleInsertDisjunct(index)} icon='add' className='or-icon-button' />
+                    <UserUtterancePopupContent
+                        trigger={<IconButton icon='add' className='or-icon-button' />}
+                        onCreateFromInput={() => handleInsertDisjunct(index)}
+                        onCreateFromPayload={selectedPayload => handleInsertDisjunct(index, selectedPayload)}
+                    />
                 )}
                 {deletable
                     && (!somethingIsBeingInput || !payload)
