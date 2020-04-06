@@ -7,7 +7,7 @@ const urlTriggerExists = [
     {
         text: 'text',
         trigger: {
-            url: ['url'],
+            url: [{ path: 'url' }],
         },
         payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
@@ -361,7 +361,7 @@ const eventListenerTriggerEmptyE = [
 ];
 
 
-describe('checking form empty', () => {
+describe.only('checking form empty', () => {
     it('should validate url', () => {
         expect(hasTriggerRules(urlTriggerExists)).to.be.equal(true);
         expect(hasTriggerRules(urlTriggerEmptyA)).to.be.equal(false);
