@@ -2,7 +2,7 @@
     "_id": "SETTINGS",
     "settings": {
         "public": {
-            "defaultNLUConfig": "pipeline:\n  - name: WhitespaceTokenizer\n  - name: CountVectorsFeaturizer\n  - name: DIETClassifier\n  - BILOU_flag: true\n    name: CRFEntityExtractor\n    features:\n      - [low, title, upper]\n      - [low, bias, prefix5, prefix2, suffix5, suffix3, suffix2, upper, title, digit, pattern]\n      - [low, title, upper]\n  - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: EntitySynonymMapper",
+            "defaultNLUConfig": "pipeline:\n  - name: WhitespaceTokenizer\n  - name: CountVectorsFeaturizer\n  - name: DIETClassifier\n  - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: EntitySynonymMapper",
             "backgroundImages": [
                 "https://source.unsplash.com/collection/315548/2400x1500"
             ]
