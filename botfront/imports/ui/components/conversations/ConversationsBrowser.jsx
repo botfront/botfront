@@ -269,8 +269,10 @@ const ConversationsBrowserContainer = (props) => {
 
     useEffect(changeFilters, [projectTimezoneOffset]);
 
-    const [loadIntents] = useLazyQuery(GET_INTENTS_IN_CONVERSATIONS, {
+
+    useQuery(GET_INTENTS_IN_CONVERSATIONS, {
         variables: { projectId },
+        fetchPolicy: 'no-cache',
         onCompleted: (data) => {
             setIntentsOptions(
                 data.intentsInConversations.map((intent) => {
@@ -280,8 +282,9 @@ const ConversationsBrowserContainer = (props) => {
             );
         },
     });
+
+  
     useEffect(() => {
-        loadIntents();
         Meteor.call(
             'project.getActions',
             projectId,
