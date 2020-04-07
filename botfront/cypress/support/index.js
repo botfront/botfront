@@ -308,3 +308,12 @@ Cypress.Commands.add('importViaUi', (fixtureName, projectId) => {
     cy.wait(2000);
     cy.dataCy('project-import-success').should('exist');
 });
+
+
+Cypress.Commands.add('fill', {
+    prevSubject: 'element',
+}, ($subject, value) => {
+    const el = $subject[0];
+    el.value = value;
+    return cy.wrap($subject).type('t{backspace}'); // adding/removing character trigger the one change
+});
