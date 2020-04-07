@@ -18,11 +18,13 @@ const BotResponsesContainer = (props) => {
         deletable,
         enableEditPopup,
         tag,
+        projectId,
     } = props;
     const [template, setTemplate] = useState();
     const [editorOpen, setEditorOpen] = useState(false);
     const [toBeCreated, setToBeCreated] = useState(null);
     const [focus, setFocus] = useState(null);
+    const [responseLocations, setResponseLocations] = useState([]);
 
     useEffect(() => {
         Promise.resolve(initialValue).then((res) => {
@@ -82,6 +84,16 @@ const BotResponsesContainer = (props) => {
         return true;
     };
 
+    const handleMouseOver = () => {
+        Meteor.call('stories.withResponse', projectId, name, (result, error) => {
+            if (error) {
+                console.log(error);
+                return;
+            }
+            setResponseLocations(result);
+        });
+    };
+
     useEffect(() => {
         if (toBeCreated || toBeCreated === 0) {
             handleCreateReponse(toBeCreated);
@@ -109,9 +121,13 @@ const BotResponsesContainer = (props) => {
             </div>
         </React.Fragment>
     );
-
+    console.log(responseLocations);
     return (
-        <div className='utterances-container exception-wrapper-target'>
+        <div
+            className='utterances-container exception-wrapper-target'
+            onMouseOver={handleMouseOver}
+            onFocus={handleMouseOver}
+        >
             {!template && (
                 <Placeholder>
                     <Placeholder.Line />
@@ -141,7 +157,11 @@ const BotResponsesContainer = (props) => {
                     <IconButton onClick={onDeleteAllResponses} icon='trash' />
                 )}
             </div>
-            <div className='response-name'>{name}</div>
+            {responseLocations.length > 1 ? (
+                <div className='response-name'>{name}</div>
+            ) : (
+                <div className='response-name'>this story is used in other stories</div>
+            )}
         </div>
     );
 };
@@ -154,6 +174,7 @@ BotResponsesContainer.propTypes = {
     onDeleteAllResponses: PropTypes.func,
     enableEditPopup: PropTypes.bool,
     tag: PropTypes.string,
+    projectId: PropTypes.string.isRequired,
 };
 
 BotResponsesContainer.defaultProps = {

@@ -7,6 +7,7 @@ import { indexStory } from './stories.index';
 import { Stories } from './stories.collection';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo/botResponses';
+import { checkIfCan } from '../../lib/scopes';
 
 export const checkStoryNotEmpty = story => story.story && !!story.story.replace(/\s/g, '').length;
 
@@ -129,5 +130,17 @@ Meteor.methods({
             { _id: destinationStory },
             { $pullAll: { checkpoints: [branchPath] } },
         );
+    },
+
+    async 'stories.events'(projectId, responseName) {
+        checkIfCan('stories:r', projectId);
+        check(projectId, String);
+        check(responseName, String);
+
+        const allStories = Stories.find({ projectId }, { fields: { events: 1, _id: 1 } }).fetch();
+        return allStories.reduce(({ events, _id }, currentValue) => {
+            if (!events.includes(_id)) return currentValue;
+            return [...currentValue, _id];
+        }, []);
     },
 });
