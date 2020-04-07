@@ -45,7 +45,7 @@ export default function StoryGroupTree(props) {
         // we keep only the storygroups that are in storygroups for the order
         let newOrder = intersection(order, storyGroupsId); // so only the one in sync (existing in both)
         // and add value from story groups that were not intersected
-        newOrder = newOrder.concat(storyGroupsId.filter(sg => !newOrder.includes(sg))); // so the new order is in sync with storygroups
+        newOrder = (storyGroupsId.filter(sg => !newOrder.includes(sg))).concat(newOrder); // so the new order is in sync with storygroups
         return newOrder;
     };
 
