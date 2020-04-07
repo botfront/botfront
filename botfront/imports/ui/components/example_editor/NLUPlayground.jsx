@@ -50,8 +50,9 @@ export default class NLUPlayground extends React.Component {
                 instance,
                 [{ text: exampleText, lang: language }],
                 wrapMeteorCallback((err, exampleMatch) => {
-                    if (err) {
+                    if (err || !exampleMatch || !exampleMatch.intent) {
                         this.handleSaveExample({ ...example, intent: defaultIntent });
+                        return;
                     }
                     const { intent: { name }, entities } = exampleMatch;
                     this.handleSaveExample({
