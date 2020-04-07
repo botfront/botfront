@@ -15,7 +15,7 @@ const checkEventListener = field => (
 
 const triggerValidators = {
     // for array fields, check that AT LEAST ONE element has been filled out correctly
-    url: value => !!value.some(urlString => urlString.length > 0),
+    url: value => !!value.some(url => url.path && url.path.length > 0),
     numberOfVisits: value => value || value === 0,
     numberOfPageVisits: value => value || value === 0,
     device: value => value,
@@ -30,7 +30,7 @@ const triggerValidators = {
 export const eachTriggerValidators = {
     // for array fields, check that ALL elements have been filled out correctly
     ...triggerValidators,
-    url: value => value && value.length > 0 && !!value.every(urlString => urlString && urlString.length > 0),
+    url: value => value && value.length > 0 && !!value.every(url => url.path && url.path.length > 0),
     queryString: v => v && v.length > 0 && !!v.every(checkQueryString),
     eventListeners: v => v && v.length > 0 && !!v.every(checkEventListener),
     // ADD NEW VALIDATOR FUNCTIONS TO triggerValidators NOT HERE
