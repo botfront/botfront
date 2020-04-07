@@ -125,11 +125,11 @@ function AnalyticsCard(props) {
         if (excludeIntents) {
             text = 'Excluded intents';
             values = excludeIntents;
-            setting = 'exclude';
+            setting = 'excludeIntents';
         } else if (includeActions) {
             text = 'Included actions';
             values = includeActions;
-            setting = 'include';
+            setting = 'includeActions';
         }
         return (
             <>
