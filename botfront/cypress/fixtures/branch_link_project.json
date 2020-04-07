@@ -20,7 +20,7 @@
         {
             "_id": "20000a89-85c8-41cb-a706-5d7028cad0cf",
             "language": "en",
-            "config": "pipeline:\n  - name: WhitespaceTokenizer\n  - name: CountVectorsFeaturizer\n  - name: EmbeddingIntentClassifier\n  - BILOU_flag: true\n    name: CRFEntityExtractor\n    features:\n      - [low, title, upper]\n      - [low, bias, prefix5, prefix2, suffix5, suffix3, suffix2, upper, title, digit, pattern]\n      - [low, title, upper]\n  - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: EntitySynonymMapper",
+            "config": "pipeline:\n  - name: WhitespaceTokenizer\n  - name: CountVectorsFeaturizer\n  - name: EmbeddingIntentClassifier\n   - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: EntitySynonymMapper",
             "evaluations": [],
             "intents": [],
             "chitchat_intents": [],
