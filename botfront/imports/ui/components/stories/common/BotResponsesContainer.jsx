@@ -85,7 +85,7 @@ const BotResponsesContainer = (props) => {
     };
 
     const handleMouseOver = () => {
-        Meteor.call('stories.withResponse', projectId, name, (result, error) => {
+        Meteor.call('stories.includesResponse', 'bf', name, (error, result) => {
             if (error) {
                 console.log(error);
                 return;
@@ -121,11 +121,11 @@ const BotResponsesContainer = (props) => {
             </div>
         </React.Fragment>
     );
-    console.log(responseLocations);
+
     return (
         <div
             className='utterances-container exception-wrapper-target'
-            onMouseOver={handleMouseOver}
+            onMouseEnter={handleMouseOver}
             onFocus={handleMouseOver}
         >
             {!template && (
@@ -158,9 +158,9 @@ const BotResponsesContainer = (props) => {
                 )}
             </div>
             {responseLocations.length > 1 ? (
-                <div className='response-name'>{name}</div>
-            ) : (
                 <div className='response-name'>this story is used in other stories</div>
+            ) : (
+                <div className='response-name'>{name}</div>
             )}
         </div>
     );

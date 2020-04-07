@@ -132,15 +132,20 @@ Meteor.methods({
         );
     },
 
-    async 'stories.events'(projectId, responseName) {
+    async 'stories.includesResponse'(projectId, responseName) {
         checkIfCan('stories:r', projectId);
         check(projectId, String);
         check(responseName, String);
-
-        const allStories = Stories.find({ projectId }, { fields: { events: 1, _id: 1 } }).fetch();
-        return allStories.reduce(({ events, _id }, currentValue) => {
-            if (!events.includes(_id)) return currentValue;
-            return [...currentValue, _id];
-        }, []);
+        try {
+            const allStories = Stories.find({ projectId }, { fields: { events: 1, _id: 1 } }).fetch();
+            return allStories.reduce((currentValue, { events, _id }) => {
+                console.log(_id);
+                console.log(events);
+                if (!events.includes(responseName)) return currentValue;
+                return [...currentValue, _id];
+            }, []);
+        } catch (e) {
+            return [];
+        }
     },
 });
