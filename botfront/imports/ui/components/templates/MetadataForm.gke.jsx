@@ -53,6 +53,10 @@ function ResponseMetadataForm({
             value: 'change',
         },
         {
+            text: 'input',
+            value: 'input',
+        },
+        {
             text: 'blur',
             value: 'blur',
         },
