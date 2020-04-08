@@ -1,5 +1,5 @@
 import {
-    Button, Popup, Loader, Message, Icon, Input,
+    Button, Popup, Loader, Message, Icon, Input, Dropdown,
 } from 'semantic-ui-react';
 import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
@@ -31,11 +31,9 @@ function AnalyticsCard(props) {
             startDate,
             chartType,
             valueType,
-            includeActions,
-            excludeActions,
-            includeIntents,
-            excludeIntents,
             wide,
+            showDenominator,
+            ...settings
         },
         onChangeSettings,
         onReorder,
@@ -76,10 +74,7 @@ function AnalyticsCard(props) {
         langs: queryParams.langs,
         from: applyTimezoneOffset(startDate, projectTimezoneOffset).valueOf() / 1000,
         to: applyTimezoneOffset(endDate, projectTimezoneOffset).valueOf() / 1000,
-        includeActions,
-        excludeActions,
-        includeIntents,
-        excludeIntents,
+        ...settings,
         nBuckets,
     };
     const { loading, error, data } = query
@@ -107,7 +102,7 @@ function AnalyticsCard(props) {
 
     const renderChart = () => {
         const { dataToDisplay, paramsToUse } = getDataToDisplayAndParamsToUse({
-            data, queryParams, graphParams, nTicks, valueType, bucketSize, projectTimezoneOffset, wide,
+            data, queryParams, graphParams, nTicks, valueType, bucketSize, projectTimezoneOffset, wide, showDenominator,
         });
         if (!dataToDisplay.length) return <Message color='yellow'><Icon name='calendar times' data-cy='no-data-message' />No data to show for selected period!</Message>;
         if (chartType === 'pie') return <PieChart {...paramsToUse} data={dataToDisplay} />;
@@ -116,32 +111,29 @@ function AnalyticsCard(props) {
         if (chartType === 'table') return <Table {...paramsToUse} data={dataToDisplay} bucketSize={bucketSize} />;
         return null;
     };
-    
-    const renderExtraOptionsLink = () => {
-        if (!includeIntents && !excludeIntents && !includeActions && !excludeActions) return null;
-        let text; let values; let setting;
-        if (excludeIntents) {
-            text = 'Excluded intents';
-            values = excludeIntents;
-            setting = 'excludeIntents';
-        } else if (includeActions) {
-            text = 'Included actions';
-            values = includeActions;
-            setting = 'includeActions';
-        }
+
+    const renderExtraOptionsLink = (setting) => {
+        const values = settings[setting] || [];
+        let text = '';
+        if (setting === 'includeActions') text = 'Included actions';
+        if (setting === 'excludeActions') text = 'Excluded actions';
+        if (setting === 'includeIntents') text = 'Included intents';
+        if (setting === 'excludeIntents') text = 'Excluded intents';
         return (
-            <>
+            <React.Fragment key={setting}>
                 <SettingsPortal
                     text={text}
                     onClose={() => setSettingsOpen(false)}
-                    open={settingsOpen}
+                    open={settingsOpen === setting}
                     values={values}
                     onChange={newVal => onChangeSettings({ [setting]: newVal })}
                 />
-                <button type='button' className='extra-options-linklike' onClick={() => setSettingsOpen(!settingsOpen)}>
-                    {`${text} (${values.length})`}
-                </button>
-            </>
+                <Dropdown.Item
+                    text={`${text} (${values.length})`}
+                    data-cy={`edit-${setting}`}
+                    onClick={() => setSettingsOpen(setting)}
+                />
+            </React.Fragment>
         );
     };
 
@@ -227,14 +219,46 @@ function AnalyticsCard(props) {
                         />
                     </Button.Group>
                 )}
-                <Button
-                    className='export-card-button'
-                    data-cy='toggle-wide'
+                <Dropdown
+                    trigger={(
+                        <Button
+                            className='export-card-button'
+                            icon='ellipsis vertical'
+                            basic
+                        />
+                    )}
                     basic
-                    size='medium'
-                    icon={wide ? 'compress' : 'expand'}
-                    onClick={() => onChangeSettings({ wide: !wide })}
-                />
+                >
+                    <Dropdown.Menu>
+                        <Dropdown.Item
+                            text={wide ? 'Shrink to half width' : 'Expand to full width'}
+                            data-cy='toggle-wide'
+                            onClick={() => onChangeSettings({ wide: !wide })}
+                        />
+                        {graphParams.y2 && (
+                            <Dropdown.Item
+                                text={showDenominator ? 'Hide denominator' : 'Show denominator'}
+                                data-cy='toggle-denominator'
+                                onClick={() => onChangeSettings({ showDenominator: !showDenominator })}
+                            />
+                        )}
+                        <React.Fragment key='description'>
+                            <SettingsPortal
+                                text='Edit description'
+                                onClose={() => setSettingsOpen(false)}
+                                open={settingsOpen === 'description'}
+                                values={titleDescription}
+                                onChange={newVal => onChangeSettings({ description: newVal })}
+                            />
+                            <Dropdown.Item
+                                text='Edit description'
+                                data-cy='edit-description'
+                                onClick={() => setSettingsOpen('description')}
+                            />
+                        </React.Fragment>
+                        {(graphParams.displayConfigs || []).map(renderExtraOptionsLink)}
+                    </Dropdown.Menu>
+                </Dropdown>
             </span>
             {nameEdited === null
                 ? (
@@ -255,7 +279,6 @@ function AnalyticsCard(props) {
                     />
                 )
             }
-            {renderExtraOptionsLink()}
             <div className='graph-render-zone' data-cy='analytics-chart'>
                 {(!error && !loading && data) ? (
                     renderChart()
@@ -274,7 +297,6 @@ AnalyticsCard.propTypes = {
     chartTypeOptions: PropTypes.arrayOf(PropTypes.oneOf(['line', 'bar', 'pie', 'table'])),
     query: PropTypes.any.isRequired,
     queryParams: PropTypes.object.isRequired,
-    exportQueryParams: PropTypes.object,
     graphParams: PropTypes.object,
     settings: PropTypes.object.isRequired,
     onChangeSettings: PropTypes.func.isRequired,
@@ -286,7 +308,6 @@ AnalyticsCard.defaultProps = {
     chartTypeOptions: ['line', 'bar'],
     titleDescription: null,
     graphParams: {},
-    exportQueryParams: {},
     onReorder: null,
 };
 

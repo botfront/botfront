@@ -103,7 +103,7 @@ export const formatData = (data, queryParams, bucketSize, projectTimezoneOffset)
 };
 
 export const getDataToDisplayAndParamsToUse = ({
-    data, queryParams, graphParams, valueType, bucketSize, nTicks, projectTimezoneOffset, size,
+    data, queryParams, graphParams, valueType, bucketSize, nTicks, projectTimezoneOffset, size, showDenominator,
 }) => {
     const dataToDisplay = formatData(data, queryParams, bucketSize, projectTimezoneOffset);
     const axisTitles = formatAxisTitles(graphParams, valueType, queryParams.temporal ? bucketSize : null);
@@ -111,6 +111,7 @@ export const getDataToDisplayAndParamsToUse = ({
         axisLeft: { legendOffset: -46, legendPosition: 'middle', ...graphParams.axisLeft }, // default
         axisBottom: { legendOffset: 36, legendPosition: 'middle', ...graphParams.axisBottom }, // default
         ...graphParams,
+        y: [...(showDenominator && graphParams.y2 ? [graphParams.y2] : []), graphParams.y],
     };
     
     if (valueType === 'relative') {

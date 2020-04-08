@@ -31,6 +31,7 @@ export default {
 
     AnalyticsCard: {
         name: ({ name }) => name,
+        description: ({ description }) => description,
         type: ({ type }) => type,
         visible: ({ visible }) => visible,
         startDate: ({ startDate }) => startDate,
@@ -42,5 +43,6 @@ export default {
         includeIntents: ({ includeIntents }) => includeIntents,
         excludeIntents: ({ excludeIntents }) => excludeIntents,
         wide: ({ wide }) => wide,
+        showDenominator: ({ showDenominator }) => showDenominator,
     },
 };

@@ -90,10 +90,10 @@ function AnalyticsContainer(props) {
                 endDate: moment().endOf('day').toISOString(),
                 chartType: ['conversationLengths', 'intentFrequencies', 'conversationDurations'].includes(type) ? 'bar' : 'line',
                 valueType: 'absolute',
-                includeActions: ['actionCounts', 'conversationsWithAction'].includes(type) ? ['action_botfront_fallback'] : undefined,
+                includeActions: undefined,
                 excludeActions: undefined,
                 includeIntents: undefined,
-                excludeIntents: ['conversationsWithIntent, intentFrequencies'].includes(type) ? ['get_started'] : undefined,
+                excludeIntents: ['intentFrequencies'].includes(type) ? ['get_started'] : undefined,
             },
             ...dashboard.cards,
         ],
@@ -116,9 +116,8 @@ function AnalyticsContainer(props) {
         ['conversationLengths', 'Conversation Length'],
         ['conversationDurations', 'Conversation Duration'],
         ['intentFrequencies', 'Top 10 Intents'],
-        ['conversationsWithIntent', 'Visits & Engagement'],
-        ['conversationsWithAction', 'Conversations with Fallback'],
-        ['actionCounts', 'Fallback Rate'],
+        ['conversationCounts', 'Conversations over time'],
+        ['actionCounts', 'Action occurences over time'],
     ];
 
     const renderAddResponse = () => (

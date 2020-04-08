@@ -12,7 +12,8 @@ export const defaultDashboard = (project) => {
         cards: [
             {
                 name: 'Visits & Engagement',
-                type: 'conversationsWithIntent',
+                description: 'Visits: the total number of conversations in a given temporal window. Engagements: of those conversations, those with length one or more.',
+                type: 'conversationCounts',
                 visible: true,
                 startDate,
                 endDate,
@@ -20,6 +21,7 @@ export const defaultDashboard = (project) => {
                 valueType: 'absolute',
                 excludeIntents: ['get_started'],
                 wide: true,
+                showDenominator: true,
             },
             {
                 name: 'Conversation Length',
@@ -51,7 +53,8 @@ export const defaultDashboard = (project) => {
             },
             {
                 name: 'Conversations with Fallback',
-                type: 'conversationsWithAction',
+                description: 'The number of conversations in which a fallback action was triggered.',
+                type: 'conversationCounts',
                 visible: true,
                 startDate,
                 endDate,
@@ -61,6 +64,7 @@ export const defaultDashboard = (project) => {
             },
             {
                 name: 'Fallback Rate',
+                description: 'The number of times a fallback action was triggered.',
                 type: 'actionCounts',
                 visible: true,
                 startDate,

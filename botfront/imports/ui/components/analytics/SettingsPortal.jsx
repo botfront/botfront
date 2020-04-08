@@ -1,19 +1,25 @@
 import {
-    Modal, Dropdown,
+    Modal, Dropdown, TextArea,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
+import { throttle } from 'lodash';
 
 function SettingsPortal(props) {
     const {
         onClose, open, text, values, onChange,
     } = props;
 
-    const [options, setOptions] = useState(
-        values.map(v => ({ key: v, text: v, value: v })),
+    const [newValues, setNewValues] = useState(
+        Array.isArray(values)
+            ? values.map(v => ({ key: v, text: v, value: v }))
+            : values,
     );
 
-    const handleAddItem = (e, { value }) => setOptions([...options, { key: value, text: value, value }]);
+    const onChangeThrottled = throttle(onChange, 500);
+
+    const handleAddItem = (e, { value }) => setNewValues([...newValues, { key: value, text: value, value }]);
+    const handleModifyText = (e, { value }) => { setNewValues(value); onChangeThrottled(value); };
 
     return (
         <Modal
@@ -24,18 +30,31 @@ function SettingsPortal(props) {
         >
             <Modal.Header>{text}</Modal.Header>
             <Modal.Content>
-                <Dropdown
-                    placeholder={text}
-                    options={options}
-                    search
-                    selection
-                    fluid
-                    multiple
-                    allowAdditions
-                    value={values}
-                    onAddItem={handleAddItem}
-                    onChange={(e, { value }) => onChange(value)}
-                />
+                {Array.isArray(values)
+                    ? (
+                        <Dropdown
+                            placeholder={text}
+                            options={newValues}
+                            search
+                            selection
+                            fluid
+                            multiple
+                            allowAdditions
+                            value={values}
+                            onAddItem={handleAddItem}
+                            onChange={(e, { value }) => onChange(value)}
+                        />
+                    )
+                    : (
+                        <TextArea
+                            value={newValues}
+                            style={{ width: '100%' }}
+                            onChange={handleModifyText}
+                            rows={7}
+                            autoheight='true'
+                        />
+                    )
+                }
             </Modal.Content>
         </Modal>
     );
@@ -45,7 +64,7 @@ SettingsPortal.propTypes = {
     text: PropTypes.string.isRequired,
     open: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
-    values: PropTypes.array.isRequired,
+    values: PropTypes.oneOf([PropTypes.string, PropTypes.array]).isRequired,
     onChange: PropTypes.func.isRequired,
 };
 

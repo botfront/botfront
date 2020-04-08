@@ -7,6 +7,7 @@ const dashboardFields = gql`
         projectId
         cards {
             name
+            description
             type
             visible
             startDate
@@ -18,6 +19,7 @@ const dashboardFields = gql`
             includeActions
             excludeActions
             wide
+            showDenominator
         }
         languages
         envs

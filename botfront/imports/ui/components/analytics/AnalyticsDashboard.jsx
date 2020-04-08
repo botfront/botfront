@@ -25,40 +25,37 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
         ? [] : languages), [languages]); // empty array if all languages are selected
 
     const cardTypes = {
-        conversationsWithIntent: {
-            chartTypeOptions: ['line', 'table'],
-            titleDescription: 'Visits: the total number of conversations in a given temporal window. Engagements: of those conversations, those with length one or more.',
-            queryParams: {
-                temporal: true, envs, queryName: 'conversationCounts', langs,
-            },
-            query: conversationCounts,
-            graphParams: {
-                x: 'bucket',
-                y: [{ absolute: 'count' }, { absolute: 'hits', relative: 'proportion' }],
-                formats: {
-                    bucket: v => v.toLocaleDateString(),
-                    count: v => `${v} visit${v !== 1 ? 's' : ''}`,
-                    hits: v => `${v} conversation${v !== 1 ? 's' : ''}`,
-                    proportion: v => `${v}%`,
-                },
-                displayAbsoluteRelative: true,
-                axisTitleY: 'Conversations',
-            },
-        },
         conversationLengths: {
             chartTypeOptions: ['bar', 'pie', 'table'],
-            titleDescription: 'The number of user utterances contained in a conversation.',
+            titleDescription: 'The number of conversations that contain a given number of user utterances.',
             queryParams: {
                 envs, queryName: 'conversationLengths', langs,
             },
             query: conversationLengths,
             graphParams: {
                 x: 'length',
-                y: [{ absolute: 'count', relative: 'frequency' }],
+                y: { absolute: 'count', relative: 'frequency' },
                 formats: {
                     length: v => `${v} utterance${v !== 1 ? 's' : ''}`,
                 },
                 axisTitleX: '# Utterances',
+                axisTitleY: 'Conversations',
+            },
+        },
+        conversationDurations: {
+            chartTypeOptions: ['bar', 'pie', 'table'],
+            titleDescription: 'The number of conversations with a given number of seconds elapsed between the first and last message.',
+            queryParams: {
+                envs, queryName: 'conversationDurations', cutoffs: [30, 60, 90, 120, 180], langs,
+            },
+            query: conversationDurations,
+            graphParams: {
+                x: 'duration',
+                y: { absolute: 'count', relative: 'frequency' },
+                formats: {
+                    duration: v => `${v}s`,
+                },
+                axisTitleX: 'Duration (seconds)',
                 axisTitleY: 'Conversations',
             },
         },
@@ -71,7 +68,7 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
             query: intentFrequencies,
             graphParams: {
                 x: 'name',
-                y: [{ absolute: 'count', relative: 'frequency' }],
+                y: { absolute: 'count', relative: 'frequency' },
                 axisTitleY: 'Utterances',
                 axisBottom: {
                     tickRotation: -25,
@@ -79,61 +76,51 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
                     legendOffset: 36,
                     legendPosition: 'middle',
                 },
+                displayConfigs: ['includeIntents', 'excludeIntents'],
             },
         },
-        conversationDurations: {
-            chartTypeOptions: ['bar', 'pie', 'table'],
-            titleDescription: 'The number of seconds elapsed between the first and the last message of a conversation.',
-            queryParams: {
-                envs, queryName: 'conversationDurations', cutoffs: [30, 60, 90, 120, 180], langs,
-            },
-            query: conversationDurations,
-            graphParams: {
-                x: 'duration',
-                y: [{ absolute: 'count', relative: 'frequency' }],
-                formats: {
-                    duration: v => `${v}s`,
-                },
-                axisTitleX: 'Duration (seconds)',
-                axisTitleY: 'Conversations',
-            },
-        },
-        conversationsWithAction: {
+        conversationCounts: {
             chartTypeOptions: ['line', 'table'],
-            titleDescription: 'The number of conversations in which a fallback action was triggered.',
+            titleDescription: 'Out of the visits (total number of conversations) in a given temporal window, the conversations that satisfy filters.',
             queryParams: {
                 temporal: true, envs, queryName: 'conversationCounts', langs,
             },
             query: conversationCounts,
             graphParams: {
                 x: 'bucket',
-                y: [{ absolute: 'hits', relative: 'proportion' }],
+                y: { absolute: 'hits', relative: 'proportion' },
+                y2: { absolute: 'count' },
                 formats: {
                     bucket: v => v.toLocaleDateString(),
-                    proportion: v => `${v}%`,
+                    count: v => `${v} visit${v !== 1 ? 's' : ''}`,
                     hits: v => `${v} conversation${v !== 1 ? 's' : ''}`,
+                    proportion: v => `${v}%`,
                 },
                 displayAbsoluteRelative: true,
                 axisTitleY: 'Conversations',
+                displayConfigs: ['includeIntents', 'excludeIntents', 'includeActions', 'excludeActions'],
             },
         },
         actionCounts: {
             chartTypeOptions: ['line', 'table'],
-            titleDescription: 'The number of times a fallback action was triggered.',
+            titleDescription: 'Out of all conversational events in a given temporal window, the number of actions occurences that satisfy filters.',
             queryParams: {
                 temporal: true, envs, queryName: 'actionCounts', langs,
             },
             query: actionCounts,
             graphParams: {
                 x: 'bucket',
-                y: [{ absolute: 'hits', relative: 'proportion' }],
+                y: { absolute: 'hits', relative: 'proportion' },
+                y2: { absolute: 'count' },
                 formats: {
                     bucket: v => v.toLocaleDateString(),
-                    proportion: v => `${v}%`,
+                    count: v => `${v} event${v !== 1 ? 's' : ''}`,
                     hits: v => `${v} occurence${v !== 1 ? 's' : ''}`,
+                    proportion: v => `${v}%`,
                 },
                 displayAbsoluteRelative: true,
                 axisTitleY: 'Action occurences',
+                displayConfigs: ['includeActions', 'excludeActions'],
             },
         },
     };
@@ -147,8 +134,8 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
         } = cardTypes[type];
         cardTypes[type].graphParams.columns = [
             { temporal, accessor: x, header: axisTitleX || 'Date' },
-            { accessor: y[y.length - 1].absolute, header: axisTitleY },
-            { accessor: y[y.length - 1].relative, header: '%' },
+            { accessor: y.absolute, header: axisTitleY },
+            { accessor: y.relative, header: '%' },
         ];
     });
     
@@ -175,12 +162,13 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
             <Container>
                 <div className='analytics-dashboard' ref={drop}>
                     {cards.map(({
-                        name, type, startDate, endDate, ...settings
+                        name, type, startDate, endDate, description, ...settings
                     }, index) => (
                         <AnalyticsCard
                             key={name}
                             cardName={name}
                             {...cardTypes[type]}
+                            titleDescription={description || cardTypes[type].titleDescription}
                             settings={{ ...settings, startDate: moment(startDate), endDate: moment(endDate) }}
                             onChangeSettings={handleChangeCardSettings(index)}
                             onReorder={handleSwapCards(index)}

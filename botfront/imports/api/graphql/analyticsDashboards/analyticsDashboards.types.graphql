@@ -24,6 +24,7 @@ type AnalyticsDashboard {
 
 type AnalyticsCard {
     name: String!
+    description: String
     type: String!
     visible: Boolean!
     startDate: Moment!
@@ -35,6 +36,7 @@ type AnalyticsCard {
     includeIntents: [String]
     excludeIntents: [String]
     wide: Boolean
+    showDenominator: Boolean
 }
 
 enum AnalyticsGraphValueType {
