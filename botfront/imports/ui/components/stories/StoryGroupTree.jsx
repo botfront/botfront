@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import { Menu, Confirm, Portal } from 'semantic-ui-react';
+import { intersection } from 'lodash';
 import EmbeddedTree from '../common/EmbeddedTree';
 import { useStoryGroupTree } from './hooks/useStoryGroupTree';
 import StoryGroupTreeNode from './StoryGroupTreeNode';
@@ -32,15 +33,29 @@ export default function StoryGroupTree(props) {
 
     const disableEdit = useMemo(() => !can('stories:w', projectId), [projectId]);
 
+    // It may happen that storyGroups and storyGroupOrder are out of sync
+    // This is just a workaround as Meteor does not update storyGroupOrder after importing
+    const verifyGroupOrder = (order, groups) => {
+        const storyGroupsId = groups.map(({ _id }) => _id);
+        // check that storygroup order and storygrous are in sync ( have the same value in different orders)
+        if (storyGroupsId.length === order.length
+            && storyGroupsId.every(id => order.includes(id))) {
+            return order;
+        } // this means that storyGroupOrder and storyGroup are not in sync
+        // we keep only the storygroups that are in storygroups for the order
+        let newOrder = intersection(order, storyGroupsId); // so only the one in sync (existing in both)
+        // and add value from story groups that were not intersected
+        newOrder = (storyGroupsId.filter(sg => !newOrder.includes(sg))).concat(newOrder); // so the new order is in sync with storygroups
+        return newOrder;
+    };
+
     const treeFromProps = useMemo(() => {
         // build tree
         const newTree = {
             rootId: 'root',
             items: {
                 root: {
-                    children: storyGroupOrder.length
-                        ? storyGroupOrder
-                        : storyGroups.map(({ _id }) => _id),
+                    children: verifyGroupOrder(storyGroupOrder, storyGroups),
                     id: 'root',
                     title: 'root',
                     canBearChildren: true,
