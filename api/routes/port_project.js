@@ -17,8 +17,8 @@ const { validationResult } = require('express-validator/check');
 const { getVerifiedProject, aggregateEvents } = require('../server/utils');
 const uuidv4 = require('uuid/v4');
 const JSZip = require('jszip');
-const { sortBy } = require('lodash');
-const { createResponsesIndex, createStoriesIndex  } = require('../server/searchIndex/searchIndexing.utils')
+const { sortBy, get: _get } = require('lodash');
+const { createResponsesIndex, createStoriesIndex } = require('../server/searchIndex/searchIndexing.utils')
 
 const collectionsWithModelId = {
     activity: Activity,
@@ -111,7 +111,7 @@ const nativizeProject = function (projectId, projectName, backup) {
 
         // At the top level of the story object, create an array of events in a story and its branches
         nativizedBackup.stories = nativizedBackup.stories.map(aggregateEvents);
-        
+
         nativizedBackup.project = {
             ...project,
             storyGroups: project.storyGroups
@@ -160,14 +160,14 @@ const overwriteCollection = async function (projectId, modelIds, collection, bac
     await model.deleteMany(filter).exec();
     // if the first botresponse has an index, the backup is from a version with response indexing
     // so we do not need to index it
-    if (collection === 'botResponses' &&  !backup[collection][0].textIndex) {
-        createResponsesIndex(projectId, backup[collection])
+    if (collection === 'botResponses' && !_get(backup, 'botResponses[0].textIndex', undefined)) {
+        await createResponsesIndex(projectId, backup[collection])
         return
     }
     // if the first botresponse has an index, the backup is from a version with stories indexing
     // so we do not need to index it
-    if (collection === 'stories' &&  !backup[collection][0].textIndex) {
-        createStoriesIndex(projectId, backup[collection])
+    if (collection === 'stories' && !_get(backup, 'stories[0].textIndex', undefined)) {
+        await createStoriesIndex(projectId, backup[collection])
         return
     }
     await model.insertMany(backup[collection]);

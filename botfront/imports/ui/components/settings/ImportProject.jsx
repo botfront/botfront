@@ -50,12 +50,13 @@ const ImportProject = ({
 
     const importProject = () => {
         setLoading(true);
-        Meteor.call('importProject', uploadedFiles.botfront, apiHost, projectId, (err) => {
+        Meteor.call('importProject', uploadedFiles.botfront, apiHost, projectId, (err, result) => {
+            console.log(result);
             if (!err) {
                 setImportSuccessful(true);
             } else {
                 setImportSuccessful(false);
-                setImportErrorMessage({ header: 'Import failed', text: err.error });
+                setImportErrorMessage({ header: 'Import failed', text: err.reason });
             }
             setLoading(false);
         });
@@ -109,7 +110,7 @@ const ImportProject = ({
                     className='import-result-message'
                     icon='check circle'
                     header={importType.successHeader}
-                    content={importTypeOptions.successText}
+                    content={importType.successText}
                     data-cy='project-import-success'
                 />
             </>
@@ -183,7 +184,7 @@ const ImportProject = ({
                     content='It is highly advised to download a backup of your current project before importing a new one.'
                 />
             )}
-            { backupSuccess === undefined && botfrontFileSuccess && (
+            {backupSuccess === undefined && botfrontFileSuccess && (
                 <>
                     <Button.Group>
                         <Button onClick={() => { backupProject(true); setIncludeConvos(true); }} className='export-option' data-cy='export-with-conversations'>

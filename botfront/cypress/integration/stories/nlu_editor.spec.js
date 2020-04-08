@@ -54,7 +54,7 @@ describe('nlu editor modal tests', () => {
         cy.visit('/project/bf/stories');
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
-        cy.dataCy('example-text-editor-input').click().type('Hello jim\nI will go to costco{enter}');
+        cy.dataCy('example-text-editor-input').click().fill('Hello jim\nI will go to costco').type('{enter}');
         cy.get('.example-data-table').find('[data-cy=intent-label]').should('have.length', 4);
         cy.dataCy('nlu-modification-label').contains('new').should('exist');
         cy.dataCy('nlu-modification-label').contains('invalid').should('exist');

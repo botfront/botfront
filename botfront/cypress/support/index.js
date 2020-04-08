@@ -499,7 +499,7 @@ Cypress.Commands.add('importNluData', (projectId = 'bf', fixture, lang = 'en', o
     return cy.wait(500);
 });
 
-Cypress.Commands.add('train', (waitTime = 100000) => {
+Cypress.Commands.add('train', (waitTime = 200000) => {
     cy.visit('/project/bf/stories');
     cy.dataCy('train-button').click();
     cy.wait(5000);
@@ -687,4 +687,13 @@ Cypress.Commands.add('importViaUi', (fixtureName, projectId) => {
         .click();
     cy.wait(2000);
     cy.dataCy('project-import-success').should('exist');
+});
+
+
+Cypress.Commands.add('fill', {
+    prevSubject: 'element',
+}, ($subject, value) => {
+    const el = $subject[0];
+    el.value = value;
+    return cy.wrap($subject).type('t{backspace}'); // adding/removing character trigger the one change
 });
