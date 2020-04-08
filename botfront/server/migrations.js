@@ -243,6 +243,16 @@ Migrations.add({
         });
     },
 });
+Migrations.add({
+    version: 9,
+    up: () => {
+        const allStories = Stories.find().fetch();
+        allStories.forEach((story) => {
+            const { textIndex, events } = indexStory(story, { includeEventsField: true });
+            Stories.update({ _id: story._id }, { $set: { textIndex, events } });
+        });
+    },
+});
 Meteor.startup(() => {
     Migrations.migrateTo('latest');
 });
