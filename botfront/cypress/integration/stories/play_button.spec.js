@@ -1,6 +1,5 @@
 
-/* global cy:true */
-/* global Cypress:true */
+/* global cy Cypress */
 
 describe('Story play button', function() {
     beforeEach(function() {
@@ -42,14 +41,18 @@ describe('Story play button', function() {
     it('should disable the play button when a story does not start with a user utterance', () => {
         cy.visit('/project/bf/stories');
         cy.browseToStory('Test Story', 'Test Group');
+        cy.get('.story-line').should('have.length', 2);
         cy.dataCy('icon-trash').first().click({ force: true });
+        cy.get('.story-line').should('have.length', 1);
         cy.dataCy('play-story').click();
         cy.dataCy('chat-pane').should('not.exist');
     });
     it('trigger a smart story with query string entities using the play button', () => {
         cy.visit('/project/bf/stories');
         cy.browseToStory('Test Story', 'Test Group');
-        cy.get('.utterance-container').findCy('icon-trash').click({ force: true });
+        cy.get('.story-line').should('have.length', 2);
+        cy.get('.utterances-container').first().findCy('icon-trash').click({ force: true });
+        cy.get('.story-line').should('have.length', 1);
         // add trigger to story
         cy.dataCy('edit-trigger-rules').click();
         cy.dataCy('toggle-query-string').find('input').click({ force: true });

@@ -13,7 +13,7 @@ describe('Smart story trigger rules', function() {
     it('should edit and save the trigger rules', function() {
         cy.visit('/project/bf/stories');
         cy.browseToStory('Get started');
-        cy.get('.utterance-container .floating-icon-button.trash i.trash').click({ force: true });
+        cy.get('.utterances-container').first().findCy('icon-trash').click({ force: true });
         cy.dataCy('edit-trigger-rules').click();
         // add a second rulesets
         cy.dataCy('story-rules-editor').find('.add.icon').click();
@@ -77,7 +77,7 @@ describe('Smart story trigger rules', function() {
     it('should clear disabled fields on close', function() {
         cy.visit('/project/bf/stories');
         cy.browseToStory('Get started');
-        cy.get('.utterance-container .floating-icon-button.trash i.trash').click({ force: true });
+        cy.get('.utterances-container').first().findCy('icon-trash').click({ force: true });
         cy.dataCy('edit-trigger-rules').click();
         // edit the trigger rules
         cy.dataCy('toggle-payload-text').click();
@@ -108,7 +108,7 @@ describe('Smart story trigger rules', function() {
     it('should disabled time on page when event listeners are enabled', function() {
         cy.visit('/project/bf/stories');
         cy.browseToStory('Get started');
-        cy.get('.utterance-container .floating-icon-button.trash i.trash').click({ force: true });
+        cy.get('.utterances-container').first().findCy('icon-trash').click({ force: true });
         cy.dataCy('edit-trigger-rules').click();
         // verify only one toggle can be enabled at one time
         cy.dataCy('toggle-time-on-page').click();
@@ -123,7 +123,7 @@ describe('Smart story trigger rules', function() {
     it('should disabled event listeners when time on page is enabled', function() {
         cy.visit('/project/bf/stories');
         cy.browseToStory('Get started');
-        cy.get('.utterance-container .floating-icon-button.trash i.trash').click({ force: true });
+        cy.get('.utterances-container').first().findCy('icon-trash').click({ force: true });
         cy.dataCy('edit-trigger-rules').click();
         // verify only one toggle can be enabled at one time
         cy.dataCy('toggle-event-listeners').click();
