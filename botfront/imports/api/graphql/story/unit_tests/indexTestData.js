@@ -13,20 +13,6 @@ export const storyFixture = {
     branches: [],
 };
 
-// morning
-// matin
-// timeOfDay
-// 123
-// button_intent
-// buttonEntity
-// second
-// http://google.com
-// Canada
-// country
-// test_slot
-// action_testAction
-
-
 export const frModelFixture = {
     _id: frModelId,
     name: 'My First Model',
@@ -112,6 +98,21 @@ export const enModelFixture = {
                     {
                         start: 24,
                         end: 31,
+                        value: 'morning',
+                        entity: 'timeOfDay',
+                    },
+                ],
+                updatedAt: { $date: { $numberLong: '1583766541865' } },
+            },
+            { // to test that multiple intent matches do not break the search regexp
+                _id: '055ba31b-b7ad-4ad4-8fd4-10fecccda971',
+                text: 'How can you help me out this morning?',
+                intent: 'get_started',
+                canonical: true,
+                entities: [
+                    {
+                        start: 28,
+                        end: 35,
                         value: 'morning',
                         entity: 'timeOfDay',
                     },
@@ -218,6 +219,12 @@ export const botResponsesFixture = [
     {
         _id: '5e6805edc1198ff7c7a93cdf',
         key: 'utter_TEST',
+        values: [{ lang: 'en', sequence: [{ content: 'text: test 123\n' }] }],
+        projectId: 'bf',
+    },
+    { // to test that multiple response matches do not break the search regexp
+        _id: '5e6805edc1198ff7c7a93cdg',
+        key: 'utter_TEST_B',
         values: [{ lang: 'en', sequence: [{ content: 'text: test 123\n' }] }],
         projectId: 'bf',
     },
