@@ -12,12 +12,12 @@ function LineChart(props) {
 
     const nivoData = y
         .map(measure => ({
-            id: measure.abs,
+            id: measure.absolute,
             data: data.map(d => ({
                 ...d,
                 x: d[x] || d[x] === 0 ? d[x] : 'null',
-                y: d[measure.abs],
-                yRel: d[measure.rel],
+                y: d[measure.absolute],
+                yRel: d[measure.relative],
             })),
         }));
     return (

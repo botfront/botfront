@@ -14,8 +14,8 @@ function BarChart(props) {
             ...d,
             x: (d[x] || d[x] === 0 ? d[x] : 'null').toString(),
         }));
-    const keys = y.map(v => v.abs);
-    const relMap = keys.reduce((obj, abs) => ({ ...obj, [abs]: (y.find(el => el.abs === abs) || { rel: null }).rel }), {});
+    const keys = y.map(v => v.absolute);
+    const relMap = keys.reduce((obj, abs) => ({ ...obj, [abs]: (y.find(el => el.absolute === abs) || { rel: null }).relative }), {});
 
     return (
         <>

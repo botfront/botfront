@@ -2,19 +2,6 @@ import moment from 'moment';
 
 export const applyTimezoneOffset = (date, offset) => moment(date).utcOffset(offset, true);
 
-export const formatDataForTable = (data) => {
-    // remove the unit from the table
-    // NO LONGER NEEDED
-    let formattedData = data;
-    if (data && data[0] && data[0].duration) {
-        formattedData = formattedData.map(dataElem => ({
-            ...dataElem,
-            duration: dataElem.duration.replace(/s/g, ''),
-        }));
-    }
-    return formattedData;
-};
-
 const getXAxisTickInterval = (data, nTicksIncoming, wide) => {
     // nTicksIncomming is the number snap points on the x axis
     // reduce the number of ticks on the X axis so that text does not overlap
@@ -36,27 +23,13 @@ const dateFormatDictionary = {
     week: '%d/%m',
 };
 
-const matchOption = (object, options) => {
-    // find the first value in an array to match a property in an object
-    if (!object) return undefined;
-    const validOptions = options.filter(option => option in object);
-    return object[validOptions[0]] || object.default;
-};
-
-const formatAxisTitles = (
-    {
-        axisTitleX, axisTitleY, unitX, unitY,
-    },
-    options,
-) => {
-    // get the axis title and unit values based on the current state of the chart
-    const titleTextX = axisTitleX ? matchOption(axisTitleX, options) : '';
-    const titleTextY = axisTitleY ? matchOption(axisTitleY, options) : '';
-    const unitTextX = unitX && matchOption(unitX, options);
-    const unitTextY = unitY && matchOption(unitY, options);
+const formatAxisTitles = ({ axisTitleX, axisTitleY }, valueType, bucketSize) => {
+    const bucketMap = { day: 'Date', hour: 'Time', week: 'Week' };
+    const legendX = bucketSize ? bucketMap[bucketSize] : axisTitleX;
+    const legendY = valueType === 'relative' ? `${axisTitleY} (%)` : axisTitleY;
     return {
-        x: { legend: `${titleTextX}${unitTextX ? ` (${unitTextX})` : ''}` },
-        y: { legend: `${titleTextY}${unitTextY ? ` (${unitTextY})` : ''}` },
+        x: { legend: legendX || '' },
+        y: { legend: legendY || '' },
     };
 };
 
@@ -133,16 +106,16 @@ export const getDataToDisplayAndParamsToUse = ({
     data, queryParams, graphParams, valueType, bucketSize, nTicks, projectTimezoneOffset, size,
 }) => {
     const dataToDisplay = formatData(data, queryParams, bucketSize, projectTimezoneOffset);
-    const axisTitles = formatAxisTitles(graphParams, [bucketSize, valueType]);
-    let paramsToUse = graphParams;
+    const axisTitles = formatAxisTitles(graphParams, valueType, queryParams.temporal ? bucketSize : null);
+    let paramsToUse = {
+        axisLeft: { legendOffset: -46, legendPosition: 'middle', ...graphParams.axisLeft }, // default
+        axisBottom: { legendOffset: 36, legendPosition: 'middle', ...graphParams.axisBottom }, // default
+        ...graphParams,
+    };
     
     if (valueType === 'relative') {
-        paramsToUse = {
-            ...graphParams,
-            yScale: { type: 'linear', min: 0, max: 100 },
-            axisLeft: { ...graphParams.axisLeft },
-            ...graphParams.rel,
-        };
+        paramsToUse.y = [{ absolute: paramsToUse.y[paramsToUse.y.length - 1].relative }];
+        paramsToUse.yScale = { type: 'linear', min: 0, max: 100 };
     }
 
     if (queryParams.temporal) {
@@ -165,7 +138,7 @@ export const getDataToDisplayAndParamsToUse = ({
     return { dataToDisplay, paramsToUse };
 };
 
-export const generateCSV = (data, queryParams, bucketSize, projectTimezoneOffset, columns) => {
+export const generateCSV = (data, queryParams, { columns }, bucketSize, projectTimezoneOffset) => {
     // create csv formatted data for export
     const bucketColunmIndex = columns.findIndex(({ accessor }) => accessor === 'bucket');
     const exportColumns = bucketSize === 'hour' && queryParams.temporal === true
@@ -177,7 +150,6 @@ export const generateCSV = (data, queryParams, bucketSize, projectTimezoneOffset
         ]
         : columns;
     let formattedData = formatData(data, queryParams, bucketSize, projectTimezoneOffset);
-    formattedData = formatDataForTable(formattedData);
     formattedData = formattedData.map(((elem) => {
         const { __typename, bucket, ...rest } = elem; // __typename is not exported
         const formattedElem = rest;

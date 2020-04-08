@@ -34,25 +34,15 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
             query: conversationCounts,
             graphParams: {
                 x: 'bucket',
-                y: [{ abs: 'count' }, { abs: 'hits', rel: 'proportion' }],
+                y: [{ absolute: 'count' }, { absolute: 'hits', relative: 'proportion' }],
                 formats: {
                     bucket: v => v.toLocaleDateString(),
                     count: v => `${v} visit${v !== 1 ? 's' : ''}`,
                     hits: v => `${v} conversation${v !== 1 ? 's' : ''}`,
                     proportion: v => `${v}%`,
                 },
-                rel: { y: [{ abs: 'proportion' }] },
-                columns: [
-                    { header: 'Date', accessor: 'bucket', temporal: true },
-                    { header: 'Visits', accessor: 'count' },
-                    { header: 'Engagements', accessor: 'hits' },
-                    { header: 'Engagement Ratio', accessor: 'proportion' },
-                ],
-                axisTitleY: { default: 'Visitor Engagement' },
-                axisTitleX: { day: 'Date', hour: 'Time', week: 'Week' },
-                unitY: { relative: '%' },
-                axisLeft: { legendOffset: -46, legendPosition: 'middle' },
-                axisBottom: { legendOffset: 36, legendPosition: 'middle' },
+                displayAbsoluteRelative: true,
+                axisTitleY: 'Conversations',
             },
         },
         conversationLengths: {
@@ -61,23 +51,15 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
             queryParams: {
                 envs, queryName: 'conversationLengths', langs,
             },
-            exportQueryParams: { limit: 100000 },
             query: conversationLengths,
             graphParams: {
                 x: 'length',
-                y: [{ abs: 'count', rel: 'frequency' }],
+                y: [{ absolute: 'count', relative: 'frequency' }],
                 formats: {
                     length: v => `${v} utterance${v !== 1 ? 's' : ''}`,
                 },
-                columns: [
-                    { header: 'Length in Utterances', accessor: 'length' },
-                    { header: 'Count', accessor: 'count' },
-                    { header: 'Frequency', accessor: 'frequency' },
-                ],
-                axisTitleX: { absolute: 'User Utterances' },
-                axisTitleY: { absolute: 'Number of Conversations' },
-                axisLeft: { legendOffset: -46, legendPosition: 'middle' },
-                axisBottom: { legendOffset: 36, legendPosition: 'middle' },
+                axisTitleX: '# Utterances',
+                axisTitleY: 'Conversations',
             },
         },
         intentFrequencies: {
@@ -86,24 +68,17 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
             queryParams: {
                 envs, queryName: 'intentFrequencies', langs,
             },
-            exportQueryParams: { limit: 100000 },
             query: intentFrequencies,
             graphParams: {
                 x: 'name',
-                y: [{ abs: 'count', rel: 'frequency' }],
-                columns: [
-                    { header: 'Intent Name', accessor: 'name' },
-                    { header: 'Count', accessor: 'count' },
-                    { header: 'Frequency', accessor: 'frequency' },
-                ],
-                axisTitleY: { absolute: 'Number of Conversations' },
+                y: [{ absolute: 'count', relative: 'frequency' }],
+                axisTitleY: 'Utterances',
                 axisBottom: {
                     tickRotation: -25,
                     format: label => `${label.slice(0, 20)}${label.length > 20 ? '...' : ''}`,
                     legendOffset: 36,
                     legendPosition: 'middle',
                 },
-                axisLeft: { legendOffset: -46, legendPosition: 'middle' },
             },
         },
         conversationDurations: {
@@ -115,20 +90,12 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
             query: conversationDurations,
             graphParams: {
                 x: 'duration',
-                y: [{ abs: 'count', rel: 'frequency' }],
+                y: [{ absolute: 'count', relative: 'frequency' }],
                 formats: {
                     duration: v => `${v}s`,
                 },
-                columns: [
-                    { header: 'Duration (seconds)', accessor: 'duration' },
-                    { header: 'Count', accessor: 'count' },
-                    { header: 'Frequency', accessor: 'frequency' },
-                ],
-                axisTitleX: { absolute: 'Duration' },
-                axisTitleY: { absolute: 'Number of Conversations' },
-                unitX: { default: 'seconds' },
-                axisLeft: { legendOffset: -46, legendPosition: 'middle' },
-                axisBottom: { legendOffset: 36, legendPosition: 'middle' },
+                axisTitleX: 'Duration (seconds)',
+                axisTitleY: 'Conversations',
             },
         },
         conversationsWithAction: {
@@ -140,25 +107,14 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
             query: conversationCounts,
             graphParams: {
                 x: 'bucket',
-                y: [{ abs: 'hits', rel: 'proportion' }],
+                y: [{ absolute: 'hits', relative: 'proportion' }],
                 formats: {
                     bucket: v => v.toLocaleDateString(),
-                    // count: v => `${v} visit${v !== 1 ? 's' : ''}`,
                     proportion: v => `${v}%`,
                     hits: v => `${v} conversation${v !== 1 ? 's' : ''}`,
                 },
-                columns: [
-                    { header: 'Date', accessor: 'bucket', temporal: true },
-                    { header: 'Count', accessor: 'hits' },
-                    { header: 'Proportion', accessor: 'proportion' },
-                    // { header: 'Visits', accessor: 'count' },
-                ],
-                rel: { y: [{ abs: 'proportion' }] },
-                axisTitleY: { absolute: 'Number of Fallbacks', relative: 'Fallback Ratio' },
-                axisTitleX: { day: 'Date', hour: 'Time', week: 'Week' },
-                unitY: { relative: '%' },
-                axisLeft: { legendOffset: -46, legendPosition: 'middle' },
-                axisBottom: { legendOffset: 36, legendPosition: 'middle' },
+                displayAbsoluteRelative: true,
+                axisTitleY: 'Conversations',
             },
         },
         actionCounts: {
@@ -170,28 +126,31 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
             query: actionCounts,
             graphParams: {
                 x: 'bucket',
-                y: [{ abs: 'hits', rel: 'proportion' }],
+                y: [{ absolute: 'hits', relative: 'proportion' }],
                 formats: {
                     bucket: v => v.toLocaleDateString(),
-                    // count: v => `${v} visit${v !== 1 ? 's' : ''}`,
                     proportion: v => `${v}%`,
                     hits: v => `${v} occurence${v !== 1 ? 's' : ''}`,
                 },
-                columns: [
-                    { header: 'Date', accessor: 'bucket', temporal: true },
-                    { header: 'Count', accessor: 'hits' },
-                    { header: 'Proportion', accessor: 'proportion' },
-                    // { header: 'Visits', accessor: 'count' },
-                ],
-                rel: { y: [{ abs: 'proportion' }] },
-                axisTitleY: { absolute: 'Number of Fallbacks', relative: 'Fallback Ratio' },
-                axisTitleX: { day: 'Date', hour: 'Time', week: 'Week' },
-                unitY: { relative: '%' },
-                axisLeft: { legendOffset: -46, legendPosition: 'middle' },
-                axisBottom: { legendOffset: 36, legendPosition: 'middle' },
+                displayAbsoluteRelative: true,
+                axisTitleY: 'Action occurences',
             },
         },
     };
+
+    // 'columns' key required for tables and CSV export
+    Object.keys(cardTypes).forEach((type) => {
+        const {
+            queryParams: { temporal }, graphParams: {
+                x, y, axisTitleX, axisTitleY,
+            },
+        } = cardTypes[type];
+        cardTypes[type].graphParams.columns = [
+            { temporal, accessor: x, header: axisTitleX || 'Date' },
+            { accessor: y[y.length - 1].absolute, header: axisTitleY },
+            { accessor: y[y.length - 1].relative, header: '%' },
+        ];
+    });
     
     const [, drop] = useDrop({ accept: 'card' });
 

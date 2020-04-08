@@ -25,7 +25,6 @@ function AnalyticsCard(props) {
         titleDescription,
         query,
         queryParams,
-        exportQueryParams,
         graphParams,
         settings: {
             endDate,
@@ -46,7 +45,7 @@ function AnalyticsCard(props) {
 
     const [nameEdited, setNameEdited] = useState(null);
     
-    const displayAbsoluteRelative = 'rel' in graphParams;
+    const { displayAbsoluteRelative } = graphParams;
     const uniqueChartOptions = [...new Set(chartTypeOptions)];
 
     const [settingsOpen, setSettingsOpen] = useState(false);
@@ -82,7 +81,6 @@ function AnalyticsCard(props) {
         includeIntents,
         excludeIntents,
         nBuckets,
-        limit: chartType === 'table' ? 100000 : undefined,
     };
     const { loading, error, data } = query
         ? useQuery(query, { variables })
@@ -90,7 +88,7 @@ function AnalyticsCard(props) {
     
     const [getExportData, { error: exportError, data: exportData }] = useLazyQuery(query);
     const downloadCSV = () => {
-        const csvData = generateCSV(exportData, { ...queryParams, ...exportQueryParams }, bucketSize, projectTimezoneOffset, graphParams.columns);
+        const csvData = generateCSV(exportData, queryParams, graphParams, bucketSize, projectTimezoneOffset);
         const csvBlob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
         const fileName = `${projectName}-${cardName.replace(/ /g, '')}-(${startDate.toISOString()})-(${endDate.toISOString()})`;
         if (!window.Cypress) { // prevent file from downloading during tests
@@ -158,7 +156,7 @@ function AnalyticsCard(props) {
         const { nBuckets: nBucketsForExport } = calculateTemporalBuckets(startDate, endDate, 'table');
         getExportData({
             variables: {
-                ...variables, ...exportQueryParams, nBuckets: nBucketsForExport,
+                ...variables, limit: 100000, nBuckets: nBucketsForExport,
             },
         });
         setActivateDownload(true);

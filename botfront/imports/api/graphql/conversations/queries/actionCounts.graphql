@@ -5,8 +5,8 @@ query ActionCounts(
     $from: Float,
     $to: Float,
     $nBuckets: Int = 7,
-    $include: [String],
-    $exclude: [String]
+    $includeActions: [String],
+    $excludeActions: [String]
 ) {
     actionCounts(
         projectId: $projectId,
@@ -15,8 +15,8 @@ query ActionCounts(
         from: $from,
         to: $to,
         nBuckets: $nBuckets,
-        include: $include,
-        exclude: $exclude
+        include: $includeActions,
+        exclude: $excludeActions
     ) {
         bucket, hits, count, proportion
     }
