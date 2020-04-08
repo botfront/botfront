@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy */
 
 describe('analytics cards', function() {
     beforeEach(function() {
@@ -8,8 +8,8 @@ describe('analytics cards', function() {
     });
 
     afterEach(function() {
-        // cy.logout();
-        // cy.deleteProject('bf');
+        cy.logout();
+        cy.deleteProject('bf');
     });
 
     it('should not show the export button when no data is loaded', function() {
@@ -17,5 +17,28 @@ describe('analytics cards', function() {
         cy.dataCy('no-data-message').should('exist');
         cy.dataCy('analytics-export-button')
             .should('not.exist');
+    });
+
+    it('should persist analytics cards settings', () => {
+        cy.visit('/project/bf/analytics');
+        cy.dataCy('table-chart-button').eq(0).should('not.have.class', 'selected');
+        cy.dataCy('table-chart-button').eq(0).click();
+        cy.dataCy('table-chart-button').eq(0).should('have.class', 'selected');
+        cy.visit('/project/bf/analytics');
+        cy.dataCy('table-chart-button').eq(0).should('have.class', 'selected');
+    });
+
+    it('should add a new card, rename it and delete it', () => {
+        cy.visit('/project/bf/analytics');
+        cy.dataCy('analytics-card').should('have.length', 6);
+        cy.dataCy('create-card').click();
+        cy.dataCy('create-card').find('div.item').eq(0).click();
+        cy.dataCy('analytics-card').should('have.length', 7);
+        cy.dataCy('analytics-card').first().find('.title').dblclick();
+        cy.dataCy('analytics-card').first().find('input')
+            .type('{selectAll}{backSpace}New card{enter}', { force: true });
+        cy.dataCy('analytics-card').first().find('.title').should('contain.text', 'New card');
+        cy.dataCy('analytics-card').first().dragTo('delete-card-dropzone');
+        cy.dataCy('analytics-card').should('have.length', 6);
     });
 });

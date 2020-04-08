@@ -120,7 +120,7 @@ function AnalyticsContainer(props) {
         ['actionCounts', 'Action occurences over time'],
     ];
 
-    const renderAddResponse = () => (
+    const renderAddCard = () => (
         <Dropdown
             className='icon'
             text='Add card'
@@ -128,6 +128,7 @@ function AnalyticsContainer(props) {
             floating
             labeled
             button
+            data-cy='create-card'
         >
             <Dropdown.Menu>
                 {cardTypes.map(([type, name]) => (
@@ -144,7 +145,7 @@ function AnalyticsContainer(props) {
     return (
         <>
             {canDrop && (
-                <div className={`top-menu-red-dropzone ${isOver ? 'hover' : ''}`} ref={drop}>
+                <div data-cy='delete-card-dropzone' className={`top-menu-red-dropzone ${isOver ? 'hover' : ''}`} ref={drop}>
                     <Header as='h3' color='red' textAlign='center'><Icon name='trash' />Drop here to delete</Header>
                 </div>
             )}
@@ -171,7 +172,7 @@ function AnalyticsContainer(props) {
                     </Menu.Item>
                     <Menu.Menu position='right'>
                         <Menu.Item>
-                            {renderAddResponse()}
+                            {renderAddCard()}
                         </Menu.Item>
                     </Menu.Menu>
                 </PageMenu>

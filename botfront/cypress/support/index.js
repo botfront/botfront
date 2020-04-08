@@ -251,6 +251,18 @@ Cypress.Commands.add(
     },
 );
 
+Cypress.Commands.add(
+    'dragTo',
+    { prevSubject: 'element' },
+    (source, destinationCyData) => {
+        cy.wrap(source).trigger('dragstart');
+        cy.dataCy(destinationCyData).then((destination) => {
+            cy.wrap(destination).trigger('dragenter');
+            cy.wrap(destination).trigger('drop');
+        });
+    },
+);
+
 Cypress.Commands.add('createUser', (lastName, email, roles, projectId) => {
     cy.visit('/');
     cy.window()

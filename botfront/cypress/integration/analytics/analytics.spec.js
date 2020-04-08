@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy */
 const ExpectedCellData = {
     conversationLength: [
         {
@@ -155,10 +155,7 @@ const ExpectedCellData = {
             table: 0, row: 0, column: 1, contents: 0,
         },
         {
-            table: 0, row: 0, column: 2, contents: 0,
-        },
-        {
-            table: 0, row: 0, column: 3, contents: '0.00%',
+            table: 0, row: 0, column: 2, contents: '0.00%',
         },
         {
             table: 0, row: 16, column: 0, contents: '16:00 - 16:59',
@@ -167,10 +164,7 @@ const ExpectedCellData = {
             table: 0, row: 16, column: 1, contents: 1,
         },
         {
-            table: 0, row: 16, column: 2, contents: 1,
-        },
-        {
-            table: 0, row: 16, column: 3, contents: '100.00%',
+            table: 0, row: 16, column: 2, contents: '100.00%',
         },
     ],
 };

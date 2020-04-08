@@ -225,6 +225,7 @@ function AnalyticsCard(props) {
                             className='export-card-button'
                             icon='ellipsis vertical'
                             basic
+                            data-cy='card-ellipsis-menu'
                         />
                     )}
                     basic
