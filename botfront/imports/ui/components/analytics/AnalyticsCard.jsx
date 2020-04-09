@@ -178,6 +178,9 @@ function AnalyticsCard(props) {
                         onConfirm={(newStart, newEnd) => {
                             onChangeSettings({ startDate: newStart, endDate: newEnd });
                         }}
+                        onConfirmForAll={(newStart, newEnd) => {
+                            onChangeSettings({ startDate: newStart, endDate: newEnd }, true);
+                        }}
                     />
                 </div>
             )}

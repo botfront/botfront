@@ -629,8 +629,7 @@ Cypress.Commands.add('pickDateRange', (datePickerIndex, firstDateStr, secondDate
         .click({ force: true });
     cy.get('.visible.date-picker')
         .first()
-        .find('button')
-        .contains('Confirm')
+        .findCy('apply-new-dates')
         .click();
 });
 

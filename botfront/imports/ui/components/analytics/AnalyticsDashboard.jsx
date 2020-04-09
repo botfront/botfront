@@ -141,12 +141,14 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
     
     const [, drop] = useDrop({ accept: 'card' });
 
-    const handleChangeCardSettings = index => update => onUpdateDashboard({
-        cards: [
-            ...cards.slice(0, index),
-            { ...cards[index], ...update },
-            ...cards.slice(index + 1),
-        ],
+    const handleChangeCardSettings = index => (update, all = false) => onUpdateDashboard({
+        cards: !all // all = true updates all cards
+            ? [
+                ...cards.slice(0, index),
+                { ...cards[index], ...update },
+                ...cards.slice(index + 1),
+            ]
+            : cards.map(card => ({ ...card, ...update })),
     });
 
     const handleSwapCards = index => (draggedCardName) => {

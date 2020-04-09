@@ -39,7 +39,7 @@ if (Meteor.isClient) {
 
         it('should not change parent state when confirm without change ', () => {
             DatePickerComponent.find('Button')
-                .find({ content: 'Confirm' })
+                .find({ 'data-cy': 'apply-new-dates' })
                 .simulate('click');
             expect(startDate).to.equal(null);
             expect(endDate).to.equal(null);
@@ -64,7 +64,7 @@ if (Meteor.isClient) {
                 endDate: moment(),
             });
             DatePickerComponent.find('Button')
-                .find({ content: 'Confirm' })
+                .find({ 'data-cy': 'apply-new-dates' })
                 .simulate('click');
             // use moment().format to fuzzy match the date
             expect(startDate.format('DD MMM YYYY')).to.equal(
@@ -118,7 +118,7 @@ if (Meteor.isClient) {
                 .find('Dropdown')
                 .prop('onChange')(null, { value: 2 });
             DatePickerComponent.find('Button')
-                .find({ content: 'Confirm' })
+                .find({ 'data-cy': 'apply-new-dates' })
                 .simulate('click');
             // use moment().format to fuzzy match the date
             expect(startDate.format('DD MMM YYYY')).to.equal(
@@ -138,7 +138,7 @@ if (Meteor.isClient) {
                 .find('Dropdown')
                 .prop('onChange')(null, { value: 2 });
             DatePickerComponent.find('Button')
-                .find({ content: 'Confirm' })
+                .find({ 'data-cy': 'apply-new-dates' })
                 .simulate('click');
 
             /* warpper.update() is not working for re-rendering
@@ -166,7 +166,7 @@ if (Meteor.isClient) {
                 .find('DayPickerRangeController')
                 .prop('onDatesChange')(incomingRange);
             DatePickerComponent.find('Button')
-                .find({ content: 'Confirm' })
+                .find({ 'data-cy': 'apply-new-dates' })
                 .simulate('click');
             // check state start and end dates match expectations
             expect(startDate.toISOString()).to.have.string(
@@ -184,7 +184,7 @@ if (Meteor.isClient) {
                 .find('DayPickerRangeController')
                 .prop('onDatesChange')(customRange);
             DatePickerComponent.find('Button')
-                .find({ content: 'Confirm' })
+                .find({ 'data-cy': 'apply-new-dates' })
                 .simulate('click');
             // switch to a preset range
             DatePickerComponent.find('FormDropdown')
@@ -193,7 +193,7 @@ if (Meteor.isClient) {
                 .find('Dropdown')
                 .prop('onChange')(null, { value: 2 });
             DatePickerComponent.find('Button')
-                .find({ content: 'Confirm' })
+                .find({ 'data-cy': 'apply-new-dates' })
                 .simulate('click');
             // switch back to the custom range
             DatePickerComponent.find('FormDropdown')
@@ -202,7 +202,7 @@ if (Meteor.isClient) {
                 .find('Dropdown')
                 .prop('onChange')(null, { value: 0 });
             DatePickerComponent.find('Button')
-                .find({ content: 'Confirm' })
+                .find({ 'data-cy': 'apply-new-dates' })
                 .simulate('click');
             expect(startDate.format('DD MM YY'))
                 .to.have.string(
