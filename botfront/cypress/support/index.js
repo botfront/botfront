@@ -590,7 +590,7 @@ Cypress.Commands.add('findMonth', (queryMonth, index, incomingSearchPrev) => {
             }
         });
 });
-Cypress.Commands.add('pickDateRange', (datePickerIndex, firstDateStr, secondDateStr) => {
+Cypress.Commands.add('pickDateRange', (datePickerIndex, firstDateStr, secondDateStr, all = false) => {
     /*
         clicks on firstDateStr, then clicks on SecondDateStr, then confirms the date selection
         ----------------------------------------------------------
@@ -629,8 +629,8 @@ Cypress.Commands.add('pickDateRange', (datePickerIndex, firstDateStr, secondDate
         .click({ force: true });
     cy.get('.visible.date-picker')
         .first()
-        .findCy('apply-new-dates')
-        .click();
+        .findCy(all ? 'apply-new-dates-to-all' : 'apply-new-dates')
+        .click({ force: true });
 });
 
 Cypress.Commands.add('addConversation', (projectId, id, conversation) => {

@@ -41,4 +41,13 @@ describe('analytics cards', function() {
         cy.dataCy('analytics-card').first().dragTo('delete-card-dropzone');
         cy.dataCy('analytics-card').should('have.length', 6);
     });
+
+    it('should change a single card\'s or every card\'s date range', () => {
+        cy.visit('/project/bf/analytics');
+        cy.dataCy('analytics-card').should('have.length', 6);
+        cy.pickDateRange(0, '30/3/2020', '31/3/2020', false);
+        cy.dataCy('date-picker-container', '30 Mar 2020 - 31 Mar 2020').should('have.length', 1);
+        cy.pickDateRange(0, '30/3/2020', '31/3/2020', true);
+        cy.dataCy('date-picker-container', '30 Mar 2020 - 31 Mar 2020').should('have.length', 6);
+    });
 });
