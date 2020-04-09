@@ -26,7 +26,6 @@ function SettingsPortal(props) {
             onClose={onClose}
             open={open}
             size='tiny'
-            style={{ top: '15vh', left: '15vh' }}
         >
             <Modal.Header>{text}</Modal.Header>
             <Modal.Content>
@@ -64,7 +63,7 @@ SettingsPortal.propTypes = {
     text: PropTypes.string.isRequired,
     open: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
-    values: PropTypes.oneOf([PropTypes.string, PropTypes.array]).isRequired,
+    values: PropTypes.oneOfType([PropTypes.string, PropTypes.array]).isRequired,
     onChange: PropTypes.func.isRequired,
 };
 
