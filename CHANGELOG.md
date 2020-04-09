@@ -2,7 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [0.21.4-ee.2](https://github.com/botfront/botfront/compare/v0.21.4-ee.1...v0.21.4-ee.2) (2020-04-01)
+
+### Bug Fixes
+
+*  story page crash after import ([b579b54](https://github.com/botfront/botfront/commit/b579b54))
+* entity doubling in data parsed from rasa ([a45083a](https://github.com/botfront/botfront/commit/a45083a))
+* handling of import response, ([a405766](https://github.com/botfront/botfront/commit/a405766))
+* stories search algorithim ([9b787aa](https://github.com/botfront/botfront/commit/9b787aa))
+
+
+### Features
+
+* **visual story editor:** add option for new disjuncts ([c8468a2](https://github.com/botfront/botfront/commit/c8468a2))
+* stories: NLU modal ([8e5f7e7](https://github.com/botfront/botfront/commit/8e5f7e7))
+* user utterances container ([363dea5](https://github.com/botfront/botfront/commit/363dea5))
+
+
+### Tests
+
+* add tests for multiple disjuncts ([918307c](https://github.com/botfront/botfront/commit/918307c))
+* stories: nlu editor ([c3b60b3](https://github.com/botfront/botfront/commit/c3b60b3))
+
 
 ### [0.21.4-ee.1](https://github.com/botfront/botfront/compare/v0.21.4-ee.0...v0.21.4-ee.1) (2020-03-31)
 
