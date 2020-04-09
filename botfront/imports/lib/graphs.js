@@ -133,8 +133,8 @@ export const getDataToDisplayAndParamsToUse = ({
 
     paramsToUse = {
         ...paramsToUse,
-        axisBottom: { ...paramsToUse.axisBottom, ...axisTitles.x },
-        axisLeft: { ...paramsToUse.axisLeft, ...axisTitles.y },
+        axisBottom: { ...paramsToUse.axisBottom, ...(graphParams.noXLegend ? {} : axisTitles.x) },
+        axisLeft: { ...paramsToUse.axisLeft, ...(graphParams.noYLegend ? {} : axisTitles.y) },
     };
     return { dataToDisplay, paramsToUse };
 };

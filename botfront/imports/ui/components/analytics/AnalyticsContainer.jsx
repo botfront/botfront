@@ -16,6 +16,7 @@ import EnvSelector from '../common/EnvSelector';
 import LanguageDropdown from '../common/LanguageDropdown';
 import { PageMenu, Loading } from '../utils/Utils';
 import { ProjectContext } from '../../layouts/context';
+import { findName } from '../../../lib/utils';
 
 const Dashboard = React.lazy(() => import('./AnalyticsDashboard'));
 
@@ -74,17 +75,12 @@ function AnalyticsContainer(props) {
         },
     });
 
-    const findName = (name) => {
-        const sameNamed = dashboard.cards.filter(c => c.name === name);
-        if (!sameNamed.length) return name;
-        return `${name} (${sameNamed.length + 1})`;
-    };
-
     const handleNewCardInDashboard = (type, name) => handleUpdateDashboard({
         cards: [
             {
-                name: findName(name),
+                name: findName(name, dashboard.cards.map(c => c.name)),
                 type,
+                description: '',
                 visible: true,
                 startDate: moment().subtract(6, 'days').startOf('day').toISOString(),
                 endDate: moment().endOf('day').toISOString(),
@@ -117,7 +113,7 @@ function AnalyticsContainer(props) {
         ['conversationDurations', 'Conversation Duration'],
         ['intentFrequencies', 'Top 10 Intents'],
         ['conversationCounts', 'Conversations over time'],
-        ['actionCounts', 'Action occurences over time'],
+        ['actionCounts', 'Action occurrences over time'],
     ];
 
     const renderAddCard = () => (

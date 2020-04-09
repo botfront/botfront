@@ -246,7 +246,7 @@ function AnalyticsCard(props) {
                                 onClick={() => onChangeSettings({ showDenominator: !showDenominator })}
                             />
                         )}
-                        <React.Fragment key='description'>
+                        <React.Fragment>
                             <SettingsPortal
                                 text='Edit description'
                                 onClose={() => setSettingsOpen(false)}

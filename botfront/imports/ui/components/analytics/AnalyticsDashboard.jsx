@@ -10,7 +10,7 @@ import intentFrequencies from '../../../api/graphql/conversations/queries/intent
 import actionCounts from '../../../api/graphql/conversations/queries/actionCounts.graphql';
 import conversationCounts from '../../../api/graphql/conversations/queries/conversationCounts.graphql';
 import { ProjectContext } from '../../layouts/context';
-import { setsAreIdentical } from '../../../lib/utils';
+import { setsAreIdentical, findName } from '../../../lib/utils';
 
 function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
     const {
@@ -70,6 +70,8 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
                 x: 'name',
                 y: { absolute: 'count', relative: 'frequency' },
                 axisTitleY: 'Utterances',
+                axisTitleX: 'Intent',
+                noXLegend: true,
                 axisBottom: {
                     tickRotation: -25,
                     format: label => `${label.slice(0, 20)}${label.length > 20 ? '...' : ''}`,
@@ -103,7 +105,7 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
         },
         actionCounts: {
             chartTypeOptions: ['line', 'table'],
-            titleDescription: 'Out of all conversational events in a given temporal window, the number of actions occurences that satisfy filters.',
+            titleDescription: 'Out of all conversational events in a given temporal window, the number of actions occurrences that satisfy filters.',
             queryParams: {
                 temporal: true, envs, queryName: 'actionCounts', langs,
             },
@@ -119,7 +121,7 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
                     proportion: v => `${v}%`,
                 },
                 displayAbsoluteRelative: true,
-                axisTitleY: 'Action occurences',
+                axisTitleY: 'Action occurrences',
                 displayConfigs: ['includeActions', 'excludeActions'],
             },
         },
@@ -133,7 +135,7 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
             },
         } = cardTypes[type];
         cardTypes[type].graphParams.columns = [
-            { temporal, accessor: x, header: axisTitleX || 'Date' },
+            { temporal, accessor: x, header: axisTitleX },
             { accessor: y.absolute, header: axisTitleY },
             { accessor: y.relative, header: '%' },
         ];
@@ -141,15 +143,19 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
     
     const [, drop] = useDrop({ accept: 'card' });
 
-    const handleChangeCardSettings = index => (update, all = false) => onUpdateDashboard({
-        cards: !all // all = true updates all cards
-            ? [
-                ...cards.slice(0, index),
-                { ...cards[index], ...update },
-                ...cards.slice(index + 1),
-            ]
-            : cards.map(card => ({ ...card, ...update })),
-    });
+    const handleChangeCardSettings = index => (updateInput, all = false) => {
+        const update = updateInput;
+        if (update.name) update.name = findName(update.name, dashboard.cards.map(c => c.name));
+        onUpdateDashboard({
+            cards: !all // all = true updates all cards
+                ? [
+                    ...cards.slice(0, index),
+                    { ...cards[index], ...update },
+                    ...cards.slice(index + 1),
+                ]
+                : cards.map(card => ({ ...card, ...update })),
+        });
+    };
 
     const handleSwapCards = index => (draggedCardName) => {
         const draggedCardIndex = cards.findIndex(c => c.name === draggedCardName);
