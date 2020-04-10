@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { useQuery, useMutation, useLazyQuery } from '@apollo/react-hooks';
+import { useQuery, useMutation } from '@apollo/react-hooks';
 import Alert from 'react-s-alert';
 import { browserHistory, withRouter } from 'react-router';
 import {
@@ -20,6 +20,7 @@ import { wrapMeteorCallback } from '../utils/Errors';
 import { Projects } from '../../../api/project/project.collection';
 import { applyTimezoneOffset } from '../../../lib/graphs';
 import apolloClient from '../../../startup/client/apollo';
+import { formatConversationsInMd } from './utils';
 
 function ConversationsBrowser(props) {
     const {
@@ -283,7 +284,7 @@ const ConversationsBrowserContainer = (props) => {
         },
     });
 
-  
+
     useEffect(() => {
         Meteor.call(
             'project.getActions',
@@ -320,7 +321,7 @@ const ConversationsBrowserContainer = (props) => {
         variables: queryVariables,
     });
 
-    const handleDownloadConversations = () => {
+    const handleDownloadConversations = ({ format = 'json' } = {}) => {
         apolloClient
             .query({
                 query: GET_CONVERSATIONS,
@@ -333,11 +334,20 @@ const ConversationsBrowserContainer = (props) => {
             })
             .then(({ data: { conversationsPage } = {} }) => {
                 if (!conversationsPage || !conversationsPage.conversations.length) return false;
-                const blob = new Blob(
-                    [JSON.stringify(conversationsPage)],
-                    { type: 'application/json;charset=utf-8' },
-                );
-                return saveAs(blob, 'conversations.json');
+                let blob;
+                if (format === 'json') {
+                    blob = new Blob(
+                        [JSON.stringify(conversationsPage)],
+                        { type: 'application/json;charset=utf-8' },
+                    );
+                }
+                if (format === 'md') {
+                    blob = new Blob(
+                        [formatConversationsInMd(conversationsPage.conversations)],
+                        { type: 'text/markdown;charset=utf-8' },
+                    );
+                }
+                return saveAs(blob, `conversations.${format}`);
             });
     };
 
