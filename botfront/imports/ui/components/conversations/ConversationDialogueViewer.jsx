@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import ReactJson from 'react-json-view';
-import moment from 'moment';
-import { Comment, Label, Message } from 'semantic-ui-react';
+import { Comment, Message } from 'semantic-ui-react';
+import { generateTurns } from './utils';
 
 import UserUtteredEventViewer from '../example_editor/UserUtteredEventViewer';
-import ExampleUtils from '../utils/ExampleUtils';
 
 function BotResponse({
     type, text, data, key,
@@ -89,58 +88,7 @@ Turn.defaultProps = {
 };
 
 function ConversationDialogueViewer({ conversation: { tracker, userId }, mode }) {
-    const turns = [];
-    let currentTurn = {
-        userSays: null,
-        botResponses: [],
-    };
-    tracker.events.forEach((event) => {
-        const type = event.event;
-
-        if (type === 'user' && !!event.text) {
-            // The text check here is to remove the null userUttered events that are triggered by reminders
-            const example = ExampleUtils.fromParseData(event.parse_data);
-
-            if (example.text.startsWith('/')) {
-                // TODO: check entity collisions
-                example.text = <Label size='small' horizontal>{example.text}</Label>;
-            }
-
-            const userSays = {
-                example,
-                timestamp: moment.unix(event.timestamp),
-                confidence: ExampleUtils.getConfidence(event.parse_data),
-            };
-
-            if (!currentTurn.userSays && currentTurn.botResponses.length === 0) {
-                // First piece of dialogue
-                currentTurn.userSays = userSays;
-            } else {
-                // Finish previous turn and init a new one
-                turns.push(currentTurn);
-                currentTurn = {
-                    userSays,
-                    botResponses: [],
-                };
-            }
-        } else if (type === 'bot') {
-            currentTurn.botResponses.push({
-                type: 'bot_data',
-                text: event.text,
-                data: event.data,
-            });
-        } else if (mode === 'debug') {
-            // only insert if user has uttered something
-            currentTurn.botResponses.push({
-                type: 'event',
-                data: event,
-            });
-        }
-    });
-
-    if (currentTurn.userSays || currentTurn.botResponses.length !== 0) {
-        turns.push(currentTurn);
-    }
+    const turns = useMemo(() => generateTurns(tracker, mode === 'debug'), [tracker]);
 
     return (
         <Comment.Group>
