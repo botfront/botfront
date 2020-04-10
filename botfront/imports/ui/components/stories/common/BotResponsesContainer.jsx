@@ -14,6 +14,8 @@ import { setStoriesCurrent } from '../../../store/actions/actions';
 
 import { checkMetadataSet } from '../../../../lib/botResponse.utils';
 
+import HoverablePopup from '../../common/HoverablePopup';
+
 const BotResponsesContainer = (props) => {
     const {
         name,
@@ -133,11 +135,13 @@ const BotResponsesContainer = (props) => {
         </React.Fragment>
     );
 
-    const handleLinkToStory = (storyId) => {
-        setActiveStories([storyId]);
+    const handleLinkToStory = () => {
+        const storyIds = responseLocations.map(({ _id }) => _id);
+        setActiveStories(storyIds);
         setResponseLocationsOpen(false);
-        browserHistory.replace({ pathname: '/project/bf/stories', query: { 'ids[]': storyId } });
+        browserHistory.replace({ pathname: '/project/bf/stories', query: { 'ids[]': storyIds } });
     };
+
     const renderDynamicResponseName = () => {
         console.log();
         return (
@@ -145,6 +149,8 @@ const BotResponsesContainer = (props) => {
                 {loadingResponseLocations && <Loader active inline size='mini' className='response-name-loader' />}
                 {responseLocations.length > 1 ? (
                     <Popup
+                        className='response-locations-popup'
+                        flowing
                         open={responseLocationsOpen}
                         onClose={() => {
                             setResponseLocationsOpen(false);
@@ -162,6 +168,7 @@ const BotResponsesContainer = (props) => {
                                 <List>
                                     {responseLocations.map(({ title, _id, storyGroupId }) => (
                                         <List.Item
+                                            className='story-name-link'
                                             key={_id}
                                             onClick={() => handleLinkToStory(_id, storyGroupId)}
                                         >
@@ -228,6 +235,7 @@ BotResponsesContainer.propTypes = {
     enableEditPopup: PropTypes.bool,
     tag: PropTypes.string,
     projectId: PropTypes.string.isRequired,
+    setActiveStories: PropTypes.func.isRequired,
 };
 
 BotResponsesContainer.defaultProps = {
