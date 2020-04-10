@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { browserHistory } from 'react-router';
 import {
     Icon, Menu, Segment, Placeholder,
 } from 'semantic-ui-react';
@@ -69,6 +68,7 @@ function ConversationViewer (props) {
                 </Segment>
             );
         }
+
         return (
             <Segment style={style} attached>
                 {active === 'Text' && <ConversationDialogueViewer conversation={tracker} mode='text' />}
@@ -105,7 +105,7 @@ function ConversationViewer (props) {
                         <Icon name='flag' />
                     </Menu.Item> */}
                 <Menu.Item name='archived' disabled={!ready} active={ready && tracker.status === 'archived'} onClick={handleItemDelete}>
-                    <Icon name='trash' />
+                    <Icon name='trash' data-cy='conversation-delete' />
                 </Menu.Item>
                 <Menu.Menu position='right'>
                     <Menu.Item name='Text' disabled={!ready} active={ready && active === 'Text'} onClick={handleItemClick}>
@@ -142,28 +142,27 @@ const ConversationViewerContainer = (props) => {
     const {
         conversationId, projectId, onDelete, removeReadMark, optimisticlyRemoved,
     } = props;
+
+    const tracker = useRef(null);
     
     const { loading, error, data } = useQuery(GET_CONVERSATION, {
         variables: { projectId, conversationId },
         pollInterval: 1000,
     });
 
-    let conversation = null;
-    if (!loading && !error) {
-        ({ conversation } = data);
-        if (!conversation) {
-            browserHistory.replace({ pathname: `/project/${projectId}/dialogue/conversations/p/1` });
-        }
+    const newTracker = !loading && !error && data ? data.conversation : null;
+    if (newTracker && (tracker.current ? tracker.current.tracker.events : []).length !== newTracker.tracker.events.length) {
+        tracker.current = newTracker;
     }
     
     const componentProps = {
-        ready: !loading && !!conversation,
+        ready: !!tracker.current,
         onDelete,
-        tracker: conversation,
+        tracker: tracker.current,
         removeReadMark,
         optimisticlyRemoved,
     };
-      
+
     return (<ConversationViewer {...componentProps} />);
 };
 
