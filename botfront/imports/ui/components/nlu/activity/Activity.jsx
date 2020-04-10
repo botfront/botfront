@@ -226,24 +226,28 @@ function Activity(props) {
                 }}
                 // closeOnScroll // disabled as it also closes when scrolling inside the popup
                 trigger={(
-                    <IconButton
+                    // IconButton uses forward ref which breaks semantic ui popup
+                    // wrapping the IconButton in a div fixes this problem
+                    <div>
+                        <IconButton
                         // basic
-                        id={`conversation-popup-trigger-${row.index}`}
-                        icon='comments'
-                        color='grey'
-                        data-cy='conversation-viewer'
-                        className={`action-icon ${!convId && 'inactive'}`}
-                        name='comments'
-                        size='mini'
+                            id={`conversation-popup-trigger-${row.index}`}
+                            icon='comments'
+                            color='grey'
+                            data-cy='conversation-viewer'
+                            className={`action-icon ${!convId && 'inactive'}`}
+                            name='comments'
+                            size='mini'
                         
-                        onClick={() => {
-                            if (row.index !== openConvPopup) {
-                                setOpenConvPopup(row.index);
-                            } else {
-                                setOpenConvPopup(-1);
-                            }
-                        }}
-                    />
+                            onClick={() => {
+                                if (row.index !== openConvPopup) {
+                                    setOpenConvPopup(row.index);
+                                } else {
+                                    setOpenConvPopup(-1);
+                                }
+                            }}
+                        />
+                    </div>
                 )}
             >
                 {!convLoading && convData && convId && (
