@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.22.0-rc.1](https://github.com/botfront/botfront/compare/v0.22.0-rc.0...v0.22.0-rc.1) (2020-04-10)
+
+
+### Tests
+
+* improve nlu_intentmessage.spec ([ff95942](https://github.com/botfront/botfront/commit/ff95942))
+
+
+
 ## [0.22.0-rc.0](https://github.com/botfront/botfront/compare/v0.21.4...v0.22.0-rc.0) (2020-04-09)
 
 
