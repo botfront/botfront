@@ -53,8 +53,12 @@ describe('story visual editor', function () {
             .find('textarea')
             .clear()
             .type('I do too qr');
+        cy.dataCy('bot-response-input')
+            .eq(1)
+            .find('textarea')
+            .blur({ force: true });
+        cy.wait(1000);
 
-        cy.dataCy('button_title').click({ force: true });
         cy.dataCy('button_title').click({ force: true });
 
         cy.dataCy('enter-button-title')
