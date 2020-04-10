@@ -41,7 +41,7 @@
         .utterances-container {
             border-color: #eee;
             
-            .response-name {
+            .response-name-container {
                 visibility: visible;
                 white-space: nowrap;
                 opacity: 0.5;
@@ -167,22 +167,34 @@
     .utterance-container {
         z-index: 2;
     }
-    
-    .response-name {
-        max-width: 22%;
-        z-index: 1;
+    .response-name-container {
+        display: flex;
+        opacity: 0;
+        transition: opacity 0.1s ease-in-out;
         position: absolute;
         bottom: 5px;
         right: 5px;
-        color: #767676;
-        font-size: 0.78571429rem;
-        opacity: 0;
-        transition: opacity 0.1s ease-in-out;
-        padding: 0 5px;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        text-align: right;
+        .response-name {
+            // max-width: 22%;
+            z-index: 1;
+            color: #767676;
+            font-size: 0.78571429rem;
+            padding: 0 5px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            text-align: right;
+        }
+        .response-name-link {
+            display: flex;
+            color: blue !important;
+        }
+        .ui.inline.loader.response-name-loader {
+            margin-top: auto;
+            margin-bottom: 0;
+        }
     }
+
 
     .ui.small.image {
         border-radius: 4px;

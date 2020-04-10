@@ -1,11 +1,16 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Placeholder } from 'semantic-ui-react';
+import {
+    Placeholder, Loader, Popup, Header, List,
+} from 'semantic-ui-react';
 
+import { browserHistory } from 'react-router';
+import { connect } from 'react-redux';
 import IconButton from '../../common/IconButton';
 import BotResponseEditor from '../../templates/templates-list/BotResponseEditor';
 import BotResponseContainer from './BotResponseContainer';
+import { setStoriesCurrent } from '../../../store/actions/actions';
 
 import { checkMetadataSet } from '../../../../lib/botResponse.utils';
 
@@ -19,12 +24,16 @@ const BotResponsesContainer = (props) => {
         enableEditPopup,
         tag,
         projectId,
+        setActiveStories,
     } = props;
+
     const [template, setTemplate] = useState();
     const [editorOpen, setEditorOpen] = useState(false);
     const [toBeCreated, setToBeCreated] = useState(null);
     const [focus, setFocus] = useState(null);
     const [responseLocations, setResponseLocations] = useState([]);
+    const [loadingResponseLocations, setLoadingResponseLocations] = useState(false);
+    const [responseLocationsOpen, setResponseLocationsOpen] = useState(false);
 
     useEffect(() => {
         Promise.resolve(initialValue).then((res) => {
@@ -85,7 +94,9 @@ const BotResponsesContainer = (props) => {
     };
 
     const handleMouseOver = () => {
-        Meteor.call('stories.includesResponse', 'bf', name, (error, result) => {
+        setLoadingResponseLocations(true);
+        Meteor.call('stories.includesResponse', projectId, name, (error, result) => {
+            setLoadingResponseLocations(false);
             if (error) {
                 console.log(error);
                 return;
@@ -122,6 +133,52 @@ const BotResponsesContainer = (props) => {
         </React.Fragment>
     );
 
+    const handleLinkToStory = (storyId) => {
+        setActiveStories([storyId]);
+        setResponseLocationsOpen(false);
+        browserHistory.replace({ pathname: '/project/bf/stories', query: { 'ids[]': storyId } });
+    };
+    const renderDynamicResponseName = () => {
+        console.log();
+        return (
+            <div className='response-name-container'>
+                {loadingResponseLocations && <Loader active inline size='mini' className='response-name-loader' />}
+                {responseLocations.length > 1 ? (
+                    <Popup
+                        open={responseLocationsOpen}
+                        onClose={() => {
+                            setResponseLocationsOpen(false);
+                        }}
+                        onOpen={() => setResponseLocationsOpen(true)}
+                        on='click'
+                        trigger={(
+                            <div className='response-name response-name-link'>
+                                {name}({responseLocations.length})
+                            </div>
+                        )}
+                        content={(
+                            <>
+                                <Header>This response is used in {responseLocations.length} stories</Header>
+                                <List>
+                                    {responseLocations.map(({ title, _id, storyGroupId }) => (
+                                        <List.Item
+                                            key={_id}
+                                            onClick={() => handleLinkToStory(_id, storyGroupId)}
+                                        >
+                                            ##{title}
+                                        </List.Item>
+                                    ))}
+                                </List>
+                            </>
+                        )}
+                    />
+                ) : (
+                    <div className='response-name'>{name}</div>
+                )}
+            </div>
+        );
+    };
+
     return (
         <div
             className='utterances-container exception-wrapper-target'
@@ -157,11 +214,7 @@ const BotResponsesContainer = (props) => {
                     <IconButton onClick={onDeleteAllResponses} icon='trash' />
                 )}
             </div>
-            {responseLocations.length > 1 ? (
-                <div className='response-name'>this story is used in other stories</div>
-            ) : (
-                <div className='response-name'>{name}</div>
-            )}
+            {renderDynamicResponseName()}
         </div>
     );
 };
@@ -187,4 +240,7 @@ BotResponsesContainer.defaultProps = {
     tag: null,
 };
 
-export default BotResponsesContainer;
+const mapStateToProps = state => ({
+    projectId: state.settings.get('projectId'),
+});
+export default connect(mapStateToProps, { setActiveStories: setStoriesCurrent })(BotResponsesContainer);

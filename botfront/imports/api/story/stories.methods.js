@@ -137,12 +137,17 @@ Meteor.methods({
         check(projectId, String);
         check(responseName, String);
         try {
-            const allStories = Stories.find({ projectId }, { fields: { events: 1, _id: 1 } }).fetch();
-            return allStories.reduce((currentValue, { events, _id }) => {
-                console.log(_id);
-                console.log(events);
+            const allStories = Stories.find(
+                { projectId, events: { $elemMatch: { $eq: responseName } } },
+                {
+                    fields: {
+                        events: 1, _id: 1, title: 1, storyGroupId: 1,
+                    },
+                },
+            ).fetch();
+            return allStories.reduce((currentValue, { events, _id, title }) => {
                 if (!events.includes(responseName)) return currentValue;
-                return [...currentValue, _id];
+                return [...currentValue, { _id, title }];
             }, []);
         } catch (e) {
             return [];
