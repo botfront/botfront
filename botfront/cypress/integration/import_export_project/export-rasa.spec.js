@@ -2,7 +2,6 @@
 
 describe('Exporting a Project', function() {
     beforeEach(function() {
-        cy.deleteProject('bf');
         cy.createProject('bf', 'My Project', 'fr').then(() => {
             cy.login();
         });
@@ -42,8 +41,7 @@ describe('Exporting a Project', function() {
             // French should be available
             // English should not be available
             cy.visit('/project/bf/settings');
-            cy.dataCy('project-settings-menu-import-export').click();
-            cy.dataCy('project-settings-menu-import-export').should('have.class', 'active');
+            cy.contains('Import/Export').click();
             cy.dataCy('port-project-menu')
                 .find('.item')
                 .contains('Export')
@@ -74,14 +72,9 @@ describe('Exporting a Project', function() {
                 .click();
             cy.dataCy('save-changes')
                 .click({ force: true });
-            cy.dataCy('save-changes')
-                .should('not.have.class', 'disabled');
             
             // english and french should be available
-            cy.contains('Endpoints').click();
-            cy.dataCy('endpoints-environment-menu').should('exist');
-            cy.dataCy('project-settings-menu-import-export').click();
-            cy.dataCy('project-settings-menu-import-export').should('have.class', 'active');
+            cy.contains('Import/Export').click();
             cy.dataCy('port-project-menu')
                 .find('.item')
                 .contains('Export')
