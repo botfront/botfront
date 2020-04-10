@@ -2,7 +2,7 @@ import randomSeed from 'random-seed';
 
 const TODAY = new Date().toDateString();
 
-const colors = [
+const allColors = [
     { name: 'violet', bg: '#6435C9' },
     { name: 'blue', bg: '#2185D0' },
     { name: 'orange', bg: '#F2711C' },
@@ -24,7 +24,8 @@ const hashCode = input => Math.abs(Array.from(`${input}`)
  * @param name: return the color name if true, the color code if false
  * @returns {*}
  */
-export default function getColor(index, name = false) {
+export default function getColor(index, name = false, exclude = []) {
+    const colors = allColors.filter(c => !exclude.includes(c.name));
     const rand = randomSeed.create(TODAY);
     const startIndex = rand(colors.length);
     const color = colors[(startIndex + hashCode(index)) % colors.length];
