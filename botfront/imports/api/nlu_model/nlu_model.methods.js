@@ -56,7 +56,7 @@ Meteor.methods({
         }
     },
     async 'nlu.saveExampleChanges'(modelId, examples) {
-        checkIfCan('nlu:w', getProjectIdFromModelId(modelId));
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
         check(examples, Array);
         
@@ -146,7 +146,7 @@ Meteor.methods({
         }
     },
     async 'nlu.updateManyExamples'(modelId, items) {
-        checkIfCan('nlu:w', getProjectIdFromModelId(modelId));
+        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
         check(items, Array);
         const updatedExamples = uniqBy(items, 'text');
