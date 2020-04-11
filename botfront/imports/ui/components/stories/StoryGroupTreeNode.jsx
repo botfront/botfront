@@ -129,6 +129,7 @@ const StoryGroupTreeNode = (props) => {
             className={`item-focus-holder ${item.smartGroup ? 'blue' : ''}`}
             id={`story-menu-item-${item.id}`}
             type={isLeaf ? 'story' : 'story-group'}
+            data-pinned={!!item.pinned}
             data-cy='story-group-menu-item'
         >
             <Menu.Item
