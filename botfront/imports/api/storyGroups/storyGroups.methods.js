@@ -17,6 +17,7 @@ export const createStoriesWithTriggersGroup = (projectId) => {
             projectId,
             smartGroup: { prefix: 'withTriggers', query: '{ "rules.0.payload": { "$exists": true } }' },
             isExpanded: true,
+            pinned: true,
         },
     );
 };
@@ -116,14 +117,15 @@ Meteor.methods({
     'storyGroups.insert'(storyGroup) {
         checkIfCan('stories:w', storyGroup.projectId);
         check(storyGroup, Object);
-        const { projectId } = storyGroup;
+        const { projectId, pinned } = storyGroup;
         try {
             const id = StoryGroups.insert({
-                ...storyGroup, storyGroupId: projectId, children: [],
+                ...storyGroup, children: [],
             });
+            const $position = pinned ? 0 : StoryGroups.find({ projectId, pinned }).count();
             Projects.update(
                 { _id: projectId },
-                { $push: { storyGroups: { $each: [id], $position: 0 } } },
+                { $push: { storyGroups: { $each: [id], $position } } },
             );
             auditLogIfOnServer('Created a story group', {
                 resId: id,
