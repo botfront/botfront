@@ -18,7 +18,7 @@ describe('story visual editor', function () {
 
     it('should persist a user utterance, a bot response, and display add-user-line option appropriately', function () {
         cy.importNluData('bf', 'nlu_sample_en.json', 'en');
-        cy.train(10000);
+        cy.train(20000);
         cy.visit('/project/bf/stories');
         cy.browseToStory('Groupo (1)');
 
@@ -53,8 +53,12 @@ describe('story visual editor', function () {
             .find('textarea')
             .clear()
             .type('I do too qr');
+        cy.dataCy('bot-response-input')
+            .eq(1)
+            .find('textarea')
+            .blur({ force: true });
+        cy.wait(1000);
 
-        cy.dataCy('button_title').click({ force: true });
         cy.dataCy('button_title').click({ force: true });
 
         cy.dataCy('enter-button-title')

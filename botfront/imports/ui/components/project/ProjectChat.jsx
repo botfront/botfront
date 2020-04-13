@@ -93,7 +93,7 @@ class ProjectChat extends React.Component {
             <div className='chat-pane-container' data-cy='chat-pane'>
                 <Menu pointing secondary>
 
-                    <Menu.Item position='right'>
+                    <Menu.Item position='left'>
                         {selectedLanguage && (
                             <Dropdown
                                 options={languageOptions}

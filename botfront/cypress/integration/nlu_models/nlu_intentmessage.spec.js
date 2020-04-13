@@ -45,29 +45,7 @@ describe('NLU Intent warning message displays', function() {
         // returns to the example tab
         cy.contains('Examples').click();
         cy.wait(300); // wait for the ui to update
+        // the warning message should not exist
         cy.contains('You need at least two distinct intents to train NLU').should('not.exist');
-        
-        // delete example
-        cy.dataCy('icon-gem').first().click(); // unmark canonical on the first example so it can be deleted
-        cy.wait(300); // wait for the ui to update
-        cy.dataCy('icon-gem', null, '.active').should('have.length', 1);
-        cy.dataCy('canonical-spinner').should('not.exist', 1);
-        cy.contains('hello')
-            .closest('.rt-tr')
-            .findCy('icon-trash')
-            .first()
-            .click({ force: true });
-        cy.dataCy('intent-label').should('have.length', 3);
-
-        // delete example
-        cy.contains('hi guys')
-            .closest('.rt-tr')
-            .findCy('icon-trash')
-            .first()
-            .click({ force: true });
-        cy.dataCy('intent-label').should('have.length', 2);
-        cy.wait(300); // wait for the ui to update
-        // check warning message exists
-        cy.contains('You need at least two distinct intents to train NLU').should('exist');
     });
 });

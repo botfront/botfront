@@ -52,15 +52,16 @@ export default class NLUPlayground extends React.Component {
                 'rasa.parse',
                 instance,
                 [{ text: exampleText, lang: language }],
-                wrapMeteorCallback((err, exampleMatch) => {
-                    if (err) {
+                (err, exampleMatch) => {
+                    if (err || !exampleMatch || !exampleMatch.intent) {
                         this.handleSaveExample({ ...example, intent: defaultIntent });
+                        return;
                     }
                     const { intent: { name }, entities } = exampleMatch;
                     this.handleSaveExample({
                         ...example, text: exampleText, intent: name || defaultIntent, entities,
                     });
-                }),
+                },
             );
         });
     };
