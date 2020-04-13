@@ -20,7 +20,7 @@ describe('chat side panel handling', function() {
         cy.visit('/project/bf/stories');
         cy.get('[data-cy=open-chat]').click();
         cy.get('[data-cy=chat-pane]');
-        cy.get('.widget-embedded');
+        cy.get('.rw-widget-embedded');
         cy.get('[data-cy=close-chat]').click();
         cy.get('[data-cy=chat-pane]').should('not.exist');
     });
