@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useContext } from 'react';
 import PropTypes from 'prop-types';
 import ReactJson from 'react-json-view';
 import { Comment, Message } from 'semantic-ui-react';
 import { generateTurns } from './utils';
+import { ProjectContext } from '../../layouts/context';
 
 import UserUtteredEventViewer from '../example_editor/UserUtteredEventViewer';
 
@@ -96,9 +97,10 @@ function ConversationDialogueViewer({
     mode,
     messageIdInView,
 }) {
+    const { timezoneOffset } = useContext(ProjectContext);
     const toScrollTo = React.createRef();
     
-    const turns = useMemo(() => generateTurns(tracker, mode === 'debug'), [tracker]);
+    const turns = useMemo(() => generateTurns(tracker, mode === 'debug', timezoneOffset), [tracker]);
     useEffect(() => {
         if (toScrollTo.current) {
             toScrollTo.current.scrollIntoView({ block: 'center' });
