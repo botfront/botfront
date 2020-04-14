@@ -158,7 +158,7 @@ function StoryRulesForm({
         url: { type: Array, optional: true },
         'url.$': { type: Object, optional: false },
         'url.$.path': { type: String, optional: false, regEx: noSpaces },
-        'url.$.partialMatch': { type: Boolean, optional: true },
+        'url.$.partialMatch': { type: Boolean, defaultValue: true },
         url__DISPLAYIF: { type: Boolean, optional: true },
         numberOfVisits: { type: Number, optional: true, min: 1 },
         numberOfVisits__DISPLAYIF: { type: Boolean, optional: true },
