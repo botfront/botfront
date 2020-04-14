@@ -140,49 +140,49 @@ const BotResponsesContainer = (props) => {
         browserHistory.replace({ pathname: '/project/bf/stories', query: { 'ids[]': storyIds } });
     };
 
-    const renderDynamicResponseName = () => {
-        console.log();
-        return (
-            <div className='response-name-container'>
-                {loadingResponseLocations && <Loader active inline size='mini' className='response-name-loader' />}
-                {responseLocations.length > 1 ? (
-                    <Popup
-                        className='response-locations-popup'
-                        flowing
-                        open={responseLocationsOpen}
-                        onClose={() => {
-                            setResponseLocationsOpen(false);
-                        }}
-                        onOpen={() => setResponseLocationsOpen(true)}
-                        on='click'
-                        trigger={(
-                            <div className='response-name response-name-link'>
-                                {name}({responseLocations.length})
-                            </div>
-                        )}
-                        content={(
-                            <>
-                                <Header>This response is used in {responseLocations.length} stories</Header>
-                                <List>
-                                    {responseLocations.map(({ title, _id, storyGroupId }) => (
-                                        <List.Item
-                                            className='story-name-link'
-                                            key={_id}
-                                            onClick={() => handleLinkToStory(_id, storyGroupId)}
-                                        >
+    const renderDynamicResponseName = () => (
+        <div className='response-name-container'>
+            {loadingResponseLocations && <Loader active inline size='mini' className='response-name-loader' />}
+            {responseLocations.length > 1 ? (
+                <Popup
+                    className='response-locations-popup'
+                    flowing
+                    open={responseLocationsOpen}
+                    onClose={() => {
+                        setResponseLocationsOpen(false);
+                    }}
+                    onOpen={() => setResponseLocationsOpen(true)}
+                    on='click'
+                    trigger={(
+                        <div
+                            className='response-name response-name-link'
+                            data-cy='response-name'
+                        >
+                            {name}({responseLocations.length})
+                        </div>
+                    )}
+                    content={(
+                        <>
+                            <Header>This response is used in {responseLocations.length} stories</Header>
+                            <List data-cy='response-locations-list'>
+                                {responseLocations.map(({ title, _id, storyGroupId }) => (
+                                    <List.Item
+                                        className='story-name-link'
+                                        key={_id}
+                                        onClick={() => handleLinkToStory(_id, storyGroupId)}
+                                    >
                                             ##{title}
-                                        </List.Item>
-                                    ))}
-                                </List>
-                            </>
-                        )}
-                    />
-                ) : (
-                    <div className='response-name'>{name}</div>
-                )}
-            </div>
-        );
-    };
+                                    </List.Item>
+                                ))}
+                            </List>
+                        </>
+                    )}
+                />
+            ) : (
+                <div className='response-name' data-cy='response-name'>{name}</div>
+            )}
+        </div>
+    );
 
     return (
         <div
