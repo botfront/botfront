@@ -1,6 +1,20 @@
 /* global cy */
 const storyGroupOne = 'Default stories';
 
+const insertPinnedGroup = n => cy.MeteorCall('storyGroups.insert', [
+    {
+        _id: `pinned${n}`,
+        pinned: true,
+        projectId: 'bf',
+        name: `Pinned group ${n}`,
+    },
+]);
+
+const deleteSmartGroups = () => cy.get('.item-focus-holder.blue')
+    .then(specialGroups => Array.from(specialGroups).map(
+        n => n.id.replace(/^story-menu-item-/, ''),
+    ).forEach(_id => cy.MeteorCall('storyGroups.delete', [{ _id, projectId: 'bf' }])));
+
 describe('story tree navigation', function() {
     afterEach(function() {
         cy.logout();
@@ -155,6 +169,25 @@ describe('story tree navigation', function() {
             cy.moveStoryOrGroup({ name: 'Greetings' }, { index: pinned + 2 });
             cy.checkMenuItemAtIndex(4, 'Greetings');
         });
+    });
+
+    it('should always display pinned groups on top', () => {
+        insertPinnedGroup(2);
+        insertPinnedGroup(1);
+        cy.visit('/project/bf/stories');
+        deleteSmartGroups();
+        cy.checkMenuItemAtIndex(0, 'Pinned group 1', false);
+        cy.checkMenuItemAtIndex(1, 'Pinned group 2', false);
+        cy.checkMenuItemAtIndex(2, 'Default stories', false);
+        cy.checkMenuItemAtIndex(5, 'Intro stories', false);
+        cy.log('attempt moving into pinned region');
+        cy.moveStoryOrGroup({ name: 'Intro stories' }, { name: 'Pinned group 1' });
+        cy.checkMenuItemAtIndex(2, 'Intro stories', false); // instead moved as close as possible
+        cy.checkMenuItemAtIndex(4, 'Default stories', false);
+        cy.log('attempt moving out of pinned region');
+        cy.moveStoryOrGroup({ name: 'Pinned group 1' }, { name: 'Greetings' });
+        cy.checkMenuItemAtIndex(0, 'Pinned group 2', false); // instead moved as close as possible
+        cy.checkMenuItemAtIndex(1, 'Pinned group 1', false);
     });
 
     it('train button should have the same text on both the NLU and stories page', function() {
