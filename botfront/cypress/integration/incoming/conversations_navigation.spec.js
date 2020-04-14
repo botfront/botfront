@@ -1,10 +1,9 @@
 
 /* global cy Cypress:true */
 
-function addConversation(id) {
-    const url = `${Cypress.env('API_URL')}/project/bf/conversations/${id}/insert?api-key=`;
 
-    const body = {
+function addConversation(id) {
+    const tracker = {
         sender_id: 'test',
         slots: {
             disambiguation_message: null,
@@ -97,9 +96,14 @@ function addConversation(id) {
         },
         latest_action_name: 'action_listen',
     };
+
+    const body = {
+        query: `mutation ($tracker: Any) {\n  insertTrackerStore(senderId: "${id}", projectId: "bf", tracker: $tracker){\n  lastIndex\n  }\n}`,
+        variables: { tracker },
+    };
     cy.request({
         method: 'POST',
-        url,
+        url: '/graphql',
         headers: { 'Content-Type': 'application/json' },
         body,
     });
@@ -118,7 +122,6 @@ describe('incoming page conversation tab', function () {
         cy.deleteProject('bf');
     });
 
-    
     it('should show a message if no converastions', function () {
         cy.visit('/project/bf/incoming');
         cy.dataCy('conversations')
@@ -135,7 +138,6 @@ describe('incoming page conversation tab', function () {
             .click();
         cy.dataCy('conversation-item').should('have.length', 2);
     });
-
     it('should be possible to select a conversation', function () {
         addConversation('test1');
         addConversation('test2');
@@ -149,7 +151,6 @@ describe('incoming page conversation tab', function () {
         cy.dataCy('utterance-text').contains('/get_started_test1').should('exist');
     });
 });
-
 
 describe('incoming page conversation tab pagination', function () {
     beforeEach(function () {

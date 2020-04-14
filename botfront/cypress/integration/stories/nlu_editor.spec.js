@@ -91,7 +91,7 @@ describe('nlu editor modal tests', () => {
         cy.dataCy('icon-gem').first().click({ force: true });
         cy.dataCy('icon-gem').first().should('have.class', 'active');
         cy.dataCy('example-text-editor-input').click().type('I will probably go to costco{enter}');
-        cy.get('.example-data-table').find('[data-cy=intent-label]').should('have.length', 2);
+        cy.get('.example-data-table').find('[data-cy=intent-label]').should('have.length', 3);
         cy.dataCy('save-nlu').click();
         cy.dataCy('nlu-editor-modal').should('not.exist');
         cy.dataCy('utterance-text').click();
