@@ -1,8 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useContext } from 'react';
 import PropTypes from 'prop-types';
 import ReactJson from 'react-json-view';
 import { Comment, Message } from 'semantic-ui-react';
 import { generateTurns } from './utils';
+import { ProjectContext } from '../../layouts/context';
 
 import UserUtteredEventViewer from '../example_editor/UserUtteredEventViewer';
 
@@ -88,7 +89,8 @@ Turn.defaultProps = {
 };
 
 function ConversationDialogueViewer({ conversation: { tracker, userId }, mode }) {
-    const turns = useMemo(() => generateTurns(tracker, mode === 'debug'), [tracker]);
+    const { timezoneOffset } = useContext(ProjectContext);
+    const turns = useMemo(() => generateTurns(tracker, mode === 'debug', timezoneOffset), [tracker]);
 
     return (
         <Comment.Group>

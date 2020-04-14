@@ -20,10 +20,10 @@ const convoTwoParsed = `# Conversation second_convo (Fri Aug 30 2019 16:36:45 GM
 if (Meteor.isClient) {
     describe('conversation formatting', function () {
         it('should format a one-turn conversation with userId', function () {
-            expect(formatConversationInMd(conversations[0])).to.be.equal(convoOneParsed);
+            expect(formatConversationInMd(conversations[0], -4)).to.be.equal(convoOneParsed);
         });
         it('should format a multi-turn conversation without userId', function () {
-            expect(formatConversationInMd(conversations[1])).to.be.equal(convoTwoParsed);
+            expect(formatConversationInMd(conversations[1], -4)).to.be.equal(convoTwoParsed);
         });
     });
 }

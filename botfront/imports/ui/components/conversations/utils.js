@@ -1,7 +1,7 @@
 import moment from 'moment';
 import ExampleUtils from '../utils/ExampleUtils';
 
-export function generateTurns(tracker, debug = false) {
+export function generateTurns(tracker, debug = false, tzOffset = null) {
     const turns = [];
     let currentTurn = {
         userSays: null,
@@ -25,6 +25,7 @@ export function generateTurns(tracker, debug = false) {
                 timestamp: moment.unix(event.timestamp),
                 confidence: ExampleUtils.getConfidence(event.parse_data),
             };
+            if (Number.isInteger(tzOffset)) userSays.timestamp = userSays.timestamp.utcOffset(tzOffset);
 
             if (!currentTurn.userSays && currentTurn.botResponses.length === 0) {
                 // First piece of dialogue
@@ -75,9 +76,9 @@ const parseBotResponse = ({ text, data: { buttons } = {} } = {}) => {
     return line;
 };
 
-export function formatConversationInMd(conversation) {
+export function formatConversationInMd(conversation, tzOffset = null) {
     const { userId, _id, tracker } = conversation;
-    const turns = generateTurns(tracker);
+    const turns = generateTurns(tracker, false, tzOffset);
     const convLen = turns.length;
     if (!convLen) return '';
     let time;
@@ -102,6 +103,6 @@ export function formatConversationInMd(conversation) {
     return `${header}\n\n${body}`;
 }
 
-export function formatConversationsInMd(conversations) {
-    return conversations.map(formatConversationInMd).join('\n\n');
+export function formatConversationsInMd(conversations, tzOffset = null) {
+    return conversations.map(conv => formatConversationInMd(conv, tzOffset)).join('\n\n');
 }
