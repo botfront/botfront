@@ -73,8 +73,8 @@ if (Meteor.isServer) {
                 createDeployment({ _id, ...item });
                 createCredentials({ _id, ...item });
                 createPolicies({ _id, ...item });
-                createIntroStoryGroup(_id);
                 createDefaultStoryGroup(_id);
+                createIntroStoryGroup(_id);
                 await createInstance({ _id, ...item });
                 return _id;
             } catch (e) {
