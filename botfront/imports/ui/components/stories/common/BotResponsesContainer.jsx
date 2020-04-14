@@ -14,8 +14,6 @@ import { setStoriesCurrent } from '../../../store/actions/actions';
 
 import { checkMetadataSet } from '../../../../lib/botResponse.utils';
 
-import HoverablePopup from '../../common/HoverablePopup';
-
 const BotResponsesContainer = (props) => {
     const {
         name,
