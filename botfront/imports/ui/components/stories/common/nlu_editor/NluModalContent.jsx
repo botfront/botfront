@@ -39,7 +39,7 @@ const NLUModalContent = (props) => {
         closeModal,
         ready,
     } = props;
-    const canEdit = can('nlu:w', projectId);
+    const canEdit = can('nlu-data:w', projectId);
     const checkPayloadsMatch = example => example.intent === payload.intent
         && example.entities.length === payload.entities.length
         && example.entities.every(entity => payload.entities.find(
