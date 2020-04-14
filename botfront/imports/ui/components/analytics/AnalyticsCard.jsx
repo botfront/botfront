@@ -7,7 +7,7 @@ import { useQuery, useLazyQuery } from '@apollo/react-hooks';
 import { useDrag, useDrop } from 'react-dnd-cjs';
 import { saveAs } from 'file-saver';
 import {
-    calculateTemporalBuckets, getDataToDisplayAndParamsToUse, generateCSV, applyTimezoneOffset,
+    calculateTemporalBuckets, getDataToDisplayAndParamsToUse, generateCSV, applyTimezoneOffsetWRONG as applyTimezoneOffset,
 } from '../../../lib/graphs';
 import DatePicker from '../common/DatePicker';
 import PieChart from '../charts/PieChart';
