@@ -126,7 +126,7 @@ const ConversationFilters = ({
                         >
                             <Dropdown.Menu>
                                 <Dropdown.Item onClick={() => onDownloadConversations({ format: 'json' })} icon='download' text='Download results (JSON)' />
-                                <Dropdown.Item onClick={() => onDownloadConversations({ format: 'md' })} icon='download' text='Download results (Md)' />
+                                <Dropdown.Item onClick={() => onDownloadConversations({ format: 'md' })} icon='download' text='Download results (text)' />
                             </Dropdown.Menu>
                         </Dropdown>
                     </Button.Group>
