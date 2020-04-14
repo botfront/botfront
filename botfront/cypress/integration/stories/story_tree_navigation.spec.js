@@ -10,10 +10,17 @@ const insertPinnedGroup = n => cy.MeteorCall('storyGroups.insert', [
     },
 ]);
 
-const deleteSmartGroups = () => cy.get('.item-focus-holder.blue')
-    .then(specialGroups => Array.from(specialGroups).map(
-        n => n.id.replace(/^story-menu-item-/, ''),
-    ).forEach(_id => cy.MeteorCall('storyGroups.delete', [{ _id, projectId: 'bf' }])));
+const deleteSmartGroups = () => {
+    cy.get('#storygroup-tree').then((tree) => {
+        const highlighted = tree.find('.item-focus-holder.blue');
+        if (highlighted.length > 0) {
+            highlighted
+                .then(specialGroups => Array.from(specialGroups).map(
+                    n => n.id.replace(/^story-menu-item-/, ''),
+                ).forEach(_id => cy.MeteorCall('storyGroups.delete', [{ _id, projectId: 'bf' }])));
+        }
+    });
+};
 
 describe('story tree navigation', function() {
     afterEach(function() {
@@ -156,7 +163,8 @@ describe('story tree navigation', function() {
 
     it('should not be able to move a sg into a sg or a story to the root', function() {
         cy.visit('/project/bf/stories');
-        cy.dataCy('story-group-menu-item', null, '[data-pinned="true"]').its('length').then((pinned) => {
+        cy.dataCy('story-group-menu-item').then((els) => {
+            const pinned = Array.from(els).filter(el => el.attributes['data-pinned'].value === 'true').length;
             cy.moveStoryOrGroup({ name: 'Intro stories' }, { name: 'Farewells' });
             cy.checkMenuItemAtIndex(0, 'Intro stories'); // move above group instead
             cy.checkMenuItemAtIndex(4, 'Greetings');
@@ -194,10 +202,12 @@ describe('story tree navigation', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('story-group-menu-item', 'Intro stories').findCy('focus-story-group')
             .click({ force: true });
+        cy.dataCy('focus-story-group', null, '.focused').should('have.length', 1);
         cy.dataCy('train-button').trigger('mouseover');
         cy.contains('Train NLU and stories from 1 focused story group.');
         cy.dataCy('story-group-menu-item', 'Intro stories').findCy('focus-story-group')
             .click({ force: true });
+        cy.dataCy('focus-story-group', null, '.focused').should('have.length', 0);
         cy.dataCy('train-button').trigger('mouseover');
         cy.contains('Train NLU and stories from 1 focused story group.').should('not.exist');
     });
