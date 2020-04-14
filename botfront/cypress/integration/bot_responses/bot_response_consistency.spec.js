@@ -154,4 +154,17 @@ describe('Bot responses', function() {
         cy.dataCy('response-text').contains('third response should exist').should('exist');
         cy.dataCy('template-intent').should('have.length', 2);
     });
+    it('should ignore stories from other projects when deleting responses', () => {
+        cy.visit('/project/bf/stories');
+        cy.browseToStory('Farewells', 'Default stories');
+        cy.dataCy('story-title').should('have.value', 'Farewells');
+        cy.dataCy('bot-response-input').find('textarea').click().type('a')
+            .blur();
+        cy.visit('/project/bf/dialogue/templates');
+        cy.dataCy('template-intent').contains('utter_bye').should('exist');
+        cy.visit('/project/bf/stories');
+        cy.browseToStory('Farewells', 'Default stories');
+        cy.deleteStoryOrGroup('Farewells');
+        checkResponsesDeleted();
+    });
 });

@@ -5,8 +5,8 @@ import BotResponses from '../../botResponses/botResponses.model';
 
 const combineSearches = (search, responseKeys, intents) => {
     const searchRegex = [search];
-    if (responseKeys.length) searchRegex.push(responseKeys);
-    if (intents.length) searchRegex.push(intents);
+    if (responseKeys.length) searchRegex.push(responseKeys.join('|'));
+    if (intents.length) searchRegex.push(intents.join('|'));
     return searchRegex.join('|');
 };
 

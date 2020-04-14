@@ -220,7 +220,7 @@ export const newGetBotResponses = async ({
 
 
 export const deleteResponsesRemovedFromStories = (removedResponses, projectId) => {
-    const sharedResponses = Stories.find({ events: { $in: removedResponses } }, { fields: { events: true } }).fetch();
+    const sharedResponses = Stories.find({ projectId, events: { $in: removedResponses } }, { fields: { events: true } }).fetch();
     if (removedResponses && removedResponses.length > 0) {
         const deleteResponses = removedResponses.filter((event) => {
             if (!sharedResponses) return true;

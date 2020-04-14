@@ -58,7 +58,7 @@ Meteor.methods({
                 {
                     $set: {
                         ...rest,
-                        ...indexStory(originStories.find(({ sid }) => sid === _id) || {}, { includeEventsField: true, update: { ...rest, _id } }),
+                        ...indexStory(originStories.find(({ _id: sid }) => sid === _id) || {}, { includeEventsField: true, update: { ...rest, _id } }),
                     },
                 },
             ));
