@@ -48,7 +48,7 @@ export function generateTurns(tracker, debug = false) {
                 text: event.text,
                 data: event.data,
             });
-            (event.data.buttons || []).forEach((b) => { // remember button title-payload mapping
+            ((event.data || {}).buttons || []).forEach((b) => { // remember button title-payload mapping
                 buttonValues[b.payload.replace(/^\//, '')] = b.title;
             });
         } else if (debug) {
