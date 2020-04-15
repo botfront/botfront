@@ -141,8 +141,8 @@ describe('story tree navigation', function() {
     it('should be able to move a story or group and not lose current selection', function() {
         cy.selectStories('Groupo (2)', 2);
         cy.moveStoryOrGroup({ name: 'Groupi (1)' }, { name: 'Groupo' });
-        cy.moveStoryOrGroup({ name: 'Groupi' }, { name: 'Groupo' });
-        cy.checkMenuItemAtIndex(4, 'Groupi (1)');
+        cy.checkMenuItemAtIndex(3, 'Groupi (1)');
+        cy.moveStoryOrGroup({ name: 'Groupi', type: 'story-group' }, { name: 'Groupo' });
         cy.checkMenuItemAtIndex(0, 'Groupi');
         cy.dataCy('story-title').should('have.length', 2);
         cy.dataCy('story-title').eq(0).should('have.value', 'Groupo (2)');
