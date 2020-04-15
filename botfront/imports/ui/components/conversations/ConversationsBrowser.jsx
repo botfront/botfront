@@ -343,7 +343,7 @@ const ConversationsBrowserContainer = (props) => {
                 }
                 if (format === 'md') {
                     blob = new Blob(
-                        [formatConversationsInMd(conversationsPage.conversations, projectTimezoneOffset)],
+                        [formatConversationsInMd(conversationsPage.conversations)],
                         { type: 'text/markdown;charset=utf-8' },
                     );
                 }

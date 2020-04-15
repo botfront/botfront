@@ -1,7 +1,6 @@
 import moment from 'moment';
 
-export const applyTimezoneOffset = (date, offset) => moment(date).utcOffset(offset);
-export const applyTimezoneOffsetWRONG = (date, offset) => moment(date).utcOffset(offset, true);
+export const applyTimezoneOffset = (date, offset) => moment(date).utcOffset(offset, true);
 
 export const formatDataForTable = (data) => {
     // remove the unit from the table
