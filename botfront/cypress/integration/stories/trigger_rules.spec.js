@@ -138,7 +138,7 @@ describe('Smart story trigger rules', function() {
     it('should not allow a destination story to have rules', () => {
         cy.visit('/project/bf/stories');
         cy.browseToStory('Get started');
-        cy.createStoryInGroup({ groupName: 'Intro stories', storyName: 'like woah' });
+        cy.createStoryInGroup({ groupName: 'Default stories', storyName: 'like woah' });
         cy.linkStory('like woah', 'Get started');
         cy.browseToStory('Get started');
         cy.dataCy('connected-to').should('exist');
@@ -161,7 +161,7 @@ describe('Smart story trigger rules', function() {
         cy.dataCy('submit-triggers').click();
         cy.get('.dimmer').should('not.exist');
         // add a new story
-        cy.createStoryInGroup({ groupName: 'Intro stories', storyName: 'like woah' });
+        cy.createStoryInGroup({ groupName: 'Default stories', storyName: 'like woah' });
         // try to link the new story to the first story
         cy.dataCy('stories-linker').last().click();
         cy.dataCy('link-to').last().find('span').contains('Get started')

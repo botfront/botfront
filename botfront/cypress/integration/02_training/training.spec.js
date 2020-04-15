@@ -1,6 +1,7 @@
 /* global cy Cypress:true */
 describe('Training', function() {
     function createStories() {
+        cy.visit('/project/bf/stories');
         cy.createStoryGroup();
         cy.createStoryInGroup();
         cy.dataCy('toggle-md').click({ force: true });
@@ -86,7 +87,7 @@ describe('Training', function() {
         cy.testChatInput('/chitchat.greet', 'utter_hi');
         cy.toggleStoryGroupFocused();
         cy.get('.eye.icon.focused').should('have.length', 0);
-        cy.toggleStoryGroupFocused('Intro stories');
+        cy.toggleStoryGroupFocused('Default stories');
         cy.get('.eye.icon.focused').should('have.length', 1);
         cy.train();
         cy.dataCy('open-chat').click({ force: true });

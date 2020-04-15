@@ -9,6 +9,7 @@ describe('nlu editor modal tests', () => {
     };
     beforeEach(() => {
         cy.createProject('bf', 'My Project', 'en').then(() => cy.login());
+        cy.visit('/project/bf/stories');
         cy.createStoryGroup();
         cy.createStoryInGroup();
         cy.browseToStory();
