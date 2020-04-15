@@ -86,7 +86,9 @@ describe('Training', function() {
         cy.testChatInput('/chitchat.greet', 'utter_hi');
         cy.toggleStoryGroupFocused();
         cy.get('.eye.icon.focused').should('have.length', 0);
-        cy.toggleStoryGroupFocused('Default stories');
+        cy.createStoryGroup({ groupName: 'Intro stories' });
+        cy.moveStoryOrGroup({ name: 'Get started' }, { name: 'Intro stories' });
+        cy.toggleStoryGroupFocused('Intro stories');
         cy.get('.eye.icon.focused').should('have.length', 1);
         cy.train();
         cy.dataCy('open-chat').click({ force: true });

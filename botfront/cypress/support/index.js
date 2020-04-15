@@ -185,14 +185,14 @@ Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', de
 Cypress.Commands.add('dataCy', (dataCySelector, content = null, filter = null) => {
     let result;
     if (!content) result = cy.get(`[data-cy=${dataCySelector}]`);
-    else {
-        result = cy.contains(
-            `[data-cy=${dataCySelector}]`,
+    else result = cy.get(`[data-cy=${dataCySelector}]:contains(${content})`);
+    const filtered = filter ? result.filter(filter) : result;
+    if (filtered.length > 1) { // go for exact match
+        return filtered.contains(
             new RegExp(`^${content.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`),
         );
     }
-    if (!filter) return result;
-    return result.filter(filter);
+    return filtered;
 });
 
 Cypress.Commands.add('findCy', { prevSubject: 'element' }, (subject, dataCySelector) => subject.find(`[data-cy=${dataCySelector}]`));
