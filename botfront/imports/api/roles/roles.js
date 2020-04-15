@@ -2,7 +2,7 @@ import { Roles } from 'meteor/alanning:roles';
 import { upsertRolesData } from '../graphql/rolesData/mongo/rolesData';
 import { Projects } from '../project/project.collection';
 
-export const can = (permission, projectId, userId, options) => {
+export const can = (permission, projectId, userId, options = {}) => {
     const { bypassWithCI } = options;
     if (Meteor.isTest === true) {
         Meteor.userId = () => 'testuserid';
