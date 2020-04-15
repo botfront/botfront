@@ -233,8 +233,8 @@ describe('incoming page', function() {
     });
 
     it('should be possible to view the conversation from the utterance', function() {
-        cy.addConversation('bf', 'test', JSON.stringify(conversationToAdd));
-        cy.updateConversation('bf', 'test', JSON.stringify(conversationUpdate));
+        cy.addConversation('bf', 'test', conversationToAdd);
+        cy.updateConversation('bf', 'test', conversationUpdate);
 
         cy.visit('/project/bf/incoming');
         cy.get('.utterance-viewer').should('have.text', 'test conv link');
