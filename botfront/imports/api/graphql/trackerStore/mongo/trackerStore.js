@@ -75,10 +75,12 @@ const extractMetadataFromTracker = (tracker) => {
     return metadata;
 };
 
-async function logUtterance(modelId, parseData, callback, env = 'development') {
+async function logUtterance(modelId, parseData, callback, message_id = null, conversation_id = null, env = 'development') {
     const { text } = parseData;
     const newData = {
         ...parseData,
+        message_id,
+        conversation_id,
         intent: parseData.intent.name,
         confidence: parseData.intent.confidence,
     };
@@ -91,7 +93,7 @@ async function logUtterance(modelId, parseData, callback, env = 'development') {
     }
     utterance.env = env;
 
-    Activity.updateOne(
+    Activity.findOneAndUpdate(
         { modelId, text, env },
         {
             $set: utterance,
@@ -104,7 +106,9 @@ async function logUtterance(modelId, parseData, callback, env = 'development') {
         err => callback(utterance, err),
     );
 }
-const logUtterancesFromTracker = async function (projectId, tracker, filter = () => true, env = 'development') {
+
+
+const logUtterancesFromTracker = async function(projectId, tracker, conversation_id, filter = () => true, env = 'development') {
     try {
         const userUtterances = tracker.events.filter(
             event => event.event === 'user' && event.text.indexOf('/') !== 0,
@@ -127,6 +131,8 @@ const logUtterancesFromTracker = async function (projectId, tracker, filter = ()
                 model._id,
                 u.parse_data,
                 (_u, e) => e && console.log('Logging failed: ', e, u),
+                u.message_id,
+                conversation_id,
                 env,
             ));
         }
@@ -137,7 +143,7 @@ const logUtterancesFromTracker = async function (projectId, tracker, filter = ()
 
 
 export const updateTrackerStore = async (senderId, projectId, tracker) => {
-    if (!process.argv.includes('--logConversationsOnly')) logUtterancesFromTracker(projectId, tracker);
+    if (!process.argv.includes('--logConversationsOnly')) logUtterancesFromTracker(projectId, tracker, senderId);
 
     const { userId, language } = extractMetadataFromTracker(tracker);
     const setTracker = {};
