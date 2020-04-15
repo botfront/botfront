@@ -187,8 +187,13 @@ export const auditLog = (message, metadata) => {
     const {
         user, type, resId, resType, projectId,
     } = metadata;
-
-    const newMessage = `${message}, User ${user.emails[0].address} ${type} ${resType} ${resId} in project ${projectId}`;
+    let email = '';
+    try {
+        email = user.emails[0].address;
+    } catch (err) {
+        email = 'user email was not found';
+    }
+    const newMessage = `${message}, User ${email} ${type} ${resType} ${resId} in project ${projectId}`;
     auditLogger.info(newMessage, {
         ...metadata,
     });
