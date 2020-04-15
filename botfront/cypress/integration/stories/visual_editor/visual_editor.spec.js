@@ -12,6 +12,7 @@ describe('story visual editor', function () {
             () => cy.createNLUModelProgramatically('bf', '', 'de'),
         );
         cy.login();
+        cy.visit('/project/bf/stories');
         cy.createStoryGroup();
         cy.createStoryInGroup();
     });
