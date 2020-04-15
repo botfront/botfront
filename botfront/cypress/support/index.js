@@ -634,32 +634,32 @@ Cypress.Commands.add('pickDateRange', (datePickerIndex, firstDateStr, secondDate
 });
 
 Cypress.Commands.add('addConversation', (projectId, id, conversation) => {
-    let url = `http://localhost:8080/project/${projectId}/conversations/${id}/insert?api-key=`;
-    if (Cypress.env('API_URL') !== '') {
-        url = `${Cypress.env('API_URL')}/project/${projectId}/conversations/${id}/insert?api-key=`;
-    }
+    const body = {
+        query: `mutation ($tracker: Any) {\n  insertTrackerStore(senderId: "${id}", projectId: "${projectId}", tracker: $tracker){\n  lastIndex\n  }\n}`,
+        variables: { tracker: conversation },
+    };
     
     cy.request({
         method: 'POST',
-        url,
+        url: '/graphql',
         headers: { 'Content-Type': 'application/json' },
-        body: conversation,
+        body,
     });
 });
 
 Cypress.Commands.overwrite('log', (subject, message) => cy.task('log', message));
 
 Cypress.Commands.add('updateConversation', (projectId, id, conversation) => {
-    let url = `http://localhost:8080/project/${projectId}/conversations/${id}/update?api-key=`;
-    if (Cypress.env('API_URL') !== '') {
-        url = `${Cypress.env('API_URL')}/project/${projectId}/conversations/${id}/update?api-key=`;
-    }
+    const body = {
+        query: `mutation ($tracker: Any) {\n  updateTrackerStore(senderId: "${id}", projectId: "${projectId}", tracker: $tracker){\n  lastIndex\n  }\n}`,
+        variables: { tracker: conversation },
+    };
     
     cy.request({
         method: 'POST',
-        url,
+        url: '/graphql',
         headers: { 'Content-Type': 'application/json' },
-        body: conversation,
+        body,
     });
 });
 Cypress.Commands.add('getBranchContainer', (depth) => {
