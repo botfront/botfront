@@ -17,7 +17,7 @@ export const createTestUser = async (
     return userData;
 };
 
-export const removeTestUser = async (userId) => {
+export const removeTestUser = async (userId = 'testuserid') => {
     await Meteor.users.remove({ _id: userId });
     await Meteor.roleAssignment.remove({ user: { _id: userId } });
 };
