@@ -22,32 +22,6 @@ export const createStoriesWithTriggersGroup = (projectId) => {
     );
 };
 
-export const createIntroStoryGroup = (projectId) => {
-    if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
-    checkIfCan('projects:w');
-    Meteor.call(
-        'storyGroups.insert',
-        {
-            name: 'Intro stories',
-            projectId,
-        },
-        (err, storyGroupId) => {
-            if (!err) {
-                Meteor.call('stories.insert', {
-                    story: '* get_started\n    - utter_get_started',
-                    title: 'Get started',
-                    storyGroupId,
-                    projectId,
-                    events: ['utter_get_started'],
-                });
-            } else {
-                // eslint-disable-next-line no-console
-                console.log(err);
-            }
-        },
-    );
-};
-
 export const createDefaultStoryGroup = (projectId) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
     checkIfCan('projects:w');
@@ -72,6 +46,13 @@ export const createDefaultStoryGroup = (projectId) => {
                     storyGroupId,
                     projectId,
                     events: ['utter_bye'],
+                });
+                Meteor.call('stories.insert', {
+                    story: '* get_started\n    - utter_get_started',
+                    title: 'Get started',
+                    storyGroupId,
+                    projectId,
+                    events: ['utter_get_started'],
                 });
             } else {
                 // eslint-disable-next-line no-console
@@ -122,7 +103,7 @@ Meteor.methods({
             const id = StoryGroups.insert({
                 ...storyGroup, children: [],
             });
-            const $position = pinned ? 0 : StoryGroups.find({ projectId, pinned }).count();
+            const $position = pinned ? 0 : StoryGroups.find({ projectId, pinned: true }).count();
             Projects.update(
                 { _id: projectId },
                 { $push: { storyGroups: { $each: [id], $position } } },
