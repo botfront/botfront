@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import './QuickReply.import.less';
 import { Popup } from 'semantic-ui-react';
 import ResponseButtonEditor from './ResponseButtonEditor';
 import { stringPayloadToObject } from '../../../../lib/story_controller';
