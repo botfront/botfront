@@ -137,7 +137,7 @@ HoverablePopup.propTypes = {
     content: PropTypes.element.isRequired,
     trigger: PropTypes.element.isRequired,
     disabled: PropTypes.bool,
-    on: PropTypes.string,
+    on: PropTypes.oneOf(['click', 'hover']),
     controlled: PropTypes.bool,
     setOpen: PropTypes.func,
     setClosed: PropTypes.func,
