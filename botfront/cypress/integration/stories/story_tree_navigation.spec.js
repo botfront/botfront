@@ -14,10 +14,9 @@ const deleteSmartGroups = () => {
     cy.get('#storygroup-tree').then((tree) => {
         const highlighted = tree.find('.item-focus-holder.blue');
         if (highlighted.length > 0) {
-            highlighted
-                .then(specialGroups => Array.from(specialGroups).map(
-                    n => n.id.replace(/^story-menu-item-/, ''),
-                ).forEach(_id => cy.MeteorCall('storyGroups.delete', [{ _id, projectId: 'bf' }])));
+            Array.from(highlighted).map(
+                n => n.id.replace(/^story-menu-item-/, ''),
+            ).forEach(_id => cy.MeteorCall('storyGroups.delete', [{ _id, projectId: 'bf' }]));
         }
     });
 };
