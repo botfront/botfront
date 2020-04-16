@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.22.0-ee.0](https://github.com/botfront/botfront/compare/v0.21.4-ee.2...v0.22.0-ee.0) (2020-04-16)
+
+
+### Features
+
+* **analytics:** cards can be added and deleted ([a9d2446](https://github.com/botfront/botfront/commit/a9d2446b6c4a971e4e7f85a4c577f2ce64c137e6))
+* **analytics:** option to update date range for all cards at once ([2157798](https://github.com/botfront/botfront/commit/2157798518ad73d0575c92c7e922f33397b32198))
+* **rules:** support partial or full matching of the url ([78fe56f](https://github.com/botfront/botfront/commit/78fe56f7843f90b5cb10445ccd95e447f35824a4))
+* **visual story editor:** add option for new disjuncts ([c8468a2](https://github.com/botfront/botfront/commit/c8468a203d32904775cd48fe65580ba57ba6f064))
+* **wide toggle:** add toggle button for wide status of analytics card ([57dc562](https://github.com/botfront/botfront/commit/57dc562aaf68e2d3f3478ebe6dc4924a5d67f838))
+* add analytics:w role ([7db61d9](https://github.com/botfront/botfront/commit/7db61d9b3398593f5535b4e90278ded31e009c25))
+* dashboard is persisted to db ([77c5e77](https://github.com/botfront/botfront/commit/77c5e77e61d9e12265174cd3053d5a9265da1efc))
+* stories: NLU modal ([8e5f7e7](https://github.com/botfront/botfront/commit/8e5f7e7e03deaa36abd6c86d7330187d9f4afd83))
+* user utterances container ([363dea5](https://github.com/botfront/botfront/commit/363dea5afaa2dd044a20fd8cdfdfa69f7cd7256b))
+
+
+### Bug Fixes
+
+*  story page crash after import ([b579b54](https://github.com/botfront/botfront/commit/b579b5417815f08978fcf63dc5850666e3c33c16))
+* deletion of unused bot responses ([982f73c](https://github.com/botfront/botfront/commit/982f73c2218d4b450c8aa2094d40e02724010c04))
+* entity doubling in data parsed from rasa ([a45083a](https://github.com/botfront/botfront/commit/a45083acfd218e5303d6a7c26eaac476af7b130a))
+* fix broken popups ([d22936b](https://github.com/botfront/botfront/commit/d22936bd5762d0945d368c34cdaf9dabe7cfda84))
+* handling of import response, ([a405766](https://github.com/botfront/botfront/commit/a4057661365957147cbfd59046062feffbc68316))
+* intents list in filter was missing new intents ([6363927](https://github.com/botfront/botfront/commit/636392708c586ee23313534c774d8eb3facb23d1))
+* set correct deployment name ([9d73b88](https://github.com/botfront/botfront/commit/9d73b883dcac844b8e432ac40d2608283aab516b))
+* stories search algorithim ([9b787aa](https://github.com/botfront/botfront/commit/9b787aae7241f0a9b3aa58c8261cceae896c8565))
+* story search inconsistency ([9f3014c](https://github.com/botfront/botfront/commit/9f3014c95d278eb9031d422761bc671f15660614))
+
+### [0.21.4-ee.2](https://github.com/botfront/botfront/compare/v0.21.4-ee.1...v0.21.4-ee.2) (2020-04-01)
+
 
 ### Bug Fixes
 
@@ -22,6 +52,8 @@ All notable changes to this project will be documented in this file. See [standa
 
 * add tests for multiple disjuncts ([918307c](https://github.com/botfront/botfront/commit/918307c))
 * stories: nlu editor ([c3b60b3](https://github.com/botfront/botfront/commit/c3b60b3))
+
+
 
 
 ### [0.21.4-ee.1](https://github.com/botfront/botfront/compare/v0.21.4-ee.0...v0.21.4-ee.1) (2020-03-31)
