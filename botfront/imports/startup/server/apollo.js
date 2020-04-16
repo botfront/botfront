@@ -35,7 +35,7 @@ export const runAppolloServer = () => {
                 Accounts.createUser({ username: 'EXTERNAL_CONSUMER' });
                 user = Meteor.users.findOne({ username: 'EXTERNAL_CONSUMER' });
             }
-            if (!can('responses:r', null, user._id)) {
+            if (user.username === 'EXTERNAL_CONSUMER' && !can('responses:r', null, user._id)) {
                 Meteor.roleAssignment.update(
                     { 'user._id': user._id },
                     { user: { _id: user._id }, scope: null, inheritedRoles: [{ _id: 'responses:r' }] },
