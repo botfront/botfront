@@ -3,7 +3,7 @@ import moment from 'moment';
 import { DayPickerRangeController } from 'react-dates';
 import React, { useState } from 'react';
 import {
-    Popup, Button, Icon, Form, Menu,
+    Popup, Button, Icon, Form, Menu, Dropdown,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import momentPropTypes from 'react-moment-proptypes';
@@ -13,7 +13,7 @@ if (!Meteor.isTest) {
 }
 
 function DatePicker({
-    startDate, endDate, onConfirm, position,
+    startDate, endDate, onConfirm, onConfirmForAll, position,
 }) {
     const [focusedInput, setFocusedInput] = useState('startDate');
     const [newStartDate, setNewStartDate] = useState(startDate);
@@ -31,8 +31,9 @@ function DatePicker({
         return `${start ? `${start.format('DD MMM YYYY')} - ` : ''}${end ? end.format('DD MMM YYYY') : ''}`;
     }
 
-    function sendNewDates() {
-        onConfirm(newStartDate, newEndDate);
+    function sendNewDates(all = false) {
+        const func = all ? onConfirmForAll : onConfirm;
+        func(newStartDate, newEndDate, all);
         setPopupOpen(!popupOpen);
     }
     /* the value field should is the array index of the object
@@ -102,7 +103,7 @@ function DatePicker({
         <Popup
             flowing
             position={position}
-            pinned={!!position}
+            // pinned={!!position}
             className='date-picker'
             open={popupOpen}
             onClose={handlePopupState}
@@ -151,9 +152,23 @@ function DatePicker({
 
                 <Menu.Menu position='right'>
                     <Menu.Item>
-                        <Button primary content='Confirm' onClick={() => sendNewDates()} />
+                        <Button.Group primary>
+                            <Button data-cy='apply-new-dates' content='Apply' onClick={() => sendNewDates()} />
+                            {onConfirmForAll && (
+                                <Dropdown
+                                    className='button icon'
+                                    floating
+                                    options={[{
+                                        key: 'apply-new-dates-to-all',
+                                        'data-cy': 'apply-new-dates-to-all',
+                                        text: 'Apply to all cards',
+                                        onClick: () => sendNewDates(true),
+                                    }]}
+                                    trigger={<React.Fragment />}
+                                />
+                            )}
+                        </Button.Group>
                     </Menu.Item>
-
                 </Menu.Menu>
             </Menu>
         </Popup>
@@ -165,6 +180,7 @@ DatePicker.propTypes = {
     startDate: momentPropTypes.momentObj,
     endDate: momentPropTypes.momentObj,
     onConfirm: PropTypes.func.isRequired,
+    onConfirmForAll: PropTypes.func,
     position: PropTypes.string,
 };
 
@@ -173,6 +189,7 @@ DatePicker.defaultProps = {
     startDate: null,
     endDate: null,
     position: null,
+    onConfirmForAll: null,
 };
 
 

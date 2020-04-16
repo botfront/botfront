@@ -14,7 +14,7 @@ if (Meteor.isClient) {
             ({ nTicks, nBuckets } = calculateTemporalBuckets(startDate, endDate));
             expect(nTicks).to.be.equal(3);
             expect(nBuckets).to.be.equal(3);
-            ({ nTicks, nBuckets } = calculateTemporalBuckets(startDate, endDate, _, 'wide'));
+            ({ nTicks, nBuckets } = calculateTemporalBuckets(startDate, endDate, _, true));
             expect(nTicks).to.be.equal(12);
             expect(nBuckets).to.be.equal(24);
         });
@@ -54,9 +54,9 @@ if (Meteor.isClient) {
             const endDate = moment();
             let nTicks;
             let bucketSize;
-            ({ nTicks, bucketSize } = calculateTemporalBuckets(startDate, endDate, _, 'wide'));
+            ({ nTicks, bucketSize } = calculateTemporalBuckets(startDate, endDate, _, true));
             ({ paramsToUse } = getDataToDisplayAndParamsToUse({
-                data, queryParams, graphParams, valueType, bucketSize, nTicks, projectTimezoneOffset, size: 'wide',
+                data, queryParams, graphParams, valueType, bucketSize, nTicks, projectTimezoneOffset, size: true,
             }));
             expect(paramsToUse.axisBottom.format).to.be.equal('%H:%M');
 

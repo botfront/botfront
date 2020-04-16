@@ -483,12 +483,10 @@ the tests are created by iterating over subscriptions. the test params are as fo
             args: [],
             acceptedRoles: readers.roles,
             allowed: (result, done) => {
-                expect(result.roles).to.have.length(22);
                 expect(result.roles.find(({ _id }) => _id === 'nlu-data:r')).to.be.deep.equal({ _id: 'nlu-data:r', children: [] });
                 done();
             },
             allowedProjectScope: (result, done) => {
-                expect(result.roles).to.have.length(22);
                 expect(result.roles.find(({ _id }) => _id === 'nlu-data:r')).to.be.deep.equal({ _id: 'nlu-data:r', children: [] });
                 done();
             },

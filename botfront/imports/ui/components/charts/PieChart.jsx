@@ -15,8 +15,8 @@ function PieChart(props) {
         .map(d => ({
             ...d,
             x: (d[x] || d[x] === 0 ? d[x] : 'null').toString(),
-            y: d[y[0].abs],
-            yRel: d[y[0].rel],
+            y: d[y[0].absolute],
+            yRel: d[y[0].relative],
         }))
         .map(d => ({
             ...d, id: d.x, value: d.y,
@@ -75,7 +75,7 @@ PieChart.defaultProps = {
                 <span style={{ color: d.color }}>
                     <Icon name='square' />
                 </span>
-                {labelWithPercent(formatOrIdent(formats, y[0].abs)(d.y), d.yRel)}
+                {labelWithPercent(formatOrIdent(formats, y[0].absolute)(d.y), d.yRel)}
             </div>
         </div>
     ),

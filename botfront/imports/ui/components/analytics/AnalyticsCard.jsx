@@ -1,7 +1,7 @@
 import {
-    Button, Popup, Loader, Message, Icon,
+    Button, Popup, Loader, Message, Icon, Input, Dropdown,
 } from 'semantic-ui-react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery, useLazyQuery } from '@apollo/react-hooks';
 import { useDrag, useDrop } from 'react-dnd-cjs';
@@ -14,74 +14,68 @@ import PieChart from '../charts/PieChart';
 import BarChart from '../charts/BarChart';
 import LineChart from '../charts/LineChart';
 import SettingsPortal from './SettingsPortal';
-import { Projects } from '../../../api/project/project.collection';
 import Table from '../charts/Table';
+import { ProjectContext } from '../../layouts/context';
 
 function AnalyticsCard(props) {
     const {
         cardName,
         displayDateRange,
         chartTypeOptions,
-        title,
         titleDescription,
         query,
         queryParams,
-        exportQueryParams,
         graphParams,
         settings: {
             endDate,
             startDate,
             chartType,
             valueType,
-            exclude,
-            responses,
+            wide,
+            showDenominator,
+            ...settings
         },
-        size,
         onChangeSettings,
         onReorder,
-        projectName,
     } = props;
+
+    const { project: { _id: projectId, name: projectName = 'Botfront', timezoneOffset: projectTimezoneOffset = 0 } } = useContext(ProjectContext);
+
+    const [nameEdited, setNameEdited] = useState(null);
     
-    const displayAbsoluteRelative = 'rel' in graphParams;
+    const { displayAbsoluteRelative } = graphParams;
     const uniqueChartOptions = [...new Set(chartTypeOptions)];
 
     const [settingsOpen, setSettingsOpen] = useState(false);
-    const { nTicks, nBuckets, bucketSize } = calculateTemporalBuckets(startDate, endDate, chartType, size);
-    const [projectTimezoneOffset, setProjectTimezoneOffset] = useState(0);
+    const { nTicks, nBuckets, bucketSize } = calculateTemporalBuckets(startDate, endDate, chartType, wide);
     const [activateDownload, setActivateDownload] = useState(false);
-
-    useEffect(() => {
-        const {
-            timezoneOffset,
-        } = Projects.findOne({ _id: queryParams.projectId }, { fields: { timezoneOffset: 1 } });
-        setProjectTimezoneOffset(timezoneOffset || 0);
-    }, []);
 
     const [, drag] = useDrag({
         item: { type: 'card', cardName },
         collect: monitor => ({
             isDragging: monitor.isDragging(),
         }),
+        canDrag: () => nameEdited === null,
     });
-    const [, drop] = useDrop({
+    const [{ canDrop, isOver }, drop] = useDrop({
         accept: 'card',
-        canDrop: () => false,
-        hover({ cardName: draggedCard }) {
-            if (draggedCard !== cardName) {
-                onReorder(draggedCard, cardName);
-            }
+        drop: ({ cardName: draggedCard }) => {
+            if (draggedCard !== cardName) onReorder(draggedCard);
         },
+        collect: monitor => ({
+            isOver: monitor.isOver(),
+            canDrop: monitor.canDrop(),
+        }),
     });
+
     const variables = {
-        projectId: queryParams.projectId,
-        envs: queryParams.envs,
-        langs: queryParams.queryLanguages,
+        projectId,
+        envs: [...queryParams.envs, ...(queryParams.envs.includes('development') ? [null] : [])],
+        langs: queryParams.langs,
         from: applyTimezoneOffset(startDate, projectTimezoneOffset).valueOf() / 1000,
         to: applyTimezoneOffset(endDate, projectTimezoneOffset).valueOf() / 1000,
-        ...(exclude ? { exclude } : {}),
-        fallbacks: responses || [],
+        ...settings,
         nBuckets,
-        limit: chartType === 'table' ? 100000 : undefined,
     };
     const { loading, error, data } = query
         ? useQuery(query, { variables })
@@ -89,11 +83,9 @@ function AnalyticsCard(props) {
     
     const [getExportData, { error: exportError, data: exportData }] = useLazyQuery(query);
     const downloadCSV = () => {
-        const csvData = generateCSV(exportData, { ...queryParams, ...exportQueryParams }, bucketSize, projectTimezoneOffset, graphParams.columns);
+        const csvData = generateCSV(exportData, queryParams, graphParams, bucketSize, projectTimezoneOffset);
         const csvBlob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
-        const start = applyTimezoneOffset(startDate, projectTimezoneOffset);
-        const end = applyTimezoneOffset(endDate, projectTimezoneOffset);
-        const fileName = `${projectName}-${title.replace(/ /g, '')}-(${start.toISOString()})-(${end.toISOString()})`;
+        const fileName = `${projectName}-${cardName.replace(/ /g, '')}-(${startDate.toISOString()})-(${endDate.toISOString()})`;
         if (!window.Cypress) { // prevent file from downloading during tests
             saveAs(csvBlob, `${fileName}.csv`);
         }
@@ -110,7 +102,7 @@ function AnalyticsCard(props) {
 
     const renderChart = () => {
         const { dataToDisplay, paramsToUse } = getDataToDisplayAndParamsToUse({
-            data, queryParams, graphParams, nTicks, valueType, bucketSize, projectTimezoneOffset, size,
+            data, queryParams, graphParams, nTicks, valueType, bucketSize, projectTimezoneOffset, wide, showDenominator,
         });
         if (!dataToDisplay.length) return <Message color='yellow'><Icon name='calendar times' data-cy='no-data-message' />No data to show for selected period!</Message>;
         if (chartType === 'pie') return <PieChart {...paramsToUse} data={dataToDisplay} />;
@@ -119,32 +111,29 @@ function AnalyticsCard(props) {
         if (chartType === 'table') return <Table {...paramsToUse} data={dataToDisplay} bucketSize={bucketSize} />;
         return null;
     };
-    
-    const renderExtraOptionsLink = () => {
-        if (!exclude && !responses) return null;
-        let text; let values; let setting;
-        if (exclude) {
-            text = 'Excluded intents';
-            values = exclude;
-            setting = 'exclude';
-        } else if (responses) {
-            text = 'Fallback actions';
-            values = responses;
-            setting = 'responses';
-        }
+
+    const renderExtraOptionsLink = (setting) => {
+        const values = settings[setting] || [];
+        let text = '';
+        if (setting === 'includeActions') text = 'Included actions';
+        if (setting === 'excludeActions') text = 'Excluded actions';
+        if (setting === 'includeIntents') text = 'Included intents';
+        if (setting === 'excludeIntents') text = 'Excluded intents';
         return (
-            <>
+            <React.Fragment key={setting}>
                 <SettingsPortal
                     text={text}
                     onClose={() => setSettingsOpen(false)}
-                    open={settingsOpen}
+                    open={settingsOpen === setting}
                     values={values}
-                    onChange={newVal => onChangeSettings(setting, newVal)}
+                    onChange={newVal => onChangeSettings({ [setting]: newVal })}
                 />
-                <button type='button' className='extra-options-linklike' onClick={() => setSettingsOpen(!settingsOpen)}>
-                    {`${text} (${values.length})`}
-                </button>
-            </>
+                <Dropdown.Item
+                    text={`${text} (${values.length})`}
+                    data-cy={`edit-${setting}`}
+                    onClick={() => setSettingsOpen(setting)}
+                />
+            </React.Fragment>
         );
     };
 
@@ -159,15 +148,25 @@ function AnalyticsCard(props) {
         const { nBuckets: nBucketsForExport } = calculateTemporalBuckets(startDate, endDate, 'table');
         getExportData({
             variables: {
-                ...variables, ...exportQueryParams, nBuckets: nBucketsForExport,
+                ...variables, limit: 100000, nBuckets: nBucketsForExport,
             },
         });
         setActivateDownload(true);
     };
 
+    const submitNameChange = () => {
+        if (nameEdited.trim()) onChangeSettings({ name: nameEdited.trim() });
+        setNameEdited(null);
+    };
+
+    const handleKeyDownInput = (e) => {
+        if (e.key === 'Enter') submitNameChange();
+        if (e.key === 'Escape') setNameEdited(null);
+    };
+
     return (
         <div
-            className={`analytics-card ${size === 'wide' ? 'wide' : ''}`}
+            className={`analytics-card ${wide ? 'wide' : ''} ${canDrop ? (isOver ? 'upload-target' : 'faded-upload-target') : ''}`}
             ref={node => drag(drop(node))}
             data-cy='analytics-card'
         >
@@ -177,8 +176,10 @@ function AnalyticsCard(props) {
                         startDate={startDate}
                         endDate={endDate}
                         onConfirm={(newStart, newEnd) => {
-                            onChangeSettings('startDate', newStart);
-                            onChangeSettings('endDate', newEnd);
+                            onChangeSettings({ startDate: newStart, endDate: newEnd });
+                        }}
+                        onConfirmForAll={(newStart, newEnd) => {
+                            onChangeSettings({ startDate: newStart, endDate: newEnd }, true);
                         }}
                     />
                 </div>
@@ -201,7 +202,7 @@ function AnalyticsCard(props) {
                                 icon={getIconName(chartOption)}
                                 key={chartOption}
                                 className={chartType === chartOption ? 'selected' : ''}
-                                onClick={() => onChangeSettings('chartType', chartOption)}
+                                onClick={() => onChangeSettings({ chartType: chartOption })}
                                 data-cy={`${chartOption}-chart-button`}
                             />
                         ))}
@@ -211,26 +212,77 @@ function AnalyticsCard(props) {
                     <Button.Group basic size='small' className='unit-selector'>
                         <Button
                             icon='hashtag'
-                            onClick={() => onChangeSettings('valueType', 'absolute')}
+                            onClick={() => onChangeSettings({ valueType: 'absolute' })}
                             className={valueType === 'absolute' ? 'selected' : ''}
                         />
                         <Button
                             icon='percent'
-                            onClick={() => onChangeSettings('valueType', 'relative')}
+                            onClick={() => onChangeSettings({ valueType: 'relative' })}
                             className={valueType === 'relative' ? 'selected' : ''}
                         />
                     </Button.Group>
                 )}
+                <Dropdown
+                    trigger={(
+                        <Button
+                            className='export-card-button'
+                            icon='ellipsis vertical'
+                            basic
+                            data-cy='card-ellipsis-menu'
+                        />
+                    )}
+                    basic
+                >
+                    <Dropdown.Menu>
+                        <Dropdown.Item
+                            text={wide ? 'Shrink to half width' : 'Expand to full width'}
+                            data-cy='toggle-wide'
+                            onClick={() => onChangeSettings({ wide: !wide })}
+                        />
+                        {graphParams.y2 && (
+                            <Dropdown.Item
+                                text={showDenominator ? 'Hide denominator' : 'Show denominator'}
+                                data-cy='toggle-denominator'
+                                onClick={() => onChangeSettings({ showDenominator: !showDenominator })}
+                            />
+                        )}
+                        <React.Fragment>
+                            <SettingsPortal
+                                text='Edit description'
+                                onClose={() => setSettingsOpen(false)}
+                                open={settingsOpen === 'description'}
+                                values={titleDescription}
+                                onChange={newVal => onChangeSettings({ description: newVal })}
+                            />
+                            <Dropdown.Item
+                                text='Edit description'
+                                data-cy='edit-description'
+                                onClick={() => setSettingsOpen('description')}
+                            />
+                        </React.Fragment>
+                        {(graphParams.displayConfigs || []).map(renderExtraOptionsLink)}
+                    </Dropdown.Menu>
+                </Dropdown>
             </span>
-            {titleDescription ? (
-                <Popup
-                    trigger={<span className='title'>{title}</span>}
-                    content={titleDescription}
-                />
-            ) : (
-                <span className='title'>{title}</span>
-            )}
-            {renderExtraOptionsLink()}
+            {nameEdited === null
+                ? (
+                    <Popup
+                        trigger={<span className='title' onDoubleClick={() => setNameEdited(cardName)}>{cardName}</span>}
+                        content={titleDescription}
+                    />
+                )
+                : (
+                    <Input
+                        onChange={(_, { value }) => setNameEdited(value)}
+                        value={nameEdited}
+                        autoFocus
+                        fluid
+                        className='title'
+                        onKeyDown={handleKeyDownInput}
+                        onBlur={submitNameChange}
+                    />
+                )
+            }
             <div className='graph-render-zone' data-cy='analytics-chart'>
                 {(!error && !loading && data) ? (
                     renderChart()
@@ -244,19 +296,15 @@ function AnalyticsCard(props) {
 
 AnalyticsCard.propTypes = {
     cardName: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
     titleDescription: PropTypes.string,
     displayDateRange: PropTypes.bool,
     chartTypeOptions: PropTypes.arrayOf(PropTypes.oneOf(['line', 'bar', 'pie', 'table'])),
     query: PropTypes.any.isRequired,
     queryParams: PropTypes.object.isRequired,
-    exportQueryParams: PropTypes.object,
     graphParams: PropTypes.object,
     settings: PropTypes.object.isRequired,
     onChangeSettings: PropTypes.func.isRequired,
     onReorder: PropTypes.func,
-    size: PropTypes.string,
-    projectName: PropTypes.string,
 };
 
 AnalyticsCard.defaultProps = {
@@ -264,10 +312,7 @@ AnalyticsCard.defaultProps = {
     chartTypeOptions: ['line', 'bar'],
     titleDescription: null,
     graphParams: {},
-    exportQueryParams: {},
     onReorder: null,
-    size: 'standard',
-    projectName: 'Botfront',
 };
 
 export default AnalyticsCard;

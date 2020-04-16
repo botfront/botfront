@@ -3,18 +3,14 @@ import PropTypes from 'prop-types';
 import ReactTable, { ReactTableDefaults } from 'react-table-v6';
 import moment from 'moment';
 
-import { formatDataForTable } from '../../../lib/graphs';
-
 const Table = (props) => {
     const {
-        data: incomingData,
+        data,
         columns,
         bucketSize,
         numberColumns,
         customSorts,
     } = props;
-
-    const data = formatDataForTable(incomingData);
     
     const renderCell = (cellProps, accessor, options) => {
         const cellContent = cellProps.original[accessor];
@@ -35,7 +31,7 @@ const Table = (props) => {
             const columnProps = {
                 id: accessor,
                 accessor,
-                Header: bucketSize === 'hour' && accessor === 'date' ? 'Time' : header,
+                Header: accessor === 'bucket' ? (bucketSize === 'hour' ? 'Time' : 'Date') : header,
                 Cell: cellProps => renderCell(cellProps, accessor, options),
             };
             if (numberColumns.includes(accessor)) {
@@ -70,7 +66,7 @@ Table.propTypes = {
     columns: PropTypes.array.isRequired,
     bucketSize: PropTypes.string.isRequired,
     numberColumns: PropTypes.arrayOf(PropTypes.string),
-    customSorts: PropTypes.array,
+    customSorts: PropTypes.object,
 };
 Table.defaultProps = {
     numberColumns: [

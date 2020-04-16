@@ -251,6 +251,18 @@ Cypress.Commands.add(
     },
 );
 
+Cypress.Commands.add(
+    'dragTo',
+    { prevSubject: 'element' },
+    (source, destinationCyData) => {
+        cy.wrap(source).trigger('dragstart');
+        cy.dataCy(destinationCyData).then((destination) => {
+            cy.wrap(destination).trigger('dragenter');
+            cy.wrap(destination).trigger('drop');
+        });
+    },
+);
+
 Cypress.Commands.add('createUser', (lastName, email, roles, projectId) => {
     cy.visit('/');
     cy.window()
@@ -578,7 +590,7 @@ Cypress.Commands.add('findMonth', (queryMonth, index, incomingSearchPrev) => {
             }
         });
 });
-Cypress.Commands.add('pickDateRange', (datePickerIndex, firstDateStr, secondDateStr) => {
+Cypress.Commands.add('pickDateRange', (datePickerIndex, firstDateStr, secondDateStr, all = false) => {
     /*
         clicks on firstDateStr, then clicks on SecondDateStr, then confirms the date selection
         ----------------------------------------------------------
@@ -617,9 +629,8 @@ Cypress.Commands.add('pickDateRange', (datePickerIndex, firstDateStr, secondDate
         .click({ force: true });
     cy.get('.visible.date-picker')
         .first()
-        .find('button')
-        .contains('Confirm')
-        .click();
+        .findCy(all ? 'apply-new-dates-to-all' : 'apply-new-dates')
+        .click({ force: true });
 });
 
 Cypress.Commands.add('addConversation', (projectId, id, conversation) => {

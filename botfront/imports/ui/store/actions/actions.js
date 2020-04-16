@@ -71,27 +71,10 @@ export function setWorkingDeploymentEnvironment(env) {
     };
 }
 
-export function swapAnalyticsCards(k1, k2) {
+export function setWorkingDashboard(dashboard) {
     return {
-        type: types.SWAP_ANALYTICS_CARDS,
-        k1,
-        k2,
-    };
-}
-
-export function setAnalyticsCardSettings(cardId, setting, value) {
-    return {
-        type: types.SET_ANALYTICS_CARD_SETTINGS,
-        cardId,
-        setting,
-        value,
-    };
-}
-
-export function setAnalyticsLanguages(languages) {
-    return {
-        type: types.SET_ANALYTICS_LANGUAGES,
-        languages,
+        type: types.SET_WORKING_DASHBOARD,
+        dashboard,
     };
 }
 

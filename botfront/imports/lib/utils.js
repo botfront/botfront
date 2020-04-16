@@ -257,3 +257,9 @@ export function auditLogIfOnServer(message, meta) {
         auditLog(message, meta);
     }
 }
+
+export function findName(name, names) {
+    const sameNamed = names.filter(c => c.replace(/ \(\d+\)/, '') === name);
+    if (!sameNamed.length) return name;
+    return `${name} (${sameNamed.length + 1})`;
+}

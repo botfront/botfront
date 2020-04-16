@@ -1,7 +1,7 @@
 import Conversations from '../conversations.model';
 import { generateBuckets, fillInEmptyBuckets } from '../../utils';
 
-export const getConversationsWithEngagement = async ({
+export const getConversationsIncludingIntent = async ({
     projectId,
     envs,
     langs,

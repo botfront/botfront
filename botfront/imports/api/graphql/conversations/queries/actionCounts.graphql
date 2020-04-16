@@ -1,11 +1,12 @@
-query FallbackCounts(
+query ActionCounts(
     $projectId: String!,
     $envs: [String] = ["development", null],
     $langs: [String] = [],
     $from: Float,
     $to: Float,
-    $fallbacks: [String] = ["action_botfront_fallback"],
     $nBuckets: Int = 7,
+    $includeActions: [String],
+    $excludeActions: [String]
 ) {
     actionCounts(
         projectId: $projectId,
@@ -13,8 +14,9 @@ query FallbackCounts(
         langs: $langs,
         from: $from,
         to: $to,
-        include: $fallbacks,
         nBuckets: $nBuckets,
+        include: $includeActions,
+        exclude: $excludeActions
     ) {
         bucket, hits, count, proportion
     }

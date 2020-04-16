@@ -6,7 +6,8 @@ type Query {
         from: Float,
         to: Float,
         nBuckets: Int = 7,
-        include: [String] = ["action_botfront_fallback"],
+        include: [String],
+        exclude: [String]
     ): [ActionCount!]!
 }
 

@@ -3,7 +3,6 @@ import { Map as IMap } from 'immutable';
 
 import * as types from '../actions/types';
 import stories from './story.reducer';
-import analytics from './analytics.reducer';
 
 /* eslint-disable indent */
 
@@ -14,6 +13,7 @@ const initialState = IMap({
     templatesTableShowMatching: false,
     workingDeploymentEnvironment: 'development',
     workingLanguage: null,
+    workingDashboard: null,
     chatInitPayload: '/get_started',
     showChat: false,
     shouldRefreshChat: false,
@@ -36,6 +36,8 @@ function settings(state = initialState, action) {
             return state.set('workingLanguage', action.workingLanguage);
         case types.SET_WORKING_DEPLOYMENT_ENVIRONMENT:
             return state.set('workingDeploymentEnvironment', action.env);
+        case types.SET_WORKING_DASHBOARD:
+            return state.set('workingDashboard', action.dashboard);
         case types.SET_CHAT_INIT_PAYLOAD:
             return state.set('chatInitPayload', action.payload);
         case types.SET_SHOW_CHAT:
@@ -50,5 +52,4 @@ function settings(state = initialState, action) {
 export default combineReducers({
     settings,
     stories,
-    analytics,
 });

@@ -1,4 +1,4 @@
-/* eslint-disable no-undef */
+/* global cy */
 const ExpectedCellData = {
     conversationLength: [
         {
@@ -155,10 +155,7 @@ const ExpectedCellData = {
             table: 0, row: 0, column: 1, contents: 0,
         },
         {
-            table: 0, row: 0, column: 2, contents: 0,
-        },
-        {
-            table: 0, row: 0, column: 3, contents: '0.00%',
+            table: 0, row: 0, column: 2, contents: '0.00%',
         },
         {
             table: 0, row: 16, column: 0, contents: '16:00 - 16:59',
@@ -167,10 +164,7 @@ const ExpectedCellData = {
             table: 0, row: 16, column: 1, contents: 1,
         },
         {
-            table: 0, row: 16, column: 2, contents: 1,
-        },
-        {
-            table: 0, row: 16, column: 3, contents: '100.00%',
+            table: 0, row: 16, column: 2, contents: '100.00%',
         },
     ],
 };
@@ -208,7 +202,7 @@ describe('analytics tables', function() {
     };
     it('should display the correct data in the conversation length table', function() {
         cy.visit('/project/bf/analytics');
-        cy.pickDateRange(1, '5/11/2019', '4/11/2019');
+        cy.pickDateRange(1, '4/11/2019', '5/11/2019');
         selectTableChart(1);
         ExpectedCellData.conversationLength.forEach((cellData) => {
             verifyCellData(cellData);
@@ -218,10 +212,9 @@ describe('analytics tables', function() {
         cy.dataCy('analytics-chart').should('exist');
     });
 
-    
     it('should display the correct data in the top 10 intents  table', function() {
         cy.visit('/project/bf/analytics');
-        cy.pickDateRange(2, '5/11/2019', '4/11/2019');
+        cy.pickDateRange(2, '4/11/2019', '5/11/2019');
         selectTableChart(2);
         ExpectedCellData.topIntents.forEach((cellData) => {
             verifyCellData(cellData);
@@ -236,9 +229,10 @@ describe('analytics tables', function() {
         cy.dataCy('analytics-export-button').click();
         cy.dataCy('analytics-chart').should('exist');
     });
+
     it('should display the correct data in the conversation duration table', function() {
         cy.visit('/project/bf/analytics');
-        cy.pickDateRange(3, '5/11/2019', '4/11/2019');
+        cy.pickDateRange(3, '4/11/2019', '5/11/2019');
         selectTableChart(3);
         ExpectedCellData.conversationDuration.forEach((cellData) => {
             verifyCellData(cellData);

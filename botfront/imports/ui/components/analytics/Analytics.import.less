@@ -1,32 +1,19 @@
 .analytics-card {
     position: relative;
-    width: 560px;
+    width: 48.5%;
+    min-width: 580px;
     height: 470px;
     background-color: #ffffff;
     border-radius: 4px;
     box-shadow: 0 0 30px 0 rgba(157, 157, 167, 0.15);
-    margin-left: 16px;
-    margin-bottom: 16px;
+    margin: 8px;
     &.wide {
-        width: 95%;
+        width: 100%;
     }
     .date-picker {
         position: absolute;
         top:15px;
         left:15px;
-    }
-
-    .extra-options-linklike {
-        position: absolute;
-        top: 63px;
-        right: 15px;
-        font-size: 1em;
-        color: @blue;
-        border: none;
-        outline: none;
-        background: none;
-        text-decoration: underline;
-        cursor: pointer;
     }
 
     .title {
@@ -40,6 +27,9 @@
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
+        &.input {
+            border-bottom: none;
+        }
     }
 
     .top-right-buttons {
@@ -86,11 +76,6 @@
     }
 }
 
-.analytics-top-menu.ui.secondary.pointing.menu {
-    padding-bottom: 0;
-    margin-bottom: 0;
-}
-
 .analytics-dashboard {
     width: 100%;
     height: 100vh;
@@ -104,4 +89,24 @@
 
 .ui.button.export-card-button{
     margin: 0px 0px 0px 12px;
+    & + i {
+        display: none;
+    }
+}
+
+.top-menu-red-dropzone {
+    z-index: 3;
+    position: absolute;
+    height: 49px;
+    width: 100%;
+    border-bottom: dashed @red 5px;
+    background-color: fade(@red, 10%);
+    padding-top: 12px;
+    &.hover {
+        background-color: fade(@red, 100%);
+        border-bottom: none;
+        .ui.header.red {
+            color: #fff !important;
+        }
+    }
 }
