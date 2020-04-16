@@ -152,6 +152,7 @@ const BotResponsesContainer = (props) => {
                                         className='story-name-link'
                                         key={_id}
                                         onClick={() => handleLinkToStory(_id, storyGroupId)}
+                                        data-cy='story-name-link'
                                     >
                                                 ##{title}
                                     </List.Item>

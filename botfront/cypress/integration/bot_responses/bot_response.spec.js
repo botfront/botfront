@@ -10,8 +10,8 @@ describe('Bot responses', function() {
     });
 
     afterEach(function() {
-        // cy.logout();
-        // cy.deleteProject('bf');
+        cy.logout();
+        cy.deleteProject('bf');
     });
 
     const addTextResponse = (name, content) => {
@@ -281,9 +281,10 @@ describe('Bot responses', function() {
         cy.dataCy('story-title').click({ force: true }); // force textarea blur and save
         cy.dataCy('toggle-visual').click();
         cy.dataCy('response-name').trigger('mouseover', { force: true });
+        cy.dataCy('response-name').click({ force: true });
         cy.dataCy('response-name').should('have.class', 'response-name-link');
         cy.dataCy('response-name').click();
-        cy.dataCy('response-locations-list').click();
+        cy.dataCy('story-name-link').contains('Groupo (1)').click();
         cy.dataCy('story-title').should('have.length', 2);
         cy.dataCy('story-title').first().should('have.value', 'Groupo (1)');
         cy.dataCy('story-title').last().should('have.value', 'Groupo (2)');
