@@ -8,8 +8,8 @@ type Query {
 }
 
 type Mutation {
-    insertTrackerStore(senderId: String!, projectId: String!, tracker: Any, env: environement = development): trackerStoreInfo!
-    updateTrackerStore(senderId: String!, projectId: String!, tracker: Any, env: environement = development): trackerStoreInfo!
+    insertTrackerStore(senderId: String!, projectId: String!, tracker: Any, env: Environement = development): trackerStoreInfo!
+    updateTrackerStore(senderId: String!, projectId: String!, tracker: Any, env: Environement = development): trackerStoreInfo!
 }
 
 
@@ -19,7 +19,7 @@ type trackerStoreInfo{
     lastTimestamp: Float
 }
 
-enum environement{
+enum Environement{
     development
     production
     staging
