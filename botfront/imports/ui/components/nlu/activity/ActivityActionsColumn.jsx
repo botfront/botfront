@@ -85,12 +85,14 @@ export default function ActivityActionsColumn(props) {
                     ...(deleteable.length > 1 ? [renderDeleteButton(datum)] : []),
                 ]}
                 button={(
-                    <IconButton
-                        basic
-                        size={size}
-                        color='teal'
-                        icon='trash'
-                    />
+                    <div>
+                        <IconButton
+                            basic
+                            size={size}
+                            color='teal'
+                            icon='trash'
+                        />
+                    </div>
                 )}
             />
         );
@@ -102,12 +104,14 @@ export default function ActivityActionsColumn(props) {
                 mainAction={renderDeleteButton(datum)}
                 otherActions={[renderValidateButton(datum)]}
                 button={(
-                    <IconButton
-                        basic
-                        size={size}
-                        color='yellow'
-                        icon='info'
-                    />
+                    <div>
+                        <IconButton
+                            basic
+                            size={size}
+                            color='yellow'
+                            icon='info'
+                        />
+                    </div>
                 )}
             />
         );
@@ -117,13 +121,15 @@ export default function ActivityActionsColumn(props) {
                 inverted
                 content='Mark this utterance OoS'
                 trigger={(
-                    <IconButton
-                        basic
-                        size={size}
-                        onClick={() => onMarkOoS(datum)}
-                        color='black'
-                        icon='sign-out'
-                    />
+                    <div>
+                        <IconButton
+                            basic
+                            size={size}
+                            onClick={() => onMarkOoS(datum)}
+                            color='black'
+                            icon='sign-out'
+                        />
+                    </div>
                 )}
             />
         );
@@ -133,15 +139,17 @@ export default function ActivityActionsColumn(props) {
                 inverted
                 content='Mark this utterance valid'
                 trigger={(
-                    <IconButton
-                        basic
-                        size={size}
-                        disabled={!datum.intent}
-                        onClick={() => onToggleValidation(datum)}
-                        color='green'
-                        icon='check'
-                        data-cy='invalid-utterance-button'
-                    />
+                    <div>
+                        <IconButton
+                            basic
+                            size={size}
+                            disabled={!datum.intent}
+                            onClick={() => onToggleValidation(datum)}
+                            color='green'
+                            icon='check'
+                            data-cy='invalid-utterance-button'
+                        />
+                    </div>
                 )}
             />
         );
