@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { storiesOf } from '@storybook/react';
-import { withKnobs } from '@storybook/addon-knobs';
-import QuickReplies from '../imports/ui/components/stories/common/QuickReplies';
+import { action } from '@storybook/addon-actions';
+import QuickReplies from '../../imports/ui/components/stories/common/QuickReplies';
 
 const values = [
     {
@@ -29,12 +28,15 @@ const QuickRepliesWrapped = (props) => {
         <QuickReplies
             {...props}
             value={buttons}
-            onChange={setButtons}
+            onChange={(...args) => { setButtons(...args); action('onChange')(...args); }}
         />
     );
 };
 
-storiesOf('QuickReplies', module)
-    .addDecorator(withKnobs)
-    .add('Buttons', () => <QuickRepliesWrapped value={values} />)
-    .add('With max 2', () => <QuickRepliesWrapped value={values} max={3} />);
+export default {
+    title: 'ButtonsAndPayloads/QuickReplies',
+    component: QuickReplies,
+};
+
+export const Buttons = () => <QuickRepliesWrapped value={values} />;
+export const Max2 = () => <QuickRepliesWrapped value={values} max={3} />;

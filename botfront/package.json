@@ -27,6 +27,7 @@
     "@google-cloud/logging-winston": "^3.0.5",
     "@john-osullivan/react-window-dynamic-fork": "1.9.0-alpha.1",
     "@nivo/pie": "^0.59.1",
+    "@storybook/addon-actions": "^5.3.18",
     "apollo-cache-inmemory": "^1.6.3",
     "apollo-client": "^2.6.4",
     "apollo-link": "^1.2.13",

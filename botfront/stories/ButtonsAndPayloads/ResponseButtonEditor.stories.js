@@ -1,10 +1,7 @@
 /* eslint-disable no-alert */
 import React, { useState } from 'react';
-import { storiesOf } from '@storybook/react';
-import {
-    withKnobs, text, select, boolean,
-} from '@storybook/addon-knobs';
-import ResponseButtonEditor from '../imports/ui/components/stories/common/ResponseButtonEditor';
+import { action } from '@storybook/addon-actions';
+import ResponseButtonEditor from '../../imports/ui/components/stories/common/ResponseButtonEditor';
 
 const values = [{
     title: 'short',
@@ -17,8 +14,6 @@ const values = [{
     payload: 'http://google.com',
 }];
 
-const handleChange = button => alert(JSON.stringify(button));
-
 const ResponseButtonEditorWrapped = (props) => {
     const { value } = props;
     const [button, setButton] = useState(value);
@@ -26,11 +21,15 @@ const ResponseButtonEditorWrapped = (props) => {
         <ResponseButtonEditor
             {...props}
             value={button}
-            onChange={(b) => { setButton(b); handleChange(b); }}
+            onChange={(...args) => { setButton(...args); action('onChange')(...args); }}
         />
     );
 };
 
-const stories = storiesOf('ResponseButtonEditor', module);
-stories.addDecorator(withKnobs);
-values.forEach(v => stories.add(v.title, () => <ResponseButtonEditorWrapped value={v} />));
+export default {
+    title: 'ButtonsAndPayloads/ResponseButtonEditor',
+    component: ResponseButtonEditor,
+};
+
+export const Short = () => <ResponseButtonEditorWrapped value={values[0]} />;
+export const VeryLongText = () => <ResponseButtonEditorWrapped value={values[1]} />;

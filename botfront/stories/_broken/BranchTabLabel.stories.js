@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Menu, Segment } from 'semantic-ui-react';
 
-import { storiesOf } from '@storybook/react';
 import { withKnobs, boolean } from '@storybook/addon-knobs';
-import BranchTabLabel from '../imports/ui/components/stories/BranchTabLabel.jsx';
+import BranchTabLabel from '../../imports/ui/components/stories/BranchTabLabel.jsx';
 
 const MenuContentsWrapper = ({ hasWarning, hasError }) => {
     // eslint-disable-next-line no-unused-vars
@@ -49,33 +48,37 @@ const MenuContentsWrapper = ({ hasWarning, hasError }) => {
     );
 };
 
-storiesOf('BranchTabLabel', module)
-    .addDecorator(withKnobs)
-    .add('testcase2', () => (
-        <div style={{
-            width: '90%',
-            margin: '10px auto',
-            outline: '4px solid red',
-        }}
-        >
-            <div className='stories-container'>
-                <div className='story-editor'>
-                    <Menu attached='top'>
-                        <Menu.Item>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</Menu.Item>
+export default {
+    title: '_broken/BranchTabLabel',
+    component: BranchTabLabel,
+    decorators: [withKnobs],
+};
+
+export const Basic = () => (
+    <div style={{
+        width: '90%',
+        margin: '10px auto',
+        outline: '4px solid red',
+    }}
+    >
+        <div className='stories-container'>
+            <div className='story-editor'>
+                <Menu attached='top'>
+                    <Menu.Item>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</Menu.Item>
+                </Menu>
+                <Segment attached>
+                        (Content)
+                    <br />
+                    <Menu pointing secondary size='mini'>
+                        <MenuContentsWrapper
+                            hasWarning={boolean('hasWarning', false)}
+                            hasError={boolean('hasError', false)}
+                        />
                     </Menu>
-                    <Segment attached>
+                    <br />
                         (Content)
-                        <br />
-                        <Menu pointing secondary size='mini'>
-                            <MenuContentsWrapper
-                                hasWarning={boolean('hasWarning', false)}
-                                hasError={boolean('hasError', false)}
-                            />
-                        </Menu>
-                        <br />
-                        (Content)
-                    </Segment>
-                </div>
+                </Segment>
             </div>
         </div>
-    ));
+    </div>
+);

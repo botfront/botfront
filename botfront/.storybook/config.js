@@ -7,13 +7,8 @@ import {
     withStoriesContext,
 } from './decorators';
 
-function loadStories() {
-    const req = require.context('../stories', true, /\.stories\.js$/);
-    req.keys().forEach(filename => req(filename));
-}
-
 addDecorator(withReduxProvider);
 addDecorator(withProjectContext);
 addDecorator(withStoriesContext);
 
-configure(loadStories, module);
+configure(require.context('../stories', true, /\.stories\.js$/), module);

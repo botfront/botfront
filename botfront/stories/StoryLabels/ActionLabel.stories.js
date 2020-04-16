@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
-import { storiesOf } from '@storybook/react';
-import ActionLabel from '../imports/ui/components/stories/ActionLabel';
+import ActionLabel from '../../imports/ui/components/stories/ActionLabel';
+
+export default {
+    title: 'StoryLabels/ActionLabel',
+    component: ActionLabel,
+};
 
 function ActionLabelWrapped(props) {
     const [defaultAction, setActionName] = useState('Action Name');
@@ -13,7 +17,4 @@ function ActionLabelWrapped(props) {
     );
 }
 
-storiesOf('Action Label', module)
-    .add('default', () => (
-        <ActionLabelWrapped />
-    ));
+export const Basic = () => <ActionLabelWrapped />;

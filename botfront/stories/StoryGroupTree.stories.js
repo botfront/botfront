@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { storiesOf } from '@storybook/react';
-import { withKnobs } from '@storybook/addon-knobs';
 import SplitPane from 'react-split-pane';
 import StoryGroupTree from '../imports/ui/components/stories/StoryGroupTree';
 
@@ -138,7 +137,6 @@ function StoryGroupTreeWrapped() {
 }
 
 storiesOf('StoryGroupTree', module)
-    .addDecorator(withKnobs)
     .add('default', () => (
         <StoryGroupTreeWrapped />
     ));

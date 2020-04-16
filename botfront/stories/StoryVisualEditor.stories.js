@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { storiesOf } from '@storybook/react';
-import { withKnobs } from '@storybook/addon-knobs';
 import { withBackground, slots } from '../.storybook/decorators';
 import { StoryController } from '../imports/lib/story_controller';
 import StoryVisualEditor from '../imports/ui/components/stories/common/StoryVisualEditor';
@@ -37,7 +36,6 @@ StoryVisualEditorWrapped.defaultProps = {
 };
 
 storiesOf('StoryVisualEditor', module)
-    .addDecorator(withKnobs)
     .addDecorator(withBackground)
     .add('default', () => (
         <StoryVisualEditorWrapped story={storyOne} />
