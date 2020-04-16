@@ -25,7 +25,7 @@ describe('stories', function() {
     it('should disable adding, deleting in the smart story group', function() {
         cy.visit('/project/bf/stories');
         addStoryToSmartStoryGroup();
-        cy.dataCy('story-group-menu-item', 'Groupo (1)').eq(1).as('story');
+        cy.dataCy('story-group-menu-item', 'Groupo (1)').eq(0).as('story');
         cy.dataCy('story-group-menu-item', 'Stories with triggers').as('story-group');
         cy.get('@story-group').find('.item-actions').should('have.class', 'hidden');
         cy.get('@story-group').find('.item-name').should('have.class', 'uneditable');
