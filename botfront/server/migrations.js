@@ -364,6 +364,7 @@ Migrations.add({
         StoryGroups.update( // add pinned status to smart groups
             { smartGroup: { $exists: true } },
             { $set: { pinned: true } },
+            { multi: true },
         );
         Projects.find().fetch() // put them at the top
             .forEach(({ _id: projectId, storyGroups }) => {
