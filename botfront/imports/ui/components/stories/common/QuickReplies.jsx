@@ -5,7 +5,7 @@ import './QuickReply.import.less';
 import QuickReply, { isButtonValid } from './QuickReply';
 
 function QuickReplies({
-    value, onChange, min, max,
+    value, onChange, min, max, fluid,
 }) {
     const [buttons, setButtons] = useState(value);
 
@@ -44,21 +44,28 @@ function QuickReplies({
         />
     ));
 
+    const renderLastButton = () => (
+        <>
+            {quickReplies[quickReplies.length - 1]}
+            {buttons.length < max && buttons.every(b => isButtonValid(b)) && (
+                <Icon
+                    className='add-quick-reply'
+                    data-cy='add-quick-reply'
+                    name='add'
+                    color='grey'
+                    onClick={handleAdd}
+                />
+            )}
+        </>
+    );
+
     return (
-        <div className='quick-replies'>
+        <div className={`quick-replies ${fluid ? 'fluid' : ''}`}>
             {quickReplies.slice(0, quickReplies.length - 1)}
-            <div className='last-button'>
-                {quickReplies[quickReplies.length - 1]}
-                {buttons.length < max && buttons.every(b => isButtonValid(b)) && (
-                    <Icon
-                        className='add-quick-reply'
-                        data-cy='add-quick-reply'
-                        name='add'
-                        color='grey'
-                        onClick={handleAdd}
-                    />
-                )}
-            </div>
+            {fluid
+                ? renderLastButton()
+                : <div className='last-button'>{renderLastButton()}</div>
+            }
         </div>
     );
 }
@@ -68,6 +75,7 @@ QuickReplies.propTypes = {
     onChange: PropTypes.func.isRequired,
     min: PropTypes.number,
     max: PropTypes.number,
+    fluid: PropTypes.bool,
 };
 
 QuickReplies.defaultProps = {
@@ -80,6 +88,7 @@ QuickReplies.defaultProps = {
             payload: '',
         },
     ],
+    fluid: false,
 };
 
 export default QuickReplies;

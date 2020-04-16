@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
+import { withKnobs, number, boolean } from '@storybook/addon-knobs';
 import { action } from '@storybook/addon-actions';
+import { withBackground } from '../../.storybook/decorators';
+
 import QuickReplies from '../../imports/ui/components/stories/common/QuickReplies';
 
 const values = [
@@ -9,14 +12,14 @@ const values = [
         payload: '/intent2',
     },
     {
-        title: 'a very long text',
+        title: 'pretty long long long for a quick quick quick button eh',
         type: 'postback',
         payload: '/intent1{"entity1":"value"}',
     },
     {
-        title: 'a very long text',
-        type: 'url',
-        payload: 'http://www.google.com',
+        title: 'here\'s a link',
+        type: 'web_url',
+        url: 'http://www.google.com',
     },
 ];
 
@@ -25,18 +28,33 @@ const QuickRepliesWrapped = (props) => {
     const { value } = props;
     const [buttons, setButtons] = useState(value);
     return (
-        <QuickReplies
-            {...props}
-            value={buttons}
-            onChange={(...args) => { setButtons(...args); action('onChange')(...args); }}
-        />
+        <div style={{
+            border: '3px #ddd solid',
+            borderRadius: '4px',
+            padding: '5px',
+            width: `${number('Container width (px)', 470)}px`,
+        }}
+        >
+            <QuickReplies
+                {...props}
+                value={buttons}
+                onChange={(...args) => { setButtons(...args); action('onChange')(...args); }}
+            />
+        </div>
     );
 };
 
 export default {
     title: 'ButtonsAndPayloads/QuickReplies',
     component: QuickReplies,
+    decorators: [withKnobs, withBackground],
 };
 
-export const Buttons = () => <QuickRepliesWrapped value={values} />;
-export const Max2 = () => <QuickRepliesWrapped value={values} max={3} />;
+export const Basic = () => (
+    <QuickRepliesWrapped
+        value={values}
+        max={number('Max n buttons', 4)}
+        min={number('Min n buttons', 1)}
+        fluid={boolean('fluid', false)}
+    />
+);
