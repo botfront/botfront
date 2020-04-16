@@ -27,10 +27,28 @@ class HoverablePopup extends React.Component {
         clearTimeout(this.mouseLeaveTimer);
     }
 
+    openPopup = () => {
+        const { controlled, setOpen } = this.props;
+        if (!controlled) {
+            this.setState({ open: true });
+            return;
+        }
+        setOpen();
+    }
+
+    closePopup = () => {
+        const { controlled, setClosed } = this.props;
+        if (!controlled) {
+            this.setState({ open: false });
+            return;
+        }
+        setClosed();
+    }
+
 
     handleScroll = (event) => {
         if (this.popupNode.current && !this.popupNode.current.contains(event.target)) {
-            this.setState({ open: false });
+            this.closePopup();
         }
     };
 
@@ -40,14 +58,14 @@ class HoverablePopup extends React.Component {
             && !this.entityNode.current.contains(event.target)
             && (!this.popupNode.current || !this.popupNode.current.contains(event.target))
         ) {
-            this.setState({ open: false });
+            this.closePopup();
         }
     };
 
     handleMouseEnter = (delayOpen = 0) => {
         clearTimeout(this.mouseLeaveTimer);
         this.mouseEnterTimer = setTimeout(() => {
-            this.setState({ open: true });
+            this.openPopup();
         }, delayOpen);
     };
 
@@ -60,7 +78,7 @@ class HoverablePopup extends React.Component {
         const leaveTime = overideLeaveTime || 100;
         this.mouseLeaveTimer = setTimeout(() => {
             // this lets the user time to put his mouse on the popup after leaving the label
-            this.setState({ open: false });
+            this.closePopup();
         }, leaveTime);
     };
 
@@ -69,14 +87,29 @@ class HoverablePopup extends React.Component {
             trigger,
             disabled,
             content,
+            controlled,
+            open: openFromProps,
+            on,
+            className,
         } = this.props;
-        const { open } = this.state;
+        const { open: openFromState } = this.state;
         return (
             <Popup
+                className={className}
                 trigger={(
                     <div
-                        onMouseEnter={() => this.handleMouseEnter(50)}
+                        onMouseEnter={() => {
+                            const { on } = this.props;
+                            if (on === 'click') return;
+                            this.handleMouseEnter(50);
+                        }}
                         onMouseLeave={() => this.handleMouseLeave(200)}
+                        onClick={() => {
+                            console.log('whoah');
+                            if (on === 'click') {
+                                this.openPopup();
+                            }
+                        }}
                     >
                         {trigger}
                     </div>
@@ -91,9 +124,9 @@ class HoverablePopup extends React.Component {
                     </div>
                 )}
                 position='top center'
-                open={open}
+                open={controlled ? openFromProps : openFromState}
                 disabled={disabled}
-                className='entity-popup'
+
             />
         );
     }
@@ -103,10 +136,22 @@ HoverablePopup.propTypes = {
     content: PropTypes.element.isRequired,
     trigger: PropTypes.element.isRequired,
     disabled: PropTypes.bool,
+    on: PropTypes.string,
+    controlled: PropTypes.bool,
+    setOpen: PropTypes.func,
+    setClosed: PropTypes.func,
+    open: PropTypes.bool,
+    className: PropTypes.string,
 };
 
 HoverablePopup.defaultProps = {
     disabled: false,
+    on: 'hover',
+    controlled: false,
+    setOpen: () => {},
+    setClosed: () => {},
+    open: null,
+    className: '',
 };
 
 export default HoverablePopup;

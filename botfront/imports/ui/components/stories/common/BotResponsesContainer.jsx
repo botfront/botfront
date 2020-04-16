@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import IconButton from '../../common/IconButton';
 import BotResponseEditor from '../../templates/templates-list/BotResponseEditor';
 import BotResponseContainer from './BotResponseContainer';
+import HoverablePopup from '../../common/HoverablePopup';
 import { setStoriesCurrent } from '../../../store/actions/actions';
 
 import { checkMetadataSet } from '../../../../lib/botResponse.utils';
@@ -23,16 +24,15 @@ const BotResponsesContainer = (props) => {
         deletable,
         enableEditPopup,
         tag,
-        projectId,
         setActiveStories,
+        responseLocations,
+        loadingResponseLocations,
     } = props;
 
     const [template, setTemplate] = useState();
     const [editorOpen, setEditorOpen] = useState(false);
     const [toBeCreated, setToBeCreated] = useState(null);
     const [focus, setFocus] = useState(null);
-    const [responseLocations, setResponseLocations] = useState([]);
-    const [loadingResponseLocations, setLoadingResponseLocations] = useState(false);
     const [responseLocationsOpen, setResponseLocationsOpen] = useState(false);
 
     useEffect(() => {
@@ -93,16 +93,12 @@ const BotResponsesContainer = (props) => {
         return true;
     };
 
-    const handleMouseOver = () => {
-        setLoadingResponseLocations(true);
-        Meteor.call('stories.includesResponse', projectId, name, (error, result) => {
-            setLoadingResponseLocations(false);
-            if (error) {
-                console.log(error);
-                return;
-            }
-            setResponseLocations(result);
-        });
+    const handleLinkToStory = (selectedId) => {
+        const storyIds = responseLocations.map(({ _id }) => _id);
+        const openStories = [selectedId, ...storyIds.filter(storyId => storyId !== selectedId)];
+        setActiveStories(openStories);
+        setResponseLocationsOpen(false);
+        browserHistory.replace({ pathname: '/project/bf/stories', query: { 'ids[]': openStories } });
     };
 
     useEffect(() => {
@@ -133,26 +129,12 @@ const BotResponsesContainer = (props) => {
         </React.Fragment>
     );
 
-    const handleLinkToStory = () => {
-        const storyIds = responseLocations.map(({ _id }) => _id);
-        setActiveStories(storyIds);
-        setResponseLocationsOpen(false);
-        browserHistory.replace({ pathname: '/project/bf/stories', query: { 'ids[]': storyIds } });
-    };
-
     const renderDynamicResponseName = () => (
         <div className='response-name-container'>
             {loadingResponseLocations && <Loader active inline size='mini' className='response-name-loader' />}
             {responseLocations.length > 1 ? (
-                <Popup
+                <HoverablePopup
                     className='response-locations-popup'
-                    flowing
-                    open={responseLocationsOpen}
-                    onClose={() => {
-                        setResponseLocationsOpen(false);
-                    }}
-                    onOpen={() => setResponseLocationsOpen(true)}
-                    on='click'
                     trigger={(
                         <div
                             className='response-name response-name-link'
@@ -171,12 +153,17 @@ const BotResponsesContainer = (props) => {
                                         key={_id}
                                         onClick={() => handleLinkToStory(_id, storyGroupId)}
                                     >
-                                            ##{title}
+                                                ##{title}
                                     </List.Item>
                                 ))}
                             </List>
                         </>
                     )}
+                    controlled
+                    open={responseLocationsOpen}
+                    setOpen={() => setResponseLocationsOpen(true)}
+                    setClosed={() => setResponseLocationsOpen(false)}
+                    on='click'
                 />
             ) : (
                 <div className='response-name' data-cy='response-name'>{name}</div>
@@ -187,8 +174,6 @@ const BotResponsesContainer = (props) => {
     return (
         <div
             className='utterances-container exception-wrapper-target'
-            onMouseEnter={handleMouseOver}
-            onFocus={handleMouseOver}
         >
             {!template && (
                 <Placeholder>
@@ -232,8 +217,10 @@ BotResponsesContainer.propTypes = {
     onDeleteAllResponses: PropTypes.func,
     enableEditPopup: PropTypes.bool,
     tag: PropTypes.string,
-    projectId: PropTypes.string.isRequired,
+    // projectId: PropTypes.string.isRequired,
     setActiveStories: PropTypes.func.isRequired,
+    responseLocations: PropTypes.array,
+    loadingResponseLocations: PropTypes.bool,
 };
 
 BotResponsesContainer.defaultProps = {
@@ -244,6 +231,8 @@ BotResponsesContainer.defaultProps = {
     onDeleteAllResponses: null,
     enableEditPopup: true,
     tag: null,
+    responseLocations: [],
+    loadingResponseLocations: false,
 };
 
 const mapStateToProps = state => ({
