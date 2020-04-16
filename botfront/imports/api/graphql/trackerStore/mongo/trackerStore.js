@@ -57,12 +57,13 @@ const getNewTrackerInfo = async (senderId, projectId) => {
     return results[0];
 };
 
-export const insertTrackerStore = async (senderId, projectId, tracker) => {
+export const insertTrackerStore = async (senderId, projectId, tracker, env = 'development') => {
     await Conversations.create({
         _id: senderId,
         tracker,
         status: 'new',
         projectId,
+        env,
         createdAt: new Date(),
         updatedAt: new Date(),
     });
@@ -142,8 +143,8 @@ const logUtterancesFromTracker = async function(projectId, tracker, conversation
 };
 
 
-export const updateTrackerStore = async (senderId, projectId, tracker) => {
-    if (!process.argv.includes('--logConversationsOnly')) logUtterancesFromTracker(projectId, tracker, senderId);
+export const updateTrackerStore = async (senderId, projectId, tracker, env = 'development') => {
+    if (!process.argv.includes('--logConversationsOnly')) logUtterancesFromTracker(projectId, tracker, senderId, () => true, env);
 
     const { userId, language } = extractMetadataFromTracker(tracker);
     const setTracker = {};
@@ -176,7 +177,7 @@ export const updateTrackerStore = async (senderId, projectId, tracker) => {
             },
         );
     } else {
-        await insertTrackerStore(senderId, projectId, tracker);
+        await insertTrackerStore(senderId, projectId, tracker, env);
     }
     return getNewTrackerInfo(senderId, projectId);
 };
