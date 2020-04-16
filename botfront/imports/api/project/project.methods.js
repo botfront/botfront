@@ -77,7 +77,6 @@ if (Meteor.isServer) {
                 createPolicies({ _id, ...item });
                 createStoriesWithTriggersGroup(_id);
                 createDefaultStoryGroup(_id);
-                createIntroStoryGroup(_id);
                 await createInstance({ _id, ...item });
                 auditLog('Created project', {
                     user: Meteor.user(),
