@@ -10,6 +10,9 @@ const {
 const {
     uploadImage, deleteImage, uploadImageValidator, deleteImageValidator,
 } = require('./images');
+const {
+    restartRasa, restartRasaValidator,
+} = require('./webhooks');
 
 let router = express.Router();
 
@@ -25,5 +28,6 @@ router.get('/health-check', (req, res) => res.status(200).json());
 router.post('/conversations/:project_id/environment/:env', importConversationValidator, importConversation);
 router.get('/conversations/:project_id/environment/:env/latest-imported-event', latestImportValidator, latestImport);
 
+router.post('/rasa/restart', restartRasaValidator, restartRasa);
 
 module.exports = router;

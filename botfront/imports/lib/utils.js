@@ -155,6 +155,8 @@ if (Meteor.isServer) {
     // eslint-disable-next-line import/no-duplicates
     } from '../../server/logger';
 
+
+    const fileLogger = getAppLoggerForFile(__filename);
     Meteor.methods({
 
         async 'axios.requestWithJsonBody'(url, method, data) {
@@ -162,7 +164,7 @@ if (Meteor.isServer) {
             // remplace data by placeholder for images or everything not json
             if (data.mimeType && data.mimeType !== 'application/json') loggedData = `Data is ${data.mimeType} and is not logged`;
             const appMethodLogger = getAppLoggerForMethod(
-                getAppLoggerForFile(__filename),
+                fileLogger,
                 'axios.requestWithJsonBody',
                 Meteor.userId(),
                 { url, method, data: loggedData },
@@ -202,6 +204,7 @@ if (Meteor.isServer) {
         },
     });
 }
+
 
 export const getModelIdsFromProjectId = projectId => (Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }) || {}).nlu_models;
 

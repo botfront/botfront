@@ -2,12 +2,11 @@ import { AutoForm, ErrorsField } from 'uniforms-semantic';
 import { withTracker } from 'meteor/react-meteor-data';
 import 'react-s-alert/dist/s-alert-default.css';
 import { connect } from 'react-redux';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, get } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Menu } from 'semantic-ui-react';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
-
 import { CredentialsSchema, Credentials as CredentialsCollection } from '../../../api/credentials';
 import { Projects as ProjectsCollection } from '../../../api/project/project.collection';
 import { wrapMeteorCallback } from '../utils/Errors';
@@ -16,8 +15,9 @@ import SaveButton from '../utils/SaveButton';
 import AceField from '../utils/AceField';
 import { can } from '../../../lib/scopes';
 import ContextualSaveMessage from './ContextualSaveMessage';
-
 import { ENVIRONMENT_OPTIONS } from '../constants.json';
+import restartRasa from './restartRasa';
+import { GlobalSettings } from '../../../api/globalSettings/globalSettings.collection';
 
 class Credentials extends React.Component {
     constructor(props) {
@@ -37,7 +37,7 @@ class Credentials extends React.Component {
     onSave = (credentials) => {
         const newCredentials = credentials;
         const { selectedEnvironment } = this.state;
-        const { projectId } = this.props;
+        const { projectId, webhook } = this.props;
         this.setState({ saving: true, showConfirmation: false });
         clearTimeout(this.successTimeout);
         if (!credentials._id) {
@@ -57,7 +57,11 @@ class Credentials extends React.Component {
                 this.setState({ saving: false, showConfirmation: true });
             }),
         );
-    };
+
+        if (selectedEnvironment === 'development' && webhook && webhook.url) {
+            restartRasa(projectId, webhook);
+        }
+    }
 
     renderCredentials = (saving, credentials, projectId, environment) => {
         const { saved, showConfirmation, selectedEnvironment } = this.state;
@@ -96,7 +100,7 @@ class Credentials extends React.Component {
                         )}
                     />
                 )}
-                {hasWritePermission && <SaveButton saved={saved} saving={saving} disabled={!!saving || !can('projects:w', projectId)} /> }
+                {hasWritePermission && <SaveButton saved={saved} saving={saving} disabled={!!saving || !can('projects:w', projectId)} />}
             </AutoForm>
         );
     };
@@ -169,17 +173,22 @@ Credentials.propTypes = {
     projectSettings: PropTypes.object,
     ready: PropTypes.bool.isRequired,
     orchestrator: PropTypes.string,
+    webhook: PropTypes.object,
+
 };
 
 Credentials.defaultProps = {
     projectSettings: {},
     orchestrator: '',
     credentials: {},
+    webhook: {},
 };
 
 const CredentialsContainer = withTracker(({ projectId }) => {
     const handler = Meteor.subscribe('credentials', projectId);
     const handlerproj = Meteor.subscribe('projects', projectId);
+
+
     const credentials = {};
     CredentialsCollection.find({ projectId })
         .fetch()
@@ -197,10 +206,25 @@ const CredentialsContainer = withTracker(({ projectId }) => {
             },
         },
     );
+
+
+    if (can('projects:w', projectId)) {
+        const restartRasaHandler = Meteor.subscribe('restartRasaWebhook', projectId);
+        const settings = GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.restartRasaWebhook': 1 } });
+        const restartRasaWebhook = get(settings, 'settings.private.webhooks.restartRasaWebhook', {});
+       
+        return {
+            ready: (handler.ready() && handlerproj.ready() && restartRasaHandler.ready()),
+            credentials,
+            projectSettings,
+            webhook: restartRasaWebhook,
+        };
+    }
     return {
         ready: (handler.ready() && handlerproj.ready()),
         credentials,
         projectSettings,
+        webhook: {},
     };
 })(Credentials);
 
