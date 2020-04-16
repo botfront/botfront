@@ -84,6 +84,7 @@ async function logUtterance(modelId, parseData, callback, message_id = null, con
         conversation_id,
         intent: parseData.intent.name,
         confidence: parseData.intent.confidence,
+        createdAt: new Date(),
     };
     // eslint-disable-next-line no-underscore-dangle
     const { _id, ...utterance } = { ...new Activity(newData) }._doc;
