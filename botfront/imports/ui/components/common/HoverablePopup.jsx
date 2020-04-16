@@ -1,5 +1,6 @@
 import {
     Popup,
+    Button,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -91,28 +92,28 @@ class HoverablePopup extends React.Component {
             open: openFromProps,
             on,
             className,
+            flowing,
         } = this.props;
         const { open: openFromState } = this.state;
         return (
             <Popup
                 className={className}
                 trigger={(
-                    <div
+                    <Button
+                        className='popup-trigger-wrapper'
                         onMouseEnter={() => {
-                            const { on } = this.props;
                             if (on === 'click') return;
                             this.handleMouseEnter(50);
                         }}
                         onMouseLeave={() => this.handleMouseLeave(200)}
                         onClick={() => {
-                            console.log('whoah');
                             if (on === 'click') {
                                 this.openPopup();
                             }
                         }}
                     >
                         {trigger}
-                    </div>
+                    </Button>
                 )}
                 content={(
                     <div
@@ -126,7 +127,7 @@ class HoverablePopup extends React.Component {
                 position='top center'
                 open={controlled ? openFromProps : openFromState}
                 disabled={disabled}
-
+                flowing={flowing}
             />
         );
     }
@@ -142,6 +143,7 @@ HoverablePopup.propTypes = {
     setClosed: PropTypes.func,
     open: PropTypes.bool,
     className: PropTypes.string,
+    flowing: PropTypes.bool,
 };
 
 HoverablePopup.defaultProps = {
@@ -151,6 +153,7 @@ HoverablePopup.defaultProps = {
     setOpen: () => {},
     setClosed: () => {},
     open: null,
+    flowing: false,
     className: '',
 };
 

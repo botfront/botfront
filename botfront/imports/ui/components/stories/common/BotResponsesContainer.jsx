@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
-    Placeholder, Loader, Popup, Header, List,
+    Placeholder, Loader, Header, List,
 } from 'semantic-ui-react';
 
 import { browserHistory } from 'react-router';
@@ -154,7 +154,7 @@ const BotResponsesContainer = (props) => {
                                         onClick={() => handleLinkToStory(_id, storyGroupId)}
                                         data-cy='story-name-link'
                                     >
-                                                ##{title}
+                                        ##{title}
                                     </List.Item>
                                 ))}
                             </List>
@@ -165,6 +165,7 @@ const BotResponsesContainer = (props) => {
                     setOpen={() => setResponseLocationsOpen(true)}
                     setClosed={() => setResponseLocationsOpen(false)}
                     on='click'
+                    flowing
                 />
             ) : (
                 <div className='response-name' data-cy='response-name'>{name}</div>
