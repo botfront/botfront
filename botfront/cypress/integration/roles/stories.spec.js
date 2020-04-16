@@ -35,7 +35,9 @@ describe('story permissions', function() {
         cy.visit('/project/bf/stories');
         cy.browseToStory('Get started');
         cy.dataCy('story-title').should('exist'); // check that the page was properly loaded
-
+        cy.dataCy('single-story-editor').first().trigger('mouseover');
+        cy.dataCy('icon-trash').should('not.exist');
+        cy.dataCy('icon-add').should('not.exist');
         cy.dataCy('add-item').should('have.class', 'disabled');
         cy.get('.item-actions').should('have.class', 'hidden');
         cy.get('.item-name').should('have.class', 'uneditable');
@@ -89,5 +91,15 @@ describe('story permissions', function() {
             '* get_started    - utter_get_started',
         )
             .should('not.have.text', 'Test');
+    });
+    it('should not be able to edit nlu data from the modal', () => {
+        cy.visit('/project/bf/stories');
+        cy.browseToStory('Get started');
+        cy.dataCy('utterance-text').click();
+        cy.dataCy('close-nlu-modal').should('exist');
+        cy.dataCy('save-nlu').should('not.exist');
+        cy.dataCy('cancel-nlu-changes').should('not.exist');
+        cy.dataCy('example-text-editor-input').click().type('I will probably go to costco{enter}');
+        cy.dataCy('example-text-editor-input').should('not.have.value', '');
     });
 });

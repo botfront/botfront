@@ -241,6 +241,16 @@ if (Meteor.isServer) {
             rejectProjectScope: true,
         },
         {
+            name: 'nlu.saveExampleChanges',
+            roles: writers.nluData,
+            args: [modelId],
+        },
+        {
+            name: 'nlu.updateManyExamples',
+            roles: writers.nluData,
+            args: [modelId],
+        },
+        {
             name: 'project.insert',
             roles: writers.projects,
             args: [],
