@@ -5,6 +5,7 @@ import { newGetBotResponses } from '../mongo/botResponses';
 import { getLanguagesFromProjectId } from '../../../../lib/utils';
 import { parseContentType } from '../../../../lib/botResponse.utils';
 import commonResolvers from '../../common/commonResolver';
+import { checkIfCan } from '../../../../lib/scopes';
 
 const interpolateSlots = (text, slots) => {
     // fills in {slotname} in templates
@@ -42,7 +43,7 @@ const resolveTemplate = async ({
 export default {
     Query: {
         getResponse: async (_root, args, context) => {
-            // used from outside botfront. unsecured.
+            checkIfCan('responses:r', args.projectId, context.user._id);
             const {
                 template,
                 arguments: { language: specifiedLang, projectId } = {},
@@ -60,7 +61,8 @@ export default {
         },
         getResponses: async (_root, {
             projectId, templates, language,
-        }) => {
+        }, context) => {
+            checkIfCan('responses:r', projectId, context.user._id);
             const responses = await newGetBotResponses({
                 projectId,
                 template: templates,

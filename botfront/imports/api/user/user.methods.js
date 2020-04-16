@@ -32,7 +32,7 @@ if (Meteor.isServer) {
 
     Meteor.publish('userData', function () {
         if (can('users:r')) {
-            return Meteor.users.find({}, { fields: { emails: 1, profile: 1, roles: 1 } });
+            return Meteor.users.find({ username: { $ne: 'EXTERNAL_CONSUMER' } }, { fields: { emails: 1, profile: 1, roles: 1 } });
         }
         const permittedScopes = getUserScopes(Meteor.userId(), 'users:r');
         const allRoleAssignments = Meteor.roleAssignment.find({}, { fields: { user: 1, scope: 1 } }).fetch();

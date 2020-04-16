@@ -320,17 +320,27 @@ if (Meteor.isServer) {
         {
             name: 'stories.insert',
             roles: writers.stories,
-            args: [{ projectId }],
+            args: [{ projectId }], // singleton
+        },
+        {
+            name: 'stories.insert',
+            roles: writers.stories,
+            args: [[{ projectId }]], // aray
         },
         {
             name: 'stories.update',
             roles: writers.stories,
-            args: [{ projectId }, projectId],
+            args: [{ projectId }], // singleton
+        },
+        {
+            name: 'stories.update',
+            roles: writers.stories,
+            args: [[{ projectId }]], // array
         },
         {
             name: 'stories.delete',
             roles: writers.stories,
-            args: [{ projectId }, projectId],
+            args: [{ projectId }],
         },
         {
             name: 'stories.addCheckpoints',

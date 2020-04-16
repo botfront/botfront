@@ -23,7 +23,7 @@ export const checkIfCan = (permission, projectId, userId = null, options = {}) =
     
         const logger = getAppLoggerForFile(__filename);
         const appMethodLogger = getAppLoggerForMethod(
-            logger, 'checkIfCan', Meteor.userId(), { projectId },
+            logger, 'checkIfCan', userId || Meteor.userId(), { projectId },
         );
         appMethodLogger.error(`Insufficient permissions: ${message}`);
     }
