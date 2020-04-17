@@ -1,20 +1,47 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Header } from 'semantic-ui-react';
+import { Header, Modal } from 'semantic-ui-react';
 import TextareaAutosize from 'react-autosize-textarea';
 import QuickReplies from './QuickReplies';
 import ImageThumbnail from './ImageThumbnail';
+import ResponseButtonEditor from './ResponseButtonEditor';
 
 export default function CarouselSlide(props) {
     const { value, onChange } = props;
     const {
-        title: header, subtitle: description, buttons, image_url: image,
+        title: header, subtitle: description, buttons, image_url: image, default_action: defaultAction,
     } = value;
+    const [modalOpen, setModalOpen] = useState(false);
 
     const setValue = update => onChange({ ...value, ...update });
+
+    const renderDefaultActionModal = () => (
+        <div className='image-modal'>
+            <ResponseButtonEditor
+                noButtonTitle
+                value={defaultAction}
+                onChange={v => setValue({ default_action: v })}
+                onClose={() => setModalOpen(false)}
+                valid
+            />
+        </div>
+    );
     return (
         <div className='carousel-slide'>
-            <ImageThumbnail value={image} onChange={url => onChange({ image_url: url })} />
+            <ImageThumbnail
+                value={image}
+                onChange={url => onChange({ image_url: url })}
+                otherActions={[['Set default action', () => setModalOpen(true)]]}
+            />
+            {modalOpen && (
+                <Modal
+                    open
+                    size='tiny'
+                    header='Change default action'
+                    onClose={() => setModalOpen(false)}
+                    content={renderDefaultActionModal()}
+                />
+            )}
             <Header as='h3'>
                 <TextareaAutosize
                     placeholder='Title'

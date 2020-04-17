@@ -12,8 +12,8 @@ export const isButtonValid = ({
 }) => {
     const titleOk = title.length > 0;
     const payloadOk = type === 'postback'
-        ? stringPayloadToObject(payload).intent.length > 0
-        : url && url.length;
+        ? !!stringPayloadToObject(payload).intent
+        : !!url;
 
     return titleOk && payloadOk;
 };

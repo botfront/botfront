@@ -76,10 +76,11 @@ export default function ImageThumbnail(props) {
 
 ImageThumbnail.propTypes = {
     onChange: PropTypes.func.isRequired,
-    value: PropTypes.object.isRequired,
+    value: PropTypes.object,
     otherActions: PropTypes.array,
 };
 
 ImageThumbnail.defaultProps = {
     otherActions: [],
+    value: '',
 };

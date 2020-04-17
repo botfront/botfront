@@ -5,16 +5,24 @@ import { withBackground } from '../../.storybook/decorators';
 
 import CarouselSlide from '../../imports/ui/components/stories/common/CarouselSlide';
 
-const value = {
-    title: '',
-    image_url: '',
-    subtitle: '',
-    default_action: undefined,
+const initialValue = {
+    title: 'Sample card',
+    image_url: 'https://www.google.com/logos/doodles/2020/thank-you-teachers-and-childcare-workers-6753651837108762.3-law.gif',
+    subtitle: 'Hey! Find what you\'re looking for on the internet!',
+    default_action: {
+        type: 'web_url',
+        url: 'http://google.com/',
+    },
     buttons: [
         {
-            title: 'option 1',
+            title: 'Yahoo',
             type: 'web_url',
             url: 'http://yahoo.com/',
+        },
+        {
+            title: 'GoDuckGo',
+            type: 'web_url',
+            url: 'http://goduckgo.com/',
         },
     ],
 };
@@ -22,12 +30,12 @@ const value = {
 
 const CarouselSlideWrapped = (props) => {
     const { value } = props;
-    const [buttons, setButtons] = useState(value);
+    const [slide, setSlide] = useState(value || {});
     return (
         <CarouselSlide
             {...props}
-            value={buttons}
-            onChange={(...args) => { setButtons(...args); action('onChange')(...args); }}
+            value={slide}
+            onChange={(...args) => { setSlide(...args); action('onChange')(...args); }}
         />
     );
 };
@@ -38,6 +46,5 @@ export default {
     decorators: [withKnobs, withBackground],
 };
 
-export const Basic = () => (
-    <CarouselSlideWrapped value={value} />
-);
+export const Blank = () => <CarouselSlideWrapped />;
+export const SampleCard = () => <CarouselSlideWrapped value={initialValue} />;

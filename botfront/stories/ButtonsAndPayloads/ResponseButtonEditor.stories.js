@@ -1,6 +1,7 @@
 /* eslint-disable no-alert */
 import React, { useState } from 'react';
 import { action } from '@storybook/addon-actions';
+import { withKnobs, boolean } from '@storybook/addon-knobs';
 import ResponseButtonEditor from '../../imports/ui/components/stories/common/ResponseButtonEditor';
 
 const values = [{
@@ -21,6 +22,7 @@ const ResponseButtonEditorWrapped = (props) => {
         <ResponseButtonEditor
             {...props}
             value={button}
+            noButtonTitle={boolean('noButtonTitle', false)}
             onChange={(...args) => { setButton(...args); action('onChange')(...args); }}
         />
     );
@@ -29,6 +31,7 @@ const ResponseButtonEditorWrapped = (props) => {
 export default {
     title: 'ButtonsAndPayloads/ResponseButtonEditor',
     component: ResponseButtonEditor,
+    decorators: [withKnobs],
 };
 
 export const Short = () => <ResponseButtonEditorWrapped value={values[0]} />;
