@@ -144,6 +144,18 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
             destinationNode = getDestinationNode(tree, destination);
         }
 
+        /* keep moving pinned nodes back until they reach a pinned node, and
+            keep moving non-pinned nodes forward until they reach a non-pinned node */
+        const acceptanceCriterionTwo = sourceNodes[0].pinned
+            ? index => (tree.items[destinationNode.children[index]] || {}).pinned
+            : index => !(tree.items[destinationNode.children[index]] || {}).pinned;
+        const operationTwo = sourceNodes[0].pinned
+            ? index => index - 1
+            : index => index + 1;
+        while (Number.isInteger(destination.index) && !acceptanceCriterionTwo(destination.index)) {
+            destination.index = operationTwo(destination.index);
+        }
+
         if (destinationNode.id === tree.rootId && !sourceNodes[0].canBearChildren) {
             // leaf moved to root
             if (!destination.index || destination.index < 1) return tree;

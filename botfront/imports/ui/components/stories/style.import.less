@@ -56,6 +56,22 @@
                     font-weight: normal;
                 }
             }
+
+            .createcolorclasses(@i:1) when(@i <= length(@basic-colors)) {
+                @name: extract(extract(@basic-colors, @i), 1);
+                @color: extract(extract(@basic-colors, @i), 2);
+                &.@{name} {
+                    .item-name {
+                        color: @color;
+                        &:before {
+                            content: '\2728\0020';
+                        }
+                    }
+                }
+                .createcolorclasses(@i + 1);
+            }
+            
+            .createcolorclasses();
         }
 
         .item {

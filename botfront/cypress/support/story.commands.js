@@ -1,4 +1,4 @@
-/* global cy Cypress */
+/* global cy Cypress expect */
 
 const findGroupAndOpenIfClosed = (groupName, saveToAlias = 'alias') => {
     cy.dataCy('story-group-menu-item', groupName).should('exist')
@@ -38,7 +38,6 @@ Cypress.Commands.add('linkStory', (storyName, linkTo) => {
 });
 
 Cypress.Commands.add('createStoryGroup', ({ groupName = 'Groupo' } = {}) => {
-    cy.visit('/project/bf/stories');
     cy.dataCy('add-item').click({ force: true });
     cy.dataCy('add-item-input')
         .find('input')
@@ -138,4 +137,22 @@ Cypress.Commands.add('addUtteranceLine', ({
         });
     }
     cy.dataCy('save-user-utterance').click();
+});
+
+Cypress.Commands.add('checkMenuItemAtIndex', (index, string, ignorePinned = true) => {
+    /*
+        the default rety behaviour is to retry the command before the .should
+        this means dataCy().eq().should does NOT requery the dom when it retries.
+        if the first attempt doesn't succeed none of them will
+
+        to fix this we put the element at index check in the callback of a
+        should function so the dataCy query is retried.  this is only
+        needed for the first .eq after a change.
+    */
+    cy.dataCy('story-group-menu-item').should((els) => {
+        const filtered = ignorePinned
+            ? Array.from(els).filter(el => el.attributes['data-pinned'].value !== 'true')
+            : Array.from(els);
+        expect(filtered[index].innerText).to.be.equal(string);
+    });
 });
