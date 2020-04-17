@@ -9,7 +9,7 @@ function TemplatesTableItemContent({ rawContent }) {
         <div>
             
             {text && <><Icon name='quote left' size='tiny' />{text}</>}
-            {image && <Image src={image} size='small' alt='Image URL broken' />}
+            {image && <Image src={image} size='small' alt=' ' />}
         </div>
     );
 }

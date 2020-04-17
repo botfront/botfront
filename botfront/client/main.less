@@ -263,26 +263,28 @@ p.overflow {
     }
 }
 
-img:before { 
-    display: block;
-    position: absolute;
-    height: 100%;
+.ui.small.image {
+    border-radius: 4px;
+    object-fit: cover;
+    max-width: 224px;
+    max-height: 160px;
     width: 100%;
-    background-color: #eee;
-}
+    height: 160px;
+    background-color: #ccc;
+    border: 1px solid #acbac4;
 
-img:after {
-    content: '\f127';
-    font-family: 'Icons';
-    display: block;
-    font-size: xx-large;
-    color: #ccc;
-    position: absolute;
-    top: 25%;
-    width: 100%;
-    text-align: center;
+    &:after {
+        content: '\f03e';
+        font-family: 'Icons';
+        display: block;
+        font-size: 50px;
+        color: #fff;
+        position: absolute;
+        top: 32%;
+        width: 100%;
+        text-align: center;
+    }
 }
-
 
 .s-alert-box {
     z-index: 1001 !important; // force alert box to appear over semantic ui modals

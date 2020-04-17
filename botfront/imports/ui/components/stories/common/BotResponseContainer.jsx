@@ -101,7 +101,7 @@ const BotResponseContainer = (props) => {
     );
 
     const renderViewImage = () => (
-        <Image src={value.image} size='small' alt='Image URL broken' />
+        <Image src={value.image} size='small' alt=' ' />
     );
 
     const renderSetImage = () => (

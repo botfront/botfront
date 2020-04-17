@@ -82,3 +82,29 @@
     font-size: .97857143em !important;
   }
 }
+
+.carousel-slide {
+  max-width: 200px;
+
+  .ui.header {
+    margin: 1rem 0;
+  }
+
+  input, textarea {
+    resize: none;
+    border: 1px transparent solid;
+    border-radius: 4px;
+    width: 100%;
+    font-family: @fontFamily;
+    font-weight: bolder;
+    outline: 0;
+    &:hover, &:focus {
+      border: 1px #ddd solid;
+    }
+  }
+
+  .sub.header textarea {
+    color: #666;
+    font-weight: unset;
+  }
+}
