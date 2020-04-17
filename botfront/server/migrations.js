@@ -366,6 +366,23 @@ Migrations.add({
     },
 });
 
+Migrations.add({
+    version: 15,
+    up: () => {
+        StoryGroups.update( // add pinned status to smart groups
+            { smartGroup: { $exists: true } },
+            { $set: { pinned: true } },
+            { multi: true },
+        );
+        Projects.find().fetch() // put them at the top
+            .forEach(({ _id: projectId, storyGroups }) => {
+                const pinned = StoryGroups.find({ projectId, pinned: true }, { _id: 1 }).fetch().map(({ _id }) => _id);
+                const storyGroupsSorted = storyGroups.sort((a, b) => pinned.includes(b) - pinned.includes(a));
+                Projects.update({ _id: projectId }, { $set: { storyGroups: storyGroupsSorted } });
+            });
+    },
+});
+
 Meteor.startup(() => {
     Migrations.migrateTo('latest');
 });

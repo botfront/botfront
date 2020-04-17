@@ -25,13 +25,6 @@ describe('test stories searching ui', () => {
         }
     };
 
-    it('should index stories that are created and edited in the app', () => {
-        cy.visit('project/bf/stories');
-        cy.createStoryGroup({ groupName: 'test group' });
-        cy.createStoryInGroup({ groupName: 'test group', storyName: 'types of fruit' });
-        cy.createStoryInGroup({ groupName: 'test group', storyName: 'types of food' });
-    });
-
     it('should find stories created on project init', () => {
         cy.visit('project/bf/stories');
         searchStories('greetings', 'Greetings');

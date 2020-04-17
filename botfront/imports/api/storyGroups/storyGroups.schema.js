@@ -18,6 +18,7 @@ export const StoryGroupSchema = new SimpleSchema(
         children: { type: Array, defaultValue: [] },
         'children.$': String,
         isExpanded: { type: Boolean, defaultValue: true },
+        pinned: { type: Boolean, defaultValue: false },
     },
     { tracker: Tracker },
 );

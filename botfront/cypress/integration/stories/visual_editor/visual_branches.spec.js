@@ -47,6 +47,7 @@ const addBlock = (depth) => {
 describe('story visual editor', function() {
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
+        cy.visit('/project/bf/stories');
         cy.createStoryGroup();
         cy.createStoryInGroup();
     });

@@ -156,6 +156,7 @@ describe('Bot responses', function() {
     });
 
     it('should disable response name input if the response is used in a story', function() {
+        cy.visit('/project/bf/stories');
         cy.createStoryGroup();
         cy.createStoryInGroup();
         cy.wait(250);

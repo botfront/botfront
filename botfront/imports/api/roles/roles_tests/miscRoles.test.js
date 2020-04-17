@@ -58,7 +58,6 @@ if (Meteor.isServer) {
 
     // eslint-disable-next-line import/named
     import { getTrainingDataInRasaFormat, parseNlu } from '../../instances/instances.methods';
-    import { createIntroStoryGroup, createDefaultStoryGroup } from '../../storyGroups/storyGroups.methods';
 
     const callGetTrainingDataInRasaFormat = async (role, scope, done) => {
         await Meteor.users.remove({ _id: userId });
@@ -115,43 +114,6 @@ if (Meteor.isServer) {
         }
         done();
     };
-    const callCreateIntroStoryGroup = async (role, scope, done) => {
-        await Meteor.users.remove({ _id: userId });
-        await Meteor.roleAssignment.remove({ user: { _id: userId } });
-        await Projects.remove({ _id: projectId });
-        await Meteor.users.insert(userData);
-        await Projects.insert(projectData);
-        await setScopes(formatRoles(role, scope), userId);
-        try {
-            await createIntroStoryGroup();
-        } catch (err) {
-            if (!writers.projects.includes(role) || scope !== 'GLOBAL') {
-                expect(err.error).to.be.equal('403');
-            } else {
-                expect(err.error).to.not.equal('403');
-            }
-        }
-        done();
-    };
-    const callCreateDefaultStoryGroup = async (role, scope, done) => {
-        await Meteor.users.remove({ _id: userId });
-        await Projects.remove({ _id: projectId });
-        await Meteor.roleAssignment.remove({ user: { _id: userId } });
-        await Meteor.users.insert(userData);
-        await setScopes(formatRoles(role, scope), userId);
-        await Projects.insert(projectData);
-        
-        try {
-            await createDefaultStoryGroup();
-        } catch (err) {
-            if (!writers.projects.includes(role) || scope !== 'GLOBAL') {
-                expect(err.error).to.be.equal('403');
-            } else {
-                expect(err.error).to.not.equal('403');
-            }
-        }
-        done();
-    };
     describe('should test toles for miscellaneous functions', () => {
         roles.forEach((role) => {
             it(`call getTrainingDataInRasaFormat as ${role} with GLOBAL scope`, (done) => {
@@ -184,28 +146,6 @@ if (Meteor.isServer) {
             });
             it(`call createProject as ${role} with wrong project scope`, (done) => {
                 callCreateProject(role, 'DNE', done);
-            });
-        });
-        roles.forEach((role) => {
-            it(`call createIntroStoryGroup as ${role} with GLOBAL scope`, (done) => {
-                callCreateIntroStoryGroup(role, 'GLOBAL', done);
-            });
-            it(`call createIntroStoryGroup as ${role} with project scope`, (done) => {
-                callCreateIntroStoryGroup(role, projectId, done);
-            });
-            it(`call createIntroStoryGroup as ${role} with wrong project scope`, (done) => {
-                callCreateIntroStoryGroup(role, 'DNE', done);
-            });
-        });
-        roles.forEach((role) => {
-            it(`call createDefaultStoryGroup as ${role} with GLOBAL scope`, (done) => {
-                callCreateDefaultStoryGroup(role, 'GLOBAL', done);
-            });
-            it(`call createDefaultStoryGroup as ${role} with project scope`, (done) => {
-                callCreateDefaultStoryGroup(role, projectId, done);
-            });
-            it(`call createDefaultStoryGroup as ${role} with wrong project scope`, (done) => {
-                callCreateDefaultStoryGroup(role, 'DNE', done);
             });
         });
     });

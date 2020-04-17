@@ -126,9 +126,10 @@ const StoryGroupTreeNode = (props) => {
             ref={provided.innerRef}
             {...provided.draggableProps}
             tabIndex={0} // eslint-disable-line jsx-a11y/no-noninteractive-tabindex
-            className='item-focus-holder'
+            className={`item-focus-holder ${item.smartGroup ? 'blue' : ''}`}
             id={`story-menu-item-${item.id}`}
             type={isLeaf ? 'story' : 'story-group'}
+            data-pinned={!!item.pinned}
             data-cy='story-group-menu-item'
         >
             <Menu.Item
