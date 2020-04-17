@@ -1,13 +1,23 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { Comment } from 'semantic-ui-react';
+import { Comment, Confirm } from 'semantic-ui-react';
 
 import UserUtteranceViewer from '../nlu/common/UserUtteranceViewer';
+import { ConversationBrowserContext } from '../conversations/context';
 
 export default function UserUtteredEventViewer({ event, author }) {
+    const { modifyFilters } = useContext(ConversationBrowserContext);
     return (
         <Comment.Content>
-            <Comment.Author as='a'>{author || 'User'}</Comment.Author>
+            <Confirm
+                trigger={(
+                    <Comment.Author as='a'>{author || 'User'}</Comment.Author>
+                )}
+                onConfirm={() => { modifyFilters({ userId: author }); }}
+                header='Change Filters'
+                content='Show all conversations with this user'
+                confirmButton='Apply filter'
+            />
             <Comment.Metadata>
                 <span>{event.timestamp.format('ddd, MMM Do, h:mm:ss a')}</span>
             </Comment.Metadata>
