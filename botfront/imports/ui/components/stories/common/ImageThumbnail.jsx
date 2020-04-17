@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
     Image, Input, Button, Modal,
@@ -8,6 +8,7 @@ export default function ImageThumbnail(props) {
     const { value, onChange, otherActions } = props;
     const [newValue, setNewValue] = useState(value);
     const [modalOpen, setModalOpen] = useState(false);
+    useEffect(() => setNewValue(value), [value]);
 
     const imageUrlRef = useRef();
 
