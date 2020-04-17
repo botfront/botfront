@@ -11,10 +11,12 @@ const convoTwoParsed = `# Conversation second_convo (Fri Aug 30 2019 16:36:45 GM
 
 * /get_started
 - Je suis prêt. Demandez une question.
-* comment faire pour ajouter un destinataire
+* comment faire pour créer un chatbot?
 - Facile!
+  Regarde!
+  [ http://botfront.io/image.png ]
 - Cela répond à votre question ?
-   <Oui> <Non>
+  <Oui> <Non>
 * <Non>`;
 
 if (Meteor.isClient) {
