@@ -125,7 +125,8 @@ const ConversationFilters = ({
                             trigger={<React.Fragment />}
                         >
                             <Dropdown.Menu>
-                                <Dropdown.Item onClick={onDownloadConversations} icon='download' text='Download results' />
+                                <Dropdown.Item onClick={() => onDownloadConversations({ format: 'json' })} icon='download' text='Download results (JSON)' />
+                                <Dropdown.Item onClick={() => onDownloadConversations({ format: 'md' })} icon='download' text='Download results (text)' />
                             </Dropdown.Menu>
                         </Dropdown>
                     </Button.Group>
