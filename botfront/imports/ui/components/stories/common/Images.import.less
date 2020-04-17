@@ -1,7 +1,8 @@
 .image-container {
     position: relative;
     border-radius: 4px;
-    max-width: 224px;
+    max-width: 250px;
+    min-width: 150px;
     width: 100%;
     background-color: #ccc;
     border: 1px solid #acbac4;
@@ -21,6 +22,7 @@
 
     .ui.small.image {
         position: absolute;
+        border-radius: 4px;
         width: 100%;
         height: 100%;
         object-fit: cover;
@@ -41,6 +43,7 @@
 
     .overlay-menu {
         opacity: 0;
+        border-radius: 4px;
         transition: opacity 0.15s ease-in-out;
         z-index: 5;
         position: absolute;

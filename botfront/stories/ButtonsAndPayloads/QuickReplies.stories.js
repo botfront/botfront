@@ -32,6 +32,7 @@ const QuickRepliesWrapped = (props) => {
             border: '3px #ddd solid',
             borderRadius: '4px',
             padding: '5px',
+            maxWidth: '100%',
             width: `${number('Container width (px)', 470)}px`,
         }}
         >

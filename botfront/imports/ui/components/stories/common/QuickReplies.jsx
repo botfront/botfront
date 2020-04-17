@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Icon } from 'semantic-ui-react';
+import { Icon, Popup } from 'semantic-ui-react';
 import QuickReply, { isButtonValid } from './QuickReply';
 
 function QuickReplies({
@@ -47,12 +47,20 @@ function QuickReplies({
         <>
             {quickReplies[quickReplies.length - 1]}
             {buttons.length < max && buttons.every(b => isButtonValid(b)) && (
-                <Icon
-                    className='add-quick-reply'
-                    data-cy='add-quick-reply'
-                    name='add'
-                    color='grey'
-                    onClick={handleAdd}
+                <Popup
+                    size='mini'
+                    inverted
+                    position='top center'
+                    content='Add a button'
+                    trigger={(
+                        <Icon
+                            className='add-quick-reply'
+                            data-cy='add-quick-reply'
+                            name='add'
+                            color='grey'
+                            onClick={handleAdd}
+                        />
+                    )}
                 />
             )}
         </>

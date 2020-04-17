@@ -9,7 +9,7 @@ import ResponseButtonEditor from './ResponseButtonEditor';
 export default function CarouselSlide(props) {
     const { value, onChange } = props;
     const {
-        title: header, subtitle: description, buttons, image_url: image, default_action: defaultAction,
+        title: header, subtitle: description, buttons = [], image_url: image, default_action: defaultAction,
     } = value;
     const [modalOpen, setModalOpen] = useState(false);
 
