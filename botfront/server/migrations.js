@@ -356,7 +356,7 @@ Migrations.add({ // EE-SPECIFIC!
 });
 
 Migrations.add({
-    version: 14,
+    version: 15,
     up: () => {
         const allStories = Stories.find().fetch();
         allStories.forEach((story) => {
@@ -367,7 +367,7 @@ Migrations.add({
 });
 
 Migrations.add({
-    version: 15,
+    version: 16,
     up: () => {
         StoryGroups.update( // add pinned status to smart groups
             { smartGroup: { $exists: true } },
