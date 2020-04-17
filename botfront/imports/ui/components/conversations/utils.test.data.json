@@ -79,14 +79,14 @@
                 {
                 "event": "user",
                 "timestamp": 1567197416.7709193,
-                "text": "comment faire pour ajouter un destinataire",
+                "text": "comment faire pour créer un chatbot?",
                 "parse_data": {
                     "intent": {
-                    "name": "facture-ajout-destinataire",
+                    "name": "creer_chatbot",
                     "confidence": 0.9202102422714233
                     },
                     "entities": [],
-                    "text": "comment faire pour ajouter un destinataire"
+                    "text": "comment faire pour créer un chatbot?"
                 }
                 },
                 {
@@ -99,7 +99,10 @@
                 {
                 "event": "bot",
                 "timestamp": 1567197416.805094,
-                "text": "Facile!"
+                "text": "Facile!\nRegarde!",
+                "data": {
+                    "image": "http://botfront.io/image.png"
+                }
                 },
                 {
                 "event": "action",

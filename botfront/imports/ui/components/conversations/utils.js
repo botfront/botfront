@@ -68,11 +68,15 @@ export function generateTurns(tracker, debug = false, tzOffset = null) {
     return turns;
 }
 
-const parseBotResponse = ({ text, data: { buttons } = {} } = {}) => {
-    let line = `- ${text}`;
+const parseBotResponse = ({ text, data: { buttons, image, attachement } = {} } = {}) => {
+    let line = `- ${text.replace(/\n/g, '\n  ')}`;
+    const spacer = l => (l === '- ' ? '' : '\n  ');
+    if (image) line += `${spacer(line)}[ ${image} ]`;
+    if (attachement && image !== attachement) line += `${spacer(line)}[ ${attachement} ]`;
     if (buttons) {
-        line += `\n${buttons.reduce((acc, curr) => `${acc} <${curr.title}>`, '  ')}`;
+        line += buttons.reduce((acc, curr) => `${acc} <${curr.title}>`, spacer(line).slice(0, -1));
     }
+    if (line === '- ') line += '[unrecognized response]';
     return line;
 };
 
