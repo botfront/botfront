@@ -79,9 +79,7 @@ class ProjectSidebar extends React.Component {
                     <Link to='/login'>
                         <Menu.Item data-cy='signout' name='Sign out' icon='sign-out' />
                     </Link>
-                    <Can I='global-settings:r' projectId={{ anyScope: true }}>
-                        <Menu.Item className='force-bottom'> {packageJson.version} </Menu.Item>
-                    </Can>
+                    <span className='force-bottom'>{packageJson.version}</span>
                 </Menu>
             </DocumentTitle>
         );
