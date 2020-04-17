@@ -23,6 +23,7 @@ export default function UserUtteredEventViewer({ event, author }) {
                                     if (!author) return;
                                     setOpen(true);
                                 }}
+                                data-cy='utterance-author'
                             >
                                 {author || 'User'}
                             </Comment.Author>
@@ -39,6 +40,7 @@ export default function UserUtteredEventViewer({ event, author }) {
                 header='Change Filters'
                 content='Show all conversations with this user'
                 confirmButton='Apply filter'
+                data-cy='filter-by-user-id-modal'
             />
             <Comment.Metadata>
                 <span>{event.timestamp.format('ddd, MMM Do, h:mm:ss a')}</span>
