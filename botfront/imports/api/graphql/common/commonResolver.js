@@ -26,17 +26,4 @@ export default {
         serialize: v => GraphQLJSON.serialize(v),
         parseLiteral: v => GraphQLJSON.parseLiteral(v),
     }),
-    StringOrListOfStrings: new GraphQLScalarType({
-        name: 'StringOrListOfStrings',
-        description: 'String | [String]',
-        parseValue: v => (v.kind === 'ListValue'
-            ? v.values.map(el => GraphQLString.parseValue(el))
-            : GraphQLString.parseValue(v)),
-        serialize: v => (v.kind === 'ListValue'
-            ? v.values.map(el => GraphQLString.serialize(el))
-            : GraphQLString.serialize(v)),
-        parseLiteral: v => (v.kind === 'ListValue'
-            ? v.values.map(el => GraphQLString.parseLiteral(el))
-            : GraphQLString.parseLiteral(v)),
-    }),
 };
