@@ -1,0 +1,156 @@
+[
+    {
+        "_id": "first_convo",
+        "updatedAt": "2019-08-30T20:36:56.845Z",
+        "status": "read",
+        "projectId": "bf",
+        "userId": "Joe Bloe",
+        "tracker": {
+            "latest_event_time": 1567197416.8377583,
+            "followup_action": null,
+            "paused": false,
+            "events": [
+                {
+                "event": "action",
+                "timestamp": 1567197405.8357213,
+                "name": "action_listen",
+                "policy": null,
+                "confidence": null
+                },
+                {
+                "event": "user",
+                "timestamp": 1567197405.8466005,
+                "text": "/get_started",
+                "parse_data": {
+                    "text": "/get_started",
+                    "intent": {
+                    "name": "get_started",
+                    "confidence": 1
+                    },
+                    "entities": []
+                }
+                }
+            ]
+        }
+    },
+    {
+        "_id": "second_convo",
+        "updatedAt": "2019-08-30T20:36:56.845Z",
+        "status": "read",
+        "projectId": "bf",
+        "userId": null,
+        "tracker": {
+            "latest_event_time": 1567197416.8377583,
+            "followup_action": null,
+            "paused": false,
+            "events": [
+                {
+                "event": "action",
+                "timestamp": 1567197405.8357213,
+                "name": "action_listen",
+                "policy": null,
+                "confidence": null
+                },
+                {
+                "event": "user",
+                "timestamp": 1567197405.8466005,
+                "text": "/get_started",
+                "parse_data": {
+                    "text": "/get_started",
+                    "intent": {
+                    "name": "get_started",
+                    "confidence": 1
+                    },
+                    "entities": []
+                }
+                },
+                {
+                "event": "bot",
+                "timestamp": 1567197405.8795311,
+                "text": "Je suis prêt. Demandez une question."
+                },
+                {
+                "event": "action",
+                "timestamp": 1567197405.8901303,
+                "name": "action_listen",
+                "policy": "policy_1_MemoizationPolicy",
+                "confidence": 1
+                },
+                {
+                "event": "user",
+                "timestamp": 1567197416.7709193,
+                "text": "comment faire pour créer un chatbot?",
+                "parse_data": {
+                    "intent": {
+                    "name": "creer_chatbot",
+                    "confidence": 0.9202102422714233
+                    },
+                    "entities": [],
+                    "text": "comment faire pour créer un chatbot?"
+                }
+                },
+                {
+                "event": "action",
+                "timestamp": 1567197416.8050802,
+                "name": "utter_rgNN08ntM",
+                "policy": "policy_2_AugmentedMemoizationPolicy",
+                "confidence": 1
+                },
+                {
+                "event": "bot",
+                "timestamp": 1567197416.805094,
+                "text": "Facile!\nRegarde!",
+                "data": {
+                    "image": "http://botfront.io/image.png"
+                }
+                },
+                {
+                "event": "action",
+                "timestamp": 1567197416.8317673,
+                "name": "utter_ueeUaV0RW",
+                "policy": "policy_2_AugmentedMemoizationPolicy",
+                "confidence": 1
+                },
+                {
+                "event": "bot",
+                "timestamp": 1567197416.8317816,
+                "text": "Cela répond à votre question ?",
+                "data": {
+                    "buttons": [
+                    {
+                        "title": "Oui",
+                        "type": "postback",
+                        "payload": "/basics.yes"
+                    },
+                    {
+                        "title": "Non",
+                        "type": "postback",
+                        "payload": "/basics.no"
+                    }
+                    ]
+                }
+                },
+                {
+                "event": "action",
+                "timestamp": 1567197416.8377583,
+                "name": "action_listen",
+                "policy": "policy_2_AugmentedMemoizationPolicy",
+                "confidence": 1
+                },
+                {
+                "event": "user",
+                "timestamp": 1567197416.8377683,
+                "text": "/basics.no",
+                "parse_data": {
+                    "intent": {
+                    "name": "basics.no",
+                    "confidence": 1
+                    },
+                    "entities": [],
+                    "text": "/basics.no"
+                }
+                }
+            ]
+        }
+    }
+]
