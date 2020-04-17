@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.22.1](https://github.com/botfront/botfront/compare/v0.22.0-rc.2...v0.22.1) (2020-04-17)
+
+
+### Bug Fixes
+
+* deletion of unused bot responses ([982f73c](https://github.com/botfront/botfront/commit/982f73c))
+* story search inconsistency ([9f3014c](https://github.com/botfront/botfront/commit/9f3014c))
+* timezone support for conversation viewer ([1750fb4](https://github.com/botfront/botfront/commit/1750fb4))
+
+
+### Tests
+
+* multiple matches in stories search ([122dce9](https://github.com/botfront/botfront/commit/122dce9))
+* unit tests for conversation transcript ([869dca1](https://github.com/botfront/botfront/commit/869dca1))
+
+
+
 ## [0.22.0](https://github.com/botfront/botfront/compare/v0.22.0-rc.2...v0.22.0) (2020-04-14)
 
 
