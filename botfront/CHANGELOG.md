@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.22.1-ee.0](https://github.com/botfront/botfront/compare/v0.22.0-ee.0...v0.22.1-ee.0) (2020-04-17)
+
+
+### Features
+
+* **conversation viewer:** export as markdown ([f20bd78](https://github.com/botfront/botfront/commit/f20bd784ac632daee9319f1986b898248d587220))
+* **conversation viewer:** show button title text in user utterances ([ea0f354](https://github.com/botfront/botfront/commit/ea0f354ee4865e5ba64ad5b69367c69721451d9b))
+
+
+### Bug Fixes
+
+* timezone support for conv filter, analytics ([97ba2f1](https://github.com/botfront/botfront/commit/97ba2f11f52ffee1c4e8d310a40bde749727887a))
+* timezone support for conversation viewer ([9e3722e](https://github.com/botfront/botfront/commit/9e3722e5ca123a2c080ecaff1dcc2e4d51218559))
+* timezone support for conversation viewer ([1750fb4](https://github.com/botfront/botfront/commit/1750fb490a1d5610dc631af54a729b3becdebcec))
+
 ## [0.22.0-ee.0](https://github.com/botfront/botfront/compare/v0.21.4-ee.2...v0.22.0-ee.0) (2020-04-16)
 
 
