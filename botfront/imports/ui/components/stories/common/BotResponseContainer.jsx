@@ -1,8 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { Input, Button, Image } from 'semantic-ui-react';
+import { Button } from 'semantic-ui-react';
 import TextareaAutosize from 'react-autosize-textarea';
+import ImageThumbnail from './ImageThumbnail';
 import QuickReplies from './QuickReplies';
 
 const BotResponseContainer = (props) => {
@@ -19,7 +20,6 @@ const BotResponseContainer = (props) => {
     const isImageResponse = value.__typename === 'ImagePayload';
     const hasText = Object.keys(value).includes('text') && value.text !== null;
 
-    const imageUrlRef = useRef();
 
     const unformatNewlines = (response) => {
         if (!response) return response;
@@ -31,7 +31,6 @@ const BotResponseContainer = (props) => {
     useEffect(() => {
         setInput(unformatNewlines(value.text));
         if (focus && focusGrabber.current) focusGrabber.current.focus();
-        if (focus && imageUrlRef.current) imageUrlRef.current.focus();
     }, [value.text, focus]);
 
 
@@ -44,8 +43,6 @@ const BotResponseContainer = (props) => {
     }
 
     const setImage = image => onChange({ ...value, image, text: '' }, false);
-
-    const setImageFromUrlBox = () => setImage(imageUrlRef.current.inputRef.current.value);
 
     const handleKeyDown = (e) => {
         if (e.key === 'Shift') {
@@ -61,10 +58,6 @@ const BotResponseContainer = (props) => {
             }
             e.preventDefault();
             onChange({ text: formatNewlines(input) }, true);
-        }
-        if (e.key === 'Enter' && isImageResponse) {
-            e.preventDefault();
-            setImageFromUrlBox();
         }
     };
 
@@ -100,32 +93,6 @@ const BotResponseContainer = (props) => {
         />
     );
 
-    const renderViewImage = () => (
-        <Image src={value.image} size='small' alt=' ' />
-    );
-
-    const renderSetImage = () => (
-        <div>
-            <b>Insert image from URL</b>
-            <br />
-            <div className='side-by-side'>
-                <Input
-                    ref={imageUrlRef}
-                    autoFocus
-                    placeholder='URL'
-                    onBlur={setImageFromUrlBox}
-                    onKeyDown={handleKeyDown}
-                    size='small'
-                    data-cy='image-url-input'
-                    className='image-url-input'
-                />
-                <Button primary onClick={setImageFromUrlBox} size='small' content='Save' />
-            </div>
-        </div>
-    );
-
-    const renderImage = () => (!value.image.trim() ? renderSetImage() : renderViewImage());
-
     const renderCustom = () => (
         <Button
             className='edit-custom-response'
@@ -136,9 +103,8 @@ const BotResponseContainer = (props) => {
         </Button>
     );
 
-    const extraClass = isImageResponse && value.image.trim() ? 'image' : '';
+    const extraClass = isImageResponse && 'image';
     const metadataClass = hasMetadata ? 'metadata-response' : '';
-
 
     return (
         <div
@@ -148,7 +114,7 @@ const BotResponseContainer = (props) => {
         >
             <div className={`${hasMetadata ? 'metadata-response' : ''}`}>
                 {hasText && !isImageResponse && renderText()}
-                {isImageResponse && renderImage()}
+                {isImageResponse && <ImageThumbnail value={value.image} onChange={setImage} />}
                 {isQRResponse && renderButtons()}
                 {isCustom && renderCustom()}
             </div>

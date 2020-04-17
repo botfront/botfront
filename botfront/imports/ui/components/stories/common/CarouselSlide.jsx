@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Header, Image } from 'semantic-ui-react';
+import { Header } from 'semantic-ui-react';
 import TextareaAutosize from 'react-autosize-textarea';
 import QuickReplies from './QuickReplies';
+import ImageThumbnail from './ImageThumbnail';
 
 export default function CarouselSlide(props) {
     const { value, onChange } = props;
@@ -13,14 +14,13 @@ export default function CarouselSlide(props) {
     const setValue = update => onChange({ ...value, ...update });
     return (
         <div className='carousel-slide'>
-            <Image src={image} size='small' alt=' ' />
+            <ImageThumbnail value={image} onChange={url => onChange({ image_url: url })} />
             <Header as='h3'>
                 <TextareaAutosize
                     placeholder='Title'
                     value={header}
                     onChange={event => setValue({ title: event.target.value })}
                 />
-                {/* <input placeholder='Title' value={header} onChange={(_, title) => setValue({ title })} /> */}
                 <Header.Subheader>
                     <TextareaAutosize
                         placeholder='Description'
