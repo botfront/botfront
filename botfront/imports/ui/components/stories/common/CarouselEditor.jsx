@@ -1,27 +1,28 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
-import { Header, Modal } from 'semantic-ui-react';
+import { useDrop } from 'react-dnd-cjs';
 import CarouselSlide from './CarouselSlide';
 import { useEventListener } from '../../utils/hooks';
 
 export default function CarouselEditor(props) {
-    const { value, onChange } = props;
+    const { id, value, onChange } = props;
     const { elements = [] } = value;
 
     const carouselRef = useRef();
+    const [, drop] = useDrop({ accept: `slide-for-${id}` });
 
-    const setCards = newElements => onChange({ ...value, elements: newElements });
-    const setCardAtIndex = (index, element) => setCards([
+    const setSlides = newElements => onChange({ ...value, elements: newElements });
+    const setSlideAtIndex = (index, element) => setSlides([
         ...elements.slice(0, index),
         ...(element === null ? [] : [element]),
         ...elements.slice(index + 1),
     ]);
-    const createCard = () => setCards([...elements, {}]);
-    const handleSwapCards = (index, draggedCardIndex) => {
-        const updatedCards = [...elements];
-        updatedCards[index] = elements[draggedCardIndex];
-        updatedCards[draggedCardIndex] = elements[index];
-        setCards(updatedCards);
+    const createSlide = () => setSlides([...elements, {}]);
+    const handleSwapSlides = (index, draggedSlideIndex) => {
+        const updatedSlides = [...elements];
+        updatedSlides[index] = elements[draggedSlideIndex];
+        updatedSlides[draggedSlideIndex] = elements[index];
+        setSlides(updatedSlides);
     };
 
     const handleMouseWheel = (e) => {
@@ -32,16 +33,27 @@ export default function CarouselEditor(props) {
     useEventListener('wheel', handleMouseWheel, carouselRef.current);
 
     return (
-        <div className='carousel' ref={carouselRef}>
-            {elements.map((card, i) => <CarouselSlide key={`${i}${card.title}`} value={card} onChange={v => setCardAtIndex(i, v)} />)}
+        <div className='carousel' ref={drop(carouselRef)}>
+            {elements.map((slide, i) => (
+                <CarouselSlide
+                    key={`${i}${slide.title}`}
+                    value={slide}
+                    parentId={id}
+                    slideIndex={i}
+                    onChange={v => setSlideAtIndex(i, v)}
+                    onReorder={handleSwapSlides}
+                />
+            ))}
         </div>
     );
 }
 
 CarouselEditor.propTypes = {
-    onChange: PropTypes.func.isRequired,
+    id: PropTypes.string,
     value: PropTypes.object.isRequired,
+    onChange: PropTypes.func.isRequired,
 };
 
 CarouselEditor.defaultProps = {
+    id: 'default',
 };

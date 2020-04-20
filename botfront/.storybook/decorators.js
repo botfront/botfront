@@ -4,6 +4,8 @@ import { ProjectContext } from '../imports/ui/layouts/context';
 import { ConversationOptionsContext } from '../imports/ui/components/stories/Context';
 import store from '../imports/ui/store/store';
 import { OOS_LABEL } from '../imports/ui/components/constants.json';
+import { DndProvider } from 'react-dnd-cjs';
+import HTML5Backend from 'react-dnd-html5-backend-cjs';
 import style from './style.css';
 
 export const slots = [
@@ -182,19 +184,21 @@ export const withBackground = (story) => {
     }, [])
 
     return (
-        <div className='background'>
-            <div ref={resizeBox} className='resize-box'>
-                <br />
-                <div className='content-box'>
-                    {story()}
-                </div>
-                <br />
-                <div className='notice'>
-                    <span>&larr;</span>
-                    <span>change width using NE corner</span>
-                    <span>&rarr;</span>
+        <DndProvider backend={HTML5Backend}>
+            <div className='background'>
+                <div ref={resizeBox} className='resize-box'>
+                    <br />
+                    <div className='content-box'>
+                        {story()}
+                    </div>
+                    <br />
+                    <div className='notice'>
+                        <span>&larr;</span>
+                        <span>change width using NE corner</span>
+                        <span>&rarr;</span>
+                    </div>
                 </div>
             </div>
-        </div>
+    </DndProvider>  
     )
 }
