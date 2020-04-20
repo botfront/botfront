@@ -132,27 +132,6 @@ Meteor.methods({
         );
     },
 
-    async 'stories.includesResponseA'(projectId, responseName) {
-        checkIfCan('stories:r', projectId);
-        check(projectId, String);
-        check(responseName, String);
-        try {
-            const allStories = Stories.find(
-                { projectId, events: { $elemMatch: { $eq: responseName } } },
-                {
-                    fields: {
-                        events: 1, _id: 1, title: 1, storyGroupId: 1,
-                    },
-                },
-            ).fetch();
-            return allStories.reduce((currentValue, { events, _id, title }) => {
-                if (!events.includes(responseName)) return currentValue;
-                return [...currentValue, { _id, title }];
-            }, []);
-        } catch (e) {
-            return [];
-        }
-    },
     async 'stories.includesResponse'(projectId, responseNames) {
         checkIfCan('stories:r', projectId);
         check(projectId, String);

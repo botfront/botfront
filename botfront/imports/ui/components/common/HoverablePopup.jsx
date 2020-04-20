@@ -1,6 +1,6 @@
 import {
     Popup,
-    Button,
+    Item,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -99,11 +99,12 @@ class HoverablePopup extends React.Component {
             <Popup
                 className={className}
                 trigger={(
-                    <Button
+                    <Item
+                        as='span'
                         className='popup-trigger-wrapper'
                         onMouseEnter={() => {
                             if (on === 'click') return;
-                            this.handleMouseEnter(50);
+                            this.handleMouseEnter(75);
                         }}
                         onMouseLeave={() => this.handleMouseLeave(200)}
                         onClick={() => {
@@ -113,7 +114,7 @@ class HoverablePopup extends React.Component {
                         }}
                     >
                         {trigger}
-                    </Button>
+                    </Item>
                 )}
                 content={(
                     <div
@@ -122,6 +123,16 @@ class HoverablePopup extends React.Component {
                         ref={this.popupNode}
                     >
                         {content}
+                        {/*
+                            the extended-hover-target covers the space
+                            inbetween the popup and the trigger.
+                            it prevents the popup from closing when
+                            the user is slow to move their mouser from
+                            the trigger to the popup
+                        */}
+                        <div className='extended-hover-container'>
+                            <div className='extended-hover-target' />
+                        </div>
                     </div>
                 )}
                 position='top center'

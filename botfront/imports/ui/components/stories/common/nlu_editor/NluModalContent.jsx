@@ -320,7 +320,6 @@ const NLUModalContent = (props) => {
                             )}
                             content={(
                                 <ConfirmPopup
-                                    title=''
                                     description='Are you sure? All the data you entered above will be discarded!'
                                     onYes={closeModal}
                                     onNo={() => setCancelPopupOpen(false)}

@@ -131,22 +131,26 @@ const BotResponsesContainer = (props) => {
 
     const renderDynamicResponseName = () => (
         <div className='response-name-container'>
-            {loadingResponseLocations && <Loader active inline size='mini' className='response-name-loader' />}
             {responseLocations.length > 1 ? (
                 <HoverablePopup
                     className='response-locations-popup'
                     trigger={(
-                        <div
-                            className='response-name response-name-link'
-                            data-cy='response-name'
-                        >
-                            {name}({responseLocations.length})
+                        <div className='response-name-link-container'>
+                            <div
+                                className='response-name response-name-link'
+                                data-cy='response-name'
+                            >
+                                {loadingResponseLocations && <Loader active inline size='mini' className='response-name-loader' />} {name}
+                            </div>
+                            <div className='response-instance-count'>
+                            ({responseLocations.length})
+                            </div>
                         </div>
                     )}
                     content={(
                         <>
                             <Header>This response is used in {responseLocations.length} stories</Header>
-                            <List data-cy='response-locations-list'>
+                            <List data-cy='response-locations-list' className='response-locations-list'>
                                 {responseLocations.map(({ title, _id, storyGroupId }) => (
                                     <List.Item
                                         className='story-name-link'
@@ -168,7 +172,10 @@ const BotResponsesContainer = (props) => {
                     flowing
                 />
             ) : (
-                <div className='response-name' data-cy='response-name'>{name}</div>
+                <div className='response-name' data-cy='response-name'>
+                    {loadingResponseLocations && <Loader active inline size='mini' className='response-name-loader' />}
+                    {name}
+                </div>
             )}
         </div>
     );
@@ -219,7 +226,6 @@ BotResponsesContainer.propTypes = {
     onDeleteAllResponses: PropTypes.func,
     enableEditPopup: PropTypes.bool,
     tag: PropTypes.string,
-    // projectId: PropTypes.string.isRequired,
     setActiveStories: PropTypes.func.isRequired,
     responseLocations: PropTypes.array,
     loadingResponseLocations: PropTypes.bool,
@@ -237,7 +243,4 @@ BotResponsesContainer.defaultProps = {
     loadingResponseLocations: false,
 };
 
-const mapStateToProps = state => ({
-    projectId: state.settings.get('projectId'),
-});
-export default connect(mapStateToProps, { setActiveStories: setStoriesCurrent })(BotResponsesContainer);
+export default connect(() => ({}), { setActiveStories: setStoriesCurrent })(BotResponsesContainer);
