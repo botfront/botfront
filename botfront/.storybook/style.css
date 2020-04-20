@@ -14,7 +14,7 @@
 .resize-box {
     resize: horizontal;
     max-width: 100%;
-    min-width: 200px;
+    min-width: 230px;
     width: max-content;
     overflow-x: auto;
     overflow-y: visible;
@@ -46,6 +46,6 @@
     padding: 10px;
     margin: 0 auto;
     width: 90%;
-    min-width: 150px;
+    min-width: 160px;
     background: #fff;
 }

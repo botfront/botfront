@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { withKnobs } from '@storybook/addon-knobs';
+import { withKnobs, number } from '@storybook/addon-knobs';
 import { action } from '@storybook/addon-actions';
 import { withBackground } from '../../.storybook/decorators';
 
@@ -25,6 +25,18 @@ const initialValue = {
         {
             title: 'Chokeberry',
             image_url: 'https://cdn.imgbin.com/25/17/10/imgbin-chokeberry-blueberry-rEzsJXhWazQu6v6VyvRBcbqqv.jpg',
+            buttons: [
+                {
+                    title: '$$$ Buy it',
+                    type: 'postback',
+                    payload: '/buy_chokeberries',
+                },
+                {
+                    title: 'Sell it $$$',
+                    type: 'postback',
+                    payload: '/sell_chokeberries',
+                },
+            ],
         },
         {
             title: 'Cloudberry',
@@ -41,6 +53,8 @@ const CarouselEditorWrapped = (props) => {
         <CarouselEditor
             {...props}
             value={carousel}
+            max={number('Max n cards', 7)}
+            min={number('Min n cards', 1)}
             onChange={(...args) => { setCarousel(...args); action('onChange')(...args); }}
         />
     );
@@ -52,4 +66,5 @@ export default {
     decorators: [withKnobs, withBackground],
 };
 
-export const BasicBerries = () => <CarouselEditorWrapped value={initialValue} />;
+export const Blank = () => <CarouselEditorWrapped />;
+export const Berries = () => <CarouselEditorWrapped value={initialValue} />;

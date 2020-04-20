@@ -1,11 +1,14 @@
 import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
+import { Icon, Popup } from 'semantic-ui-react';
 import { useDrop } from 'react-dnd-cjs';
 import CarouselSlide from './CarouselSlide';
 import { useEventListener } from '../../utils/hooks';
 
 export default function CarouselEditor(props) {
-    const { id, value, onChange } = props;
+    const {
+        id, min, max, value, onChange,
+    } = props;
     const { elements = [] } = value;
 
     const carouselRef = useRef();
@@ -42,18 +45,35 @@ export default function CarouselEditor(props) {
                     slideIndex={i}
                     onChange={v => setSlideAtIndex(i, v)}
                     onReorder={handleSwapSlides}
+                    onDelete={elements.length > min ? () => setSlideAtIndex(i, null) : null}
                 />
             ))}
+            {elements.length < max && (
+                <div className='carousel-slide blank'>
+                    <Popup
+                        size='mini'
+                        inverted
+                        content='Add a slide'
+                        trigger={(
+                            <Icon name='add' size='huge' color='grey' link onClick={createSlide} data-cy='add-slide' />
+                        )}
+                    />
+                </div>
+            )}
         </div>
     );
 }
 
 CarouselEditor.propTypes = {
     id: PropTypes.string,
+    min: PropTypes.number,
+    max: PropTypes.number,
     value: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired,
 };
 
 CarouselEditor.defaultProps = {
     id: 'default',
+    min: 1,
+    max: 10,
 };

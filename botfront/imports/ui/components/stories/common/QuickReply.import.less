@@ -85,6 +85,7 @@
 
 .carousel {
   width: 100%;
+  min-height: 250px;
   overflow-x: auto;
   display: flex;
   & > * {
@@ -94,8 +95,13 @@
 
 .carousel-slide {
   max-width: 200px;
-  min-width: 150px;
+  min-width: 160px;
   margin: 5px 7.5px;
+
+  &.blank {
+    text-align: center;
+    margin: auto 7.5px;
+  }
 
   .ui.header {
     margin: 1rem 0;

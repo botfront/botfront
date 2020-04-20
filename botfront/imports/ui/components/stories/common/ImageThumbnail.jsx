@@ -25,7 +25,7 @@ export default function ImageThumbnail(props) {
     };
 
     const actions = [
-        ['Set image', () => setModalOpen(true)],
+        ['Set image', () => setModalOpen(true), 'set-image'],
         ...otherActions,
     ];
 
@@ -55,8 +55,8 @@ export default function ImageThumbnail(props) {
             <div className='overlay-menu'>
                 <div>
                     <Button.Group vertical>
-                        {actions.map(([title, func]) => (
-                            <Button basic key={title} onClick={func} content={title} />
+                        {actions.map(([title, func, dataCy]) => (
+                            <Button basic key={title} onClick={func} content={title} data-cy={dataCy} />
                         ))}
                     </Button.Group>
                 </div>

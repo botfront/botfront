@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Header, Modal } from 'semantic-ui-react';
+import { Header, Modal, Icon } from 'semantic-ui-react';
 import { useDrag, useDrop } from 'react-dnd-cjs';
 import TextareaAutosize from 'react-autosize-textarea';
 import QuickReplies from './QuickReplies';
@@ -9,7 +9,7 @@ import ResponseButtonEditor from './ResponseButtonEditor';
 
 export default function CarouselSlide(props) {
     const {
-        parentId, slideIndex, onReorder, value, onChange,
+        parentId, slideIndex, onDelete, onReorder, value, onChange,
     } = props;
     const {
         title: header, subtitle: description, buttons = [], image_url: image, default_action: defaultAction,
@@ -54,7 +54,10 @@ export default function CarouselSlide(props) {
             <ImageThumbnail
                 value={image}
                 onChange={url => onChange({ image_url: url })}
-                otherActions={[['Set default action', () => setModalOpen(true)]]}
+                otherActions={[
+                    ['Set default action', () => setModalOpen(true), 'set-default-action'],
+                    ...(onDelete ? [[<Icon name='trash' />, onDelete, 'delete-slide']] : []),
+                ]}
             />
             {modalOpen && (
                 <Modal
@@ -94,6 +97,7 @@ export default function CarouselSlide(props) {
 CarouselSlide.propTypes = {
     parentId: PropTypes.string,
     slideIndex: PropTypes.number,
+    onDelete: PropTypes.func,
     onReorder: PropTypes.func,
     value: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired,
@@ -102,5 +106,6 @@ CarouselSlide.propTypes = {
 CarouselSlide.defaultProps = {
     parentId: 'default',
     slideIndex: 0,
+    onDelete: null,
     onReorder: () => {},
 };
