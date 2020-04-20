@@ -78,16 +78,19 @@ export const createResponseFromTemplate = (type, language, options = {}) => {
     return newTemplate;
 };
 
+const excludeAllButOneKey = (content, key) => {
+    const included = ['image', 'buttons', 'elements', 'custom', 'attachment']
+        .filter(k => Object.keys(content).includes(k));
+    if (key) return included.length === 1 && included[0] === key;
+    return included.length === 0;
+};
+
 export const parseContentType = (content) => {
     switch (true) {
-    case Object.keys(content).includes('custom') || Object.keys(content).includes('attachment') || Object.keys(content).includes('elements'):
-        return 'CustomPayload';
-    case Object.keys(content).includes('image') && !Object.keys(content).includes('buttons'):
-        return 'ImagePayload';
-    case Object.keys(content).includes('buttons') && !Object.keys(content).includes('image'):
-        return 'QuickReplyPayload';
-    case Object.keys(content).includes('text') && !Object.keys(content).includes('image') && !Object.keys(content).includes('buttons'):
-        return 'TextPayload';
+    case excludeAllButOneKey(content, 'image'): return 'ImagePayload';
+    case excludeAllButOneKey(content, 'buttons'): return 'QuickReplyPayload';
+    case excludeAllButOneKey(content, 'elements'): return 'CarouselPayload';
+    case Object.keys(content).includes('text') && excludeAllButOneKey(content): return 'TextPayload';
     default: return 'CustomPayload';
     }
 };

@@ -1,13 +1,23 @@
 import gql from 'graphql-tag';
 
 const botResponseFields = gql`
+    fragment ButtonFields on Button {
+        title
+        type
+        ...on WebUrlButton { url }
+        ...on PostbackButton { payload }
+    }
+    fragment CarouselElementFields on CarouselElement {
+        title, subtitle, image_url, default_action { ...ButtonFields }, buttons { ...ButtonFields }
+    }
     fragment BotResponseFields on BotResponsePayload {
         __typename
         text
         metadata
-        ...on QuickReplyPayload { buttons { title, type, ...on WebUrlButton { url } ...on PostbackButton { payload } } }
+        ...on QuickReplyPayload { buttons { ...ButtonFields } }
         ...on ImagePayload { image }
-        ...on CustomPayload { buttons { title, type, ...on WebUrlButton { url } ...on PostbackButton { payload } }, elements, attachment, image, custom }
+        ...on CarouselPayload { template_type, elements { ...CarouselElementFields } }
+        ...on CustomPayload { image, buttons { ...ButtonFields }, elements { ...CarouselElementFields }, custom, attachment }
     }
 `;
 

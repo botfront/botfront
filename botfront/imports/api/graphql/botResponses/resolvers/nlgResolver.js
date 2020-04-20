@@ -82,12 +82,23 @@ export default {
     ImagePayload: {
         image: ({ image }) => image,
     },
+    CarouselPayload: {
+        template_type: ({ template_type: templateType }) => templateType,
+        elements: ({ elements }) => elements,
+    },
     CustomPayload: {
         elements: ({ elements }) => elements,
         attachment: ({ attachment }) => attachment,
         custom: ({ custom }) => custom,
         buttons: ({ buttons }) => buttons,
         image: ({ image }) => image,
+    },
+    CarouselElement: {
+        title: ({ title }) => title,
+        subtitle: ({ subtitle }) => subtitle,
+        image_url: ({ image_url: imageUrl }) => imageUrl,
+        default_action: ({ default_action: defaultAction }) => defaultAction,
+        buttons: ({ buttons }) => buttons,
     },
     Button: {
         __resolveType: (v) => {

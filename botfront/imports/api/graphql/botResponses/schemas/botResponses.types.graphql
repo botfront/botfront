@@ -128,30 +128,46 @@ type ImagePayload implements BotResponsePayload {
     metadata: Any
 }
 
+type CarouselPayload implements BotResponsePayload {
+    key: String
+    text: String
+    template_type: TemplateType!
+    elements: [CarouselElement!]
+    metadata: Any
+}
+
 type CustomPayload implements BotResponsePayload {
     key: String
     text: String
     buttons: [Button!]
-    elements: [Any!]
+    elements: [CarouselElement!]
     attachment: Any
     image: String
     custom: Any
     metadata: Any
 }
 
+type CarouselElement {
+    title: String
+    subtitle: String
+    image_url: String
+    default_action: Button
+    buttons: [Button!]
+}
+
 interface Button {
-    title: String!
+    title: String
     type: ButtonType
 }
 
 type PostbackButton implements Button {
-    title: String!
+    title: String
     type: ButtonType
     payload: String
 }
 
 type WebUrlButton implements Button {
-    title: String!
+    title: String
     type: ButtonType
     url: String
 }
@@ -159,5 +175,9 @@ type WebUrlButton implements Button {
 enum ButtonType {
     postback
     web_url
+}
+
+enum TemplateType {
+    generic
 }
 
