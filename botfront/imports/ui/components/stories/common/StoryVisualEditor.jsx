@@ -39,6 +39,15 @@ const defaultTemplate = (templateType) => {
             __typename: 'CustomPayload',
         };
     }
+    if (templateType === 'carousel') {
+        return {
+            template_type: 'generic',
+            elements: [{
+                title: '', subtitle: '', image_url: '', default_action: { type: 'postback' }, buttons: [],
+            }],
+            __typename: 'CarouselPayload',
+        };
+    }
     return false;
 };
 
