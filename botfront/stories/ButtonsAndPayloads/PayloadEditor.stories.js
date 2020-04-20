@@ -1,6 +1,7 @@
 /* eslint-disable no-alert */
 import React, { useState } from 'react';
 import { action } from '@storybook/addon-actions';
+import { withBackground } from '../../.storybook/decorators';
 import PayloadEditor from '../../imports/ui/components/stories/common/PayloadEditor';
 
 const emptyPayload = { intent: null, entities: [] };
@@ -25,6 +26,7 @@ const PayloadEditorWrapped = (props) => {
 export default {
     title: 'ButtonsAndPayloads/PayloadEditor',
     component: PayloadEditor,
+    decorators: [withBackground],
 };
 
 export const EmptyPayload = () => (

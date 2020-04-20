@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { action } from '@storybook/addon-actions';
 import { withKnobs, boolean } from '@storybook/addon-knobs';
+import { withBackground } from '../../.storybook/decorators';
 import ResponseButtonEditor from '../../imports/ui/components/stories/common/ResponseButtonEditor';
 
 const values = [{
@@ -31,7 +32,7 @@ const ResponseButtonEditorWrapped = (props) => {
 export default {
     title: 'ButtonsAndPayloads/ResponseButtonEditor',
     component: ResponseButtonEditor,
-    decorators: [withKnobs],
+    decorators: [withKnobs, withBackground],
 };
 
 export const Short = () => <ResponseButtonEditorWrapped value={values[0]} />;

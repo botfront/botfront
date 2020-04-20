@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { ProjectContext } from '../imports/ui/layouts/context';
 import { ConversationOptionsContext } from '../imports/ui/components/stories/Context';
 import store from '../imports/ui/store/store';
 import { OOS_LABEL } from '../imports/ui/components/constants.json';
+import style from './style.css';
 
 export const slots = [
     { name: 'textSlot1', type: 'text' }, { name: 'textSlot2', type: 'text' }, { name: 'textSlot3', type: 'text' },
@@ -167,26 +168,33 @@ export const withReduxProvider = (story) => (
     </Provider>
 );
 
-export const withBackground = (story) => (
-    <div
-    style={{
-        height: 'auto',
-        minHeight: '100vh',
-        padding: '15px',
-        backgroundColor: '#666',
-        backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\' viewBox=\'0 0 200 200\'%3E%3Cdefs%3E%3ClinearGradient id=\'a\' gradientUnits=\'userSpaceOnUse\' x1=\'100\' y1=\'33\' x2=\'100\' y2=\'-3\'%3E%3Cstop offset=\'0\' stop-color=\'%23000\' stop-opacity=\'0\'/%3E%3Cstop offset=\'1\' stop-color=\'%23000\' stop-opacity=\'1\'/%3E%3C/linearGradient%3E%3ClinearGradient id=\'b\' gradientUnits=\'userSpaceOnUse\' x1=\'100\' y1=\'135\' x2=\'100\' y2=\'97\'%3E%3Cstop offset=\'0\' stop-color=\'%23000\' stop-opacity=\'0\'/%3E%3Cstop offset=\'1\' stop-color=\'%23000\' stop-opacity=\'1\'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg fill=\'%23ca481d\' fill-opacity=\'0.6\'%3E%3Crect x=\'100\' width=\'100\' height=\'100\'/%3E%3Crect y=\'100\' width=\'100\' height=\'100\'/%3E%3C/g%3E%3Cg fill-opacity=\'0.5\'%3E%3Cpolygon fill=\'url(%23a)\' points=\'100 30 0 0 200 0\'/%3E%3Cpolygon fill=\'url(%23b)\' points=\'100 100 0 130 0 100 200 100 200 130\'/%3E%3C/g%3E%3C/svg%3E")',
-    }}
-    >
-        <div
-            style={{
-                borderRadius: '5px',
-                padding: '10px',
-                margin: '0 auto',
-                width: '90%',
-                background: '#fff',
-            }}
-        >
-            {story()}
+export const withBackground = (story) => {
+    const resizeBox = useRef();
+
+    /* this is useful for some components that rely on window resize events
+        to rerender properly (textAreaAutoresize), but here we want resizing the box
+        to do the same */
+    const propagateResize = () => window.dispatchEvent(new Event('resize'));
+    const resizeObserver = new ResizeObserver(propagateResize);
+    useEffect(() => {
+        resizeObserver.observe(resizeBox.current);
+        return () => resizeObserver.unobserve(resizeBox.current);
+    }, [])
+
+    return (
+        <div className='background'>
+            <div ref={resizeBox} className='resize-box'>
+                <br />
+                <div className='content-box'>
+                    {story()}
+                </div>
+                <br />
+                <div className='notice'>
+                    <span>&larr;</span>
+                    <span>change width using NE corner</span>
+                    <span>&rarr;</span>
+                </div>
+            </div>
         </div>
-    </div>
-)
+    )
+}

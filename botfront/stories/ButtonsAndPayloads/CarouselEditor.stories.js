@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { withKnobs, number } from '@storybook/addon-knobs';
+import { withKnobs } from '@storybook/addon-knobs';
 import { action } from '@storybook/addon-actions';
 import { withBackground } from '../../.storybook/decorators';
 
@@ -38,21 +38,11 @@ const CarouselEditorWrapped = (props) => {
     const { value } = props;
     const [carousel, setCarousel] = useState(value || {});
     return (
-        <div
-            style={{
-                border: '3px #ddd solid',
-                borderRadius: '4px',
-                padding: '5px',
-                maxWidth: '100%',
-                width: `${number('Container width (px)', 850)}px`,
-            }}
-        >
-            <CarouselEditor
-                {...props}
-                value={carousel}
-                onChange={(...args) => { setCarousel(...args); action('onChange')(...args); }}
-            />
-        </div>
+        <CarouselEditor
+            {...props}
+            value={carousel}
+            onChange={(...args) => { setCarousel(...args); action('onChange')(...args); }}
+        />
     );
 };
 
@@ -62,4 +52,4 @@ export default {
     decorators: [withKnobs, withBackground],
 };
 
-export const Blank = () => <CarouselEditorWrapped value={initialValue} />;
+export const BasicBerries = () => <CarouselEditorWrapped value={initialValue} />;

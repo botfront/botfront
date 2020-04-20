@@ -28,20 +28,11 @@ const QuickRepliesWrapped = (props) => {
     const { value } = props;
     const [buttons, setButtons] = useState(value);
     return (
-        <div style={{
-            border: '3px #ddd solid',
-            borderRadius: '4px',
-            padding: '5px',
-            maxWidth: '100%',
-            width: `${number('Container width (px)', 470)}px`,
-        }}
-        >
-            <QuickReplies
-                {...props}
-                value={buttons}
-                onChange={(...args) => { setButtons(...args); action('onChange')(...args); }}
-            />
-        </div>
+        <QuickReplies
+            {...props}
+            value={buttons}
+            onChange={(...args) => { setButtons(...args); action('onChange')(...args); }}
+        />
     );
 };
 
