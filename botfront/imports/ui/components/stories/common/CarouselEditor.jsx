@@ -28,7 +28,7 @@ export default function CarouselEditor(props) {
     const handleMouseWheel = (e) => {
         // turns vertical scroll into horizontal scroll
         e.preventDefault();
-        carouselRef.current.scrollLeft += (e.deltaX + e.deltaY);
+        carouselRef.current.scrollLeft += 3 * (e.deltaX + e.deltaY);
     };
     useEventListener('wheel', handleMouseWheel, carouselRef.current);
 
