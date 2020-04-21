@@ -103,7 +103,6 @@ const createFilterObject = ({
     if (userId) {
         filters.userId = userId;
     }
-    return filters;
 };
 
 
@@ -116,6 +115,8 @@ export const getConversations = async ({
     env = 'development',
     lengthFilter = null,
     xThanLength = null,
+    durationFilter = null,
+    xThanDuration = null,
     confidenceFilter = null,
     xThanConfidence = null,
     actionFilters = null,
@@ -126,6 +127,16 @@ export const getConversations = async ({
     operatorIntentsFilters = 'or',
     intentFilters = null,
 }) => {
+    console.log('----------');
+    console.log('----------');
+    console.log('----------');
+    console.log('----------');
+    console.log(durationFilter);
+    console.log(xThanDuration);
+    console.log('----------');
+    console.log('----------');
+    console.log('----------');
+    console.log('----------');
     const filtersObject = createFilterObject({
         projectId,
         status,
@@ -171,6 +182,39 @@ export const getConversations = async ({
             $match: { convLen: true },
         }];
     }
+    let durationFilterSteps = [];
+    if (xThanDuration && durationFilter > 0) {
+        const durationCompareSymbol = getComparaisonSymbol(xThanDuration);
+        durationFilterSteps = [
+            {
+                $unwind: {
+                    path: '$tracker.events',
+                },
+            },
+            {
+                $match: {
+                    $and: [{ 'tracker.events.event': 'user' }],
+                },
+            },
+            {
+                $group: {
+                    _id: '$tracker.sender_id',
+                    first: { $first: '$tracker.events' },
+                    end: { $first: '$tracker.latest_event_time' },
+                },
+            },
+            {
+                $project: {
+                    difference: { $subtract: ['$end', '$first.timestamp'] },
+                },
+            },
+            {
+                $match: {
+                    difference: { [durationCompareSymbol.mongo]: durationFilter },
+                },
+            },
+        ];
+    }
 
     const pages = pageSize > -1 ? pageSize : 1;
     const boundedPageNb = Math.min(pages, page);
@@ -187,6 +231,7 @@ export const getConversations = async ({
             $match: { ...filtersObject },
         },
         ...lengthFilterStages,
+        ...durationFilterSteps,
         {
             $sort: sortObject,
         },
@@ -208,6 +253,8 @@ export const getConversations = async ({
     ];
     
     const paginatedResults = await Conversations.aggregate(aggregation).allowDiskUse(true);
+    console.log(paginatedResults[0].conversations[1]);
+    console.log(paginatedResults[0].conversations[2]);
     if (paginatedResults[0].conversations.length < 1) {
         return ({
             conversations: [],

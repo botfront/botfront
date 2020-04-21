@@ -227,6 +227,7 @@ const ConversationsBrowserContainer = (props) => {
 
     const defaults = {
         lengthFilter: { compare: -1, xThan: 'greaterThan' },
+        durationFilter: { compare: -1, xThan: 'greaterThan' },
         confidenceFilter: { compare: -1, xThan: 'lessThan' },
         actionFilters: [],
         intentFilters: [],
@@ -310,6 +311,8 @@ const ConversationsBrowserContainer = (props) => {
         env,
         ...activeFilters,
         lengthFilter: activeFilters.lengthFilter.compare,
+        durationFilter: activeFilters.durationFilter.compare,
+        xThanDuration: activeFilters.durationFilter.xThan,
         xThanLength: activeFilters.lengthFilter.xThan,
         confidenceFilter: activeFilters.confidenceFilter.compare,
         xThanConfidence: activeFilters.confidenceFilter.xThan,

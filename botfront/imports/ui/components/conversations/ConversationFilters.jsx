@@ -130,6 +130,7 @@ const ConversationFilters = ({
                             </Dropdown.Menu>
                         </Dropdown>
                     </Button.Group>
+                    {/* conversation length filter */}
                     <div
                         className='conversation-filter conv-length'
                         data-cy='length-filter'
@@ -166,6 +167,44 @@ const ConversationFilters = ({
                             </Segment>
                         </Segment.Group>
                     </div>
+                    {/* conversation duration filter */}
+                    <div
+                        className='conversation-filter conv-duration'
+                        data-cy='duration-filter'
+                    >
+                        <Segment.Group horizontal>
+                            <Segment className='x-than-filter'>
+                                <Label> Duration</Label>
+                            </Segment>
+                            <Dropdown
+                                className='filter-dropdown'
+                                options={filterLengthOptions}
+                                selection
+                                fluid
+                                value={newFilters.durationFilter.xThan}
+                                onChange={(e, { value }) => setFilter('durationFilter', {
+                                    ...newFilters.durationFilter,
+                                    xThan: value,
+                                })
+                                }
+                            />
+                            <Segment className='duration-number-filter'>
+                                <Input
+                                    value={
+                                        newFilters.durationFilter.compare > 0
+                                            ? newFilters.durationFilter.compare
+                                            : ''
+                                    }
+                                    onChange={(e, { value }) => setFilter('durationFilter', {
+                                        ...newFilters.durationFilter,
+                                        compare: +value,
+                                    })
+                                    }
+                                />
+                            </Segment>
+                        </Segment.Group>
+                    </div>
+                    {/* conversation confidence filter */}
                     <div className='conversation-filter' data-cy='confidence-filter'>
                         <Segment.Group
                             horizontal
@@ -196,6 +235,7 @@ const ConversationFilters = ({
                             </Segment>
                         </Segment.Group>
                     </div>
+                    {/* date picker */}
                     <div className='conversation-filter' data-cy='date-filter'>
                         <Segment className='date-filter' data-cy='date-picker-container'>
                             <DatePicker
@@ -206,6 +246,31 @@ const ConversationFilters = ({
                             />
                         </Segment>
                     </div>
+                </div>
+                <div className='conversation-filter-container'>
+                    {/* intents filter */}
+                    <div className='conversation-filter intents' data-cy='intent-filter'>
+                        <AndOrMultiSelect
+                            values={newFilters.intentFilters}
+                            options={intentsOptions}
+                            onChange={val => setFilter('intentFilters', val)}
+                            operatorChange={val => setFilter('operatorIntentsFilters', val)}
+                            placeholder='Intent name'
+                        />
+                    </div>
+                    {/* actions filter */}
+                    <div className='conversation-filter actions' data-cy='action-filter'>
+                        <AndOrMultiSelect
+                            values={newFilters.actionFilters}
+                            addItem={addNewOption}
+                            options={actionsOptions}
+                            onChange={val => setFilter('actionFilters', val)}
+                            operatorChange={val => setFilter('operatorActionsFilters', val)}
+                            placeholder='Action name'
+                            allowAdditions
+                        />
+                    </div>
+                    {/* user id filter */}
                     <div className='conversation-filter id-filter' data-cy='id-filter'>
                         <Segment.Group
                             horizontal
@@ -226,28 +291,6 @@ const ConversationFilters = ({
                                 />
                             </Segment>
                         </Segment.Group>
-                    </div>
-                </div>
-                <div className='conversation-filter-container'>
-                    <div className='conversation-filter actions' data-cy='action-filter'>
-                        <AndOrMultiSelect
-                            values={newFilters.actionFilters}
-                            addItem={addNewOption}
-                            options={actionsOptions}
-                            onChange={val => setFilter('actionFilters', val)}
-                            operatorChange={val => setFilter('operatorActionsFilters', val)}
-                            placeholder='Action name'
-                            allowAdditions
-                        />
-                    </div>
-                    <div className='conversation-filter intents' data-cy='intent-filter'>
-                        <AndOrMultiSelect
-                            values={newFilters.intentFilters}
-                            options={intentsOptions}
-                            onChange={val => setFilter('intentFilters', val)}
-                            operatorChange={val => setFilter('operatorIntentsFilters', val)}
-                            placeholder='Intent name'
-                        />
                     </div>
                 </div>
             </Accordion.Content>

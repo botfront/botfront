@@ -8,6 +8,8 @@ query retreiveConversations(
     $env: String
     $lengthFilter: Int
     $xThanLength: compare
+    $durationFilter: Float
+    $xThanDuration: compare
     $confidenceFilter: Float
     $xThanConfidence: compare
     $actionFilters: [String]
@@ -28,6 +30,8 @@ query retreiveConversations(
         env: $env,
         lengthFilter: $lengthFilter,
         xThanLength: $xThanLength,
+        durationFilter: $durationFilter,
+        xThanDuration: $xThanDuration,
         confidenceFilter: $confidenceFilter,
         xThanConfidence: $xThanConfidence,
         actionFilters: $actionFilters,

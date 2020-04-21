@@ -21,8 +21,11 @@ div.bot-response-message {
 
 .grid .accordion.filter-accordion{
   width: 100%;
-
+  .filters-accordian-title{
+    width: fit-content;
+  }
   .toggle-filters {
+    width: min-content;
     color: #2185d0;
   }
 
@@ -60,13 +63,13 @@ div.bot-response-message {
     }
 
     &.actions {
-      max-width: 50%;
-      min-width: 50%;
+      max-width: 40%;
+      min-width: 40%;
     }
 
     &.intents{
-      max-width: 50%;
-      min-width: 50%;
+      max-width: 40%;
+      min-width: 40%;
       .dropdown.filter-dropdown > .label {
         color:white;
         background-color:#a333c8;;
@@ -96,6 +99,18 @@ div.bot-response-message {
       .segments {
         .ui.segment.x-than-filter {
           width: 71px;
+        }
+        .dropdown {
+          background-color: white;
+          width: 56px;
+        }
+      }
+    }
+
+    &.conv-duration {
+      .segments {
+        .ui.segment.x-than-filter {
+          width: 82px;
         }
         .dropdown {
           background-color: white;
@@ -159,11 +174,13 @@ div.bot-response-message {
         box-shadow: none;
       }
       &.number-filter{
-        width: 4.5em;
+        width: 4em;
+      }
+      &.duration-number-filter {
+        width: 6em;
       }
       &.id-filter{
-        flex-grow: 1;
-        min-width: 10rem;
+        width: 5rem;
       }
       &.x-than-filter{
         width: 112px;
@@ -181,7 +198,7 @@ div.bot-response-message {
         max-width: 5rem;
 
         .label{
-          padding-top: 0.8rem;
+          padding-top: 0.8rem; 
           width: 100%;
           height: 100%;
           border-radius: unset;
@@ -198,7 +215,7 @@ div.bot-response-message {
         }
       }
       &.action-filter {
-        min-width: 15em;
+        min-width: 10em;
         border-style: none;
       }
       &.date-filter {
