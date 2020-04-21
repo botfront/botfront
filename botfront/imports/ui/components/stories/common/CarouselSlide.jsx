@@ -62,6 +62,7 @@ export default function CarouselSlide(props) {
                     ['Set default action', () => setModalOpen(true), 'set-default-action'],
                     ...(onDelete ? [[<Icon name='trash' />, onDelete, 'delete-slide']] : []),
                 ]}
+                className={defaultAction.web_url || defaultAction.payload ? 'highlight' : ''}
             />
             {modalOpen && (
                 <Modal

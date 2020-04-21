@@ -5,7 +5,9 @@ import {
 } from 'semantic-ui-react';
 
 export default function ImageThumbnail(props) {
-    const { value, onChange, otherActions } = props;
+    const {
+        value, onChange, otherActions, className,
+    } = props;
     const [newValue, setNewValue] = useState(value);
     const [modalOpen, setModalOpen] = useState(false);
     useEffect(() => setNewValue(value), [value]);
@@ -51,7 +53,7 @@ export default function ImageThumbnail(props) {
     );
 
     return (
-        <div className={`image-container ${value.trim() ? 'image-set' : ''}`}>
+        <div className={`image-container ${value.trim() ? 'image-set' : ''} ${className}`}>
             <div className='overlay-menu'>
                 <div>
                     <Button.Group vertical>
@@ -78,9 +80,11 @@ ImageThumbnail.propTypes = {
     onChange: PropTypes.func.isRequired,
     value: PropTypes.string,
     otherActions: PropTypes.array,
+    className: PropTypes.string,
 };
 
 ImageThumbnail.defaultProps = {
     otherActions: [],
     value: '',
+    className: '',
 };

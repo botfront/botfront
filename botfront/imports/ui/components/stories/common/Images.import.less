@@ -5,13 +5,18 @@
     min-width: 160px;
     width: 100%;
     background-color: #ccc;
-    border: 1px solid #acbac4;
+    border: 0.8px solid #acbac4;
 
     &.image-set {
         .ui.small.image:after {
             content: '\f127';
             color: softlight(@red, #000);
         }
+    }
+
+    &.highlight {
+        border-color: #2185d0;
+        box-shadow: 0 0 5px 1px #2185d04d;
     }
 
     &:after {
