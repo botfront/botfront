@@ -161,8 +161,7 @@ const BotResponseEditor = (props) => {
     };
 
     const handleSequenceChange = (updatedSequence, index) => {
-        const { metadata, ...rest } = updatedSequence;
-        const content = safeDump(rest);
+        const { metadata, ...content } = updatedSequence;
         if (isNew) {
             const tempvar = updateSequence(newBotResponse, content, index);
             setNewBotResponse(tempvar);

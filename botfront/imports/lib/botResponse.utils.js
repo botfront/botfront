@@ -53,10 +53,18 @@ export const defaultTemplate = (template) => {
             ],
         };
     case 'CustomPayload':
-        return { __typename: 'CustomPayload' };
+        return { __typename: 'CustomPayload', custom: '' };
     case 'ImagePayload':
         return {
             image: '', __typename: 'ImagePayload',
+        };
+    case 'CarouselPayload':
+        return {
+            template_type: 'generic',
+            elements: [{
+                title: '', subtitle: '', image_url: '', default_action: { type: 'postback' }, buttons: [],
+            }],
+            __typename: 'CarouselPayload',
         };
     default:
         return null;
@@ -87,6 +95,25 @@ const excludeAllButOneKey = (content, key) => {
 
 export const parseContentType = (content) => {
     switch (true) {
+    // first case is the elsewhere case when embedded fields don't match graphql-defined type
+    // could not find a way to use graphql existing parseValue method for given type, so using
+    // this less than perfect piece of code
+    case ([
+        (content.text === undefined || typeof content.text === 'string'),
+        (content.image === undefined || typeof content.image === 'string'),
+        (content.buttons === undefined || Array.isArray(content.buttons)),
+        (content.elements === undefined || (
+            Array.isArray(content.elements)
+            && typeof content.template_type === 'string'
+            && content.elements.every(el => (
+                typeof el === 'object'
+                && (el.buttons === undefined || Array.isArray(el.buttons))
+                && (el.image_url === undefined || typeof el.image_url === 'string')
+                && (el.title === undefined || typeof el.title === 'string')
+                && (el.subtitle === undefined || typeof el.subtitle === 'string')
+            ))
+        )),
+    ].some(f => !f)): return 'CustomPayload';
     case excludeAllButOneKey(content, 'image'): return 'ImagePayload';
     case excludeAllButOneKey(content, 'buttons'): return 'QuickReplyPayload';
     case excludeAllButOneKey(content, 'elements'): return 'CarouselPayload';

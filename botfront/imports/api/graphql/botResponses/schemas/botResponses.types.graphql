@@ -105,12 +105,11 @@ type BotResponseVariant {
 interface BotResponsePayload {
     key: String
     metadata: Any
-    text: String
 }
 
 type TextPayload implements BotResponsePayload {
     key: String
-    text: String!
+    text: String
     metadata: Any
 }
 
@@ -138,11 +137,11 @@ type CarouselPayload implements BotResponsePayload {
 
 type CustomPayload implements BotResponsePayload {
     key: String
-    text: String
-    buttons: [Button!]
-    elements: [CarouselElement!]
+    text: Any
+    buttons: Any
+    elements: Any
     attachment: Any
-    image: String
+    image: Any
     custom: Any
     metadata: Any
 }

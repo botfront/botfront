@@ -12,12 +12,12 @@ const botResponseFields = gql`
     }
     fragment BotResponseFields on BotResponsePayload {
         __typename
-        text
         metadata
-        ...on QuickReplyPayload { buttons { ...ButtonFields } }
-        ...on ImagePayload { image }
-        ...on CarouselPayload { template_type, elements { ...CarouselElementFields } }
-        ...on CustomPayload { image, buttons { ...ButtonFields }, elements { ...CarouselElementFields }, custom, attachment }
+        ...on TextPayload { text }
+        ...on QuickReplyPayload { text, buttons { ...ButtonFields } }
+        ...on ImagePayload { text, image }
+        ...on CarouselPayload { text, template_type, elements { ...CarouselElementFields } }
+        ...on CustomPayload { customText: text, customImage: image, customButtons: buttons, customElements: elements, custom, customAttachment: attachment }
     }
 `;
 

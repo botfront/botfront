@@ -16,40 +16,9 @@ import BadLineLabel from '../BadLineLabel';
 import { ProjectContext } from '../../../layouts/context';
 import ExceptionWrapper from './ExceptionWrapper';
 import GenericLabel from '../GenericLabel';
+import { defaultTemplate } from '../../../../lib/botResponse.utils';
 
 const variationIndex = 0;
-
-const defaultTemplate = (templateType) => {
-    if (templateType === 'text') return { __typename: 'TextPayload', text: '' };
-    if (templateType === 'qr') {
-        return {
-            __typename: 'QuickReplyPayload',
-            text: '',
-            buttons: [{ title: '', type: 'postback', payload: '' }],
-        };
-    }
-    if (templateType === 'image') {
-        return {
-            __typename: 'ImagePayload',
-            image: '',
-        };
-    }
-    if (templateType === 'custom') {
-        return {
-            __typename: 'CustomPayload',
-        };
-    }
-    if (templateType === 'carousel') {
-        return {
-            template_type: 'generic',
-            elements: [{
-                title: '', subtitle: '', image_url: '', default_action: { type: 'postback' }, buttons: [],
-            }],
-            __typename: 'CarouselPayload',
-        };
-    }
-    return false;
-};
 
 export default class StoryVisualEditor extends React.Component {
     state = {

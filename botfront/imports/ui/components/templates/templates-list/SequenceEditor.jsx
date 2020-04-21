@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Segment } from 'semantic-ui-react';
 
@@ -28,39 +28,41 @@ const SequenceEditor = (props) => {
         if (!content) return <></>;
         return (
             <Segment className='variation-container' attached key={`variation-${index}-${content.text}`} data-cy='variation-container'>
-                { (content.__typename === 'TextPayload'
+                <>
+                    {(content.__typename === 'TextPayload'
                     || content.__typename === 'QuickReplyPayload'
                     || content.__typename === 'ImagePayload') && (
-                    <BotResponsesContainer
-                        deleteable
-                        initialValue={content}
-                        onChange={value => onChange(value, index)}
-                        isNew={false}
-                        enableEditPopup={false}
-                        tag={`${name}-${index}`}
-                    />
-                )}
-                {content.__typename === 'CustomPayload' && (
-                    <CustomResponseEditor
-                        content={content}
-                        onChange={value => onChange(value, index)}
-                    />
-                )}
-                <div className='variation-option-menu'>
-                    {/* <Icon name='star' color='yellow' float='right' /> */}
-                    <IconButton
-                        id={`delete-${name}-${index}`} // stop the response from saving if the input blur event is the delete button
-                        onClick={() => {
-                            if (sequence.length === 1) {
-                                const blankTemplate = defaultTemplate(content.__typename);
-                                onChange(blankTemplate, 0);
-                                return;
-                            }
-                            onDeleteVariation(index);
-                        }}
-                        icon='trash'
-                    />
-                </div>
+                        <BotResponsesContainer
+                            deleteable
+                            initialValue={content}
+                            onChange={value => onChange(value, index)}
+                            isNew={false}
+                            enableEditPopup={false}
+                            tag={`${name}-${index}`}
+                        />
+                    )}
+                    {(content.__typename === 'CustomPayload' || content.__typename === 'CarouselPayload') && (
+                        <CustomResponseEditor
+                            content={content}
+                            onChange={value => onChange(value, index)}
+                        />
+                    )}
+                    <div className='variation-option-menu'>
+                        {/* <Icon name='star' color='yellow' float='right' /> */}
+                        <IconButton
+                            id={`delete-${name}-${index}`} // stop the response from saving if the input blur event is the delete button
+                            onClick={() => {
+                                if (sequence.length === 1) {
+                                    const blankTemplate = defaultTemplate(content.__typename);
+                                    onChange(blankTemplate, 0);
+                                    return;
+                                }
+                                onDeleteVariation(index);
+                            }}
+                            icon='trash'
+                        />
+                    </div>
+                </>
             </Segment>
         );
     };

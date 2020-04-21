@@ -73,20 +73,23 @@ export default {
     ConversationInput: new GraphQLScalarType({ ...commonResolvers.Any, name: 'ConversationInput' }),
     BotResponsePayload: {
         __resolveType: parseContentType,
-        text: ({ text }) => text,
         metadata: ({ metadata }) => metadata,
     },
     QuickReplyPayload: {
+        text: ({ text }) => text,
         buttons: ({ buttons }) => buttons,
     },
     ImagePayload: {
+        text: ({ text }) => text,
         image: ({ image }) => image,
     },
     CarouselPayload: {
         template_type: ({ template_type: templateType }) => templateType,
+        text: ({ text }) => text,
         elements: ({ elements }) => elements,
     },
     CustomPayload: {
+        text: ({ text }) => text,
         elements: ({ elements }) => elements,
         attachment: ({ attachment }) => attachment,
         custom: ({ custom }) => custom,
