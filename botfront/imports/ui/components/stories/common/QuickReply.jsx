@@ -5,7 +5,7 @@ import ResponseButtonEditor from './ResponseButtonEditor';
 import { stringPayloadToObject } from '../../../../lib/story_controller';
 
 export const isButtonValid = ({
-    title,
+    title = '',
     type,
     url,
     payload, // eslint-disable-line camelcase
@@ -29,7 +29,7 @@ function QuickReply({
         <button
             type='button'
             className={`quick-reply ${valid ? '' : 'invalid'}`}
-            data-cy={buttonValue.title.replace(/ /g, '_') || 'button_title'}
+            data-cy={(buttonValue.title || 'button_title').replace(/ /g, '_')}
         >
             {buttonValue.title || 'Button title'}
         </button>

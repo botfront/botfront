@@ -109,7 +109,7 @@ export default {
             if (v.type === 'web_url') return 'WebUrlButton';
             if (v.payload) return 'PostbackButton';
             if (v.url) return 'WebUrlButton';
-            return null;
+            return 'PostbackButton';
         },
         title: ({ title }) => title,
         type: ({ type }) => type,
