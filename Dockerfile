@@ -1,5 +1,5 @@
 # The tag here should match the Meteor version of your app, per .meteor/release
-FROM botfront/meteor-base:1.8.1
+FROM geoffreybooth/meteor-base:1.10.1
 
 # Copy app package.json and package-lock.json into container
 COPY ./botfront/package*.json $APP_SOURCE_FOLDER/
@@ -16,8 +16,8 @@ COPY ./botfront $APP_SOURCE_FOLDER/
 RUN bash $SCRIPTS_FOLDER/build-meteor-bundle.sh
 
 
-# Rather than Node 8 latest (Alpine), you can also use the specific version of Node expected by your Meteor release, per https://docs.meteor.com/changelog.html
-FROM node:8-alpine
+# Meteor 1.10.1 require node 12
+FROM node:12-alpine
 
 ENV APP_BUNDLE_FOLDER /opt/bundle
 ENV SCRIPTS_FOLDER /docker
@@ -42,6 +42,9 @@ COPY --from=0 $APP_BUNDLE_FOLDER/bundle $APP_BUNDLE_FOLDER/bundle/
 
 RUN bash $SCRIPTS_FOLDER/build-meteor-npm-dependencies.sh \
 	&& apk del .node-gyp-compilation-dependencies
+
+# Those dependencies are needed by the entrypoint.sh script
+RUN npm install -C $SCRIPTS_FOLDER p-wait-for mongodb
 
 VOLUME [ "/app/models"]
 # Start app
