@@ -38,6 +38,10 @@ export const checkResponseEmpty = (response) => {
     return isEmpty;
 };
 
+export const defaultCarouselSlide = () => ({
+    title: '', subtitle: '', image_url: '', default_action: { type: 'postback' }, buttons: [],
+});
+
 export const defaultTemplate = (template) => {
     switch (template) {
     case 'TextPayload':
@@ -61,9 +65,7 @@ export const defaultTemplate = (template) => {
     case 'CarouselPayload':
         return {
             template_type: 'generic',
-            elements: [{
-                title: '', subtitle: '', image_url: '', default_action: { type: 'postback' }, buttons: [],
-            }],
+            elements: [defaultCarouselSlide()],
             __typename: 'CarouselPayload',
         };
     default:

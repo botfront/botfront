@@ -4,6 +4,7 @@ import { Icon, Popup } from 'semantic-ui-react';
 import { useDrop } from 'react-dnd-cjs';
 import CarouselSlide from './CarouselSlide';
 import { useEventListener } from '../../utils/hooks';
+import { defaultCarouselSlide } from '../../../../lib/botResponse.utils';
 
 export default function CarouselEditor(props) {
     const {
@@ -20,7 +21,7 @@ export default function CarouselEditor(props) {
         ...(element === null ? [] : [element]),
         ...elements.slice(index + 1),
     ]);
-    const createSlide = () => setSlides([...elements, {}]);
+    const createSlide = () => setSlides([...elements, defaultCarouselSlide()]);
     const handleSwapSlides = (index, draggedSlideIndex) => {
         const updatedSlides = [...elements];
         updatedSlides[index] = elements[draggedSlideIndex];

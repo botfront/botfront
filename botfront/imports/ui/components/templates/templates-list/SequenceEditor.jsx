@@ -6,6 +6,7 @@ import { safeLoad } from 'js-yaml';
 
 import BotResponsesContainer from '../../stories/common/BotResponsesContainer';
 import CustomResponseEditor from '../common/CustomResponseEditor';
+import CarouselEditor from '../../stories/common/CarouselEditor';
 import IconButton from '../../common/IconButton';
 
 import { addContentType, defaultTemplate } from '../../../../lib/botResponse.utils';
@@ -41,11 +42,14 @@ const SequenceEditor = (props) => {
                             tag={`${name}-${index}`}
                         />
                     )}
-                    {(content.__typename === 'CustomPayload' || content.__typename === 'CarouselPayload') && (
+                    {content.__typename === 'CustomPayload' && (
                         <CustomResponseEditor
                             content={content}
                             onChange={value => onChange(value, index)}
                         />
+                    )}
+                    {content.__typename === 'CarouselPayload' && (
+                        <CarouselEditor value={content} onChange={value => onChange(value, index)} />
                     )}
                     <div className='variation-option-menu'>
                         {/* <Icon name='star' color='yellow' float='right' /> */}
