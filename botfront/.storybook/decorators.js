@@ -66,11 +66,21 @@ Starbuck begs Ahab to desist, but Ahab vows to slay the white whale, even if he 
 const responseFixtures = { 
     utter_yay: {
         __typename: 'TextPayload',
-        text: 'YAY!!\n\nBOO!\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut\n                  labore et dolore magna aliqua.',
+        text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut\n                  labore et dolore magna aliqua.',
     },
     utter_boo: {
         __typename: 'TextPayload',
-        text: 'I love peanutes too\n\nCan I call u l8r?'
+        text: 'I love peanutes too\n\nCan I call u l8r?',
+    },
+    utter_carou: {
+        __typename: 'CarouselPayload',
+        elements: [
+            {
+                title: 'Mulberry',
+                subtitle: 'Leaves eaten by silk worms.',
+                image_url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRxfonrZq1gxu7V9JJ7XlETWvpn5EHF-eNF-k-nAiT5AqMOcHtj&usqp=CAU',
+            },
+        ],
     }
 }
 const utteranceFixtures = [utteranceOne, utteranceTwo, utteranceThree]

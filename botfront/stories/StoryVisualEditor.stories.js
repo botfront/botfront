@@ -9,6 +9,7 @@ const storyOne = `    - action_bebe
     - slot{"catSlot1": "c1"}
 * I_come_from{"from": "Paris"}
     - utter_yay
+    - utter_carou
 * I_want_peanuts_on_my_sundae
     - utter_boo
 * Im_summarizing_Moby_Dick`;
