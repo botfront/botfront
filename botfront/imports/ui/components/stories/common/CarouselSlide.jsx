@@ -11,11 +11,11 @@ export default function CarouselSlide(props) {
     const {
         parentId, slideIndex, onDelete, onReorder, value, onChange,
     } = props;
-    const {
-        buttons = [], image_url: image = '', default_action: defaultAction = {},
-    } = value;
     
     const [newValue, doSetNewValue] = useState(value);
+    const {
+        buttons = [], image_url: image = '', default_action: defaultAction = {},
+    } = newValue;
     useEffect(() => doSetNewValue(value), [value]);
     const setNewValue = (update = {}) => doSetNewValue({ ...newValue, ...update });
     const [modalOpen, setModalOpen] = useState(false);
@@ -44,8 +44,8 @@ export default function CarouselSlide(props) {
             <ResponseButtonEditor
                 noButtonTitle
                 value={defaultAction}
-                onChange={v => setValue({ default_action: v })}
-                onClose={() => setModalOpen(false)}
+                onChange={v => setNewValue({ default_action: v })}
+                onClose={() => { setValue(); setModalOpen(false); }}
                 valid
             />
         </div>
@@ -57,19 +57,19 @@ export default function CarouselSlide(props) {
         >
             <ImageThumbnail
                 value={image}
-                onChange={url => onChange({ image_url: url })}
+                onChange={url => setValue({ image_url: url })}
                 otherActions={[
                     ['Set default action', () => setModalOpen(true), 'set-default-action'],
                     ...(onDelete ? [['Delete card', onDelete, 'delete-slide', 'red-text']] : []),
                 ]}
-                className={defaultAction.web_url || defaultAction.payload ? 'highlight' : ''}
+                className={defaultAction.url || defaultAction.payload ? 'highlight' : ''}
             />
             {modalOpen && (
                 <Modal
                     open
                     size='tiny'
                     header='Change default action'
-                    onClose={() => setModalOpen(false)}
+                    onClose={() => { setValue(); setModalOpen(false); }}
                     content={renderDefaultActionModal()}
                 />
             )}

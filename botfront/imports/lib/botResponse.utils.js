@@ -101,7 +101,6 @@ export const parseContentType = (content) => {
     // could not find a way to use graphql existing parseValue method for given type, so using
     // this less than perfect piece of code
     case ([
-        (content.text === undefined || typeof content.text === 'string'),
         (content.image === undefined || typeof content.image === 'string'),
         (content.buttons === undefined || Array.isArray(content.buttons)),
         (content.elements === undefined || (

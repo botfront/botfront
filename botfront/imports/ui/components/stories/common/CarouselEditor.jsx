@@ -44,7 +44,7 @@ export default function CarouselEditor(props) {
         <div className='carousel' ref={drop(carouselRef)}>
             {elements.map((slide, i) => (
                 <CarouselSlide
-                    key={`${i}${slide.title}`}
+                    key={`${i}${JSON.stringify(slide)}`}
                     value={slide}
                     parentId={id}
                     slideIndex={i}
