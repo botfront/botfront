@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Header, Modal, Icon } from 'semantic-ui-react';
 import { useDrag, useDrop } from 'react-dnd-cjs';
@@ -12,11 +12,15 @@ export default function CarouselSlide(props) {
         parentId, slideIndex, onDelete, onReorder, value, onChange,
     } = props;
     const {
-        title: header, subtitle: description, buttons = [], image_url: image, default_action: defaultAction,
+        buttons = [], image_url: image = '', default_action: defaultAction = {},
     } = value;
+    
+    const [newValue, doSetNewValue] = useState(value);
+    useEffect(() => doSetNewValue(value), [value]);
+    const setNewValue = (update = {}) => doSetNewValue({ ...newValue, ...update });
     const [modalOpen, setModalOpen] = useState(false);
 
-    const setValue = update => onChange({ ...value, ...update });
+    const setValue = (update = {}) => onChange({ ...newValue, ...update });
 
     const [, drag] = useDrag({
         item: { type: `slide-for-${parentId}`, slideIndex },
@@ -71,14 +75,16 @@ export default function CarouselSlide(props) {
             <Header as='h3'>
                 <TextareaAutosize
                     placeholder='Title'
-                    value={header}
-                    onChange={event => setValue({ title: event.target.value })}
+                    value={newValue.title}
+                    onChange={event => setNewValue({ title: event.target.value })}
+                    onBlur={() => setValue()}
                 />
                 <Header.Subheader>
                     <TextareaAutosize
                         placeholder='Description'
-                        value={description}
-                        onChange={event => setValue({ subtitle: event.target.value })}
+                        value={newValue.subtitle}
+                        onChange={event => setNewValue({ subtitle: event.target.value })}
+                        onBlur={() => setValue()}
                     />
                 </Header.Subheader>
             </Header>
