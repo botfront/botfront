@@ -57,8 +57,8 @@ export default function ImageThumbnail(props) {
             <div className='overlay-menu'>
                 <div>
                     <Button.Group vertical>
-                        {actions.map(([title, func, dataCy]) => (
-                            <Button basic key={title} onClick={func} content={title} data-cy={dataCy} />
+                        {actions.map(([title, func, dataCy, buttonClass]) => (
+                            <Button basic key={title} onClick={func} content={title} data-cy={dataCy} className={buttonClass} />
                         ))}
                     </Button.Group>
                 </div>

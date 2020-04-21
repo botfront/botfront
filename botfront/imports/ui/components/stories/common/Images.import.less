@@ -5,7 +5,7 @@
     min-width: 160px;
     width: 100%;
     background-color: #ccc;
-    border: 0.8px solid #acbac4;
+    border: 1px solid #acbac4;
 
     &.image-set {
         .ui.small.image:after {
@@ -66,6 +66,10 @@
             width: 90%;
             margin-left: 5%;
             .button {
+                &.red-text {
+                    color: #ff0000 !important;
+                    &:hover { color: darken(#ff0000, 7%) !important; }
+                }
                 background: #fff none !important;
                 padding: 0.65em 1.5em;
                 &:not(:last-of-type) {

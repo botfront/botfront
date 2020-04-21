@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Header, Modal, Icon } from 'semantic-ui-react';
+import { Header, Modal } from 'semantic-ui-react';
 import { useDrag, useDrop } from 'react-dnd-cjs';
 import TextareaAutosize from 'react-autosize-textarea';
 import QuickReplies from './QuickReplies';
@@ -60,7 +60,7 @@ export default function CarouselSlide(props) {
                 onChange={url => onChange({ image_url: url })}
                 otherActions={[
                     ['Set default action', () => setModalOpen(true), 'set-default-action'],
-                    ...(onDelete ? [[<Icon name='trash' />, onDelete, 'delete-slide']] : []),
+                    ...(onDelete ? [['Delete card', onDelete, 'delete-slide', 'red-text']] : []),
                 ]}
                 className={defaultAction.web_url || defaultAction.payload ? 'highlight' : ''}
             />
