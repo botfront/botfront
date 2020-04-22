@@ -53,7 +53,7 @@ export default function ImageThumbnail(props) {
     );
 
     return (
-        <div className={`image-container ${value.trim() ? 'image-set' : ''} ${className}`}>
+        <div data-cy='image-container' className={`image-container ${value.trim() ? 'image-set' : ''} ${className}`}>
             <div className='overlay-menu'>
                 <div>
                     <Button.Group vertical>
