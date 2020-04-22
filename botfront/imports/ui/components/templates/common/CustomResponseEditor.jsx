@@ -12,15 +12,15 @@ const CustomResponseEditor = (props) => {
         content,
         onChange,
     } = props;
-    const { __typename, ...contentWithoutTypeName } = content;
-    const [value, setValue] = useState(contentWithoutTypeName ? safeDump(contentWithoutTypeName) : '');
+    const { __typename, metadata, ...contentMinusTypeNameAndMetadata } = content;
+    const [value, setValue] = useState(contentMinusTypeNameAndMetadata ? safeDump(contentMinusTypeNameAndMetadata) : '');
     useEffect(() => {
-        setValue(contentWithoutTypeName ? safeDump(contentWithoutTypeName) : '');
+        setValue(contentMinusTypeNameAndMetadata ? safeDump(contentMinusTypeNameAndMetadata) : '');
     }, [content]);
 
     const handleSave = (e) => {
         try {
-            onChange({ ...safeLoad(value), __typename });
+            onChange({ ...safeLoad(value), __typename, metadata });
         } catch (error) {
             e.preventDefault();
         }

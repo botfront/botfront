@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+/* eslint-disable no-underscore-dangle */
+import React from 'react';
 import PropTypes from 'prop-types';
-import { Segment } from 'semantic-ui-react';
+import { Segment, Message } from 'semantic-ui-react';
 
 import { safeLoad } from 'js-yaml';
 
@@ -13,10 +14,7 @@ import { addContentType, defaultTemplate } from '../../../../lib/botResponse.uti
 
 const SequenceEditor = (props) => {
     const {
-        name,
-        sequence,
-        onChange,
-        onDeleteVariation,
+        name, sequence, onChange, onDeleteVariation,
     } = props;
 
     const getContent = (variation) => {
@@ -28,11 +26,16 @@ const SequenceEditor = (props) => {
         const content = getContent(variation);
         if (!content) return <></>;
         return (
-            <Segment className='variation-container' attached key={`variation-${index}-${content.text}`} data-cy='variation-container'>
+            <Segment
+                className='variation-container'
+                attached
+                key={`variation-${index}-${content.text}`}
+                data-cy='variation-container'
+            >
                 <>
                     {(content.__typename === 'TextPayload'
-                    || content.__typename === 'QuickReplyPayload'
-                    || content.__typename === 'ImagePayload') && (
+                        || content.__typename === 'QuickReplyPayload'
+                        || content.__typename === 'ImagePayload') && (
                         <BotResponsesContainer
                             deleteable
                             initialValue={content}
@@ -49,7 +52,10 @@ const SequenceEditor = (props) => {
                         />
                     )}
                     {content.__typename === 'CarouselPayload' && (
-                        <CarouselEditor value={content} onChange={value => onChange(value, index)} />
+                        <CarouselEditor
+                            value={content}
+                            onChange={value => onChange(value, index)}
+                        />
                     )}
                     <div className='variation-option-menu'>
                         {/* <Icon name='star' color='yellow' float='right' /> */}
@@ -57,7 +63,9 @@ const SequenceEditor = (props) => {
                             id={`delete-${name}-${index}`} // stop the response from saving if the input blur event is the delete button
                             onClick={() => {
                                 if (sequence.length === 1) {
-                                    const blankTemplate = defaultTemplate(content.__typename);
+                                    const blankTemplate = defaultTemplate(
+                                        content.__typename,
+                                    );
                                     onChange(blankTemplate, 0);
                                     return;
                                 }
@@ -70,7 +78,25 @@ const SequenceEditor = (props) => {
             </Segment>
         );
     };
-    return <>{sequence.map(renderVariation)}</>;
+    return (
+        <>
+            {sequence.some(s => getContent(s).__typename === 'CustomPayload') && (
+                <Message
+                    info
+                    style={{ margin: '10px' }}
+                    content={(
+                        <>
+                            By convention, everything under the{' '}
+                            <b className='monospace'>custom</b> key will be dispatched by Rasa{' '}
+                            <i>as is</i>, while content under other top-level keys may be
+                            formatted according to rules specific to the output channel.
+                        </>
+                    )}
+                />
+            )}
+            {sequence.map(renderVariation)}
+        </>
+    );
 };
 
 SequenceEditor.propTypes = {
