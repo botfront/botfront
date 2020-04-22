@@ -30,3 +30,15 @@
         }
     }    
 }
+
+.ui.checkbox.url-is-sequence-field {
+    // padding-left: 2em;
+    margin-top: 1em;
+    &.checked{
+        label.url-sequence-checkbox::after {
+            content: '\e800';
+            opacity: 1;
+            color: rgba(0,0,0,.95);
+        }
+    }
+}

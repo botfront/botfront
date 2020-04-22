@@ -13,6 +13,7 @@ import OptionalField from '../../form_fields/OptionalField';
 import SelectField from '../../form_fields/SelectField';
 import ToggleField from '../../common/ToggleField';
 import { can } from '../../../../api/roles/roles';
+import URLIsSequence from './URLIsSequence';
 
 
 class RulesForm extends AutoForm {
@@ -155,6 +156,7 @@ function StoryRulesForm({
         triggerLimit__DISPLAYIF: { type: Boolean, optional: true, defaultValue: true },
         timeLimit: { type: Number, optional: true },
         timeLimit__DISPLAYIF: { type: Boolean, optional: true },
+        urlIsSequence: { type: Boolean, defaultValue: false },
         url: { type: Array, optional: true },
         'url.$': { type: Object, optional: false },
         'url.$.path': { type: String, optional: false, regEx: noSpaces },
@@ -380,10 +382,8 @@ function StoryRulesForm({
                                         label='Minimum time between story activations, in minutes.'
                                     />
                                 </OptionalField>
-
-
                                 <OptionalField name='url' label='Trigger based on browsing history' getError={getEnabledError}>
-                                    
+                                    <URLIsSequence />
                                     <ListField name=''>
                                         <ListItemField name='$'>
                                             <NestField>
