@@ -179,7 +179,7 @@ const ConversationFilters = ({
                             </Segment>
                             <Dropdown
                                 className='filter-dropdown'
-                                options={filterLengthOptions}
+                                options={filterLengthOptions.filter(({ value }) => value !== 'equals')}
                                 selection
                                 fluid
                                 value={newFilters.durationFilter.xThan}
