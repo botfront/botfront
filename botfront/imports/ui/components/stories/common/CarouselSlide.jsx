@@ -24,9 +24,6 @@ export default function CarouselSlide(props) {
 
     const [, drag] = useDrag({
         item: { type: `slide-for-${parentId}`, slideIndex },
-        collect: monitor => ({
-            isDragging: monitor.isDragging(),
-        }),
     });
     const [{ canDrop, isOver }, drop] = useDrop({
         accept: `slide-for-${parentId}`,

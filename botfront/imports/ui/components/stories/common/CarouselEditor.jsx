@@ -1,4 +1,5 @@
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
+import uuidv4 from 'uuid/v4';
 import PropTypes from 'prop-types';
 import { Icon, Popup } from 'semantic-ui-react';
 import { useDrop } from 'react-dnd-cjs';
@@ -8,11 +9,12 @@ import { defaultCarouselSlide } from '../../../../lib/botResponse.utils';
 
 export default function CarouselEditor(props) {
     const {
-        id, min, max, value, onChange,
+        min, max, value, onChange,
     } = props;
     const { elements = [] } = value;
 
     const carouselRef = useRef();
+    const id = useMemo(() => uuidv4(), [false]);
     const [, drop] = useDrop({ accept: `slide-for-${id}` });
 
     const setSlides = newElements => onChange({ ...value, elements: newElements });
@@ -70,7 +72,6 @@ export default function CarouselEditor(props) {
 }
 
 CarouselEditor.propTypes = {
-    id: PropTypes.string,
     min: PropTypes.number,
     max: PropTypes.number,
     value: PropTypes.object.isRequired,
@@ -78,7 +79,6 @@ CarouselEditor.propTypes = {
 };
 
 CarouselEditor.defaultProps = {
-    id: 'default',
     min: 1,
     max: 10,
 };
