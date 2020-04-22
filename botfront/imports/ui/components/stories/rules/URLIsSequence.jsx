@@ -18,7 +18,7 @@ const URLIsSequence = ({ name: parentName }, { uniforms }) => {
     };
     return (
         <Item className={`ui checkbox url-is-sequence-field ${checkboxValue ? 'checked' : 'empty'}`} onClick={handleChangeValue}>
-            <label className='url-sequence-checkbox'>Only trigger if the URLs are visited in sequence</label>
+            <label className='url-sequence-checkbox'>Only trigger if the URLs are visited in sequence (the top url being the last one visited)</label>
         </Item>
 
     );
