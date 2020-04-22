@@ -55,6 +55,7 @@ const TriggerSchema = new SimpleSchema({
     'url.$': { type: Object },
     'url.$.path': { type: String },
     'url.$.partialMatch': { type: Boolean, optional: true },
+    urlIsSequence: { type: Boolean, optional: true },
     timeOnPage: { type: Number, optional: true },
     numberOfVisits: { type: String, optional: true },
     numberOfPageVisits: { type: String, optional: true },
