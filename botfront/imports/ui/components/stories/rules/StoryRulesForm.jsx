@@ -50,10 +50,6 @@ class RulesForm extends AutoForm {
     }
 
     onChange(key, value) {
-        console.log('-----');
-        console.log(key);
-        console.log(value);
-        console.log('-----');
         // DESCRIPTION: handle secondary effects of model updates (eg: enabling timeOnPage disables eventListeners)
         super.onChange(key, value); // update the model with the new value
         const keyArray = key.split('.');
