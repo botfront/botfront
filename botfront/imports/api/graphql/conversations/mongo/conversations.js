@@ -127,16 +127,6 @@ export const getConversations = async ({
     operatorIntentsFilters = 'or',
     intentFilters = null,
 }) => {
-    console.log('----------');
-    console.log('----------');
-    console.log('----------');
-    console.log('----------');
-    console.log(durationFilter);
-    console.log(xThanDuration);
-    console.log('----------');
-    console.log('----------');
-    console.log('----------');
-    console.log('----------');
     const filtersObject = createFilterObject({
         projectId,
         status,
@@ -187,24 +177,24 @@ export const getConversations = async ({
         const durationCompareSymbol = getComparaisonSymbol(xThanDuration);
         durationFilterSteps = [
             {
-                $unwind: {
-                    path: '$tracker.events',
+                $addFields: {
+                    userEvents: {
+                        $filter: {
+                            input: '$tracker.events',
+                            as: 'eventElem',
+                            cond: { $eq: ['$$eventElem.event', 'user'] },
+                        },
+                    },
                 },
             },
             {
-                $match: {
-                    $and: [{ 'tracker.events.event': 'user' }],
+                $addFields: {
+                    first: { $arrayElemAt: ['$userEvents', 0] },
+                    end: '$tracker.latest_event_time',
                 },
             },
             {
-                $group: {
-                    _id: '$tracker.sender_id',
-                    first: { $first: '$tracker.events' },
-                    end: { $first: '$tracker.latest_event_time' },
-                },
-            },
-            {
-                $project: {
+                $addFields: {
                     difference: { $subtract: ['$end', '$first.timestamp'] },
                 },
             },
@@ -253,8 +243,6 @@ export const getConversations = async ({
     ];
     
     const paginatedResults = await Conversations.aggregate(aggregation).allowDiskUse(true);
-    console.log(paginatedResults[0].conversations[1]);
-    console.log(paginatedResults[0].conversations[2]);
     if (paginatedResults[0].conversations.length < 1) {
         return ({
             conversations: [],

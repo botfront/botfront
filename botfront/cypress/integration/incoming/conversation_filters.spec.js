@@ -274,6 +274,28 @@ describe('filters', function () {
             cy.dataCy('conversation-item').should('not.have.text', 'uidbbb');
         });
     });
+    it('should filter by duration', function () {
+        cy.fixture('botfront_conversations_project.json', 'utf8').then((conversationData) => {
+            cy.addConversation('bf', 'test', conversationData.test_duration);
+            cy.visit('/project/bf/incoming');
+            cy.dataCy('conversations')
+                .click();
+            cy.dataCy('duration-filter')
+                .find('input')
+                .type('1');
+            cy.dataCy('apply-filters').click();
+            cy.wait(100);
+            cy.dataCy('conversation-item').should('have.length', 1);
+            cy.dataCy('duration-filter')
+                .find('.dropdown')
+                .first()
+                .click();
+            cy.dataCy('duration-filter').find('span').contains('≤').click();
+            cy.dataCy('apply-filters').click();
+            cy.wait(100);
+            cy.dataCy('no-conv').should('exist');
+        });
+    });
     
     it('should filter be possible to filter with multiple constraints at once', function () {
         cy.fixture('botfront_conversations_project.json', 'utf8').then((conversationData) => {
