@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.22.2-ee.0](https://github.com/botfront/botfront/compare/v0.22.1-ee.0...v0.22.2-ee.0) (2020-04-22)
+
+
+### Bug Fixes
+
+* missing environement field in the gql schema for trackerstore ([266d154](https://github.com/botfront/botfront/commit/266d1546da857c0e373ffd119b4d257338bcb544))
+
 ### [0.22.1-ee.0](https://github.com/botfront/botfront/compare/v0.22.0-ee.0...v0.22.1-ee.0) (2020-04-17)
 
 
