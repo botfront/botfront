@@ -103,6 +103,7 @@ const createFilterObject = ({
     if (userId) {
         filters.userId = userId;
     }
+    return filters;
 };
 
 
