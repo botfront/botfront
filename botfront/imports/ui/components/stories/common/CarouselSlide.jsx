@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Header, Modal } from 'semantic-ui-react';
+import { Header, Modal, Message } from 'semantic-ui-react';
 import { useDrag, useDrop } from 'react-dnd-cjs';
 import TextareaAutosize from 'react-autosize-textarea';
 import QuickReplies from './QuickReplies';
@@ -11,10 +11,12 @@ export default function CarouselSlide(props) {
     const {
         parentId, slideIndex, onDelete, onReorder, value, onChange,
     } = props;
-    
+
     const [newValue, doSetNewValue] = useState(value);
     const {
-        buttons = [], image_url: image = '', default_action: defaultAction = {},
+        buttons = [],
+        image_url: image = '',
+        default_action: defaultAction = null,
     } = newValue;
     useEffect(() => doSetNewValue(value), [value]);
     const setNewValue = (update = {}) => doSetNewValue({ ...newValue, ...update });
@@ -28,7 +30,7 @@ export default function CarouselSlide(props) {
     const [{ canDrop, isOver }, drop] = useDrop({
         accept: `slide-for-${parentId}`,
         drop: ({ slideIndex: draggedSlideIndex }) => {
-            if (draggedSlideIndex !== slideIndex) onReorder(slideIndex, draggedSlideIndex);
+            if (draggedSlideIndex !== slideIndex) { onReorder(slideIndex, draggedSlideIndex); }
         },
         collect: monitor => ({
             isOver: monitor.isOver(),
@@ -36,37 +38,61 @@ export default function CarouselSlide(props) {
         }),
     });
 
+    const hasUrlOrPayload = (defaultAction || { url: '' }).url.trim()
+        || (defaultAction || { payload: '' }).payload.trim();
+
     const renderDefaultActionModal = () => (
         <div className='image-modal'>
+            {(defaultAction || { type: 'web_url' }).type !== 'web_url' && (
+                <Message
+                    warning
+                    content='Facebook Messenger only supports default actions with a Web URL payload. Carousels that have slides with Postback default actions will not render.'
+                />
+            )}
             <ResponseButtonEditor
                 noButtonTitle
-                value={defaultAction}
+                value={defaultAction || { type: 'web_url' }}
                 onChange={v => setNewValue({ default_action: v })}
-                onClose={() => { setValue(); setModalOpen(false); }}
+                onClose={() => {
+                    setValue(hasUrlOrPayload ? {} : { default_action: null });
+                    setModalOpen(false);
+                }}
+                defaultType='web_url'
                 valid
             />
         </div>
     );
     return (
         <div
-            className={`carousel-slide ${canDrop ? (isOver ? 'upload-target' : 'faded-upload-target') : ''}`}
+            className={`carousel-slide ${
+                canDrop ? (isOver ? 'upload-target' : 'faded-upload-target') : ''
+            }`}
             ref={node => drag(drop(node))}
         >
             <ImageThumbnail
                 value={image}
                 onChange={url => setValue({ image_url: url })}
                 otherActions={[
-                    ['Set default action', () => setModalOpen(true), 'set-default-action'],
-                    ...(onDelete ? [['Delete card', onDelete, 'delete-slide', 'red-text']] : []),
+                    [
+                        'Set default action',
+                        () => setModalOpen(true),
+                        'set-default-action',
+                    ],
+                    ...(onDelete
+                        ? [['Delete card', onDelete, 'delete-slide', 'red-text']]
+                        : []),
                 ]}
-                className={defaultAction.url || defaultAction.payload ? 'highlight' : ''}
+                className={hasUrlOrPayload ? 'highlight' : ''}
             />
             {modalOpen && (
                 <Modal
                     open
                     size='tiny'
                     header='Change default action'
-                    onClose={() => { setValue(); setModalOpen(false); }}
+                    onClose={() => {
+                        setValue();
+                        setModalOpen(false);
+                    }}
                     content={renderDefaultActionModal()}
                 />
             )}
