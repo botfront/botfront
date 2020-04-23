@@ -1,4 +1,4 @@
-/* global cy:true */
+/* global cy expect */
 
 const imageUrlA = 'https://botfront.io/images/illustrations/conversational_design_with_botfront.png';
 const imageUrlB = 'https://botfront.io/images/illustrations/botfront_rasa_easy_setup.png';
@@ -37,6 +37,7 @@ describe('Bot responses', function() {
         // swap em out
         cy.get('.carousel-slide').eq(1).as('second');
         cy.get('.carousel-slide').eq(0).first().dragTo('@second', false);
+        cy.get('.carousel-slide').should(els => expect(els[1]).to.contain('fancy title'));
         cy.escapeModal();
 
         // verify persistence
