@@ -58,34 +58,8 @@ describe('story visual editor', function () {
             .blur({ force: true });
         cy.wait(1000);
 
-        cy.dataCy('button_title').click({ force: true });
-
-        cy.dataCy('enter-button-title')
-            .find('input')
-            .clear()
-            .type('postback option');
-        cy.dataCy('intent-label').contains('intent')
-            .click({ force: true });
-        cy.get('.intent-dropdown input')
-            .type('get_started{enter}');
-        cy.dataCy('save-button').click({ force: true });
-
-        cy.dataCy('add-quick-reply').click({ force: true });
-
-        cy.dataCy('button_title').click({ force: true });
-
-        cy.dataCy('enter-button-title')
-            .find('input')
-            .clear()
-            .type('web_url option');
-        cy.dataCy('select-button-type')
-            .find('[role=option]').eq(1)
-            .click({ force: true });
-        cy.dataCy('enter_url')
-            .find('input')
-            .clear()
-            .type('https://myurl.com/');
-        cy.dataCy('save-button').click({ force: true });
+        cy.addButtonOrSetPayload('postback option', { payload: { intent: 'get_started' } }, 'button_title');
+        cy.addButtonOrSetPayload('web_url option', { url: 'https://myurl.com/' }, 0);
 
         cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('story-editor')

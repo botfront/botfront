@@ -227,6 +227,18 @@ Cypress.Commands.add(
     },
 );
 
+Cypress.Commands.add(
+    'dragTo',
+    { prevSubject: 'element' },
+    (source, node, dataCy = true) => {
+        cy.wrap(source).trigger('dragstart');
+        (dataCy ? cy.dataCy(node) : cy.get(node)).then((destination) => {
+            cy.wrap(destination).trigger('dragenter');
+            cy.wrap(destination).trigger('drop');
+        });
+    },
+);
+
 Cypress.Commands.add('waitForResolve', (url, maxTries = 1000) => new Cypress.Promise(async function (resolve, reject) {
     for (let i = 1; i < Number.MAX_VALUE; i += 1) {
         try {
