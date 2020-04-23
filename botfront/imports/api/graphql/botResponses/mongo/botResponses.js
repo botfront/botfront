@@ -13,7 +13,7 @@ const indexResponseContent = (input) => {
         let responseContent = [];
         Object.keys(input).forEach((key) => {
             if (typeof input[key] === 'string' && input[key].length > 0) {
-                if (['text', 'title', 'subtitle'].includes(key)) responseContent.push(input[key].replace(/\n/, ' '));
+                if (['text', 'title', 'subtitle', 'url'].includes(key)) responseContent.push(input[key].replace(/\n/, ' '));
                 if (key === 'payload' && input[key][0] === '/') {
                     const { intent, entities } = parsePayload(input[key]);
                     responseContent.push(intent);

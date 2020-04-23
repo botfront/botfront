@@ -1,7 +1,5 @@
 /* global cy:true */
 
-const IMAGE_URL = 'https://lh3.googleusercontent.com/8zYxviiazPFUXLQvhEvq906503rRmYIoWhpjtVSPYTgIGxN1DvHEs7nPNY87pRWkps3VXU3XqusrnLXI9U-0GDGDHWpauUpylc4mtaOt';
-
 describe('story visual editor', function () {
     afterEach(function () {
         cy.deleteProject('bf');
@@ -112,16 +110,6 @@ describe('story visual editor', function () {
             .contains('[role=row]', 'Hello')
             .contains('chitchat.greet')
             .should('exist'); // there nlu example is there too
-    });
-
-    it('should be able to add an image bot response', function () {
-        cy.dataCy('add-bot-line').click({ force: true });
-        cy.dataCy('from-image-template').click({ force: true });
-        cy.dataCy('image-url-input')
-            .find('input')
-            .type(`${IMAGE_URL}{enter}`);
-        cy.get('img.small.image')
-            .should('have.attr', 'src', IMAGE_URL);
     });
 
     it('should rerender on language change', function () {
