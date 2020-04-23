@@ -5,7 +5,7 @@ import {
     Placeholder, Loader, Header, List,
 } from 'semantic-ui-react';
 
-import { browserHistory } from 'react-router';
+import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
 import IconButton from '../../common/IconButton';
 import BotResponseEditor from '../../templates/templates-list/BotResponseEditor';
@@ -27,6 +27,7 @@ const BotResponsesContainer = (props) => {
         setActiveStories,
         responseLocations,
         loadingResponseLocations,
+        router,
     } = props;
 
     const [template, setTemplate] = useState();
@@ -94,11 +95,12 @@ const BotResponsesContainer = (props) => {
     };
 
     const handleLinkToStory = (selectedId) => {
+        const { location: { pathname } } = router;
         const storyIds = responseLocations.map(({ _id }) => _id);
         const openStories = [selectedId, ...storyIds.filter(storyId => storyId !== selectedId)];
-        setActiveStories(openStories);
         setResponseLocationsOpen(false);
-        browserHistory.replace({ pathname: '/project/bf/stories', query: { 'ids[]': openStories } });
+        router.replace({ pathname, query: { 'ids[]': openStories } });
+        setActiveStories(openStories);
     };
 
     useEffect(() => {
@@ -229,6 +231,7 @@ BotResponsesContainer.propTypes = {
     setActiveStories: PropTypes.func.isRequired,
     responseLocations: PropTypes.array,
     loadingResponseLocations: PropTypes.bool,
+    router: PropTypes.object.isRequired,
 };
 
 BotResponsesContainer.defaultProps = {
@@ -243,4 +246,4 @@ BotResponsesContainer.defaultProps = {
     loadingResponseLocations: false,
 };
 
-export default connect(() => ({}), { setActiveStories: setStoriesCurrent })(BotResponsesContainer);
+export default connect(() => ({}), { setActiveStories: setStoriesCurrent })(withRouter(BotResponsesContainer));
