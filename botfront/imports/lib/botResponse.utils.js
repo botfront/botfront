@@ -39,7 +39,7 @@ export const checkResponseEmpty = (response) => {
 };
 
 export const defaultCarouselSlide = () => ({
-    title: '', subtitle: '', image_url: '', default_action: { type: 'postback' }, buttons: [],
+    title: '', subtitle: '', image_url: '', buttons: [],
 });
 
 export const defaultTemplate = (template) => {

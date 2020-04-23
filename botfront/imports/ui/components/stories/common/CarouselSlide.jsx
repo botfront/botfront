@@ -57,7 +57,6 @@ export default function CarouselSlide(props) {
                     setValue(hasUrlOrPayload ? {} : { default_action: null });
                     setModalOpen(false);
                 }}
-                defaultType='web_url'
                 valid
             />
         </div>
