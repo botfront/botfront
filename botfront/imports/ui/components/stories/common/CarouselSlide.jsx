@@ -38,8 +38,8 @@ export default function CarouselSlide(props) {
         }),
     });
 
-    const hasUrlOrPayload = (defaultAction || { url: '' }).url.trim()
-        || (defaultAction || { payload: '' }).payload.trim();
+    const hasUrlOrPayload = ((defaultAction || {}).url || '').trim()
+        || ((defaultAction || {}).payload || '').trim();
 
     const renderDefaultActionModal = () => (
         <div className='image-modal'>
