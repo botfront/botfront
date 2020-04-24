@@ -172,7 +172,12 @@ const overwriteCollection = async function (projectId, modelIds, collection, bac
         await createStoriesIndex(projectId, backup[collection])
         return
     }
-    await model.insertMany(backup[collection]);
+    try { // ignore duplicate index violations
+        await model.insertMany(backup[collection], { ordered: false });
+    } catch (e) {
+        if (e.err.code === 11000) return;
+        throw new Error(e);
+    }
 };
 
 const zipFile = async (response) => {
