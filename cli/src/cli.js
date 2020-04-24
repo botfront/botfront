@@ -166,14 +166,15 @@ async function general() {
             } else {
                 choices.push({ title: 'Start project', cmd: () => dockerComposeUp({ verbose: false })});
             }
+
+            if (isMinorUpdate()){
+                choices.push({ title: `Update project to Botfront ${getBotfrontVersion()}`, cmd: doMinorUpdate});
+            }
         } else {
             if (containers && containers.length){
                 choices.push({ title: 'Stop Botfront', cmd: () => killAllCommand({ verbose: false }) });
             }
             choices.push({ title: 'Create a new project', cmd: initCommand });
-        }
-        if (isMinorUpdate()){
-            choices.push({ title: `Update project to Botfront ${getBotfrontVersion()}`, cmd: doMinorUpdate});
         }
         choices.push({ title: 'Browse the online documentation', cmd: openDocs});
         choices.push({ title: 'More options (display the --help)', cmd: () => shell.exec('botfront -h') });
