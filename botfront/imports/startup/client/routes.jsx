@@ -26,6 +26,7 @@ import Incoming from '../../ui/components/incoming/Incoming';
 
 import { can, areScopeReady } from '../../lib/scopes';
 import AccountLayout from '../../ui/layouts/account';
+import NotFound from '../../ui/components/NotFound';
 import SetupLayout from '../../ui/layouts/setup';
 import Project from '../../ui/layouts/project';
 import Index from '../../ui/components/index';
@@ -143,9 +144,9 @@ Meteor.startup(() => {
                                 <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticateProject} />
                                 <Route path='/project/:project_id/settings/global' component={SettingsContainer} name='More Settings' onEnter={authenticateAdmin} />
                             </Route>
-                            <Route path='/404' onEnter={redirectToPath('/')} />
-                            <Route path='/403' onEnter={redirectToPath('/')} />
-                            <Route path='*' exact onEnter={redirectToPath('/')} />
+                            <Route path='/404' component={() => <NotFound code={404} />} />
+                            <Route path='/403' component={() => <NotFound code={403} />} />
+                            <Route path='*' exact onEnter={redirectToPath('/404')} />
                         </Router>
                     </Provider>
                 </ApolloHooksProvider>
