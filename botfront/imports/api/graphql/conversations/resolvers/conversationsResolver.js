@@ -40,6 +40,9 @@ export default {
         status: (parent, _, __) => parent.status,
         _id: (parent, _, __) => parent._id,
         updatedAt: (parent, _, __) => parent.updatedAt,
+        createdAt: (parent, _, __) => parent.createdAt,
+        env: (parent, _, __) => parent.env,
+        language: (parent, _, __) => parent.language,
     },
     Entity: {
         entity: (parent, _, __) => parent.entity,
