@@ -49,10 +49,6 @@
             .side-by-side {
                 visibility: visible;
             }
-            .utterance-container[agent="user"] {
-                border-top-left-radius: 0;
-                border-bottom-left-radius: 0px;
-            }
         }
     }
 
@@ -400,7 +396,6 @@ div.add-entity-wrap {
         resize: none !important;
         border: none;
         border-color: transparent;
-        margin-left: 6px;
         border-bottom: 1px solid transparent;
         font: inherit;
         &:hover {
@@ -436,7 +431,7 @@ div.add-entity-wrap {
     &[agent="user"] {
         &[mode="input"] { width: 100%; }
         &:not([mode="input"]) { max-width: max-content; }
-        // margin-left: 8px;
+        margin-left: 8px;
         background: rgba(0, 0, 0, 0.08);
     }
 }
