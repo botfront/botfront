@@ -150,6 +150,7 @@ const nativizeProject = function (projectId, projectName, backup) {
 
 const overwriteCollection = async function (projectId, modelIds, collection, backup) {
     if (!(collection in backup)) return;
+    if (collection in collectionsWithModelId && !('models' in backup)) return;
     const model =
         collection in collectionsWithModelId
             ? collectionsWithModelId[collection]
