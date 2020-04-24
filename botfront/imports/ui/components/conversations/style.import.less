@@ -21,9 +21,6 @@ div.bot-response-message {
 
 .grid .accordion.filter-accordion{
   width: 100%;
-  .filters-accordian-title{
-    width: fit-content;
-  }
   .toggle-filters {
     width: min-content;
     color: #2185d0;
@@ -43,16 +40,18 @@ div.bot-response-message {
   display: flex;
   flex-direction: row-reverse;
   flex-wrap: wrap;
+  align-items: center;
 
   .ui.buttons.filter-buttons {
     margin-top: 14px;
-    height: 36px;
     margin-left: auto;
   }
 
   .conversation-filter {
     padding: 0 0.75em;
     margin-top: 1em;
+    .input { max-height: 32px; }
+
     .segments.horizontal.multiselect-andor{
       border: none;
     }
@@ -60,6 +59,7 @@ div.bot-response-message {
     &.id-filter{
       flex-grow: 1;
       min-width: 10rem;
+      max-width: 30rem;
     }
 
     &.actions {
@@ -218,13 +218,8 @@ div.bot-response-message {
         min-width: 10em;
         border-style: none;
       }
-      &.date-filter {
-        border-style: none;
-        height: 38px;
-        max
-        button {
-          height: 100%;
-        }
+      &.date-filter button {
+        margin-right: 0;
       }
     }
   }

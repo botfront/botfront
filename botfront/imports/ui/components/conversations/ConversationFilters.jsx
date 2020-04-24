@@ -93,7 +93,6 @@ const ConversationFilters = ({
                 active={activeAccordion}
                 onClick={() => handleAccordionClick()}
                 data-cy='toggle-filters'
-                className='filters-accordian-title'
             >
                 <Icon name='dropdown' />
                 <span className='toggle-filters'>
@@ -247,30 +246,6 @@ const ConversationFilters = ({
                             />
                         </Segment>
                     </div>
-                </div>
-                <div className='conversation-filter-container'>
-                    {/* intents filter */}
-                    <div className='conversation-filter intents' data-cy='intent-filter'>
-                        <AndOrMultiSelect
-                            values={newFilters.intentFilters}
-                            options={intentsOptions}
-                            onChange={val => setFilter('intentFilters', val)}
-                            operatorChange={val => setFilter('operatorIntentsFilters', val)}
-                            placeholder='Intent name'
-                        />
-                    </div>
-                    {/* actions filter */}
-                    <div className='conversation-filter actions' data-cy='action-filter'>
-                        <AndOrMultiSelect
-                            values={newFilters.actionFilters}
-                            addItem={addNewOption}
-                            options={actionsOptions}
-                            onChange={val => setFilter('actionFilters', val)}
-                            operatorChange={val => setFilter('operatorActionsFilters', val)}
-                            placeholder='Action name'
-                            allowAdditions
-                        />
-                    </div>
                     {/* user id filter */}
                     <div className='conversation-filter id-filter' data-cy='id-filter'>
                         <Segment.Group
@@ -292,6 +267,28 @@ const ConversationFilters = ({
                                 />
                             </Segment>
                         </Segment.Group>
+                    </div>
+                    {/* intents filter */}
+                    <div className='conversation-filter intents' data-cy='intent-filter'>
+                        <AndOrMultiSelect
+                            values={newFilters.intentFilters}
+                            options={intentsOptions}
+                            onChange={val => setFilter('intentFilters', val)}
+                            operatorChange={val => setFilter('operatorIntentsFilters', val)}
+                            placeholder='Intent name'
+                        />
+                    </div>
+                    {/* actions filter */}
+                    <div className='conversation-filter actions' data-cy='action-filter'>
+                        <AndOrMultiSelect
+                            values={newFilters.actionFilters}
+                            addItem={addNewOption}
+                            options={actionsOptions}
+                            onChange={val => setFilter('actionFilters', val)}
+                            operatorChange={val => setFilter('operatorActionsFilters', val)}
+                            placeholder='Action name'
+                            allowAdditions
+                        />
                     </div>
                 </div>
             </Accordion.Content>
