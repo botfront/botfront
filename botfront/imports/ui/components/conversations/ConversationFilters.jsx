@@ -202,36 +202,8 @@ const ConversationFilters = ({
                                     }
                                 />
                             </Segment>
-                        </Segment.Group>
-                    </div>
-                    {/* conversation confidence filter */}
-                    <div className='conversation-filter' data-cy='confidence-filter'>
-                        <Segment.Group
-                            horizontal
-                            data-cy='confidence-filter'
-                            className='conversation-filter'
-                        >
-                            <Segment className='x-than-filter'>
-                                <Label> Confidence &le;</Label>
-                            </Segment>
-                            <Segment className='number-filter'>
-                                <Input
-                                    value={
-                                        // bounds the confidence value to 0-100
-                                        newFilters.confidenceFilter.compare * 100 > 0
-                                            ? newFilters.confidenceFilter.compare * 100 < 100
-                                                ? Math.round(newFilters.confidenceFilter.compare * 100)
-                                                : 100
-                                            : ''
-                                    }
-                                    onChange={(e, { value }) => setFilter('confidenceFilter', {
-                                        ...newFilters.confidenceFilter,
-                                        compare: value / 100,
-                                    })}
-                                />
-                            </Segment>
-                            <Segment className='static-symbol'>
-                                <p>%</p>
+                            <Segment className='static-symbol seconds'>
+                                <p className='static-symbol-text'>(seconds)</p>
                             </Segment>
                         </Segment.Group>
                     </div>
@@ -265,6 +237,37 @@ const ConversationFilters = ({
                                     )}
                                     placeholder='unique identifier'
                                 />
+                            </Segment>
+                        </Segment.Group>
+                    </div>
+                    {/* conversation confidence filter */}
+                    <div className='conversation-filter' data-cy='confidence-filter'>
+                        <Segment.Group
+                            horizontal
+                            data-cy='confidence-filter'
+                            className='conversation-filter'
+                        >
+                            <Segment className='x-than-filter'>
+                                <Label> Confidence &le;</Label>
+                            </Segment>
+                            <Segment className='number-filter'>
+                                <Input
+                                    value={
+                                        // bounds the confidence value to 0-100
+                                        newFilters.confidenceFilter.compare * 100 > 0
+                                            ? newFilters.confidenceFilter.compare * 100 < 100
+                                                ? Math.round(newFilters.confidenceFilter.compare * 100)
+                                                : 100
+                                            : ''
+                                    }
+                                    onChange={(e, { value }) => setFilter('confidenceFilter', {
+                                        ...newFilters.confidenceFilter,
+                                        compare: value / 100,
+                                    })}
+                                />
+                            </Segment>
+                            <Segment className='static-symbol'>
+                                <p className='static-symbol-text'>%</p>
                             </Segment>
                         </Segment.Group>
                     </div>
