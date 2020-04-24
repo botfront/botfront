@@ -93,6 +93,7 @@ const ConversationFilters = ({
                 active={activeAccordion}
                 onClick={() => handleAccordionClick()}
                 data-cy='toggle-filters'
+                className='filter-accordian-title'
             >
                 <Icon name='dropdown' />
                 <span className='toggle-filters'>
