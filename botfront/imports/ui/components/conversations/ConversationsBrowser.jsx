@@ -136,7 +136,7 @@ function ConversationsBrowser(props) {
         }
         deleteConv({ variables: { id: conversationId } }).then(() => refetch());
     }
-    console.log(activeFilters);
+
     return (
         <ConversationBrowserContext.Provider
             value={{
