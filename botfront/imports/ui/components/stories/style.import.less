@@ -137,8 +137,16 @@
                     cursor: text;
                 }
             }
+            .item-edit-box input {
+                width: 100%;
+            }
             .item-actions {
-                text-align: end;
+                white-space: nowrap;
+                margin-left: auto !important;
+                max-width: 0;
+            }
+            &:hover {
+                .item-actions { max-width: max-content; }
             }
         }
 

@@ -57,9 +57,6 @@ const StoryGroupTreeNode = (props) => {
     const { selected: isFocused } = item;
     const isBeingRenamed = (renamingModalPosition || {}).id === item.id;
     const isHoverTarget = combineTargetFor && !isLeaf;
-    const style = isLeaf
-        ? { width: 'calc(100% - 60px)', left: '-10px', position: 'relative' } // one button
-        : { width: 'calc(100% - 100px)', left: '-10px', position: 'relative' }; // three buttons
 
     useEffect(() => {
         if (!renamingModalPosition) setNewTitle('');
@@ -81,43 +78,47 @@ const StoryGroupTreeNode = (props) => {
         };
 
     const renderItemActions = () => (
-        <div className={`item-actions ${disableEdit ? 'hidden' : ''}`}>
-            {!isLeaf && (
+        <div className='item-actions'>
+            {!disableEdit && !isBeingRenamed && (
                 <>
-                    <Icon
-                        className={`cursor pointer ${
-                            isFocused ? 'focused' : ''
-                        }`}
-                        data-cy='focus-story-group'
-                        name='eye'
-                        {...(!somethingIsMutating ? {
-                            onClick: () => handleToggleFocus(item.id),
-                            onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
-                        } : {})}
-                    />
+                    {!isLeaf && (
+                    <>
+                        <Icon
+                            className={`cursor pointer ${
+                                isFocused ? 'focused' : ''
+                            }`}
+                            data-cy='focus-story-group'
+                            name='eye'
+                            {...(!somethingIsMutating ? {
+                                onClick: () => handleToggleFocus(item.id),
+                                onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
+                            } : {})}
+                        />
+                        <Icon
+                            className='cursor pointer'
+                            data-cy='add-story-in-story-group'
+                            name='plus'
+                            {...(!somethingIsMutating ? {
+                                onClick: () => handleAddStory(
+                                    item.id,
+                                    `${item.title} (${item.children.length + 1})`,
+                                ),
+                                onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
+                            } : {})}
+                        />
+                    </>
+                    )}
                     <Icon
                         className='cursor pointer'
-                        data-cy='add-story-in-story-group'
-                        name='plus'
+                        data-cy='delete-story-group'
+                        name='trash'
                         {...(!somethingIsMutating ? {
-                            onClick: () => handleAddStory(
-                                item.id,
-                                `${item.title} (${item.children.length + 1})`,
-                            ),
+                            onClick: () => setDeletionModalVisible(item),
                             onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
                         } : {})}
                     />
                 </>
             )}
-            <Icon
-                className='cursor pointer'
-                data-cy='delete-story-group'
-                name='trash'
-                {...(!somethingIsMutating ? {
-                    onClick: () => setDeletionModalVisible(item),
-                    onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
-                } : {})}
-            />
         </div>
     );
 
@@ -139,7 +140,10 @@ const StoryGroupTreeNode = (props) => {
                     onMouseEnter: () => handleMouseEnterInMenu({ item }),
                 } : {})}
             >
-                <div className='side-by-side narrow middle'>
+                <div
+                    className='side-by-side left narrow middle'
+                    {...(isBeingRenamed ? { ref: renamerRef } : {})}
+                >
                     <Icon
                         name='bars'
                         size='small'
@@ -147,39 +151,33 @@ const StoryGroupTreeNode = (props) => {
                         className={`drag-handle ${isDragging ? 'dragging' : ''} ${disableDrag ? 'hidden' : ''}`}
                         {...handleProps}
                     />
-                    <div
-                        className='side-by-side left narrow'
-                        style={style}
-                        {...(isBeingRenamed ? { ref: renamerRef } : {})}
-                    >
-                        <div className='item-chevron'>{icon}</div>
-                        {isBeingRenamed ? (
-                            <Input
-                                onChange={(_, { value }) => setNewTitle(value)}
-                                value={newTitle}
-                                onKeyDown={handleKeyDownInput}
-                                autoFocus
-                                onBlur={submitNameChange}
-                                data-cy='edit-name'
-                                className='item-edit-box'
-                                {...(renamerRef.current
-                                    ? {
-                                        style: {
-                                            width: `${renamerRef.current
-                                                .clientWidth - 25}px`,
-                                        },
-                                    }
-                                    : {})}
-                            />
-                        ) : (
-                            <span
-                                className={`item-name ${(somethingIsMutating || disableEdit) ? 'uneditable' : ''}`}
-                                {...(!(somethingIsMutating || disableEdit) ? { onDoubleClick: () => setRenamingModalPosition(item) } : {})}
-                            >
-                                {trimLong(item.title)}
-                            </span>
-                        )}
-                    </div>
+                    <div className='item-chevron'>{icon}</div>
+                    {isBeingRenamed ? (
+                        <Input
+                            onChange={(_, { value }) => setNewTitle(value)}
+                            value={newTitle}
+                            onKeyDown={handleKeyDownInput}
+                            autoFocus
+                            onBlur={submitNameChange}
+                            data-cy='edit-name'
+                            className='item-edit-box'
+                            {...(renamerRef.current
+                                ? {
+                                    style: {
+                                        width: `${renamerRef.current
+                                            .clientWidth - 25}px`,
+                                    },
+                                }
+                                : {})}
+                        />
+                    ) : (
+                        <span
+                            className={`item-name ${(somethingIsMutating || disableEdit) ? 'uneditable' : ''}`}
+                            {...(!(somethingIsMutating || disableEdit) ? { onDoubleClick: () => setRenamingModalPosition(item) } : {})}
+                        >
+                            {trimLong(item.title)}
+                        </span>
+                    )}
                     {renderItemActions()}
                 </div>
             </Menu.Item>
