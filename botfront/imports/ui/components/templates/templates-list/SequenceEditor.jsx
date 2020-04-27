@@ -7,7 +7,6 @@ import { safeLoad } from 'js-yaml';
 
 import BotResponsesContainer from '../../stories/common/BotResponsesContainer';
 import CustomResponseEditor from '../common/CustomResponseEditor';
-import CarouselEditor from '../../stories/common/CarouselEditor';
 import IconButton from '../../common/IconButton';
 
 import { addContentType, defaultTemplate } from '../../../../lib/botResponse.utils';
@@ -33,9 +32,7 @@ const SequenceEditor = (props) => {
                 data-cy='variation-container'
             >
                 <>
-                    {(content.__typename === 'TextPayload'
-                        || content.__typename === 'QuickReplyPayload'
-                        || content.__typename === 'ImagePayload') && (
+                    {content.__typename !== 'CustomPayload' && (
                         <BotResponsesContainer
                             deleteable
                             initialValue={content}
@@ -48,12 +45,6 @@ const SequenceEditor = (props) => {
                     {content.__typename === 'CustomPayload' && (
                         <CustomResponseEditor
                             content={content}
-                            onChange={value => onChange(value, index)}
-                        />
-                    )}
-                    {content.__typename === 'CarouselPayload' && (
-                        <CarouselEditor
-                            value={content}
                             onChange={value => onChange(value, index)}
                         />
                     )}
