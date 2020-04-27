@@ -51,7 +51,7 @@ const StoryEditorContainer = ({
     collapsed,
     projectId,
 }) => {
-    const { stories } = useContext(ConversationOptionsContext);
+    const { stories, getResponseLocations } = useContext(ConversationOptionsContext);
     const { slots } = useContext(ProjectContext);
     
     // Used to store ace editors instance to dynamically set annotations
@@ -63,7 +63,6 @@ const StoryEditorContainer = ({
     const [destinationStories, setDestinationStories] = useState([]);
     const hasCheckpoints = () => !!(story.checkpoints && story.checkpoints.length > 0);
     const [lastMdType, setLastMdType] = useReducer(() => Date.now(), 0);
-
     const saveStory = (path, content, options = {}) => {
         Meteor.call(
             'stories.update',
@@ -256,7 +255,7 @@ const StoryEditorContainer = ({
         }
         return (
             <StoryErrorBoundary>
-                <StoryVisualEditor story={storyControllers[path.join()]} />
+                <StoryVisualEditor story={storyControllers[path.join()]} getResponseLocations={getResponseLocations} />
             </StoryErrorBoundary>
         );
     };

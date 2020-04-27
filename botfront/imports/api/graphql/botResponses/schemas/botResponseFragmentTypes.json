@@ -13,13 +13,16 @@
                 "name": "ImagePayload"
             },
             {
+                "name": "CarouselPayload"
+            },
+            {
                 "name": "CustomPayload"
             }
         ]
     },
     {
         "kind": "INTERFACE",
-        "name": "Button",
+        "name": "ButtonPayload",
         "possibleTypes": [
             {
                 "name": "PostbackButton"

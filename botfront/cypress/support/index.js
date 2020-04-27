@@ -18,6 +18,7 @@
 import './chat.commands';
 import gql from 'graphql-tag';
 import './story.commands';
+import './response.commands';
 
 const axios = require('axios');
 require('cypress-plugin-retries');
@@ -95,12 +96,14 @@ Cypress.Commands.add('login', ({
             });
         }),
     ).then(
-        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-            Meteor.loginWithPassword(withEmail, password, loginError => (loginError ? reject(loginError) : resolve()));
+        ({ Meteor, Accounts }) => new Cypress.Promise((resolve, reject) => {
+            Meteor.loginWithPassword(withEmail, password, (loginError) => {
+                if (loginError) return reject(loginError);
+                cy.wrap(Accounts._storedLoginToken()).as('loginToken'); // eslint-disable-line no-underscore-dangle
+                return resolve();
+            });
         }),
     );
-
-    // cy.window();
 });
 
 Cypress.Commands.add('logout', () => {
@@ -233,7 +236,10 @@ Cypress.Commands.add('dataCy', (dataCySelector, content = null, filter = null) =
 
 Cypress.Commands.add('findCy', { prevSubject: 'element' }, (subject, dataCySelector) => subject.find(`[data-cy=${dataCySelector}]`));
 
-Cypress.Commands.add('escapeModal', () => cy.get('.modals.dimmer').click('topRight'));
+Cypress.Commands.add('escapeModal', (letFail = false) => {
+    cy.get('.modals.dimmer').click('topRight');
+    if (!letFail) cy.get('.dimmer').should('not.exist');
+});
 
 Cypress.Commands.add(
     'upload',
@@ -259,9 +265,9 @@ Cypress.Commands.add(
 Cypress.Commands.add(
     'dragTo',
     { prevSubject: 'element' },
-    (source, destinationCyData) => {
+    (source, node, dataCy = true) => {
         cy.wrap(source).trigger('dragstart');
-        cy.dataCy(destinationCyData).then((destination) => {
+        (dataCy ? cy.dataCy(node) : cy.get(node)).then((destination) => {
             cy.wrap(destination).trigger('dragenter');
             cy.wrap(destination).trigger('drop');
         });
@@ -638,35 +644,27 @@ Cypress.Commands.add('pickDateRange', (datePickerIndex, firstDateStr, secondDate
         .click({ force: true });
 });
 
-Cypress.Commands.add('addConversation', (projectId, id, conversation) => {
-    const body = {
-        query: `mutation ($tracker: Any) {\n  insertTrackerStore(senderId: "${id}", projectId: "${projectId}", tracker: $tracker){\n  lastIndex\n  }\n}`,
-        variables: { tracker: conversation },
-    };
-    
+Cypress.Commands.add('graphQlQuery', (query, variables) => cy.get('@loginToken').then((token) => {
     cy.request({
         method: 'POST',
         url: '/graphql',
-        headers: { 'Content-Type': 'application/json' },
-        body,
+        headers: { 'Content-Type': 'application/json', Authorization: token },
+        body: { query, variables },
     });
-});
+}));
+
+Cypress.Commands.add('addConversation', (projectId, id, conversation) => cy.graphQlQuery(
+    `mutation ($tracker: Any) {\n  insertTrackerStore(senderId: "${id}", projectId: "${projectId}", tracker: $tracker){\n  lastIndex\n  }\n}`,
+    { tracker: conversation },
+));
+
+Cypress.Commands.add('updateConversation', (projectId, id, conversation) => cy.graphQlQuery(
+    `mutation ($tracker: Any) {\n  updateTrackerStore(senderId: "${id}", projectId: "${projectId}", tracker: $tracker){\n  lastIndex\n  }\n}`,
+    { tracker: conversation },
+));
 
 Cypress.Commands.overwrite('log', (subject, message) => cy.task('log', message));
 
-Cypress.Commands.add('updateConversation', (projectId, id, conversation) => {
-    const body = {
-        query: `mutation ($tracker: Any) {\n  updateTrackerStore(senderId: "${id}", projectId: "${projectId}", tracker: $tracker){\n  lastIndex\n  }\n}`,
-        variables: { tracker: conversation },
-    };
-    
-    cy.request({
-        method: 'POST',
-        url: '/graphql',
-        headers: { 'Content-Type': 'application/json' },
-        body,
-    });
-});
 Cypress.Commands.add('getBranchContainer', (depth) => {
     /*
     gets the contents of a branch including contents of following branches

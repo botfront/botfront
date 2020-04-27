@@ -142,6 +142,7 @@
     "resolve-from": "^5.0.0",
     "selenium-webdriver": "3.6.0",
     "start-server-and-test": "^1.9.1",
+    "@storybook/addon-actions": "^5.3.18",
     "webpack": "^4.28.4"
   },
   "husky": {

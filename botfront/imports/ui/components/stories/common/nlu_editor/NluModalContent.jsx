@@ -198,7 +198,7 @@ const NLUModalContent = (props) => {
         return {};
     };
 
-    const labelColumn = {
+    const labelColumn = [{
         accessor: '_id',
         filterable: false,
         Cell: (cellProps) => {
@@ -213,7 +213,7 @@ const NLUModalContent = (props) => {
             let message;
             if (deleted) {
                 text = 'deleted';
-                color = '';
+                color = undefined;
                 title = 'Deleted Example';
                 message = 'You just deleted this user utterance and it will be removed from the training set when you save';
             } else if (!checkPayloadsMatch({ intent, entities: cellEntities })) {
@@ -253,7 +253,7 @@ const NLUModalContent = (props) => {
         },
         Header: '',
         width: 70,
-    };
+    }];
     return (
         !ready
             ? (

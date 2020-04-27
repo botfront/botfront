@@ -1,7 +1,5 @@
 /* global cy:true */
 
-const IMAGE_URL = 'https://lh3.googleusercontent.com/8zYxviiazPFUXLQvhEvq906503rRmYIoWhpjtVSPYTgIGxN1DvHEs7nPNY87pRWkps3VXU3XqusrnLXI9U-0GDGDHWpauUpylc4mtaOt';
-
 describe('story visual editor', function () {
     afterEach(function () {
         cy.deleteProject('bf');
@@ -60,34 +58,8 @@ describe('story visual editor', function () {
             .blur({ force: true });
         cy.wait(1000);
 
-        cy.dataCy('button_title').click({ force: true });
-
-        cy.dataCy('enter-button-title')
-            .find('input')
-            .clear()
-            .type('postback option');
-        cy.dataCy('intent-label').contains('intent')
-            .click({ force: true });
-        cy.get('.intent-dropdown input')
-            .type('get_started{enter}');
-        cy.dataCy('save-button').click({ force: true });
-
-        cy.dataCy('add-quick-reply').click({ force: true });
-
-        cy.dataCy('button_title').click({ force: true });
-
-        cy.dataCy('enter-button-title')
-            .find('input')
-            .clear()
-            .type('web_url option');
-        cy.dataCy('select-button-type')
-            .find('[role=option]').eq(1)
-            .click({ force: true });
-        cy.dataCy('enter_url')
-            .find('input')
-            .clear()
-            .type('https://myurl.com/');
-        cy.dataCy('save-button').click({ force: true });
+        cy.addButtonOrSetPayload('postback option', { payload: { intent: 'get_started' } }, 'button_title');
+        cy.addButtonOrSetPayload('web_url option', { url: 'https://myurl.com/' }, 0);
 
         cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('story-editor')
@@ -112,16 +84,6 @@ describe('story visual editor', function () {
             .contains('[role=row]', 'Hello')
             .contains('chitchat.greet')
             .should('exist'); // there nlu example is there too
-    });
-
-    it('should be able to add an image bot response', function () {
-        cy.dataCy('add-bot-line').click({ force: true });
-        cy.dataCy('from-image-template').click({ force: true });
-        cy.dataCy('image-url-input')
-            .find('input')
-            .type(`${IMAGE_URL}{enter}`);
-        cy.get('img.small.image')
-            .should('have.attr', 'src', IMAGE_URL);
     });
 
     it('should rerender on language change', function () {

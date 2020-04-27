@@ -1,16 +1,23 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Placeholder } from 'semantic-ui-react';
+import {
+    Placeholder, Loader, Header, List,
+} from 'semantic-ui-react';
 
+import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
 import IconButton from '../../common/IconButton';
 import BotResponseEditor from '../../templates/templates-list/BotResponseEditor';
 import BotResponseContainer from './BotResponseContainer';
+import HoverablePopup from '../../common/HoverablePopup';
+import { setStoriesCurrent } from '../../../store/actions/actions';
 import { useUpload } from '../hooks/image.hooks';
 
 import { checkMetadataSet } from '../../../../lib/botResponse.utils';
 import { can } from '../../../../lib/scopes';
+
+export const ResponseContext = React.createContext();
 
 const BotResponsesContainer = (props) => {
     const {
@@ -21,13 +28,19 @@ const BotResponsesContainer = (props) => {
         deletable,
         enableEditPopup,
         tag,
+        setActiveStories,
+        responseLocations,
+        loadingResponseLocations,
+        router,
         projectId,
     } = props;
+
     const [template, setTemplate] = useState();
     const [editorOpen, setEditorOpen] = useState(false);
     const [toBeCreated, setToBeCreated] = useState(null);
     const [focus, setFocus] = useState(null);
     const [uploadImage] = useUpload(name);
+    const [responseLocationsOpen, setResponseLocationsOpen] = useState(false);
 
     const editable = can('responses:w', projectId);
 
@@ -89,6 +102,15 @@ const BotResponsesContainer = (props) => {
         return true;
     };
 
+    const handleLinkToStory = (selectedId) => {
+        const { location: { pathname } } = router;
+        const storyIds = responseLocations.map(({ _id }) => _id);
+        const openStories = [selectedId, ...storyIds.filter(storyId => storyId !== selectedId)];
+        setResponseLocationsOpen(false);
+        router.replace({ pathname, query: { 'ids[]': openStories } });
+        setActiveStories(openStories);
+    };
+
     useEffect(() => {
         if (toBeCreated || toBeCreated === 0) {
             handleCreateReponse(toBeCreated);
@@ -110,7 +132,6 @@ const BotResponsesContainer = (props) => {
                     focus={focus === index}
                     onFocus={() => setFocus(index)}
                     editCustom={() => setEditorOpen(true)}
-                    uploadImage={uploadImage}
                     hasMetadata={template && checkMetadataSet(template.metadata)}
                     metadata={(template || {}).metadata}
                     editable={editable}
@@ -119,40 +140,93 @@ const BotResponsesContainer = (props) => {
             </div>
         </React.Fragment>
     );
+
+    const renderDynamicResponseName = () => (
+        <div className='response-name-container'>
+            {responseLocations.length > 1 ? (
+                <HoverablePopup
+                    className='response-locations-popup'
+                    trigger={(
+                        <div className='response-name-link-container'>
+                            <div
+                                className='response-name response-name-link'
+                                data-cy='response-name'
+                            >
+                                {loadingResponseLocations && <Loader active inline size='mini' className='response-name-loader' />} {name}
+                            </div>
+                            <div className='response-instance-count'>
+                            ({responseLocations.length})
+                            </div>
+                        </div>
+                    )}
+                    content={(
+                        <>
+                            <Header>This response is used in {responseLocations.length} stories</Header>
+                            <List data-cy='response-locations-list' className='response-locations-list'>
+                                {responseLocations.map(({ title, _id, storyGroupId }) => (
+                                    <List.Item
+                                        className='story-name-link'
+                                        key={_id}
+                                        onClick={() => handleLinkToStory(_id, storyGroupId)}
+                                        data-cy='story-name-link'
+                                    >
+                                        ##{title}
+                                    </List.Item>
+                                ))}
+                            </List>
+                        </>
+                    )}
+                    controlled
+                    open={responseLocationsOpen}
+                    setOpen={() => setResponseLocationsOpen(true)}
+                    setClosed={() => setResponseLocationsOpen(false)}
+                    on='click'
+                    flowing
+                />
+            ) : (
+                <div className='response-name' data-cy='response-name'>
+                    {loadingResponseLocations && <Loader active inline size='mini' className='response-name-loader' />}
+                    {name}
+                </div>
+            )}
+        </div>
+    );
     
     return (
-        <div className='utterances-container exception-wrapper-target'>
-            {!template && (
-                <Placeholder>
-                    <Placeholder.Line />
-                    <Placeholder.Line />
-                </Placeholder>
-            )}
-            {getSequence().map(renderResponse)}
-            <div className='side-by-side right narrow top-right'>
-                {enableEditPopup && (
-                    <IconButton
-                        icon='ellipsis vertical'
-                        onClick={() => setEditorOpen(true)}
-                        data-cy='edit-responses'
-                        className={template && checkMetadataSet(template.metadata) ? 'light-green' : 'grey'}
-                        color={null} // prevent default color overiding the color set by the class
-                    />
+        <ResponseContext.Provider value={{ name, uploadImage }}>
+            <div className='utterances-container exception-wrapper-target'>
+                {!template && (
+                    <Placeholder>
+                        <Placeholder.Line />
+                        <Placeholder.Line />
+                    </Placeholder>
                 )}
-                {editorOpen && (
-                    <BotResponseEditor
-                        open={editorOpen}
-                        name={name}
-                        closeModal={() => setEditorOpen(false)}
-                        renameable={false}
-                    />
-                )}
-                { deletable && can('stories:w', projectId) && onDeleteAllResponses && (
-                    <IconButton onClick={onDeleteAllResponses} icon='trash' />
-                )}
+                {getSequence().map(renderResponse)}
+                <div className='side-by-side right narrow top-right'>
+                    {enableEditPopup && (
+                        <IconButton
+                            icon='ellipsis vertical'
+                            onClick={() => setEditorOpen(true)}
+                            data-cy='edit-responses'
+                            className={template && checkMetadataSet(template.metadata) ? 'light-green' : 'grey'}
+                            color={null} // prevent default color overiding the color set by the class
+                        />
+                    )}
+                    {editorOpen && (
+                        <BotResponseEditor
+                            open={editorOpen}
+                            name={name}
+                            closeModal={() => setEditorOpen(false)}
+                            renameable={false}
+                        />
+                    )}
+                    { deletable && can('stories:w', projectId) && onDeleteAllResponses && (
+                        <IconButton onClick={onDeleteAllResponses} icon='trash' />
+                    )}
+                </div>
+                {renderDynamicResponseName()}
             </div>
-            <div className='response-name'>{name}</div>
-        </div>
+        </ResponseContext.Provider>
     );
 };
 
@@ -164,6 +238,10 @@ BotResponsesContainer.propTypes = {
     onDeleteAllResponses: PropTypes.func,
     enableEditPopup: PropTypes.bool,
     tag: PropTypes.string,
+    setActiveStories: PropTypes.func.isRequired,
+    responseLocations: PropTypes.array,
+    loadingResponseLocations: PropTypes.bool,
+    router: PropTypes.object.isRequired,
     projectId: PropTypes.string.isRequired,
 };
 
@@ -175,10 +253,12 @@ BotResponsesContainer.defaultProps = {
     onDeleteAllResponses: null,
     enableEditPopup: true,
     tag: null,
+    responseLocations: [],
+    loadingResponseLocations: false,
 };
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
 });
 
-export default connect(mapStateToProps)(BotResponsesContainer);
+export default connect(mapStateToProps, { setActiveStories: setStoriesCurrent })(withRouter(BotResponsesContainer));

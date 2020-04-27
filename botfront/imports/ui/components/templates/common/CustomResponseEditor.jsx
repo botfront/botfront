@@ -1,23 +1,30 @@
 
 import React, { useState, useEffect } from 'react';
-import { safeLoad, safeDump } from 'js-yaml';
+import { safeDump, safeLoad } from 'js-yaml';
 
 import PropTypes from 'prop-types';
 
 import AceEditor from 'react-ace';
 
 
-const SequenceEditor = (props) => {
+const CustomResponseEditor = (props) => {
     const {
         content,
         onChange,
     } = props;
-    const { custom } = content;
-    const [value, setValue] = useState(custom ? safeDump(custom) : '');
+    const { __typename, metadata, ...contentMinusTypeNameAndMetadata } = content;
+    const [value, setValue] = useState(contentMinusTypeNameAndMetadata ? safeDump(contentMinusTypeNameAndMetadata) : '');
     useEffect(() => {
-        const { custom: customContent } = content;
-        setValue(customContent ? safeDump(customContent) : '');
+        setValue(contentMinusTypeNameAndMetadata ? safeDump(contentMinusTypeNameAndMetadata) : '');
     }, [content]);
+
+    const handleSave = (e) => {
+        try {
+            onChange({ ...safeLoad(value), __typename, metadata });
+        } catch (error) {
+            e.preventDefault();
+        }
+    };
 
     return (
         <div className='custom-response-editor' data-cy='custom-response-editor'>
@@ -28,7 +35,7 @@ const SequenceEditor = (props) => {
                 mode='yaml'
                 theme='xcode'
                 onChange={v => setValue(v)}
-                onBlur={() => onChange({ ...content, custom: safeLoad(value) })}
+                onBlur={handleSave}
                 fontSize={16}
                 showPrintMargin={false}
                 showGutter
@@ -47,9 +54,9 @@ const SequenceEditor = (props) => {
     );
 };
 
-SequenceEditor.propTypes = {
+CustomResponseEditor.propTypes = {
     content: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired,
 };
 
-export default SequenceEditor;
+export default CustomResponseEditor;

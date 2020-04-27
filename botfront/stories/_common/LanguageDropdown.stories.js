@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { storiesOf } from '@storybook/react';
 import { withKnobs, boolean } from '@storybook/addon-knobs';
-import { withBackground } from '../.storybook/decorators';
-import LanguageDropdown from '../imports/ui/components/common/LanguageDropdown';
+import { withBackground } from '../../.storybook/decorators';
+import LanguageDropdown from '../../imports/ui/components/common/LanguageDropdown';
 
 function LanguageDropdownWrapped({ multiple }) {
     const [selected, setSelected] = useState([]);
@@ -18,12 +17,14 @@ function LanguageDropdownWrapped({ multiple }) {
         />
     );
 }
+export default {
+    title: '_basic/LanguageDropdown',
+    component: LanguageDropdown,
+    decorators: [withKnobs, withBackground],
+};
 
-storiesOf('LanguageDropdown', module)
-    .addDecorator(withKnobs)
-    .addDecorator(withBackground)
-    .add('with props', () => (
-        <LanguageDropdownWrapped
-            multiple={boolean('multiple', false)}
-        />
-    ));
+export const Basic = () => (
+    <LanguageDropdownWrapped
+        multiple={boolean('multiple', false)}
+    />
+);

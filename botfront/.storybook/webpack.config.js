@@ -19,13 +19,22 @@ module.exports = async ({ config, mode }) => {
         include: resolve(__dirname, '../'),
     });
 
-    config.plugins.push(
+    config.plugins = [
+        ...(config.plugins || []),
         new webpack.NormalModuleReplacementPlugin(
             /scopes/,
             resolve(__dirname, './emptyMethods'),
         ),
-    );
-
+        new webpack.NormalModuleReplacementPlugin(
+            /meteor\/meteor/,
+            resolve(__dirname, './emptyMethods'),
+        ),
+        new webpack.NormalModuleReplacementPlugin(
+            /NluModalContent\.jsx/,
+            `${__dirname}/EmptyComponent.jsx`,
+        ),
+    ]
+    
     // Return the altered config
     return config;
 };

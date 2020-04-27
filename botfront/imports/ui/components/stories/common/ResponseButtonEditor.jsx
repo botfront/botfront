@@ -12,15 +12,16 @@ import {
 function ResponseButtonEditor({
     value: {
         title,
-        type,
+        type = 'postback',
         payload,
-        url, // eslint-disable-line camelcase
+        url,
     },
     onChange,
     onDelete,
     onClose,
     showDelete,
     valid,
+    noButtonTitle,
 }) {
     const options = [
         { text: 'Postback', value: 'postback' },
@@ -30,24 +31,26 @@ function ResponseButtonEditor({
         <Form className='response-button-editor'>
             <Grid columns={16} textAlign='left'>
                 <Grid.Row>
-                    <Grid.Column width={12}>
-                        <Form.Input
-                            label='Button title'
-                            data-cy='enter-button-title'
-                            autoFocus
-                            placeholder='Button title'
-                            onChange={(_event, { value }) => {
-                                const updatedVal = { title: value, type };
-                                if (type === 'web_url') updatedVal.url = url;
-                                else updatedVal.payload = payload;
-                                onChange(updatedVal);
-                            }}
-                            value={title}
-                        />
-                    </Grid.Column>
-                    <Grid.Column width={4}>
+                    {!noButtonTitle && (
+                        <Grid.Column width={12}>
+                            <Form.Input
+                                label='Button title'
+                                data-cy='enter-button-title'
+                                autoFocus
+                                placeholder='Button title'
+                                onChange={(_event, { value }) => {
+                                    const updatedVal = { title: value, type };
+                                    if (type === 'web_url') updatedVal.url = url;
+                                    else updatedVal.payload = payload;
+                                    onChange(updatedVal);
+                                }}
+                                value={title}
+                            />
+                        </Grid.Column>
+                    )}
+                    <Grid.Column width={noButtonTitle ? 6 : 4}>
                         <Form.Select
-                            label='Button type'
+                            label={noButtonTitle ? 'Type' : 'Button type'}
                             onChange={(event, { value }) => {
                                 const updatedVal = { title, type: value };
                                 updatedVal.payload = '';
@@ -87,13 +90,12 @@ function ResponseButtonEditor({
                             </>
                         )}
                         <Divider />
-                        {showDelete && (
+                        {showDelete && !noButtonTitle && (
                             <Button
                                 basic
                                 color='red'
                                 icon='trash'
                                 content='Delete button'
-                                size='mini'
                                 type='button'
                                 onClick={onDelete}
                             />
@@ -103,7 +105,6 @@ function ResponseButtonEditor({
                             content='Save'
                             data-cy='save-button'
                             disabled={!valid}
-                            size='mini'
                             onClick={onClose}
                             floated='right'
                         />
@@ -115,16 +116,20 @@ function ResponseButtonEditor({
 }
 
 ResponseButtonEditor.propTypes = {
-    value: PropTypes.object.isRequired,
+    value: PropTypes.object,
     onChange: PropTypes.func.isRequired,
-    onDelete: PropTypes.func.isRequired,
+    onDelete: PropTypes.func,
     onClose: PropTypes.func.isRequired,
     showDelete: PropTypes.bool,
     valid: PropTypes.bool.isRequired,
+    noButtonTitle: PropTypes.bool,
 };
 
 ResponseButtonEditor.defaultProps = {
+    value: {},
     showDelete: true,
+    onDelete: () => {},
+    noButtonTitle: false,
 };
 
 export default ResponseButtonEditor;

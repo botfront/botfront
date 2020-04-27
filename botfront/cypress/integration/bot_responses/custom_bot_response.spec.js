@@ -12,32 +12,19 @@ describe('Bot responses', function() {
         cy.deleteProject('bf');
     });
     it('should create a custom response using the response editor', function() {
-        cy.visit('/project/bf/dialogue/templates');
-        cy.dataCy('create-response').click();
-        cy.dataCy('add-custom-response').click();
-        cy.dataCy('response-name-input').click().find('input').type('test_A');
-        cy.wait(250);
+        cy.createResponseFromResponseMenu('custom', 'test_A');
         cy.dataCy('custom-response-editor').click().find('textarea').type('{selectAll}{del}{selectAll}{del}test: success');
         cy.wait(250);
-        cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
-        cy.get('.dimmer').should('not.exist');
-        cy.wait(250);
+        cy.escapeModal();
         cy.dataCy('template-intent').contains('utter_test_A').should('exist');
         cy.dataCy('edit-response-0').click();
         cy.dataCy('variation-container').contains('test: success').should('exist');
     });
     it('should edit a custom response using the response editor', function() {
-        cy.visit('/project/bf/dialogue/templates');
-        cy.dataCy('create-response').click();
-        cy.dataCy('add-custom-response').click();
-        cy.dataCy('response-name-input').click().find('input').type('test_A');
-        cy.wait(100);
+        cy.createResponseFromResponseMenu('custom', 'test_A');
         cy.dataCy('custom-response-editor').click().find('textarea').type('{selectAll}{del}test: success');
         cy.wait(100);
-        cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
-        cy.wait(100);
-        cy.get('.dimmer').should('not.exist');
-        cy.wait(250);
+        cy.escapeModal();
         cy.dataCy('template-intent').contains('utter_test_A').should('exist');
 
         cy.dataCy('edit-response-0').click();
@@ -45,19 +32,13 @@ describe('Bot responses', function() {
             .type('{selectAll}{del}success: true')
             .blur();
         cy.wait(250);
-        cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
-        cy.get('.dimmer').should('not.exist');
-        cy.wait(250);
+        cy.escapeModal();
         cy.dataCy('edit-response-0').click();
         cy.dataCy('custom-response-editor').find('.ace_line').should('have.length', 2);
         cy.dataCy('custom-response-editor').find('.ace_line').contains('success: true').should('exist');
     });
     it('should add variations for a custom response', function() {
-        cy.visit('/project/bf/dialogue/templates');
-        cy.dataCy('create-response').click();
-        cy.dataCy('add-custom-response').click();
-        cy.dataCy('response-name-input').click().find('input').type('test_A');
-        cy.wait(100);
+        cy.createResponseFromResponseMenu('custom', 'test_A');
         cy.dataCy('custom-response-editor').click().find('textarea').type('{selectAll}{del}doesNotExist: true');
         cy.wait(100);
         cy.dataCy('icon-trash').first().click();
@@ -67,7 +48,7 @@ describe('Bot responses', function() {
         cy.dataCy('custom-response-editor').should('have.length', 2);
         cy.dataCy('custom-response-editor').last().click().find('textarea')
             .type('{selectAll}{del}test: B');
-        cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.escapeModal();
         cy.dataCy('template-intent').contains('utter_test_A').should('exist');
         cy.dataCy('edit-response-0').click();
         cy.dataCy('custom-response-editor').contains('test: A').should('exist');
@@ -87,9 +68,7 @@ describe('Bot responses', function() {
         cy.dataCy('custom-response-editor').click().find('textarea').type('{selectAll}{del}test: success')
             .blur();
         cy.wait(100);
-        cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
-        cy.get('.dimmer').should('not.exist');
-        cy.wait(250);
+        cy.escapeModal();
         cy.dataCy('edit-custom-response').click();
         cy.dataCy('custom-response-editor').contains('test: success').should('exist');
     });

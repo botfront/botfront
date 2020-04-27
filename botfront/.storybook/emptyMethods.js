@@ -19,3 +19,7 @@ export const checkIfCan = checkIfCanExport;
 export const areScopeReady = areScopeReadyExport;
 export const setScopes = setScopesExport;
 export const Can = CanExport;
+export const Meteor = {
+    call: () => {},
+    subscribe: () => {},
+};

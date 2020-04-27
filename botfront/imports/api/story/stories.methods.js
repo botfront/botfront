@@ -242,4 +242,37 @@ Meteor.methods({
             { $set: { rules: [] } },
         );
     },
+
+    async 'stories.includesResponse'(projectId, responseNames) {
+        checkIfCan('stories:r', projectId);
+        check(projectId, String);
+        check(responseNames, Array);
+        try {
+            const allStories = Stories.find(
+                { projectId, events: { $elemMatch: { $in: responseNames } } },
+                {
+                    fields: {
+                        events: 1, _id: 1, title: 1, storyGroupId: 1,
+                    },
+                },
+            ).fetch();
+            return allStories.reduce((currentValue, {
+                events, _id, title, storyGroupId,
+            }) => {
+                const nextValue = { ...currentValue };
+                events.forEach((event) => {
+                    if (!responseNames.includes(event)) return;
+                    const responseInstances = nextValue[event];
+                    if (responseInstances) {
+                        nextValue[event] = [...responseInstances, { _id, title, storyGroupId }];
+                        return;
+                    }
+                    nextValue[event] = [{ _id, title, storyGroupId }];
+                });
+                return nextValue;
+            }, {});
+        } catch (e) {
+            return {};
+        }
+    },
 });
