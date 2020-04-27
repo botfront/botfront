@@ -1,7 +1,6 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
-import CanonicalPopup from '../imports/ui/components/nlu/common/CanonicalPopup';
-import IntentLabel from '../imports/ui/components/nlu/common/IntentLabel';
+import CanonicalPopup from '../../imports/ui/components/nlu/common/CanonicalPopup';
+import IntentLabel from '../../imports/ui/components/nlu/common/IntentLabel';
 
 const sampleCanonicalExample = {
     text: 'I like blue beans with red sauce.',
@@ -131,31 +130,35 @@ const CanonicalPopupWrapped = props => (
     </Context.Provider>
 );
 
-storiesOf('Canonical Popup', module)
-    .add('default', () => (
-        <CanonicalPopupWrapped />
-    ))
-    .add('example.canonical = false', () => (
-        <CanonicalPopupWrapped
-            example={canonicalFalseExample}
-            trigger={<IntentLabel value={canonicalFalseExample.intent} />}
-        />
-    ))
-    .add('no matching example', () => (
-        <CanonicalPopupWrapped
-            example={undefined}
-            trigger={<IntentLabel value={noMatchingExample.intent} />}
-        />
-    ))
-    .add('long example text', () => (
-        <CanonicalPopupWrapped
-            example={longCanonicalExample}
-            trigger={<IntentLabel value={longCanonicalExample.intent} />}
-        />
-    ))
-    .add('visual overflow edge case', () => (
-        <CanonicalPopupWrapped
-            example={edgeCase}
-            trigger={<IntentLabel value={edgeCase.intent} />}
-        />
-    ));
+export default {
+    title: 'StoryLabels/CanonicalPopup',
+    component: CanonicalPopup,
+};
+
+export const Basic = () => (
+    <CanonicalPopupWrapped />
+);
+export const Canonical = () => (
+    <CanonicalPopupWrapped
+        example={canonicalFalseExample}
+        trigger={<IntentLabel value={canonicalFalseExample.intent} />}
+    />
+);
+export const NoMatchingExample = () => (
+    <CanonicalPopupWrapped
+        example={undefined}
+        trigger={<IntentLabel value={noMatchingExample.intent} />}
+    />
+);
+export const LongText = () => (
+    <CanonicalPopupWrapped
+        example={longCanonicalExample}
+        trigger={<IntentLabel value={longCanonicalExample.intent} />}
+    />
+);
+export const VisualOverflowEdgeCase = () => (
+    <CanonicalPopupWrapped
+        example={edgeCase}
+        trigger={<IntentLabel value={edgeCase.intent} />}
+    />
+);

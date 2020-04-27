@@ -13,7 +13,7 @@ const PayloadEditor = (props) => {
         addEntity,
     } = useContext(ProjectContext);
     const {
-        value: { intent, entities: originalEntities },
+        value: { intent = '', entities: originalEntities = [] },
         onChange,
     } = props;
     const entities = originalEntities.map(oe => ({
@@ -145,7 +145,7 @@ PayloadEditor.propTypes = {
 
 PayloadEditor.defaultProps = {
     onChange: () => {},
-    value: { intent: '', entities: [] },
+    value: null,
 };
 
 export default PayloadEditor;

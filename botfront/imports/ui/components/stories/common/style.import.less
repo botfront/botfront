@@ -143,14 +143,14 @@
 }
 
 .utterances-container {
-    width: 44rem;
     max-width: 90%;
+    width: max-content;
+    min-width: 31rem;
     display: inline-flex;
     position: relative;
     flex-direction: column;
     border: 1px solid transparent;
     border-radius: 4px;
-    margin: 0 30px 0 0;
     color: #212121;
     min-height: 40px;
     padding: 9px 0 5px; // 4px extra because of .utterance-container bottom margin
@@ -161,11 +161,6 @@
         top: 5px;
         right: 5px;
         visibility: hidden;
-        z-index: 1;
-    }
-
-    .utterance-container {
-        z-index: 2;
     }
     .response-name-container {
         display: flex;
@@ -212,15 +207,6 @@
         .ui.inline.loader.response-name-loader {
             margin-right:0.50em;
         }
-    }
-
-
-    .ui.small.image {
-        border-radius: 4px;
-        object-fit: cover;
-        width: 224px;
-        height: 160px;
-        border: 1px solid #acbac4;
     }
 }
 
@@ -271,6 +257,10 @@
     justify-content: flex-start;
     align-items: center;
 
+    > *:last-child {
+        margin-right: 90px !important;
+    }
+
     .utterance-container ~ .icon-button,
     .utterance-container ~ .dropdown-button-trigger {
         top: -2px;
@@ -287,19 +277,6 @@
     &:hover {
         .icon-button {
             opacity: 0.8;
-        }
-    }
-    
-    .utterance-container.metadata-response {
-        // only color metadata responses in the story editor
-        &:not(.image) {
-            background-color: rgb(224, 247, 224);
-        }
-        &.image {
-            img{
-                background-color: rgb(224, 247, 224);
-                padding: 0.5em;
-            }
         }
     }
 }
@@ -389,7 +366,8 @@ div.add-entity-wrap {
 .utterance-container {
     color: #212121;
     min-height: 2em;
-    max-width: 75%;
+    min-width: fit-content(22rem);
+    width: 36rem;
     display: inline-block;
     line-height: 1.2;
     padding: 5px 10px;
@@ -400,12 +378,6 @@ div.add-entity-wrap {
         padding-left: 0.8em;
         padding-right: 0.8em;
         margin: 6px;
-    }
-
-    .quick-replies {
-        .last-button {
-            display: inline-block;
-        }
     }
 
     .ui.button.edit-custom-response {
@@ -424,7 +396,6 @@ div.add-entity-wrap {
         resize: none !important;
         border: none;
         border-color: transparent;
-        margin-left: 6px;
         border-bottom: 1px solid transparent;
         font: inherit;
         &:hover {
@@ -437,18 +408,29 @@ div.add-entity-wrap {
     }
 
     &[agent="bot"] {
-        width: ~"calc(75% - 24px + 8px)";
         margin-left: 24px;
         background: rgba(0, 0, 0, 0.04);
-        &.image {
+        width: 30rem;
+        min-width: ~"fit-content(calc(22rem - 5px))";
+        &.image-response-container {
+            width: max-content;
             background: none;
-            margin-left: 4px;
+            margin-left: 15px;
+        }
+        &.carousel-response-container {
+            width: 100%;
+            margin-left: -10px;
+            min-width: ~"calc(100% + 20px)";
+            .carousel {
+                margin: 12px 0;
+                padding: 0 18px;
+            }
+            background: none;
         }
     }
     &[agent="user"] {
-        &[mode="input"] {
-            width: 75%;
-        }
+        &[mode="input"] { width: 100%; }
+        &:not([mode="input"]) { max-width: max-content; }
         margin-left: 8px;
         background: rgba(0, 0, 0, 0.08);
     }

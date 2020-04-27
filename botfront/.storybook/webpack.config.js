@@ -1,4 +1,5 @@
 const resolve = require('path').resolve;
+const webpack = require('webpack');
 
 module.exports = async ({ config, mode }) => {
     // `mode` has a value of 'DEVELOPMENT' or 'PRODUCTION'
@@ -17,6 +18,22 @@ module.exports = async ({ config, mode }) => {
         loaders: ['file-loader'],
         include: resolve(__dirname, '../'),
     });
+
+    config.plugins = [
+        ...(config.plugins || []),
+        new webpack.NormalModuleReplacementPlugin(
+            /scopes/,
+            resolve(__dirname, './emptyMethods'),
+        ),
+        new webpack.NormalModuleReplacementPlugin(
+            /meteor\/meteor/,
+            resolve(__dirname, './emptyMethods'),
+        ),
+        new webpack.NormalModuleReplacementPlugin(
+            /NluModalContent\.jsx/,
+            `${__dirname}/EmptyComponent.jsx`,
+        ),
+    ]
     
     // Return the altered config
     return config;

@@ -17,6 +17,7 @@
 
 import './chat.commands';
 import './story.commands';
+import './response.commands';
 
 const axios = require('axios');
 require('cypress-plugin-retries');
@@ -199,7 +200,10 @@ Cypress.Commands.add('dataCy', (dataCySelector, content = null, filter = null) =
 
 Cypress.Commands.add('findCy', { prevSubject: 'element' }, (subject, dataCySelector) => subject.find(`[data-cy=${dataCySelector}]`));
 
-Cypress.Commands.add('escapeModal', () => cy.get('.modals.dimmer').click('topRight'));
+Cypress.Commands.add('escapeModal', (letFail = false) => {
+    cy.get('.modals.dimmer').click('topRight');
+    if (!letFail) cy.get('.dimmer').should('not.exist');
+});
 
 Cypress.Commands.add(
     'upload',
@@ -219,6 +223,18 @@ Cypress.Commands.add(
             };
             cy.wrap(subject).trigger('dragenter', dataTransfer);
             cy.wrap(subject).trigger('drop', dataTransfer);
+        });
+    },
+);
+
+Cypress.Commands.add(
+    'dragTo',
+    { prevSubject: 'element' },
+    (source, node, dataCy = true) => {
+        cy.wrap(source).trigger('dragstart');
+        (dataCy ? cy.dataCy(node) : cy.get(node)).then((destination) => {
+            cy.wrap(destination).trigger('dragenter');
+            cy.wrap(destination).trigger('drop');
         });
     },
 );

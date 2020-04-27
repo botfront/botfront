@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
-import { storiesOf } from '@storybook/react';
 import { withKnobs, select } from '@storybook/addon-knobs';
-import SlotLabel from '../imports/ui/components/stories/SlotLabel';
+import SlotLabel from '../../imports/ui/components/stories/SlotLabel';
+
+export default {
+    title: 'StoryLabels/SlotLabel',
+    component: SlotLabel,
+    decorators: [withKnobs],
+};
 
 const selected = {
     textSlot1: { type: 'text', name: 'textSlot1', slotValue: 'null' },
@@ -9,7 +14,6 @@ const selected = {
 };
 
 function SlotLabelWrapped(props) {
-    const { value } = props;
     // Here the user of the component needs to paas the initialValue of slot for the slotValue
     const [defaultAction, setActionName] = useState({ type: 'text', name: 'textSlot1', slotValue: 'null' });
     return (
@@ -21,8 +25,4 @@ function SlotLabelWrapped(props) {
     );
 }
 
-storiesOf('Slot Label', module)
-    .addDecorator(withKnobs)
-    .add('default', () => (
-        <SlotLabelWrapped value={select('Selected slot', selected, selected.textSlot1)} />
-    ));
+export const Basic = () => <SlotLabelWrapped value={select('Selected slot', selected, selected.textSlot1)} />;

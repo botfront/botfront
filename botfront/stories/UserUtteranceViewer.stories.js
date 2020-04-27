@@ -25,9 +25,7 @@ function UserUtteranceViewerWrapped(props) {
     });
     return (
         <div
-            style={{
-                width: '50%', backgroundColor: '#eee', padding: '10px', margin: '30px', outline: '1px black solid',
-            }}
+            style={{ width: '100%', backgroundColor: '#eee', padding: '20px' }}
         >
             <UserUtteranceViewer {...props} value={utterance} onChange={setUtterance} />
         </div>

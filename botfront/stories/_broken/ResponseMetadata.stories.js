@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
-import { storiesOf } from '@storybook/react';
-import { withKnobs } from '@storybook/addon-knobs';
-import ResponseMetadataForm from '../imports/ui/components/templates/MetadataForm.ce';
+import React from 'react';
+import ResponseMetadataForm from '../../imports/ui/components/templates/MetadataForm.ce';
 
 const metadata = {
     linkTarget: '_self',
@@ -28,7 +26,10 @@ const metadata = {
 
 const ResponseMetadataWrapped = props => <ResponseMetadataForm {...props} />;
 
-storiesOf('Response Metadata', module)
-    .addDecorator(withKnobs)
-    .add('Empty', () => <ResponseMetadataWrapped responseMetadata={null} onChange={console.log} />)
-    .add('With data', () => <ResponseMetadataWrapped responseMetadata={metadata} onChange={console.log} />);
+export default {
+    title: '_broken/ResponseMetadataForm',
+    component: ResponseMetadataForm,
+};
+
+export const Empty = () => () => <ResponseMetadataWrapped responseMetadata={null} onChange={console.log} />;
+export const WithData = () => () => <ResponseMetadataWrapped responseMetadata={metadata} onChange={console.log} />;

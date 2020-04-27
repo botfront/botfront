@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Popup, Icon } from 'semantic-ui-react';
 import UserUtteranceViewer from './UserUtteranceViewer';
-import { Context } from '../../../../../stories/CanonicalPopup.stories';
+import { Context } from '../../../../../stories/StoryLabels/CanonicalPopup.stories';
 
 const CanonicalPopup = (props) => {
     const {

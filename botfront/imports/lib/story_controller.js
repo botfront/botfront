@@ -347,7 +347,7 @@ export class StoryController {
     };
 }
 
-export const stringPayloadToObject = function(stringPayload) {
+export const stringPayloadToObject = function(stringPayload = '') {
     const payloadRegex = /([^{]*) *({.*}|)/;
     const matches = payloadRegex.exec(stringPayload.substring(1));
     const intent = matches[1];
