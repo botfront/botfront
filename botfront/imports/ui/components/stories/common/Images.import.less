@@ -7,6 +7,10 @@
     background-color: #ccc;
     border: 1px solid #acbac4;
 
+    &.tiny {
+        max-width: 160px;
+    }
+
     &.image-set {
         .ui.small.image:after {
             content: '\f127';
@@ -57,6 +61,9 @@
         background: rgba(0, 0, 0, 0.75);
         &:hover {
             opacity: 1;
+        }
+        &.uneditable:hover {
+            opacity: 0;
         }
         & > div:first-child {
             display: flex;
