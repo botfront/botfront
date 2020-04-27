@@ -135,7 +135,8 @@ const StoryGroupTreeNode = (props) => {
             <Menu.Item
                 active={isInSelection || isHoverTarget}
                 {...(isLeaf ? {
-                    onMouseDown: ({ nativeEvent: { shiftKey } }) => handleMouseDownInMenu({ item, shiftKey }),
+                    // we blur the active element so if something was being type, it's saved
+                    onMouseDown: ({ nativeEvent: { shiftKey } }) => { document.activeElement.blur(); handleMouseDownInMenu({ item, shiftKey }); },
                     onMouseEnter: () => handleMouseEnterInMenu({ item }),
                 } : {})}
             >
