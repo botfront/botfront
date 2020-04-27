@@ -194,7 +194,7 @@ if (Meteor.isServer) {
             checkIfCan('responses:w', projectId);
             check(projectId, String);
             check(data, Object);
-            const { deleteImageWebhook: { url, method } } = await getImageWebhooks();
+            const { uploadImageWebhook: { url, method } } = await getImageWebhooks();
             if (!url || !method) throw new Meteor.Error('400', 'No image upload webhook defined.');
             return Meteor.call('axios.requestWithJsonBody', url, method, data, (err, response = {}) => {
                 if (err) throw new Meteor.Error(err);
