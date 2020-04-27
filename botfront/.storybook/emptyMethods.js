@@ -1,5 +1,4 @@
 /* eslint-disable import/order */
-// import { Projects } from '../api/project/project.collection';
 import React from 'react';
 
 let canExport = () => true;
