@@ -66,12 +66,14 @@ Cypress.Commands.add('login', (visit = true, email = 'test@test.com', password =
             });
         }),
     ).then(
-        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-            Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
+        ({ Meteor, Accounts }) => new Cypress.Promise((resolve, reject) => {
+            Meteor.loginWithPassword(email, password, (loginError) => {
+                if (loginError) return reject(loginError);
+                cy.wrap(Accounts._storedLoginToken()).as('loginToken'); // eslint-disable-line no-underscore-dangle
+                return resolve();
+            });
         }),
     );
-
-    // cy.window();
 });
 
 Cypress.Commands.add('logout', () => {
@@ -275,6 +277,17 @@ Cypress.Commands.add('train', (waitTime = 200000) => {
     cy.wait(5000);
     cy.get('[data-cy=train-button]', { timeout: waitTime }).should('not.have.class', 'disabled');
 });
+
+Cypress.Commands.add('graphQlQuery', (query, variables) => cy.get('@loginToken').then((token) => {
+    cy.request({
+        method: 'POST',
+        url: '/graphql',
+        headers: { 'Content-Type': 'application/json', Authorization: token },
+        body: { query, variables },
+    });
+}));
+
+Cypress.Commands.overwrite('log', (subject, message) => cy.task('log', message));
 
 Cypress.Commands.add('getBranchContainer', (depth) => {
     /*
