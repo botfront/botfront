@@ -33,9 +33,7 @@ const SequenceEditor = (props) => {
                 data-cy='variation-container'
             >
                 <>
-                    {(content.__typename === 'TextPayload'
-                        || content.__typename === 'QuickReplyPayload'
-                        || content.__typename === 'ImagePayload') && (
+                    {content.__typename !== 'CustomPayload' && (
                         <BotResponsesContainer
                             deleteable
                             initialValue={content}
@@ -48,12 +46,6 @@ const SequenceEditor = (props) => {
                     {content.__typename === 'CustomPayload' && (
                         <CustomResponseEditor
                             content={content}
-                            onChange={value => onChange(value, index)}
-                        />
-                    )}
-                    {content.__typename === 'CarouselPayload' && (
-                        <CarouselEditor
-                            value={content}
                             onChange={value => onChange(value, index)}
                         />
                     )}

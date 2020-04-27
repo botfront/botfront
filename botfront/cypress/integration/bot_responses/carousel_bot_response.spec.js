@@ -38,6 +38,7 @@ describe('Bot responses', function() {
         cy.get('.carousel-slide').eq(1).as('second');
         cy.get('.carousel-slide').eq(0).first().dragTo('@second', false);
         cy.get('.carousel-slide').should(els => expect(els[1]).to.contain('fancy title'));
+        cy.wait(200);
         cy.escapeModal();
 
         // verify persistence
