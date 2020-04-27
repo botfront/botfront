@@ -1,11 +1,17 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Placeholder } from 'semantic-ui-react';
+import {
+    Placeholder, Loader, Header, List,
+} from 'semantic-ui-react';
 
+import { withRouter } from 'react-router';
+import { connect } from 'react-redux';
 import IconButton from '../../common/IconButton';
 import BotResponseEditor from '../../templates/templates-list/BotResponseEditor';
 import BotResponseContainer from './BotResponseContainer';
+import HoverablePopup from '../../common/HoverablePopup';
+import { setStoriesCurrent } from '../../../store/actions/actions';
 
 import { checkMetadataSet } from '../../../../lib/botResponse.utils';
 
@@ -18,11 +24,17 @@ const BotResponsesContainer = (props) => {
         deletable,
         enableEditPopup,
         tag,
+        setActiveStories,
+        responseLocations,
+        loadingResponseLocations,
+        router,
     } = props;
+
     const [template, setTemplate] = useState();
     const [editorOpen, setEditorOpen] = useState(false);
     const [toBeCreated, setToBeCreated] = useState(null);
     const [focus, setFocus] = useState(null);
+    const [responseLocationsOpen, setResponseLocationsOpen] = useState(false);
 
     useEffect(() => {
         Promise.resolve(initialValue).then((res) => {
@@ -82,6 +94,15 @@ const BotResponsesContainer = (props) => {
         return true;
     };
 
+    const handleLinkToStory = (selectedId) => {
+        const { location: { pathname } } = router;
+        const storyIds = responseLocations.map(({ _id }) => _id);
+        const openStories = [selectedId, ...storyIds.filter(storyId => storyId !== selectedId)];
+        setResponseLocationsOpen(false);
+        router.replace({ pathname, query: { 'ids[]': openStories } });
+        setActiveStories(openStories);
+    };
+
     useEffect(() => {
         if (toBeCreated || toBeCreated === 0) {
             handleCreateReponse(toBeCreated);
@@ -110,8 +131,61 @@ const BotResponsesContainer = (props) => {
         </React.Fragment>
     );
 
+    const renderDynamicResponseName = () => (
+        <div className='response-name-container'>
+            {responseLocations.length > 1 ? (
+                <HoverablePopup
+                    className='response-locations-popup'
+                    trigger={(
+                        <div className='response-name-link-container'>
+                            <div
+                                className='response-name response-name-link'
+                                data-cy='response-name'
+                            >
+                                {loadingResponseLocations && <Loader active inline size='mini' className='response-name-loader' />} {name}
+                            </div>
+                            <div className='response-instance-count'>
+                            ({responseLocations.length})
+                            </div>
+                        </div>
+                    )}
+                    content={(
+                        <>
+                            <Header>This response is used in {responseLocations.length} stories</Header>
+                            <List data-cy='response-locations-list' className='response-locations-list'>
+                                {responseLocations.map(({ title, _id, storyGroupId }) => (
+                                    <List.Item
+                                        className='story-name-link'
+                                        key={_id}
+                                        onClick={() => handleLinkToStory(_id, storyGroupId)}
+                                        data-cy='story-name-link'
+                                    >
+                                        ##{title}
+                                    </List.Item>
+                                ))}
+                            </List>
+                        </>
+                    )}
+                    controlled
+                    open={responseLocationsOpen}
+                    setOpen={() => setResponseLocationsOpen(true)}
+                    setClosed={() => setResponseLocationsOpen(false)}
+                    on='click'
+                    flowing
+                />
+            ) : (
+                <div className='response-name' data-cy='response-name'>
+                    {loadingResponseLocations && <Loader active inline size='mini' className='response-name-loader' />}
+                    {name}
+                </div>
+            )}
+        </div>
+    );
+
     return (
-        <div className='utterances-container exception-wrapper-target'>
+        <div
+            className='utterances-container exception-wrapper-target'
+        >
             {!template && (
                 <Placeholder>
                     <Placeholder.Line />
@@ -141,7 +215,7 @@ const BotResponsesContainer = (props) => {
                     <IconButton onClick={onDeleteAllResponses} icon='trash' />
                 )}
             </div>
-            <div className='response-name'>{name}</div>
+            {renderDynamicResponseName()}
         </div>
     );
 };
@@ -154,6 +228,10 @@ BotResponsesContainer.propTypes = {
     onDeleteAllResponses: PropTypes.func,
     enableEditPopup: PropTypes.bool,
     tag: PropTypes.string,
+    setActiveStories: PropTypes.func.isRequired,
+    responseLocations: PropTypes.array,
+    loadingResponseLocations: PropTypes.bool,
+    router: PropTypes.object.isRequired,
 };
 
 BotResponsesContainer.defaultProps = {
@@ -164,6 +242,8 @@ BotResponsesContainer.defaultProps = {
     onDeleteAllResponses: null,
     enableEditPopup: true,
     tag: null,
+    responseLocations: [],
+    loadingResponseLocations: false,
 };
 
-export default BotResponsesContainer;
+export default connect(() => ({}), { setActiveStories: setStoriesCurrent })(withRouter(BotResponsesContainer));

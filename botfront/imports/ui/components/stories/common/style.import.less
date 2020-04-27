@@ -41,7 +41,7 @@
         .utterances-container {
             border-color: #eee;
             
-            .response-name {
+            .response-name-container {
                 visibility: visible;
                 white-space: nowrap;
                 opacity: 0.5;
@@ -167,22 +167,53 @@
     .utterance-container {
         z-index: 2;
     }
-    
-    .response-name {
-        max-width: 22%;
-        z-index: 1;
+    .response-name-container {
+        display: flex;
+        opacity: 0;
+        transition: opacity 0.1s ease-in-out;
         position: absolute;
         bottom: 5px;
         right: 5px;
-        color: #767676;
-        font-size: 0.78571429rem;
-        opacity: 0;
-        transition: opacity 0.1s ease-in-out;
-        padding: 0 5px;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        text-align: right;
+        max-width: 22%;
+        .response-name {
+            max-width: 100%;
+            z-index: 1;
+            color: #767676;
+            font-size: 0.78571429rem;
+            padding: 0 5px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            text-align: right;
+            &.response-name-link {
+                text-align: right;
+                cursor: pointer;
+                color: #0b71be;
+                font-weight: 501;
+                padding-right: 0;
+            }
+        }
+        .response-instance-count {
+            color: #0b71be;
+            font-weight: 501;
+            font-size: 0.78571429rem;
+            padding-left: 0;
+            cursor: pointer;
+        }
+        .response-name-link-container {
+            display: flex;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .item.popup-trigger-wrapper {
+            max-width: 100%;
+            overflow: block;
+        }
+        .ui.inline.loader.response-name-loader {
+            margin-right:0.50em;
+        }
     }
+
 
     .ui.small.image {
         border-radius: 4px;
@@ -190,6 +221,18 @@
         width: 224px;
         height: 160px;
         border: 1px solid #acbac4;
+    }
+}
+
+.ui.popup.response-locations-popup {
+    padding-bottom: 1.2em;
+    .ui.list.response-locations-list {
+        margin-bottom: 0;
+    }
+    .story-name-link {
+        color: #228ee0;
+        text-decoration: underline;
+        cursor: pointer;
     }
 }
 

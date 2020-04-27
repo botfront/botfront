@@ -262,4 +262,31 @@ describe('Bot responses', function() {
         cy.dataCy('metadata-tab').click();
         cy.dataCy('toggle-force-open').find('[data-cy=toggled-true]').should('exist');
     });
+    it('should be able to open other stories that use a response a story with that response', () => {
+        cy.visit('/project/bf/dialogue/templates');
+        addTextResponse('utter_test', 'this is a test');
+
+        cy.visit('/project/bf/stories');
+        cy.createStoryGroup();
+        cy.createStoryInGroup();
+        cy.createStoryInGroup();
+        cy.dataCy('story-title').should('have.value', 'Groupo (2)');
+        cy.dataCy('toggle-md').click();
+        cy.dataCy('single-story-editor').find('.ace_text-input').focus().type('- utter_test{enter}', { force: true });
+        cy.dataCy('story-title').click({ force: true }); // force textarea blur and save
+        cy.wait(1500);
+        cy.browseToStory('Groupo (1)', 'Groupo');
+        cy.dataCy('story-title').should('have.value', 'Groupo (1)');
+        cy.dataCy('single-story-editor').find('.ace_text-input').focus().type('- utter_test{enter}', { force: true });
+        cy.dataCy('story-title').click({ force: true }); // force textarea blur and save
+        cy.dataCy('toggle-visual').click();
+        cy.dataCy('response-name').trigger('mouseover', { force: true });
+        cy.dataCy('response-name').click({ force: true });
+        cy.dataCy('response-name').should('have.class', 'response-name-link');
+        cy.dataCy('response-name').click();
+        cy.dataCy('story-name-link').contains('Groupo (1)').click();
+        cy.dataCy('story-title').should('have.length', 2);
+        cy.dataCy('story-title').first().should('have.value', 'Groupo (1)');
+        cy.dataCy('story-title').last().should('have.value', 'Groupo (2)');
+    });
 });
