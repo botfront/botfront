@@ -15,6 +15,8 @@ import { setStoriesCurrent } from '../../../store/actions/actions';
 
 import { checkMetadataSet } from '../../../../lib/botResponse.utils';
 
+export const ResponseContext = React.createContext();
+
 const BotResponsesContainer = (props) => {
     const {
         name,
@@ -183,40 +185,40 @@ const BotResponsesContainer = (props) => {
     );
 
     return (
-        <div
-            className='utterances-container exception-wrapper-target'
-        >
-            {!template && (
-                <Placeholder>
-                    <Placeholder.Line />
-                    <Placeholder.Line />
-                </Placeholder>
-            )}
-            {getSequence().map(renderResponse)}
-            <div className='side-by-side right narrow top-right'>
-                {enableEditPopup && (
-                    <IconButton
-                        icon='ellipsis vertical'
-                        onClick={() => setEditorOpen(true)}
-                        data-cy='edit-responses'
-                        className={template && checkMetadataSet(template.metadata) ? 'light-green' : 'grey'}
-                        color={null} // prevent default color overiding the color set by the class
-                    />
+        <ResponseContext.Provider value={{ name }}>
+            <div className='utterances-container exception-wrapper-target'>
+                {!template && (
+                    <Placeholder>
+                        <Placeholder.Line />
+                        <Placeholder.Line />
+                    </Placeholder>
                 )}
-                {editorOpen && (
-                    <BotResponseEditor
-                        open={editorOpen}
-                        name={name}
-                        closeModal={() => setEditorOpen(false)}
-                        renameable={false}
-                    />
-                )}
-                { deletable && onDeleteAllResponses && (
-                    <IconButton onClick={onDeleteAllResponses} icon='trash' />
-                )}
+                {getSequence().map(renderResponse)}
+                <div className='side-by-side right narrow top-right'>
+                    {enableEditPopup && (
+                        <IconButton
+                            icon='ellipsis vertical'
+                            onClick={() => setEditorOpen(true)}
+                            data-cy='edit-responses'
+                            className={template && checkMetadataSet(template.metadata) ? 'light-green' : 'grey'}
+                            color={null} // prevent default color overiding the color set by the class
+                        />
+                    )}
+                    {editorOpen && (
+                        <BotResponseEditor
+                            open={editorOpen}
+                            name={name}
+                            closeModal={() => setEditorOpen(false)}
+                            renameable={false}
+                        />
+                    )}
+                    { deletable && onDeleteAllResponses && (
+                        <IconButton onClick={onDeleteAllResponses} icon='trash' />
+                    )}
+                </div>
+                {renderDynamicResponseName()}
             </div>
-            {renderDynamicResponseName()}
-        </div>
+        </ResponseContext.Provider>
     );
 };
 
