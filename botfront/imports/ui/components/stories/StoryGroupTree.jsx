@@ -16,19 +16,22 @@ import { useEventListener } from '../utils/hooks';
 import { ProjectContext } from '../../layouts/context';
 import { can } from '../../../lib/scopes';
 
-const openFirstStory = (activeStories, tree, handleExpand, selectSingleItemAndResetFocus) => () => {
-    if (!activeStories.length) {
-        let storiesFound = []; let groupId; let i = 0;
-        while (!storiesFound.length) {
-            groupId = tree.items[tree.rootId].children[i];
-            storiesFound = tree.items[groupId].children;
-            i += 1;
-            if (i > tree.items[tree.rootId].children.length - 1) break;
-        }
-        if (storiesFound.length) {
-            if (!tree.items[groupId].isExpanded) handleExpand(groupId);
-            selectSingleItemAndResetFocus(tree.items[storiesFound[0]]);
-        }
+const openFirstStoryIfNoneSelected = (activeStories, tree, handleExpand, selectSingleItemAndResetFocus, onChangeActiveStories) => () => {
+    const idsActuallyInTree = activeStories.filter(id => id in tree.items);
+    if (idsActuallyInTree.length) {
+        if (idsActuallyInTree.length !== activeStories.length) onChangeActiveStories(idsActuallyInTree);
+        return;
+    }
+    let storiesFound = []; let groupId; let i = 0;
+    while (!storiesFound.length) {
+        groupId = tree.items[tree.rootId].children[i];
+        storiesFound = tree.items[groupId].children;
+        i += 1;
+        if (i > tree.items[tree.rootId].children.length - 1) break;
+    }
+    if (storiesFound.length) {
+        if (!tree.items[groupId].isExpanded) handleExpand(groupId);
+        selectSingleItemAndResetFocus(tree.items[storiesFound[0]]);
     }
 };
 
@@ -235,9 +238,9 @@ export default function StoryGroupTree(props) {
     useEventListener('keydown', handleKeyDownInMenu);
     useEventListener('mouseup', () => setMouseDown(false));
 
-    useEffect(openFirstStory(
-        activeStories, tree, handleExpand, selectSingleItemAndResetFocus,
-    ), [tree, activeStories]);
+    useEffect(openFirstStoryIfNoneSelected(
+        activeStories, tree, handleExpand, selectSingleItemAndResetFocus, onChangeActiveStories,
+    ), [projectId]);
 
     const renderItem = renderProps => (
         <StoryGroupTreeNode
