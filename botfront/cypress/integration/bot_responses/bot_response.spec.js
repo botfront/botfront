@@ -121,7 +121,7 @@ describe('Bot responses', function() {
         cy.dataCy('edit-response-0').click({ force: true });
 
         cy.dataCy('response-name-input').find('input').should('have.value', 'utter_test_A');
-        cy.dataCy('bot-response-input').should('have.text', 'text content A');
+        cy.dataCy('bot-response-input').should('contain.text', 'text content A');
 
         cy.dataCy('response-name-input').click().find('input').clear()
             .type('utter_test_D')
@@ -141,7 +141,7 @@ describe('Bot responses', function() {
         cy.dataCy('template-intent')
             .contains('utter_test_D')
             .parents('.rt-tr').find('[data-cy=response-text]')
-            .should('have.text', 'edited content');
+            .should('contain.text', 'edited content');
     });
 
     it('be able to edit a response with the response editor in the visual story editor', function() {

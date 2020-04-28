@@ -37,7 +37,7 @@ describe('Bot responses', function() {
         cy.dataCy('edit-response-0').click();
         cy.dataCy('icon-trash').first().click();
         cy.dataCy('icon-trash').first().click();
-        cy.setImage(imageUrlB);
+        cy.setImage(imageUrlB, 1); // the first one is outside modal :'(
         cy.escapeModal();
         cy.dataCy('response-text').find('img').first().should('have.attr', 'src')
             .and('equal', imageUrlB);
