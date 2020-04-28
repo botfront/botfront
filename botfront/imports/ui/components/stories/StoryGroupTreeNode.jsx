@@ -1,6 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Icon, Menu, Input } from 'semantic-ui-react';
+import {
+    Icon, Menu, Input, Popup,
+} from 'semantic-ui-react';
 
 const StoryGroupTreeNode = (props) => {
     const {
@@ -76,6 +78,10 @@ const StoryGroupTreeNode = (props) => {
             // otherwise beautiful-dnd throws
             'data-react-beautiful-dnd-drag-handle': provided.dragHandleProps['data-react-beautiful-dnd-drag-handle'],
         };
+    
+    const tooltipWrapper = (trigger, tooltip) => (
+        <Popup size='mini' inverted content={tooltip} trigger={trigger} />
+    );
 
     const renderItemActions = () => (
         <div className='item-actions'>
@@ -83,29 +89,35 @@ const StoryGroupTreeNode = (props) => {
                 <>
                     {!isLeaf && (
                     <>
-                        <Icon
-                            className={`cursor pointer ${
-                                isFocused ? 'focused' : ''
-                            }`}
-                            data-cy='focus-story-group'
-                            name='eye'
-                            {...(!somethingIsMutating ? {
-                                onClick: () => handleToggleFocus(item.id),
-                                onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
-                            } : {})}
-                        />
-                        <Icon
-                            className='cursor pointer'
-                            data-cy='add-story-in-story-group'
-                            name='plus'
-                            {...(!somethingIsMutating ? {
-                                onClick: () => handleAddStory(
-                                    item.id,
-                                    `${item.title} (${item.children.length + 1})`,
-                                ),
-                                onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
-                            } : {})}
-                        />
+                        {tooltipWrapper(
+                            <Icon
+                                className={`cursor pointer ${
+                                    isFocused ? 'focused' : ''
+                                }`}
+                                data-cy='focus-story-group'
+                                name='eye'
+                                {...(!somethingIsMutating ? {
+                                    onClick: () => handleToggleFocus(item.id),
+                                    onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
+                                } : {})}
+                            />,
+                            'Focus story group',
+                        )}
+                        {tooltipWrapper(
+                            <Icon
+                                className='cursor pointer'
+                                data-cy='add-story-in-story-group'
+                                name='plus'
+                                {...(!somethingIsMutating ? {
+                                    onClick: () => handleAddStory(
+                                        item.id,
+                                        `${item.title} (${item.children.length + 1})`,
+                                    ),
+                                    onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
+                                } : {})}
+                            />,
+                            'Add new story to group',
+                        )}
                     </>
                     )}
                     <Icon
