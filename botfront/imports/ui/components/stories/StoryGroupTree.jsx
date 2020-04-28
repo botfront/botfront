@@ -4,6 +4,7 @@ import React, {
     useCallback,
     useMemo,
     useContext,
+    useEffect,
 } from 'react';
 import PropTypes from 'prop-types';
 import { Menu, Confirm, Portal } from 'semantic-ui-react';
@@ -14,6 +15,22 @@ import StoryGroupTreeNode from './StoryGroupTreeNode';
 import { useEventListener } from '../utils/hooks';
 import { ProjectContext } from '../../layouts/context';
 import { can } from '../../../lib/scopes';
+
+const openFirstStory = (activeStories, tree, handleExpand, selectSingleItemAndResetFocus) => () => {
+    if (!activeStories.length) {
+        let storiesFound = []; let groupId; let i = 0;
+        while (!storiesFound.length) {
+            groupId = tree.items[tree.rootId].children[i];
+            storiesFound = tree.items[groupId].children;
+            i += 1;
+            if (i > tree.items[tree.rootId].children.length - 1) break;
+        }
+        if (storiesFound.length) {
+            if (!tree.items[groupId].isExpanded) handleExpand(groupId);
+            selectSingleItemAndResetFocus(tree.items[storiesFound[0]]);
+        }
+    }
+};
 
 export default function StoryGroupTree(props) {
     const {
@@ -217,6 +234,10 @@ export default function StoryGroupTree(props) {
 
     useEventListener('keydown', handleKeyDownInMenu);
     useEventListener('mouseup', () => setMouseDown(false));
+
+    useEffect(openFirstStory(
+        activeStories, tree, handleExpand, selectSingleItemAndResetFocus,
+    ), [tree, activeStories]);
 
     const renderItem = renderProps => (
         <StoryGroupTreeNode
