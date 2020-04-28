@@ -11,6 +11,7 @@ public/fonts/icons*
 public/fonts/brand*
 public/fonts/outline*
 /botfront/client/fonts/
+datepicker.less
 botfront/cypress/videos
 botfront/cypress/screenshots
 bf_project_id.txt
