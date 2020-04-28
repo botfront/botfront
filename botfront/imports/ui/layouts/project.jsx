@@ -23,7 +23,6 @@ import { setProjectId, setWorkingLanguage, setShowChat } from '../store/actions/
 import { Credentials } from '../../api/credentials';
 import { Instances } from '../../api/instances/instances.collection';
 import { Slots } from '../../api/slots/slots.collection';
-import 'semantic-ui-css/semantic.min.css';
 import store from '../store/store';
 import { ProjectContext } from './context';
 import { setsAreIdentical } from '../../lib/utils';

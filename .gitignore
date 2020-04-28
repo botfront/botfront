@@ -7,10 +7,10 @@ projects
 .idea/runConfigurations/Run.xml
 .idea/runConfigurations/Test.xml
 do_not_commit
-public/fonts/icons*
-public/fonts/brand*
-public/fonts/outline*
-/botfront/client/fonts/
+botfront/client/**/*
+!botfront/client/lib/**/*
+!botfront/client/main.*
+!botfront/client/custom.semantic.json
 botfront/cypress/videos
 botfront/cypress/screenshots
 bf_project_id.txt
