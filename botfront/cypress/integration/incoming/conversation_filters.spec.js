@@ -306,4 +306,23 @@ describe('filters', function () {
             cy.dataCy('conversation-item').should('have.text', 'pass_all');
         });
     });
+
+    it('should filter by a single user after clicking on a userId in the conversation viewer', () => {
+        cy.fixture('botfront_conversations_project.json', 'utf8').then((conversationData) => {
+            cy.addConversation('bf', 'uidaaa', conversationData.uid_aaa);
+            cy.addConversation('bf', 'uidbbb', conversationData.uid_bbb);
+            cy.updateConversation('bf', 'uidaaa', conversationData.uid_aaa); // the uid field is only added after the update
+            cy.updateConversation('bf', 'uidbbb', conversationData.uid_bbb);
+            cy.visit('/project/bf/incoming');
+            cy.dataCy('conversations')
+                .click();
+            cy.dataCy('conversation-item').contains('uidaaa').click();
+            cy.dataCy('utterance-author').contains('aaa').click();
+            cy.dataCy('filter-by-user-id-modal').find('.ui.primary.button').click();
+            cy.dataCy('conversation-item').should('have.length', 1);
+            cy.dataCy('conversation-item').should('have.text', 'uidaaa');
+            cy.dataCy('conversation-item').should('not.have.text', 'uidbbb');
+            cy.dataCy('id-filter').find('input').should('have.value', 'aaa');
+        });
+    });
 });

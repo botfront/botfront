@@ -21,6 +21,7 @@ import { Projects } from '../../../api/project/project.collection';
 import { applyTimezoneOffset } from '../../../lib/graphs';
 import apolloClient from '../../../startup/client/apollo';
 import { formatConversationsInMd } from './utils';
+import { ConversationBrowserContext } from './context';
 
 function ConversationsBrowser(props) {
     const {
@@ -89,6 +90,10 @@ function ConversationsBrowser(props) {
         goToConversation(page, name);
     }
 
+    const handleModifyFilters = (updatedFilters) => {
+        changeFilters({ ...activeFilters, ...updatedFilters });
+    };
+
     function pageChange(newPage) {
         const url = updateIncomingPath(
             { ...router.params, page: newPage || 1 },
@@ -133,61 +138,68 @@ function ConversationsBrowser(props) {
     }
 
     return (
-        <div>
-            <Grid>
-                <Grid.Row>
-                    <ConversationFilters
-                        activeFilters={activeFilters}
-                        changeFilters={changeFilters}
-                        actionsOptions={actionsOptions}
-                        setActionOptions={setActionOptions}
-                        intentsOptions={intentsOptions}
-                        onDownloadConversations={handleDownloadConversations}
-                    />
-                </Grid.Row>
-                <Loading loading={loading}>
-                    {trackers.length > 0 ? (
-                        <>
-                            <Grid.Column width={4}>
-                                {pages > 1 ? (
-                                    <Pagination
-                                        totalPages={pages}
-                                        onPageChange={(e, { activePage }) => pageChange(activePage)}
-                                        activePage={page}
-                                        boundaryRange={0}
-                                        siblingRange={0}
-                                        size='mini'
-                                        firstItem='1'
-                                        lastItem={`${pages}`}
-                                        data-cy='pagination'
-                                    />
-                                ) : (
-                                    <></>
-                                )}
+        <ConversationBrowserContext.Provider
+            value={{
+                modifyFilters: handleModifyFilters,
+            }}
+        >
+            <div>
+                <Grid>
+                    <Grid.Row>
+                        <ConversationFilters
+                            activeFilters={activeFilters}
+                            changeFilters={changeFilters}
+                            actionsOptions={actionsOptions}
+                            setActionOptions={setActionOptions}
+                            intentsOptions={intentsOptions}
+                            onDownloadConversations={handleDownloadConversations}
+                        />
+                    </Grid.Row>
+                    <Loading loading={loading}>
+                        {trackers.length > 0 ? (
+                            <>
+                                <Grid.Column width={4}>
+                                    {pages > 1 ? (
+                                        <Pagination
+                                            totalPages={pages}
+                                            onPageChange={(e, { activePage }) => pageChange(activePage)}
+                                            activePage={page}
+                                            boundaryRange={0}
+                                            siblingRange={0}
+                                            size='mini'
+                                            firstItem='1'
+                                            lastItem={`${pages}`}
+                                            data-cy='pagination'
+                                        />
+                                    ) : (
+                                        <></>
+                                    )}
 
-                                <Menu pointing vertical fluid>
-                                    {renderMenuItems()}
-                                </Menu>
-                            </Grid.Column>
-                            <Grid.Column width={12}>
-                                <ConversationViewer
-                                    conversationId={activeConversationId}
-                                    onDelete={deleteConversation}
-                                    removeReadMark={optimisticRemoveMarker}
-                                    optimisticlyRemoved={optimisticRemoveReadMarker}
-                                />
-                            </Grid.Column>
-                        </>
-                    ) : (
-                        <Grid.Column width={16}>
-                            <Message data-cy='no-conv' info>
+                                    <Menu pointing vertical fluid>
+                                        {renderMenuItems()}
+                                    </Menu>
+                                </Grid.Column>
+                                <Grid.Column width={12}>
+                                    <ConversationViewer
+                                        conversationId={activeConversationId}
+                                        onDelete={deleteConversation}
+                                        removeReadMark={optimisticRemoveMarker}
+                                        optimisticlyRemoved={optimisticRemoveReadMarker}
+
+                                    />
+                                </Grid.Column>
+                            </>
+                        ) : (
+                            <Grid.Column width={16}>
+                                <Message data-cy='no-conv' info>
                                 No conversations to load.
-                            </Message>
-                        </Grid.Column>
-                    )}
-                </Loading>
-            </Grid>
-        </div>
+                                </Message>
+                            </Grid.Column>
+                        )}
+                    </Loading>
+                </Grid>
+            </div>
+        </ConversationBrowserContext.Provider>
     );
 }
 
