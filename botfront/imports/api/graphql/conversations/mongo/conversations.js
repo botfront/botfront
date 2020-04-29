@@ -116,6 +116,8 @@ export const getConversations = async ({
     env = 'development',
     lengthFilter = null,
     xThanLength = null,
+    durationFilter = null,
+    xThanDuration = null,
     confidenceFilter = null,
     xThanConfidence = null,
     actionFilters = null,
@@ -171,6 +173,39 @@ export const getConversations = async ({
             $match: { convLen: true },
         }];
     }
+    let durationFilterSteps = [];
+    if (xThanDuration && durationFilter > 0) {
+        const durationCompareSymbol = getComparaisonSymbol(xThanDuration);
+        durationFilterSteps = [
+            {
+                $addFields: {
+                    userEvents: {
+                        $filter: {
+                            input: '$tracker.events',
+                            as: 'eventElem',
+                            cond: { $eq: ['$$eventElem.event', 'user'] },
+                        },
+                    },
+                },
+            },
+            {
+                $addFields: {
+                    first: { $arrayElemAt: ['$userEvents', 0] },
+                    end: '$tracker.latest_event_time',
+                },
+            },
+            {
+                $addFields: {
+                    difference: { $subtract: ['$end', '$first.timestamp'] },
+                },
+            },
+            {
+                $match: {
+                    difference: { [durationCompareSymbol.mongo]: durationFilter },
+                },
+            },
+        ];
+    }
 
     const pages = pageSize > -1 ? pageSize : 1;
     const boundedPageNb = Math.min(pages, page);
@@ -187,6 +222,7 @@ export const getConversations = async ({
             $match: { ...filtersObject },
         },
         ...lengthFilterStages,
+        ...durationFilterSteps,
         {
             $sort: sortObject,
         },

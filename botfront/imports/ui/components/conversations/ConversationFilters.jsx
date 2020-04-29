@@ -93,6 +93,7 @@ const ConversationFilters = ({
                 active={activeAccordion}
                 onClick={() => handleAccordionClick()}
                 data-cy='toggle-filters'
+                className='filter-accordian-title'
             >
                 <Icon name='dropdown' />
                 <span className='toggle-filters'>
@@ -130,6 +131,7 @@ const ConversationFilters = ({
                             </Dropdown.Menu>
                         </Dropdown>
                     </Button.Group>
+                    {/* conversation length filter */}
                     <div
                         className='conversation-filter conv-length'
                         data-cy='length-filter'
@@ -166,6 +168,80 @@ const ConversationFilters = ({
                             </Segment>
                         </Segment.Group>
                     </div>
+                    {/* conversation duration filter */}
+                    <div
+                        className='conversation-filter conv-duration'
+                        data-cy='duration-filter'
+                    >
+                        <Segment.Group horizontal>
+                            <Segment className='x-than-filter'>
+                                <Label> Duration</Label>
+                            </Segment>
+                            <Dropdown
+                                className='filter-dropdown'
+                                options={filterLengthOptions.filter(({ value }) => value !== 'equals')}
+                                selection
+                                fluid
+                                value={newFilters.durationFilter.xThan}
+                                onChange={(e, { value }) => setFilter('durationFilter', {
+                                    ...newFilters.durationFilter,
+                                    xThan: value,
+                                })
+                                }
+                            />
+                            <Segment className='duration-number-filter'>
+                                <Input
+                                    value={
+                                        newFilters.durationFilter.compare > 0
+                                            ? newFilters.durationFilter.compare
+                                            : ''
+                                    }
+                                    onChange={(e, { value }) => setFilter('durationFilter', {
+                                        ...newFilters.durationFilter,
+                                        compare: +value,
+                                    })
+                                    }
+                                />
+                            </Segment>
+                            <Segment className='static-symbol seconds'>
+                                <p className='static-symbol-text'>(seconds)</p>
+                            </Segment>
+                        </Segment.Group>
+                    </div>
+                    {/* date picker */}
+                    <div className='conversation-filter' data-cy='date-filter'>
+                        <Segment className='date-filter' data-cy='date-picker-container'>
+                            <DatePicker
+                                position='bottom left'
+                                startDate={newFilters.startDate}
+                                endDate={newFilters.endDate}
+                                onConfirm={setNewDates}
+                            />
+                        </Segment>
+                    </div>
+                    {/* user id filter */}
+                    <div className='conversation-filter id-filter' data-cy='id-filter'>
+                        <Segment.Group
+                            horizontal
+                            data-cy='id-filter'
+                            className='conversation-filter'
+                        >
+                            <Segment className='uid-label'>
+                                <Label>User ID</Label>
+                            </Segment>
+                            <Segment className='id-filter'>
+                                <Input
+                                    value={newFilters.userId || ''}
+                                    onChange={(_e, { value }) => setFilter(
+                                        'userId',
+                                        value.trim(),
+                                    )}
+                                    placeholder='unique identifier'
+                                />
+                            </Segment>
+                        </Segment.Group>
+                    </div>
+                    {/* conversation confidence filter */}
                     <div className='conversation-filter' data-cy='confidence-filter'>
                         <Segment.Group
                             horizontal
@@ -192,43 +268,21 @@ const ConversationFilters = ({
                                 />
                             </Segment>
                             <Segment className='static-symbol'>
-                                <p>%</p>
+                                <p className='static-symbol-text'>%</p>
                             </Segment>
                         </Segment.Group>
                     </div>
-                    <div className='conversation-filter' data-cy='date-filter'>
-                        <Segment className='date-filter' data-cy='date-picker-container'>
-                            <DatePicker
-                                position='bottom left'
-                                startDate={newFilters.startDate}
-                                endDate={newFilters.endDate}
-                                onConfirm={setNewDates}
-                            />
-                        </Segment>
+                    {/* intents filter */}
+                    <div className='conversation-filter intents' data-cy='intent-filter'>
+                        <AndOrMultiSelect
+                            values={newFilters.intentFilters}
+                            options={intentsOptions}
+                            onChange={val => setFilter('intentFilters', val)}
+                            operatorChange={val => setFilter('operatorIntentsFilters', val)}
+                            placeholder='Intent name'
+                        />
                     </div>
-                    <div className='conversation-filter id-filter' data-cy='id-filter'>
-                        <Segment.Group
-                            horizontal
-                            data-cy='id-filter'
-                            className='conversation-filter'
-                        >
-                            <Segment className='uid-label'>
-                                <Label>User ID</Label>
-                            </Segment>
-                            <Segment className='id-filter'>
-                                <Input
-                                    value={newFilters.userId || ''}
-                                    onChange={(_e, { value }) => setFilter(
-                                        'userId',
-                                        value.trim(),
-                                    )}
-                                    placeholder='unique identifier'
-                                />
-                            </Segment>
-                        </Segment.Group>
-                    </div>
-                </div>
-                <div className='conversation-filter-container'>
+                    {/* actions filter */}
                     <div className='conversation-filter actions' data-cy='action-filter'>
                         <AndOrMultiSelect
                             values={newFilters.actionFilters}
@@ -238,15 +292,6 @@ const ConversationFilters = ({
                             operatorChange={val => setFilter('operatorActionsFilters', val)}
                             placeholder='Action name'
                             allowAdditions
-                        />
-                    </div>
-                    <div className='conversation-filter intents' data-cy='intent-filter'>
-                        <AndOrMultiSelect
-                            values={newFilters.intentFilters}
-                            options={intentsOptions}
-                            onChange={val => setFilter('intentFilters', val)}
-                            operatorChange={val => setFilter('operatorIntentsFilters', val)}
-                            placeholder='Intent name'
                         />
                     </div>
                 </div>
