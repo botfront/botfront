@@ -51,7 +51,7 @@ export default {
             if (updatedRoleData.deletable !== false) {
                 updatedRoleData.deletable = true;
             } else {
-                return;
+                return false;
             }
 
             let correspondingMeteorRole = getCorrespondingMeteorRole(updatedRoleData);
@@ -116,7 +116,7 @@ export default {
                 resType: 'role',
             });
             Roles.deleteRole(oldRole);
-            deleteRolesData({ name: oldRole });
+            return !!deleteRolesData({ name: oldRole });
         },
     },
 };

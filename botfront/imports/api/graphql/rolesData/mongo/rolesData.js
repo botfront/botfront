@@ -1,9 +1,9 @@
 import { Roles } from 'meteor/alanning:roles';
 import RoleData from '../rolesData.model';
 
-export const upsertRolesData = async roleData => RoleData.findOneAndUpdate(roleData._id ? { _id: roleData._id } : { name: roleData.name }, roleData, { upsert: true });
+export const upsertRolesData = async roleData => RoleData.findOneAndUpdate(roleData._id ? { _id: roleData._id } : { name: roleData.name }, roleData, { upsert: true, new: true, lean: true });
 
-export const deleteRolesData = async roleData => RoleData.findOneAndDelete(roleData);
+export const deleteRolesData = async roleData => RoleData.findOneAndDelete(roleData).lean();
 
 export const getRolesData = async (searchFields = {}) => {
     const { name, _id } = searchFields;
