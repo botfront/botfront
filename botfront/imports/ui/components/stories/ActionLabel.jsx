@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ActionPopupContent from './common/ActionPopupContent';
 
-export default function ActionLable({ value, onChange }) {
+export default function ActionLabel({ value, onChange }) {
     return (
         <ActionPopupContent
             trigger={(
@@ -15,13 +15,14 @@ export default function ActionLable({ value, onChange }) {
                     </div>
                 </div>
             )}
+            initialValue={value}
             onSelect={action => onChange(action)}
         />
     );
 }
 
 
-ActionLable.propTypes = {
+ActionLabel.propTypes = {
     value: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
 };
