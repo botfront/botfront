@@ -79,6 +79,14 @@ const validateCanSetup = () => (nextState, replace, callback) => {
         callback();
     });
 };
+const redirectToPath = pathname => (nextState, replace) => {
+    Tracker.autorun(() => {
+        replace({
+            pathname,
+            state: { nextPathname: nextState.location.pathname },
+        });
+    });
+};
 
 Meteor.startup(() => {
     render(
@@ -135,9 +143,10 @@ Meteor.startup(() => {
                                 <Route path='/project/:project_id/dialogue/template/:template_id' component={TemplateContainer} name='Template' onEnter={authenticateProject} />
                                 <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticateProject} />
                                 <Route path='/project/:project_id/settings/global' component={SettingsContainer} name='More Settings' onEnter={authenticateAdmin} />
-                                <Route path='*' component={NotFound} />
                             </Route>
-                            <Route path='*' exact component={NotFound} />
+                            <Route path='/404' component={() => <NotFound code={404} />} />
+                            <Route path='/403' component={() => <NotFound code={403} />} />
+                            <Route path='*' exact onEnter={redirectToPath('/404')} />
                         </Router>
                     </Provider>
                 </ApolloHooksProvider>
