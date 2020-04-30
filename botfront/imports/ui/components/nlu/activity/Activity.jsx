@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import moment from 'moment';
+import { debounce } from 'lodash';
 import { Message } from 'semantic-ui-react';
 import IntentLabel from '../common/IntentLabel';
 import UserUtteranceViewer from '../common/UserUtteranceViewer';
@@ -93,7 +94,7 @@ function Activity(props) {
         } catch (e) { reset(); }
     };
 
-    const handleChangeInVisibleItems = (visibleData) => {
+    const doAttemptReinterpretation = (visibleData) => {
         if (isTraining(project)) return;
         if (reinterpreting.length > 49) return;
         const reinterpretable = visibleData
@@ -101,6 +102,15 @@ function Activity(props) {
             .filter(u => !isUtteranceReinterpreting(u));
         if (reinterpretable.length) handleReinterpret(reinterpretable);
     };
+
+    const handleScroll = debounce((items) => {
+        const { visibleStartIndex: start, visibleStopIndex: end } = items;
+        const visibleData = Array(end - start + 1).fill()
+            .map((_, i) => start + i)
+            .map(i => data[i])
+            .filter(d => d);
+        doAttemptReinterpretation(visibleData);
+    }, 500);
 
     const renderConfidence = (row) => {
         const { datum } = row;
@@ -205,8 +215,10 @@ function Activity(props) {
                         data={data}
                         hasNextPage={hasNextPage}
                         loadMore={loading ? () => {} : loadMore}
-                        onChangeInVisibleItems={handleChangeInVisibleItems}
+                        onScroll={handleScroll}
+                        rowClassName='glow-box hoverable'
                         className='new-utterances-table'
+                        gutterSize={15}
                     />
                 )
                 : <Message success icon='check' header='No activity' content='No activity was found for the given criteria.' />

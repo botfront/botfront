@@ -3,150 +3,115 @@ import PropTypes from 'prop-types';
 import { DynamicSizeList as List } from '@john-osullivan/react-window-dynamic-fork';
 import InfiniteLoader from 'react-window-infinite-loader';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { debounce } from 'lodash';
+import Row from './DataTableRow';
 
 export default function DataTable(props) {
     const {
         data,
         height,
         width,
-        fixedRows,
+        stickyRows,
         onClickRow,
         hasNextPage,
         loadMore,
         columns,
-        onChangeInVisibleItems,
-        gutterSize,
+        onScroll,
         className,
+        rowClassName,
+        gutterSize,
     } = props;
     const dataCount = hasNextPage ? data.length + 1 : data.length;
     const isDataLoaded = index => !hasNextPage || index < data.length;
-    const clickable = onClickRow ? 'clickable' : '';
-    const rowStyle = gutterSize > 0 ? 'glow-box hoverable' : '';
-
-    const Row = React.forwardRef((row, ref) => {
-        const { index, style } = row;
-        const editedStyle = {
-            ...style,
-            top: style.top + gutterSize,
-            paddingTop: gutterSize,
-        };
-        if (!isDataLoaded(index)) {
-            return (
-                <div ref={ref} style={editedStyle}>
-                    <div className={`row ${rowStyle}`}>
-                        Loading...
-                    </div>
-                </div>
-            );
-        }
-        const rowInfo = { index, datum: data[index] };
-        return (
-            <div
-                ref={ref}
-                style={editedStyle}
-                data-index={index}
-                onClick={() => { if (onClickRow) onClickRow(rowInfo); }}
-                role='button'
-                tabIndex={0}
-                onKeyDown={null}
-                className='row-wrapper'
-            >
-                <div className={`row ${rowStyle} ${clickable}`}>
-                    {columns.map(c => (
-                        <div key={`${c.key}-${index}`} className={`item ${c.class || ''}`} style={c.style}>
-                            {c.render
-                                ? c.render(rowInfo)
-                                : data[index][c.key]
-                            }
-                        </div>
-                    ))}
-                </div>
-            </div>
-        );
-    });
 
     const tableRef = useRef(null);
-    const [correction, setCorrection] = useState();
+    const headerRef = useRef(null);
+    const stickyRowsRef = useRef(null);
+    const [outerCorrection, setOuterCorrection] = useState();
     const tableOffsetTop = tableRef && tableRef.current
         ? tableRef.current.offsetTop
         : 0;
 
     const showHeader = columns.some(c => c.header);
+    const showStickyRows = (stickyRows || []).length > 0;
 
-    const handleScroll = debounce((start, end) => {
-        if (!onChangeInVisibleItems) return;
-        const visibleData = Array(end - start + 1).fill()
-            .map((_, i) => start + i)
-            .map(i => data[i])
-            .filter(d => d);
-        onChangeInVisibleItems(visibleData);
-    }, 500);
+    let innerCorrection = 0; let outerCorrectionToSet = tableOffsetTop;
+    if (showHeader && headerRef.current) outerCorrectionToSet += headerRef.current.clientHeight;
+    if (showStickyRows && stickyRowsRef.current) innerCorrection += stickyRowsRef.current.clientHeight;
 
-    useEffect(() => setCorrection(showHeader ? tableOffsetTop + 40 : tableOffsetTop), [tableOffsetTop]);
+    useEffect(() => setOuterCorrection(outerCorrectionToSet), [tableOffsetTop]);
+
+    const renderHeader = () => (
+        <div className='header row' ref={headerRef}>
+            {columns.map(c => (
+                <div key={`${c.key}-header`} className='item' style={c.style}>
+                    {c.header}
+                </div>
+            ))}
+        </div>
+    );
+
+    const renderStickyRows = () => (
+        <div ref={stickyRowsRef}>
+            {stickyRows.map((r, i) => (
+                <Row
+                    sticky
+                    index={-1 - i}
+                    onClickRow={onClickRow}
+                    datum={r}
+                    columns={columns}
+                />
+            ))}
+        </div>
+    );
 
     return (
         <div
             className={`virtual-table ${className}`}
             ref={tableRef}
             style={{
-                height: height === 'auto' ? `calc(100vh - ${correction}px)` : `${height}px`,
+                height: height === 'auto' ? `calc(100vh - ${outerCorrection}px)` : `${height}px`,
                 ...(width === 'auto' ? {} : { width }),
             }}
         >
-            {showHeader && (
-                <div className='header row'>
-                    {columns.map(c => (
-                        <div key={`${c.key}-header`} className='item' style={c.style}>
-                            {c.header}
-                        </div>
-                    ))}
-                </div>
-            )}
-            {fixedRows && fixedRows.length && fixedRows.map(r => (
-                <div
-                    style={{ paddingTop: gutterSize }}
-                    onClick={() => onClickRow({ datum: r })}
-                    role='button'
-                    tabIndex={0}
-                    onKeyDown={null}
-                >
-                    <div className={`row ${rowStyle} ${clickable}`}>
-                        {columns.map((c, i) => (
-                            <div key={`${c.key}-fixed-${i}`} className={`item ${c.class || ''}`} style={c.style}>
-                                {c.render
-                                    ? c.render({ datum: r })
-                                    : r[c.key]
-                                }
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            ))}
-            <AutoSizer>
-                {({ height: h, width: w }) => (
-                    <InfiniteLoader
-                        isItemLoaded={isDataLoaded}
-                        itemCount={dataCount}
-                        loadMoreItems={loadMore}
-                    >
-                        {({ onItemsRendered, ref }) => (
-                            <List
-                                height={h}
-                                itemCount={dataCount}
-                                onItemsRendered={(items) => {
-                                    handleScroll(items.visibleStartIndex, items.visibleStopIndex);
-                                    onItemsRendered(items);
-                                }}
-                                ref={ref}
-                                width={w}
-                            >
-                                {Row}
-                            </List>
-                        )}
-                    </InfiniteLoader>
-                )}
-            </AutoSizer>
+            {showHeader && renderHeader()}
+            {showStickyRows && renderStickyRows()}
+            <div style={{ height: `calc(100% - ${innerCorrection}px)` }}>
+                <AutoSizer>
+                    {({ height: h, width: w }) => (
+                        <InfiniteLoader
+                            isItemLoaded={isDataLoaded}
+                            itemCount={dataCount}
+                            loadMoreItems={loadMore}
+                        >
+                            {({ onItemsRendered, ref }) => (
+                                <List
+                                    height={h}
+                                    itemCount={dataCount}
+                                    onItemsRendered={(items) => {
+                                        if (onScroll) onScroll(items);
+                                        onItemsRendered(items);
+                                    }}
+                                    ref={ref}
+                                    width={w}
+                                >
+                                    {React.forwardRef(({ index, style, ...row }, ref_) => (
+                                        <Row
+                                            {...row}
+                                            ref={ref_}
+                                            style={{ ...style, paddingTop: gutterSize }}
+                                            rowClassName={rowClassName}
+                                            onClickRow={onClickRow}
+                                            isDataLoaded={isDataLoaded(index)}
+                                            datum={data[index]}
+                                            columns={columns}
+                                        />
+                                    ))}
+                                </List>
+                            )}
+                        </InfiniteLoader>
+                    )}
+                </AutoSizer>
+            </div>
         </div>
     );
 }
@@ -154,25 +119,27 @@ export default function DataTable(props) {
 DataTable.propTypes = {
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['auto'])]),
     width: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['auto'])]),
-    fixedRows: PropTypes.array,
+    stickyRows: PropTypes.array,
     onClickRow: PropTypes.func,
     hasNextPage: PropTypes.bool,
     data: PropTypes.array.isRequired,
     columns: PropTypes.array.isRequired,
     loadMore: PropTypes.func,
-    onChangeInVisibleItems: PropTypes.func,
-    gutterSize: PropTypes.number,
+    onScroll: PropTypes.func,
+    rowClassName: PropTypes.string,
     className: PropTypes.string,
+    gutterSize: PropTypes.number,
 };
 
 DataTable.defaultProps = {
     height: 'auto',
     width: 'auto',
     onClickRow: null,
-    fixedRows: null,
+    stickyRows: null,
     hasNextPage: false,
     loadMore: () => {},
-    onChangeInVisibleItems: null,
-    gutterSize: 15,
+    onScroll: null,
+    rowClassName: '',
     className: '',
+    gutterSize: 0,
 };

@@ -117,7 +117,6 @@ const Statistics = (props) => {
                         <DataTable
                             columns={columns}
                             data={dataToDisplay}
-                            gutterSize={0}
                         />
                     </div>
                 )

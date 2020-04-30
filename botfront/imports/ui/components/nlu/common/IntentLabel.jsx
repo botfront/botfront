@@ -96,8 +96,8 @@ const Intent = React.forwardRef((props, ref) => {
                     width={300}
                     columns={columns}
                     data={dataToDisplay}
-                    gutterSize={0}
                     onClickRow={({ datum: { intent } }) => handleChange(intent)}
+                    rowClassName='clickable'
                 />
             ) : (
                 <Button
