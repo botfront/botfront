@@ -197,7 +197,7 @@ const ConversationsBrowserContainer = (props) => {
 
         // If for some reason the conversation is not in the current page, discard it.
         if (!conversations.some(c => c._id === activeConversationId)) activeConversationId = null;
-        if (!activeConversationId) {
+        if (!activeConversationId && conversations.length) {
             const url = updateIncomingPath({
                 ...router.params, tab: 'conversations', page: page || 1, selected_id: conversations[0]._id,
             }); // tab will always be conversations if set on the converesations tab
