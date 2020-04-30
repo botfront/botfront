@@ -36,6 +36,9 @@ type ConversationContainer {
     status: String
     _id: String
     updatedAt: String
+    createdAt: String
+    env: String
+    language: String
 }
 
 type Entity {

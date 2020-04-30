@@ -52,9 +52,10 @@ const nativizeProject = function (projectId, projectName, backup) {
         if (!Object.keys(allCollections).includes(col)) delete nativizedBackup[col];
     });
 
-    let nlu_models = project.nlu_models;
+    let nlu_models = undefined;
 
     if ('models' in nativizedBackup) {
+        nlu_models = project.nlu_models;
         const modelMapping = {};
         nativizedBackup.models.forEach((m) =>
             Object.assign(modelMapping, { [m._id]: uuidv4() }),
@@ -149,6 +150,7 @@ const nativizeProject = function (projectId, projectName, backup) {
 
 const overwriteCollection = async function (projectId, modelIds, collection, backup) {
     if (!(collection in backup)) return;
+    if (collection in collectionsWithModelId && !('models' in backup)) return;
     const model =
         collection in collectionsWithModelId
             ? collectionsWithModelId[collection]
@@ -170,7 +172,12 @@ const overwriteCollection = async function (projectId, modelIds, collection, bac
         await createStoriesIndex(projectId, backup[collection])
         return
     }
-    await model.insertMany(backup[collection]);
+    try { // ignore duplicate index violations
+        await model.insertMany(backup[collection], { ordered: false });
+    } catch (e) {
+        if (e.err.code === 11000) return;
+        throw new Error(e);
+    }
 };
 
 const zipFile = async (response) => {
@@ -348,9 +355,10 @@ exports.importProject = async function (req, res) {
             await overwriteCollection(projectId, project.nlu_models, col, backup);
         }
         const overwrittenProject = { ...project, ...backup.project };
-        await NLUModels.deleteMany({ _id: { $in: project.nlu_models } }).exec();
+        if ('models' in backup) await NLUModels.deleteMany({ _id: { $in: project.nlu_models } }).exec();
+        else overwrittenProject.nlu_models = project.nlu_models;
         await Projects.deleteMany({ _id: projectId }).exec();
-        await NLUModels.insertMany(backup.models);
+        if ('models' in backup) await NLUModels.insertMany(backup.models);
         await Projects.insertMany([overwrittenProject]);
         return res.status(200).send('Success');
     } catch (e) {
