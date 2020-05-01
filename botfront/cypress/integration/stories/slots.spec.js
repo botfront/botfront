@@ -69,6 +69,7 @@ describe('slots', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('toggle-md').click({ force: true });
         cy.browseToStory('Greetings', 'Default stories');
+        cy.get('.ace_content').click({ force: true });
         cy.dataCy('story-editor')
             .find('textarea')
             .focus()
