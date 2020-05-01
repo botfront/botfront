@@ -353,7 +353,7 @@ const ConversationsBrowserContainer = (props) => {
                 let blob;
                 if (format === 'json') {
                     blob = new Blob(
-                        [JSON.stringify({ conversations: clearTypenameField(conversationsPage.conversations), project: { _id: projectId } })]
+                        [JSON.stringify({ conversations: clearTypenameField(conversationsPage.conversations), project: { _id: projectId } })],
                         { type: 'application/json;charset=utf-8' },
                     );
                 }
