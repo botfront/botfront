@@ -30,10 +30,15 @@ export const createInstance = async (project) => {
         const { getDefaultInstance } = await import(`./instances.${orchestration}`);
         const instance = await getDefaultInstance(project);
         if (Array.isArray(instance)) {
-            instance.forEach(inst => Instances.insert(inst));
+            instance.forEach((inst) => {
+                // eslint-disable-next-line no-param-reassign
+                if (!inst.host) inst.host = 'http://replaceThatUrl';
+                Instances.insert(inst);
+            });
             return;
         }
         if (instance) {
+            if (!instance.host) instance.host = 'http://replaceThatUrl';
             // eslint-disable-next-line consistent-return
             return await Instances.insert(instance);
         }
