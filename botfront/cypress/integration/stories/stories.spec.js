@@ -18,6 +18,7 @@ describe('stories', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('toggle-md').click({ force: true });
         cy.browseToStory('Greetings');
+        cy.get('.ace_content').click({ force: true });
         cy.dataCy('story-editor')
             .get('textarea').focus()
             .type('{selectAll}{backSpace}{selectAll}{backSpace}* intent    ', { force: true });

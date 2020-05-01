@@ -12,6 +12,7 @@ Cypress.Commands.add('createResponseFromResponseMenu', (type = 'text', name = nu
 
 Cypress.Commands.add('setImage', (url, n = 0) => {
     cy.dataCy('image-container').then(els => expect(els).to.have.length.of.at.least(n + 1));
+    cy.wait(100);
     cy.dataCy('image-container').eq(n)
         .findCy('set-image')
         .click();

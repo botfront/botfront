@@ -7,7 +7,6 @@ import { safeLoad } from 'js-yaml';
 
 import BotResponsesContainer from '../../stories/common/BotResponsesContainer';
 import CustomResponseEditor from '../common/CustomResponseEditor';
-import CarouselEditor from '../../stories/common/CarouselEditor';
 import IconButton from '../../common/IconButton';
 
 import { addContentType, defaultTemplate } from '../../../../lib/botResponse.utils';

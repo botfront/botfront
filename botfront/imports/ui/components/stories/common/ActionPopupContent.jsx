@@ -3,9 +3,11 @@ import PropTypes from 'prop-types';
 import { Popup, Input } from 'semantic-ui-react';
 
 const ActionPopupContent = (props) => {
-    const { onSelect, trigger, trackOpenMenu } = props;
+    const {
+        onSelect, trigger, initialValue, trackOpenMenu,
+    } = props;
     const [isOpen, setIsOpen] = useState();
-    const [actionName, setActionName] = useState('action_');
+    const [actionName, setActionName] = useState(initialValue || 'action_');
 
     return (
         <Popup
@@ -42,11 +44,13 @@ const ActionPopupContent = (props) => {
 ActionPopupContent.propTypes = {
     onSelect: PropTypes.func,
     trigger: PropTypes.element.isRequired,
+    initialValue: PropTypes.string,
     trackOpenMenu: PropTypes.func,
 };
 
 ActionPopupContent.defaultProps = {
     onSelect: () => {},
+    initialValue: '',
     trackOpenMenu: () => {},
 };
 

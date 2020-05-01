@@ -154,10 +154,10 @@ const ConversationViewerContainer = (props) => {
     });
 
     const newTracker = !loading && !error && data ? data.conversation : null;
-    if (
-        (newTracker && (tracker.current ? tracker.current.tracker.events : []).length !== newTracker.tracker.events.length)
-        || (newTracker && tracker.current && tracker.current._id !== newTracker._id)
-    ) {
+    if (newTracker && (
+        (tracker.current ? tracker.current.tracker.events : []).length !== newTracker.tracker.events.length
+        || (tracker.current || {})._id !== newTracker._id
+    )) {
         tracker.current = newTracker;
     }
     

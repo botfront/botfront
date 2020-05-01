@@ -49,6 +49,9 @@ query retreiveConversations(
             projectId
             userId
             tracker @include(if: $fetchTrackers)
+            createdAt @include(if: $fetchTrackers)
+            env @include(if: $fetchTrackers)
+            language @include(if: $fetchTrackers)
         }
         pages
     }

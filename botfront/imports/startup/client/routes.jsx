@@ -105,6 +105,14 @@ const validateCanSetup = () => (nextState, replace, callback) => {
         callback();
     });
 };
+const redirectToPath = pathname => (nextState, replace) => {
+    Tracker.autorun(() => {
+        replace({
+            pathname,
+            state: { nextPathname: nextState.location.pathname },
+        });
+    });
+};
 
 Meteor.startup(() => {
     render(
@@ -175,7 +183,9 @@ Meteor.startup(() => {
                                 <Route path='/admin/role/' component={RoleContainer} name='Create Role' onEnter={authenticate('roles:w', { scope: 'anyScope' })} />
                                 <Route path='/admin/user/add' component={UserContainer} name='Add User' onEnter={authenticate('users:w', { scope: 'anyScope' })} />
                             </Route>
-                            <Route path='*' exact component={NotFound} />
+                            <Route path='/404' component={() => <NotFound code={404} />} />
+                            <Route path='/403' component={() => <NotFound code={403} />} />
+                            <Route path='*' exact onEnter={redirectToPath('/404')} />
                         </Router>
                     </Provider>
                 </ApolloHooksProvider>

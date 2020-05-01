@@ -11,7 +11,7 @@ import { ResponseContext } from './BotResponsesContainer';
 
 export default function ImageThumbnail(props) {
     const {
-        value, onChange, otherActions, className,
+        value, editable, onChange, otherActions, className,
     } = props;
     const [newValue, setNewValue] = useState(value);
     const [modalOpen, setModalOpen] = useState(false);
@@ -84,7 +84,7 @@ export default function ImageThumbnail(props) {
             )}
             <b>Insert image from URL</b>
             <br />
-            <div className='side-by-side'>
+            <div className='side-by-side middle'>
                 <Input
                     ref={imageUrlRef}
                     autoFocus
@@ -106,16 +106,18 @@ export default function ImageThumbnail(props) {
             {!isUploading
                 ? (
                     <>
-                        <div className='overlay-menu'>
+                        <div className={`overlay-menu ${!editable ? 'uneditable' : ''}`}>
                             <div>
-                                <Button.Group vertical>
-                                    {actions.map(([title, func, dataCy, buttonClass]) => (
-                                        <Button basic key={title} onClick={func} content={title} data-cy={dataCy} className={buttonClass} />
-                                    ))}
-                                </Button.Group>
+                                {editable && (
+                                    <Button.Group vertical>
+                                        {actions.map(([title, func, dataCy, buttonClass]) => (
+                                            <Button basic key={title} onClick={func} content={title} data-cy={dataCy} className={buttonClass} />
+                                        ))}
+                                    </Button.Group>
+                                )}
                             </div>
                         </div>
-                        <Image src={value} size='small' alt=' ' />
+                        <Image src={value || ''} size='small' alt=' ' />
                     </>
                 )
                 : (
@@ -141,12 +143,14 @@ export default function ImageThumbnail(props) {
 ImageThumbnail.propTypes = {
     onChange: PropTypes.func.isRequired,
     value: PropTypes.string,
+    editable: PropTypes.bool,
     otherActions: PropTypes.array,
     className: PropTypes.string,
 };
 
 ImageThumbnail.defaultProps = {
     otherActions: [],
+    editable: true,
     value: '',
     className: '',
 };

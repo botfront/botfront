@@ -100,7 +100,7 @@ Meteor.methods({
         checkNoEmojisInExamples(JSON.stringify(items));
 
         try {
-            const normalizedItems = uniqBy(items.map(ExampleUtils.prepareExample), 'text');
+            const normalizedItems = uniqBy(items.map(ExampleUtils.prepareExample).filter(({ intent }) => intent), 'text');
             const canonicalizedItems = await canonicalizeExamples(normalizedItems, modelId);
             const model = NLUModels.findOne({ _id: modelId }, { fields: { 'training_data.common_examples': 1 } });
             const examples = model && model.training_data && model.training_data.common_examples.map(e => ExampleUtils.stripBare(e));
@@ -128,6 +128,7 @@ Meteor.methods({
 
         const cleanItem = ExampleUtils.stripBare(item);
         try {
+            if (!cleanItem.intent) throw new Error('Intent must be defined.');
             const exampleBefore = NLUModels.findOne({ _id: modelId, 'training_data.common_examples._id': cleanItem._id }, { fields: { 'training_data.common_examples.$': 1 } });
             const properExample = get(exampleBefore, 'training_data.common_examples[0]');
             auditLogIfOnServer('Updated Example', {
@@ -149,7 +150,7 @@ Meteor.methods({
         checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
         check(items, Array);
-        const updatedExamples = uniqBy(items, 'text');
+        const updatedExamples = uniqBy(items, 'text').filter(({ intent }) => intent);
         if (items.length === 0) {
             return 0;
         }
@@ -166,7 +167,7 @@ Meteor.methods({
         checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
         check(item, Object);
-        
+        if (!item.intent) return { change: null };
         if (!item.canonical) {
             /* try to match a canonical item with the same characteristics (intent, entity, entity value)
             to check if the selected item can be used as canonical

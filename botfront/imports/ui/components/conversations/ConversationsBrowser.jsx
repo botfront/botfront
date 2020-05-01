@@ -22,6 +22,7 @@ import { applyTimezoneOffset } from '../../../lib/graphs';
 import apolloClient from '../../../startup/client/apollo';
 import { formatConversationsInMd } from './utils';
 import { ConversationBrowserContext } from './context';
+import { clearTypenameField } from '../../../lib/client.safe.utils';
 
 function ConversationsBrowser(props) {
     const {
@@ -352,7 +353,7 @@ const ConversationsBrowserContainer = (props) => {
                 let blob;
                 if (format === 'json') {
                     blob = new Blob(
-                        [JSON.stringify(conversationsPage)],
+                        [JSON.stringify({ conversations: clearTypenameField(conversationsPage.conversations), project: { _id: projectId } })]
                         { type: 'application/json;charset=utf-8' },
                     );
                 }
@@ -384,7 +385,7 @@ const ConversationsBrowserContainer = (props) => {
         const { conversations, pages } = data.conversationsPage;
 
         // If for some reason the conversation is not in the current page, discard it.
-        if (!conversations.some(c => c._id === activeConversationId)) { activeConversationId = null; }
+        if (!conversations.some(c => c._id === activeConversationId)) activeConversationId = null;
         if (!activeConversationId && conversations.length > 0) {
             const url = updateIncomingPath({
                 ...router.params,
