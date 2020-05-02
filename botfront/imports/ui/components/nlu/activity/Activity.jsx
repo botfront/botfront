@@ -218,7 +218,6 @@ function Activity(props) {
                         onScroll={handleScroll}
                         rowClassName='glow-box hoverable'
                         className='new-utterances-table'
-                        gutterSize={15}
                     />
                 )
                 : <Message success icon='check' header='No activity' content='No activity was found for the given criteria.' />

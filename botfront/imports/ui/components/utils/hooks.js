@@ -16,14 +16,34 @@ export function useEventListener(eventName, handler, element = window) {
         () => {
             // Make sure element supports addEventListener
             const isSupported = element && element.addEventListener;
-            if (!isSupported) return null;
-            // Create event listener that calls handler function stored in ref
-            const eventListener = event => savedHandler.current(event);
-            // Add event listener
-            element.addEventListener(eventName, eventListener);
-            // Remove event listener on cleanup
-            return () => element.removeEventListener(eventName, eventListener);
+            let cleanUpFunc = () => {};
+            if (isSupported) {
+                // Create event listener that calls handler function stored in ref
+                const eventListener = event => savedHandler.current(event);
+                // Add event listener
+                element.addEventListener(eventName, eventListener);
+                // Remove event listener on cleanup
+                cleanUpFunc = () => element.removeEventListener(eventName, eventListener);
+            }
+            return cleanUpFunc;
         },
         [eventName, element], // Re-run if eventName or element changes
     );
+}
+
+export function useResizeObserver(handler, element) {
+    const savedHandler = useRef();
+    useEffect(() => {
+        savedHandler.current = handler;
+    }, [handler]);
+    useEffect(() => {
+        const isSupported = element && element instanceof HTMLElement;
+        let cleanUpFunc = () => {};
+        if (isSupported) {
+            const resizeObserver = new ResizeObserver(savedHandler.current);
+            resizeObserver.observe(element);
+            cleanUpFunc = () => resizeObserver.unobserve(element);
+        }
+        return cleanUpFunc;
+    }, [element]);
 }

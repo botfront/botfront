@@ -43,17 +43,19 @@ const Row = React.forwardRef((props, ref) => {
 });
 
 Row.propTypes = {
-    index: PropTypes.number.isRequired,
+    index: PropTypes.number,
+    datum: PropTypes.object,
     style: PropTypes.object,
     rowClassName: PropTypes.string,
     onClickRow: PropTypes.func,
     isDataLoaded: PropTypes.bool,
     sticky: PropTypes.bool,
-    datum: PropTypes.object.isRequired,
     columns: PropTypes.array.isRequired,
 };
 
 Row.defaultProps = {
+    index: null,
+    datum: null,
     style: {},
     rowClassName: '',
     onClickRow: null,
