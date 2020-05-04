@@ -8,7 +8,7 @@ import { DynamicSizeList as List } from '@john-osullivan/react-window-dynamic-fo
 import InfiniteLoader from 'react-window-infinite-loader';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import Row from './DataTableRow';
-import { useResizeObserver } from '../utils/hooks';
+import { useEventListener, useResizeObserver } from '../utils/hooks';
 
 export default function DataTable(props) {
     const {
@@ -23,9 +23,13 @@ export default function DataTable(props) {
         onScroll,
         className,
         rowClassName,
+        selection,
+        onChangeSelection,
     } = props;
     const dataCount = hasNextPage ? data.length + 1 : data.length;
     const isDataLoaded = index => !hasNextPage || index < data.length;
+    const selectionKey = (columns.filter(c => c.selectionKey)[0] || {}).key || columns[0].key;
+    const isDatumSelected = datum => datum && selection.includes(datum[selectionKey]);
 
     const tableRef = useRef(null);
     const headerRef = useRef(null);
@@ -79,6 +83,45 @@ export default function DataTable(props) {
     }, [!!tableRef.current]);
     useResizeObserver(() => setStickyRowsOffset(getOffsetHeight(stickyRowsRef)), stickyRowsRef.current);
 
+    const [mouseDown, setMouseDown] = useState(false);
+    const lastFocusedItem = useRef(selection[0]);
+
+    const selectItemAndResetFocus = (id, metaKey = false) => {
+        lastFocusedItem.current = id;
+        if (!metaKey) return onChangeSelection([id]);
+        if (selection.includes(id)) return onChangeSelection(selection.filter(el => el !== id));
+        return onChangeSelection([...selection, id]);
+    };
+
+    const handleSelectionChange = ({
+        shiftKey, metaKey, datum, index: indexInData,
+    }) => {
+        if (metaKey) return selectItemAndResetFocus(datum[selectionKey], true);
+        if (!shiftKey || !selection.length) {
+            return selectItemAndResetFocus(datum[selectionKey]);
+        }
+        const allData = [...(stickyRows || []), ...data];
+        const index = indexInData + (stickyRows || []).length;
+        const lastIndex = allData.findIndex(d => d[selectionKey] === lastFocusedItem.current);
+        const [min, max] = index < lastIndex ? [index, lastIndex] : [lastIndex, index];
+        const newSelection = allData.slice(min, max + 1).map(d => d[selectionKey]);
+        return onChangeSelection(newSelection);
+    };
+
+    const handleMouseDown = (rowInfo) => {
+        if (!onChangeSelection) return;
+        handleSelectionChange(rowInfo);
+        if (rowInfo.shiftKey) return;
+        setMouseDown(true);
+    };
+
+    const handleMouseEnter = (rowInfo) => {
+        if (!mouseDown || rowInfo.datum[selectionKey] === lastFocusedItem.current) return;
+        handleSelectionChange({ shiftKey: true, ...rowInfo });
+    };
+
+    useEventListener('mouseup', () => setMouseDown(false));
+
     const renderHeader = () => (
         <div className='header row' ref={headerRef}>
             {columns.map(c => (
@@ -94,11 +137,13 @@ export default function DataTable(props) {
             {stickyRows.map((r, i) => (
                 <Row
                     isDataLoaded
-                    index={-1 - i}
-                    onClickRow={onClickRow}
+                    index={-(stickyRows.length - i)}
                     datum={r}
                     columns={columns}
-                    rowClassName={rowClassName}
+                    rowClassName={`${rowClassName} ${isDatumSelected(r) ? 'selected' : ''}`}
+                    onClick={onClickRow}
+                    onMouseDown={handleMouseDown}
+                    onMouseEnter={handleMouseEnter}
                 />
             ))}
         </>
@@ -143,8 +188,10 @@ export default function DataTable(props) {
                                                 ...style,
                                                 top: style.top + stickyRowsOffset, // eslint-disable-line react/prop-types
                                             }}
-                                            rowClassName={rowClassName}
-                                            onClickRow={onClickRow}
+                                            rowClassName={`${rowClassName} ${isDatumSelected(data[index]) ? 'selected' : ''}`}
+                                            onClick={onClickRow}
+                                            onMouseDown={handleMouseDown}
+                                            onMouseEnter={handleMouseEnter}
                                             isDataLoaded={isDataLoaded(index)}
                                             datum={data[index]}
                                             index={index}
@@ -173,6 +220,8 @@ DataTable.propTypes = {
     onScroll: PropTypes.func,
     rowClassName: PropTypes.string,
     className: PropTypes.string,
+    selection: PropTypes.array,
+    onChangeSelection: PropTypes.func,
 };
 
 DataTable.defaultProps = {
@@ -185,4 +234,6 @@ DataTable.defaultProps = {
     onScroll: null,
     rowClassName: '',
     className: '',
+    selection: [],
+    onChangeSelection: null,
 };

@@ -19,7 +19,7 @@ export default {
 
 const columnsFixture = [
     {
-        key: 'one', header: 'Column I', style: { width: '200px', overflow: 'hidden' },
+        key: 'one', header: 'Column I', selectionKey: true, style: { width: '200px', overflow: 'hidden' },
     },
     {
         key: 'two', header: 'Column II', style: { width: '200px', overflow: 'hidden' },
@@ -33,13 +33,13 @@ const columnsFixture = [
 ];
 
 const stickyFixture = [
-    { one: <img src='https://i.gifer.com/VRwG.gif' style={{ height: '30px' }} alt='' /> },
-    { two: <img src='https://i.gifer.com/VRwG.gif' style={{ height: '30px' }} alt='' /> },
+    { one: 'stick1', two: <img src='https://i.gifer.com/VRwG.gif' style={{ height: '30px' }} alt='' /> },
+    { one: 'stick2', three: <img src='https://i.gifer.com/VRwG.gif' style={{ height: '30px' }} alt='' /> },
     {
-        one: 'STICKY!',
+        one: 'stick3',
         two: 'STICKY!',
-        three: <img src='https://i.gifer.com/VRwG.gif' style={{ height: '30px' }} alt='' />,
-        four: 'STICKY!',
+        three: 'STICKY!',
+        four: <img src='https://i.gifer.com/VRwG.gif' style={{ height: '30px' }} alt='' />,
     },
 ];
 
@@ -73,7 +73,7 @@ export const WithFire = () => (
     </div>
 );
 export const WithStyle = () => (
-    <div style={{ backgroundColor: '#cce2dd', height: 'auto', minHeight: '100vh' }}>
+    <div style={{ backgroundColor: '#cce2dd' }}>
         <DataTableWrapped
             rowClassName='glow-box hoverable'
             className='new-utterances-table'
@@ -90,6 +90,18 @@ export const InfiniteLoading = () => {
             data={dataLoaded}
             loadMore={loadMore}
             hasNextPage={dataLoaded.length < data.length}
+        />
+    );
+};
+export const WithSelection = () => {
+    const [selection, setSelection] = useState(['ghussy3']);
+    return (
+        <DataTableWrapped
+            selection={selection}
+            onChangeSelection={(...args) => {
+                setSelection(...args);
+                action('onChangeSelection')(...args);
+            }}
         />
     );
 };
