@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { withKnobs, boolean, number } from '@storybook/addon-knobs';
+import { debounce } from 'lodash';
+import { action } from '@storybook/addon-actions';
 import DataTable from '../imports/ui/components/common/DataTable';
 import data from './_fixtures/DataTableRows.json';
 
@@ -42,10 +44,6 @@ const stickyFixture = [
 ];
 
 function DataTableWrapped(props) {
-    const autoHeight = boolean('auto height', true);
-    const manualHeight = number('manual height', 400);
-    const autoWidth = boolean('auto width', true);
-    const manualWidth = number('manual width', 400);
     const columns = boolean('with header?', true)
         ? columnsFixture
         : columnsFixture.map(({ header, ...c }) => c);
@@ -56,9 +54,12 @@ function DataTableWrapped(props) {
         <DataTable
             columns={columns}
             data={data}
-            height={autoHeight ? 'auto' : manualHeight}
-            width={autoWidth ? 'auto' : manualWidth}
+            height={boolean('auto height', true) ? 'auto' : number('manual height', 400)}
+            width={boolean('auto width', true) ? 'auto' : number('manual width', 400)}
             stickyRows={stickyRows}
+            onScroll={action('onScroll')}
+            onClickRow={action('onClickRow')}
+            {...props}
         />
     );
 }
@@ -71,3 +72,24 @@ export const WithFire = () => (
         <div style={blockStyle} />
     </div>
 );
+export const WithStyle = () => (
+    <div style={{ backgroundColor: '#cce2dd', height: 'auto', minHeight: '100vh' }}>
+        <DataTableWrapped
+            rowClassName='glow-box hoverable'
+            className='new-utterances-table'
+        />
+    </div>
+);
+export const InfiniteLoading = () => {
+    const [dataLoaded, setDataLoaded] = useState(data.slice(0, 10));
+    const loadMore = debounce(() => setDataLoaded(
+        data.slice(0, dataLoaded.length + 10),
+    ), 1500);
+    return (
+        <DataTableWrapped
+            data={dataLoaded}
+            loadMore={loadMore}
+            hasNextPage={dataLoaded.length < data.length}
+        />
+    );
+};

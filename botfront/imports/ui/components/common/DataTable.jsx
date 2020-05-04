@@ -98,6 +98,7 @@ export default function DataTable(props) {
                     onClickRow={onClickRow}
                     datum={r}
                     columns={columns}
+                    rowClassName={rowClassName}
                 />
             ))}
         </>
