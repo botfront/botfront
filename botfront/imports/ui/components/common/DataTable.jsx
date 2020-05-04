@@ -2,6 +2,7 @@ import React, {
     useRef, useState, useEffect,
 } from 'react';
 import PropTypes from 'prop-types';
+import { Portal } from 'semantic-ui-react';
 import { throttle } from 'lodash';
 import { DynamicSizeList as List } from '@john-osullivan/react-window-dynamic-fork';
 import InfiniteLoader from 'react-window-infinite-loader';
@@ -28,9 +29,10 @@ export default function DataTable(props) {
 
     const tableRef = useRef(null);
     const headerRef = useRef(null);
-    const stickyRowsRef = useRef(null);
+    const stickyRowsRef = useRef(document.createElement('div'));
     const [height, doSetHeight] = useState();
-    const [innerCorrection, setInnerCorrection] = useState(0);
+    const [headerOffset, setHeaderOffset] = useState(0);
+    const [stickyRowsOffset, setStickyRowsOffset] = useState(0);
 
     const getOffsetHeight = ref => (ref.current ? ref.current.offsetHeight : 0);
     const getOffsetTop = ref => (ref.current ? ref.current.offsetTop : 0);
@@ -55,8 +57,7 @@ export default function DataTable(props) {
     };
 
     const setHeight = () => {
-        setInnerCorrection((headerRef.current ? headerRef.current.clientHeight : 0)
-        + (stickyRowsRef.current ? stickyRowsRef.current.clientHeight : 0));
+        setHeaderOffset(getOffsetHeight(headerRef));
         if (providedHeight !== 'auto') return doSetHeight(`${providedHeight}px`);
         const [lastUnscrollable, firstScrollable] = getToScrollableNode(tableRef);
         return doSetHeight(
@@ -65,8 +66,18 @@ export default function DataTable(props) {
             ) - 2,
         );
     };
-    useEffect(setHeight, [!!tableRef.current, !!headerRef.current, !!stickyRowsRef.current, providedHeight]);
+    useEffect(setHeight, [providedHeight]);
     useResizeObserver(throttle(setHeight, 150), getToScrollableNode(tableRef)[1].current);
+    useResizeObserver(setHeight, headerRef.current);
+
+    stickyRowsRef.current.setAttribute('style', 'position: sticky; top: 0; z-index: 100;');
+    stickyRowsRef.current.setAttribute('class', `virtual-table-sticky-row ${className}`);
+    useEffect(() => {
+        const outerList = document.getElementsByClassName('outer-list')[0];
+        if (!outerList) return;
+        outerList.insertBefore(stickyRowsRef.current, outerList.firstChild || null);
+    }, [!!tableRef.current]);
+    useResizeObserver(() => setStickyRowsOffset(getOffsetHeight(stickyRowsRef)), stickyRowsRef.current);
 
     const renderHeader = () => (
         <div className='header row' ref={headerRef}>
@@ -79,17 +90,17 @@ export default function DataTable(props) {
     );
 
     const renderStickyRows = () => (
-        <div ref={stickyRowsRef}>
+        <>
             {stickyRows.map((r, i) => (
                 <Row
-                    sticky
+                    isDataLoaded
                     index={-1 - i}
                     onClickRow={onClickRow}
                     datum={r}
                     columns={columns}
                 />
             ))}
-        </div>
+        </>
     );
 
     return (
@@ -101,9 +112,9 @@ export default function DataTable(props) {
                 ...(width === 'auto' ? {} : { width }),
             }}
         >
-            {columns.some(c => c.header) && renderHeader()}
-            {(stickyRows || []).length > 0 && renderStickyRows()}
-            <div style={{ height: `calc(100% - ${innerCorrection}px)` }}>
+            {(stickyRows || []).length > 0 && <Portal open mountNode={stickyRowsRef.current}>{renderStickyRows()}</Portal>}
+            {columns.some(c => c.header) ? renderHeader() : <div ref={headerRef} />}
+            <div style={{ height: `calc(100% - ${headerOffset}px)` }}>
                 <AutoSizer>
                     {({ height: h, width: w }) => (
                         <InfiniteLoader
@@ -121,15 +132,21 @@ export default function DataTable(props) {
                                     }}
                                     ref={ref}
                                     width={w}
+                                    className='outer-list'
                                 >
-                                    {React.forwardRef(({ index, ...row }, ref_) => (
+                                    {React.forwardRef(({ index, style, ...row }, ref_) => ( // eslint-disable-line react/prop-types
                                         <Row
                                             {...row}
                                             ref={ref_}
+                                            style={{
+                                                ...style,
+                                                top: style.top + stickyRowsOffset, // eslint-disable-line react/prop-types
+                                            }}
                                             rowClassName={rowClassName}
                                             onClickRow={onClickRow}
                                             isDataLoaded={isDataLoaded(index)}
                                             datum={data[index]}
+                                            index={index}
                                             columns={columns}
                                         />
                                     ))}

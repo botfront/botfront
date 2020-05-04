@@ -1,9 +1,18 @@
+.virtual-table,
+.virtual-table-sticky-row {
+    background-color: #fff;
+    &.new-utterances-table {
+        background-color: unset;
+    }
+}
+
 .virtual-table {
     height: 100vh;
     width: 100%;
     
     .row-wrapper {
         outline: none;
+        background-color: inherit;
     }
 
     .row {

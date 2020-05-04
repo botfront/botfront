@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 
 const Row = React.forwardRef((props, ref) => {
     const {
-        index, rowClassName, style, onClickRow, isDataLoaded, columns, datum, sticky,
+        index, rowClassName, style, onClickRow, isDataLoaded, columns, datum,
     } = props;
 
     const rowInfo = { index, datum };
 
-    if (!sticky && !isDataLoaded) {
+    if (!isDataLoaded) {
         return (
             <div ref={ref} style={style}>
                 <div className={`row ${rowClassName}`}>
@@ -30,7 +30,7 @@ const Row = React.forwardRef((props, ref) => {
         >
             <div className={`row ${rowClassName}`}>
                 {columns.map(c => (
-                    <div key={`${c.key}-${index}`} className={`item ${c.class || ''}`} style={c.style}>
+                    <div key={c.key} className={`item ${c.class || ''}`} style={c.style}>
                         {c.render
                             ? c.render(rowInfo)
                             : datum[c.key]
@@ -49,7 +49,6 @@ Row.propTypes = {
     rowClassName: PropTypes.string,
     onClickRow: PropTypes.func,
     isDataLoaded: PropTypes.bool,
-    sticky: PropTypes.bool,
     columns: PropTypes.array.isRequired,
 };
 
@@ -60,7 +59,6 @@ Row.defaultProps = {
     rowClassName: '',
     onClickRow: null,
     isDataLoaded: true,
-    sticky: false,
 };
 
 export default Row;
