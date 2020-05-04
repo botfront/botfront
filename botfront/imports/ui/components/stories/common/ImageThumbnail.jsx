@@ -15,7 +15,7 @@ export default function ImageThumbnail(props) {
     } = props;
     const [newValue, setNewValue] = useState(value);
     const [modalOpen, setModalOpen] = useState(false);
-    const { uploadImage } = useContext(ResponseContext);
+    const { uploadImage } = useContext(ResponseContext) || {};
     useEffect(() => setNewValue(value), [value]);
 
     const imageUrlRef = useRef();

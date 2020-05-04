@@ -39,7 +39,7 @@ describe('story permissions', function() {
         cy.dataCy('icon-trash').should('not.exist');
         cy.dataCy('icon-add').should('not.exist');
         cy.dataCy('add-item').should('have.class', 'disabled');
-        cy.get('.item-actions').should('have.class', 'hidden');
+        cy.get('.item-actions').children().should('have.length', 0);
         cy.get('.item-name').should('have.class', 'uneditable');
         cy.get('.drag-handle').should('have.class', 'hidden');
         cy.dataCy('delete-branch').should('not.exist');

@@ -27,13 +27,13 @@ describe('stories', function() {
         addStoryToSmartStoryGroup();
         cy.dataCy('story-group-menu-item', 'Groupo (1)').eq(0).as('story');
         cy.dataCy('story-group-menu-item', 'Stories with triggers').as('story-group');
-        cy.get('@story-group').find('.item-actions').should('have.class', 'hidden');
+        cy.get('@story-group').find('.item-actions').children().should('have.length', 0);
         cy.get('@story-group').find('.item-name').should('have.class', 'uneditable');
-        cy.get('@story').find('.item-actions').should('have.class', 'hidden');
+        cy.get('@story').find('.item-actions').children().should('have.length', 0);
         cy.get('@story').find('.drag-handle').should('have.class', 'hidden');
         cy.get('@story').find('.item-name').should('have.class', 'uneditable');
     });
-    it('should remove a story from the smart story group when it\'s rules are deleted', function() {
+    it('should remove a story from the smart story group when its rules are deleted', function() {
         cy.visit('/project/bf/stories');
         addStoryToSmartStoryGroup();
         
