@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import moment from 'moment';
@@ -17,6 +17,7 @@ import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { isTraining } from '../../../../api/nlu_model/nlu_model.utils';
 
 import PrefixDropdown from '../../common/PrefixDropdown';
+import ActivityCommandBar from './ActivityCommandBar';
 
 function Activity(props) {
     const [sortType, setSortType] = useState('Newest');
@@ -68,26 +69,33 @@ function Activity(props) {
         await deleteActivity({ variables: { modelId, ids: utterances.map(u => u._id) } });
     };
 
-    const handleUpdate = async (newData, rest) => {
-        // rest argument is to supress warnings caused by incomplete schema on optimistic response
+    const handleUpdate = async (newData) => {
+        const dataUpdated = data.filter(d1 => newData.map(d2 => d2._id).includes(d1._id)).map(
+            ({ __typename, ...d1 }) => ({ ...d1, ...newData.find(d2 => d2._id === d1._id) }),
+        );
         upsertActivity({
-            variables: { modelId, data: newData },
+            variables: { modelId, data: dataUpdated },
             optimisticResponse: {
                 __typename: 'Mutation',
-                upsertActivity: newData.map(d => ({ __typename: 'Activity', ...rest, ...d })),
+                upsertActivity: dataUpdated.map(d => ({ __typename: 'Activity', ...d })),
             },
         });
     };
 
-    const handleDelete = async (ids) => {
-        await deleteActivity({
+    const handleDelete = (utterances) => {
+        const ids = utterances.map(u => u._id);
+        return deleteActivity({
             variables: { modelId, ids },
             optimisticResponse: {
                 __typename: 'Mutation',
                 deleteActivity: ids.map(_id => ({ __typename: 'Activity', _id })),
             },
-        });
+        }).then(({ data: { deleteActivity: res = [] } = {} }) => setSelection(
+            selection.filter(s => !res.map(({ _id }) => _id).includes(s)), // remove deleted from selection
+        ));
     };
+
+    const handleSetValidated = (utterances, val = true) => handleUpdate(utterances.map(({ _id }) => ({ _id, validated: val })));
 
     const handleReinterpret = async (utterances) => {
         setReinterpreting(Array.from(new Set([...reinterpreting, ...utterances.map(u => u._id)])));
@@ -138,7 +146,9 @@ function Activity(props) {
                 value={datum.intent ? datum.intent : ''}
                 allowEditing={!isUtteranceOutdated(datum)}
                 allowAdditions
-                onChange={intent => handleUpdate([{ _id: datum._id, intent, confidence: null }], datum)}
+                onChange={intent => handleUpdate([{
+                    _id: datum._id, intent, confidence: null, ...(!intent ? { validated: false } : {}),
+                }], datum)}
                 enableReset
             />
         );
@@ -149,10 +159,10 @@ function Activity(props) {
         return (
             <UserUtteranceViewer
                 value={datum}
-                onChange={({ _id, entities: ents, ...rest }) => handleUpdate([{
+                onChange={({ _id, entities: ents }) => handleUpdate([{
                     _id,
                     entities: ents.map(e => clearTypenameField(({ ...e, confidence: null }))),
-                }], rest)}
+                }])}
                 projectId={projectId}
                 disabled={isUtteranceOutdated(datum)}
                 disableEditing={isUtteranceOutdated(datum)}
@@ -164,8 +174,8 @@ function Activity(props) {
     const renderActions = row => (
         <ActivityActionsColumn
             datum={row.datum}
-            onToggleValidation={({ _id, validated: val, ...rest }) => handleUpdate([{ _id, validated: !val }], rest)}
-            onDelete={utterances => handleDelete(utterances.map(u => u._id))}
+            handleSetValidated={handleSetValidated}
+            onDelete={handleDelete}
         />
     );
 
@@ -184,6 +194,8 @@ function Activity(props) {
             key: 'actions', style: { width: '110px' }, render: renderActions,
         },
     ];
+
+    const selectionWithFullData = useMemo(() => data.filter(({ _id }) => selection.includes(_id)), [selection, data]);
 
     const renderTopBar = () => (
         <div className='side-by-side' style={{ marginBottom: '10px' }}>
@@ -244,17 +256,26 @@ function Activity(props) {
             {renderTopBar()}
             {data && data.length
                 ? (
-                    <DataTable
-                        columns={columns}
-                        data={data}
-                        hasNextPage={hasNextPage}
-                        loadMore={loading ? () => {} : loadMore}
-                        onScroll={handleScroll}
-                        rowClassName='glow-box hoverable'
-                        className='new-utterances-table'
-                        selection={selection}
-                        onChangeSelection={setSelection}
-                    />
+                    <>
+                        <DataTable
+                            columns={columns}
+                            data={data}
+                            hasNextPage={hasNextPage}
+                            loadMore={loading ? () => {} : loadMore}
+                            onScroll={handleScroll}
+                            rowClassName='glow-box hoverable'
+                            className='new-utterances-table'
+                            selection={selection}
+                            onChangeSelection={setSelection}
+                        />
+                        {selection.length > 1 && (
+                            <ActivityCommandBar
+                                selection={selectionWithFullData}
+                                handleSetValidated={handleSetValidated}
+                                onDelete={handleDelete}
+                            />
+                        )}
+                    </>
                 )
                 : <Message success icon='check' header='No activity' content='No activity was found for the given criteria.' />
             }

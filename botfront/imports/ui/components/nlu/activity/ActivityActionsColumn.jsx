@@ -6,7 +6,7 @@ import IconButton from '../../common/IconButton';
 export default function ActivityActionsColumn(props) {
     const {
         datum,
-        onToggleValidation,
+        handleSetValidated,
         onDelete,
     } = props;
 
@@ -17,7 +17,7 @@ export default function ActivityActionsColumn(props) {
             <div>
                 <IconButton
                     size={size}
-                    onClick={() => onToggleValidation(datum)}
+                    onClick={() => handleSetValidated([datum], false)}
                     color='green'
                     icon='check'
                     data-cy='valid-utterance-button'
@@ -29,6 +29,7 @@ export default function ActivityActionsColumn(props) {
             <Popup
                 size='mini'
                 inverted
+                disabled={!datum.intent}
                 content='Mark this utterance valid'
                 trigger={(
                     <div>
@@ -36,7 +37,7 @@ export default function ActivityActionsColumn(props) {
                             basic
                             size={size}
                             disabled={!datum.intent}
-                            onClick={() => onToggleValidation(datum)}
+                            onClick={() => handleSetValidated([datum], true)}
                             color='green'
                             icon='check'
                             data-cy='invalid-utterance-button'
@@ -62,7 +63,7 @@ export default function ActivityActionsColumn(props) {
 
 ActivityActionsColumn.propTypes = {
     datum: PropTypes.object.isRequired,
-    onToggleValidation: PropTypes.func.isRequired,
+    handleSetValidated: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
 };
 
