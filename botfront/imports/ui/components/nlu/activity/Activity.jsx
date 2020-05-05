@@ -89,6 +89,10 @@ function Activity(props) {
 
     const handleDelete = (utterances) => {
         const ids = utterances.map(u => u._id);
+        const bounds = [ids[0], ids[ids.length - 1]].map(id1 => data.findIndex(d => d._id === id1));
+        const fallbackUtterance = data[bounds[1] + 1]
+            ? data[bounds[1] + 1]
+            : data[Math.max(0, bounds[0] - 1)];
         const message = `Delete ${utterances.length} incoming utterances?`;
         const action = () => deleteActivity({
             variables: { modelId, ids },
@@ -96,9 +100,12 @@ function Activity(props) {
                 __typename: 'Mutation',
                 deleteActivity: ids.map(_id => ({ __typename: 'Activity', _id })),
             },
-        }).then(({ data: { deleteActivity: res = [] } = {} }) => setSelection(
-            selection.filter(s => !res.map(({ _id }) => _id).includes(s)), // remove deleted from selection
-        ));
+        }).then(({ data: { deleteActivity: res = [] } = {} }) => {
+            const filtered = selection.filter(s => !res.map(({ _id }) => _id).includes(s));
+            return setSelection( // remove deleted from selection
+                filtered.length ? filtered : [fallbackUtterance._id],
+            );
+        });
         return utterances.length > 1 ? setConfirm({ message, action }) : action();
     };
 
