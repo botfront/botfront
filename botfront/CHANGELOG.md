@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.23.0-rc.0-ee.0](https://github.com/botfront/botfront/compare/v0.22.2-ee.1...v0.23.0-rc.0-ee.0) (2020-05-05)
+
+
+### Features
+
+* conversations: click a user to filter by Id ([d4bda7e](https://github.com/botfront/botfront/commit/d4bda7e4539a50c759448820f3df0ae29d27f89c))
+* **carousel:** initial commit ([22143b1](https://github.com/botfront/botfront/commit/22143b1179dec687927dc55af78d966524a4bb4b))
+* **qr buttons:** make buttons draggable & droppable ([e1bb09c](https://github.com/botfront/botfront/commit/e1bb09c0a3f3f03fb06fb22950a71cfd6c1c447d))
+* filter conversations by duration ([2a8556c](https://github.com/botfront/botfront/commit/2a8556c99e59778bfd1b685d4309173739ef6728))
+* story editor: indicate re-used responses ([ea1ccec](https://github.com/botfront/botfront/commit/ea1ccec6347157bb88882118c926c19034bff7fa))
+
+
+### Bug Fixes
+
+* button type resolve ([ca80d75](https://github.com/botfront/botfront/commit/ca80d75eca5014a4f0c0e707108188bce2023588))
+* conversation parse safety ([4820de7](https://github.com/botfront/botfront/commit/4820de7b85705299eda09b15ba3470b7871a0da0))
+* conversation viewer: switching conversations ([5d38f4f](https://github.com/botfront/botfront/commit/5d38f4f5f209ba7c7a625371ee14863c1db021d0))
+* exclude rasa reserved actions from domain ([c53b387](https://github.com/botfront/botfront/commit/c53b3876a95d1e49ba57e2183d9cf2bb745a2d87))
+* hide conversation filters: clickable area ([4452c13](https://github.com/botfront/botfront/commit/4452c13bb8829e105582dcb19de018255867125f))
+* ignore duplicate index violations during import ([5d43b77](https://github.com/botfront/botfront/commit/5d43b77c50385e42d28b273ccd7e3815831c4c35))
+* prevent examples without intent to be saved ([2f10e26](https://github.com/botfront/botfront/commit/2f10e26d386b2faac63768c1d182de0957d51f63))
+* story access safety in addlinkCheckpoints ([1dfda47](https://github.com/botfront/botfront/commit/1dfda476ed06c6b8c04405a16ec6e7e2c56d8d5e))
+* support importing project without model ([c9154a1](https://github.com/botfront/botfront/commit/c9154a1d385a6a981616f234da0300d79d0663e3))
+* weird behaviour when deleting conversations ([4eba38a](https://github.com/botfront/botfront/commit/4eba38a33bc832445ba3928546190af4a28a3114))
+* **cli:** invoking botfront in a non project folder crashes ([2885579](https://github.com/botfront/botfront/commit/28855799a8cad065132756657a0cfa842b0d0a68))
+
 ### [0.22.2-ee.1](https://github.com/botfront/botfront/compare/v0.22.2-ee.0...v0.22.2-ee.1) (2020-04-22)
 
 
