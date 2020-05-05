@@ -3,14 +3,15 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import { debounce } from 'lodash';
-import { Message } from 'semantic-ui-react';
+import {
+    Message, Button, Icon, Confirm,
+} from 'semantic-ui-react';
 import IntentLabel from '../common/IntentLabel';
 import UserUtteranceViewer from '../common/UserUtteranceViewer';
 import { useActivity, useDeleteActivity, useUpsertActivity } from './hooks';
 
 import { populateActivity } from './ActivityInsertions';
 import DataTable from '../../common/DataTable';
-import ActivityActions from './ActivityActions';
 import ActivityActionsColumn from './ActivityActionsColumn';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { isTraining } from '../../../../api/nlu_model/nlu_model.utils';
@@ -49,6 +50,7 @@ function Activity(props) {
     const [selection, setSelection] = useState([]);
     let reinterpreting = [];
     const setReinterpreting = (v) => { reinterpreting = v; };
+    const [confirm, setConfirm] = useState(null);
 
     // always refetch on first page load and sortType change
     useEffect(() => { if (refetch) refetch(); }, [refetch, modelId, sortType]);
@@ -184,15 +186,45 @@ function Activity(props) {
     ];
 
     const renderTopBar = () => (
-        <div className='side-by-side'>
-            <ActivityActions
-                onEvaluate={linkRender}
-                onDelete={() => handleDelete(validated.map(u => u._id))}
-                onAddToTraining={() => handleAddToTraining(validated)}
-                onInvalidate={() => handleUpdate(validated.map(({ _id, validated: v }) => ({ _id, validated: !v })))}
-                numValidated={validated.length}
-                projectId={projectId}
-            />
+        <div className='side-by-side' style={{ marginBottom: '10px' }}>
+            {!!confirm && (
+                <Confirm
+                    open
+                    header='Please confirm'
+                    content={confirm.message}
+                    onCancel={() => setConfirm(null)}
+                    onConfirm={() => { confirm.action(); setConfirm(null); }}
+                />
+            )}
+            <Button.Group style={{ marginLeft: '20px' }}>
+                <Button
+                    className='white'
+                    basic
+                    color='green'
+                    icon
+                    labelPosition='left'
+                    data-cy='run-evaluation'
+                    onClick={() => setConfirm({
+                        message: 'This will evaluate the model using the selected examples as a validation set and overwrite your current evaluation results.',
+                        action: linkRender,
+                    })}
+                    disabled={!validated.length}
+                >
+                    <Icon name='lab' />Run evaluation
+                </Button>
+                <Button
+                    color='green'
+                    icon
+                    labelPosition='right'
+                    onClick={() => setConfirm({
+                        message: 'The selected utterances will be added to the training data.',
+                        action: () => handleAddToTraining(validated),
+                    })}
+                    disabled={!validated.length}
+                >
+                    <Icon name='add square' />Add to model
+                </Button>
+            </Button.Group>
             <PrefixDropdown
                 selection={sortType}
                 updateSelection={option => setSortType(option.value)}
