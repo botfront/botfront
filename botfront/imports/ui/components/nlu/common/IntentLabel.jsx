@@ -21,9 +21,12 @@ const Intent = React.forwardRef((props, ref) => {
     const [popupOpen, setPopupOpen] = useState(false);
     const [typeInput, setTypeInput] = useState('');
 
-    const intents = contextIntents
-        .sort((i1, i2) => (i2 === value) - (i1 === value))
-        .map(i => ({ intent: i }));
+    const intents = [
+        ...(value ? [{ intent: value }] : []),
+        ...contextIntents
+            .filter(i => i !== value)
+            .map(i => ({ intent: i })),
+    ];
 
     useImperativeHandle(ref, () => ({
         isPopupOpen: () => popupOpen,
@@ -35,6 +38,8 @@ const Intent = React.forwardRef((props, ref) => {
         .toLowerCase()
         .includes((s2 || '').replace(/ /g, '').toLowerCase());
     const dataToDisplay = intents.filter(i => textMatch(i.intent, typeInput));
+
+    const [selection, setSelection] = useState(dataToDisplay.slice(0, 1).map(i => i.intent));
 
     const hasInvalidChars = intentName => intentName.match(/[ +/{}/]/);
 
@@ -76,7 +81,9 @@ const Intent = React.forwardRef((props, ref) => {
         />
     );
 
-    const columns = [{ key: 'intent', style: { width: '200px' }, render: renderIntent }];
+    const columns = [{
+        key: 'intent', selectionKey: true, style: { width: '200px' }, render: renderIntent,
+    }];
 
     const renderContent = () => (
         <div
@@ -98,8 +105,10 @@ const Intent = React.forwardRef((props, ref) => {
                     width={300}
                     columns={columns}
                     data={dataToDisplay}
-                    onClickRow={({ datum: { intent } }) => handleChange(intent)}
+                    onClickRow={({ datum: { intent } = {} }) => handleChange(intent)}
                     rowClassName='clickable'
+                    selection={selection}
+                    onChangeSelection={setSelection}
                 />
             ) : (
                 <Button

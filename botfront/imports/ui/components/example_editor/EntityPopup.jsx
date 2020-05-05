@@ -21,11 +21,13 @@ class EntityPopup extends React.Component {
     componentDidMount() {
         document.addEventListener('mousedown', this.handleClickOutside);
         window.addEventListener('scroll', this.handleScroll, true);
+        window.addEventListener('keydown', this.handleKeyDown, true);
     }
 
     componentWillUnmount() {
         document.removeEventListener('mousedown', this.handleClickOutside);
         window.removeEventListener('scroll', this.handleScroll, true);
+        window.removeEventListener('keydown', this.handleKeyDown, true);
         clearTimeout(this.mouseLeaveTimer);
     }
 
@@ -33,12 +35,20 @@ class EntityPopup extends React.Component {
         this.setState({ showDeleteConfirmation: true });
     };
 
-    handleScroll = (event) => {
+    closeModal = () => {
         const { onSelectionReset } = this.props;
+        onSelectionReset();
+        this.setState({ open: false });
+    }
+
+    handleScroll = (event) => {
         if (this.popupNode.current && !this.popupNode.current.contains(event.target)) {
-            onSelectionReset();
-            this.setState({ open: false });
+            this.closeModal();
         }
+    };
+
+    handleKeyDown = (event) => {
+        if (event.key === 'Escape') this.closeModal();
     };
 
     handleClickOutside = (event) => {

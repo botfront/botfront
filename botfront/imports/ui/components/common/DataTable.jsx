@@ -85,10 +85,13 @@ export default function DataTable(props) {
     useResizeObserver(() => setStickyRowsOffset(getOffsetHeight(stickyRowsRef)), stickyRowsRef.current);
 
     const [mouseDown, setMouseDown] = useState(false);
-    const lastFocusedItem = useRef(selection[0]);
+    const lastFocusedStart = useRef(selection[0]);
+    const lastFocusedRowInfo = useRef();
 
-    const selectItemAndResetFocus = (id, metaKey = false) => {
-        lastFocusedItem.current = id;
+    const selectItemAndResetFocus = ({ datum, index: indexInData, metaKey }) => {
+        const id = datum[selectionKey];
+        lastFocusedStart.current = id;
+        lastFocusedRowInfo.current = { datum, index: indexInData };
         if (!metaKey) return onChangeSelection([id]);
         if (selection.includes(id)) return onChangeSelection(selection.filter(el => el !== id));
         return onChangeSelection([...selection, id]);
@@ -97,15 +100,16 @@ export default function DataTable(props) {
     const handleSelectionChange = ({
         shiftKey, metaKey, datum, index: indexInData,
     }) => {
-        if (metaKey) return selectItemAndResetFocus(datum[selectionKey], true);
-        if (!shiftKey || !selection.length) {
-            return selectItemAndResetFocus(datum[selectionKey]);
+        if (!onChangeSelection) return null;
+        if (metaKey || !shiftKey || !selection.length) {
+            return selectItemAndResetFocus({ datum, index: indexInData, metaKey });
         }
         const allData = [...(stickyRows || []), ...data];
         const index = indexInData + (stickyRows || []).length;
-        const lastIndex = allData.findIndex(d => d[selectionKey] === lastFocusedItem.current);
+        const lastIndex = allData.findIndex(d => d[selectionKey] === lastFocusedStart.current);
         const [min, max] = index < lastIndex ? [index, lastIndex] : [lastIndex, index];
         const newSelection = allData.slice(min, max + 1).map(d => d[selectionKey]);
+        lastFocusedRowInfo.current = { datum, index: indexInData };
         return onChangeSelection(newSelection);
     };
 
@@ -117,11 +121,17 @@ export default function DataTable(props) {
     };
 
     const handleMouseEnter = (rowInfo) => {
-        if (!mouseDown || rowInfo.datum[selectionKey] === lastFocusedItem.current) return;
+        if (!mouseDown || rowInfo.datum[selectionKey] === lastFocusedStart.current) return;
         handleSelectionChange({ shiftKey: true, ...rowInfo });
     };
 
-    useEventListener('mouseup', () => setMouseDown(false));
+    useEventListener('mouseup', () => {
+        setMouseDown(false);
+        if (onClickRow) {
+            if (!onChangeSelection) handleSelectionChange(lastFocusedRowInfo.current);
+            onClickRow(lastFocusedRowInfo.current);
+        }
+    });
 
     const renderHeader = () => (
         <div className='header row' ref={headerRef}>

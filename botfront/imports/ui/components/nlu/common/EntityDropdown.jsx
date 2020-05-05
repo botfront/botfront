@@ -59,7 +59,7 @@ EntityDropdown.propTypes = {
 };
 
 EntityDropdown.defaultProps = {
-    autofocus: false,
+    autofocus: true,
     allowAdditions: true,
 };
 

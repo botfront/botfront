@@ -222,7 +222,10 @@ function Activity(props) {
     const selectionWithFullData = useMemo(() => data.filter(({ _id }) => selection.includes(_id)), [selection, data]);
 
     useEventListener('keydown', (e) => {
-        const { key } = e;
+        const {
+            key, shiftKey, metaKey, ctrlKey, altKey,
+        } = e;
+        if (shiftKey || metaKey || ctrlKey || altKey) return;
         if (!!confirm) {
             if (key === 'n') setConfirm(null);
             if (key === 'y' || key === 'Enter') { confirm.action(); setConfirm(null); }
