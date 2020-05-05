@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.23.0-rc.0](https://github.com/botfront/botfront/compare/v0.22.2...v0.23.0-rc.0) (2020-05-05)
+
+
+### Bug Fixes
+
+* button type resolve ([ca80d75](https://github.com/botfront/botfront/commit/ca80d75))
+* conversation parse safety ([4820de7](https://github.com/botfront/botfront/commit/4820de7))
+* exclude rasa reserved actions from domain ([c53b387](https://github.com/botfront/botfront/commit/c53b387))
+* ignore duplicate index violations during import ([5d43b77](https://github.com/botfront/botfront/commit/5d43b77))
+* prevent examples without intent to be saved ([2f10e26](https://github.com/botfront/botfront/commit/2f10e26))
+* story access safety in addlinkCheckpoints ([1dfda47](https://github.com/botfront/botfront/commit/1dfda47))
+* support importing project without model ([c9154a1](https://github.com/botfront/botfront/commit/c9154a1))
+* weird behaviour when deleting conversations ([4eba38a](https://github.com/botfront/botfront/commit/4eba38a))
+* **cli:** invoking botfront in a non project folder crashes ([2885579](https://github.com/botfront/botfront/commit/2885579))
+
+
+### Features
+
+* **carousel:** initial commit ([22143b1](https://github.com/botfront/botfront/commit/22143b1))
+* **qr buttons:** make buttons draggable & droppable ([e1bb09c](https://github.com/botfront/botfront/commit/e1bb09c))
+* story editor: indicate re-used responses ([ea1ccec](https://github.com/botfront/botfront/commit/ea1ccec))
+
+
+### Tests
+
+* click to open response-in-use popup ([8e144b7](https://github.com/botfront/botfront/commit/8e144b7))
+* response name popup ([0632425](https://github.com/botfront/botfront/commit/0632425))
+
+
+
 ### [0.22.2](https://github.com/botfront/botfront/compare/v0.22.1...v0.22.2) (2020-04-22)
 
 
