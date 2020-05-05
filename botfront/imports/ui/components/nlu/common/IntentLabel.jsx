@@ -117,7 +117,16 @@ const Intent = React.forwardRef((props, ref) => {
     if (!allowEditing) extraClass = `${extraClass} uneditable`;
 
     return (
-        <div className={`intent-label ${extraClass}`} data-cy='intent-label'>
+        <div
+            className={`intent-label ${extraClass}`}
+            data-cy='intent-label'
+            {...{
+                onMouseDown: (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                },
+            }}
+        >
             <Popup
                 trigger={(
                     <div className='content-on-label'>

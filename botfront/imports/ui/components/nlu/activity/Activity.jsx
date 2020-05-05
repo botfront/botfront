@@ -46,6 +46,7 @@ function Activity(props) {
     const {
         data, hasNextPage, loading, loadMore, refetch,
     } = useActivity({ modelId, ...getSortFunction() });
+    const [selection, setSelection] = useState([]);
     let reinterpreting = [];
     const setReinterpreting = (v) => { reinterpreting = v; };
 
@@ -167,6 +168,7 @@ function Activity(props) {
     );
 
     const columns = [
+        { key: '_id', selectionKey: true, hidden: true },
         {
             key: 'confidence', style: { width: '51px', minWidth: '51px' }, render: renderConfidence,
         },
@@ -218,6 +220,8 @@ function Activity(props) {
                         onScroll={handleScroll}
                         rowClassName='glow-box hoverable'
                         className='new-utterances-table'
+                        selection={selection}
+                        onChangeSelection={setSelection}
                     />
                 )
                 : <Message success icon='check' header='No activity' content='No activity was found for the given criteria.' />

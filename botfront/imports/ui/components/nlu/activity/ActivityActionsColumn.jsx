@@ -14,13 +14,15 @@ export default function ActivityActionsColumn(props) {
     let action;
     if (!!datum.validated) {
         action = (
-            <IconButton
-                size={size}
-                onClick={() => onToggleValidation(datum)}
-                color='green'
-                icon='check'
-                data-cy='valid-utterance-button'
-            />
+            <div>
+                <IconButton
+                    size={size}
+                    onClick={() => onToggleValidation(datum)}
+                    color='green'
+                    icon='check'
+                    data-cy='valid-utterance-button'
+                />
+            </div>
         );
     } else {
         action = (
@@ -29,15 +31,17 @@ export default function ActivityActionsColumn(props) {
                 inverted
                 content='Mark this utterance valid'
                 trigger={(
-                    <IconButton
-                        basic
-                        size={size}
-                        disabled={!datum.intent}
-                        onClick={() => onToggleValidation(datum)}
-                        color='green'
-                        icon='check'
-                        data-cy='invalid-utterance-button'
-                    />
+                    <div>
+                        <IconButton
+                            basic
+                            size={size}
+                            disabled={!datum.intent}
+                            onClick={() => onToggleValidation(datum)}
+                            color='green'
+                            icon='check'
+                            data-cy='invalid-utterance-button'
+                        />
+                    </div>
                 )}
             />
         );

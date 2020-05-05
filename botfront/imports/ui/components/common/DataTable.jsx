@@ -1,5 +1,5 @@
 import React, {
-    useRef, useState, useEffect,
+    useRef, useState, useEffect, useMemo,
 } from 'react';
 import PropTypes from 'prop-types';
 import { Portal } from 'semantic-ui-react';
@@ -19,7 +19,7 @@ export default function DataTable(props) {
         onClickRow,
         hasNextPage,
         loadMore,
-        columns,
+        columns: allColumns,
         onScroll,
         className,
         rowClassName,
@@ -28,7 +28,8 @@ export default function DataTable(props) {
     } = props;
     const dataCount = hasNextPage ? data.length + 1 : data.length;
     const isDataLoaded = index => !hasNextPage || index < data.length;
-    const selectionKey = (columns.filter(c => c.selectionKey)[0] || {}).key || columns[0].key;
+    const columns = useMemo(() => allColumns.filter(c => !c.hidden), [allColumns]);
+    const selectionKey = (allColumns.filter(c => c.selectionKey)[0] || {}).key || allColumns[0].key;
     const isDatumSelected = datum => datum && selection.includes(datum[selectionKey]);
 
     const tableRef = useRef(null);

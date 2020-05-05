@@ -152,6 +152,7 @@ class EntityPopup extends React.Component {
                         <div
                             onMouseEnter={this.handleMouseEnter}
                             onMouseLeave={this.handleMouseLeave}
+                            {...{ onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); } }}
                             ref={this.popupNode}
                         >
                             {this.getContent()}

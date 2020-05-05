@@ -94,7 +94,7 @@ export const InfiniteLoading = () => {
     );
 };
 export const WithSelection = () => {
-    const [selection, setSelection] = useState(['ghussy3']);
+    const [selection, setSelection] = useState([]);
     return (
         <DataTableWrapped
             selection={selection}
