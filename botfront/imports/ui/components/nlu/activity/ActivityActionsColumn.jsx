@@ -52,6 +52,7 @@ export default function ActivityActionsColumn(props) {
         <div key={`${datum._id}-actions`} className='side-by-side narrow right'>
             {action}
             <IconButton
+                size={size}
                 onClick={() => onDelete([datum])}
                 color='grey'
                 icon='trash'

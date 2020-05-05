@@ -1,7 +1,7 @@
 import React, { useContext, useState, useImperativeHandle } from 'react';
 import PropTypes from 'prop-types';
 import {
-    Icon, Popup, Input, Button,
+    Icon, Popup, Input, Button, Modal,
 } from 'semantic-ui-react';
 import { ProjectContext } from '../../../layouts/context';
 import { OOS_LABEL } from '../../constants.json';
@@ -15,6 +15,7 @@ const Intent = React.forwardRef((props, ref) => {
         onChange,
         disabled,
         enableReset,
+        detachedModal,
     } = props;
     const { addIntent, intents: contextIntents } = useContext(ProjectContext);
     const [popupOpen, setPopupOpen] = useState(false);
@@ -26,6 +27,7 @@ const Intent = React.forwardRef((props, ref) => {
 
     useImperativeHandle(ref, () => ({
         isPopupOpen: () => popupOpen,
+        openPopup: () => setPopupOpen(true),
     }));
 
     const textMatch = (s1, s2) => (s1 || '')
@@ -116,6 +118,21 @@ const Intent = React.forwardRef((props, ref) => {
     if (value === OOS_LABEL || !value) extraClass = `${extraClass} null`;
     if (!allowEditing) extraClass = `${extraClass} uneditable`;
 
+    if (detachedModal && !!allowEditing) {
+        return (
+            <Modal
+                centered
+                content={renderContent()}
+                open={popupOpen}
+                onOpen={() => setPopupOpen(true)}
+                onClose={() => {
+                    setTypeInput('');
+                    setPopupOpen(false);
+                }}
+                className='intent-popup'
+            />
+        );
+    }
     return (
         <div
             className={`intent-label ${extraClass}`}
@@ -164,6 +181,7 @@ Intent.propTypes = {
     enableReset: PropTypes.bool,
     onChange: PropTypes.func,
     disabled: PropTypes.bool,
+    detachedModal: PropTypes.bool,
 };
 
 Intent.defaultProps = {
@@ -173,6 +191,7 @@ Intent.defaultProps = {
     onChange: () => {},
     disabled: false,
     enableReset: false,
+    detachedModal: false,
 };
 
 export default Intent;

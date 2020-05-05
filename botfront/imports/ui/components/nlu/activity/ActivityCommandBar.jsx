@@ -1,14 +1,22 @@
-import React from 'react';
+import React, { useImperativeHandle, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { Popup } from 'semantic-ui-react';
 import IconButton from '../../common/IconButton';
+import IntentLabel from '../common/IntentLabel';
 
-function ActivityCommandBar(props) {
-    const { selection, handleSetValidated, onDelete } = props;
-    const size = 'small';
+const ActivityCommandBar = React.forwardRef((props, ref) => {
+    const {
+        selection, handleSetValidated, onSetIntent, onDelete,
+    } = props;
     const someValidated = selection.some(d => !!d.validated);
     const someNotValidated = selection.some(d => !d.validated);
     const someLackingIntent = selection.some(d => !d.intent);
+    const intentLabelRef = useRef();
+
+    useImperativeHandle(ref, () => ({
+        openIntentPopup: () => intentLabelRef.current.openPopup(),
+    }));
+
     return (
         <div className='activity-command-bar'>
             {selection.length} selected
@@ -21,7 +29,7 @@ function ActivityCommandBar(props) {
                     trigger={(
                         <div>
                             <IconButton
-                                size={size}
+                                size='small'
                                 basic={someNotValidated}
                                 color='green'
                                 icon={(someValidated && someNotValidated) ? 'minus' : 'check'}
@@ -32,7 +40,31 @@ function ActivityCommandBar(props) {
                         </div>
                     )}
                 />
+                <IntentLabel
+                    ref={intentLabelRef}
+                    detachedModal
+                    allowAdditions
+                    allowEditing
+                    onChange={intent => onSetIntent(selection, intent)}
+                />
+                <Popup
+                    size='mini'
+                    inverted
+                    content='Change intent'
+                    trigger={(
+                        <div>
+                            <IconButton
+                                size='small'
+                                onClick={() => intentLabelRef.current.openPopup()}
+                                color='purple'
+                                icon='edit'
+                                data-cy='edit-intent'
+                            />
+                        </div>
+                    )}
+                />
                 <IconButton
+                    size='small'
                     onClick={() => onDelete(selection)}
                     color='grey'
                     icon='trash'
@@ -41,12 +73,13 @@ function ActivityCommandBar(props) {
             </div>
         </div>
     );
-}
+});
 
 ActivityCommandBar.propTypes = {
     selection: PropTypes.array,
     handleSetValidated: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
+    onSetIntent: PropTypes.func.isRequired,
 };
 
 ActivityCommandBar.defaultProps = {
