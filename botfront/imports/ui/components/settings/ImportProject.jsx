@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Meteor } from 'meteor/meteor';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -10,6 +10,8 @@ import {
 
 import ImportDropField from './importProjectDropfield';
 import ImportRasaFiles from './ImportRasaFiles';
+
+const { version } = require('/package.json');
 
 const ImportProject = ({
     setLoading,
@@ -40,6 +42,12 @@ const ImportProject = ({
     const [uploadedFiles, setUploadedFiles] = useState({ header: 'Import Failed', text: '' });
     const [confirmSkipOpen, setConfirmSkipOpen] = useState(false);
     const [includeConvos, setIncludeConvos] = useState('conversations=true');
+
+    const uploadedFileVersion = useMemo(() => {
+        if (!uploadedFiles.botfront) return false;
+        if (!uploadedFiles.botfront.bf_version) return false;
+        return uploadedFiles.botfront.bf_version;
+    }, [uploadedFiles]);
 
     const validateImportType = () => {
         if (!importTypeOptions.some(({ value }) => value === importType.value)) {
@@ -181,7 +189,17 @@ const ImportProject = ({
                     warning
                     icon='exclamation circle'
                     header='Your project will be overwritten.'
-                    content='It is highly advised to download a backup of your current project before importing a new one.'
+                    content={(
+                        <>
+                            <div>
+                            It is highly advised to download a backup of your current project before importing a new one.<br /><br />
+                            </div>
+                            <div>
+                            Current Botfront version: {version}<br />
+                            File version: {uploadedFileVersion || <i>unknown</i>}
+                            </div>
+                        </>
+                    )}
                 />
             )}
             {backupSuccess === undefined && botfrontFileSuccess && (
