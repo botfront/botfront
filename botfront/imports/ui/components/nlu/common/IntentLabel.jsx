@@ -1,5 +1,5 @@
 import React, {
-    useContext, useState, useImperativeHandle, useRef,
+    useContext, useState, useImperativeHandle, useRef, useMemo,
 } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -37,7 +37,8 @@ const Intent = React.forwardRef((props, ref) => {
         openPopup: () => setPopupOpen(true),
     }));
     
-    const handleClose = () => {
+    const handleClose = (e = {}) => {
+        if (labelRef.current.contains(e.target)) return; // prevent duplicate handling
         setTypeInput('');
         setPopupOpen(false);
         if (onClose) onClose();
@@ -157,13 +158,13 @@ const Intent = React.forwardRef((props, ref) => {
                 open
                 centered
                 content={renderContent()}
-                onOpen={() => setPopupOpen(true)}
                 onClose={onClose}
                 className='intent-popup'
             />
         );
     }
-    const onClickProp = { onClick: () => setPopupOpen(true) };
+
+    const onClickProp = { onClick: () => { if (popupOpen) handleClose(); else setPopupOpen(true); } };
     return (
         <div
             className={`intent-label ${extraClass}`}

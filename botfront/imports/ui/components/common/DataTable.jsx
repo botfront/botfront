@@ -130,8 +130,9 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
         handleSelectionChange({ shiftKey: true, ...rowInfo });
     };
 
-    useEventListener('mouseup', () => {
+    useEventListener('mouseup', (e) => {
         setMouseDown(false);
+        if (!tableRef.current.contains(e.target)) return;
         if (onClickRow) {
             if (!onChangeSelection) handleSelectionChange(lastFocusedRowInfo.current);
             onClickRow(lastFocusedRowInfo.current);
