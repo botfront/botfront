@@ -1,4 +1,6 @@
-import React, { useContext, useState, useImperativeHandle } from 'react';
+import React, {
+    useContext, useState, useImperativeHandle, useRef,
+} from 'react';
 import PropTypes from 'prop-types';
 import {
     Icon, Popup, Input, Button, Modal,
@@ -16,10 +18,12 @@ const Intent = React.forwardRef((props, ref) => {
         disabled,
         enableReset,
         detachedModal,
+        onClose,
     } = props;
     const { addIntent, intents: contextIntents } = useContext(ProjectContext);
     const [popupOpen, setPopupOpen] = useState(false);
     const [typeInput, setTypeInput] = useState('');
+    const labelRef = useRef();
 
     const intents = [
         ...(value ? [{ intent: value }] : []),
@@ -32,6 +36,12 @@ const Intent = React.forwardRef((props, ref) => {
         isPopupOpen: () => popupOpen,
         openPopup: () => setPopupOpen(true),
     }));
+    
+    const handleClose = () => {
+        setTypeInput('');
+        setPopupOpen(false);
+        if (onClose) onClose();
+    };
 
     const textMatch = (s1, s2) => (s1 || '')
         .replace(/ /g, '')
@@ -50,16 +60,28 @@ const Intent = React.forwardRef((props, ref) => {
     const handleChange = (intentName) => {
         if (intentName) addIntent(intentName);
         onChange(intentName);
-        setTypeInput('');
-        setPopupOpen(false);
+        handleClose();
+    };
+
+    const selectSibling = (key) => {
+        let index = dataToDisplay.findIndex(({ intent }) => intent === selection[0]);
+        if (!Number.isInteger(index)) return;
+        if (key === 'ArrowUp') index -= 1;
+        else if (key === 'ArrowDown') index += 1;
+        else return;
+        index = Math.min(Math.max(0, index), dataToDisplay.length - 1);
+        setSelection([dataToDisplay[index].intent]);
     };
 
     const handleKeyDown = (event) => {
-        if (event.key === 'Escape') {
-            setTypeInput('');
-            setPopupOpen(false);
+        event.stopPropagation();
+        if (event.key === 'Escape') handleClose();
+        if (['ArrowUp', 'ArrowDown'].includes(event.key)) selectSibling(event.key);
+        if (event.key === 'Enter') {
+            handleChange(
+                (selection || []).length ? selection[0] : typeInput,
+            );
         }
-        if (event.key === 'Enter') handleChange(typeInput);
     };
 
     const renderIntent = (row) => {
@@ -105,10 +127,11 @@ const Intent = React.forwardRef((props, ref) => {
                     width={300}
                     columns={columns}
                     data={dataToDisplay}
-                    onClickRow={({ datum: { intent } = {} }) => handleChange(intent)}
+                    onClickRow={({ datum: { intent } = {} } = { datum: {} }) => handleChange(intent)}
                     rowClassName='clickable'
                     selection={selection}
                     onChangeSelection={setSelection}
+                    externallyControlledSelection
                 />
             ) : (
                 <Button
@@ -128,20 +151,19 @@ const Intent = React.forwardRef((props, ref) => {
     if (!allowEditing) extraClass = `${extraClass} uneditable`;
 
     if (detachedModal && !!allowEditing) {
+        if (!popupOpen) return null;
         return (
             <Modal
+                open
                 centered
                 content={renderContent()}
-                open={popupOpen}
                 onOpen={() => setPopupOpen(true)}
-                onClose={() => {
-                    setTypeInput('');
-                    setPopupOpen(false);
-                }}
+                onClose={onClose}
                 className='intent-popup'
             />
         );
     }
+    const onClickProp = { onClick: () => setPopupOpen(true) };
     return (
         <div
             className={`intent-label ${extraClass}`}
@@ -153,25 +175,26 @@ const Intent = React.forwardRef((props, ref) => {
                 },
             }}
         >
-            <Popup
-                trigger={(
-                    <div className='content-on-label'>
-                        <Icon name='tag' size='small' />
-                        <span>{value || 'no intent'}</span>
-                    </div>
-                )}
-                basic
-                content={renderContent()}
-                on='click'
-                open={popupOpen}
-                onOpen={() => setPopupOpen(true)}
-                onClose={() => {
-                    setTypeInput('');
-                    setPopupOpen(false);
-                }}
-                disabled={!allowEditing}
-                className='intent-popup'
-            />
+            {popupOpen && (
+                <Popup
+                    open
+                    basic
+                    content={renderContent()}
+                    on='click'
+                    context={labelRef.current}
+                    onClose={handleClose}
+                    disabled={!allowEditing}
+                    className='intent-popup'
+                />
+            )}
+            <div
+                className='content-on-label'
+                ref={labelRef}
+                {...onClickProp}
+            >
+                <Icon name='tag' size='small' />
+                <span>{value || 'no intent'}</span>
+            </div>
             {enableReset && value && value !== OOS_LABEL && (
                 <Icon
                     name='x'
@@ -191,6 +214,7 @@ Intent.propTypes = {
     onChange: PropTypes.func,
     disabled: PropTypes.bool,
     detachedModal: PropTypes.bool,
+    onClose: PropTypes.func,
 };
 
 Intent.defaultProps = {
@@ -201,6 +225,7 @@ Intent.defaultProps = {
     disabled: false,
     enableReset: false,
     detachedModal: false,
+    onClose: null,
 };
 
 export default Intent;

@@ -8,9 +8,9 @@ import { DynamicSizeList as List } from '@john-osullivan/react-window-dynamic-fo
 import InfiniteLoader from 'react-window-infinite-loader';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import Row from './DataTableRow';
-import { useEventListener, useResizeObserver } from '../utils/hooks';
+import { useEventListener, useResizeObserver, useIsMount } from '../utils/hooks';
 
-export default function DataTable(props) {
+const DataTable = React.forwardRef((props, forwardedRef) => {
     const {
         data,
         height: providedHeight,
@@ -25,6 +25,7 @@ export default function DataTable(props) {
         rowClassName,
         selection,
         onChangeSelection,
+        externallyControlledSelection,
     } = props;
     const dataCount = hasNextPage ? data.length + 1 : data.length;
     const isDataLoaded = index => !hasNextPage || index < data.length;
@@ -32,7 +33,11 @@ export default function DataTable(props) {
     const selectionKey = (allColumns.filter(c => c.selectionKey)[0] || {}).key || allColumns[0].key;
     const isDatumSelected = datum => datum && selection.includes(datum[selectionKey]);
 
-    const tableRef = useRef(null);
+    const tableRef = forwardedRef || useRef(null);
+    if (!externallyControlledSelection) {
+        const isMount = useIsMount();
+        useEffect(() => { if (isMount) tableRef.current.focus(); }, [selection]);
+    }
     const headerRef = useRef(null);
     const stickyRowsRef = useRef(document.createElement('div'));
     const [height, doSetHeight] = useState();
@@ -86,7 +91,7 @@ export default function DataTable(props) {
 
     const [mouseDown, setMouseDown] = useState(false);
     const lastFocusedStart = useRef(selection[0]);
-    const lastFocusedRowInfo = useRef();
+    const lastFocusedRowInfo = useRef({ index: 0 });
 
     const selectItemAndResetFocus = ({ datum, index: indexInData, metaKey }) => {
         const id = datum[selectionKey];
@@ -133,6 +138,24 @@ export default function DataTable(props) {
         }
     });
 
+    const handleKeyDownInMenu = (e) => {
+        const { key, shiftKey } = e;
+        if (tableRef.current !== e.target) return;
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+        if (!['ArrowUp', 'ArrowDown'].includes(key)) return;
+        e.preventDefault();
+        let { index } = lastFocusedRowInfo.current || {};
+        if (!Number.isInteger(index)) return;
+        if (key === 'ArrowUp') index -= 1;
+        else if (key === 'ArrowDown') index += 1;
+        else return;
+        index = Math.min(Math.max(0, index), data.length - 1);
+        const datum = data[index];
+        handleSelectionChange({ shiftKey, datum, index });
+    };
+
+    useEventListener('keydown', handleKeyDownInMenu);
+
     const renderHeader = () => (
         <div className='header row' ref={headerRef}>
             {columns.map(c => (
@@ -168,6 +191,7 @@ export default function DataTable(props) {
                 height,
                 ...(width === 'auto' ? {} : { width }),
             }}
+            tabIndex={0} // eslint-disable-line jsx-a11y/no-noninteractive-tabindex
         >
             {(stickyRows || []).length > 0 && <Portal open mountNode={stickyRowsRef.current}>{renderStickyRows()}</Portal>}
             {columns.some(c => c.header) ? renderHeader() : <div ref={headerRef} />}
@@ -217,7 +241,7 @@ export default function DataTable(props) {
             </div>
         </div>
     );
-}
+});
 
 DataTable.propTypes = {
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['auto'])]),
@@ -233,6 +257,7 @@ DataTable.propTypes = {
     className: PropTypes.string,
     selection: PropTypes.array,
     onChangeSelection: PropTypes.func,
+    externallyControlledSelection: PropTypes.bool,
 };
 
 DataTable.defaultProps = {
@@ -247,4 +272,7 @@ DataTable.defaultProps = {
     className: '',
     selection: [],
     onChangeSelection: null,
+    externallyControlledSelection: false,
 };
+
+export default DataTable;

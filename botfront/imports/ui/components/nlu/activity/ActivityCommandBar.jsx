@@ -6,7 +6,7 @@ import IntentLabel from '../common/IntentLabel';
 
 const ActivityCommandBar = React.forwardRef((props, ref) => {
     const {
-        selection, handleSetValidated, onSetIntent, onDelete,
+        selection, onSetValidated, onSetIntent, onDelete, onCloseIntentPopup,
     } = props;
     const someValidated = selection.some(d => !!d.validated);
     const someNotValidated = selection.some(d => !d.validated);
@@ -35,7 +35,7 @@ const ActivityCommandBar = React.forwardRef((props, ref) => {
                                 icon={(someValidated && someNotValidated) ? 'minus' : 'check'}
                                 disabled={someLackingIntent}
                                 data-cy='valid-utterance-button'
-                                onClick={() => handleSetValidated(selection, someNotValidated)}
+                                onClick={() => onSetValidated(selection, someNotValidated)}
                             />
                         </div>
                     )}
@@ -46,6 +46,7 @@ const ActivityCommandBar = React.forwardRef((props, ref) => {
                     allowAdditions
                     allowEditing
                     onChange={intent => onSetIntent(selection, intent)}
+                    onClose={onCloseIntentPopup}
                 />
                 <Popup
                     size='mini'
@@ -77,9 +78,10 @@ const ActivityCommandBar = React.forwardRef((props, ref) => {
 
 ActivityCommandBar.propTypes = {
     selection: PropTypes.array,
-    handleSetValidated: PropTypes.func.isRequired,
+    onSetValidated: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
     onSetIntent: PropTypes.func.isRequired,
+    onCloseIntentPopup: PropTypes.func.isRequired,
 };
 
 ActivityCommandBar.defaultProps = {

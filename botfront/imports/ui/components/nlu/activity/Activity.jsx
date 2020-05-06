@@ -57,6 +57,7 @@ function Activity(props) {
     const [confirm, setConfirm] = useState(null);
     const singleSelectedIntentLabelRef = useRef();
     const activityCommandBarRef = useRef();
+    const tableRef = useRef();
 
     // always refetch on first page load and sortType change
     useEffect(() => { if (refetch) refetch(); }, [refetch, modelId, sortType]);
@@ -175,6 +176,7 @@ function Activity(props) {
                 allowAdditions
                 onChange={intent => handleSetIntent([{ _id: datum._id }], intent)}
                 enableReset
+                onClose={() => tableRef.current.focus()}
             />
         );
     };
@@ -238,7 +240,7 @@ function Activity(props) {
             if (key === 'y' || key === 'Enter') { confirm.action(); setConfirm(null); }
             return;
         }
-        if (document.activeElement.tagName !== 'BODY') return;
+        if (document.activeElement !== tableRef.current) return;
         if (key === 'd') handleDelete(selectionWithFullData);
         if (key === 'v') {
             if (selectionWithFullData.some(d => !d.intent)) return;
@@ -312,6 +314,7 @@ function Activity(props) {
                 ? (
                     <>
                         <DataTable
+                            ref={tableRef}
                             columns={columns}
                             data={data}
                             hasNextPage={hasNextPage}
@@ -326,9 +329,10 @@ function Activity(props) {
                             <ActivityCommandBar
                                 ref={activityCommandBarRef}
                                 selection={selectionWithFullData}
-                                handleSetValidated={handleSetValidated}
+                                onSetValidated={handleSetValidated}
                                 onDelete={handleDelete}
                                 onSetIntent={handleSetIntent}
+                                onCloseIntentPopup={() => tableRef.current.focus()}
                             />
                         )}
                     </>

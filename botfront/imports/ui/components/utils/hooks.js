@@ -47,3 +47,11 @@ export function useResizeObserver(handler, element) {
         return cleanUpFunc;
     }, [element]);
 }
+
+export const useIsMount = () => {
+    const isMountRef = useRef(false);
+    useEffect(() => {
+        isMountRef.current = true;
+    }, []);
+    return isMountRef.current;
+};
