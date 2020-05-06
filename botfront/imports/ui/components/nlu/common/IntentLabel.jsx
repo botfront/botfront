@@ -1,5 +1,5 @@
 import React, {
-    useContext, useState, useImperativeHandle, useRef, useMemo,
+    useContext, useState, useImperativeHandle, useRef,
 } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -176,7 +176,7 @@ const Intent = React.forwardRef((props, ref) => {
                 },
             }}
         >
-            {popupOpen && (
+            {popupOpen && allowEditing && (
                 <Popup
                     open
                     basic
@@ -184,7 +184,6 @@ const Intent = React.forwardRef((props, ref) => {
                     on='click'
                     context={labelRef.current}
                     onClose={handleClose}
-                    disabled={!allowEditing}
                     className='intent-popup'
                 />
             )}
