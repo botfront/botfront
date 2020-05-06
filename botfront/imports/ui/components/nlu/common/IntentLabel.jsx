@@ -158,7 +158,7 @@ const Intent = React.forwardRef((props, ref) => {
                 open
                 centered
                 content={renderContent()}
-                onClose={onClose}
+                onClose={handleClose}
                 className='intent-popup'
             />
         );
