@@ -19,6 +19,7 @@ const uuidv4 = require('uuid/v4');
 const JSZip = require('jszip');
 const { sortBy, get: _get } = require('lodash');
 const { createResponsesIndex, createStoriesIndex } = require('../server/searchIndex/searchIndexing.utils')
+const { version } = require('../package-lock.json')
 
 const collectionsWithModelId = {
     activity: Activity,
@@ -215,6 +216,7 @@ const gatherCollectionsForExport = async (project, models, excludedCollections) 
         }
     }
     response.timestamp = new Date().getTime();
+    response.bf_version = version;
     return response;
 };
 
