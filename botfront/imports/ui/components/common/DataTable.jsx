@@ -131,12 +131,15 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
     };
 
     useEventListener('mouseup', (e) => {
-        setMouseDown(false);
-        if (!tableRef.current.contains(e.target)) return;
+        if (!tableRef.current.contains(e.target)) {
+            setMouseDown(false);
+            return;
+        }
         if (onClickRow) {
-            if (!onChangeSelection) handleSelectionChange(lastFocusedRowInfo.current);
+            if (onChangeSelection) handleSelectionChange(lastFocusedRowInfo.current);
             onClickRow(lastFocusedRowInfo.current);
         }
+        setMouseDown(false);
     });
 
     const handleKeyDownInMenu = (e) => {
@@ -176,7 +179,6 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
                     datum={r}
                     columns={columns}
                     rowClassName={`${rowClassName} ${isDatumSelected(r) ? 'selected' : ''}`}
-                    onClick={onClickRow}
                     onMouseDown={handleMouseDown}
                     onMouseEnter={handleMouseEnter}
                 />

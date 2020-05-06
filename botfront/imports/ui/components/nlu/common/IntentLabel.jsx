@@ -38,7 +38,7 @@ const Intent = React.forwardRef((props, ref) => {
     }));
     
     const handleClose = (e = {}) => {
-        if (!detachedModal && labelRef.current.contains(e.target)) return; // prevent duplicate handling
+        if (labelRef.current && labelRef.current.contains(e.target)) return; // prevent duplicate handling
         setTypeInput('');
         setPopupOpen(false);
         if (onClose) onClose();
