@@ -13,6 +13,7 @@ const NluEditor = (props) => {
         open,
         setModalOpen,
         payload,
+        displayedExample,
     } = props;
 
     const renderModalContent = () => (
@@ -20,7 +21,7 @@ const NluEditor = (props) => {
             <div className='nlu-editor-top-content'>
                 <UserUtteranceViewer value={payload} disableEditing />
             </div>
-            <NluModalContent payload={payload} closeModal={() => setModalOpen(false)} />
+            <NluModalContent payload={payload} closeModal={() => setModalOpen(false)} displayedExample={displayedExample} />
         </Segment>
 
     );
@@ -38,6 +39,11 @@ NluEditor.propTypes = {
     open: PropTypes.bool.isRequired,
     setModalOpen: PropTypes.func.isRequired,
     payload: PropTypes.object.isRequired,
+    displayedExample: PropTypes.object,
+};
+
+NluEditor.defaultProps = {
+    displayedExample: null,
 };
 
 const mapStateToProps = state => ({

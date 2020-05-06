@@ -39,6 +39,7 @@ export default class NLUExampleTester extends React.Component {
     parseNlu = () => {
         const { text } = this.state;
         const {
+            silenceRasaErrors,
             instance,
             model: { language: lang },
         } = this.props;
@@ -51,6 +52,7 @@ export default class NLUExampleTester extends React.Component {
             'rasa.parse',
             instance,
             [{ text, lang }],
+            { failSilently: silenceRasaErrors },
             wrapMeteorCallback((err, example) => {
                 if (err) {
                     return this.setState({ example: null, clickable: false });
@@ -94,8 +96,10 @@ NLUExampleTester.propTypes = {
     instance: PropTypes.object.isRequired,
     entities: PropTypes.array.isRequired,
     onDone: PropTypes.func,
+    silenceRasaErrors: PropTypes.bool,
 };
 
 NLUExampleTester.defaultProps = {
     onDone: () => {},
+    silenceRasaErrors: false,
 };
