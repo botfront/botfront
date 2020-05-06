@@ -38,7 +38,7 @@ const Intent = React.forwardRef((props, ref) => {
     }));
     
     const handleClose = (e = {}) => {
-        if (labelRef.current.contains(e.target)) return; // prevent duplicate handling
+        if (!detachedModal && labelRef.current.contains(e.target)) return; // prevent duplicate handling
         setTypeInput('');
         setPopupOpen(false);
         if (onClose) onClose();
@@ -80,7 +80,7 @@ const Intent = React.forwardRef((props, ref) => {
         if (['ArrowUp', 'ArrowDown'].includes(event.key)) selectSibling(event.key);
         if (event.key === 'Enter') {
             handleChange(
-                (selection || []).length ? selection[0] : typeInput,
+                (dataToDisplay || []).length ? selection[0] : typeInput,
             );
         }
     };
