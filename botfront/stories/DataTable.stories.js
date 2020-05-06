@@ -58,7 +58,6 @@ function DataTableWrapped(props) {
             width={boolean('auto width', true) ? 'auto' : number('manual width', 400)}
             stickyRows={stickyRows}
             onScroll={action('onScroll')}
-            onClickRow={action('onClickRow')}
             {...props}
         />
     );
