@@ -260,8 +260,11 @@ function Activity(props) {
                     cancelButton='No'
                     confirmButton='Yes'
                     content={confirm.message}
-                    onCancel={() => setConfirm(null)}
-                    onConfirm={() => { confirm.action(); setConfirm(null); }}
+                    onCancel={() => {
+                        setConfirm(null);
+                        tableRef.current.focus();
+                    }}
+                    onConfirm={() => { confirm.action(); setConfirm(null); tableRef.current.focus(); }}
                 />
             )}
             <Button.Group style={{ marginLeft: '20px' }}>
