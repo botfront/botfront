@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.23.0-ee.0](https://github.com/botfront/botfront/compare/v0.23.0-rc.0-ee.0...v0.23.0-ee.0) (2020-05-07)
+
+
+### Features
+
+* **import/export:** version check ([2ccf353](https://github.com/botfront/botfront/commit/2ccf3532e29c6dbf51f5908cc16b6d6398526842))
+
+
+### Bug Fixes
+
+* assumed error object structure ([879786e](https://github.com/botfront/botfront/commit/879786e7ae6c380d0db4da027a7484905010bcb9))
+
 ## [0.23.0-rc.0-ee.0](https://github.com/botfront/botfront/compare/v0.22.2-ee.1...v0.23.0-rc.0-ee.0) (2020-05-05)
 
 
