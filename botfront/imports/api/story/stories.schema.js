@@ -29,6 +29,7 @@ const EventListenersSchema = new SimpleSchema({
     selector: { type: String, trim: true },
     event: { type: String, trim: true },
     once: { type: Boolean },
+    visualization: { type: String, defaultValue: 'none' },
 });
 
 const QueryStringSchema = new SimpleSchema({

@@ -14,6 +14,7 @@ import SelectField from '../../form_fields/SelectField';
 import ToggleField from '../../common/ToggleField';
 import { can } from '../../../../api/roles/roles';
 import URLIsSequence from './URLIsSequence';
+import ButtonSelectField from '../../form_fields/ButtonSelectField';
 
 
 class RulesForm extends AutoForm {
@@ -29,7 +30,9 @@ class RulesForm extends AutoForm {
     getDefaultValue = (field) => {
         switch (field) {
         case 'eventListeners':
-            return { selector: '', event: null, once: false };
+            return {
+                selector: '', event: null, once: false, visualization: 'none',
+            };
         case 'url':
             return '';
         case 'queryString':
@@ -129,6 +132,7 @@ function StoryRulesForm({
         selector: { type: String, trim: true },
         event: { type: String, trim: true },
         once: { type: Boolean, defaultValue: false },
+        visualization: { type: String, defaultValue: 'none' },
     });
     
     const QueryStringSchema = new SimpleSchema({
@@ -353,15 +357,15 @@ function StoryRulesForm({
                 <ListAddField name='rules.$' className='add-trigger-field' />
                 <ListField name='rules' label=''>
                     <ListItemField name='$'>
-                        <NestField>
+                        <NestField name=''>
                             <AutoField name='trigger' label='Conditions'>
-                                <SelectField
+                                <ButtonSelectField
                                     name='when'
                                     label='When should this event be triggered?'
                                     options={[
-                                        { value: 'always', text: 'Always' },
-                                        { value: 'init', text: 'Only if no conversation has started' },
-                                        { value: 'limited', text: 'Choose a limit' },
+                                        { value: 'always', description: 'Always' },
+                                        { value: 'init', description: 'Only if no conversation has started' },
+                                        { value: 'limited', description: 'Limit the number of times the rule will trigger' },
                                     ]}
                                 />
 
@@ -383,10 +387,10 @@ function StoryRulesForm({
                                     />
                                 </OptionalField>
                                 <OptionalField name='url' label='Trigger based on browsing history' getError={getEnabledError}>
-                                    <URLIsSequence />
+                                    <URLIsSequence name='' />
                                     <ListField name=''>
                                         <ListItemField name='$'>
-                                            <NestField>
+                                            <NestField name=''>
                                                 <AutoField
                                                     name='path'
                                                 />
@@ -423,7 +427,7 @@ function StoryRulesForm({
                                 >
                                     <ListField name='' data-cy='query-string-field'>
                                         <ListItemField name='$'>
-                                            <NestField>
+                                            <NestField name=''>
                                                 <AutoField name='param' />
                                                 <OptionalField name='value' getError={getEnabledError} showToggle={false}>
                                                     <AutoField name='' />
@@ -448,7 +452,7 @@ function StoryRulesForm({
                                 <OptionalField name='eventListeners' label='Trigger based on user actions' data-cy='toggle-event-listeners' getError={getEnabledError}>
                                     <ListField name=''>
                                         <ListItemField name='$'>
-                                            <NestField>
+                                            <NestField name=''>
                                                 <AutoField name='selector' label='CSS selector' />
                                                 <SelectField
                                                     name='event'
@@ -465,6 +469,26 @@ function StoryRulesForm({
                                                         { value: 'focus', text: 'focus' },
                                                         { value: 'focusin', text: 'focusin' },
                                                         { value: 'focusout', text: 'focusout' },
+                                                    ]}
+                                                />
+                                                <ButtonSelectField
+                                                    name='visualization'
+                                                    label='Add a visual to the target element'
+                                                    options={[
+                                                        {
+                                                            value: 'none',
+                                                            text: 'None',
+                                                        },
+                                                        {
+                                                            value: 'questionMark',
+                                                            text: 'Question mark',
+                                                            description: 'Add a question mark to the top right of the target element',
+                                                        },
+                                                        {
+                                                            value: 'pulse',
+                                                            text: 'Pulse',
+                                                            description: 'The target element with pulsate',
+                                                        },
                                                     ]}
                                                 />
                                                 <ToggleField name='once' label='Trigger only the first time this event occurs' />
