@@ -129,7 +129,6 @@ const Intent = React.forwardRef((props, ref) => {
                     columns={columns}
                     data={dataToDisplay}
                     onClickRow={({ datum: { intent } = {} } = { datum: {} }) => handleChange(intent)}
-                    rowClassName='clickable'
                     selection={selection}
                     onChangeSelection={setSelection}
                     externallyControlledSelection

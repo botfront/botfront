@@ -119,10 +119,19 @@
             color: initial;
         }
     }
-    .row:hover {
-        cursor: pointer;
-        .intent-label.selectable {
+    .virtual-table .row {
+        margin-right: 0;
+        &.selected {
+            background-color: fade(@purple, 10%);
+        }
+        &.selected:hover {
+            background-color: fade(@purple, 20%);
+        }
+        &:hover {
             cursor: pointer;
+            .intent-label.selectable {
+                cursor: pointer;
+            }
         }
     }
 }

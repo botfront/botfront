@@ -21,6 +21,7 @@ const ActivityCommandBar = React.forwardRef((props, ref) => {
         <div className='activity-command-bar'>
             {selection.length} selected
             <div className='side-by-side narrow right'>
+                <span className='shortcut'>V</span>
                 <Popup
                     size='mini'
                     inverted
@@ -40,6 +41,7 @@ const ActivityCommandBar = React.forwardRef((props, ref) => {
                         </div>
                     )}
                 />
+                <span className='shortcut'>I</span>
                 <IntentLabel
                     ref={intentLabelRef}
                     detachedModal
@@ -55,15 +57,17 @@ const ActivityCommandBar = React.forwardRef((props, ref) => {
                     trigger={(
                         <div>
                             <IconButton
+                                basic
                                 size='small'
                                 onClick={() => intentLabelRef.current.openPopup()}
                                 color='purple'
-                                icon='edit'
+                                icon='tag'
                                 data-cy='edit-intent'
                             />
                         </div>
                     )}
                 />
+                <span className='shortcut'>D</span>
                 <IconButton
                     size='small'
                     onClick={() => onDelete(selection)}

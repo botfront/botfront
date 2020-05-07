@@ -236,17 +236,18 @@ function Activity(props) {
         } = e;
         if (shiftKey || metaKey || ctrlKey || altKey) return;
         if (!!confirm) {
-            if (key === 'n') setConfirm(null);
-            if (key === 'y' || key === 'Enter') { confirm.action(); setConfirm(null); }
+            if (key.toLowerCase() === 'n') setConfirm(null);
+            if (key.toLowerCase() === 'y' || key === 'Enter') { confirm.action(); setConfirm(null); }
             return;
         }
         if (document.activeElement !== tableRef.current) return;
-        if (key === 'd') handleDelete(selectionWithFullData);
-        if (key === 'v') {
+        if (key === 'Escape') setSelection([]);
+        if (key.toLowerCase() === 'd') handleDelete(selectionWithFullData);
+        if (key.toLowerCase() === 'v') {
             if (selectionWithFullData.some(d => !d.intent)) return;
             handleSetValidated(selectionWithFullData, selectionWithFullData.some(d => !d.validated));
         }
-        if (key === 'i') {
+        if (key.toLowerCase() === 'i') {
             e.preventDefault();
             handleOpenIntentSetterDialogue(e);
         }
@@ -267,7 +268,7 @@ function Activity(props) {
                     onConfirm={() => { confirm.action(); setConfirm(null); tableRef.current.focus(); }}
                 />
             )}
-            <Button.Group style={{ marginLeft: '20px' }}>
+            <Button.Group>
                 <Button
                     className='white'
                     basic
@@ -293,7 +294,7 @@ function Activity(props) {
                     })}
                     disabled={!validated.length}
                 >
-                    <Icon name='add square' />Add to model
+                    <Icon name='add square' />Add to training data
                 </Button>
             </Button.Group>
             <PrefixDropdown

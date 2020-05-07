@@ -148,17 +148,42 @@
 
 .activity-command-bar {
     position: absolute;
-    height: 60px;
+    height: 50px;
     min-width: 300px;
     width: max-content;
-    border-radius: 3rem;
+    border-radius: 9px;
     border: 1px #ddd solid;
     background-color: #fff;
     z-index: 100;
     left: ~"calc(50% - 150px)";
-    bottom: ~"calc(20px)";
+    bottom: 20px;
     padding: 1rem;
     display: flex;
     align-items: center;
     white-space: nowrap;
+    box-shadow: 1px 2px 5px rgba(34, 36, 38, 0.1);
+    transform: translateY(100px);
+    animation: slide 0.5s forwards;
+    animation-delay: 0.5s;
+
+    @keyframes slide {
+        100% { transform: translateY(0%); }
+    }
+
+    .shortcut {
+        color: #bbb;
+        font-size: small;
+    }
+    // .shortcut {
+    //     visibility: hidden;
+    //     transform: scaleY(0);
+    //     transition: transform 0.15s ease-in-out;
+    // }
+
+    // &:hover {
+    //     .shortcut {
+    //         visibility: visible;
+    //         transform: unset;
+    //     }
+    // }
 }
