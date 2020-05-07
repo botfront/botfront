@@ -1,5 +1,5 @@
 import React, {
-    useRef, useState, useEffect, useMemo,
+    useRef, useState, useEffect, useMemo, useImperativeHandle,
 } from 'react';
 import PropTypes from 'prop-types';
 import { Portal } from 'semantic-ui-react';
@@ -33,13 +33,24 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
     const selectionKey = (allColumns.filter(c => c.selectionKey)[0] || {}).key || allColumns[0].key;
     const isDatumSelected = datum => datum && selection.includes(datum[selectionKey]);
 
-    const tableRef = forwardedRef || useRef(null);
+    const tableRef = useRef(null);
     if (!externallyControlledSelection) {
         const isMount = useIsMount();
         useEffect(() => { if (isMount) tableRef.current.focus(); }, [selection]);
     }
+    const windowInfoRef = useRef();
+    const outerListRef = useRef();
     const headerRef = useRef(null);
     const stickyRowsRef = useRef(document.createElement('div'));
+
+    useImperativeHandle(forwardedRef, () => ({
+        tableRef: () => tableRef,
+        windowInfoRef: () => windowInfoRef,
+        outerListRef: () => outerListRef,
+        headerRef: () => headerRef,
+        stickyRowsRef: () => stickyRowsRef,
+    }));
+    
     const [height, doSetHeight] = useState();
     const [headerOffset, setHeaderOffset] = useState(0);
     const [stickyRowsOffset, setStickyRowsOffset] = useState(0);
@@ -83,9 +94,8 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
     stickyRowsRef.current.setAttribute('style', 'position: sticky; top: 0; z-index: 100;');
     stickyRowsRef.current.setAttribute('class', `virtual-table-sticky-row ${className}`);
     useEffect(() => {
-        const outerList = document.getElementsByClassName('outer-list')[0];
-        if (!outerList) return;
-        outerList.insertBefore(stickyRowsRef.current, outerList.firstChild || null);
+        if (!outerListRef.current) return;
+        outerListRef.current.insertBefore(stickyRowsRef.current, outerListRef.current.firstChild || null);
     }, [!!tableRef.current]);
     useResizeObserver(() => setStickyRowsOffset(getOffsetHeight(stickyRowsRef)), stickyRowsRef.current);
 
@@ -106,6 +116,8 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
         shiftKey, metaKey, datum, index: indexInData,
     }) => {
         if (!onChangeSelection) return null;
+        if (indexInData >= windowInfoRef.current.visibleStopIndex) outerListRef.current.scrollTop += 100;
+        if (indexInData <= windowInfoRef.current.visibleStartIndex) outerListRef.current.scrollTop -= 100;
         if (metaKey || !shiftKey || !selection.length) {
             return selectItemAndResetFocus({ datum, index: indexInData, metaKey });
         }
@@ -212,11 +224,12 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
                                     itemCount={dataCount}
                                     onItemsRendered={(items) => {
                                         if (onScroll) onScroll(items);
+                                        windowInfoRef.current = items;
                                         onItemsRendered(items);
                                     }}
-                                    ref={ref}
+                                    // eslint-disable-next-line no-underscore-dangle
+                                    ref={(ref_) => { if (ref_ && ref_._outerRef) outerListRef.current = ref_._outerRef; return ref; }}
                                     width={w}
-                                    className='outer-list'
                                 >
                                     {React.forwardRef(({ index, style, ...row }, ref_) => ( // eslint-disable-line react/prop-types
                                         <Row

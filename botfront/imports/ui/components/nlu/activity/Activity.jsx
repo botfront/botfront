@@ -176,7 +176,7 @@ function Activity(props) {
                 allowAdditions
                 onChange={intent => handleSetIntent([{ _id: datum._id }], intent)}
                 enableReset
-                onClose={() => tableRef.current.focus()}
+                onClose={() => tableRef.current.tableRef().current.focus()}
             />
         );
     };
@@ -240,7 +240,7 @@ function Activity(props) {
             if (key.toLowerCase() === 'y' || key === 'Enter') { confirm.action(); setConfirm(null); }
             return;
         }
-        if (document.activeElement !== tableRef.current) return;
+        if (e.target !== tableRef.current.tableRef().current) return;
         if (key === 'Escape') setSelection([]);
         if (key.toLowerCase() === 'd') handleDelete(selectionWithFullData);
         if (key.toLowerCase() === 'v') {
@@ -263,9 +263,9 @@ function Activity(props) {
                     content={confirm.message}
                     onCancel={() => {
                         setConfirm(null);
-                        tableRef.current.focus();
+                        tableRef.current.tableRef().current.focus();
                     }}
-                    onConfirm={() => { confirm.action(); setConfirm(null); tableRef.current.focus(); }}
+                    onConfirm={() => { confirm.action(); setConfirm(null); tableRef.current.tableRef().current.focus(); }}
                 />
             )}
             <Button.Group>
@@ -336,7 +336,7 @@ function Activity(props) {
                                 onSetValidated={handleSetValidated}
                                 onDelete={handleDelete}
                                 onSetIntent={handleSetIntent}
-                                onCloseIntentPopup={() => tableRef.current.focus()}
+                                onCloseIntentPopup={() => tableRef.current.tableRef().current.focus()}
                             />
                         )}
                     </>

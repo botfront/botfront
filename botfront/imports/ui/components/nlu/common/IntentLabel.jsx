@@ -24,6 +24,7 @@ const Intent = React.forwardRef((props, ref) => {
     const [popupOpen, setPopupOpen] = useState(false);
     const [typeInput, setTypeInput] = useState('');
     const labelRef = useRef();
+    const tableRef = useRef();
 
     const intents = [
         ...(value ? [{ intent: value }] : []),
@@ -71,6 +72,12 @@ const Intent = React.forwardRef((props, ref) => {
         else if (key === 'ArrowDown') index += 1;
         else return;
         index = Math.min(Math.max(0, index), dataToDisplay.length - 1);
+        let { windowInfoRef = () => ({}), outerListRef = () => ({}) } = tableRef.current || {};
+        windowInfoRef = windowInfoRef(); outerListRef = outerListRef();
+        if (windowInfoRef.current && outerListRef.current) {
+            if (index >= windowInfoRef.current.visibleStopIndex) outerListRef.current.scrollTop += 100;
+            if (index <= windowInfoRef.current.visibleStartIndex) outerListRef.current.scrollTop -= 100;
+        }
         setSelection([dataToDisplay[index].intent]);
     };
 
@@ -124,6 +131,7 @@ const Intent = React.forwardRef((props, ref) => {
             {allowAdditions && renderInsertNewIntent()}
             {dataToDisplay.length ? (
                 <DataTable
+                    ref={tableRef}
                     height={200}
                     width={300}
                     columns={columns}
