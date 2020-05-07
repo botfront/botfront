@@ -19,6 +19,7 @@ const uuidv4 = require('uuid/v4');
 const JSZip = require('jszip');
 const { sortBy, get: _get } = require('lodash');
 const { createResponsesIndex, createStoriesIndex } = require('../server/searchIndex/searchIndexing.utils')
+const { version } = require('../package-lock.json')
 
 const collectionsWithModelId = {
     activity: Activity,
@@ -175,7 +176,7 @@ const overwriteCollection = async function (projectId, modelIds, collection, bac
     try { // ignore duplicate index violations
         await model.insertMany(backup[collection], { ordered: false });
     } catch (e) {
-        if (e.err.code === 11000) return;
+        if ((e.err || e || {}).code === 11000) return;
         throw new Error(e);
     }
 };
@@ -215,6 +216,7 @@ const gatherCollectionsForExport = async (project, models, excludedCollections) 
         }
     }
     response.timestamp = new Date().getTime();
+    response.bf_version = version;
     return response;
 };
 
