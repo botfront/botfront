@@ -184,7 +184,7 @@ const NLUModalContent = (props) => {
             return false;
         });
         updatedExamples[newCanonicalIndex].canonical = !example.canonical;
-        updatedExamples[newCanonicalIndex].canonicalEdited = !updatedExamples[newCanonicalIndex].canonicalEdited;
+        updatedExamples[newCanonicalIndex].canonicalEdited = true; // !updatedExamples[newCanonicalIndex].canonicalEdited;
         const clearOldCanonical = oldCanonicalIndex !== newCanonicalIndex && oldCanonicalIndex > -1;
         if (clearOldCanonical) {
             updatedExamples[oldCanonicalIndex] = {
