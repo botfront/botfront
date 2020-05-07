@@ -18,6 +18,8 @@
 import './chat.commands';
 import './story.commands';
 import './response.commands';
+import './incoming.commands';
+import './settings.commands';
 
 const axios = require('axios');
 require('cypress-plugin-retries');
@@ -205,6 +207,8 @@ Cypress.Commands.add('escapeModal', (letFail = false) => {
     if (!letFail) cy.get('.dimmer').should('not.exist');
 });
 
+Cypress.Commands.add('yesToConfirmation', () => cy.get('.modals.dimmer').should('exist').find('.ui.primary.button').click());
+
 Cypress.Commands.add(
     'upload',
     {
@@ -290,7 +294,6 @@ Cypress.Commands.add('importNluData', (projectId = 'bf', fixture, lang = 'en', o
 Cypress.Commands.add('train', (waitTime = 200000) => {
     cy.visit('/project/bf/stories');
     cy.dataCy('train-button').click();
-    cy.wait(5000);
     cy.get('[data-cy=train-button]', { timeout: waitTime }).should('not.have.class', 'disabled');
 });
 

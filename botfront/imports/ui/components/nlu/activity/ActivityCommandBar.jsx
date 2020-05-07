@@ -18,7 +18,7 @@ const ActivityCommandBar = React.forwardRef((props, ref) => {
     }));
 
     return (
-        <div className='activity-command-bar'>
+        <div className='activity-command-bar' data-cy='activity-command-bar'>
             {selection.length} selected
             <div className='side-by-side narrow right'>
                 <span className='shortcut'>V</span>
@@ -35,7 +35,7 @@ const ActivityCommandBar = React.forwardRef((props, ref) => {
                                 color='green'
                                 icon={(someValidated && someNotValidated) ? 'minus' : 'check'}
                                 disabled={someLackingIntent}
-                                data-cy='valid-utterance-button'
+                                data-cy={someNotValidated ? 'validate-utterance' : 'invalidate-utterance'}
                                 onClick={() => onSetValidated(selection, someNotValidated)}
                             />
                         </div>

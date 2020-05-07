@@ -135,7 +135,7 @@ class Evaluation extends React.Component {
         // Check that there are nonzero validated examples
         if (validExamples.length > 0) {
             this.setState({
-                data: { rasa_nlu_data: { common_examples: validExamples, entity_synonyms: [], gazetter: [] } },
+                data: { rasa_nlu_data: { common_examples: validExamples, entity_synonyms: [], gazette: [] } },
                 loading: false,
             });
         } else {

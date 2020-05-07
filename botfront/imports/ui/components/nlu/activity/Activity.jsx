@@ -288,6 +288,7 @@ function Activity(props) {
                     color='green'
                     icon
                     labelPosition='right'
+                    data-cy='add-to-training-data'
                     onClick={() => setConfirm({
                         message: 'The validated utterances will be added to the training data.',
                         action: () => handleAddToTraining(validated),
@@ -341,7 +342,7 @@ function Activity(props) {
                         )}
                     </>
                 )
-                : <Message success icon='check' header='No activity' content='No activity was found for the given criteria.' />
+                : <Message success icon='check' header='No activity' data-cy='no-activity' content='No activity was found for the given criteria.' />
             }
         </>
     );

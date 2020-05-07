@@ -20,7 +20,7 @@ export default function ActivityActionsColumn(props) {
                     onClick={() => handleSetValidated([datum], false)}
                     color='green'
                     icon='check'
-                    data-cy='valid-utterance-button'
+                    data-cy='invalidate-utterance'
                 />
             </div>
         );
@@ -40,7 +40,7 @@ export default function ActivityActionsColumn(props) {
                             onClick={() => handleSetValidated([datum], true)}
                             color='green'
                             icon='check'
-                            data-cy='invalid-utterance-button'
+                            data-cy='validate-utterance'
                         />
                     </div>
                 )}

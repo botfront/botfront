@@ -1,12 +1,20 @@
 /* global cy Cypress:true */
 
 describe('incoming page', function() {
+    before(() => {
+        cy.createProject('bf', 'My Project', 'en').then(() => {
+            cy.login();
+            cy.waitForResolve(Cypress.env('RASA_URL'));
+        });
+    });
+
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
+            cy.importNluData('bf', 'nlu_sample_en.json', 'en');
+            cy.train();
+            cy.addNewUtterances(['apple', 'kiwi', 'banana']);
         });
-        cy.waitForResolve(Cypress.env('RASA_URL'));
-        cy.request('DELETE', `${Cypress.env('RASA_URL')}/model`);
     });
 
     afterEach(function() {
@@ -14,160 +22,59 @@ describe('incoming page', function() {
         cy.deleteProject('bf');
     });
 
-    const addNewUtterances = () => {
-    // add utterances with populate
-        cy.visit('/project/bf/incoming');
-        cy.dataCy('populate')
-            .click({ force: true });
-        cy.get('textarea')
-            .click()
-            .type('apple{enter}kiwi{enter}orange');
-        cy.get('button')
-            .contains('Add Utterances')
-            .click();
-        // define intents of new utterances
-        cy.get('button').should('not.have.class', 'loading');
-        cy.dataCy('newutterances')
-            .click();
-        cy.wait(100);
-        cy.dataCy('intent-label')
-            .first()
-            .click({ force: true })
-            .type('fruit{enter}');
-    };
+    it('should assign populated data to the right language', function() {
+        cy.addNewProjectLanguage('French');
+        cy.importNluData('bf', 'nlu_sample_fr.json', 'fr');
+        cy.train();
 
-    it('should show available languages in the language selector', function() {
         cy.visit('/project/bf/incoming');
-        // check project language exists
-        cy.dataCy('language-selector')
-            .click()
-            .find('span')
-            .contains('English')
-            .should('exist');
-        cy.dataCy('language-selector')
-            .click()
-            .find('span')
-            .contains('French')
-            .should('not.exist');
-        // add another language
-        cy.visit('/project/bf/settings');
-        cy.dataCy('language-selector')
-            .click({ force: true })
-            .find('.item')
-            .contains('French')
-            .click({ force: true });
-        cy.dataCy('save-changes')
-            .click({ force: true });
-        cy.get('.s-alert-success').should('be.visible');
-        // check both languages are available
-        cy.visit('/project/bf/incoming');
-        cy.dataCy('language-selector')
-            .click()
-            .find('span')
-            .contains('English')
-            .should('exist');
-        cy.dataCy('language-selector')
-            .click()
-            .find('span')
-            .contains('French')
-            .should('exist');
+        cy.get('.row').should('have.length', 3);
+        cy.get('.row').contains('apple').should('exist');
+        cy.addNewUtterances(['pomme', 'kiwi', 'banane'], 'French');
+        cy.get('.row').should('have.length', 3);
+        cy.get('.row').contains('apple').should('not.exist');
+        cy.get('.row').contains('pomme').should('exist');
     });
-
 
     it('should be able to link to evaluation from new utterances', function() {
-        cy.visit('/project/bf/stories');
-        cy.dataCy('train-button')
+        cy.dataCy('run-evaluation').should('have.class', 'disabled');
+        cy.get('.row').should('have.length', 3);
+        cy.selectOrUnselectIncomingRow('banana');
+        cy.toggleValidationOfSelectedUtterances();
+        cy.dataCy('run-evaluation').should('not.have.class', 'disabled')
             .click();
-        cy.wait(1000);
-        cy.get('[data-cy=train-button]').should('not.have.class', 'disabled');
-        // add utterances with populate
-        addNewUtterances();
-        // validate utterances and run evaluation
-        cy.dataCy('invalid-utterance-button')
-            .first()
-            .click({ force: true });
-        cy.dataCy('process-in-bulk')
-            .click({ force: true });
-        cy.dataCy('choose-action-dropdown')
-            .click()
-            .find('.item')
-            .contains('Run evaluation')
-            .click({ force: true });
-        cy.get('.dimmer')
-            .find('button')
-            .contains('OK')
-            .click({ force: true });
-        // check it linked to evalutaion > validated utterances
-        cy.contains('Use validated examples')
-            .should('exist');
-        cy.get('.active')
-            .contains('Use validated examples')
-            .should('exist');
+        cy.yesToConfirmation();
+        cy.dataCy('start-evaluation').should('exist');
     });
 
-    it('should be able to add new utterances to nlu', function() {
-        cy.visit('/project/bf/stories');
-        cy.dataCy('train-button')
+    it('should be able to delete utterances and some to training data', function() {
+        cy.dataCy('add-to-training-data').should('have.class', 'disabled');
+        cy.get('.row').should('have.length', 3);
+        cy.selectOrUnselectIncomingRow('banana');
+        cy.deleteSelectedUtterances();
+        cy.get('.row').should('have.length', 2);
+        cy.toggleValidationOfSelectedUtterances();
+        cy.dataCy('add-to-training-data').should('not.have.class', 'disabled')
             .click();
-        cy.wait(1000);
-        cy.get('[data-cy=train-button]').should('not.have.class', 'disabled');
-        // add utterances with populate
-        addNewUtterances();
-        // validate utterances and run evaluation
-        cy.dataCy('utterance-text')
-            .should('have.length', 3);
-        cy.dataCy('invalid-utterance-button')
-            .first()
-            .click({ force: true });
-        cy.dataCy('process-in-bulk')
-            .click({ force: true });
-        cy.dataCy('choose-action-dropdown')
-            .click({ force: true })
-            .find('.item')
-            .contains('Add to training data')
-            .click({ force: true });
-        cy.get('.dimmer')
-            .find('button')
-            .contains('OK')
-            .click();
-        cy.dataCy('utterance-text')
-            .should('have.length', 2);
-        // check utterances were added to nlu data
-        cy.get('.project-sidebar')
-            .find('.item')
-            .contains('NLU')
-            .click({ force: true });
-        cy.dataCy('utterance-text')
-            .should('have.length', 1);
-        cy.dataCy('intent-label')
-            .contains('fruit')
-            .should('exist');
-        cy.dataCy('icon-gem').should('have.class', 'active');
+        cy.yesToConfirmation();
+        cy.get('.row').should('have.length', 1);
+        cy.visit('/project/bf/nlu/models');
+        cy.get('@texts').then((text) => { // saved from toggleValidationOfSelectedUtterances
+            cy.contains('[role=row]', text[0]).should('exist');
+        });
     });
 
-    it('should be able to invalidate utterances', function() {
-        cy.visit('/project/bf/stories');
-        cy.dataCy('train-button')
-            .click();
-        cy.wait(1000);
-        cy.get('[data-cy=train-button]').should('not.have.class', 'disabled');
-        // add utterances with populate
-        addNewUtterances();
-        cy.dataCy('invalid-utterance-button')
-            .first()
-            .click({ force: true });
-        cy.dataCy('process-in-bulk')
-            .click({ force: true });
-        cy.dataCy('choose-action-dropdown')
-            .click()
-            .find('.item')
-            .contains('Invalidate')
-            .click({ force: true });
-        cy.get('.dimmer')
-            .find('button')
-            .contains('OK')
-            .click({ force: true });
-        cy.dataCy('valid-utterance-button')
-            .should('not.exist');
+    it('should batch change intent, batch validate, and batch delete', function() {
+        cy.selectOrUnselectIncomingRow('apple');
+        cy.dataCy('activity-command-bar').should('not.exist');
+        cy.selectOrUnselectIncomingRow('banana');
+        cy.dataCy('activity-command-bar').should('exist').should('contain.text', '2 selected');
+        cy.changeIntentOfSelectedUtterances('fruit');
+        cy.toggleValidationOfSelectedUtterances();
+        cy.get('.virtual-table').findCy('invalidate-utterance').should('have.length', 2);
+        cy.selectOrUnselectIncomingRow('banana');
+        cy.selectOrUnselectIncomingRow('kiwi');
+        cy.deleteSelectedUtterances();
+        cy.get('.row').should('have.length', 1).should('contain.text', 'banana');
     });
 });
