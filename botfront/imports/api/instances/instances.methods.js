@@ -158,16 +158,7 @@ if (Meteor.isServer) {
             check(params, Array);
             check(options, Object);
             this.unblock();
-            console.log('----------');
-            console.log('----------');
-            console.log(options);
-            console.log('----------');
-            console.log('----------');
-            // try {
             return parseNlu(instance, params, options);
-            // } catch (e) {
-            //     return {};
-            // }
         },
 
         async 'rasa.convertToJson'(file, language, outputFormat, host) {
