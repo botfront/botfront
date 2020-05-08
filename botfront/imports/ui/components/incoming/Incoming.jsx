@@ -4,7 +4,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { Container, Tab } from 'semantic-ui-react';
+import { Container, Tab, Menu } from 'semantic-ui-react';
 import { browserHistory, withRouter } from 'react-router';
 import { uniq, sortBy } from 'lodash';
 
@@ -42,6 +42,14 @@ class Incoming extends React.Component {
             const pathname = updateIncomingPath({ ...router.params, model_id: modelMatch._id });
             browserHistory.push({ pathname });
         }
+    }
+
+    handleMenuItemClick = (itemKey) => {
+        const { router } = this.props;
+        this.setState({ activeTab: itemKey });
+        const url = updateIncomingPath({ ...router.params, tab: itemKey });
+        if (router.params.tab === url) return;
+        browserHistory.push({ pathname: url });
     }
 
     handleTabClick = (_, d) => {
@@ -86,6 +94,28 @@ class Incoming extends React.Component {
         }
     }
 
+    renderPageContent = () => {
+        const {
+            model, instance, project, entities, intents,
+        } = this.props;
+        const { activeTab } = this.state;
+        switch (activeTab) {
+        case 'newutterances':
+            return (
+                <Activity project={project} model={model} instance={instance} entities={entities} intents={intents} linkRender={this.linkToEvaluation} />
+            );
+        case 'conversations':
+            return (
+                <ConversationBrowser projectId={project._id} />
+            );
+        case 'populate':
+            return (
+                <ActivityInsertions model={model} instance={instance} />
+            );
+        default: return <></>;
+        }
+    }
+
     render () {
         const {
             projectLanguages, ready, model, router, workingLanguage,
@@ -99,16 +129,25 @@ class Incoming extends React.Component {
                     selectedLanguage={workingLanguage}
                     handleLanguageChange={this.handleLanguageChange}
                     tab={router.params.tab}
-                />
+                >
+                    {this.getPanes().map(({ menuItem }) => (
+                        <Menu.Item
+                            {...menuItem}
+                            active={menuItem.key === activeTab}
+                            onClick={() => this.handleMenuItemClick(menuItem.key)}
+                        />
+                    ))}
+                </TopMenu>
                 <div>
                     <Container>
                         <Loading loading={!ready || !model}>
-                            <Tab
+                            {/* <Tab
                                 activeIndex={this.getPanes().findIndex(i => i.menuItem.key === activeTab)}
                                 menu={{ pointing: true, secondary: true }}
                                 panes={this.getPanes()}
                                 onTabChange={this.handleTabClick}
-                            />
+                            /> */}
+                            {this.renderPageContent()}
                         </Loading>
                     </Container>
                 </div>

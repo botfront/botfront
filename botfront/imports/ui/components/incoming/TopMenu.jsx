@@ -11,19 +11,27 @@ const TopMenu = ({
     handleLanguageChange,
     tab,
     className,
+    children,
 }) => (
     <Menu borderless className={`top-menu ${className}`}>
-        <Menu.Item header>
-            {tab === 'conversations' ? (
-                <></>
-            ) : (
-                <LanguageDropdown
-                    languageOptions={projectLanguages}
-                    selectedLanguage={selectedLanguage}
-                    handleLanguageChange={handleLanguageChange}
-                />
-            )}
-        </Menu.Item>
+        <div className='language-container'>
+            <Menu.Item header borderless className='language-item'>
+                {tab === 'conversations' ? (
+                    <></>
+                ) : (
+                    <LanguageDropdown
+                        languageOptions={projectLanguages}
+                        selectedLanguage={selectedLanguage}
+                        handleLanguageChange={handleLanguageChange}
+                    />
+                )}
+            </Menu.Item>
+        </div>
+        <div className='incoming-tabs'>
+            {children}
+        </div>
+
+
     </Menu>
 );
 
@@ -33,12 +41,14 @@ TopMenu.propTypes = {
     handleLanguageChange: PropTypes.func.isRequired,
     tab: PropTypes.string,
     className: PropTypes.string,
+    children: PropTypes.element,
 };
 
 TopMenu.defaultProps = {
     tab: '',
     selectedLanguage: '',
     className: '',
+    children: <></>,
 };
 
 export default TopMenu;
