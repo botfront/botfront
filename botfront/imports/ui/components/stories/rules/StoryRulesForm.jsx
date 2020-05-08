@@ -475,8 +475,13 @@ function StoryRulesForm({
                                                             description: 'Add a question mark to the top right of the target element',
                                                         },
                                                         {
-                                                            value: 'pulse',
+                                                            value: 'pulsating',
                                                             text: 'Pulse',
+                                                            description: 'The entire element will pulsate',
+                                                        },
+                                                        {
+                                                            value: 'pulsatingDot',
+                                                            text: 'Pulsating dot',
                                                             description: 'Add a pulsating circle to the top right of the target element',
                                                         },
                                                     ]}
