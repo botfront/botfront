@@ -19,11 +19,11 @@ import ButtonSelectField from '../../form_fields/ButtonSelectField';
 
 class RulesForm extends AutoForm {
     resetOptionalArray = (keyArray, fieldName) => {
-        const eventListenersValueKey = [...keyArray];
-        eventListenersValueKey[eventListenersValueKey.length - 1] = fieldName;
+        const key = [...keyArray];
+        key[key.length - 1] = fieldName;
         super.onChange(
-            eventListenersValueKey.join('.'),
-            getModelField(eventListenersValueKey.join('.'), this.props.model) || [],
+            key.join('.'),
+            getModelField(key.join('.'), this.props.model) || [],
         );
     }
 
@@ -34,7 +34,7 @@ class RulesForm extends AutoForm {
                 selector: '', event: null, once: false, visualization: 'none',
             };
         case 'url':
-            return '';
+            return { partialMatch: false, path: '' };
         case 'queryString':
             return { value: '', param: '', value__DISPLAYIF: true };
         default:
@@ -58,21 +58,8 @@ class RulesForm extends AutoForm {
         const keyArray = key.split('.');
         const fieldName = keyArray[keyArray.length - 1]; // the last value is the name of the edited field
 
-        if (fieldName === 'timeOnPage__DISPLAYIF' && value === true) {
-            // disabled the eventListener field when timeOnPage is enabled
-            const eventListenersBoolKey = [...keyArray];
-            eventListenersBoolKey[eventListenersBoolKey.length - 1] = 'eventListeners__DISPLAYIF';
-            super.onChange(eventListenersBoolKey.join('.'), false);
-            this.resetOptionalArray(keyArray, 'eventListeners');
-        }
-        if (fieldName === 'eventListeners__DISPLAYIF' && value === true) {
-            // disabled the timeOnPage field when eventListener field is enabled
-            const timeOnPageBoolKey = [...keyArray];
-            timeOnPageBoolKey[timeOnPageBoolKey.length - 1] = 'timeOnPage__DISPLAYIF';
-            super.onChange(timeOnPageBoolKey.join('.'), false);
-        }
         if (fieldName === 'sendAsEntity') {
-            // This one hide or shows the value for the query string depending on the value of sendAsEntity
+            // This one hides or shows the value for the query string depending on the value of sendAsEntity
             const valueDisplayIfKey = [...keyArray];
             valueDisplayIfKey[valueDisplayIfKey.length - 1] = 'value__DISPLAYIF';
             super.onChange(valueDisplayIfKey.join('.'), !value === true);
@@ -111,6 +98,9 @@ class RulesForm extends AutoForm {
                 break;
             case 'queryString__DISPLAYIF':
                 this.resetOptionalArray(keyArray, 'queryString');
+                break;
+            case 'url__DISPLAYIF':
+                this.resetOptionalArray(keyArray, 'url');
                 break;
             default:
                 break;
