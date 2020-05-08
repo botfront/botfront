@@ -473,11 +473,11 @@ function StoryRulesForm({
                                                 />
                                                 <ButtonSelectField
                                                     name='visualization'
-                                                    label='Add a visual to the target element'
+                                                    label='Show interactivity with'
                                                     options={[
                                                         {
                                                             value: 'none',
-                                                            text: 'None',
+                                                            text: 'Nothing',
                                                         },
                                                         {
                                                             value: 'questionMark',
@@ -487,7 +487,7 @@ function StoryRulesForm({
                                                         {
                                                             value: 'pulse',
                                                             text: 'Pulse',
-                                                            description: 'The target element with pulsate',
+                                                            description: 'Add a pulsating circle to the top right of the target element',
                                                         },
                                                     ]}
                                                 />
