@@ -19,7 +19,7 @@ const ActivityCommandBar = React.forwardRef((props, ref) => {
 
     return (
         <div className='activity-command-bar' data-cy='activity-command-bar'>
-            {selection.length} selected
+            <span>{selection.length} selected</span>
             <div className='side-by-side narrow right'>
                 <span className='shortcut'>V</span>
                 <Popup

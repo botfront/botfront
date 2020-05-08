@@ -70,16 +70,32 @@ function Activity(props) {
 
     const validated = data.filter(a => a.validated);
 
+    const getFallbackUtterance = (ids) => {
+        const bounds = [ids[0], ids[ids.length - 1]].map(id1 => data.findIndex(d => d._id === id1));
+        return data[bounds[1] + 1]
+            ? data[bounds[1] + 1]
+            : data[Math.max(0, bounds[0] - 1)];
+    };
+
+    const mutationCallback = (fallbackUtterance, mutationName) => ({ data: { [mutationName]: res = [] } = {} }) => {
+        const filtered = selection.filter(s => !res.map(({ _id }) => _id).includes(s));
+        return setSelection( // remove deleted from selection
+            filtered.length ? filtered : [fallbackUtterance._id],
+        );
+    };
+
     const handleAddToTraining = async (utterances) => {
+        const fallbackUtterance = getFallbackUtterance(utterances.map(u => u._id));
         await Meteor.call('nlu.insertExamples', modelId, utterances);
-        await deleteActivity({ variables: { modelId, ids: utterances.map(u => u._id) } });
+        const result = await deleteActivity({ variables: { modelId, ids: utterances.map(u => u._id) } });
+        mutationCallback(fallbackUtterance, 'deleteActivity')(result);
     };
 
     const handleUpdate = async (newData) => {
         const dataUpdated = data.filter(d1 => newData.map(d2 => d2._id).includes(d1._id)).map(
             ({ __typename, ...d1 }) => ({ ...d1, ...newData.find(d2 => d2._id === d1._id) }),
         );
-        upsertActivity({
+        return upsertActivity({
             variables: { modelId, data: dataUpdated },
             optimisticResponse: {
                 __typename: 'Mutation',
@@ -90,10 +106,7 @@ function Activity(props) {
 
     const handleDelete = (utterances) => {
         const ids = utterances.map(u => u._id);
-        const bounds = [ids[0], ids[ids.length - 1]].map(id1 => data.findIndex(d => d._id === id1));
-        const fallbackUtterance = data[bounds[1] + 1]
-            ? data[bounds[1] + 1]
-            : data[Math.max(0, bounds[0] - 1)];
+        const fallbackUtterance = getFallbackUtterance(ids);
         const message = `Delete ${utterances.length} incoming utterances?`;
         const action = () => deleteActivity({
             variables: { modelId, ids },
@@ -101,12 +114,7 @@ function Activity(props) {
                 __typename: 'Mutation',
                 deleteActivity: ids.map(_id => ({ __typename: 'Activity', _id })),
             },
-        }).then(({ data: { deleteActivity: res = [] } = {} }) => {
-            const filtered = selection.filter(s => !res.map(({ _id }) => _id).includes(s));
-            return setSelection( // remove deleted from selection
-                filtered.length ? filtered : [fallbackUtterance._id],
-            );
-        });
+        }).then(mutationCallback(fallbackUtterance, 'deleteActivity'));
         return utterances.length > 1 ? setConfirm({ message, action }) : action();
     };
 
