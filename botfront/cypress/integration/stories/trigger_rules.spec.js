@@ -105,21 +105,6 @@ describe('Smart story trigger rules', function() {
         cy.dataCy('payload-text-input').find('input').should('have.value', '');
     });
 
-    it('should disabled event listeners when time on page is enabled', function() {
-        cy.visit('/project/bf/stories');
-        cy.browseToStory('Get started');
-        cy.get('.utterances-container').first().findCy('icon-trash').click({ force: true });
-        cy.dataCy('edit-trigger-rules').click();
-        // verify only one toggle can be enabled at one time
-        cy.dataCy('toggle-event-listeners').click();
-        cy.dataCy('toggle-time-on-page').click();
-        cy.dataCy('toggle-event-listeners').find('[data-cy=toggled-false]').should('exist');
-        cy.dataCy('toggle-time-on-page').find('[data-cy=toggled-true]').should('exist');
-        cy.dataCy('toggle-event-listeners').click();
-        cy.dataCy('toggle-event-listeners').find('[data-cy=toggled-true]').should('exist');
-        cy.dataCy('toggle-time-on-page').find('[data-cy=toggled-false]').should('exist');
-    });
-
     it('should not allow a destination story to have rules', () => {
         cy.visit('/project/bf/stories');
         cy.browseToStory('Get started');
