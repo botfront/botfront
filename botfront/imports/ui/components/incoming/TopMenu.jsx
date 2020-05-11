@@ -9,46 +9,60 @@ const TopMenu = ({
     projectLanguages,
     selectedLanguage,
     handleLanguageChange,
-    tab,
+    activeTab,
+    tabs,
+    onClickTab,
     className,
-    children,
-}) => (
-    <Menu borderless className={`top-menu ${className}`}>
-        <div className='language-container'>
-            <Menu.Item header borderless className='language-item'>
-                {tab === 'conversations' ? (
-                    <></>
-                ) : (
-                    <LanguageDropdown
-                        languageOptions={projectLanguages}
-                        selectedLanguage={selectedLanguage}
-                        handleLanguageChange={handleLanguageChange}
-                    />
-                )}
-            </Menu.Item>
-        </div>
-        <div className='incoming-tabs'>
-            {children}
-        </div>
-
-
-    </Menu>
-);
+}) => {
+    const renderTabs = () => (
+        tabs.map(({ value, text }) => (
+            <Menu.Item
+                content={text}
+                key={value}
+                data-cy={value}
+                active={value === activeTab}
+                onClick={() => onClickTab(value)}
+            />
+        ))
+    );
+    return (
+        <Menu borderless className={`top-menu ${className}`}>
+            <div className='language-container'>
+                <Menu.Item header borderless className='language-item'>
+                    {activeTab === 'conversations' ? (
+                        <></>
+                    ) : (
+                        <LanguageDropdown
+                            languageOptions={projectLanguages}
+                            selectedLanguage={selectedLanguage}
+                            handleLanguageChange={handleLanguageChange}
+                        />
+                    )}
+                </Menu.Item>
+            </div>
+            <div className='incoming-tabs'>
+                {renderTabs()}
+            </div>
+        </Menu>
+    );
+};
 
 TopMenu.propTypes = {
     projectLanguages: PropTypes.array.isRequired,
     selectedLanguage: PropTypes.string,
     handleLanguageChange: PropTypes.func.isRequired,
-    tab: PropTypes.string,
+    activeTab: PropTypes.string,
+    tabs: PropTypes.array,
     className: PropTypes.string,
-    children: PropTypes.element,
+    onClickTab: PropTypes.func,
 };
 
 TopMenu.defaultProps = {
-    tab: '',
     selectedLanguage: '',
     className: '',
-    children: <></>,
+    activeTab: null,
+    tabs: [],
+    onClickTab: () => {},
 };
 
 export default TopMenu;

@@ -4,7 +4,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { Container, Tab, Menu } from 'semantic-ui-react';
+import { Container } from 'semantic-ui-react';
 import { browserHistory, withRouter } from 'react-router';
 import { uniq, sortBy } from 'lodash';
 
@@ -44,41 +44,12 @@ class Incoming extends React.Component {
         }
     }
 
-    handleMenuItemClick = (itemKey) => {
+    handleTabClick = (itemKey) => {
         const { router } = this.props;
         this.setState({ activeTab: itemKey });
         const url = updateIncomingPath({ ...router.params, tab: itemKey });
         if (router.params.tab === url) return;
         browserHistory.push({ pathname: url });
-    }
-
-    handleTabClick = (_, d) => {
-        const { router } = this.props;
-        const tabName = d.panes[d.activeIndex].menuItem.key;
-        this.setState({ activeTab: tabName });
-        const url = updateIncomingPath({ ...router.params, tab: tabName });
-        if (router.params.tab === url) return;
-        browserHistory.push({ pathname: url });
-    }
-
-    getPanes = () => {
-        const {
-            model, instance, project, entities, intents,
-        } = this.props;
-        return [
-            {
-                menuItem: { content: 'New Utterances', key: 'newutterances', 'data-cy': 'newutterances' },
-                render: () => <Activity project={project} model={model} instance={instance} entities={entities} intents={intents} linkRender={this.linkToEvaluation} />,
-            },
-            {
-                menuItem: { content: 'Conversations', key: 'conversations', 'data-cy': 'conversations' },
-                render: () => <ConversationBrowser projectId={project._id} />,
-            },
-            {
-                menuItem: { content: 'Populate', key: 'populate', 'data-cy': 'populate' },
-                render: () => <ActivityInsertions model={model} instance={instance} />,
-            },
-        ];
     }
 
     componentDidMount = () => {
@@ -118,35 +89,26 @@ class Incoming extends React.Component {
 
     render () {
         const {
-            projectLanguages, ready, model, router, workingLanguage,
+            projectLanguages, ready, model, workingLanguage,
         } = this.props;
         const { activeTab } = this.state;
-
         return (
             <>
                 <TopMenu
                     projectLanguages={projectLanguages}
                     selectedLanguage={workingLanguage}
                     handleLanguageChange={this.handleLanguageChange}
-                    tab={router.params.tab}
-                >
-                    {this.getPanes().map(({ menuItem }) => (
-                        <Menu.Item
-                            {...menuItem}
-                            active={menuItem.key === activeTab}
-                            onClick={() => this.handleMenuItemClick(menuItem.key)}
-                        />
-                    ))}
-                </TopMenu>
+                    activeTab={activeTab}
+                    tabs={[
+                        { value: 'newutterances', text: 'New Utterances' },
+                        { value: 'conversations', text: 'Conversations' },
+                        { value: 'populate', text: 'Populate' },
+                    ]}
+                    onClickTab={this.handleTabClick}
+                />
                 <div>
                     <Container>
                         <Loading loading={!ready || !model}>
-                            {/* <Tab
-                                activeIndex={this.getPanes().findIndex(i => i.menuItem.key === activeTab)}
-                                menu={{ pointing: true, secondary: true }}
-                                panes={this.getPanes()}
-                                onTabChange={this.handleTabClick}
-                            /> */}
                             {this.renderPageContent()}
                         </Loading>
                     </Container>
