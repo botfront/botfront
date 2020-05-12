@@ -40,7 +40,7 @@ export default function ImageThumbnail(props) {
         setIsUploading(true);
         setModalOpen(false);
         uploadImage({
-            file: validFiles[0], onChange, resetUploadStatus: () => setIsUploading(false),
+            file: validFiles[0], setImage: onChange, resetUploadStatus: () => setIsUploading(false),
         });
     };
 

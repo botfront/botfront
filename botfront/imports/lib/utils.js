@@ -196,11 +196,11 @@ if (Meteor.isServer) {
             check(data, Object);
             const { uploadImageWebhook: { url, method } } = await getImageWebhooks();
             if (!url || !method) throw new Meteor.Error('400', 'No image upload webhook defined.');
-            return Meteor.call('axios.requestWithJsonBody', url, method, data, (err, response = {}) => {
-                if (err) throw new Meteor.Error(err);
-                if (response.status !== 200) throw new Meteor.Error('500', 'Image webhook rejected upload.');
-                return response;
-            });
+            const resp = Meteor.call('axios.requestWithJsonBody', url, method, data);
+            if (resp === undefined) throw new Meteor.Error('500', 'No response from the image upload  webhook');
+            if (resp.status === 404) throw new Meteor.Error('404', 'Image upload webhook not Found');
+            if (resp.status !== 200) throw new Meteor.Error('500', 'Image upload rejected upload.');
+            return resp;
         },
     });
 }
