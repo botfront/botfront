@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.23.0-ee.1](https://github.com/botfront/botfront/compare/v0.23.0-ee.0...v0.23.0-ee.1) (2020-05-12)
+
+
+### Bug Fixes
+
+* restart rasa webhook was only usable by global admin ([#141](https://github.com/botfront/botfront/issues/141)) ([1ee400e](https://github.com/botfront/botfront/commit/1ee400e3ebd2ed40884579d3fff4d04a2a9832b3))
+
 ## [0.23.0-ee.0](https://github.com/botfront/botfront/compare/v0.23.0-rc.0-ee.0...v0.23.0-ee.0) (2020-05-07)
 
 
