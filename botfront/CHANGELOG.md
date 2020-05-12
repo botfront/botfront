@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.23.0-ee.2](https://github.com/botfront/botfront/compare/v0.23.0-ee.1...v0.23.0-ee.2) (2020-05-12)
+
+
+### Bug Fixes
+
+* image webhook was not working ([#139](https://github.com/botfront/botfront/issues/139)) ([41b774d](https://github.com/botfront/botfront/commit/41b774d468dc2734f5e68334f5cd8908d7a836e4))
+
 ## [0.23.0-ee.1](https://github.com/botfront/botfront/compare/v0.23.0-ee.0...v0.23.0-ee.1) (2020-05-12)
 
 
