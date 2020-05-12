@@ -13,16 +13,34 @@ import { Button } from 'semantic-ui-react';
 import { InstanceSchema } from '../../../api/instances/instances.schema';
 import { Instances as InstancesCollection } from '../../../api/instances/instances.collection';
 import { wrapMeteorCallback } from '../utils/Errors';
-import { can, checkIfCan } from '../../../lib/scopes';
+import { can } from '../../../lib/scopes';
 import restartRasa from './restartRasa';
-import { GlobalSettings } from '../../../api/globalSettings/globalSettings.collection';
 
 
 class Instances extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            webhook: {},
+        };
+    }
+
+    componentDidMount() {
+        const { projectId } = this.props;
+        if (can('projects:w', projectId)) {
+            Meteor.call('getRestartRasaWebhook', projectId, wrapMeteorCallback((err, result) => {
+                if (err) return;
+                const webhook = get(result, 'settings.private.webhooks.restartRasaWebhook', {});
+                this.setState({ webhook });
+            }));
+        }
+    }
+
     onValidate = (model, error, callback) => {
         InstancesCollection.simpleSchema().clean(model);
         callback();
     };
+
 
     onSave = (updatedInstance) => {
         Meteor.call('instance.update', updatedInstance, wrapMeteorCallback((err) => {
@@ -32,8 +50,9 @@ class Instances extends React.Component {
 
     render() {
         const {
-            ready, instance, projectId, webhook,
+            ready, instance, projectId,
         } = this.props;
+        const { webhook } = this.state;
         const hasWritePermission = can('projects:w', projectId);
         if (!instance.type) instance.type = 'server';
         return (
@@ -72,12 +91,10 @@ Instances.propTypes = {
     instance: PropTypes.object,
     projectId: PropTypes.string.isRequired,
     ready: PropTypes.bool.isRequired,
-    webhook: PropTypes.object,
 };
 
 Instances.defaultProps = {
     instance: {},
-    webhook: {},
 };
 
 
@@ -85,18 +102,7 @@ const InstancesContainer = withTracker((props) => {
     const { projectId } = props;
     const handler = Meteor.subscribe('nlu_instances', projectId);
     const instance = InstancesCollection.findOne({ projectId });
-    if (can('projects:w', projectId)) {
-        const restartRasaHandler = Meteor.subscribe('restartRasaWebhook', projectId);
-        const settings = GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.restartRasaWebhook': 1 } });
-        const restartRasaWebhook = get(settings, 'settings.private.webhooks.restartRasaWebhook', {});
 
-        return {
-            ready: handler.ready() && restartRasaHandler.ready(),
-            instance,
-            webhook: restartRasaWebhook,
-        };
-    }
-    
     return {
         ready: handler.ready(),
         instance,

@@ -447,6 +447,11 @@ if (Meteor.isServer) {
             roles: writers.responses,
             args: [projectId],
         },
+        {
+            name: 'getRestartRasaWebhook',
+            roles: writers.projects,
+            args: [projectId],
+        },
     ];
 
 
@@ -496,6 +501,7 @@ if (Meteor.isServer) {
             await setUserScopes(role, scope);
             Meteor.apply(method, args, callback);
         } catch (e) {
+            // eslint-disable-next-line no-console
             console.log(e);
         }
     };

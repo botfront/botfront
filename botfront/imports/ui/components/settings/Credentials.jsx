@@ -17,17 +17,29 @@ import { can } from '../../../lib/scopes';
 import ContextualSaveMessage from './ContextualSaveMessage';
 import { ENVIRONMENT_OPTIONS } from '../constants.json';
 import restartRasa from './restartRasa';
-import { GlobalSettings } from '../../../api/globalSettings/globalSettings.collection';
 
 class Credentials extends React.Component {
     constructor(props) {
         super(props);
+
         this.state = {
             saving: false,
             saved: false,
             showConfirmation: false,
             selectedEnvironment: 'development',
+            webhook: {},
         };
+    }
+
+    componentDidMount() {
+        const { projectId } = this.props;
+        if (can('projects:w', projectId)) {
+            Meteor.call('getRestartRasaWebhook', projectId, wrapMeteorCallback((err, result) => {
+                if (err) return;
+                const webhook = get(result, 'settings.private.webhooks.restartRasaWebhook', {});
+                this.setState({ webhook });
+            }));
+        }
     }
 
     componentWillUnmount() {
@@ -36,8 +48,8 @@ class Credentials extends React.Component {
 
     onSave = (credentials) => {
         const newCredentials = credentials;
-        const { selectedEnvironment } = this.state;
-        const { projectId, webhook } = this.props;
+        const { selectedEnvironment, webhook } = this.state;
+        const { projectId } = this.props;
         this.setState({ saving: true, showConfirmation: false });
         clearTimeout(this.successTimeout);
         if (!credentials._id) {
@@ -57,7 +69,6 @@ class Credentials extends React.Component {
                 this.setState({ saving: false, showConfirmation: true });
             }),
         );
-
         if (selectedEnvironment === 'development' && webhook && webhook.url) {
             restartRasa(projectId, webhook);
         }
@@ -173,7 +184,6 @@ Credentials.propTypes = {
     projectSettings: PropTypes.object,
     ready: PropTypes.bool.isRequired,
     orchestrator: PropTypes.string,
-    webhook: PropTypes.object,
 
 };
 
@@ -181,7 +191,6 @@ Credentials.defaultProps = {
     projectSettings: {},
     orchestrator: '',
     credentials: {},
-    webhook: {},
 };
 
 const CredentialsContainer = withTracker(({ projectId }) => {
@@ -206,20 +215,6 @@ const CredentialsContainer = withTracker(({ projectId }) => {
             },
         },
     );
-
-
-    if (can('projects:w', projectId)) {
-        const restartRasaHandler = Meteor.subscribe('restartRasaWebhook', projectId);
-        const settings = GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.restartRasaWebhook': 1 } });
-        const restartRasaWebhook = get(settings, 'settings.private.webhooks.restartRasaWebhook', {});
-       
-        return {
-            ready: (handler.ready() && handlerproj.ready() && restartRasaHandler.ready()),
-            credentials,
-            projectSettings,
-            webhook: restartRasaWebhook,
-        };
-    }
     return {
         ready: (handler.ready() && handlerproj.ready()),
         credentials,

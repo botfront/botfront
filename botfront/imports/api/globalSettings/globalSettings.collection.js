@@ -1,8 +1,7 @@
 import '../../lib/dynamic_import';
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
-import { check } from 'meteor/check';
-import { can, checkIfCan } from '../../lib/scopes';
+import { can } from '../../lib/scopes';
 // import { GlobalSettingsSchema } from './globalSettings.schema';
 
 export const GlobalSettings = new Mongo.Collection('admin_settings');
@@ -27,12 +26,6 @@ import(`./globalSettings.schema.${orchestration}`)
             Meteor.publish('settings', function () {
                 if (can('global-settings:r', { anyScope: true })) return GlobalSettings.find({ _id: 'SETTINGS' });
                 return GlobalSettings.find({ _id: 'SETTINGS' }, { fields: { 'settings.public': 1 } });
-            });
-
-            Meteor.publish('restartRasaWebhook', function (projectId) {
-                checkIfCan('projects:w', projectId);
-                check(projectId, String);
-                return GlobalSettings.find({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.restartRasaWebhook': 1 } });
             });
         }
     });

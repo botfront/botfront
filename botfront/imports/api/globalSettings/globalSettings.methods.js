@@ -16,5 +16,12 @@ if (Meteor.isServer) {
                 throw formatError(e);
             }
         },
+
+
+        'getRestartRasaWebhook' (projectId) {
+            checkIfCan('projects:w', projectId);
+            check(projectId, String);
+            return GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.restartRasaWebhook': 1 } });
+        },
     });
 }

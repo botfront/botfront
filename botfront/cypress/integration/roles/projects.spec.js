@@ -111,7 +111,7 @@ describe('projects:r can access but not edit settings', () => {
         cy.dataCy('new-project').should('not.exist');
         cy.removeDummyRoleAndUser();
     });
-    it('should be able to edit projects with projects:r GLOBAL scope', () => {
+    it('should be able to edit projects with projects:w GLOBAL scope', () => {
         cy.removeDummyRoleAndUser();
         cy.wait(2000);
         cy.createDummyRoleAndUser({ permission: ['projects:w'], scope: 'GLOBAL' });
