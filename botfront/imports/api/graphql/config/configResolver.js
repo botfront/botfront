@@ -24,16 +24,21 @@ export default {
             let { credentials } = credentialsFetched;
 
             credentials = yaml.safeLoad(credentials);
-            if (credentials['rasa_addons.core.channels.webchat_plus.WebchatPlusInput']) {
-                credentials['rasa_addons.core.channels.webchat_plus.WebchatPlusInput'].props = { rules };
+            const props = { rules };
+            const webchatPlusInput = credentials['rasa_addons.core.channels.webchat_plus.WebchatPlusInput'];
+            const restPlusInput = credentials['rasa_addons.core.channels.rest_plus.BotfrontRestPlusInput'];
+            if (webchatPlusInput !== undefined) {
+                credentials['rasa_addons.core.channels.webchat_plus.WebchatPlusInput'] = { ...(webchatPlusInput || {}), props };
+            }
+            if (restPlusInput !== undefined) {
+                credentials['rasa_addons.core.channels.rest_plus.BotfrontRestPlusInput'] = { ...(restPlusInput || {}), props };
             }
             // parse yaml unless yaml query param was passed
             if (output !== 'yaml') {
                 endpoints = yaml.safeLoad(endpoints);
                 return { endpoints, credentials };
             }
-
-            credentials = yaml.safeDump(credentials);
+            credentials = yaml.safeDump(credentials, { noRefs: true });
 
             return { endpoints, credentials };
         },
