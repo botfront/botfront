@@ -67,14 +67,14 @@ export default class NLUPlayground extends React.Component {
 
     render() {
         const {
-            model, instance, projectId, intents, entities, testMode, saveOnEnter, silenceRasaErrors,
+            model, instance, projectId, intents, entities, testMode, saveOnEnter, silenceRasaErrors, defaultIntent,
         } = this.props;
         const { example, example: { text } = {}, editMode } = this.state;
 
         const styleTextArea = {
             marginBottom: '10px',
         };
-        const examples = example.text.split('\n');
+        const examples = !!example.text ? example.text.split('\n') : [];
         return (
             <div>
                 {!editMode || examples.length > 1 ? (
@@ -111,6 +111,7 @@ export default class NLUPlayground extends React.Component {
                         onSave={this.handleSaveExample}
                         onDelete={this.handleCancelExampleTested}
                         postSaveAction='close'
+                        defaultIntent={defaultIntent}
                     />
                 )}
             </div>
