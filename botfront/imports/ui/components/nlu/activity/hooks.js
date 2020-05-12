@@ -38,6 +38,25 @@ export function useActivity(variables) {
         },
     });
 
+
+    const loadAll = async () => new Promise((resolve, reject) => {
+        fetchMore({
+            query: activityQuery,
+            notifyOnNetworkStatusChange: true,
+            variables: {
+                ...variables,
+                pageSize: 0,
+                cursor: data.getActivity.pageInfo.endCursor,
+            },
+            updateQuery: (previousResult, { fetchMoreResult }) => {
+                const { activity } = fetchMoreResult.getActivity;
+                resolve([...previousResult.getActivity.activity, ...activity]);
+                return previousResult; // we do not update the ui with all the example at once as it may slow down the ui
+            },
+        });
+    });
+      
+
     return {
         data: data.getActivity.activity,
         hasNextPage: data.getActivity.pageInfo.hasNextPage,
@@ -45,6 +64,7 @@ export function useActivity(variables) {
         error,
         loadMore,
         refetch,
+        loadAll,
     };
 }
 

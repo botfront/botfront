@@ -40,7 +40,7 @@ function OutOfScope(props) {
     } = props;
 
     const {
-        data, hasNextPage, loading, loadMore, refetch,
+        data, hasNextPage, loading, loadMore, refetch, loadAll,
     } = useActivity({ modelId, ooS: true, ...getSortFunction() });
 
     // always refetch on first page load; change this to subscription
@@ -124,8 +124,9 @@ function OutOfScope(props) {
         );
     };
 
-    const handleExport = () => {
-        const csvData = (data || []).map(u => (
+    const handleExport = async () => {
+        const allData = await loadAll();
+        const csvData = (allData || []).map(u => (
             `"${(u.intent || '-').replace('"', '""')}","${u.text.replace('"', '""')}",`
         )).join('\n');
         const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
