@@ -240,7 +240,6 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
                                                 top: style.top + stickyRowsOffset, // eslint-disable-line react/prop-types
                                             }}
                                             rowClassName={`${rowClassName} ${isDatumSelected(data[index]) ? 'selected' : ''}`}
-                                            onClick={onClickRow}
                                             onMouseDown={handleMouseDown}
                                             onMouseEnter={handleMouseEnter}
                                             isDataLoaded={isDataLoaded(index)}

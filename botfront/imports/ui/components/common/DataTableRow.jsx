@@ -6,7 +6,6 @@ const Row = React.forwardRef((props, ref) => {
         index,
         rowClassName,
         style,
-        onClick,
         onMouseDown,
         onMouseEnter,
         isDataLoaded,
@@ -27,7 +26,6 @@ const Row = React.forwardRef((props, ref) => {
         <div ref={ref} style={style} data-index={index} className='row-wrapper'>
             <div
                 className={`row ${rowClassName}`}
-                {...(onClick ? { onClick: () => onClick(rowInfo) } : {})}
                 {...(onMouseDown
                     ? {
                         onMouseDown: ({
@@ -56,7 +54,6 @@ Row.propTypes = {
     datum: PropTypes.object,
     style: PropTypes.object,
     rowClassName: PropTypes.string,
-    onClick: PropTypes.func,
     onMouseDown: PropTypes.func,
     onMouseEnter: PropTypes.func,
     isDataLoaded: PropTypes.bool,
@@ -68,7 +65,6 @@ Row.defaultProps = {
     datum: null,
     style: {},
     rowClassName: '',
-    onClick: null,
     onMouseDown: null,
     onMouseEnter: null,
     isDataLoaded: true,
