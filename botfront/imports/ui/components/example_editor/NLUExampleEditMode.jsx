@@ -226,9 +226,7 @@ export default class NLUExampleEditMode extends React.Component {
                     onClick={this.onSaveExample.bind(this)}
                 ><Icon
                     name='check'
-                        name='check'
-                        name='check'
-                    />Save
+                /> Save
                 </Button>
                 {this.props.onDelete && (
                     <Button
@@ -260,22 +258,16 @@ export default class NLUExampleEditMode extends React.Component {
             >
 
                 {this.props.onCancel
-                && (
-                    <Label
-                        attached='top right'
-                        content='&nbsp;close'
-                        as='a'
-                        icon='close'
-                        size='mini'
-                        onClick={this.onCancel}
-                        onClick={this.onCancel}
-                        onClick={this.onCancel}
-                        onClick={this.onCancel}
-                        onClick={this.onCancel}
-                        onClick={this.onCancel}
-                        onClick={this.onCancel}
-                    />
-                )}
+                    && (
+                        <Label
+                            attached='top right'
+                            content='&nbsp;close'
+                            as='a'
+                            icon='close'
+                            size='mini'
+                            onClick={this.onCancel}
+                        />
+                    )}
                 {this.renderIntentLabel()}
                 <Form>
                     <ExampleTextEditor
