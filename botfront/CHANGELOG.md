@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.23.1](https://github.com/botfront/botfront/compare/v0.23.0...v0.23.1) (2020-05-13)
+
+
+### Bug Fixes
+
+* merging duckling entities with other extractors ([a2d38d6](https://github.com/botfront/botfront/commit/a2d38d6))
+
+
+
 ## [0.23.0](https://github.com/botfront/botfront/compare/v0.23.0-rc.0...v0.23.0) (2020-05-06)
 
 
