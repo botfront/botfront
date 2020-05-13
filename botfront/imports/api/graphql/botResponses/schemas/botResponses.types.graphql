@@ -116,6 +116,13 @@ type TextPayload implements BotResponsePayload {
 type QuickReplyPayload implements BotResponsePayload {
     key: String
     text: String
+    quick_reply: [Button!]
+    metadata: Any
+}
+
+type TextWithButtonsPayload implements BotResponsePayload {
+    key: String
+    text: String
     buttons: [Button!]
     metadata: Any
 }

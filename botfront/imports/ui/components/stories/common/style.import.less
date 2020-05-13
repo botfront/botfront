@@ -153,11 +153,26 @@
     padding: 9px 0 5px; // 4px extra because of .utterance-container bottom margin
 
     .side-by-side.top-right {
-        max-width: 70px;
+        max-width: 80px;
         position: absolute;
         top: 5px;
         right: 5px;
         visibility: hidden;
+        .icon.pin.persist-buttons-icon {
+            margin-right: 1.5em;
+            color: rgb(205, 205, 205);
+            &:hover {
+                cursor: pointer;
+                color: rgb(181, 181, 181);
+            }
+            &.active {
+                color: rgb(157, 157, 157);
+                &:hover {
+                    color: rgb(152, 152, 152);
+                }
+                visibility: visible;
+            }
+        }
     }
     .response-name-container {
         display: flex;

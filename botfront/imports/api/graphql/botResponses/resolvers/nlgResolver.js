@@ -77,6 +77,10 @@ export default {
     },
     QuickReplyPayload: {
         text: ({ text }) => text,
+        quick_reply: template => template.quick_reply,
+    },
+    TextWithButtonsPayload: {
+        text: ({ text }) => text,
         buttons: ({ buttons }) => buttons,
     },
     ImagePayload: {

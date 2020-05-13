@@ -50,6 +50,16 @@ export const defaultTemplate = (template) => {
         return {
             __typename: 'QuickReplyPayload',
             text: '',
+            quick_reply: [
+                {
+                    title: '', type: 'postback', payload: '',
+                },
+            ],
+        };
+    case 'ButtonPayload':
+        return {
+            __typename: 'TextWithButtonsPayload',
+            text: '',
             buttons: [
                 {
                     title: '', type: 'postback', payload: '',
@@ -89,7 +99,7 @@ export const createResponseFromTemplate = (type, language, options = {}) => {
 };
 
 const excludeAllButOneKey = (content, key) => {
-    const included = ['image', 'buttons', 'elements', 'custom', 'attachment']
+    const included = ['image', 'buttons', 'elements', 'custom', 'attachment', 'quick_reply']
         .filter(k => Object.keys(content).includes(k));
     if (key) return included.length === 1 && included[0] === key;
     return included.length === 0;
@@ -103,6 +113,7 @@ export const parseContentType = (content) => {
     case ([
         (content.image === undefined || typeof content.image === 'string'),
         (content.buttons === undefined || Array.isArray(content.buttons)),
+        (content.quick_reply === undefined || Array.isArray(content.quick_reply)),
         (content.elements === undefined || (
             Array.isArray(content.elements)
             && typeof content.template_type === 'string'
@@ -116,7 +127,8 @@ export const parseContentType = (content) => {
         )),
     ].some(f => !f)): return 'CustomPayload';
     case excludeAllButOneKey(content, 'image'): return 'ImagePayload';
-    case excludeAllButOneKey(content, 'buttons'): return 'QuickReplyPayload';
+    case excludeAllButOneKey(content, 'quick_reply'): return 'QuickReplyPayload';
+    case excludeAllButOneKey(content, 'buttons'): return 'TextWithButtonsPayload';
     case excludeAllButOneKey(content, 'elements'): return 'CarouselPayload';
     case Object.keys(content).includes('text') && excludeAllButOneKey(content): return 'TextPayload';
     default: return 'CustomPayload';

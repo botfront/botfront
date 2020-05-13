@@ -65,7 +65,8 @@ const BotResponsePopupContent = (props) => {
                         )
                     }
                     <Dropdown.Item onClick={() => onCreate('TextPayload')} data-cy='from-text-template'>Text</Dropdown.Item>
-                    <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('QuickReplyPayload')} data-cy='from-qr-template'>Text with buttons (Quick reply)</Dropdown.Item>
+                    <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('QuickReplyPayload')} data-cy='from-qr-template'>Quick reply</Dropdown.Item>
+                    <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('ButtonPayload')} data-cy='from-button-template'>Text with buttons</Dropdown.Item>
                     <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('CarouselPayload')} data-cy='from-carousel-template'>Carousel</Dropdown.Item>
                     <Dropdown.Item onClick={() => onCreate('ImagePayload')} data-cy='from-image-template'>Image</Dropdown.Item>
                     <Dropdown.Item onClick={() => onCreate('CustomPayload')} data-cy='from-custom-template'>Custom</Dropdown.Item>

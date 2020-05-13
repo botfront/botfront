@@ -10,6 +10,9 @@
                 "name": "QuickReplyPayload"
             },
             {
+                "name": "TextWithButtonsPayload"
+            },
+            {
                 "name": "ImagePayload"
             },
             {

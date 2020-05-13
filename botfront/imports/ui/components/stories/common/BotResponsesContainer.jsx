@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
-    Placeholder, Loader, Header, List,
+    Placeholder, Loader, Header, List, Icon,
 } from 'semantic-ui-react';
 
 import { withRouter } from 'react-router';
@@ -68,6 +68,35 @@ const BotResponsesContainer = (props) => {
         }
         onChange(newSequence[0]);
         return setTemplate(newSequence[0]);
+    };
+
+    const handleToggleQuickReply = () => {
+        let update = { ...template };
+        switch (template.__typename) {
+        case 'QuickReplyPayload':
+            delete update.quick_reply;
+            update = {
+                ...update,
+                buttons: template.quick_reply,
+                __typename: 'TextWithButtonsPayload',
+            };
+            break;
+        case 'TextWithButtonsPayload':
+            delete update.buttons;
+            update = {
+                ...update,
+                quick_reply: template.buttons,
+                __typename: 'QuickReplyPayload',
+            };
+            
+            break;
+        default:
+            throw new Error(
+                '__typename must be TextWithButtonsPayload or QuickReplyPayload to toggle button persistence',
+            );
+        }
+        onChange(update);
+        setTemplate(update);
     };
 
     const handleCreateReponse = (index) => {
@@ -195,13 +224,18 @@ const BotResponsesContainer = (props) => {
                 )}
                 {getSequence().map(renderResponse)}
                 <div className='side-by-side right narrow top-right'>
+                    <Icon
+                        name='pin'
+                        className={`persist-buttons-icon ${template && template.__typename === 'TextWithButtonsPayload' && 'active'}`}
+                        onClick={handleToggleQuickReply}
+                    />
                     {enableEditPopup && (
                         <IconButton
                             icon='ellipsis vertical'
                             onClick={() => setEditorOpen(true)}
                             data-cy='edit-responses'
                             className={template && checkMetadataSet(template.metadata) ? 'light-green' : 'grey'}
-                            color={null} // prevent default color overiding the color set by the class
+                            color={null}
                         />
                     )}
                     {editorOpen && (
