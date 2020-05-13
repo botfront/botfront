@@ -30,6 +30,10 @@ function Activity(props) {
             return { sortKey: 'createdAt', sortDesc: true };
         case 'Oldest':
             return { sortKey: 'createdAt', sortDesc: false };
+        case 'Validated first':
+            return { sortKey: 'validated', sortDesc: true };
+        case 'Validated last':
+            return { sortKey: 'validated', sortDesc: false };
         case '% ascending':
             return { sortKey: 'confidence', sortDesc: false };
         case '% decending':
@@ -312,6 +316,8 @@ function Activity(props) {
                 options={[
                     { value: 'Newest', text: 'Newest' },
                     { value: 'Oldest', text: 'Oldest' },
+                    { value: 'Validated first', text: 'Validated first' },
+                    { value: 'Validated last', text: 'Validated last' },
                     { value: '% ascending', text: '% ascending' },
                     { value: '% decending', text: '% decending' },
                 ]}
