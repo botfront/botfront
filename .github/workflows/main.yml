@@ -2,8 +2,6 @@ name: build
 
 on:
   pull_request:
-    branches:
-      - master # when ref is master
   push:
     branches:
       - master # when base_ref is master
