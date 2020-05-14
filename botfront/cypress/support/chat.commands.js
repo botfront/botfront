@@ -29,14 +29,14 @@ Cypress.Commands.add('compareLastMessage', (expectedResponse) => {
 });
 
 Cypress.Commands.add('testChatInput', (utterance, expectedResponse) => {
-    cy.get('input.rw-new-message').should('not.have.class', 'rw-disabled');
+    cy.get('input.rw-new-message').should('not.be.disabled');
     cy.get('input.rw-new-message').click().type(`${utterance}{enter}`, { force: true });
     // Verify response
     cy.compareLastMessage(expectedResponse);
 });
 
 Cypress.Commands.add('testChatQR', (buttonText, expectedResponse) => {
-    cy.get('input.rw-new-message').should('not.have.class', 'rw-disabled');
+    cy.get('input.rw-new-message').should('not.be.disabled');
     cy.get('.rw-message').last().get('.rw-replies')
         .find('.rw-reply')
         .contains(buttonText)
