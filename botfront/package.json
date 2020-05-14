@@ -56,6 +56,7 @@
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.26",
     "mongoose": "^5.9.3",
+    "perf_hooks": "0.0.1",
     "prop-types": "^15.7.2",
     "query-string": "^5.1.0",
     "random-seed": "^0.3.0",
@@ -107,7 +108,6 @@
     "@meteorjs/eslint-config-meteor": "^1.0.5",
     "@storybook/addon-knobs": "^5.1.9",
     "@storybook/react": "^5.1.9",
-    "autoprefixer": "^6.3.1",
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.6",
     "chai": "^4.1.2",
@@ -127,7 +127,6 @@
     "eslint-plugin-react": "^7.11.1",
     "faker": "^4.1.0",
     "husky": "2.7.0",
-    "less": "2.5.0",
     "less-loader": "^5.0.0",
     "license-checker": "^25.0.1",
     "selenium-webdriver": "3.6.0",
@@ -143,15 +142,6 @@
   "standard-version": {
     "scripts": {
       "postcommit": "../scripts/post_commit.sh"
-    }
-  },
-  "postcss": {
-    "plugins": {
-      "autoprefixer": {
-        "browsers": [
-          "last 2 versions"
-        ]
-      }
     }
   },
   "config": {
