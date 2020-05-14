@@ -497,8 +497,12 @@ if (Meteor.isServer) {
                 || !model.training_data
                 || !model.training_data.common_examples.text
             ) throw new Meteor.Error('400', 'No correponding utterance');
-            const { text, intent, entities } = model.training_data.common_examples;
-            return { text, intent, entities };
+            const {
+                text, intent, entities, _id,
+            } = model.training_data.common_examples;
+            return {
+                text, intent, entities, _id,
+            };
         },
 
         async 'nlu.chitChatSetup'() {

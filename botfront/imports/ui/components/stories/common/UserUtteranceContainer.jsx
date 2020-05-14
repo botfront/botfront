@@ -30,7 +30,6 @@ const UtteranceContainer = (props) => {
             });
         }
     }, [value]);
-
     const validateInput = async () => {
         try {
             const { intent, entities, text } = await parseUtterance(input);
@@ -122,6 +121,7 @@ const UtteranceContainer = (props) => {
                         setModalOpen={newState => setModalOpen(newState)}
                         open
                         payload={value}
+                        displayedExample={fetchedData}
                     />
                 </>
             )}

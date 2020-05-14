@@ -96,9 +96,11 @@ if (Meteor.isServer) {
 
     const trainingAppLogger = getAppLoggerForFile(__filename);
 
-    export const parseNlu = async (instance, examples) => {
+    export const parseNlu = async (instance, examples, options = {}) => {
         check(instance, Object);
         check(examples, Array);
+        check(options, Object);
+        const { failSilently } = options;
         const appMethodLogger = getAppLoggerForMethod(
             trainingAppLogger,
             'parseNlu',
@@ -134,13 +136,14 @@ if (Meteor.isServer) {
                         entities: [],
                     };
                 });
-            if (result.length < 1) throw new Meteor.Error('Error when parsing NLU');
-            if (Array.from(new Set(result.map(r => r.language))).length > 1) {
+            if (result.length < 1 && !failSilently) throw new Meteor.Error('Error when parsing NLU');
+            if (Array.from(new Set(result.map(r => r.language))).length > 1 && !failSilently) {
                 throw new Meteor.Error('Tried to parse for more than one language at a time.');
             }
 
             return examples.length < 2 ? result[0] : result;
         } catch (e) {
+            if (failSilently) return {};
             if (e instanceof Meteor.Error) {
                 throw e;
             } else {
@@ -150,11 +153,12 @@ if (Meteor.isServer) {
     };
 
     Meteor.methods({
-        'rasa.parse'(instance, params) {
+        'rasa.parse'(instance, params, options = {}) {
             check(instance, Object);
             check(params, Array);
+            check(options, Object);
             this.unblock();
-            return parseNlu(instance, params);
+            return parseNlu(instance, params, options);
         },
 
         async 'rasa.convertToJson'(file, language, outputFormat, host) {

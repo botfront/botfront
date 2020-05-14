@@ -5,7 +5,6 @@ import { Form } from 'semantic-ui-react';
 import NLUExampleTester from './NLUExampleTester';
 import NLUExampleEditMode from './NLUExampleEditMode';
 import { ExampleTextEditor } from './ExampleTextEditor';
-import { wrapMeteorCallback } from '../utils/Errors';
 
 export default class NLUPlayground extends React.Component {
     constructor(props) {
@@ -41,7 +40,9 @@ export default class NLUPlayground extends React.Component {
     };
 
     handleParseAndSave = () => {
-        const { defaultIntent, instance, model: { language } } = this.props;
+        const {
+            defaultIntent, instance, silenceRasaErrors, model: { language },
+        } = this.props;
         const { example } = this.state;
         // treat new lines as new examples
         example.text.split('\n').forEach((exampleText) => {
@@ -49,6 +50,7 @@ export default class NLUPlayground extends React.Component {
                 'rasa.parse',
                 instance,
                 [{ text: exampleText, lang: language }],
+                { failSilently: silenceRasaErrors },
                 (err, exampleMatch) => {
                     if (err || !exampleMatch || !exampleMatch.intent) {
                         this.handleSaveExample({ ...example, intent: defaultIntent });
@@ -65,14 +67,14 @@ export default class NLUPlayground extends React.Component {
 
     render() {
         const {
-            model, instance, projectId, intents, entities, testMode, saveOnEnter,
+            model, instance, projectId, intents, entities, testMode, saveOnEnter, silenceRasaErrors, defaultIntent,
         } = this.props;
         const { example, example: { text } = {}, editMode } = this.state;
 
         const styleTextArea = {
             marginBottom: '10px',
         };
-        const examples = example.text.split('\n');
+        const examples = !!example.text ? example.text.split('\n') : [];
         return (
             <div>
                 {!editMode || examples.length > 1 ? (
@@ -96,6 +98,7 @@ export default class NLUPlayground extends React.Component {
                                 entities={entities}
                                 onDone={this.handleExampleTested}
                                 disablePopup
+                                silenceRasaErrors={silenceRasaErrors}
                             />
                         )}
                     </div>
@@ -108,6 +111,7 @@ export default class NLUPlayground extends React.Component {
                         onSave={this.handleSaveExample}
                         onDelete={this.handleCancelExampleTested}
                         postSaveAction='close'
+                        defaultIntent={defaultIntent}
                     />
                 )}
             </div>
@@ -125,10 +129,12 @@ NLUPlayground.propTypes = {
     testMode: PropTypes.bool,
     defaultIntent: PropTypes.string,
     saveOnEnter: PropTypes.bool,
+    silenceRasaErrors: PropTypes.bool,
 };
 
 NLUPlayground.defaultProps = {
     testMode: false,
     defaultIntent: null,
     saveOnEnter: false,
+    silenceRasaErrors: false,
 };
