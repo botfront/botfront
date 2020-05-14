@@ -84,12 +84,12 @@ const Intent = React.forwardRef((props, ref) => {
     const handleKeyDown = (event) => {
         event.stopPropagation();
         if (event.key === 'Escape') handleClose();
-        if (['ArrowUp', 'ArrowDown'].includes(event.key)) selectSibling(event.key);
-        if (event.key === 'Enter') {
+        else if (['ArrowUp', 'ArrowDown'].includes(event.key)) selectSibling(event.key);
+        else if (event.key === 'Enter') {
             handleChange(
                 (dataToDisplay || []).length ? selection[0] : typeInput,
             );
-        }
+        } else setSelection([dataToDisplay[0].intent]);
     };
 
     const renderIntent = (row) => {
