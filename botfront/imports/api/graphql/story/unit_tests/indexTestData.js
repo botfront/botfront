@@ -267,7 +267,7 @@ export const botResponsesFixture = [
         values: [
             {
                 lang: 'en',
-                sequence: [{ content: 'custom:\n  country: "Canada"\nmetadata: null\n' }],
+                sequence: [{ content: 'custom:\n  embedded:\n    title: "Canada"\nmetadata: null\n' }],
             },
         ],
         projectId: 'bf',

@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Icon } from 'semantic-ui-react';
-import './QuickReply.import.less';
+import { Icon, Popup } from 'semantic-ui-react';
+import uuidv4 from 'uuid/v4';
+import { useDrop } from 'react-dnd-cjs';
 import QuickReply, { isButtonValid } from './QuickReply';
 
 function QuickReplies({
-    value, onChange, min, max,
+    value, onChange, min, max, fluid,
 }) {
     const [buttons, setButtons] = useState(value);
+
+    const id = useMemo(() => uuidv4(), [false]);
+    const [, drop] = useDrop({ accept: `qr-for-${id}` });
 
     const handleChange = (button, i) => {
         const newButtons = [...buttons.slice(0, i), button, ...buttons.slice(i + 1)];
@@ -33,6 +37,13 @@ function QuickReplies({
         setButtons(newButtons);
         if (newButtons.every(isButtonValid)) onChange(newButtons);
     };
+    const handleSwapButtons = (index, draggedButtonIndex) => {
+        const newButtons = [...buttons];
+        newButtons[index] = buttons[draggedButtonIndex];
+        newButtons[draggedButtonIndex] = buttons[index];
+        setButtons(newButtons);
+        onChange(newButtons);
+    };
 
     const quickReplies = buttons.map((b, index) => (
         <QuickReply
@@ -41,24 +52,42 @@ function QuickReplies({
             onChange={butt => handleChange(butt, index)}
             onDelete={() => handleDelete(index)}
             showDelete={buttons.length > min}
+            parentId={id}
+            buttonIndex={index}
+            onReorder={handleSwapButtons}
         />
     ));
 
+    const renderLastButton = () => (
+        <>
+            {quickReplies[quickReplies.length - 1]}
+            {buttons.length < max && buttons.every(b => isButtonValid(b)) && (
+                <Popup
+                    size='mini'
+                    inverted
+                    position='top center'
+                    content='Add a button'
+                    trigger={(
+                        <Icon
+                            className='add-quick-reply'
+                            data-cy='add-quick-reply'
+                            name='add'
+                            color='grey'
+                            onClick={handleAdd}
+                        />
+                    )}
+                />
+            )}
+        </>
+    );
+
     return (
-        <div className='quick-replies'>
+        <div className={`quick-replies ${fluid ? 'fluid' : ''}`} ref={drop}>
             {quickReplies.slice(0, quickReplies.length - 1)}
-            <div className='last-button'>
-                {quickReplies[quickReplies.length - 1]}
-                {buttons.length < max && buttons.every(b => isButtonValid(b)) && (
-                    <Icon
-                        className='add-quick-reply'
-                        data-cy='add-quick-reply'
-                        name='add'
-                        color='grey'
-                        onClick={handleAdd}
-                    />
-                )}
-            </div>
+            {fluid
+                ? renderLastButton()
+                : <div className='last-button'>{renderLastButton()}</div>
+            }
         </div>
     );
 }
@@ -68,6 +97,7 @@ QuickReplies.propTypes = {
     onChange: PropTypes.func.isRequired,
     min: PropTypes.number,
     max: PropTypes.number,
+    fluid: PropTypes.bool,
 };
 
 QuickReplies.defaultProps = {
@@ -80,6 +110,7 @@ QuickReplies.defaultProps = {
             payload: '',
         },
     ],
+    fluid: false,
 };
 
 export default QuickReplies;

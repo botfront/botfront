@@ -47,11 +47,11 @@ const customFixture = {
     values: [
         {
             lang: 'en',
-            sequence: [{ content: '__typename: CustomPayload\ncustom:\n  test: true\n' }],
+            sequence: [{ content: '__typename: CustomPayload\ncustom:\n  embedded:\n    title: yeah\n' }],
         },
     ],
     projectId: 'bf',
-    textIndex: 'utter_custom\ntest: true ',
+    textIndex: 'utter_custom\nyeah',
 };
 
 const imageFixture = {
@@ -83,7 +83,7 @@ describe('bot response indexing', () => {
     });
     it('should index a custom response', () => {
         const result = indexBotResponse(customFixture);
-        expect(result).to.be.equal('utter_custom\ntest: true ');
+        expect(result).to.be.equal('utter_custom\nyeah');
     });
     it('should index a image response', () => {
         const result = indexBotResponse(imageFixture);

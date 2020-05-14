@@ -45,8 +45,9 @@ describe('## Export', async () => {
                 .then(res => {
                     const expectedProject = { ...exportPayloads[0]}
                     delete expectedProject.project.training;
-                    const { timestamp, ...body } = res.body;
+                    const { timestamp, bf_version, ...body } = res.body;
                     expect(timestamp).to.exist;
+                    expect(bf_version).to.exist;
                     expect(body).to.deep.equal(expectedProject);
                     done();
                 })
@@ -57,11 +58,12 @@ describe('## Export', async () => {
                 .get('/project/one/export?output=json&conversations=false&evaluations=0')
                 .expect(httpStatus.OK)
                 .then(res => {
-                    const { timestamp, ...body } = res.body;
+                    const { timestamp, bf_version, ...body } = res.body;
                     const expectedProject = { ...exportPayloads[0]}
                     delete expectedProject.project.training;
                     const { evaluations, conversations, ...rest } = expectedProject;
                     expect(timestamp).to.exist;
+                    expect(bf_version).to.exist;
                     expect(body).to.deep.equal(rest);
                     done();
                 })

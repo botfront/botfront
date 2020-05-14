@@ -73,21 +73,35 @@ export default {
     ConversationInput: new GraphQLScalarType({ ...commonResolvers.Any, name: 'ConversationInput' }),
     BotResponsePayload: {
         __resolveType: parseContentType,
-        text: ({ text }) => text,
         metadata: ({ metadata }) => metadata,
     },
     QuickReplyPayload: {
+        text: ({ text }) => text,
         buttons: ({ buttons }) => buttons,
     },
     ImagePayload: {
+        text: ({ text }) => text,
         image: ({ image }) => image,
     },
+    CarouselPayload: {
+        template_type: ({ template_type: templateType }) => templateType,
+        text: ({ text }) => text,
+        elements: ({ elements }) => elements,
+    },
     CustomPayload: {
+        text: ({ text }) => text,
         elements: ({ elements }) => elements,
         attachment: ({ attachment }) => attachment,
         custom: ({ custom }) => custom,
         buttons: ({ buttons }) => buttons,
         image: ({ image }) => image,
+    },
+    CarouselElement: {
+        title: ({ title }) => title,
+        subtitle: ({ subtitle }) => subtitle,
+        image_url: ({ image_url: imageUrl }) => imageUrl,
+        default_action: ({ default_action: defaultAction }) => defaultAction,
+        buttons: ({ buttons }) => buttons,
     },
     Button: {
         __resolveType: (v) => {
@@ -95,7 +109,7 @@ export default {
             if (v.type === 'web_url') return 'WebUrlButton';
             if (v.payload) return 'PostbackButton';
             if (v.url) return 'WebUrlButton';
-            return null;
+            return 'PostbackButton';
         },
         title: ({ title }) => title,
         type: ({ type }) => type,

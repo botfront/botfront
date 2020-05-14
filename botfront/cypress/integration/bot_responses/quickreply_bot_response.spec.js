@@ -10,10 +10,7 @@ describe('Bot responses', function() {
         cy.deleteProject('bf');
     });
     it('should create a quick reply response using the response editor', function() {
-        cy.visit('/project/bf/dialogue/templates');
-        cy.dataCy('create-response').click();
-        cy.dataCy('add-quickreply-response').click();
-        cy.dataCy('response-name-input').click().find('input').type('test_A');
+        cy.createResponseFromResponseMenu('quickreply', 'test_A');
         cy.dataCy('bot-response-input').click().find('textarea').type('response text');
 
         cy.dataCy('button_title').click({ force: true });
@@ -22,17 +19,14 @@ describe('Bot responses', function() {
         cy.dataCy('intent-label').should('exist').click();
         cy.dataCy('intent-dropdown').find('input').type('option_A{enter}');
         cy.dataCy('save-button').click();
-        cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.escapeModal();
 
         cy.dataCy('edit-response-0').click();
         cy.dataCy('bot-response-input').contains('response text').should('exist');
         cy.dataCy('button_A').should('exist');
     });
     it('should edit a quick reply response using the response editor', function() {
-        cy.visit('/project/bf/dialogue/templates');
-        cy.dataCy('create-response').click();
-        cy.dataCy('add-quickreply-response').click();
-        cy.dataCy('response-name-input').click().find('input').type('test_A');
+        cy.createResponseFromResponseMenu('quickreply', 'test_A');
         cy.dataCy('bot-response-input').click().find('textarea').type('response text');
 
         cy.dataCy('button_title').click({ force: true });
@@ -41,7 +35,7 @@ describe('Bot responses', function() {
         cy.dataCy('intent-label').should('exist').click();
         cy.dataCy('intent-dropdown').find('input').type('option_A{enter}');
         cy.dataCy('save-button').click();
-        cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.escapeModal();
 
         cy.dataCy('edit-response-0').click();
         cy.dataCy('bot-response-input').click().find('textarea').clear()
@@ -54,17 +48,14 @@ describe('Bot responses', function() {
         cy.dataCy('intent-label').should('exist').click();
         cy.dataCy('intent-dropdown').find('input').type('option_B{enter}');
         cy.dataCy('save-button').click();
-        cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
+        cy.escapeModal();
 
         cy.dataCy('edit-response-0').click();
         cy.dataCy('bot-response-input').contains('updated text').should('exist');
         cy.dataCy('button_B').should('exist');
     });
     it('should create quick reply variations', function() {
-        cy.visit('/project/bf/dialogue/templates');
-        cy.dataCy('create-response').click();
-        cy.dataCy('add-quickreply-response').click();
-        cy.dataCy('response-name-input').click().find('input').type('test_A');
+        cy.createResponseFromResponseMenu('quickreply', 'test_A');
 
         cy.dataCy('bot-response-input').click().find('textarea').type('response text deleted');
         cy.dataCy('button_title').click({ force: true });
@@ -97,8 +88,7 @@ describe('Bot responses', function() {
         cy.dataCy('intent-label').should('exist').click();
         cy.dataCy('intent-dropdown').find('input').type('payload{enter}');
         cy.dataCy('save-button').click();
-        cy.get('.dimmer').click({ position: 'topLeft' }); // close the response editor
-        cy.get('.dimmer').should('not.exist');
+        cy.escapeModal();
 
         cy.dataCy('edit-response-0').click();
         cy.dataCy('bot-response-input').contains('response text A').should('exist');

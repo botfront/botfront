@@ -44,6 +44,10 @@
     }
 }
 
+.image-modal {
+    padding: 30px;
+}
+
 .image-url-input {
     margin-top: 6px;
     width: 100%;
@@ -63,6 +67,10 @@
 
 .upload-target {
     outline: dashed @blue 5px;
+}
+
+.faded-upload-target {
+    outline: dashed fade(@blue, 20%) 5px;
 }
 
 .or {
@@ -193,3 +201,27 @@
     }
 }
 
+.item.popup-trigger-wrapper {
+    padding: 0;
+    margin: 0;
+    background-color: rgba(0, 0, 0, 0);
+    font-weight: unset;
+    font-size: inherit;
+    &:hover{
+        background-color: rgba(0, 0, 0, 0);
+    }
+}
+.extended-hover-container{
+    width: 100%;
+    position: relative;
+    max-height: 0;
+}
+.extended-hover-target{
+    width: 100%;
+    height: 2em;
+    opacity:0.0;
+    background-color: red;
+    // bottom: -2em;
+    position: relative;
+    z-index: 11;
+}

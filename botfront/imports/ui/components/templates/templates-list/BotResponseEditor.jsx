@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
+import shortid from 'shortid';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { safeDump, safeLoad } from 'js-yaml';
@@ -79,10 +80,13 @@ const BotResponseEditor = (props) => {
     };
 
     const insertResponse = (newResponse, callback) => {
+        const key = newResponse.key === 'utter_'
+            ? `utter_${shortid.generate()}`
+            : newResponse.key;
         createBotResponse({
             variables: {
                 projectId,
-                response: clearTypenameField(newResponse),
+                response: clearTypenameField({ ...newResponse, key }),
             },
         }).then(
             (result) => { callback(undefined, result); },
@@ -147,10 +151,12 @@ const BotResponseEditor = (props) => {
         updateResponse({ ...newBotResponse, key: responseKey }, validateResponseName);
     };
 
-    const updateSequence = (oldResponse, content, index) => {
+    const updateSequence = (oldResponse, contentInput, index) => {
         const updatedResponse = { ...oldResponse };
         const activeIndex = oldResponse.values.findIndex(({ lang }) => lang === language);
         let { sequence } = updatedResponse.values[activeIndex];
+        const content = typeof contentInput === 'string'
+            ? contentInput : safeDump(contentInput);
         if (index !== undefined && sequence[index]) {
             sequence[index].content = content;
         } else {
@@ -161,8 +167,7 @@ const BotResponseEditor = (props) => {
     };
 
     const handleSequenceChange = (updatedSequence, index) => {
-        const { metadata, ...rest } = updatedSequence;
-        const content = safeDump(rest);
+        const { metadata, ...content } = updatedSequence;
         if (isNew) {
             const tempvar = updateSequence(newBotResponse, content, index);
             setNewBotResponse(tempvar);
@@ -188,28 +193,24 @@ const BotResponseEditor = (props) => {
 
     const handleModalClose = () => {
         const validResponse = newBotResponse;
-        if (!open) return;
-        if (isNew && checkResponseEmpty(validResponse)) {
-            closeModal();
-            return;
-        }
-        // the response is new
-        if ((isNew && !checkResponseEmpty(validResponse))
+        if (!open) return false;
+        // the response is new or
         // the response was one of the default defined one and thus does not really exist in db
-        || (!isNew && validResponse._id === undefined && !checkResponseEmpty(validResponse))) {
-            insertResponse(validResponse, (err) => {
+        if (isNew || validResponse._id === undefined) {
+            if (checkResponseEmpty(validResponse)) return closeModal();
+            return insertResponse(validResponse, (err) => {
                 validateResponseName(err);
                 if (!err) {
                     closeModal();
                 }
             });
-            return;
-        } if ((!isNew || checkResponseEmpty(validResponse)) && !renameError) {
+        } if (!renameError) {
             const newPayload = getRefreshData();
-            upsertResponse(name, newPayload, 0).then(() => { // update the content of the first variation to ensure consistency in visual story editor
+            return upsertResponse(name, newPayload, 0).then(() => { // update the content of the first variation to ensure consistency in visual story editor
                 closeModal();
             });
         }
+        return false;
     };
 
     useEffect(() => {

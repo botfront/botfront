@@ -59,7 +59,6 @@ if (Meteor.isServer) {
             await searchStories('en', 'second');
             await searchStories('en', 'http://google.com');
             await searchStories('en', 'Canada');
-            await searchStories('en', 'country');
             await searchStories('en', 'test_slot');
             await searchStories('en', 'story fixture');
             await searchStories('en', 'term does not exist', true);

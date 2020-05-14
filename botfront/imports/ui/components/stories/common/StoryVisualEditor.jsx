@@ -16,35 +16,15 @@ import BadLineLabel from '../BadLineLabel';
 import { ProjectContext } from '../../../layouts/context';
 import ExceptionWrapper from './ExceptionWrapper';
 import GenericLabel from '../GenericLabel';
+import { defaultTemplate } from '../../../../lib/botResponse.utils';
 
 const variationIndex = 0;
-
-const defaultTemplate = (templateType) => {
-    if (templateType === 'text') return { __typename: 'TextPayload', text: '' };
-    if (templateType === 'qr') {
-        return {
-            __typename: 'QuickReplyPayload',
-            text: '',
-            buttons: [{ title: '', type: 'postback', payload: '' }],
-        };
-    }
-    if (templateType === 'image') {
-        return {
-            __typename: 'ImagePayload',
-            image: '',
-        };
-    }
-    if (templateType === 'custom') {
-        return {
-            __typename: 'CustomPayload',
-        };
-    }
-    return false;
-};
 
 export default class StoryVisualEditor extends React.Component {
     state = {
         lineInsertIndex: null,
+        responseLocations: [],
+        loadingResponseLocations: false,
     };
 
     addStoryCursor = React.createRef();
@@ -234,9 +214,10 @@ export default class StoryVisualEditor extends React.Component {
     static contextType = ProjectContext;
 
     render() {
-        const { story } = this.props;
+        const { story, getResponseLocations } = this.props;
         const { responses } = this.context;
         const { language } = this.context;
+        const { responseLocations, loadingResponseLocations } = this.state;
         if (!story) return <div className='story-visual-editor' />;
         const lines = story.lines.map((line, index) => {
             const exceptions = story.exceptions.filter(
@@ -257,6 +238,8 @@ export default class StoryVisualEditor extends React.Component {
                                 initialValue={responses[name]}
                                 onChange={newResponse => this.handleBotResponseChange(name, newResponse)}
                                 onDeleteAllResponses={() => this.handleDeleteLine(index)}
+                                responseLocations={responseLocations[name]}
+                                loadingResponseLocations={loadingResponseLocations}
                             />
                         </ExceptionWrapper>
                         {this.renderAddLine(index)}
@@ -284,7 +267,22 @@ export default class StoryVisualEditor extends React.Component {
         });
 
         return (
-            <div className='story-visual-editor' onMouseLeave={() => { this.menuCloser(); this.menuCloser = () => {}; }}>
+            <div
+                className='story-visual-editor'
+                onMouseEnter={() => {
+                    this.setState({ loadingResponseLocations: true });
+                    const storyResponses = story.lines.reduce((value, { gui }) => {
+                        if (gui.type === 'bot') value.push(gui.data.name);
+                        return value;
+                    }, []);
+                    getResponseLocations(storyResponses, (err, result) => {
+                        this.setState({ loadingResponseLocations: false });
+                        if (err) return;
+                        this.setState({ responseLocations: result });
+                    });
+                }}
+                onMouseLeave={() => { this.menuCloser(); this.menuCloser = () => {}; }}
+            >
                 {this.renderAddLine(-1)}
                 {lines}
             </div>
@@ -294,6 +292,7 @@ export default class StoryVisualEditor extends React.Component {
 
 StoryVisualEditor.propTypes = {
     story: PropTypes.instanceOf(StoryController),
+    getResponseLocations: PropTypes.func.isRequired,
 };
 
 StoryVisualEditor.defaultProps = {

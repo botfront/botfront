@@ -17,6 +17,7 @@
 
 import './chat.commands';
 import './story.commands';
+import './response.commands';
 
 const axios = require('axios');
 require('cypress-plugin-retries');
@@ -66,12 +67,14 @@ Cypress.Commands.add('login', (visit = true, email = 'test@test.com', password =
             });
         }),
     ).then(
-        ({ Meteor }) => new Cypress.Promise((resolve, reject) => {
-            Meteor.loginWithPassword(email, password, loginError => (loginError ? reject(loginError) : resolve()));
+        ({ Meteor, Accounts }) => new Cypress.Promise((resolve, reject) => {
+            Meteor.loginWithPassword(email, password, (loginError) => {
+                if (loginError) return reject(loginError);
+                cy.wrap(Accounts._storedLoginToken()).as('loginToken'); // eslint-disable-line no-underscore-dangle
+                return resolve();
+            });
         }),
     );
-
-    // cy.window();
 });
 
 Cypress.Commands.add('logout', () => {
@@ -197,7 +200,10 @@ Cypress.Commands.add('dataCy', (dataCySelector, content = null, filter = null) =
 
 Cypress.Commands.add('findCy', { prevSubject: 'element' }, (subject, dataCySelector) => subject.find(`[data-cy=${dataCySelector}]`));
 
-Cypress.Commands.add('escapeModal', () => cy.get('.modals.dimmer').click('topRight'));
+Cypress.Commands.add('escapeModal', (letFail = false) => {
+    cy.get('.modals.dimmer').click('topRight');
+    if (!letFail) cy.get('.dimmer').should('not.exist');
+});
 
 Cypress.Commands.add(
     'upload',
@@ -217,6 +223,18 @@ Cypress.Commands.add(
             };
             cy.wrap(subject).trigger('dragenter', dataTransfer);
             cy.wrap(subject).trigger('drop', dataTransfer);
+        });
+    },
+);
+
+Cypress.Commands.add(
+    'dragTo',
+    { prevSubject: 'element' },
+    (source, node, dataCy = true) => {
+        cy.wrap(source).trigger('dragstart');
+        (dataCy ? cy.dataCy(node) : cy.get(node)).then((destination) => {
+            cy.wrap(destination).trigger('dragenter');
+            cy.wrap(destination).trigger('drop');
         });
     },
 );
@@ -275,6 +293,17 @@ Cypress.Commands.add('train', (waitTime = 200000) => {
     cy.wait(5000);
     cy.get('[data-cy=train-button]', { timeout: waitTime }).should('not.have.class', 'disabled');
 });
+
+Cypress.Commands.add('graphQlQuery', (query, variables) => cy.get('@loginToken').then((token) => {
+    cy.request({
+        method: 'POST',
+        url: '/graphql',
+        headers: { 'Content-Type': 'application/json', Authorization: token },
+        body: { query, variables },
+    });
+}));
+
+Cypress.Commands.overwrite('log', (subject, message) => cy.task('log', message));
 
 Cypress.Commands.add('getBranchContainer', (depth) => {
     /*

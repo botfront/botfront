@@ -92,8 +92,8 @@ export class StoryController {
 
     validateAction = () => {
         this.form = null;
-        if (!this.hasInvalidChars(this.response) && !RASA_BUILT_IN_ACTIONS.includes(this.response)) {
-            this.domain.actions.add(this.response);
+        if (!this.hasInvalidChars(this.response)) {
+            if (!RASA_BUILT_IN_ACTIONS.includes(this.response)) this.domain.actions.add(this.response);
             this.lines[this.idx].gui = { type: 'action', data: { name: this.response } };
         }
     };
@@ -347,7 +347,7 @@ export class StoryController {
     };
 }
 
-export const stringPayloadToObject = function(stringPayload) {
+export const stringPayloadToObject = function(stringPayload = '') {
     const payloadRegex = /([^{]*) *({.*}|)/;
     const matches = payloadRegex.exec(stringPayload.substring(1));
     const intent = matches[1];

@@ -1,8 +1,10 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { Input, Button, Image } from 'semantic-ui-react';
+import { Button } from 'semantic-ui-react';
 import TextareaAutosize from 'react-autosize-textarea';
+import ImageThumbnail from './ImageThumbnail';
+import CarouselEditor from './CarouselEditor';
 import QuickReplies from './QuickReplies';
 
 const BotResponseContainer = (props) => {
@@ -11,15 +13,14 @@ const BotResponseContainer = (props) => {
     } = props;
 
     const [input, setInput] = useState();
-    const [shiftPressed, setshiftPressed] = useState(false);
     const focusGrabber = useRef();
     const isCustom = value.__typename === 'CustomPayload';
     const isTextResponse = value.__typename === 'TextPayload';
     const isQRResponse = value.__typename === 'QuickReplyPayload';
+    const isCarouselResponse = value.__typename === 'CarouselPayload';
     const isImageResponse = value.__typename === 'ImagePayload';
     const hasText = Object.keys(value).includes('text') && value.text !== null;
 
-    const imageUrlRef = useRef();
 
     const unformatNewlines = (response) => {
         if (!response) return response;
@@ -31,46 +32,27 @@ const BotResponseContainer = (props) => {
     useEffect(() => {
         setInput(unformatNewlines(value.text));
         if (focus && focusGrabber.current) focusGrabber.current.focus();
-        if (focus && imageUrlRef.current) imageUrlRef.current.focus();
     }, [value.text, focus]);
 
+    const setText = () => onChange({ ...value, text: formatNewlines(input) }, false);
+    const setImage = image => onChange({ ...value, image }, false);
 
     function handleTextBlur(e) {
         const tagRegex = new RegExp(tag);
         if (e.relatedTarget && !!e.relatedTarget.id.match(tagRegex)) return;
-        if (isTextResponse) onChange({ text: formatNewlines(input) }, false);
-        if (isQRResponse) onChange({ text: formatNewlines(input), buttons: value.buttons }, false);
-        if (isImageResponse) onChange({ text: formatNewlines(input), image: value.image }, false);
+        setText();
     }
 
-    const setImage = image => onChange({ ...value, image, text: '' }, false);
-
-    const setImageFromUrlBox = () => setImage(imageUrlRef.current.inputRef.current.value);
-
     const handleKeyDown = (e) => {
-        if (e.key === 'Shift') {
-            setshiftPressed(true);
-        }
-        if (e.key === 'Backspace' && !input) {
+        const { key, shiftKey } = e;
+        if (key === 'Backspace' && !input) {
             e.preventDefault();
             onDelete();
         }
-        if (e.key === 'Enter' && isTextResponse) {
-            if (shiftPressed) {
-                return;
-            }
+        if (key === 'Enter' && isTextResponse) {
+            if (shiftKey) return;
             e.preventDefault();
             onChange({ text: formatNewlines(input) }, true);
-        }
-        if (e.key === 'Enter' && isImageResponse) {
-            e.preventDefault();
-            setImageFromUrlBox();
-        }
-    };
-
-    const handleKeyUp = (e) => {
-        if (e.key === 'Shift') {
-            setshiftPressed(false);
         }
     };
 
@@ -85,7 +67,6 @@ const BotResponseContainer = (props) => {
                 setInput(event.target.value);
             }}
             onKeyDown={handleKeyDown}
-            onKeyUp={handleKeyUp}
             onFocus={() => onFocus()}
             onBlur={handleTextBlur}
         />
@@ -100,32 +81,6 @@ const BotResponseContainer = (props) => {
         />
     );
 
-    const renderViewImage = () => (
-        <Image src={value.image} size='small' alt='Image URL broken' />
-    );
-
-    const renderSetImage = () => (
-        <div>
-            <b>Insert image from URL</b>
-            <br />
-            <div className='side-by-side'>
-                <Input
-                    ref={imageUrlRef}
-                    autoFocus
-                    placeholder='URL'
-                    onBlur={setImageFromUrlBox}
-                    onKeyDown={handleKeyDown}
-                    size='small'
-                    data-cy='image-url-input'
-                    className='image-url-input'
-                />
-                <Button primary onClick={setImageFromUrlBox} size='small' content='Save' />
-            </div>
-        </div>
-    );
-
-    const renderImage = () => (!value.image.trim() ? renderSetImage() : renderViewImage());
-
     const renderCustom = () => (
         <Button
             className='edit-custom-response'
@@ -136,9 +91,10 @@ const BotResponseContainer = (props) => {
         </Button>
     );
 
-    const extraClass = isImageResponse && value.image.trim() ? 'image' : '';
+    let extraClass = '';
+    if (isImageResponse) extraClass = `${extraClass} image-response-container`;
+    if (isCarouselResponse) extraClass = `${extraClass} carousel-response-container`;
     const metadataClass = hasMetadata ? 'metadata-response' : '';
-
 
     return (
         <div
@@ -148,7 +104,8 @@ const BotResponseContainer = (props) => {
         >
             <div className={`${hasMetadata ? 'metadata-response' : ''}`}>
                 {hasText && !isImageResponse && renderText()}
-                {isImageResponse && renderImage()}
+                {isImageResponse && <ImageThumbnail value={value.image} onChange={setImage} />}
+                {isCarouselResponse && <CarouselEditor value={value} onChange={onChange} />}
                 {isQRResponse && renderButtons()}
                 {isCustom && renderCustom()}
             </div>

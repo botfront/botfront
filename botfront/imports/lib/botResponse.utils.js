@@ -38,6 +38,10 @@ export const checkResponseEmpty = (response) => {
     return isEmpty;
 };
 
+export const defaultCarouselSlide = () => ({
+    title: '', subtitle: '', image_url: '', buttons: [],
+});
+
 export const defaultTemplate = (template) => {
     switch (template) {
     case 'TextPayload':
@@ -53,10 +57,16 @@ export const defaultTemplate = (template) => {
             ],
         };
     case 'CustomPayload':
-        return { __typename: 'CustomPayload' };
+        return { __typename: 'CustomPayload', custom: '' };
     case 'ImagePayload':
         return {
             image: '', __typename: 'ImagePayload',
+        };
+    case 'CarouselPayload':
+        return {
+            template_type: 'generic',
+            elements: [defaultCarouselSlide()],
+            __typename: 'CarouselPayload',
         };
     default:
         return null;
@@ -78,16 +88,37 @@ export const createResponseFromTemplate = (type, language, options = {}) => {
     return newTemplate;
 };
 
+const excludeAllButOneKey = (content, key) => {
+    const included = ['image', 'buttons', 'elements', 'custom', 'attachment']
+        .filter(k => Object.keys(content).includes(k));
+    if (key) return included.length === 1 && included[0] === key;
+    return included.length === 0;
+};
+
 export const parseContentType = (content) => {
     switch (true) {
-    case Object.keys(content).includes('custom') || Object.keys(content).includes('attachment') || Object.keys(content).includes('elements'):
-        return 'CustomPayload';
-    case Object.keys(content).includes('image') && !Object.keys(content).includes('buttons'):
-        return 'ImagePayload';
-    case Object.keys(content).includes('buttons') && !Object.keys(content).includes('image'):
-        return 'QuickReplyPayload';
-    case Object.keys(content).includes('text') && !Object.keys(content).includes('image') && !Object.keys(content).includes('buttons'):
-        return 'TextPayload';
+    // first case is the elsewhere case when embedded fields don't match graphql-defined type
+    // could not find a way to use graphql existing parseValue method for given type, so using
+    // this less than perfect piece of code
+    case ([
+        (content.image === undefined || typeof content.image === 'string'),
+        (content.buttons === undefined || Array.isArray(content.buttons)),
+        (content.elements === undefined || (
+            Array.isArray(content.elements)
+            && typeof content.template_type === 'string'
+            && content.elements.every(el => (
+                typeof el === 'object'
+                && (el.buttons === undefined || Array.isArray(el.buttons))
+                && (el.image_url === undefined || typeof el.image_url === 'string')
+                && (el.title === undefined || typeof el.title === 'string')
+                && (el.subtitle === undefined || typeof el.subtitle === 'string')
+            ))
+        )),
+    ].some(f => !f)): return 'CustomPayload';
+    case excludeAllButOneKey(content, 'image'): return 'ImagePayload';
+    case excludeAllButOneKey(content, 'buttons'): return 'QuickReplyPayload';
+    case excludeAllButOneKey(content, 'elements'): return 'CarouselPayload';
+    case Object.keys(content).includes('text') && excludeAllButOneKey(content): return 'TextPayload';
     default: return 'CustomPayload';
     }
 };

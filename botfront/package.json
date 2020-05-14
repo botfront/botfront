@@ -1,6 +1,6 @@
 {
   "name": "botfront",
-  "version": "0.22.1",
+  "version": "0.23.1",
   "repository": "https://github.com/botfront/botfront",
   "license": "AGPL-3.0-only",
   "scripts": {
@@ -60,7 +60,7 @@
     "prop-types": "^15.7.2",
     "query-string": "^5.1.0",
     "random-seed": "^0.3.0",
-    "rasa-webchat": "0.8.5",
+    "rasa-webchat": "0.8.9",
     "react": "^16.8.6",
     "react-ace": "^6.1.4",
     "react-apollo": "^2.5.8",
@@ -130,7 +130,9 @@
     "less-loader": "^5.0.0",
     "license-checker": "^25.0.1",
     "selenium-webdriver": "3.6.0",
-    "start-server-and-test": "^1.9.1"
+    "start-server-and-test": "^1.9.1",
+    "@storybook/addon-actions": "^5.3.18",
+    "webpack": "^4.28.4"
   },
   "husky": {
     "hooks": {

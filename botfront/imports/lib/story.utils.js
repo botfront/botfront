@@ -15,10 +15,9 @@ if (Meteor.isServer) {
     storyAppLogger = getAppLoggerForFile(__filename);
 }
 
-
 export const traverseStory = (story, path) => path
     .slice(1)
-    // gets branches but also indices, useful for setting later
+// gets branches but also indices, useful for setting later
     .reduce(
         (accumulateur, value) => {
             try {
@@ -26,17 +25,24 @@ export const traverseStory = (story, path) => path
                     branch => branch._id === value,
                 );
                 return {
-                    branches: accumulateur.branches[index].branches ? [...accumulateur.branches[index].branches] : [],
+                    branches: accumulateur.branches[index].branches
+                        ? [...accumulateur.branches[index].branches]
+                        : [],
                     story: accumulateur.branches[index].story,
                     title: accumulateur.branches[index].title,
                     // Indices are the path in numeric form, for instance, the second branch into the first branch
                     // would hae the indices looking like [0, 1], so first branch then second branch.
                     indices: [...accumulateur.indices, index],
                     path: [...accumulateur.path, accumulateur.branches[index]._id],
-                    pathTitle: [...accumulateur.pathTitle, accumulateur.branches[index].title],
+                    pathTitle: [
+                        ...accumulateur.pathTitle,
+                        accumulateur.branches[index].title,
+                    ],
                 };
             } catch (e) {
-                throw new Error(`Could not access ${accumulateur.path.join()},${value}`);
+                throw new Error(
+                    `Could not access ${accumulateur.path.join()},${value}`,
+                );
             }
         },
         {
@@ -87,26 +93,34 @@ export const appendBranchCheckpoints = (nLevelStory, remainder = '') => ({
         'remainder' is used to keep track of title prefix. In this example, remainder = 'Parent title'.
     */
     ...nLevelStory,
-    story: (nLevelStory.branches && nLevelStory.branches.length)
-        ? `${nLevelStory.story || ''}\n\
-> ${remainder ? `${remainder.replace(/ /g, '_')}__` : ''}${nLevelStory.title.replace(/ /g, '_')}__branches`
-        : nLevelStory.story || '',
+    story:
+        nLevelStory.branches && nLevelStory.branches.length
+            ? `${nLevelStory.story || ''}\n\
+> ${remainder ? `${remainder.replace(/ /g, '_')}__` : ''}${nLevelStory.title.replace(
+        / /g,
+        '_',
+    )}__branches`
+            : nLevelStory.story || '',
     title: `${remainder ? `${remainder}__` : ''}${nLevelStory.title}`,
-    branches: (nLevelStory.branches && nLevelStory.branches.length)
-        ? nLevelStory.branches.map(n1LevelStory => (
-            appendBranchCheckpoints({
-                ...n1LevelStory,
-                story: `> ${remainder ? `${remainder.replace(/ /g, '_')}__` : ''}${nLevelStory.title.replace(/ /g, '_')}__branches\n\
+    branches:
+        nLevelStory.branches && nLevelStory.branches.length
+            ? nLevelStory.branches.map(n1LevelStory => appendBranchCheckpoints(
+                {
+                    ...n1LevelStory,
+                    story: `> ${
+                        remainder ? `${remainder.replace(/ /g, '_')}__` : ''
+                    }${nLevelStory.title.replace(/ /g, '_')}__branches\n\
 ${n1LevelStory.story || ''}`,
-            }, `${remainder ? `${remainder}__` : ''}${nLevelStory.title}`)
-        ))
-        : [],
+                },
+                `${remainder ? `${remainder}__` : ''}${nLevelStory.title}`,
+            ))
+            : [],
 });
 
-export const flattenStory = story => (story.branches || []).reduce((acc, val) => (
-    // this collects all nested branches of a story into a flat array
-    [...acc, ...flattenStory(val)]
-), [{ story: (story.story || ''), title: story.title }]);
+export const flattenStory = story => (story.branches || []).reduce(
+    (acc, val) => [...acc, ...flattenStory(val)],
+    [{ story: story.story || '', title: story.title }],
+);
 
 export const findBranchById = (branchesN0, branchId) => {
     // recursive search of a branchId in the branches of a story
@@ -165,9 +179,9 @@ export const addlinkCheckpoints = (stories) => {
             story => story._id === checkpoint.path[0],
         );
         if (checkpoint.path.length === 1) {
-            storiesCheckpointed[originIndex].story = storiesCheckpointed[
-                originIndex
-            ].story.concat(`\n> ${checkpoint.checkpointTitle}`);
+            storiesCheckpointed[originIndex].story = (
+                storiesCheckpointed[originIndex].story || ''
+            ).concat(`\n> ${checkpoint.checkpointTitle}`);
         } else {
             const linkBranchId = checkpoint.path[checkpoint.path.length - 1];
             const branch = findBranchById(
@@ -175,7 +189,9 @@ export const addlinkCheckpoints = (stories) => {
                 linkBranchId,
             );
             if (branch !== -1) {
-                branch.story = branch.story.concat(`\n> ${checkpoint.checkpointTitle}`);
+                branch.story = (branch.story || '').concat(
+                    `\n> ${checkpoint.checkpointTitle}`,
+                );
             }
         }
     });
@@ -239,10 +255,16 @@ export const extractDomain = (
             if (crashOnStoryWithErrors) {
                 // Same thing than previous comment 20 lines up
                 if (typeof story.title === 'string') {
-                    appMethodLogger.error(`an error in the story ${story.title} has caused training to fail: ${e}`);
-                    throw new Error(`an error in the story ${story.title} has caused training to fail`);
+                    appMethodLogger.error(
+                        `an error in the story ${story.title} has caused training to fail: ${e}`,
+                    );
+                    throw new Error(
+                        `an error in the story ${story.title} has caused training to fail`,
+                    );
                 } else {
-                    appMethodLogger.error(`an error in a story has caused training to fail: ${e}`);
+                    appMethodLogger.error(
+                        `an error in a story has caused training to fail: ${e}`,
+                    );
                     throw new Error('an error in a story has caused training to fail');
                 }
             } else {
@@ -292,13 +314,19 @@ export const getAllResponses = async (projectId, language = '') => {
 };
 
 export const getDefaultDomainAndLanguage = (projectId) => {
-    const { defaultDomain: yamlDDomain, defaultLanguage } = Projects.findOne({ _id: projectId }, { defaultDomain: 1, defaultLanguage: 1 });
+    const { defaultDomain: yamlDDomain, defaultLanguage } = Projects.findOne(
+        { _id: projectId },
+        { defaultDomain: 1, defaultLanguage: 1 },
+    );
     const defaultDomain = yaml.safeLoad(yamlDDomain.content) || {};
     return { defaultDomain, defaultLanguage };
 };
 
 export const getStoriesAndDomain = async (projectId, language) => {
-    const appMethodLogger = storyAppLogger.child({ method: 'getStoriesAndDomain', args: { projectId, language } });
+    const appMethodLogger = storyAppLogger.child({
+        method: 'getStoriesAndDomain',
+        args: { projectId, language },
+    });
     appMethodLogger.debug('Retrieving default domain');
     const { defaultDomain, defaultLanguage } = getDefaultDomainAndLanguage(projectId);
 
@@ -308,20 +336,24 @@ export const getStoriesAndDomain = async (projectId, language) => {
     };
     appMethodLogger.debug('Selecting story groups');
     const storyGroups = StoryGroups.find(
-        { projectId, smartGroup: { $exists: false } }, { fields: { _id: 1, name: 1, selected: 1 } },
+        { projectId, smartGroup: { $exists: false } },
+        { fields: { _id: 1, name: 1, selected: 1 } },
     ).fetch();
 
     let selectedStoryGroups = storyGroups.filter(sg => sg.selected);
-    selectedStoryGroups = selectedStoryGroups.length
-        ? selectedStoryGroups
-        : storyGroups;
-    
+    selectedStoryGroups = selectedStoryGroups.length ? selectedStoryGroups : storyGroups;
+
     appMethodLogger.debug('Fetching stories');
     const allStories = Stories.find(
         { projectId, storyGroupId: { $in: selectedStoryGroups.map(({ _id }) => _id) } },
         {
             fields: {
-                story: 1, title: 1, branches: 1, errors: 1, checkpoints: 1, storyGroupId: 1,
+                story: 1,
+                title: 1,
+                branches: 1,
+                errors: 1,
+                checkpoints: 1,
+                storyGroupId: 1,
             },
         },
     ).fetch();
@@ -337,16 +369,19 @@ export const getStoriesAndDomain = async (projectId, language) => {
     );
 
     appMethodLogger.debug('Formatting stories');
-    const storiesBySG = addlinkCheckpoints(allStories).reduce((acc, curr) => ({
-        ...acc,
-        [curr.storyGroupId]: [...(acc[curr.storyGroupId] || []), curr],
-    }), {});
+    const storiesBySG = addlinkCheckpoints(allStories).reduce(
+        (acc, curr) => ({
+            ...acc,
+            [curr.storyGroupId]: [...(acc[curr.storyGroupId] || []), curr],
+        }),
+        {},
+    );
 
     const stories = [];
     selectedStoryGroups.forEach(({ _id, name }) => {
         const storiesForThisSG = (storiesBySG[_id] || [])
             .map(story => appendBranchCheckpoints(story))
-            .reduce((acc, story) => [...acc, ...flattenStory((story))], [])
+            .reduce((acc, story) => [...acc, ...flattenStory(story)], [])
             .map(story => `## ${story.title}\n${story.story}`)
             .join('\n');
         stories.push(`# ${name}\n\n${storiesForThisSG}`);
@@ -368,7 +403,7 @@ export const accumulateExceptions = (
 ) => {
     const exceptions = {};
     const newStoryControllers = {};
-    
+
     const traverseBranch = (currentStory, currentPath, isABranch = false) => {
         const currentPathAsString = currentPath.join();
         let currentController = null;
@@ -417,8 +452,9 @@ export const getStoryEvents = (md) => {
         const lines = md.split('\n');
         lines.forEach((line) => {
             const [prefix, content] = /(^ *\* |^ *- )(.*)/.exec(line).slice(1, 3);
-            if (prefix.trim() === '-'
-            && (content.match(/^utter_/) || content.match(/^action_/))
+            if (
+                prefix.trim() === '-'
+                && (content.match(/^utter_/) || content.match(/^action_/))
             ) {
                 events = [...events, content];
             }
@@ -444,7 +480,9 @@ export const aggregateEvents = (parentStory, update = {}) => {
     */
     let events = [];
     const traverseBranches = (incommingStory) => {
-        const story = incommingStory._id === update._id ? { ...incommingStory, ...update } : incommingStory;
+        const story = incommingStory._id === update._id
+            ? { ...incommingStory, ...update }
+            : incommingStory;
         events = Array.from(new Set([...events, ...getStoryEvents(story.story)]));
         // events = [...events, ...getStoryEvents(story.story, events)];
         if (story.branches) {

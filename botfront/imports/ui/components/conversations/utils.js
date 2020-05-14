@@ -50,7 +50,7 @@ export function generateTurns(tracker, debug = false, tzOffset = null) {
                 data: event.data,
             });
             ((event.data || {}).buttons || []).forEach((b) => { // remember button title-payload mapping
-                buttonValues[b.payload.replace(/^\//, '')] = b.title;
+                buttonValues[(b.payload || '').replace(/^\//, '')] = b.title;
             });
         } else if (debug) {
             // only insert if user has uttered something
@@ -69,7 +69,7 @@ export function generateTurns(tracker, debug = false, tzOffset = null) {
 }
 
 const parseBotResponse = ({ text, data: { buttons, image, attachement } = {} } = {}) => {
-    let line = `- ${text.replace(/\n/g, '\n  ')}`;
+    let line = `- ${(text || '').replace(/\n/g, '\n  ')}`;
     const spacer = l => (l === '- ' ? '' : '\n  ');
     if (image) line += `${spacer(line)}[ ${image} ]`;
     if (attachement && image !== attachement) line += `${spacer(line)}[ ${attachement} ]`;

@@ -21,7 +21,7 @@ const ConfirmPopup = ({
 );
 
 ConfirmPopup.propTypes = {
-    title: PropTypes.string.isRequired,
+    title: PropTypes.string,
     onYes: PropTypes.func,
     description: PropTypes.string,
     content: PropTypes.node,
@@ -33,6 +33,7 @@ ConfirmPopup.defaultProps = {
     onYes: () => {},
     onNo: () => {},
     content: null,
+    title: '',
 };
 
 export default ConfirmPopup;
