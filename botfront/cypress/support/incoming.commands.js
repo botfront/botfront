@@ -45,12 +45,13 @@ Cypress.Commands.add('toggleValidationOfSelectedUtterances', () => {
     cy.get('.row.selected').first().find('.check.icon').parent()
         .then((els) => {
             const originallyValidated = els[0].dataset.cy === 'invalidate-utterance';
+            cy.wait(300);
             cy.get('.row.selected').findCy('utterance-text').then(utterances => Array.from(utterances).map(u => u.outerText)).as('texts');
             cy.get('.virtual-table').focus();
             cy.get('body').type('v');
             cy.get('@texts').then((texts) => { if (texts.length > 1) cy.yesToConfirmation(); });
             cy.get('@texts').then(texts => texts.forEach((text) => {
-                cy.get(`.row:contains(${text})`).findCy(originallyValidated ? 'validate-utterance' : 'invalidate-utterance');
+                cy.get(`.row:contains(${text})`).findCy(originallyValidated ? 'validate-utterance' : 'invalidate-utterance').should('exist');
             }));
         });
 });

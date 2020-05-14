@@ -51,7 +51,7 @@ describe('incoming page', function() {
         cy.dataCy('add-to-training-data').should('have.class', 'disabled');
         cy.get('.row').should('have.length', 3);
         cy.selectOrUnselectIncomingRow('banana');
-        cy.deleteSelectedUtterances();
+        cy.deleteSelectedUtterances(); // should move focus to next
         cy.get('.row').should('have.length', 2);
         cy.toggleValidationOfSelectedUtterances();
         cy.dataCy('add-to-training-data').should('not.have.class', 'disabled')
