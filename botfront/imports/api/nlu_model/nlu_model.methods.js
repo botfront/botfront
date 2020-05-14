@@ -250,12 +250,16 @@ if (Meteor.isServer) {
             if (nluModelLanguages.some(lang => (lang.value === item.language))) {
                 throw new Meteor.Error('409', `Model with langauge ${item.language} already exists`);
             }
-            const {
-                settings: {
-                    public: { defaultNLUConfig },
-                },
-            } = GlobalSettings.findOne({}, { fields: { 'settings.public.defaultNLUConfig': 1 } });
-            const defaultModel = { ...item, config: defaultNLUConfig };
+            let { config } = item;
+            if (!config) {
+                const {
+                    settings: {
+                        public: { defaultNLUConfig },
+                    },
+                } = GlobalSettings.findOne({}, { fields: { 'settings.public.defaultNLUConfig': 1 } });
+                config = defaultNLUConfig;
+            }
+            const defaultModel = { ...item, config };
             const modelId = NLUModels.insert(defaultModel);
             Projects.update({ _id: projectId }, { $addToSet: { nlu_models: modelId } });
             return modelId;
