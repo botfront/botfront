@@ -123,7 +123,7 @@ const UtteranceContainer = (props) => {
                             <div className='nlu-editor-top-content'>
                                 <UserUtteranceViewer value={value} disableEditing />
                             </div>
-                            <NluModalContent payload={value} closeModal={closeModal} displayedExample={displayedExample} />
+                            <NluModalContent payload={value} closeModal={closeModal} displayedExample={fetchedData} />
                         </Segment>
                     </Modal>
                 </>
