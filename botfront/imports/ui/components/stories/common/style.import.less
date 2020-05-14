@@ -158,21 +158,6 @@
         top: 5px;
         right: 5px;
         visibility: hidden;
-        .icon.pin.persist-buttons-icon {
-            margin-right: 1.5em;
-            color: rgb(205, 205, 205);
-            &:hover {
-                cursor: pointer;
-                color: rgb(181, 181, 181);
-            }
-            &.active {
-                color: rgb(157, 157, 157);
-                &:hover {
-                    color: rgb(152, 152, 152);
-                }
-                visibility: visible;
-            }
-        }
     }
     .response-name-container {
         display: flex;
@@ -270,6 +255,9 @@
     align-items: center;
 
     > *:last-child {
+        &.utterance-container[agent="bot"] {
+            margin-right: 185px !important;
+        }
         margin-right: 90px !important;
     }
 
@@ -421,6 +409,7 @@ div.add-entity-wrap {
 
     &[agent="bot"] {
         margin-left: 24px;
+        margin-right: auto;
         background: rgba(0, 0, 0, 0.04);
         width: 30rem;
         min-width: ~"fit-content(calc(22rem - 5px))";

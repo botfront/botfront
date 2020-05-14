@@ -109,4 +109,36 @@ describe('Bot responses', function() {
             .click({ force: true });
         cy.dataCy('bot-response-input').find('[data-cy=button_title]').should('exist');
     });
+
+    it('should be able to turn a quick reply into a textWithButtons response', () => {
+        cy.createNLUModelProgramatically('bf', '', 'fr');
+        cy.visit('/project/bf/stories');
+        cy.createStoryGroup();
+        cy.createStoryInGroup();
+        cy.dataCy('story-title').should('have.value', 'Groupo (1)');
+        cy.dataCy('from-qr-template').click({ force: true });
+        cy.dataCy('edit-responses').click({ force: true });
+        cy.dataCy('add-variation').click();
+        cy.dataCy('response-editor').find('.utterance-container').should('have.length', 2);
+        cy.setQuickReplyContent('test', 'test', 'test', 1);
+        cy.setQuickReplyContent('purple', 'purple', 'purple', 0);
+        cy.escapeModal();
+        cy.dataCy('language-selector').click();
+        cy.dataCy('language-selector').find('div').contains('French').click();
+        cy.dataCy('story-title').should('have.value', 'Groupo (1)');
+        cy.dataCy('edit-responses').click({ force: true });
+        cy.setQuickReplyContent('french', 'french', 'french', 0);
+        cy.escapeModal();
+        cy.dataCy('icon-pin').click({ force: true });
+        cy.dataCy('icon-pin').should('have.class', 'light-green');
+        cy.dataCy('language-selector').click();
+        cy.dataCy('language-selector').find('div').contains('English').click();
+        cy.dataCy('story-title').should('have.value', 'Groupo (1)');
+        cy.dataCy('edit-responses').click({ force: true });
+        cy.dataCy('response-editor').find('.light-green').should('have.length', 4); // n*2 because there are invisible pin-icons from BotResponsesContainer
+        cy.dataCy('purple').should('exist');
+        cy.dataCy('test').should('exist');
+        cy.dataCy('bot-response-input').first().find('textarea').should('have.text', 'purple');
+        cy.dataCy('bot-response-input').last().find('textarea').should('have.text', 'test');
+    });
 });

@@ -37,6 +37,7 @@ type Mutation {
         language: String!
         newPayload: Any
         key: String!
+        setType: String
         index: Int = -1
     ): BotResponse
 

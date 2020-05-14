@@ -1,4 +1,5 @@
 import { safeLoad, safeDump } from 'js-yaml';
+import { clearTypenameField } from './client.safe.utils';
 
 const checkContentEmpty = (content) => {
     switch (true) {
@@ -56,7 +57,7 @@ export const defaultTemplate = (template) => {
                 },
             ],
         };
-    case 'ButtonPayload':
+    case 'TextWithButtonsPayload':
         return {
             __typename: 'TextWithButtonsPayload',
             text: '',
@@ -178,3 +179,65 @@ export const addTemplateLanguage = (templates, language) => templates
             payload,
         };
     });
+
+export const setTypeQuickReply = (content) => {
+    const {
+        text, buttons, quick_reply, metadata,
+    } = content;
+    return {
+        text,
+        quick_reply: quick_reply || buttons,
+        metadata,
+        __typename: 'QuickReplyPayload',
+    };
+};
+export const setTypeTextWithButtons = (content) => {
+    const {
+        text, buttons, quick_reply, metadata,
+    } = content;
+    return {
+        text,
+        buttons: buttons || quick_reply,
+        metadata,
+        __typename: 'TextWithButtonsPayload',
+    };
+};
+
+export const changeContentType = (content, newType) => {
+    switch (newType) {
+    case 'QuickReplyPayload':
+        return setTypeQuickReply(content);
+    case 'TextWithButtonsPayload':
+        return setTypeTextWithButtons(content);
+    default:
+        throw new Error(
+            `type ${newType} is not cupported by changContentType`,
+        );
+    }
+};
+
+export const modifyResponseType = (response, newType) => {
+    if (newType === 'TextWithButtonsPayload' || newType === 'QuickReplyPayload') {
+        const updatedValues = response.values.map((v) => {
+            const sequence = v.sequence.map((s) => {
+                const content = addContentType(safeLoad(s.content));
+                return { ...s, content: safeDump(clearTypenameField(changeContentType(content, newType))) };
+            });
+            return { ...v, sequence };
+        });
+        return { ...response, values: updatedValues };
+    }
+};
+
+export const toggleButtonPersistence = (content) => {
+    switch (content.__typename) {
+    case 'QuickReplyPayload':
+        return setTypeTextWithButtons(content);
+    case 'TextWithButtonsPayload':
+        return setTypeQuickReply(content);
+    default:
+        throw new Error(
+            '__typename must be TextWithButtonsPayload or QuickReplyPayload to toggle button persistence',
+        );
+    }
+};

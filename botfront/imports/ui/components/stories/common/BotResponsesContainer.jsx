@@ -13,7 +13,7 @@ import BotResponseContainer from './BotResponseContainer';
 import HoverablePopup from '../../common/HoverablePopup';
 import { setStoriesCurrent } from '../../../store/actions/actions';
 
-import { checkMetadataSet } from '../../../../lib/botResponse.utils';
+import { checkMetadataSet, toggleButtonPersistence } from '../../../../lib/botResponse.utils';
 
 export const ResponseContext = React.createContext();
 
@@ -71,31 +71,8 @@ const BotResponsesContainer = (props) => {
     };
 
     const handleToggleQuickReply = () => {
-        let update = { ...template };
-        switch (template.__typename) {
-        case 'QuickReplyPayload':
-            delete update.quick_reply;
-            update = {
-                ...update,
-                buttons: template.quick_reply,
-                __typename: 'TextWithButtonsPayload',
-            };
-            break;
-        case 'TextWithButtonsPayload':
-            delete update.buttons;
-            update = {
-                ...update,
-                quick_reply: template.buttons,
-                __typename: 'QuickReplyPayload',
-            };
-            
-            break;
-        default:
-            throw new Error(
-                '__typename must be TextWithButtonsPayload or QuickReplyPayload to toggle button persistence',
-            );
-        }
-        onChange(update);
+        const update = toggleButtonPersistence(template);
+        onChange(update, update.__typename);
         setTemplate(update);
     };
 
@@ -224,9 +201,10 @@ const BotResponsesContainer = (props) => {
                 )}
                 {getSequence().map(renderResponse)}
                 <div className='side-by-side right narrow top-right'>
-                    <Icon
-                        name='pin'
-                        className={`persist-buttons-icon ${template && template.__typename === 'TextWithButtonsPayload' && 'active'}`}
+                    <IconButton
+                        icon='pin'
+                        color={null}
+                        className={`${template && template.__typename === 'TextWithButtonsPayload' ? 'light-green' : 'grey'}`}
                         onClick={handleToggleQuickReply}
                     />
                     {enableEditPopup && (
