@@ -129,7 +129,7 @@ const NLUModalContent = (props) => {
     };
 
     const onNewExamples = (newExamples) => {
-        const canonicalizedExamples = canonicalizeExamples(newExamples, existingExamples);
+        const canonicalizedExamples = canonicalizeExamples(newExamples, examples);
         setExamples([
             ...canonicalizedExamples.map(v => ({
                 ...ExampleUtils.prepareExample(v),
