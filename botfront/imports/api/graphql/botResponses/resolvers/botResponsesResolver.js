@@ -74,10 +74,7 @@ export default {
             return response;
         },
         upsertResponse: async (_, args) => {
-            if (args.setType) {
-                return updateResponseType(args);
-            }
-            const response = await upsertResponse(args);
+            const response = args.setType ? await updateResponseType(args) : await upsertResponse(args);
             const { projectId, ...botResponsesModified } = response;
             pubsub.publish(RESPONSES_MODIFIED, { projectId, botResponsesModified });
             return response;

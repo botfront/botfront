@@ -50,20 +50,21 @@ const SequenceEditor = (props) => {
                     )}
                     <div className='variation-option-menu'>
                         {/* <Icon name='star' color='yellow' float='right' /> */}
-                        {content.__typename === 'TextWithButtonsPayload' || content.__typename === 'QuickReplyPayload'}
-                        <IconButton
-                            icon='pin'
-                            color={null}
-                            className={`${content.__typename === 'TextWithButtonsPayload' ? 'light-green' : 'grey'}`}
-                            onClick={() => {
-                                if (content.__typename === 'TextWithButtonsPayload') {
-                                    onChangePayloadType('QuickReplyPayload');
-                                }
-                                if (content.__typename === 'QuickReplyPayload') {
-                                    onChangePayloadType('TextWithButtonsPayload');
-                                }
-                            }}
-                        />
+                        {(content.__typename === 'TextWithButtonsPayload' || content.__typename === 'QuickReplyPayload') && (
+                            <IconButton
+                                icon='pin'
+                                color={null}
+                                className={`${content.__typename === 'TextWithButtonsPayload' ? 'light-green' : 'grey'}`}
+                                onClick={() => {
+                                    if (content.__typename === 'TextWithButtonsPayload') {
+                                        onChangePayloadType('QuickReplyPayload');
+                                    }
+                                    if (content.__typename === 'QuickReplyPayload') {
+                                        onChangePayloadType('TextWithButtonsPayload');
+                                    }
+                                }}
+                            />
+                        )}
                         <IconButton
                             id={`delete-${name}-${index}`} // stop the response from saving if the input blur event is the delete button
                             onClick={() => {

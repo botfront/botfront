@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import {
     Placeholder, Loader, Header, List, Icon,
@@ -37,6 +37,7 @@ const BotResponsesContainer = (props) => {
     const [toBeCreated, setToBeCreated] = useState(null);
     const [focus, setFocus] = useState(null);
     const [responseLocationsOpen, setResponseLocationsOpen] = useState(false);
+    const typeName = useMemo(() => template && template.__typename, [template]);
 
     useEffect(() => {
         Promise.resolve(initialValue).then((res) => {
@@ -201,12 +202,14 @@ const BotResponsesContainer = (props) => {
                 )}
                 {getSequence().map(renderResponse)}
                 <div className='side-by-side right narrow top-right'>
-                    <IconButton
-                        icon='pin'
-                        color={null}
-                        className={`${template && template.__typename === 'TextWithButtonsPayload' ? 'light-green' : 'grey'}`}
-                        onClick={handleToggleQuickReply}
-                    />
+                    {(typeName === 'TextWithButtonsPayload' || typeName === 'QuickReplyPayload') && (
+                        <IconButton
+                            icon='pin'
+                            color={null}
+                            className={`${typeName === 'TextWithButtonsPayload' ? 'light-green' : 'grey'}`}
+                            onClick={handleToggleQuickReply}
+                        />
+                    )}
                     {enableEditPopup && (
                         <IconButton
                             icon='ellipsis vertical'
