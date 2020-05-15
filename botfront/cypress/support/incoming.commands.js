@@ -42,7 +42,7 @@ Cypress.Commands.add('changeIntentOfSelectedUtterances', (intentName = 'dummy') 
 
 Cypress.Commands.add('toggleValidationOfSelectedUtterances', () => {
     cy.get('.row.selected').should('exist');
-    cy.get('.row.selected').first().find('.check.icon').parent()
+    cy.get('.row.selected').first().find('.icon').parent()
         .then((els) => {
             const originallyValidated = els[0].dataset.cy === 'invalidate-utterance';
             cy.wait(300);
