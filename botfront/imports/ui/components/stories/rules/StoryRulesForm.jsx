@@ -18,12 +18,12 @@ import ButtonSelectField from '../../form_fields/ButtonSelectField';
 
 
 class RulesForm extends AutoForm {
-    resetOptionalArray = (keyArray, fieldName) => {
-        const key = [...keyArray];
-        key[key.length - 1] = fieldName;
+    resetOptionalArray = (displayIfPath, fieldName) => {
+        const resetPath = [...displayIfPath];
+        resetPath[resetPath.length - 1] = fieldName;
         super.onChange(
-            key.join('.'),
-            getModelField(key.join('.'), this.props.model) || [],
+            resetPath.join('.'),
+            getModelField(resetPath.join('.'), this.props.model) || [],
         );
     }
 
@@ -34,7 +34,7 @@ class RulesForm extends AutoForm {
                 selector: '', event: null, once: false, visualization: 'none',
             };
         case 'url':
-            return { partialMatch: false, path: '' };
+            return { partialMatch: true, path: '' };
         case 'queryString':
             return { value: '', param: '', value__DISPLAYIF: true };
         default:
