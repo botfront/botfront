@@ -15,6 +15,7 @@ import {
     Dimmer,
     Loader,
     Popup,
+    Checkbox,
 } from 'semantic-ui-react';
 import { get as _get } from 'lodash';
 import { NativeTypes } from 'react-dnd-html5-backend-cjs';
@@ -37,6 +38,9 @@ const ImportRasaFiles = (props) => {
     const { existingStoryGroups, projectId, defaultDomain } = props;
     const { projectLanguages, instance, language } = useContext(ProjectContext);
     const [fallbackImportLanguage, setFallbackImportLanguage] = useState(language);
+    const [eraseCurrent, setEraseCurrent] = useState({
+        stories: false, domain: false, 'NLU data': false,
+    });
 
     const handleFileDrop = async (files, [fileList, setFileList]) => {
         const newValidFiles = Array.from(files).filter(
@@ -201,6 +205,15 @@ const ImportRasaFiles = (props) => {
                                     </div>
                                 </>
                             )}
+                            <br />
+                            <div className='side-by-side right'>
+                                <Checkbox
+                                    toggle
+                                    checked={eraseCurrent[title]}
+                                    onChange={() => setEraseCurrent({ ...eraseCurrent, [title]: !eraseCurrent[title] })}
+                                    label='Wipe current data first'
+                                />
+                            </div>
                         </>
                     )}
                 </div>
