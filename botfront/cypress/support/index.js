@@ -300,8 +300,8 @@ Cypress.Commands.add('importNluData', (projectId = 'bf', fixture, lang = 'en', o
 Cypress.Commands.add('train', (waitTime = 200000) => {
     cy.visit('/project/bf/stories');
     cy.dataCy('train-button').click();
-    cy.dataCy('train-button').should('have.class', 'disabled'); // first check that it turn disabled
-    cy.get('[data-cy=train-button]:not(.disabled)', { timeout: waitTime }).should('exist');
+    cy.wait(2000);
+    cy.get('[data-cy=train-button]', { timeout: waitTime }).should('not.have.class', 'disabled');
 });
 
 Cypress.Commands.add('graphQlQuery', (query, variables) => cy.get('@loginToken').then((token) => {
