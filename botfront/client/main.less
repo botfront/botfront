@@ -273,3 +273,10 @@ p.overflow {
 .s-alert-box {
     z-index: 1001 !important; // force alert box to appear over semantic ui modals
 }
+
+.with-shortcuts { // will add underline to buttons under this class
+    button.button:first-letter {
+        text-decoration: underline;
+        text-decoration-thickness: 1.5px;
+    }
+}

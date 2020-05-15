@@ -270,6 +270,7 @@ function Activity(props) {
             {!!confirm && (
                 <Confirm
                     open
+                    className='with-shortcuts'
                     cancelButton='No'
                     confirmButton='Yes'
                     content={confirm.message}
