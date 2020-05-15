@@ -3,6 +3,7 @@ import { expect } from 'chai';
 
 Cypress.Commands.add('newChatSesh', (lang) => {
     cy.dataCy('open-chat').should('not.be.visible');
+    cy.get('input.rw-new-message').should('not.be.disabled');
     cy.dataCy('restart-chat').click();
     cy.get('[data-cy=chat-language-option]').click();
     cy.get('[data-cy=chat-language-option] .visible.menu')

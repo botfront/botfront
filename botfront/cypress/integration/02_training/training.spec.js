@@ -88,6 +88,7 @@ describe('Training', function() {
         cy.get('.eye.icon.focused').should('have.length', 0);
         cy.createStoryGroup({ groupName: 'Intro stories' });
         cy.moveStoryOrGroup({ name: 'Get started' }, { name: 'Intro stories' });
+        cy.checkMenuItemAtIndex(1, 'Get started');
         cy.toggleStoryGroupFocused('Intro stories');
         cy.get('.eye.icon.focused').should('have.length', 1);
         cy.train();
