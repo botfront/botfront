@@ -1,13 +1,13 @@
 import React, {
-    useState, useEffect, useContext, useRef,
+    useState, useEffect, useContext, useRef, useCallback,
 } from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'semantic-ui-react';
+import { Button, Modal, Segment } from 'semantic-ui-react';
 import { OOS_LABEL } from '../../constants.json';
 import UserUtteranceViewer from '../../nlu/common/UserUtteranceViewer';
 import { ProjectContext } from '../../../layouts/context';
 import UtteranceInput from '../../utils/UtteranceInput';
-import NluEditor from './nlu_editor/NluEditor';
+import NluModalContent from './nlu_editor/NluModalContent';
 
 
 const UtteranceContainer = (props) => {
@@ -20,6 +20,7 @@ const UtteranceContainer = (props) => {
     const [input, setInput] = useState();
     const [fetchedData, setFetchedData] = useState(value || null);
     const [modalOpen, setModalOpen] = useState(false);
+    const closeModal = useCallback(() => setModalOpen(false), []);
     const containerBody = useRef();
 
     useEffect(() => {
@@ -30,7 +31,6 @@ const UtteranceContainer = (props) => {
             });
         }
     }, [value]);
-
     const validateInput = async () => {
         try {
             const { intent, entities, text } = await parseUtterance(input);
@@ -118,11 +118,14 @@ const UtteranceContainer = (props) => {
             {render()}
             {modalOpen && (
                 <>
-                    <NluEditor
-                        setModalOpen={newState => setModalOpen(newState)}
-                        open
-                        payload={value}
-                    />
+                    <Modal open>
+                        <Segment className='nlu-editor-modal' data-cy='nlu-editor-modal'>
+                            <div className='nlu-editor-top-content'>
+                                <UserUtteranceViewer value={value} disableEditing />
+                            </div>
+                            <NluModalContent payload={value} closeModal={closeModal} displayedExample={fetchedData} />
+                        </Segment>
+                    </Modal>
                 </>
             )}
         </div>

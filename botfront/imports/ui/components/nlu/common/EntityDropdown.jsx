@@ -8,12 +8,19 @@ import { entityPropType } from '../../utils/EntityUtils';
 const asciiChar = /^[\x21-\x7E]+$/;
 
 function EntityDropdown({
-    entity, onAddItem, onChange, options, autofocus, allowAdditions,
+    entity,
+    onAddItem,
+    onChange,
+    options,
+    autofocus,
+    allowAdditions,
 }) {
-    const uniqueOptions = [...new Set(options.map(option => option.value))].map(value => ({
-        text: value,
-        value,
-    }));
+    const uniqueOptions = [...new Set(options.map(option => option.value))]
+        .filter(o => o)
+        .map(value => ({
+            text: value,
+            value,
+        }));
 
     const [searchInputState, setSearchInputState] = useState('');
 
@@ -59,9 +66,8 @@ EntityDropdown.propTypes = {
 };
 
 EntityDropdown.defaultProps = {
-    autofocus: false,
+    autofocus: true,
     allowAdditions: true,
 };
-
 
 export default EntityDropdown;

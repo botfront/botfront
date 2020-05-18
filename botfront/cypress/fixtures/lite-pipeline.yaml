@@ -1,0 +1,5 @@
+pipeline:
+    - name: WhitespaceTokenizer
+    - name: CRFEntityExtractor
+    - name: CountVectorsFeaturizer
+    - name: KeywordIntentClassifier

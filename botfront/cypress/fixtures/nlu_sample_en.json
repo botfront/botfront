@@ -22,6 +22,21 @@
         "entities": []
       },
       {
+        "text": "apple",
+        "intent": "chitchat.greet",
+        "entities": []
+      },
+      {
+        "text": "kiwi",
+        "intent": "chitchat.greet",
+        "entities": []
+      },
+      {
+        "text": "banana",
+        "intent": "chitchat.greet",
+        "entities": []
+      },
+      {
         "text": "Let's get started!",
         "intent": "get_started",
         "entities": []

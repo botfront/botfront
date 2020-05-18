@@ -38,6 +38,7 @@ const NLUModalContent = (props) => {
         examples: existingExamples,
         closeModal,
         ready,
+        displayedExample,
     } = props;
     const canEdit = can('nlu-data:w', projectId);
     const checkPayloadsMatch = example => example.intent === payload.intent
@@ -46,8 +47,38 @@ const NLUModalContent = (props) => {
             payloadEntity => payloadEntity.entity === entity.entity,
         ));
 
+    const [shouldForceRefresh, setShouldForceRefresh] = useState(false);
+
+
+    const canonicalizeExample = (newExample, currentExamples) => {
+        const exists = currentExamples.some(currentExample => (
+            ExampleUtils.sameCanonicalGroup(currentExample, newExample)
+                && !currentExample.deleted
+        ));
+        if (!exists && checkPayloadsMatch(newExample)) {
+            setShouldForceRefresh(true);
+            return { ...newExample, canonical: true, canonicalEdited: true };
+        }
+        return newExample;
+    };
+
+    const canonicalizeExamples = (newExamples, currentExamples) => (
+        newExamples.map(newExample => (
+            canonicalizeExample(newExample, currentExamples)))
+    );
+
     const exampleReducer = (state, updatedExamples) => updatedExamples
-        .map(example => ({ ...example, invalid: !checkPayloadsMatch(example) }))
+        .map((example) => {
+            if (example.isDisplayed && (
+                example.deleted
+                || example.edited
+            )) setShouldForceRefresh(true);
+            return ({
+                ...example,
+                invalid: !checkPayloadsMatch(example),
+                isDisplayed: example._id === displayedExample._id,
+            });
+        })
         .sort((exampleA, exampleB) => {
             if (exampleA.invalid) {
                 if (exampleB.invalid) return 0;
@@ -73,7 +104,6 @@ const NLUModalContent = (props) => {
     */
     const [examples, setExamples] = useReducer(exampleReducer, []); // the example reducer applies a sort and validity check
     const [cancelPopupOpen, setCancelPopupOpen] = useState(false);
-    const [shouldForceRefresh, setShouldForceRefresh] = useState(false);
     const hasInvalidExamples = useMemo(
         () => examples.some(example => example.invalid === true && !example.deleted),
         [examples],
@@ -100,10 +130,12 @@ const NLUModalContent = (props) => {
     };
 
     const onNewExamples = (newExamples) => {
+        const canonicalizedExamples = canonicalizeExamples(newExamples, examples);
         setExamples([
-            ...newExamples.map(v => ({
+            ...canonicalizedExamples.map(v => ({
                 ...ExampleUtils.prepareExample(v),
                 isNew: true,
+                ...(v.canonicalEdited ? { canonicalEdited: true } : {}),
             })),
             ...examples,
         ]);
@@ -119,7 +151,9 @@ const NLUModalContent = (props) => {
             return;
         }
         updatedExamples[index] = example;
-        if (!example.isNew) {
+        if (example.isNew) {
+            updatedExamples[index] = canonicalizeExample(example, examples);
+        } else {
             updatedExamples[index].edited = true;
         }
         setExamples(updatedExamples);
@@ -151,7 +185,7 @@ const NLUModalContent = (props) => {
             return false;
         });
         updatedExamples[newCanonicalIndex].canonical = !example.canonical;
-        updatedExamples[newCanonicalIndex].canonicalEdited = !updatedExamples[newCanonicalIndex].canonicalEdited;
+        updatedExamples[newCanonicalIndex].canonicalEdited = true; // !updatedExamples[newCanonicalIndex].canonicalEdited;
         const clearOldCanonical = oldCanonicalIndex !== newCanonicalIndex && oldCanonicalIndex > -1;
         if (clearOldCanonical) {
             updatedExamples[oldCanonicalIndex] = {
@@ -277,6 +311,7 @@ const NLUModalContent = (props) => {
                                     postSaveAction='clear'
                                     defaultIntent={payload.intent}
                                     saveOnEnter={canEdit}
+                                    silenceRasaErrors
                                 />
                             </div>
                         )}
@@ -356,6 +391,7 @@ NLUModalContent.propTypes = {
     entities: PropTypes.array,
     instance: PropTypes.object.isRequired,
     closeModal: PropTypes.func.isRequired,
+    displayedExample: PropTypes.object,
 };
 
 NLUModalContent.defaultProps = {
@@ -365,6 +401,7 @@ NLUModalContent.defaultProps = {
     model: {},
     examples: [],
     entities: [],
+    displayedExample: {},
 };
 
 const NLUDataLoaderContainer = withTracker((props) => {

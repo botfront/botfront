@@ -39,12 +39,14 @@ export default class NLUExampleTester extends React.Component {
 
     parseNlu = () => {
         const { text } = this.state;
+        const { text: propsText } = this.props;
         const {
+            silenceRasaErrors,
             instance,
             model: { language: lang },
         } = this.props;
         if (text == null || text.length === 0) {
-            this.setState({ text: '', example: null, clickable: false });
+            this.setState({ text: propsText, example: null, clickable: false });
             return;
         }
 
@@ -52,10 +54,12 @@ export default class NLUExampleTester extends React.Component {
             'rasa.parse',
             instance,
             [{ text, lang }],
+            { failSilently: silenceRasaErrors },
             wrapMeteorCallback((err, example) => {
                 if (err) {
                     return this.setState({ example: null, clickable: false });
                 }
+                if (!example.text) Object.assign(example, { text: propsText });
                 Object.assign(example, { intent: example.intent ? example.intent.name : null });
                 return this.setState({ example, clickable: true });
             }),
@@ -95,8 +99,10 @@ NLUExampleTester.propTypes = {
     instance: PropTypes.object.isRequired,
     entities: PropTypes.array.isRequired,
     onDone: PropTypes.func,
+    silenceRasaErrors: PropTypes.bool,
 };
 
 NLUExampleTester.defaultProps = {
     onDone: () => {},
+    silenceRasaErrors: false,
 };

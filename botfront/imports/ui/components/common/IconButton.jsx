@@ -4,7 +4,7 @@ import { Button } from 'semantic-ui-react';
 
 const IconButton = React.forwardRef((props, ref) => {
     const {
-        onClick, icon, size, color, 'data-cy': dataCy, disabled, basic, id, className, active,
+        onClick, onMouseDown, icon, size, color, 'data-cy': dataCy, disabled, basic, id, className, active,
     } = props;
 
     return (
@@ -12,6 +12,7 @@ const IconButton = React.forwardRef((props, ref) => {
             ref={ref}
             size={size}
             onClick={onClick}
+            onMouseDown={onMouseDown}
             color={color}
             icon={icon}
             className={`icon-button ${color} ${className}`}
@@ -26,6 +27,7 @@ const IconButton = React.forwardRef((props, ref) => {
 
 IconButton.propTypes = {
     onClick: PropTypes.func,
+    onMouseDown: PropTypes.func,
     icon: PropTypes.string.isRequired,
     size: PropTypes.string,
     color: PropTypes.string,
@@ -39,6 +41,7 @@ IconButton.propTypes = {
 
 IconButton.defaultProps = {
     onClick: () => {},
+    onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
     size: 'mini',
     color: 'grey',
     'data-cy': null,

@@ -9,7 +9,7 @@ export default function ActivityActionsColumn(props) {
         datum,
         data,
         getSmartTips,
-        onToggleValidation,
+        handleSetValidated,
         onMarkOoS,
         onDelete,
     } = props;
@@ -55,7 +55,7 @@ export default function ActivityActionsColumn(props) {
             basic
             fluid={mainAction}
             content='Validate anyway'
-            onClick={() => onToggleValidation(u)}
+            onClick={() => handleSetValidated([u], true)}
             key={`${u._id}-validate`}
         />
     );
@@ -66,13 +66,15 @@ export default function ActivityActionsColumn(props) {
     let action;
     if (!!datum.validated) {
         action = (
-            <IconButton
-                size={size}
-                onClick={() => onToggleValidation(datum)}
-                color='green'
-                icon='check'
-                data-cy='valid-utterance-button'
-            />
+            <div>
+                <IconButton
+                    size={size}
+                    onClick={() => handleSetValidated([datum], false)}
+                    color='green'
+                    icon='check'
+                    data-cy='invalidate-utterance'
+                />
+            </div>
         );
     } else if (code === 'aboveTh') {
         action = (
@@ -125,7 +127,7 @@ export default function ActivityActionsColumn(props) {
                         <IconButton
                             basic
                             size={size}
-                            onClick={() => onMarkOoS(datum)}
+                            onClick={() => onMarkOoS([datum])}
                             color='black'
                             icon='sign-out'
                         />
@@ -137,6 +139,7 @@ export default function ActivityActionsColumn(props) {
         action = (
             <Popup
                 inverted
+                disabled={!datum.intent}
                 content='Mark this utterance valid'
                 trigger={(
                     <div>
@@ -144,10 +147,10 @@ export default function ActivityActionsColumn(props) {
                             basic
                             size={size}
                             disabled={!datum.intent}
-                            onClick={() => onToggleValidation(datum)}
+                            onClick={() => handleSetValidated([datum], true)}
                             color='green'
                             icon='check'
-                            data-cy='invalid-utterance-button'
+                            data-cy='validate-utterance'
                         />
                     </div>
                 )}
@@ -160,6 +163,7 @@ export default function ActivityActionsColumn(props) {
             {action}
             {!['aboveTh'].includes(code) && (
                 <IconButton
+                    size={size}
                     onClick={() => onDelete([datum])}
                     color='grey'
                     icon='trash'
@@ -175,7 +179,7 @@ ActivityActionsColumn.propTypes = {
     data: PropTypes.array.isRequired,
     getSmartTips: PropTypes.func.isRequired,
     onMarkOoS: PropTypes.func.isRequired,
-    onToggleValidation: PropTypes.func.isRequired,
+    handleSetValidated: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
 };
 

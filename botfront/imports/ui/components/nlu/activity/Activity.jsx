@@ -1,9 +1,13 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, {
+    useState, useEffect, useMemo, useRef, useContext,
+} from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Message, Popup } from 'semantic-ui-react';
-import { useLazyQuery } from '@apollo/react-hooks';
-import IconButton from '../../common/IconButton';
+
+import { debounce } from 'lodash';
+import {
+    Message, Button, Icon, Confirm,
+} from 'semantic-ui-react';
 import IntentLabel from '../common/IntentLabel';
 import UserUtteranceViewer from '../common/UserUtteranceViewer';
 import { useActivity, useDeleteActivity, useUpsertActivity } from './hooks';
@@ -14,16 +18,16 @@ import Filters from '../models/Filters';
 import { ProjectContext } from '../../../layouts/context';
 
 import DataTable from '../../common/DataTable';
-import ActivityActions from './ActivityActions';
 import ActivityActionsColumn from './ActivityActionsColumn';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { isTraining } from '../../../../api/nlu_model/nlu_model.utils';
-import { can } from '../../../../lib/scopes';
+import { can, Can } from '../../../../lib/scopes';
+import { useEventListener } from '../../utils/hooks';
 
 import PrefixDropdown from '../../common/PrefixDropdown';
-import { GET_CONVERSATION } from '../../conversations/queries';
-import ConversationDialogueViewer from '../../conversations/ConversationDialogueViewer';
+import ActivityCommandBar from './ActivityCommandBar';
 import CanonicalPopup from '../common/CanonicalPopup';
+import ConversationPopup from './ConversationPopup';
 
 function Activity(props) {
     const [sortType, setSortType] = useState('Newest');
@@ -37,6 +41,10 @@ function Activity(props) {
             return { sortKey: 'createdAt', sortDesc: true };
         case 'Oldest':
             return { sortKey: 'createdAt', sortDesc: false };
+        case 'Validated first':
+            return { sortKey: 'validated', sortDesc: true };
+        case 'Validated last':
+            return { sortKey: 'validated', sortDesc: false };
         case '% ascending':
             return { sortKey: 'confidence', sortDesc: false };
         case '% decending':
@@ -57,10 +65,9 @@ function Activity(props) {
     } = props;
 
     const [openConvPopup, setOpenConvPopup] = useState(-1);
-    const [filter, setFilter] = useState({ entities: [], intents: [], query: '' });
-    let reinterpreting = [];
-    const setReinterpreting = (v) => { reinterpreting = v; };
-
+    const [filter, setFilter] = useState({
+        entities: [], intents: [], query: '', dateRange: {},
+    });
     const {
         data, hasNextPage, loading, loadMore, refetch,
     } = useActivity({
@@ -69,6 +76,13 @@ function Activity(props) {
         filter,
         ...getSortFunction(),
     });
+    const [selection, setSelection] = useState([]);
+    let reinterpreting = [];
+    const setReinterpreting = (v) => { reinterpreting = v; };
+    const [confirm, setConfirm] = useState(null);
+    const singleSelectedIntentLabelRef = useRef();
+    const activityCommandBarRef = useRef();
+    const tableRef = useRef();
     
     // always refetch on first page load and sortType change
     useEffect(() => { if (refetch) refetch(); }, [refetch, modelId, workingEnvironment, sortType, filter]);
@@ -85,30 +99,74 @@ function Activity(props) {
 
     const validated = data.filter(a => a.validated);
 
-    const handleAddToTraining = async (utterances) => {
-        await Meteor.call('nlu.insertExamples', modelId, utterances);
-        await deleteActivity({ variables: { modelId, ids: utterances.map(u => u._id) } });
+    const getFallbackUtterance = (ids) => {
+        const bounds = [ids[0], ids[ids.length - 1]].map(id1 => data.findIndex(d => d._id === id1));
+        return data[bounds[1] + 1]
+            ? data[bounds[1] + 1]
+            : data[Math.max(0, bounds[0] - 1)];
     };
 
-    const handleUpdate = async (newData, rest) => {
-        // rest argument is to supress warnings caused by incomplete schema on optimistic response
-        upsertActivity({
-            variables: { modelId, data: newData },
+    const mutationCallback = (fallbackUtterance, mutationName) => ({ data: { [mutationName]: res = [] } = {} }) => {
+        const filtered = selection.filter(s => !res.map(({ _id }) => _id).includes(s));
+        return setSelection( // remove deleted from selection
+            filtered.length ? filtered : [fallbackUtterance._id],
+        );
+    };
+
+    const handleAddToTraining = async (utterances) => {
+        const fallbackUtterance = getFallbackUtterance(utterances.map(u => u._id));
+        await Meteor.call('nlu.insertExamples', modelId, utterances);
+        const result = await deleteActivity({ variables: { modelId, ids: utterances.map(u => u._id) } });
+        mutationCallback(fallbackUtterance, 'deleteActivity')(result);
+    };
+
+    const handleUpdate = async (newData) => {
+        const dataUpdated = data.filter(d1 => newData.map(d2 => d2._id).includes(d1._id)).map(
+            ({ __typename, ...d1 }) => ({ ...d1, ...newData.find(d2 => d2._id === d1._id) }),
+        );
+        return upsertActivity({
+            variables: { modelId, data: dataUpdated },
             optimisticResponse: {
                 __typename: 'Mutation',
-                upsertActivity: newData.map(d => ({ __typename: 'Activity', ...rest, ...d })),
+                upsertActivity: dataUpdated.map(d => ({ __typename: 'Activity', ...d })),
             },
         });
     };
 
-    const handleDelete = async (ids) => {
-        await deleteActivity({
+    const handleDelete = (utterances) => {
+        const ids = utterances.map(u => u._id);
+        const fallbackUtterance = getFallbackUtterance(ids);
+        const message = `Delete ${utterances.length} incoming utterances?`;
+        const action = () => deleteActivity({
             variables: { modelId, ids },
             optimisticResponse: {
                 __typename: 'Mutation',
                 deleteActivity: ids.map(_id => ({ __typename: 'Activity', _id })),
             },
-        });
+        }).then(mutationCallback(fallbackUtterance, 'deleteActivity'));
+        return utterances.length > 1 ? setConfirm({ message, action }) : action();
+    };
+
+    const handleSetValidated = (utterances, val = true) => {
+        const message = `Mark ${utterances.length} incoming utterances as ${val ? 'validated' : 'invalidated'} ?`;
+        const action = () => handleUpdate(utterances.map(({ _id }) => ({ _id, validated: val })));
+        return utterances.length > 1 ? setConfirm({ message, action }) : action();
+    };
+
+    const handleMarkOoS = (utterances, ooS = true) => {
+        const fallbackUtterance = getFallbackUtterance(utterances.map(u => u._id));
+        const message = `Mark ${utterances.length} incoming utterances as out of scope?`;
+        const action = () => handleUpdate(utterances.map(({ _id }) => ({ _id, ooS })))
+            .then(mutationCallback(fallbackUtterance, 'upsertActivity'));
+        return utterances.length > 1 ? setConfirm({ message, action }) : action();
+    };
+
+    const handleSetIntent = (utterances, intent) => {
+        const message = `Set intent of ${utterances.length} incoming utterances to ${intent}?`;
+        const action = () => handleUpdate(utterances.map(({ _id }) => ({
+            _id, intent, confidence: null, ...(!intent ? { validated: false } : {}),
+        })));
+        return utterances.length > 1 ? setConfirm({ message, action }) : action();
     };
 
     const handleReinterpret = async (utterances) => {
@@ -119,7 +177,7 @@ function Activity(props) {
         } catch (e) { reset(); }
     };
 
-    const handleChangeInVisibleItems = (visibleData) => {
+    const doAttemptReinterpretation = (visibleData) => {
         if (isTraining(project)) return;
         if (reinterpreting.length > 49) return;
         const reinterpretable = visibleData
@@ -127,6 +185,15 @@ function Activity(props) {
             .filter(u => !isUtteranceReinterpreting(u));
         if (reinterpretable.length) handleReinterpret(reinterpretable);
     };
+
+    const handleScroll = debounce((items) => {
+        const { visibleStartIndex: start, visibleStopIndex: end } = items;
+        const visibleData = Array(end - start + 1).fill()
+            .map((_, i) => start + i)
+            .map(i => data[i])
+            .filter(d => d);
+        doAttemptReinterpretation(visibleData);
+    }, 500);
 
     const renderConfidence = (row) => {
         const { datum } = row;
@@ -147,6 +214,8 @@ function Activity(props) {
         const { datum } = row;
         return (
             <CanonicalPopup
+                // when CanonicalPopup is present ref to IntentLabel goes via it
+                {...(selection.length === 1 && datum._id === selection[0] ? { ref: singleSelectedIntentLabelRef } : {})}
                 example={datum}
                 trigger={(
                     <IntentLabel
@@ -154,8 +223,9 @@ function Activity(props) {
                         value={datum.intent ? datum.intent : ''}
                         allowEditing={can('incoming:w', projectId) && !isUtteranceOutdated(datum)}
                         allowAdditions
-                        onChange={intent => handleUpdate([{ _id: datum._id, intent, confidence: null }], datum)}
+                        onChange={intent => handleSetIntent([{ _id: datum._id }], intent)}
                         enableReset
+                        onClose={() => tableRef.current.tableRef().current.focus()}
                     />
                 )}
             />
@@ -167,12 +237,10 @@ function Activity(props) {
         return (
             <UserUtteranceViewer
                 value={datum}
-                onChange={({ _id, entities: ents, ...rest }) => handleUpdate([{
+                onChange={({ _id, entities: ents }) => handleUpdate([{
                     _id,
                     entities: ents.map(e => clearTypenameField(({ ...e, confidence: null }))),
-                }], rest)}
-                editable={!isUtteranceOutdated(datum)}
-                disablePopup={isUtteranceOutdated(datum)}
+                }])}
                 projectId={projectId}
                 disabled={isUtteranceOutdated(datum)}
                 disableEditing={isUtteranceOutdated(datum)}
@@ -189,79 +257,23 @@ function Activity(props) {
             modelId={modelId}
             lang={lang}
             projectId={projectId}
-            onToggleValidation={({ _id, validated: val, ...rest }) => handleUpdate([{ _id, validated: !val }], rest)}
+            handleSetValidated={handleSetValidated}
             getSmartTips={u => getSmartTips(model, project, u)}
-            onMarkOoS={({ _id, ooS, ...rest }) => handleUpdate([{ _id, ooS: !ooS }], rest)}
-            onDelete={utterances => handleDelete(utterances.map(u => u._id))}
+            onMarkOoS={handleMarkOoS}
+            onDelete={handleDelete}
         />
     );
 
-    const renderConvPopup = (row) => {
-        const convId = row.datum.conversation_id;
-        const [getConv, { loading: convLoading, data: convData }] = useLazyQuery(GET_CONVERSATION, {
-            variables: { projectId, conversationId: convId },
-        });
-        if (row.index === openConvPopup
-            && convId
-            && !convData
-            && !convLoading
-        ) {
-            getConv();
-        }
-        return (
-            <Popup
-                id={`conversation-popup-${row.index}`}
-                className={convId ? 'dialogue-popup' : ''}
-                on={convId ? 'click' : 'hover'}
-                open={row.index === openConvPopup}
-                onClose={(e) => {
-                    if (/conversation-popup/.test(e.target.id)
-                        || /conversation-popup/.test((e.target.parentElement || {}).id)
-                    ) {
-                        /* if the click is on another conv popup trigger
-                            setOpenConvPopup will be set by that trigger */
-                        return;
-                    }
-                    setOpenConvPopup(-1);
-                }}
-                // closeOnScroll // disabled as it also closes when scrolling inside the popup
-                trigger={(
-                    // IconButton uses forward ref which breaks semantic ui popup
-                    // wrapping the IconButton in a div fixes this problem
-                    <div>
-                        <IconButton
-                        // basic
-                            id={`conversation-popup-trigger-${row.index}`}
-                            icon='comments'
-                            color='grey'
-                            data-cy='conversation-viewer'
-                            className={`action-icon ${!convId && 'inactive'}`}
-                            name='comments'
-                            size='mini'
-                        
-                            onClick={() => {
-                                if (row.index !== openConvPopup) {
-                                    setOpenConvPopup(row.index);
-                                } else {
-                                    setOpenConvPopup(-1);
-                                }
-                            }}
-                        />
-                    </div>
-                )}
-            >
-                {!convLoading && convData && convId && (
-                    <ConversationDialogueViewer
-                        conversation={convData.conversation}
-                        messageIdInView={row.datum.message_id}
-                    />
-                )}
-                {!convId && 'No conversation data'}
-            </Popup>
-        );
-    };
+    const renderConvPopup = row => (
+        <ConversationPopup
+            {...row}
+            open={row.index === openConvPopup}
+            setOpen={setOpenConvPopup}
+        />
+    );
         
     const columns = [
+        { key: '_id', selectionKey: true, hidden: true },
         {
             key: 'confidence', style: { width: '51px', minWidth: '51px' }, render: renderConfidence,
         },
@@ -281,23 +293,98 @@ function Activity(props) {
         ] : []),
     ];
 
+    const handleOpenIntentSetterDialogue = () => {
+        if (!selection.length) return null;
+        if (selection.length === 1) return singleSelectedIntentLabelRef.current.openPopup();
+        return activityCommandBarRef.current.openIntentPopup();
+    };
+
+    const selectionWithFullData = useMemo(() => data.filter(({ _id }) => selection.includes(_id)), [selection, data]);
+
+    useEventListener('keydown', (e) => {
+        const {
+            key, shiftKey, metaKey, ctrlKey, altKey,
+        } = e;
+        if (shiftKey || metaKey || ctrlKey || altKey) return;
+        if (!!confirm) {
+            if (key.toLowerCase() === 'n') setConfirm(null);
+            if (key.toLowerCase() === 'y' || key === 'Enter') { confirm.action(); setConfirm(null); }
+            return;
+        }
+        if (e.target !== tableRef.current.tableRef().current) return;
+        if (key === 'Escape') setSelection([]);
+        if (key.toLowerCase() === 'd') handleDelete(selectionWithFullData);
+        if (key.toLowerCase() === 'o') {
+            if (selectionWithFullData.some(d => d.intent)) return;
+            handleMarkOoS(selectionWithFullData);
+        }
+        if (key.toLowerCase() === 'v') {
+            if (selectionWithFullData.some(d => !d.intent)) return;
+            handleSetValidated(selectionWithFullData, selectionWithFullData.some(d => !d.validated));
+        }
+        if (key.toLowerCase() === 'i') {
+            e.preventDefault();
+            handleOpenIntentSetterDialogue(e);
+        }
+    });
+
     const renderTopBar = () => (
         <>
-            <div className='side-by-side'>
-                <ActivityActions
-                    onEvaluate={linkRender}
-                    onDelete={() => handleDelete(validated.map(u => u._id))}
-                    onAddToTraining={() => handleAddToTraining(validated)}
-                    onInvalidate={() => handleUpdate(validated.map(({ _id, validated: v }) => ({ _id, validated: !v })))}
-                    numValidated={validated.length}
-                    projectId={projectId}
-                />
+            <div className='side-by-side' style={{ marginBottom: '10px' }}>
+                {!!confirm && (
+                    <Confirm
+                        open
+                        className='with-shortcuts'
+                        cancelButton='No'
+                        confirmButton='Yes'
+                        content={confirm.message}
+                        onCancel={() => {
+                            setConfirm(null);
+                            tableRef.current.tableRef().current.focus();
+                        }}
+                        onConfirm={() => { confirm.action(); setConfirm(null); tableRef.current.tableRef().current.focus(); }}
+                    />
+                )}
+                <Can I='nlu-data:w'>
+                    <Button.Group>
+                        <Button
+                            className='white'
+                            basic
+                            color='green'
+                            icon
+                            labelPosition='left'
+                            data-cy='run-evaluation'
+                            onClick={() => setConfirm({
+                                message: 'This will evaluate the model using the validated examples as a validation set and overwrite your current evaluation results.',
+                                action: linkRender,
+                            })}
+                            disabled={!validated.length}
+                        >
+                            <Icon name='lab' />Run evaluation
+                        </Button>
+                        <Button
+                            color='green'
+                            icon
+                            labelPosition='right'
+                            data-cy='add-to-training-data'
+                            onClick={() => setConfirm({
+                                message: 'The validated utterances will be added to the training data.',
+                                action: () => handleAddToTraining(validated),
+                            })}
+                            disabled={!validated.length}
+                        >
+                            <Icon name='add square' />Add to training data
+                        </Button>
+                    </Button.Group>
+                </Can>
                 <PrefixDropdown
                     selection={sortType}
                     updateSelection={option => setSortType(option.value)}
                     options={[
                         { value: 'Newest', text: 'Newest' },
                         { value: 'Oldest', text: 'Oldest' },
+                        { value: 'Validated first', text: 'Validated first' },
+                        { value: 'Validated last', text: 'Validated last' },
                         { value: '% ascending', text: '% ascending' },
                         { value: '% decending', text: '% decending' },
                     ]}
@@ -309,7 +396,7 @@ function Activity(props) {
                 entities={entities}
                 filter={filter}
                 onChange={f => setFilter(f)}
-                className='side-by-side right narrow'
+                className='right'
             />
         </>
     );
@@ -318,16 +405,33 @@ function Activity(props) {
             {renderTopBar()}
             {data && data.length
                 ? (
-                    <DataTable
-                        columns={columns}
-                        data={data}
-                        hasNextPage={hasNextPage}
-                        loadMore={loading ? () => {} : loadMore}
-                        onChangeInVisibleItems={handleChangeInVisibleItems}
-                        className='new-utterances-table'
-                    />
+                    <>
+                        <DataTable
+                            ref={tableRef}
+                            columns={columns}
+                            data={data}
+                            hasNextPage={hasNextPage}
+                            loadMore={loading ? () => {} : loadMore}
+                            onScroll={handleScroll}
+                            rowClassName='glow-box hoverable'
+                            className='new-utterances-table'
+                            selection={selection}
+                            onChangeSelection={setSelection}
+                        />
+                        {can('incoming:w', projectId) && selection.length > 1 && (
+                            <ActivityCommandBar
+                                ref={activityCommandBarRef}
+                                selection={selectionWithFullData}
+                                onSetValidated={handleSetValidated}
+                                onMarkOoS={handleMarkOoS}
+                                onDelete={handleDelete}
+                                onSetIntent={handleSetIntent}
+                                onCloseIntentPopup={() => tableRef.current.tableRef().current.focus()}
+                            />
+                        )}
+                    </>
                 )
-                : <Message success icon='check' header='No activity' content='No activity was found for the given criteria.' />
+                : <Message success icon='check' header='No activity' data-cy='no-activity' content='No activity was found for the given criteria.' />
             }
         </>
     );

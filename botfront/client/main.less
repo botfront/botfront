@@ -28,6 +28,8 @@
 @import '../imports/ui/components/stories/rules/style.import.less';
 @import '../imports/ui/components/stories/search/style.import.less';
 @import '../imports/ui/components/stories/common/nlu_editor/style.import.less';
+@import '../imports/ui/components/incoming/style.import.less';
+@import '../imports/ui/components/form_fields/import.style.less';
 @import 'react-dates/lib/css/_datepicker.css';
 
 @sidebar-bg: rgb(45, 47, 74);
@@ -260,15 +262,21 @@ p.overflow {
     border-color: #b0b5bb;
 }
 
-.ui.basic.button {
+.ui.basic.button, .ui.basic.button:hover {
     background: #fff none !important;
+    &.green.small.icon {
+        background: #fff none !important; 
+    }
+    &.small.icon {
+        background: #fff none !important; 
+    }
     &.primary {
         background: #fff none !important; 
     }
     &.black.medium {
         background: #fff none !important;
     }
-    &.small.icon.left.white {
+    &.white {
         background: #fff none !important;
     }
 }
@@ -280,4 +288,11 @@ p.overflow {
 
 .s-alert-box {
     z-index: 1001 !important; // force alert box to appear over semantic ui modals
+}
+
+.with-shortcuts { // will add underline to buttons under this class
+    button.button:first-letter {
+        text-decoration: underline;
+        text-decoration-thickness: 1.5px;
+    }
 }

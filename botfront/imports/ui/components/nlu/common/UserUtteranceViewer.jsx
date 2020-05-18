@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
@@ -13,7 +13,10 @@ function UserUtteranceViewer(props) {
     } = props;
     const { text, intent, entities } = value;
     const [textSelection, setSelection] = useState(null);
+    const mouseDown = useRef(false);
+    const setMouseDown = (v) => { mouseDown.current = v; };
     const { entities: contextEntities, addEntity } = useContext(ProjectContext);
+    const utteranceViewerRef = useRef();
     const textContent = []; // an ordered list of the utterance cut down into text and entities.
     // We add the original index to entities for onChange and onDelete methods, then we sort them by order of appearance.
     const sortedEntities = entities
@@ -203,7 +206,7 @@ function UserUtteranceViewer(props) {
         };
     }
 
-    function handleMouseUp(element) {
+    function handleMouseUp({ shiftKey, ctrlKey, metaKey }, element) {
         const selection = window.getSelection();
         const selectionBoundary = getCorrectSelection(
             text,
@@ -218,13 +221,24 @@ function UserUtteranceViewer(props) {
         );
         if (
             disableEditing
+            || selection.type !== 'Range'
             || selection.anchorNode !== selection.focusNode
             || selection.anchorOffset === selection.focusOffset
             || !selectionBoundary
         ) {
+            window.getSelection().removeAllRanges();
             setSelection(null);
+            if (mouseDown.current) {
+                // if coming from another row, mouseDown has already been turned to false,
+                // so a new mousedown won't be dispatched
+                utteranceViewerRef.current.parentNode.dispatchEvent(new MouseEvent('mousedown', {
+                    bubbles: true, shiftKey, ctrlKey, metaKey,
+                }));
+            }
+            setMouseDown(false);
             return;
         }
+        setMouseDown(false);
         setSelection({
             text: text.slice(selectionBoundary.anchor, selectionBoundary.extent),
             start: selectionBoundary.anchor,
@@ -239,14 +253,28 @@ function UserUtteranceViewer(props) {
             className={`utterance-viewer ${onClick ? 'cursor pointer' : ''}`}
             data-cy='utterance-text'
             {...(onClick ? { onClick } : {})}
+            {...{
+                onMouseLeave: () => {
+                    if (!mouseDown.current) return;
+                    if (!textSelection) window.getSelection().removeAllRanges();
+                    setMouseDown(false);
+                    // dispatch mousedown when exiting row, meaning selection behavior will kick in
+                    // in above components
+                    utteranceViewerRef.current.parentNode.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+                },
+            }}
+            ref={utteranceViewerRef}
         >
             {textContent.map(element => (
                 <React.Fragment key={`${element.start}-${element.index}`}>
                     {element.type === 'text' && (
                         // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
                         <span
-                            
-                            onMouseUp={() => handleMouseUp(element)}
+                            onMouseDown={(e) => {
+                                setMouseDown(true);
+                                e.stopPropagation();
+                            }}
+                            onMouseUp={evt => handleMouseUp(evt, element)}
                             role='application'
                         >
                             {element.text}
@@ -266,10 +294,8 @@ function UserUtteranceViewer(props) {
                     {element.type !== 'text' && element.type !== 'entity' && (
                         <EntityPopup
                             trigger={(
-                                // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
                                 <span
                                     className='selected-text'
-                                    onMouseUp={() => setSelection(null)}
                                     role='application'
                                 >
                                     {element.text}

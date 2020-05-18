@@ -37,7 +37,7 @@ describe('intial setup', function () {
         cy.contains('Create').click();
 
 
-        cy.wait(10000);
-        cy.url().should('include', '/admin/projects');
+        cy.wait(5000);
+        cy.url({ timeout: 30000 }).should('include', '/admin/projects');
     });
 });

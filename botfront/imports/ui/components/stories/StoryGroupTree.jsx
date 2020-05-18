@@ -5,6 +5,7 @@ import React, {
     useMemo,
     useContext,
     useEffect,
+    useImperativeHandle,
 } from 'react';
 import PropTypes from 'prop-types';
 import { Menu, Confirm, Portal } from 'semantic-ui-react';
@@ -16,13 +17,21 @@ import { useEventListener } from '../utils/hooks';
 import { ProjectContext } from '../../layouts/context';
 import { can } from '../../../lib/scopes';
 
-const openFirstStoryIfNoneSelected = (activeStories, tree, handleExpand, selectSingleItemAndResetFocus, onChangeActiveStories) => () => {
+const openFirstStoryIfNoneSelected = (
+    activeStories,
+    tree,
+    handleExpand,
+    selectSingleItemAndResetFocus,
+    onChangeActiveStories,
+) => () => {
     const idsActuallyInTree = activeStories.filter(id => id in tree.items);
     if (idsActuallyInTree.length) {
-        if (idsActuallyInTree.length !== activeStories.length) onChangeActiveStories(idsActuallyInTree);
+        if (idsActuallyInTree.length !== activeStories.length) { onChangeActiveStories(idsActuallyInTree); }
         return;
     }
-    let storiesFound = []; let groupId; let i = 0;
+    let storiesFound = [];
+    let groupId;
+    let i = 0;
     while (!storiesFound.length) {
         groupId = tree.items[tree.rootId].children[i];
         storiesFound = tree.items[groupId].children;
@@ -35,7 +44,7 @@ const openFirstStoryIfNoneSelected = (activeStories, tree, handleExpand, selectS
     }
 };
 
-export default function StoryGroupTree(props) {
+const StoryGroupTree = React.forwardRef((props, ref) => {
     const {
         onChangeActiveStories,
         activeStories,
@@ -58,14 +67,16 @@ export default function StoryGroupTree(props) {
     const verifyGroupOrder = (order, groups) => {
         const storyGroupsId = groups.map(({ _id }) => _id);
         // check that storygroup order and storygrous are in sync ( have the same value in different orders)
-        if (storyGroupsId.length === order.length
-            && storyGroupsId.every(id => order.includes(id))) {
+        if (
+            storyGroupsId.length === order.length
+            && storyGroupsId.every(id => order.includes(id))
+        ) {
             return order;
         } // this means that storyGroupOrder and storyGroup are not in sync
         // we keep only the storygroups that are in storygroups for the order
         let newOrder = intersection(order, storyGroupsId); // so only the one in sync (existing in both)
         // and add value from story groups that were not intersected
-        newOrder = (storyGroupsId.filter(sg => !newOrder.includes(sg))).concat(newOrder); // so the new order is in sync with storygroups
+        newOrder = storyGroupsId.filter(sg => !newOrder.includes(sg)).concat(newOrder); // so the new order is in sync with storygroups
         return newOrder;
     };
 
@@ -120,6 +131,9 @@ export default function StoryGroupTree(props) {
     const draggingHandle = {
         current: document.getElementsByClassName('drag-handle dragging')[0] || null,
     };
+    useImperativeHandle(ref, () => ({
+        focusMenu: () => menuRef.current.focus(),
+    }));
     if (window.Cypress) {
         window.moveItem = handleDragEnd;
         window.getParentAndIndex = (id) => {
@@ -129,22 +143,23 @@ export default function StoryGroupTree(props) {
         };
     }
     const selectionIsNonContiguous = useMemo(
-        () => !somethingIsMutating && (activeStories || []).some((s, i, a) => {
-            if (!(s in tree.items)) return false;
-            const differentMother = tree.items[s].parentId
+        () => !somethingIsMutating
+            && (activeStories || []).some((s, i, a) => {
+                if (!(s in tree.items)) return false;
+                const differentMother = tree.items[s].parentId
                     !== tree.items[a[Math.min(i + 1, a.length - 1)]].parentId;
-            if (differentMother) return true;
-            const { children } = tree.items[tree.items[a[0]].parentId] || {};
-            if (!children) return false;
-            return (
-                Math.abs(
-                    children.findIndex(id => id === s)
+                if (differentMother) return true;
+                const { children } = tree.items[tree.items[a[0]].parentId] || {};
+                if (!children) return false;
+                return (
+                    Math.abs(
+                        children.findIndex(id => id === s)
                             - children.findIndex(
                                 id => id === a[Math.min(i + 1, a.length - 1)],
                             ),
-                ) > 1
-            );
-        }),
+                    ) > 1
+                );
+            }),
         [tree, activeStories],
     );
 
@@ -195,8 +210,13 @@ export default function StoryGroupTree(props) {
         (e) => {
             const { target, key, shiftKey } = e;
             if (!menuRef.current.contains(target)) return null;
+            const activeEl = getItemDataFromDOMNode(document.activeElement) === 'storygroup-tree'
+                ? document.getElementById(
+                    `story-menu-item-${(lastFocusedItem.current || {}).id}`,
+                )
+                : document.activeElement;
             if (!activeStories.length) return null;
-            const { previousElementSibling, nextElementSibling } = document.activeElement;
+            const { previousElementSibling, nextElementSibling } = activeEl;
 
             if (key === 'ArrowUp') {
                 if (e.stopPropagation) {
@@ -238,9 +258,16 @@ export default function StoryGroupTree(props) {
     useEventListener('keydown', handleKeyDownInMenu);
     useEventListener('mouseup', () => setMouseDown(false));
 
-    useEffect(openFirstStoryIfNoneSelected(
-        activeStories, tree, handleExpand, selectSingleItemAndResetFocus, onChangeActiveStories,
-    ), [projectId]);
+    useEffect(
+        openFirstStoryIfNoneSelected(
+            activeStories,
+            tree,
+            handleExpand,
+            selectSingleItemAndResetFocus,
+            onChangeActiveStories,
+        ),
+        [projectId],
+    );
 
     const renderItem = renderProps => (
         <StoryGroupTreeNode
@@ -319,7 +346,7 @@ export default function StoryGroupTree(props) {
             </Menu>
         </div>
     );
-}
+});
 
 StoryGroupTree.propTypes = {
     storyGroups: PropTypes.array.isRequired,
@@ -333,3 +360,5 @@ StoryGroupTree.defaultProps = {
     activeStories: [],
     isStoryDeletable: () => [true, 'Delete?'],
 };
+
+export default StoryGroupTree;

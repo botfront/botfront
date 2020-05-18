@@ -20,7 +20,7 @@ const model = new Schema({
     env: { type: String, required: false },
     createdAt: {
         type: Date,
-        required: false,
+        default: Date.now,
     },
     updatedAt: {
         type: Date,

@@ -17,15 +17,15 @@ describe('story visual editor', function () {
 
     it('should persist a user utterance, a bot response, and display add-user-line option appropriately', function () {
         cy.importNluData('bf', 'nlu_sample_en.json', 'en');
-        cy.train(20000);
+        cy.train();
         cy.visit('/project/bf/stories');
         cy.browseToStory('Groupo (1)');
 
         cy.dataCy('add-user-line').click({ force: true });
         cy.dataCy('user-line-from-input').last().click({ force: true });
-        cy.addUserUtterance('Hello', 'chitchat.greet', 0, { checkForIntent: true });
+        cy.addUserUtterance('hello !', 'chitchat.greet', 0, { checkForIntent: true });
 
-        cy.contains('Hello'); // checks that text has been saved
+        cy.contains('hello !'); // checks that text has been saved
 
         cy.dataCy('add-user-line').should('not.exist'); // cannot have adjacent user utterances
         cy.dataCy('add-bot-line').click({ force: true });
@@ -81,7 +81,7 @@ describe('story visual editor', function () {
 
         cy.visit('/project/bf/nlu/models');
         cy.get('[role=row]')
-            .contains('[role=row]', 'Hello')
+            .contains('[role=row]', 'hello !')
             .contains('chitchat.greet')
             .should('exist'); // there nlu example is there too
     });

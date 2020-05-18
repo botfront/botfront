@@ -1,7 +1,7 @@
 import { Modal, Container } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, {
-    useState, useContext, useMemo, useCallback, useEffect,
+    useState, useContext, useMemo, useCallback, useEffect, useRef,
 } from 'react';
 import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
@@ -18,6 +18,7 @@ import StoryGroupTree from './StoryGroupTree';
 import { wrapMeteorCallback } from '../utils/Errors';
 import StoryEditors from './StoryEditors';
 import { Loading } from '../utils/Utils';
+import { useEventListener } from '../utils/hooks';
 import { can } from '../../../lib/scopes';
 
 const SlotsEditor = React.lazy(() => import('./Slots'));
@@ -62,6 +63,8 @@ function Stories(props) {
     const [policiesModal, setPoliciesModal] = useState(false);
     const [resizing, setResizing] = useState(false);
     const [storyEditorsKey, setStoryEditorsKey] = useState(shortId.generate());
+
+    const treeRef = useRef();
 
     const getQueryParams = () => {
         const { location: { query } } = router;
@@ -137,6 +140,11 @@ function Stories(props) {
 
     const handleGetResponseLocations = (responses, f) => { Meteor.call('stories.includesResponse', projectId, responses, wrapMeteorCallback(f)); };
 
+    useEventListener('keydown', ({ key }) => {
+        if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+        if (key === 'ArrowLeft') treeRef.current.focusMenu();
+    });
+
     return (
         <Loading loading={!ready}>
             <ConversationOptionsContext.Provider
@@ -182,6 +190,7 @@ function Stories(props) {
                             modals={{ setSlotsModal, setPoliciesModal }}
                         />
                         <StoryGroupTree
+                            ref={treeRef}
                             storyGroups={storyGroups}
                             stories={stories}
                             onChangeActiveStories={setActiveStories}

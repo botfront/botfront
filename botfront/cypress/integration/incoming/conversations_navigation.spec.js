@@ -1,5 +1,5 @@
 
-/* global cy Cypress:true */
+/* global cy */
 
 
 function addConversation(id) {
@@ -97,16 +97,10 @@ function addConversation(id) {
         latest_action_name: 'action_listen',
     };
 
-    const body = {
-        query: `mutation ($tracker: Any) {\n  insertTrackerStore(senderId: "${id}", projectId: "bf", tracker: $tracker){\n  lastIndex\n  }\n}`,
-        variables: { tracker },
-    };
-    cy.request({
-        method: 'POST',
-        url: '/graphql',
-        headers: { 'Content-Type': 'application/json' },
-        body,
-    });
+    cy.graphQlQuery(
+        `mutation ($tracker: Any) {\n  insertTrackerStore(senderId: "${id}", projectId: "bf", tracker: $tracker){\n  lastIndex\n  }\n}`,
+        { tracker },
+    );
 }
 
 describe('incoming page conversation tab', function () {

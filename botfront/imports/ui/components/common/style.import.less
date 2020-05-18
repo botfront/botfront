@@ -95,13 +95,12 @@
 .glow-box {
     background-color: white;
     border-radius: 4px;
-    margin-right: 15px;
-    margin-left: 15px;
     box-shadow: 0 1px 5px rgba(34, 36, 38, 0.1);
     border: 1px solid transparent;
 
     &.hoverable {
         transition: transform 0.3s ease-in-out;
+        margin: 5px 15px 5px 0;
         &:hover {
             border: 1px solid #2185d0;
             background-color: white !important;
@@ -112,9 +111,6 @@
 
     &.extra-padding {
         padding: 20px;
-        .virtual-table {
-            padding-bottom: 30px;
-        }
     }
 
     &.no-margin {

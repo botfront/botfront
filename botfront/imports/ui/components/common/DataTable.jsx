@@ -1,178 +1,293 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, {
+    useRef, useState, useEffect, useMemo, useImperativeHandle,
+} from 'react';
 import PropTypes from 'prop-types';
+import { Portal } from 'semantic-ui-react';
+import { throttle } from 'lodash';
 import { DynamicSizeList as List } from '@john-osullivan/react-window-dynamic-fork';
 import InfiniteLoader from 'react-window-infinite-loader';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { debounce } from 'lodash';
+import Row from './DataTableRow';
+import { useEventListener, useResizeObserver, useIsMount } from '../utils/hooks';
 
-export default function DataTable(props) {
+const DataTable = React.forwardRef((props, forwardedRef) => {
     const {
         data,
-        height,
+        height: providedHeight,
         width,
-        fixedRows,
+        stickyRows,
         onClickRow,
         hasNextPage,
         loadMore,
-        columns,
-        onChangeInVisibleItems,
-        gutterSize,
+        columns: allColumns,
+        onScroll,
         className,
+        rowClassName,
+        selection,
+        onChangeSelection,
+        externallyControlledSelection,
     } = props;
     const dataCount = hasNextPage ? data.length + 1 : data.length;
     const isDataLoaded = index => !hasNextPage || index < data.length;
-    const clickable = onClickRow ? 'clickable' : '';
-    const rowStyle = gutterSize > 0 ? 'glow-box hoverable' : '';
-
-    const Row = React.forwardRef((row, ref) => {
-        const { index, style } = row;
-        const editedStyle = {
-            ...style,
-            top: style.top + gutterSize,
-            paddingTop: gutterSize,
-        };
-        if (!isDataLoaded(index)) {
-            return (
-                <div ref={ref} style={editedStyle}>
-                    <div className={`row ${rowStyle}`}>
-                        Loading...
-                    </div>
-                </div>
-            );
-        }
-        const rowInfo = { index, datum: data[index] };
-        return (
-            <div
-                ref={ref}
-                style={editedStyle}
-                data-index={index}
-                onClick={() => { if (onClickRow) onClickRow(rowInfo); }}
-                role='button'
-                tabIndex={0}
-                onKeyDown={null}
-                className='row-wrapper'
-            >
-                <div className={`row ${rowStyle} ${clickable}`}>
-                    {columns.map(c => (
-                        <div key={`${c.key}-${index}`} className={`item ${c.class || ''}`} style={c.style}>
-                            {c.render
-                                ? c.render(rowInfo)
-                                : data[index][c.key]
-                            }
-                        </div>
-                    ))}
-                </div>
-            </div>
-        );
-    });
+    const columns = useMemo(() => allColumns.filter(c => !c.hidden), [allColumns]);
+    const selectionKey = (allColumns.filter(c => c.selectionKey)[0] || {}).key || allColumns[0].key;
+    const isDatumSelected = datum => datum && selection.includes(datum[selectionKey]);
 
     const tableRef = useRef(null);
-    const [correction, setCorrection] = useState();
-    const tableOffsetTop = tableRef && tableRef.current
-        ? tableRef.current.offsetTop
-        : 0;
+    if (!externallyControlledSelection) {
+        const isMount = useIsMount();
+        useEffect(() => { if (isMount) tableRef.current.focus(); }, [selection]);
+    }
+    const windowInfoRef = useRef();
+    const outerListRef = useRef();
+    const headerRef = useRef(null);
+    const stickyRowsRef = useRef(document.createElement('div'));
 
-    const showHeader = columns.some(c => c.header);
+    useImperativeHandle(forwardedRef, () => ({
+        tableRef: () => tableRef,
+        windowInfoRef: () => windowInfoRef,
+        outerListRef: () => outerListRef,
+        headerRef: () => headerRef,
+        stickyRowsRef: () => stickyRowsRef,
+    }));
+    
+    const [height, doSetHeight] = useState();
+    const [headerOffset, setHeaderOffset] = useState(0);
+    const [stickyRowsOffset, setStickyRowsOffset] = useState(0);
 
-    const handleScroll = debounce((start, end) => {
-        if (!onChangeInVisibleItems) return;
-        const visibleData = Array(end - start + 1).fill()
-            .map((_, i) => start + i)
-            .map(i => data[i])
-            .filter(d => d);
-        onChangeInVisibleItems(visibleData);
-    }, 500);
+    const getOffsetHeight = ref => (ref.current ? ref.current.offsetHeight : 0);
+    const getOffsetTop = ref => (ref.current ? ref.current.offsetTop : 0);
 
-    useEffect(() => setCorrection(showHeader ? tableOffsetTop + 40 : tableOffsetTop), [tableOffsetTop]);
+    const getToScrollableNode = (ref) => {
+        if (!ref.current) return [ref, ref];
+        const isScrollable = node => ['overflow', 'overflow-y']
+            .some(prop => /(auto|scroll)/.test(
+                getComputedStyle(node, null).getPropertyValue(prop),
+            ));
+    
+        let previous; let { current } = ref;
+        while (!isScrollable(current)) {
+            previous = current;
+            if (!(current.parentNode instanceof HTMLElement)) {
+                current = document.scrollingElement;
+                break;
+            }
+            current = current.parentNode;
+        }
+        return [{ current: previous }, { current }];
+    };
+
+    const setHeight = () => {
+        setHeaderOffset(getOffsetHeight(headerRef));
+        if (providedHeight !== 'auto') return doSetHeight(`${providedHeight}px`);
+        const [lastUnscrollable, firstScrollable] = getToScrollableNode(tableRef);
+        return doSetHeight(
+            getOffsetHeight(firstScrollable) - (
+                getOffsetHeight(lastUnscrollable) - getOffsetHeight(tableRef) + getOffsetTop(lastUnscrollable)
+            ) - 2,
+        );
+    };
+    useEffect(setHeight, [providedHeight]);
+    useResizeObserver(throttle(setHeight, 150), getToScrollableNode(tableRef)[1].current);
+    useResizeObserver(setHeight, headerRef.current);
+
+    stickyRowsRef.current.setAttribute('style', 'position: sticky; top: 0; z-index: 100;');
+    stickyRowsRef.current.setAttribute('class', `virtual-table-sticky-row ${className}`);
+    useEffect(() => {
+        if (!outerListRef.current) return;
+        outerListRef.current.insertBefore(stickyRowsRef.current, outerListRef.current.firstChild || null);
+    }, [!!tableRef.current]);
+    useResizeObserver(() => setStickyRowsOffset(getOffsetHeight(stickyRowsRef)), stickyRowsRef.current);
+
+    const [mouseDown, setMouseDown] = useState(false);
+    const lastFocusedStart = useRef(selection[0]);
+    const lastFocusedRowInfo = useRef({ index: 0 });
+
+    const selectItemAndResetFocus = ({ datum, index: indexInData, metaKey }) => {
+        const id = datum[selectionKey];
+        lastFocusedStart.current = id;
+        lastFocusedRowInfo.current = { datum, index: indexInData };
+        if (!metaKey) return onChangeSelection([id]);
+        if (selection.includes(id)) return onChangeSelection(selection.filter(el => el !== id));
+        return onChangeSelection([...selection, id]);
+    };
+
+    const handleSelectionChange = ({
+        shiftKey, metaKey, datum, index: indexInData,
+    }) => {
+        if (!onChangeSelection) return null;
+        if (indexInData >= windowInfoRef.current.visibleStopIndex) outerListRef.current.scrollTop += 100;
+        if (indexInData <= windowInfoRef.current.visibleStartIndex) outerListRef.current.scrollTop -= 100;
+        if (metaKey || !shiftKey || !selection.length) {
+            return selectItemAndResetFocus({ datum, index: indexInData, metaKey });
+        }
+        const allData = [...(stickyRows || []), ...data];
+        const index = indexInData + (stickyRows || []).length;
+        const lastIndex = allData.findIndex(d => d[selectionKey] === lastFocusedStart.current);
+        const [min, max] = index < lastIndex ? [index, lastIndex] : [lastIndex, index];
+        const newSelection = allData.slice(min, max + 1).map(d => d[selectionKey]);
+        lastFocusedRowInfo.current = { datum, index: indexInData };
+        return onChangeSelection(newSelection);
+    };
+
+    const handleMouseDown = (rowInfo) => {
+        if (!onChangeSelection) return;
+        handleSelectionChange(rowInfo);
+        if (rowInfo.shiftKey) return;
+        setMouseDown(true);
+    };
+
+    const handleMouseEnter = (rowInfo) => {
+        if (!mouseDown || rowInfo.datum[selectionKey] === lastFocusedStart.current) return;
+        handleSelectionChange({ shiftKey: true, ...rowInfo });
+    };
+
+    useEventListener('mouseup', (e) => {
+        if (!tableRef.current.contains(e.target)) {
+            setMouseDown(false);
+            return;
+        }
+        if (onClickRow) {
+            if (onChangeSelection) handleSelectionChange(lastFocusedRowInfo.current);
+            onClickRow(lastFocusedRowInfo.current);
+        }
+        setMouseDown(false);
+    });
+
+    const handleKeyDownInMenu = (e) => {
+        const { key, shiftKey } = e;
+        if (tableRef.current !== e.target) return;
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+        if (!['ArrowUp', 'ArrowDown'].includes(key)) return;
+        e.preventDefault();
+        let { index } = lastFocusedRowInfo.current || {};
+        if (!Number.isInteger(index)) return;
+        if (key === 'ArrowUp') index -= 1;
+        else if (key === 'ArrowDown') index += 1;
+        else return;
+        index = Math.min(Math.max(0, index), data.length - 1);
+        const datum = data[index];
+        handleSelectionChange({ shiftKey, datum, index });
+    };
+
+    useEventListener('keydown', handleKeyDownInMenu);
+
+    const renderHeader = () => (
+        <div className='header row' ref={headerRef}>
+            {columns.map(c => (
+                <div key={`${c.key}-header`} className='item' style={c.style}>
+                    {c.header}
+                </div>
+            ))}
+        </div>
+    );
+
+    const renderStickyRows = () => (
+        <>
+            {stickyRows.map((r, i) => (
+                <Row
+                    isDataLoaded
+                    index={-(stickyRows.length - i)}
+                    datum={r}
+                    columns={columns}
+                    rowClassName={`${rowClassName} ${isDatumSelected(r) ? 'selected' : ''}`}
+                    onMouseDown={handleMouseDown}
+                    onMouseEnter={handleMouseEnter}
+                />
+            ))}
+        </>
+    );
 
     return (
         <div
             className={`virtual-table ${className}`}
             ref={tableRef}
             style={{
-                height: height === 'auto' ? `calc(100vh - ${correction}px)` : `${height}px`,
+                height,
                 ...(width === 'auto' ? {} : { width }),
             }}
+            tabIndex={0} // eslint-disable-line jsx-a11y/no-noninteractive-tabindex
         >
-            {showHeader && (
-                <div className='header row'>
-                    {columns.map(c => (
-                        <div key={`${c.key}-header`} className='item' style={c.style}>
-                            {c.header}
-                        </div>
-                    ))}
-                </div>
-            )}
-            {fixedRows && fixedRows.length && fixedRows.map(r => (
-                <div
-                    style={{ paddingTop: gutterSize }}
-                    onClick={() => onClickRow({ datum: r })}
-                    role='button'
-                    tabIndex={0}
-                    onKeyDown={null}
-                >
-                    <div className={`row ${rowStyle} ${clickable}`}>
-                        {columns.map((c, i) => (
-                            <div key={`${c.key}-fixed-${i}`} className={`item ${c.class || ''}`} style={c.style}>
-                                {c.render
-                                    ? c.render({ datum: r })
-                                    : r[c.key]
-                                }
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            ))}
-            <AutoSizer>
-                {({ height: h, width: w }) => (
-                    <InfiniteLoader
-                        isItemLoaded={isDataLoaded}
-                        itemCount={dataCount}
-                        loadMoreItems={loadMore}
-                    >
-                        {({ onItemsRendered, ref }) => (
-                            <List
-                                height={h}
-                                itemCount={dataCount}
-                                onItemsRendered={(items) => {
-                                    handleScroll(items.visibleStartIndex, items.visibleStopIndex);
-                                    onItemsRendered(items);
-                                }}
-                                ref={ref}
-                                width={w}
-                            >
-                                {Row}
-                            </List>
-                        )}
-                    </InfiniteLoader>
-                )}
-            </AutoSizer>
+            {(stickyRows || []).length > 0 && <Portal open mountNode={stickyRowsRef.current}>{renderStickyRows()}</Portal>}
+            {columns.some(c => c.header) ? renderHeader() : <div ref={headerRef} />}
+            <div style={{ height: `calc(100% - ${headerOffset}px)` }}>
+                <AutoSizer>
+                    {({ height: h, width: w }) => (
+                        <InfiniteLoader
+                            isItemLoaded={isDataLoaded}
+                            itemCount={dataCount}
+                            loadMoreItems={loadMore}
+                        >
+                            {({ onItemsRendered, ref }) => (
+                                <List
+                                    height={h}
+                                    itemCount={dataCount}
+                                    onItemsRendered={(items) => {
+                                        if (onScroll) onScroll(items);
+                                        windowInfoRef.current = items;
+                                        onItemsRendered(items);
+                                    }}
+                                    // eslint-disable-next-line no-underscore-dangle
+                                    ref={(ref_) => { if (ref_ && ref_._outerRef) outerListRef.current = ref_._outerRef; return ref; }}
+                                    width={w}
+                                >
+                                    {React.forwardRef(({ index, style, ...row }, ref_) => ( // eslint-disable-line react/prop-types
+                                        <Row
+                                            {...row}
+                                            ref={ref_}
+                                            style={{
+                                                ...style,
+                                                top: style.top + stickyRowsOffset, // eslint-disable-line react/prop-types
+                                            }}
+                                            rowClassName={`${rowClassName} ${isDatumSelected(data[index]) ? 'selected' : ''}`}
+                                            onMouseDown={handleMouseDown}
+                                            onMouseEnter={handleMouseEnter}
+                                            isDataLoaded={isDataLoaded(index)}
+                                            datum={data[index]}
+                                            index={index}
+                                            columns={columns}
+                                        />
+                                    ))}
+                                </List>
+                            )}
+                        </InfiniteLoader>
+                    )}
+                </AutoSizer>
+            </div>
         </div>
     );
-}
+});
 
 DataTable.propTypes = {
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['auto'])]),
     width: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['auto'])]),
-    fixedRows: PropTypes.array,
+    stickyRows: PropTypes.array,
     onClickRow: PropTypes.func,
     hasNextPage: PropTypes.bool,
     data: PropTypes.array.isRequired,
     columns: PropTypes.array.isRequired,
     loadMore: PropTypes.func,
-    onChangeInVisibleItems: PropTypes.func,
-    gutterSize: PropTypes.number,
+    onScroll: PropTypes.func,
+    rowClassName: PropTypes.string,
     className: PropTypes.string,
+    selection: PropTypes.array,
+    onChangeSelection: PropTypes.func,
+    externallyControlledSelection: PropTypes.bool,
 };
 
 DataTable.defaultProps = {
     height: 'auto',
     width: 'auto',
     onClickRow: null,
-    fixedRows: null,
+    stickyRows: null,
     hasNextPage: false,
     loadMore: () => {},
-    onChangeInVisibleItems: null,
-    gutterSize: 15,
+    onScroll: null,
+    rowClassName: '',
     className: '',
+    selection: [],
+    onChangeSelection: null,
+    externallyControlledSelection: false,
 };
+
+export default DataTable;
