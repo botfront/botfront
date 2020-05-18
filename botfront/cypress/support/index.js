@@ -114,13 +114,7 @@ Cypress.Commands.add('createNLUModel', (projectId, name, language, description, 
 });
 
 Cypress.Commands.add('createNLUModelProgramatically', (projectId, name, language, description) => cy.window()
-    .then(({ Meteor }) => cy.fixture('lite-pipeline.yaml').then(config => Meteor.callWithPromise(
-        'nlu.insert',
-        {
-            name, language, description, config,
-        },
-        projectId,
-    ))));
+    .then(({ Meteor }) => Meteor.callWithPromise('nlu.insert', { name, language, description }, projectId)));
 
 Cypress.Commands.add('MeteorCall', (method, args) => {
     cy.window().then(
@@ -299,11 +293,9 @@ Cypress.Commands.add('importNluData', (projectId = 'bf', fixture, lang = 'en', o
 
 Cypress.Commands.add('train', (waitTime = 200000) => {
     cy.visit('/project/bf/stories');
-    cy.dataCy('train-button').should('not.have.class', 'disabled');
     cy.dataCy('train-button').click();
-    cy.dataCy('train-button').should('have.class', 'disabled');
+    cy.wait(5000);
     cy.get('[data-cy=train-button]', { timeout: waitTime }).should('not.have.class', 'disabled');
-    cy.wait(500);
 });
 
 Cypress.Commands.add('graphQlQuery', (query, variables) => cy.get('@loginToken').then((token) => {

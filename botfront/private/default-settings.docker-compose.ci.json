@@ -2,7 +2,7 @@
     "_id": "SETTINGS",
     "settings": {
         "public": {
-            "defaultNLUConfig": "pipeline:\n  - name: WhitespaceTokenizer\n  - name: CRFEntityExtractor\n  - name: CountVectorsFeaturizer\n  - name: KeywordIntentClassifier",
+            "defaultNLUConfig": "pipeline:\n  - name: WhitespaceTokenizer\n  - name: CountVectorsFeaturizer\n  - name: DIETClassifier\n  - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: EntitySynonymMapper",
             "backgroundImages": [
                 "https://source.unsplash.com/collection/315548/2400x1500"
             ]
