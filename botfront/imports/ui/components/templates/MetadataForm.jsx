@@ -4,7 +4,7 @@ import {
     AutoForm,
 } from 'uniforms-semantic';
 import ToggleField from '../common/ToggleField';
-import SelectField from '../form_fields/SelectField';
+import ButtonSelectField from '../form_fields/ButtonSelectField';
 
 
 // force open affect force close and vice versa
@@ -46,8 +46,8 @@ export const schemaData = {
         defaultValue: '_blank',
         allowedValues: ['_blank', '_self'],
         options: [
-            { text: 'In the current tab', value: '_self' },
-            { text: 'In a new tab', value: '_blank' },
+            { text: 'Current tab', value: '_self', description: 'Open the link the current tab' },
+            { text: 'New tab', value: '_blank', description: 'Open the link in a new tab' },
         ],
     },
     userInput: {
@@ -55,9 +55,9 @@ export const schemaData = {
         defaultValue: 'show',
         allowedValues: ['show', 'hide', 'disable'],
         options: [
-            { text: 'Show', value: 'show' },
-            { text: 'Hide', value: 'hide' },
-            { text: 'Disable', value: 'disable' },
+            { text: 'Show', value: 'show', description: 'Show the input field (default)' },
+            { text: 'Hide', value: 'hide', description: 'The input field will be hidden' },
+            { text: 'Disable', value: 'disable', description: 'The input field will be shaded grey and non-interactable' },
         ],
     },
     forceOpen: {
@@ -75,8 +75,8 @@ export const panes = [
         menuItem: 'General',
         render: () => (
             <>
-                <SelectField name='linkTarget' data-cy='links-target' />
-                <SelectField name='userInput' />
+                <ButtonSelectField name='linkTarget' data-cy='links-target' />
+                <ButtonSelectField name='userInput' />
                 <ToggleField
                     name='forceOpen'
                     className='toggle'
