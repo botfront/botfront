@@ -94,7 +94,7 @@ class Incoming extends React.Component {
 
     render () {
         const {
-            projectLanguages, ready, model, workingLanguage, projectEnvironments, workingEnvironment,
+            projectLanguages, ready, model, workingLanguage, projectEnvironments, workingEnvironment, projectId,
         } = this.props;
         const { activeTab } = this.state;
         return (
@@ -107,10 +107,11 @@ class Incoming extends React.Component {
                     handleEnvChange={this.handleEnvChange}
                     selectedEnvironment={workingEnvironment}
                     activeTab={activeTab}
+                    projectId={projectId}
                     tabs={[
                         { value: 'newutterances', text: 'New Utterances' },
                         { value: 'conversations', text: 'Conversations' },
-                        { value: 'populate', text: 'Populate' },
+                        { value: 'populate', text: 'Populate', role: 'projects:w' },
                     ]}
                     onClickTab={this.handleTabClick}
                 />

@@ -8,7 +8,7 @@ function EnvSelector(props) {
     const { availableEnvs, envChange, value } = props;
     if (availableEnvs.length < 2) return null;
     return (
-        <span>
+        <span className='environment-selector '>
             Data source:{'\u00A0'}
             <Dropdown
                 data-cy='env-selector'

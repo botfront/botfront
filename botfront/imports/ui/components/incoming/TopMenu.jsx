@@ -6,7 +6,10 @@ import { Menu } from 'semantic-ui-react';
 import LanguageDropdown from '../common/LanguageDropdown';
 import EnvSelector from '../common/EnvSelector';
 
+import { can } from '../../../lib/scopes';
+
 const TopMenu = ({
+    projectId,
     projectLanguages,
     selectedLanguage,
     handleLanguageChange,
@@ -19,32 +22,36 @@ const TopMenu = ({
     projectEnvironments,
 }) => {
     const renderTabs = () => (
-        tabs.map(({ value, text }) => (
-            <Menu.Item
-                content={text}
-                key={value}
-                data-cy={value}
-                active={value === activeTab}
-                onClick={() => onClickTab(value)}
-            />
+        tabs.map(({ value, text, role }) => (
+            (!role || can(role, projectId))
+                ? (
+                    <Menu.Item
+                        content={text}
+                        key={value}
+                        data-cy={value}
+                        active={value === activeTab}
+                        onClick={() => onClickTab(value)}
+                    />
+                )
+                : <></>
         ))
     );
     return (
         <Menu borderless className={`top-menu ${className}`}>
             <div className='language-container'>
-                <Menu.Item header borderless className='language-item'>
-                    {activeTab === 'conversations' ? (
-                        <></>
-                    ) : (
+                {activeTab === 'conversations' ? (
+                    <></>
+                ) : (
+                    <Menu.Item header borderless className='language-item'>
                         <LanguageDropdown
                             languageOptions={projectLanguages}
                             selectedLanguage={selectedLanguage}
                             handleLanguageChange={handleLanguageChange}
                         />
-                    )}
-                </Menu.Item>
+                    </Menu.Item>
+                )}
                 <Menu.Item header className='env-select'>
-                    {['oos', 'populate'].includes(activeTab) ? (
+                    {['populate'].includes(activeTab) ? (
                         <></>
                     ) : (
                         <EnvSelector
@@ -55,7 +62,7 @@ const TopMenu = ({
                     )}
                 </Menu.Item>
             </div>
-            <div className='incoming-tabs'>
+            <div className={`incoming-tabs ${can('projects:w', projectId) && 'spaced'}`}>
                 {renderTabs()}
             </div>
         </Menu>
@@ -63,6 +70,7 @@ const TopMenu = ({
 };
 
 TopMenu.propTypes = {
+    projectId: PropTypes.string.isRequired,
     projectLanguages: PropTypes.array.isRequired,
     selectedLanguage: PropTypes.string,
     handleLanguageChange: PropTypes.func.isRequired,
