@@ -363,6 +363,11 @@ if (Meteor.isServer) {
             args: [projectId],
         },
         {
+            name: 'stories.includesResponse',
+            roles: readers.stories,
+            args: [projectId],
+        },
+        {
             name: 'storyGroups.delete',
             roles: writers.stories,
             args: [{ projectId }],
