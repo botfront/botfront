@@ -74,14 +74,16 @@ Meteor.methods({
         });
         
         await NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { _id: { $in: deleted } } } });
-        await Meteor.callWithPromise('nlu.insertExamples', modelId, newExamples);
+        await Meteor.callWithPromise('nlu.insertExamples', modelId, newExamples, { autoAssignCanonical: canonicalEdited.length === 0 });
         await Meteor.callWithPromise('nlu.updateManyExamples', modelId, edited);
         canonicalEdited.forEach(example => Meteor.call('nlu.switchCanonical', modelId, example));
     },
 
-    async 'nlu.insertExamples'(modelId, items) {
+    async 'nlu.insertExamples'(modelId, items, options = {}) {
+        check(options, Object);
         check(modelId, String);
         check(items, Array);
+        const { autoAssignCanonical = true } = options;
 
         if (items.length === 0) {
             return 0;
@@ -90,7 +92,7 @@ Meteor.methods({
 
         try {
             const normalizedItems = uniqBy(items.map(ExampleUtils.prepareExample).filter(({ intent }) => intent), 'text');
-            const canonicalizedItems = await canonicalizeExamples(normalizedItems, modelId);
+            const canonicalizedItems = autoAssignCanonical ? await canonicalizeExamples(normalizedItems, modelId) : normalizedItems;
             const model = NLUModels.findOne({ _id: modelId }, { fields: { 'training_data.common_examples': 1 } });
             const examples = model && model.training_data && model.training_data.common_examples.map(e => ExampleUtils.stripBare(e));
             const pullItemsText = intersectionBy(examples, canonicalizedItems, 'text').map(({ text }) => text);
@@ -250,12 +252,16 @@ if (Meteor.isServer) {
             if (nluModelLanguages.some(lang => (lang.value === item.language))) {
                 throw new Meteor.Error('409', `Model with langauge ${item.language} already exists`);
             }
-            const {
-                settings: {
-                    public: { defaultNLUConfig },
-                },
-            } = GlobalSettings.findOne({}, { fields: { 'settings.public.defaultNLUConfig': 1 } });
-            const defaultModel = { ...item, config: defaultNLUConfig };
+            let { config } = item;
+            if (!config) {
+                const {
+                    settings: {
+                        public: { defaultNLUConfig },
+                    },
+                } = GlobalSettings.findOne({}, { fields: { 'settings.public.defaultNLUConfig': 1 } });
+                config = defaultNLUConfig;
+            }
+            const defaultModel = { ...item, config };
             const modelId = NLUModels.insert(defaultModel);
             Projects.update({ _id: projectId }, { $addToSet: { nlu_models: modelId } });
             return modelId;

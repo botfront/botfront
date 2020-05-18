@@ -26,7 +26,6 @@ describe('branches', function() {
 
     it('should be able to add a branch, edit the content and it should be saved', function() {
         cy.dataCy('toggle-md').click({ force: true });
-        cy.get('[data-cy=open-chat]').click();
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('branch-label').should('have.lengthOf', 2);
         cy.dataCy('story-editor')
@@ -40,7 +39,6 @@ describe('branches', function() {
             .type('xxx', { force: true })
             .blur();
         cy.visit('/project/bf/stories'); // reload page
-        cy.get('[data-cy=open-chat]').click();
         cy.browseToStory();
         cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('branch-label').should('have.lengthOf', 2);
@@ -56,7 +54,6 @@ describe('branches', function() {
     });
 
     it('should be able to be create a third branch, and delete branches', function() {
-        cy.get('[data-cy=open-chat]').click();
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('branch-label').should('have.lengthOf', 2);
         cy.dataCy('branch-label').first().should('have.class', 'active');
@@ -104,7 +101,6 @@ describe('branches', function() {
     });
 
     it('should be able to persist the opened branches across the app', function() {
-        cy.get('[data-cy=open-chat]').click();
         cy.dataCy('create-branch').click({ force: true });
 
         // create a third branch
@@ -121,7 +117,6 @@ describe('branches', function() {
 
     it('should be able to merge deleted story branches', function() {
         cy.dataCy('toggle-md').click({ force: true });
-        cy.dataCy('open-chat').click();
         cy.dataCy('create-branch').click({ force: true });
 
         cy.dataCy('branch-label').should('have.lengthOf', 2);

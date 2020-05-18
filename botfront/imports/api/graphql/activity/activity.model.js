@@ -19,7 +19,7 @@ const model = new Schema({
     validated: { type: Boolean, required: false },
     createdAt: {
         type: Date,
-        required: false,
+        default: Date.now,
     },
     updatedAt: {
         type: Date,

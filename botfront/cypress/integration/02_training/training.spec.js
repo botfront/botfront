@@ -33,13 +33,11 @@ describe('Training', function() {
     it('Should train and serve a model containing only stories (no NLU) and adding a language should work', function() {
         createStories();
         cy.train();
-        cy.dataCy('open-chat').click({ force: true });
-        cy.newChatSesh('en');
+        cy.newChatSesh();
         cy.testChatInput('/chitchat.greet', 'utter_hi');
         cy.importNluData('bf', 'nlu_sample_en.json', 'en');
         cy.train();
-        cy.dataCy('open-chat').click({ force: true });
-        cy.newChatSesh('en');
+        cy.newChatSesh();
         cy.testChatInput('hi', 'utter_hi'); // nlg returns template name if not defined
     });
 
@@ -48,14 +46,12 @@ describe('Training', function() {
         cy.importNluData('bf', 'nlu_sample_en.json', 'en');
         createStories();
         cy.train();
-        cy.dataCy('open-chat').click({ force: true });
-        cy.newChatSesh('en');
+        cy.newChatSesh();
         cy.testChatInput('hi', 'utter_hi');
         cy.createNLUModelProgramatically('bf', '', 'fr'); // first don't import NLU data
         cy.train();
         cy.importNluData('bf', 'nlu_sample_fr.json', 'fr'); // now import the data
         cy.train();
-        cy.dataCy('open-chat').click({ force: true });
         cy.newChatSesh('fr');
         cy.testChatInput('salut', 'utter_hi');
     });
@@ -67,8 +63,7 @@ describe('Training', function() {
         cy.importNluData('bf', 'nlu_sample_fr.json', 'fr');
         createStories();
         cy.train();
-        cy.dataCy('open-chat').click({ force: true });
-        cy.newChatSesh('en');
+        cy.newChatSesh();
         cy.testChatInput('hi', 'utter_hi');
         cy.newChatSesh('fr');
         cy.testChatInput('salut', 'utter_hi');
@@ -80,19 +75,18 @@ describe('Training', function() {
         cy.toggleStoryGroupFocused();
         cy.get('.eye.icon.focused').should('have.length', 1);
         cy.train();
-        cy.dataCy('open-chat').click({ force: true });
-        cy.newChatSesh('en');
+        cy.newChatSesh();
         cy.testChatInput('/get_started', 'utter_default');
         cy.testChatInput('/chitchat.greet', 'utter_hi');
         cy.toggleStoryGroupFocused();
         cy.get('.eye.icon.focused').should('have.length', 0);
         cy.createStoryGroup({ groupName: 'Intro stories' });
         cy.moveStoryOrGroup({ name: 'Get started' }, { name: 'Intro stories' });
+        cy.checkMenuItemAtIndex(1, 'Get started');
         cy.toggleStoryGroupFocused('Intro stories');
         cy.get('.eye.icon.focused').should('have.length', 1);
         cy.train();
-        cy.dataCy('open-chat').click({ force: true });
-        cy.newChatSesh('en');
+        cy.newChatSesh();
         cy.testChatInput('/get_started', 'utter_get_started');
         cy.testChatInput('/chitchat.greet', 'utter_default');
     });
@@ -100,8 +94,7 @@ describe('Training', function() {
     it('Should train and serve a model containing branches and links', function() {
         cy.importViaUi('branch_link_project.json', 'bf');
         cy.train();
-        cy.dataCy('open-chat').click({ force: true });
-        cy.dataCy('restart-chat').click({ force: true });
+        cy.newChatSesh();
         // coffee path
         cy.testChatInput('/hi', 'utter_coffee');
         cy.testChatInput('/yes', 'utter_sugar');

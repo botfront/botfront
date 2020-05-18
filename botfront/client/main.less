@@ -253,19 +253,32 @@ p.overflow {
     border-color: #b0b5bb;
 }
 
-.ui.basic.button {
+.ui.basic.button, .ui.basic.button:hover {
     background: #fff none !important;
+    &.green.small.icon {
+        background: #fff none !important; 
+    }
+    &.small.icon {
+        background: #fff none !important; 
+    }
     &.primary {
         background: #fff none !important; 
     }
     &.black.medium {
         background: #fff none !important;
     }
-    &.small.icon.left.white {
+    &.white {
         background: #fff none !important;
     }
 }
 
 .s-alert-box {
     z-index: 1001 !important; // force alert box to appear over semantic ui modals
+}
+
+.with-shortcuts { // will add underline to buttons under this class
+    button.button:first-letter {
+        text-decoration: underline;
+        text-decoration-thickness: 1.5px;
+    }
 }
