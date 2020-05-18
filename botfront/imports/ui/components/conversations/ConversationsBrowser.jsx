@@ -331,6 +331,8 @@ const ConversationsBrowserContainer = (props) => {
         xThanConfidence: activeFilters.confidenceFilter.xThan,
     }), [activeFilters, env, page]);
 
+    console.log(queryVariables);
+
     const {
         loading, error, data, refetch,
     } = useQuery(GET_CONVERSATIONS, {
@@ -424,7 +426,7 @@ ConversationsBrowserContainer.propTypes = {
 };
 
 ConversationsBrowserContainer.defaultProps = {
-    environment: 'developement',
+    environment: 'development',
 };
 
 const mapStateToProps = state => ({
