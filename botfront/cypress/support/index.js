@@ -299,9 +299,11 @@ Cypress.Commands.add('importNluData', (projectId = 'bf', fixture, lang = 'en', o
 
 Cypress.Commands.add('train', (waitTime = 200000) => {
     cy.visit('/project/bf/stories');
+    cy.dataCy('train-button').should('not.have.class', 'disabled');
     cy.dataCy('train-button').click();
-    cy.wait(2000);
+    cy.dataCy('train-button').should('have.class', 'disabled');
     cy.get('[data-cy=train-button]', { timeout: waitTime }).should('not.have.class', 'disabled');
+    cy.wait(500);
 });
 
 Cypress.Commands.add('graphQlQuery', (query, variables) => cy.get('@loginToken').then((token) => {
