@@ -45,7 +45,7 @@ describe('Story play button', function() {
         cy.get('.story-line').should('have.length', 2);
         cy.dataCy('icon-trash').first().click({ force: true });
         cy.get('.story-line').should('have.length', 1);
-        cy.dataCy('play-story').click();
+        cy.dataCy('play-story').should('have.class', 'disabled').click({ force: true });
         cy.dataCy('chat-pane').should('not.exist');
         cy.dataCy('play-story').should('have.class', 'disabled');
     });
