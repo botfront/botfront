@@ -4,11 +4,12 @@ import { withTracker } from 'meteor/react-meteor-data';
 import {
     Container, Segment, Header, Button, Confirm, Message,
 } from 'semantic-ui-react';
-import AutoForm from 'uniforms-semantic/AutoForm';
 import React from 'react';
 import 'react-s-alert/dist/s-alert-default.css';
 import { browserHistory } from 'react-router';
-import { AutoField, ErrorsField, SubmitField } from 'uniforms-semantic';
+import {
+    AutoField, ErrorsField, SubmitField, AutoForm,
+} from 'uniforms-semantic';
 import InfoField from '../utils/InfoField';
 import { Projects } from '../../../api/project/project.collection';
 import { wrapMeteorCallback } from '../utils/Errors';
