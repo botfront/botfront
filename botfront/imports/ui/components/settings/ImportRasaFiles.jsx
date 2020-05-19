@@ -1,5 +1,5 @@
 import React, {
-    useRef, useState, useContext, useMemo,
+    useRef, useState, useContext, useMemo, useEffect,
 } from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
@@ -222,7 +222,10 @@ const ImportRasaFiles = (props) => {
     };
 
     const [storiesImporting, setStoriesImporting] = useState(false);
-    const storyFileReader = useStoryFileReader(existingStoryGroups);
+    const storyFileReader = useStoryFileReader(eraseCurrent.stories ? [] : existingStoryGroups);
+    useEffect(() => { // rerun add instruction to change storygroup name as needed
+        if (typeof storyFileReader[1] === 'function') storyFileReader[1]({ add: storyFileReader[0] });
+    }, [eraseCurrent.stories]);
     const [dropStoryFilesIndicators, dropStoryFiles] = useFileDrop(storyFileReader);
 
     const [domainImporting, setDomainImporting] = useState(false);
