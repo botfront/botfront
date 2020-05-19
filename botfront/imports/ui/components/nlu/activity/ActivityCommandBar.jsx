@@ -49,6 +49,7 @@ const ActivityCommandBar = React.forwardRef((props, ref) => {
                     allowEditing
                     onChange={intent => onSetIntent(selection, intent)}
                     onClose={onCloseIntentPopup}
+                    enableReset
                 />
                 <Popup
                     size='mini'
