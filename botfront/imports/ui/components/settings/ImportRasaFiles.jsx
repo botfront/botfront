@@ -21,6 +21,7 @@ import { get as _get } from 'lodash';
 import { NativeTypes } from 'react-dnd-html5-backend-cjs';
 import { useDrop } from 'react-dnd-cjs';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
+import { Slots } from '../../../api/slots/slots.collection';
 import { getDefaultDomainAndLanguage } from '../../../lib/story.utils';
 import {
     useStoryFileReader,
@@ -35,11 +36,15 @@ import {
 import { ProjectContext } from '../../layouts/context';
 
 const ImportRasaFiles = (props) => {
-    const { existingStoryGroups, projectId, defaultDomain } = props;
+    const {
+        existingStoryGroups, existingSlots, projectId, defaultDomain,
+    } = props;
     const { projectLanguages, instance, language } = useContext(ProjectContext);
     const [fallbackImportLanguage, setFallbackImportLanguage] = useState(language);
-    const [eraseCurrent, setEraseCurrent] = useState({
-        stories: false, domain: false, 'NLU data': false,
+    const [wipeCurrent, setWipeCurrent] = useState({
+        stories: false,
+        domain: false,
+        'NLU data': false,
     });
 
     const handleFileDrop = async (files, [fileList, setFileList]) => {
@@ -209,9 +214,13 @@ const ImportRasaFiles = (props) => {
                             <div className='side-by-side right'>
                                 <Checkbox
                                     toggle
-                                    checked={eraseCurrent[title]}
-                                    onChange={() => setEraseCurrent({ ...eraseCurrent, [title]: !eraseCurrent[title] })}
-                                    label='Wipe current data first'
+                                    checked={wipeCurrent[title]}
+                                    onChange={() => setWipeCurrent({
+                                        ...wipeCurrent,
+                                        [title]: !wipeCurrent[title],
+                                    })}
+                                    label={`Replace existing ${title}`}
+                                    data-cy={`wipe-${title.toLowerCase().replace(' ', '')}`}
                                 />
                             </div>
                         </>
@@ -222,10 +231,13 @@ const ImportRasaFiles = (props) => {
     };
 
     const [storiesImporting, setStoriesImporting] = useState(false);
-    const storyFileReader = useStoryFileReader(eraseCurrent.stories ? [] : existingStoryGroups);
-    useEffect(() => { // rerun add instruction to change storygroup name as needed
-        if (typeof storyFileReader[1] === 'function') storyFileReader[1]({ add: storyFileReader[0] });
-    }, [eraseCurrent.stories]);
+    const storyFileReader = useStoryFileReader(
+        wipeCurrent.stories ? [] : existingStoryGroups,
+    );
+    useEffect(() => {
+        // rerun add instruction to change storygroup name as needed
+        if (typeof storyFileReader[1] === 'function') { storyFileReader[1]({ add: storyFileReader[0] }); }
+    }, [wipeCurrent.stories]);
     const [dropStoryFilesIndicators, dropStoryFiles] = useFileDrop(storyFileReader);
 
     const [domainImporting, setDomainImporting] = useState(false);
@@ -282,8 +294,8 @@ const ImportRasaFiles = (props) => {
 
                     <p>
                         Actions and forms are not currently imported. If your actions and
-                        forms are mentioned in stories, they will automatically be
-                        infered on training.
+                        forms are mentioned in stories, they will automatically be infered
+                        on training.
                     </p>
 
                     <p>For more information, read the docs.</p>
@@ -313,7 +325,16 @@ const ImportRasaFiles = (props) => {
     const valid = (reader, filter = () => true) => reader[0].filter(f => !f.errors && filter(f));
 
     const handleImport = () => {
-        importers.forEach(({ fileReader, onImport, setImportingState }) => onImport(valid(fileReader), { projectId, fileReader, setImportingState }));
+        importers.forEach(({
+            fileReader, onImport, setImportingState, title,
+        }) => onImport(valid(fileReader), {
+            projectId,
+            fileReader,
+            setImportingState,
+            wipeCurrent: wipeCurrent[title],
+            existingStoryGroups,
+            existingSlots,
+        }));
     };
 
     const renderTotals = () => {
@@ -417,6 +438,7 @@ const ImportRasaFiles = (props) => {
 ImportRasaFiles.propTypes = {
     projectId: PropTypes.string.isRequired,
     existingStoryGroups: PropTypes.array.isRequired,
+    existingSlots: PropTypes.array.isRequired,
     defaultDomain: PropTypes.object.isRequired,
 };
 
@@ -424,11 +446,13 @@ ImportRasaFiles.defaultProps = {};
 
 const ImportRasaFilesContainer = withTracker(({ projectId }) => {
     const storyGroupHandler = Meteor.subscribe('storiesGroup', projectId);
+    const slotsHandler = Meteor.subscribe('slots', projectId);
     const existingStoryGroups = storyGroupHandler.ready()
         ? StoryGroups.find({ projectId }).fetch()
         : [];
+    const existingSlots = slotsHandler.ready() ? Slots.find({ projectId }).fetch() : [];
     const { defaultDomain } = getDefaultDomainAndLanguage(projectId);
-    return { existingStoryGroups, defaultDomain };
+    return { existingStoryGroups, existingSlots, defaultDomain };
 })(ImportRasaFiles);
 
 const mapStateToProps = state => ({
