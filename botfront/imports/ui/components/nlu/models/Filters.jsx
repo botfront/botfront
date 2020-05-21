@@ -1,6 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Input, Dropdown } from 'semantic-ui-react';
+import moment from 'moment';
+import DatePicker from '../../common/DatePicker';
+import { ProjectContext } from '../../../layouts/context';
+import { applyTimezoneOffset } from '../../../../lib/graphs';
 import getColor from '../../../../lib/getColors';
 
 export default class Filters extends React.Component {
@@ -14,30 +18,52 @@ export default class Filters extends React.Component {
         return entities.map(e => ({ text: e, value: e }));
     }
 
-    handleIntentSelectorChange = (e, { value }) => {
-        const { onChange, filter: { entities: entitiesFilter, query } } = this.props;
-        onChange({ intents: value, entities: entitiesFilter, query });
+    handleIntentSelectorChange = (_, { value: intents }) => {
+        const { onChange, filter } = this.props;
+        onChange({ ...filter, intents });
     };
 
-    handleEntitiesSelectorChange = (e, { value }) => {
-        const { onChange, filter: { intents: intentsFilter, query } } = this.props;
-        onChange({ intents: intentsFilter, entities: value, query });
+    handleEntitiesSelectorChange = (_, { value: entities }) => {
+        const { onChange, filter } = this.props;
+        onChange({ ...filter, entities });
     };
 
-    handleTextChange = (e, { value: query }) => {
-        const { filter: { intents: intentsFilter, entities: entitiesFilter }, onChange } = this.props;
-        onChange({ query, intents: intentsFilter, entities: entitiesFilter });
+    handleTextChange = (_, { value: query }) => {
+        const { filter, onChange } = this.props;
+        onChange({ ...filter, query });
     };
+
+    handleCalendarChange = (...bounds) => {
+        const { filter, onChange } = this.props;
+        const { project: { timezoneOffset: tz = 0 } = {} } = this.context;
+        const [startDate, endDate] = bounds.map(date => moment(applyTimezoneOffset(date, tz)));
+        onChange({ ...filter, dateRange: { startDate, endDate } });
+    };
+
+    static contextType = ProjectContext;
 
     render() {
         const {
-            filter: { intents: intentsFilter, entities: entitiesFilter, query }, intents, entities, className,
+            filter: {
+                intents: intentsFilter, entities: entitiesFilter, query, dateRange,
+            }, intents, entities, className,
         } = this.props;
+        const { startDate, endDate } = dateRange || {};
         const renderIntentLabel = label => ({ color: 'purple', content: `${label.text}` });
         const renderEntityLabel = label => ({ color: getColor(label.text, true), content: `${label.text}` });
 
         return (
-            <div className={`side-by-side narrow ${className}`}>
+            <div className={`side-by-side narrow middle ${className}`}>
+                {dateRange !== undefined && (
+                    <div className='date-picker' data-cy='date-picker-container'>
+                        <DatePicker
+                            startDate={startDate}
+                            endDate={endDate}
+                            onConfirm={this.handleCalendarChange}
+                            placeholder='Filter by date'
+                        />
+                    </div>
+                )}
                 {intents.length > 0 && (
                     <Dropdown
                         style={{ marginRight: '10px' }}

@@ -4,7 +4,7 @@ import { Popup, Icon } from 'semantic-ui-react';
 import UserUtteranceViewer from './UserUtteranceViewer';
 import { ProjectContext } from '../../../layouts/context';
 
-const CanonicalPopup = (props) => {
+const CanonicalPopup = React.forwardRef((props, ref) => {
     const {
         trigger,
         example,
@@ -15,7 +15,7 @@ const CanonicalPopup = (props) => {
     const [tooltipOpen, setTooltipOpen] = useState(false);
 
     const canonicalExample = getCanonicalExamples({ intent })[0];
-    const intentLabelRef = useRef();
+    const intentLabelRef = ref || useRef();
     
     const renderPopupContent = () => (
         <div className='side-by-side middle'>
@@ -56,9 +56,16 @@ const CanonicalPopup = (props) => {
             open={tooltipOpen}
         />
     );
-    if (!example.intent) return trigger;
+    if (!example.intent) {
+        return (
+            <trigger.type
+                {...trigger.props}
+                ref={intentLabelRef}
+            />
+        );
+    }
     return renderCanonicalPopup();
-};
+});
 
 const exampleShape = {
     intent: PropTypes.string,

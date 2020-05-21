@@ -8,6 +8,10 @@ export default class SmartTip extends React.Component {
     state = {
         accordionOpen: false,
     }
+
+    onMouseDown = {
+        onMouseDown: e => e.stopPropagation(),
+    }
     
     handleMouseEnter = () => {
         clearTimeout(this.mouseLeaveTimer);
@@ -41,7 +45,7 @@ export default class SmartTip extends React.Component {
                     wide
                     header={tip}
                     content={(
-                        <>
+                        <div {...this.onMouseDown}>
                             <div style={{ padding: '5px' }}>
                                 {formatMessage(message)}
                             </div>
@@ -63,7 +67,7 @@ export default class SmartTip extends React.Component {
                                     </Accordion.Content>
                                 </Accordion>
                             )}
-                        </>
+                        </div>
                     )}
                     trigger={button}
                     hoverable

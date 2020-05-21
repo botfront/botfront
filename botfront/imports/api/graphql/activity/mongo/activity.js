@@ -1,4 +1,5 @@
 import shortid from 'shortid';
+import { escapeRegExp } from 'lodash';
 import Activity from '../activity.model.js';
 
 export const getActivity = async ({
@@ -17,10 +18,15 @@ export const getActivity = async ({
             ? { env: { $in: ['development', null] } }
             : { env }
         : {};
-    const { query: textSearch, intents, entities } = filter;
+    const {
+        query: textSearch, intents, entities, dateRange: { startDate, endDate } = {},
+    } = filter;
+    const dateRangeOption = startDate && endDate
+        ? { createdAt: { $gte: new Date(startDate), $lt: new Date(endDate) } }
+        : {};
     const intentsOption = intents && intents.length ? { intent: { $in: intents } } : {};
     const entitiesOption = entities && entities.length ? { entities: { $all: entities.map(e => ({ $elemMatch: { entity: e } })) } } : {};
-    const textSearchOption = textSearch ? { text: { $regex: textSearch } } : {};
+    const textSearchOption = textSearch ? { text: { $regex: new RegExp(escapeRegExp(textSearch), 'i') } } : {};
     const sort = `${sortDesc ? '-' : ''}${sortKey || ''}`;
     const query = Activity.find({
         modelId,
@@ -30,6 +36,7 @@ export const getActivity = async ({
         ...intentsOption,
         ...entitiesOption,
         ...textSearchOption,
+        ...dateRangeOption,
     });
     if (!sort) return query.lean();
     return query.sort(sort).lean();

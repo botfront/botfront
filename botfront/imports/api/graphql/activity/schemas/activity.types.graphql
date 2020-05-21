@@ -53,7 +53,8 @@ type Activity {
 }
 
 input ExampleFilterInput {
-  query: String,
-  intents: [String],
+  query: String
+  intents: [String]
   entities: [String]
+  dateRange: Any
 }

@@ -424,7 +424,7 @@ ConversationsBrowserContainer.propTypes = {
 };
 
 ConversationsBrowserContainer.defaultProps = {
-    environment: 'developement',
+    environment: 'development',
 };
 
 const mapStateToProps = state => ({

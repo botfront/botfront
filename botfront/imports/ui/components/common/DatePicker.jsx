@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 import momentPropTypes from 'react-moment-proptypes';
 
 function DatePicker({
-    startDate, endDate, onConfirm, onConfirmForAll, position,
+    startDate, endDate, onConfirm, onConfirmForAll, position, placeholder,
 }) {
     const [focusedInput, setFocusedInput] = useState('startDate');
     const [newStartDate, setNewStartDate] = useState(startDate);
@@ -107,7 +107,7 @@ function DatePicker({
             style={{ height: '450px' }}
             trigger={(
                 <Button icon labelPosition='left' onClick={() => handlePopupState()}>
-                    {startDate ? getDateString(startDate, endDate) : 'Pick a range'}
+                    {startDate ? getDateString(startDate, endDate) : placeholder || 'Pick a range'}
                     <Icon name='calendar alternate' />
                 </Button>
             )}
@@ -178,6 +178,7 @@ DatePicker.propTypes = {
     onConfirm: PropTypes.func.isRequired,
     onConfirmForAll: PropTypes.func,
     position: PropTypes.string,
+    placeholder: PropTypes.string,
 };
 
 
@@ -186,6 +187,7 @@ DatePicker.defaultProps = {
     endDate: null,
     position: null,
     onConfirmForAll: null,
+    placeholder: null,
 };
 
 

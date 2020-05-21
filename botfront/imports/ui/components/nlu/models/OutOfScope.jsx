@@ -16,7 +16,7 @@ import {
 import { can } from '../../../../lib/scopes';
 
 import DataTable from '../../common/DataTable';
-import { clearTypenameField } from '../../../../lib/utils';
+import { clearTypenameField } from '../../../../lib/client.safe.utils';
 
 import PrefixDropdown from '../../common/PrefixDropdown';
 import IconButton from '../../common/IconButton';
@@ -164,12 +164,14 @@ function OutOfScope(props) {
                 />
             </div>
             <br />
-            <DataTable
-                columns={columns}
-                data={data}
-                hasNextPage={hasNextPage}
-                loadMore={loading ? () => {} : loadMore}
-            />
+            <div className='glow-box extra-padding'>
+                <DataTable
+                    columns={columns}
+                    data={data}
+                    hasNextPage={hasNextPage}
+                    loadMore={loading ? () => {} : loadMore}
+                />
+            </div>
         </>
     );
 
