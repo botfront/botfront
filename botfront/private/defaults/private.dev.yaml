@@ -4,6 +4,7 @@ credentials:
     base_url: http://localhost:5005
     socket_path: /socket.io/
 instance: http://localhost:5005
+bfApiHost: http://localhost:8080
 endpoints:
   nlg:
     type: rasa_addons.core.nlg.GraphQLNaturalLanguageGenerator

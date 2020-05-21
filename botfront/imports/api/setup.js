@@ -106,14 +106,14 @@ if (Meteor.isServer) {
             const privateSettings = safeLoad(Assets.getText(
                 process.env.MODE === 'development' ? 'defaults/private.dev.yaml' : 'defaults/private.yaml',
             ));
-            delete privateSettings.instance;
             
             const settings = {
                 public: {
-                    ...publicSettings,
+                    backgroundImages: publicSettings.backgroundImages || [],
                     defaultNLUConfig: safeDump({ pipeline: publicSettings.pipeline }),
                 },
                 private: {
+                    bfApiHost: privateSettings.bfApiHost || '',
                     defaultEndpoints: safeDump(privateSettings.endpoints),
                     defaultCredentials: safeDump(privateSettings.credentials),
                     defaultPolicies: safeDump({ policies: privateSettings.policies }),
