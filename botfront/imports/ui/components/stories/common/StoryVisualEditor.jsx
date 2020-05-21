@@ -205,10 +205,10 @@ export default class StoryVisualEditor extends React.Component {
         </React.Fragment>
     );
 
-    handleBotResponseChange = async (name, newResponse, newType) => {
+    handleBotResponseChange = async (name, newResponse) => {
         const { upsertResponse, responses } = this.context;
         if (isEqual(responses[name], newResponse)) return;
-        upsertResponse(name, newResponse, variationIndex, newType);
+        upsertResponse(name, newResponse, variationIndex);
     }
 
     static contextType = ProjectContext;
@@ -236,7 +236,7 @@ export default class StoryVisualEditor extends React.Component {
                                 exceptions={exceptions}
                                 name={name}
                                 initialValue={responses[name]}
-                                onChange={(newResponse, newType) => this.handleBotResponseChange(name, newResponse, newType)}
+                                onChange={newResponse => this.handleBotResponseChange(name, newResponse)}
                                 onDeleteAllResponses={() => this.handleDeleteLine(index)}
                                 responseLocations={responseLocations[name]}
                                 loadingResponseLocations={loadingResponseLocations}

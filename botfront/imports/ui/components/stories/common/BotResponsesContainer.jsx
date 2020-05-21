@@ -73,7 +73,7 @@ const BotResponsesContainer = (props) => {
 
     const handleToggleQuickReply = () => {
         const update = toggleButtonPersistence(template);
-        onChange(update, update.__typename);
+        onChange(update);
         setTemplate(update);
     };
 
