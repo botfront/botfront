@@ -1,0 +1,8 @@
+pipeline:
+  - name: WhitespaceTokenizer
+  - name: CountVectorsFeaturizer
+  - name: DIETClassifier
+  - name: rasa_addons.nlu.components.gazette.Gazette
+  - name: EntitySynonymMapper
+backgroundImages:
+  - https://source.unsplash.com/collection/315548/2400x1500

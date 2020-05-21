@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import { AutoForm, SubmitField, ErrorsField } from 'uniforms-semantic';
 import { Dropdown, Form, Message } from 'semantic-ui-react';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
-import { ProjectsSchema as projectsSchemaDefault } from '../../../api/project/project.schema.default';
+import { ProjectsSchema } from '../../../api/project/project.schema';
 import { Projects } from '../../../api/project/project.collection';
 import InfoField from '../utils/InfoField';
 import { wrapMeteorCallback } from '../utils/Errors';
@@ -123,8 +123,7 @@ class ProjectInfo extends React.Component {
     render() {
         const { project, modelLanguages, ready } = this.props;
         const { saving, value } = this.state;
-        const projectsSchema = Projects.simpleSchema();
-        const bridge = projectsSchema ? new SimpleSchema2Bridge(projectsSchema) : new SimpleSchema2Bridge(projectsSchemaDefault);
+        const bridge = new SimpleSchema2Bridge(ProjectsSchema);
         return (
             <>
                 {ready && (
@@ -140,16 +139,16 @@ class ProjectInfo extends React.Component {
                             label='Name'
                             className='project-name'
                         />
-                        {projectsSchema
-                            && projectsSchema.allowsKey('namespace') && (
+                        {ProjectsSchema
+                            && ProjectsSchema.allowsKey('namespace') && (
                             <InfoField
                                 name='namespace'
                                 label='Namespace'
                                 disabled
                             />
                         )}
-                        {projectsSchema
-                            && projectsSchema.allowsKey('apiKey') && (
+                        {ProjectsSchema
+                            && ProjectsSchema.allowsKey('apiKey') && (
                             <InfoField
                                 name='apiKey'
                                 label='Botfront API key'

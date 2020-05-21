@@ -1,6 +1,7 @@
 import { check, Match } from 'meteor/check';
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
+import { ProjectsSchema } from './project.schema';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 
 export const Projects = new Mongo.Collection('projects');
@@ -22,33 +23,7 @@ const getDefaultDefaultDomain = () => {
 
 export const createProject = item => Projects.insert({ ...item, defaultDomain: { content: getDefaultDefaultDomain() } });
 
-
-if (Meteor.isServer) {
-    const orchestration = process.env.ORCHESTRATOR ? process.env.ORCHESTRATOR : 'docker-compose';
-    import(`./project.schema.${orchestration}`)
-        .then(({ ProjectsSchema }) => {
-            Projects.attachSchema(ProjectsSchema);
-        })
-        .catch(() => {
-            import('./project.schema.default')
-                .then(({ ProjectsSchema }) => {
-                    Projects.attachSchema(ProjectsSchema);
-                });
-        });
-}
-
-if (Meteor.isClient) {
-    Meteor.call('orchestration.type', async (err, orchestration) => {
-        try {
-            const { ProjectsSchema } = await import(`./project.schema.${orchestration}`);
-            Projects.attachSchema(ProjectsSchema);
-        } catch (e) {
-            const { ProjectsSchema } = await import('./project.schema.default');
-            Projects.attachSchema(ProjectsSchema);
-        }
-    });
-}
-
+Projects.attachSchema(ProjectsSchema);
 
 Meteor.startup(() => {
     if (Meteor.isServer) {
