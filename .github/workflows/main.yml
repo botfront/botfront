@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - master # when base_ref is master
+      - debug-ci
     tags:
       - '**'
 
@@ -17,69 +18,69 @@ jobs:
   #         GH_CONTEXT: ${{ toJson(github) }}
   #       run: echo "$GH_CONTEXT"
 
-  unit-cli:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '10.x'
-      - uses: actions/cache@v1
-        id: cache
-        with:
-          path: ./cli/node_modules
-          key: cli-${{ hashFiles('**/package-lock.json') }}
-      - working-directory: ./cli
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: npm ci
-      - name: tests
-        working-directory: ./cli
-        run: npm run test
+  # unit-cli:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v1
+  #     - uses: actions/setup-node@v1
+  #       with:
+  #         node-version: '10.x'
+  #     - uses: actions/cache@v1
+  #       id: cache
+  #       with:
+  #         path: ./cli/node_modules
+  #         key: cli-${{ hashFiles('**/package-lock.json') }}
+  #     - working-directory: ./cli
+  #       if: steps.cache.outputs.cache-hit != 'true'
+  #       run: npm ci
+  #     - name: tests
+  #       working-directory: ./cli
+  #       run: npm run test
 
-  unit-api:
-    runs-on: ubuntu-latest
-    # if: contains(github.event.head_commit.modified, 'api/')
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '10.x'
-      - uses: actions/cache@v1
-        id: cache
-        with:
-          path: ./api/node_modules
-          key: api-${{ hashFiles('**/package-lock.json') }}
-      - working-directory: ./api
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: npm ci
-      - name: tests
-        working-directory: ./api
-        run: npm run test
+  # unit-api:
+  #   runs-on: ubuntu-latest
+  #   # if: contains(github.event.head_commit.modified, 'api/')
+  #   steps:
+  #     - uses: actions/checkout@v1
+  #     - uses: actions/setup-node@v1
+  #       with:
+  #         node-version: '10.x'
+  #     - uses: actions/cache@v1
+  #       id: cache
+  #       with:
+  #         path: ./api/node_modules
+  #         key: api-${{ hashFiles('**/package-lock.json') }}
+  #     - working-directory: ./api
+  #       if: steps.cache.outputs.cache-hit != 'true'
+  #       run: npm ci
+  #     - name: tests
+  #       working-directory: ./api
+  #       run: npm run test
 
-  unit-bf:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-node@v1
-      with:
-        node-version: '10.x'
-    - name: install meteor
-      run: curl https://install.meteor.com/ | sh
-    - uses: actions/cache@v1
-      id: cache
-      with:
-        path: ./botfront/node_modules
-        key: bf-${{ hashFiles('**/package-lock.json') }}
-    - uses: actions/cache@v1
-      with:
-        path: ~/.cache/Cypress
-        key: cypress-${{ hashFiles('**/package.json') }}
-    - working-directory: ./botfront
-      if: steps.cache.outputs.cache-hit != 'true'
-      run: npm ci
-    - name: mocha tests
-      working-directory: ./botfront
-      run: npm run test-once
+  # unit-bf:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: actions/checkout@v1
+  #   - uses: actions/setup-node@v1
+  #     with:
+  #       node-version: '10.x'
+  #   - name: install meteor
+  #     run: curl https://install.meteor.com/ | sh
+  #   - uses: actions/cache@v1
+  #     id: cache
+  #     with:
+  #       path: ./botfront/node_modules
+  #       key: bf-${{ hashFiles('**/package-lock.json') }}
+  #   - uses: actions/cache@v1
+  #     with:
+  #       path: ~/.cache/Cypress
+  #       key: cypress-${{ hashFiles('**/package.json') }}
+  #   - working-directory: ./botfront
+  #     if: steps.cache.outputs.cache-hit != 'true'
+  #     run: npm ci
+  #   - name: mocha tests
+  #     working-directory: ./botfront
+  #     run: npm run test-once
 
   build-api:
     runs-on: ubuntu-latest
@@ -132,6 +133,7 @@ jobs:
           config=cli/project-template/.botfront/botfront.yml
           rasa=$(sed -n 's/\S*rasa: \(.*\)$/\1/p' $config | sed 's/.*://')
           echo ::set-output name=rasa::$rasa
+      - uses: mxschmitt/action-tmate@v2 # <<<<<
       - name: cypress tests
         working-directory: ./botfront/cypress
         run: |
@@ -147,100 +149,100 @@ jobs:
           name: screenshots
           path: ./botfront/cypress/screenshots
 
-  push-api:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && (contains(github.ref, 'master') || contains(github.ref, 'tags'))
-    needs: [unit-api, build-api, integration]
-    steps:
-      - name: log in
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: download image
-        uses: actions/download-artifact@v1
-        with:
-          name: botfront-api-local
-          path: .
-      - run: docker load < botfront-api-local.tar
-      - name: push image
-        run: |
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          # Add branch- prefix for branch pushes
-          [[ "${{ github.ref }}" == "refs/heads/"* ]] && VERSION=branch-$VERSION
-          echo VERSION=$VERSION
-          docker tag botfront-api-local botfront/botfront-api:$VERSION
-          docker push botfront/botfront-api:$VERSION
-      - run: touch empty
-      - name: overwrite api artifact with empty file
-        uses: actions/upload-artifact@v1
-        with:
-          name: botfront-api-local
-          path: empty
+  # push-api:
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'push' && (contains(github.ref, 'master') || contains(github.ref, 'tags'))
+  #   needs: [unit-api, build-api, integration]
+  #   steps:
+  #     - name: log in
+  #       run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+  #     - name: download image
+  #       uses: actions/download-artifact@v1
+  #       with:
+  #         name: botfront-api-local
+  #         path: .
+  #     - run: docker load < botfront-api-local.tar
+  #     - name: push image
+  #       run: |
+  #         # Strip git ref prefix from version
+  #         VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+  #         # Add branch- prefix for branch pushes
+  #         [[ "${{ github.ref }}" == "refs/heads/"* ]] && VERSION=branch-$VERSION
+  #         echo VERSION=$VERSION
+  #         docker tag botfront-api-local botfront/botfront-api:$VERSION
+  #         docker push botfront/botfront-api:$VERSION
+  #     - run: touch empty
+  #     - name: overwrite api artifact with empty file
+  #       uses: actions/upload-artifact@v1
+  #       with:
+  #         name: botfront-api-local
+  #         path: empty
 
-  push-bf:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && (contains(github.ref, 'master') || contains(github.ref, 'tags'))
-    needs: [unit-bf, build-bf, integration]
-    steps:
-      - name: log in
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: download image
-        uses: actions/download-artifact@v1
-        with:
-          name: botfront-local
-          path: .
-      - run: docker load < botfront-local.tar
-      - name: push image
-        run: |
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          # Add branch- prefix for branch pushes
-          [[ "${{ github.ref }}" == "refs/heads/"* ]] && VERSION=branch-$VERSION
-          echo VERSION=$VERSION
-          docker tag botfront-local botfront/botfront:$VERSION
-          docker push botfront/botfront:$VERSION
-      - run: touch empty
-      - name: overwrite bf artifact with empty file
-        uses: actions/upload-artifact@v1
-        with:
-          name: botfront-local
-          path: empty
+  # push-bf:
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'push' && (contains(github.ref, 'master') || contains(github.ref, 'tags'))
+  #   needs: [unit-bf, build-bf, integration]
+  #   steps:
+  #     - name: log in
+  #       run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+  #     - name: download image
+  #       uses: actions/download-artifact@v1
+  #       with:
+  #         name: botfront-local
+  #         path: .
+  #     - run: docker load < botfront-local.tar
+  #     - name: push image
+  #       run: |
+  #         # Strip git ref prefix from version
+  #         VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+  #         # Add branch- prefix for branch pushes
+  #         [[ "${{ github.ref }}" == "refs/heads/"* ]] && VERSION=branch-$VERSION
+  #         echo VERSION=$VERSION
+  #         docker tag botfront-local botfront/botfront:$VERSION
+  #         docker push botfront/botfront:$VERSION
+  #     - run: touch empty
+  #     - name: overwrite bf artifact with empty file
+  #       uses: actions/upload-artifact@v1
+  #       with:
+  #         name: botfront-local
+  #         path: empty
 
-  create-github-release:
-    runs-on: ubuntu-latest
-    if: contains(github.ref, 'tags')
-    needs: [push-bf]
-    steps:
-      - uses: actions/create-release@v1.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
-          prerelease: ${{ contains(github.ref, 'rc') || contains(github.ref, 'alpha') || contains(github.ref, 'beta') }}
+  # create-github-release:
+  #   runs-on: ubuntu-latest
+  #   if: contains(github.ref, 'tags')
+  #   needs: [push-bf]
+  #   steps:
+  #     - uses: actions/create-release@v1.0.0
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         tag_name: ${{ github.ref }}
+  #         release_name: ${{ github.ref }}
+  #         prerelease: ${{ contains(github.ref, 'rc') || contains(github.ref, 'alpha') || contains(github.ref, 'beta') }}
 
-  create-npm-release:
-    runs-on: ubuntu-latest
-    needs: [create-github-release]
-    steps:
-      - uses: actions/checkout@v1
-      - name: npm publish
-        working-directory: ./cli
-        run: |
-          npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
-          if [[ "${{ github.ref }}" =~ rc|alpha|beta ]]; then
-            npm publish --tag next
-          else
-            npm publish
-          fi
-        env:
-          CI: true
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+  # create-npm-release:
+  #   runs-on: ubuntu-latest
+  #   needs: [create-github-release]
+  #   steps:
+  #     - uses: actions/checkout@v1
+  #     - name: npm publish
+  #       working-directory: ./cli
+  #       run: |
+  #         npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
+  #         if [[ "${{ github.ref }}" =~ rc|alpha|beta ]]; then
+  #           npm publish --tag next
+  #         else
+  #           npm publish
+  #         fi
+  #       env:
+  #         CI: true
+  #         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-  build-netlify-docs:
-    runs-on: ubuntu-latest
-    needs: [create-github-release]
-    steps:
-      - run: |
-          if ! [[ "${{ github.ref }}" =~ rc|alpha|beta ]]; then
-            echo "https://api.netlify.com/build_hooks/${{ secrets.NETLIFY_HOOK }}" | xargs curl -X POST -d {}
-          fi
+  # build-netlify-docs:
+  #   runs-on: ubuntu-latest
+  #   needs: [create-github-release]
+  #   steps:
+  #     - run: |
+  #         if ! [[ "${{ github.ref }}" =~ rc|alpha|beta ]]; then
+  #           echo "https://api.netlify.com/build_hooks/${{ secrets.NETLIFY_HOOK }}" | xargs curl -X POST -d {}
+  #         fi
