@@ -6,7 +6,7 @@ const changeAPIUrl = (url) => {
         .click();
     cy.dataCy('admin-settings-menu')
         .find('a')
-        .contains('Docker Compose')
+        .contains('Misc')
         .click();
     cy.dataCy('docker-api-host')
         .click();
