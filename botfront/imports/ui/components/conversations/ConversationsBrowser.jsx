@@ -429,6 +429,7 @@ ConversationsBrowserContainer.defaultProps = {
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
+    environment: state.settings.get('workingDeploymentEnvironment'),
 });
 
 const ConversationsRouter = withRouter(ConversationsBrowserContainer);
