@@ -12,7 +12,7 @@ const botResponseFields = gql`
         __typename
         metadata
         ...on TextPayload { text }
-        ...on QuickReplyPayload { text, quick_reply { title, type, ...on WebUrlButton { url }, ...on PostbackButton { payload } } }
+        ...on QuickRepliesPayload { text, quick_replies { title, type, ...on WebUrlButton { url }, ...on PostbackButton { payload } } }
         ...on TextWithButtonsPayload { text, buttons { title, type, ...on WebUrlButton { url }, ...on PostbackButton { payload } } }
         ...on ImagePayload { text, image }
         ...on CarouselPayload { template_type, elements { ...CarouselElementFields } }

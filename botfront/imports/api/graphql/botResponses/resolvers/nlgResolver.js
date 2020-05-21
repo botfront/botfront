@@ -75,9 +75,9 @@ export default {
         __resolveType: parseContentType,
         metadata: ({ metadata }) => metadata,
     },
-    QuickReplyPayload: {
+    QuickRepliesPayload: {
         text: ({ text }) => text,
-        quick_reply: template => template.quick_reply,
+        quick_replies: template => template.quick_replies,
     },
     TextWithButtonsPayload: {
         text: ({ text }) => text,

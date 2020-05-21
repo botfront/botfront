@@ -16,7 +16,7 @@ const BotResponseContainer = (props) => {
     const focusGrabber = useRef();
     const isCustom = value.__typename === 'CustomPayload';
     const isTextResponse = value.__typename === 'TextPayload';
-    const isQRResponse = value.__typename === 'QuickReplyPayload';
+    const isQRResponse = value.__typename === 'QuickRepliesPayload';
     const isButtonsResponse = value.__typename === 'TextWithButtonsPayload';
     const isCarouselResponse = value.__typename === 'CarouselPayload';
     const isImageResponse = value.__typename === 'ImagePayload';
@@ -84,9 +84,9 @@ const BotResponseContainer = (props) => {
 
     const renderQuickReply = () => (
         <QuickReplies
-            value={value.quick_reply}
+            value={value.quick_replies}
             onChange={(buttons) => {
-                onChange({ ...value, quick_reply: buttons }, false);
+                onChange({ ...value, quick_replies: buttons }, false);
             }}
         />
     );

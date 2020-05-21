@@ -114,10 +114,10 @@ type TextPayload implements BotResponsePayload {
     metadata: Any
 }
 
-type QuickReplyPayload implements BotResponsePayload {
+type QuickRepliesPayload implements BotResponsePayload {
     key: String
     text: String
-    quick_reply: [Button!]
+    quick_replies: [Button!]
     metadata: Any
 }
 

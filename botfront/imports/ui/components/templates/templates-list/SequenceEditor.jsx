@@ -50,16 +50,16 @@ const SequenceEditor = (props) => {
                     )}
                     <div className='variation-option-menu'>
                         {/* <Icon name='star' color='yellow' float='right' /> */}
-                        {(content.__typename === 'TextWithButtonsPayload' || content.__typename === 'QuickReplyPayload') && (
+                        {(content.__typename === 'TextWithButtonsPayload' || content.__typename === 'QuickRepliesPayload') && (
                             <IconButton
                                 icon='pin'
                                 color={null}
                                 className={`${content.__typename === 'TextWithButtonsPayload' ? 'light-green' : 'grey'}`}
                                 onClick={() => {
                                     if (content.__typename === 'TextWithButtonsPayload') {
-                                        onChangePayloadType('QuickReplyPayload');
+                                        onChangePayloadType('QuickRepliesPayload');
                                     }
-                                    if (content.__typename === 'QuickReplyPayload') {
+                                    if (content.__typename === 'QuickRepliesPayload') {
                                         onChangePayloadType('TextWithButtonsPayload');
                                     }
                                 }}

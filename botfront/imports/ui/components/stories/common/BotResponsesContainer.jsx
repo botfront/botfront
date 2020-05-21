@@ -202,7 +202,7 @@ const BotResponsesContainer = (props) => {
                 )}
                 {getSequence().map(renderResponse)}
                 <div className='side-by-side right narrow top-right'>
-                    {(typeName === 'TextWithButtonsPayload' || typeName === 'QuickReplyPayload') && (
+                    {(typeName === 'TextWithButtonsPayload' || typeName === 'QuickRepliesPayload') && (
                         <IconButton
                             icon='pin'
                             color={null}

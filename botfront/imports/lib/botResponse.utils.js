@@ -47,11 +47,11 @@ export const defaultTemplate = (template) => {
     switch (template) {
     case 'TextPayload':
         return { text: '', __typename: 'TextPayload' };
-    case 'QuickReplyPayload':
+    case 'QuickRepliesPayload':
         return {
-            __typename: 'QuickReplyPayload',
+            __typename: 'QuickRepliesPayload',
             text: '',
-            quick_reply: [
+            quick_replies: [
                 {
                     title: '', type: 'postback', payload: '',
                 },
@@ -100,7 +100,7 @@ export const createResponseFromTemplate = (type, language, options = {}) => {
 };
 
 const excludeAllButOneKey = (content, key) => {
-    const included = ['image', 'buttons', 'elements', 'custom', 'attachment', 'quick_reply']
+    const included = ['image', 'buttons', 'elements', 'custom', 'attachment', 'quick_replies']
         .filter(k => Object.keys(content).includes(k));
     if (key) return included.length === 1 && included[0] === key;
     return included.length === 0;
@@ -114,7 +114,7 @@ export const parseContentType = (content) => {
     case ([
         (content.image === undefined || typeof content.image === 'string'),
         (content.buttons === undefined || Array.isArray(content.buttons)),
-        (content.quick_reply === undefined || Array.isArray(content.quick_reply)),
+        (content.quick_replies === undefined || Array.isArray(content.quick_replies)),
         (content.elements === undefined || (
             Array.isArray(content.elements)
             && typeof content.template_type === 'string'
@@ -128,7 +128,7 @@ export const parseContentType = (content) => {
         )),
     ].some(f => !f)): return 'CustomPayload';
     case excludeAllButOneKey(content, 'image'): return 'ImagePayload';
-    case excludeAllButOneKey(content, 'quick_reply'): return 'QuickReplyPayload';
+    case excludeAllButOneKey(content, 'quick_replies'): return 'QuickRepliesPayload';
     case excludeAllButOneKey(content, 'buttons'): return 'TextWithButtonsPayload';
     case excludeAllButOneKey(content, 'elements'): return 'CarouselPayload';
     case Object.keys(content).includes('text') && excludeAllButOneKey(content): return 'TextPayload';
@@ -182,22 +182,22 @@ export const addTemplateLanguage = (templates, language) => templates
 
 export const setTypeQuickReply = (content) => {
     const {
-        text, buttons, quick_reply, metadata,
+        text, buttons, quick_replies, metadata,
     } = content;
     return {
         text,
-        quick_reply: quick_reply || buttons,
+        quick_replies: quick_replies || buttons,
         metadata,
-        __typename: 'QuickReplyPayload',
+        __typename: 'QuickRepliesPayload',
     };
 };
 export const setTypeTextWithButtons = (content) => {
     const {
-        text, buttons, quick_reply, metadata,
+        text, buttons, quick_replies, metadata,
     } = content;
     return {
         text,
-        buttons: buttons || quick_reply,
+        buttons: buttons || quick_replies,
         metadata,
         __typename: 'TextWithButtonsPayload',
     };
@@ -205,7 +205,7 @@ export const setTypeTextWithButtons = (content) => {
 
 export const changeContentType = (content, newType) => {
     switch (newType) {
-    case 'QuickReplyPayload':
+    case 'QuickRepliesPayload':
         return setTypeQuickReply(content);
     case 'TextWithButtonsPayload':
         return setTypeTextWithButtons(content);
@@ -217,7 +217,7 @@ export const changeContentType = (content, newType) => {
 };
 
 export const modifyResponseType = (response, newType) => {
-    if (newType === 'TextWithButtonsPayload' || newType === 'QuickReplyPayload') {
+    if (newType === 'TextWithButtonsPayload' || newType === 'QuickRepliesPayload') {
         const updatedValues = response.values.map((v) => {
             const sequence = v.sequence.map((s) => {
                 const content = addContentType(safeLoad(s.content));
@@ -231,13 +231,13 @@ export const modifyResponseType = (response, newType) => {
 
 export const toggleButtonPersistence = (content) => {
     switch (content.__typename) {
-    case 'QuickReplyPayload':
+    case 'QuickRepliesPayload':
         return setTypeTextWithButtons(content);
     case 'TextWithButtonsPayload':
         return setTypeQuickReply(content);
     default:
         throw new Error(
-            '__typename must be TextWithButtonsPayload or QuickReplyPayload to toggle button persistence',
+            '__typename must be TextWithButtonsPayload or QuickRepliesPayload to toggle button persistence',
         );
     }
 };
