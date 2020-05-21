@@ -171,13 +171,15 @@ class Project extends React.Component {
 
         const { projectId, workingLanguage: language } = this.props;
         const { isNew, ...newPayload } = payload; // don't pass isNew to mutation
-        const variables = {
-            projectId, language, newPayload, key, index,
-        };
+        let responseTypeVariable = {};
+        // if the response type has changed; add newResponseType to the queryVariables
         if (responses[key] && responses[key].__typename !== payload.__typename) {
-            variables.setType = payload.__typename;
+            responseTypeVariable = { newResponseType: payload.__typename };
             this.resetResponseInCache(key);
         }
+        const variables = {
+            projectId, language, newPayload, key, index, ...responseTypeVariable,
+        };
         const result = await apolloClient.mutate({
             mutation: UPSERT_BOT_RESPONSE,
             variables,
