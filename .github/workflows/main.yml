@@ -133,9 +133,9 @@ jobs:
           config=cli/project-template/.botfront/botfront.yml
           rasa=$(sed -n 's/\S*rasa: \(.*\)$/\1/p' $config | sed 's/.*://')
           echo ::set-output name=rasa::$rasa
-      - uses: mxschmitt/action-tmate@v2 #<<<
-        env:
-          RASA_TAG: ${{ steps.versions.outputs.rasa }}
+      # - uses: mxschmitt/action-tmate@v2 #<<<
+      #   env:
+      #     RASA_TAG: ${{ steps.versions.outputs.rasa }}
       - name: cypress tests
         working-directory: ./botfront/cypress
         run: |

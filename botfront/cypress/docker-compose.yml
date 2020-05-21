@@ -4,31 +4,31 @@
 
 version: '3.7'
 services:
-  # e2e:
-  #   image: cypress/included:4.6.0
-  #   container_name: e2e
-  #   volumes:
-  #     - ../cypress.json:/app/cypress.json
-  #     - ../cypress:/app/cypress
-  #     - ../imports/lib:/app/imports/lib
-  #     - ../imports/api:/app/imports/api
-  #     - ./mounted/models/:/app/models
-  #   entrypoint: /bin/bash
-  #   command:
-  #     - -c
-  #     - "npm install -C cypress && npx cypress run"
-  #   working_dir: /app
-  #   depends_on:
-  #     - botfront
-  #   environment:
-  #     - CYPRESS_MODE=CI_RUN
-  #     - CYPRESS_baseUrl=http://botfront:3000
-  #     - CYPRESS_RASA_URL=http://rasa:5005
-  #     - CYPRESS_API_URL=http://botfront-api:8080
-  #     - CYPRESS_RETRIES=2
-  #     - CYPRESS_VIDEO=false
-  #     - CYPRESS_SCREENSHOTS=true
-  #     - CYPRESS_abort_strategy=spec
+  e2e:
+    image: cypress/included:4.6.0
+    container_name: e2e
+    volumes:
+      - ../cypress.json:/app/cypress.json
+      - ../cypress:/app/cypress
+      - ../imports/lib:/app/imports/lib
+      - ../imports/api:/app/imports/api
+      - ./mounted/models/:/app/models
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - "npm install -C cypress && npx cypress run"
+    working_dir: /app
+    depends_on:
+      - botfront
+    environment:
+      - CYPRESS_MODE=CI_RUN
+      - CYPRESS_baseUrl=http://botfront:3000
+      - CYPRESS_RASA_URL=http://rasa:5005
+      - CYPRESS_API_URL=http://botfront-api:8080
+      - CYPRESS_RETRIES=2
+      - CYPRESS_VIDEO=false
+      - CYPRESS_SCREENSHOTS=true
+      - CYPRESS_abort_strategy=spec
 
   botfront:
     image: botfront-local
