@@ -228,7 +228,7 @@ const Intent = React.forwardRef((props, ref) => {
                 <Icon name='tag' size='small' />
                 <span>{value || 'no intent'}</span>
             </div>
-            {enableReset && value && value !== OOS_LABEL && (
+            {allowEditing && enableReset && value && value !== OOS_LABEL && (
                 <Icon
                     name='x'
                     className='action-on-label'
