@@ -8,6 +8,7 @@ import { safeLoad } from 'js-yaml';
 import BotResponsesContainer from '../../stories/common/BotResponsesContainer';
 import CustomResponseEditor from '../common/CustomResponseEditor';
 import IconButton from '../../common/IconButton';
+import ButtonTypeToggle from '../common/ButtonTypeToggle';
 
 import { addContentType, defaultTemplate } from '../../../../lib/botResponse.utils';
 
@@ -50,21 +51,17 @@ const SequenceEditor = (props) => {
                     )}
                     <div className='variation-option-menu'>
                         {/* <Icon name='star' color='yellow' float='right' /> */}
-                        {(content.__typename === 'TextWithButtonsPayload' || content.__typename === 'QuickRepliesPayload') && (
-                            <IconButton
-                                icon='pin'
-                                color={null}
-                                className={`${content.__typename === 'TextWithButtonsPayload' ? 'light-green' : 'grey'}`}
-                                onClick={() => {
-                                    if (content.__typename === 'TextWithButtonsPayload') {
-                                        onChangePayloadType('QuickRepliesPayload');
-                                    }
-                                    if (content.__typename === 'QuickRepliesPayload') {
-                                        onChangePayloadType('TextWithButtonsPayload');
-                                    }
-                                }}
-                            />
-                        )}
+                        <ButtonTypeToggle
+                            onToggleButtonType={() => {
+                                if (content.__typename === 'TextWithButtonsPayload') {
+                                    onChangePayloadType('QuickRepliesPayload');
+                                }
+                                if (content.__typename === 'QuickRepliesPayload') {
+                                    onChangePayloadType('TextWithButtonsPayload');
+                                }
+                            }}
+                            responseType={content.__typename}
+                        />
                         <IconButton
                             id={`delete-${name}-${index}`} // stop the response from saving if the input blur event is the delete button
                             onClick={() => {

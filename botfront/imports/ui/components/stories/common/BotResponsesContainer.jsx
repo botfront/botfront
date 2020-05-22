@@ -9,6 +9,7 @@ import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
 import IconButton from '../../common/IconButton';
 import BotResponseEditor from '../../templates/templates-list/BotResponseEditor';
+import ButtonTypeToggle from '../../templates/common/ButtonTypeToggle';
 import BotResponseContainer from './BotResponseContainer';
 import HoverablePopup from '../../common/HoverablePopup';
 import { setStoriesCurrent } from '../../../store/actions/actions';
@@ -202,14 +203,10 @@ const BotResponsesContainer = (props) => {
                 )}
                 {getSequence().map(renderResponse)}
                 <div className='side-by-side right narrow top-right'>
-                    {(typeName === 'TextWithButtonsPayload' || typeName === 'QuickRepliesPayload') && (
-                        <IconButton
-                            icon='pin'
-                            color={null}
-                            className={`${typeName === 'TextWithButtonsPayload' ? 'light-green' : 'grey'}`}
-                            onClick={handleToggleQuickReply}
-                        />
-                    )}
+                    <ButtonTypeToggle
+                        onToggleButtonType={handleToggleQuickReply}
+                        responseType={typeName}
+                    />
                     {enableEditPopup && (
                         <IconButton
                             icon='ellipsis vertical'
