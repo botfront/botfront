@@ -187,11 +187,13 @@ describe('story tree navigation', function() {
         cy.dataCy('story-group-menu-item', 'Groupi').findCy('focus-story-group')
             .click({ force: true });
         cy.dataCy('focus-story-group', null, '.focused').should('have.length', 1);
+        cy.wait(500);
         cy.dataCy('train-button').trigger('mouseover');
         cy.contains('Train NLU and stories from 1 focused story group.');
         cy.dataCy('story-group-menu-item', 'Groupi').findCy('focus-story-group')
             .click({ force: true });
         cy.dataCy('focus-story-group', null, '.focused').should('have.length', 0);
+        cy.wait(500);
         cy.dataCy('train-button').trigger('mouseover');
         cy.contains('Train NLU and stories from 1 focused story group.').should('not.exist');
     });
