@@ -1,0 +1,44 @@
+type Form {
+    name: FormName!
+    slots: [SlotToFill]
+}
+
+type SlotToFill {
+    name: String!
+    filling: [SlotFilling]
+}
+
+interface SlotFilling {
+    type: FillingSource!
+}
+
+type SlotFillingFromEntity implements SlotFilling {
+    type: FillingSource!
+    entity: [String]
+    intent: [String]
+    not_intent: [String]
+}
+
+type SlotFillingFromIntent implements SlotFilling {
+    type: FillingSource!
+    intent: [String]
+    not_intent: [String]
+    value: Any
+}
+
+type SlotFillingFromText implements SlotFilling {
+    type: FillingSource!
+    intent: [String]
+    not_intent: [String]
+}
+
+scalar FormName # (/.*_form$/)
+
+scalar ResponseName # (/^utter_.*/)
+
+enum FillingSource {
+    from_entity
+    from_intent
+    from_trigger_intent
+    from_text
+}
