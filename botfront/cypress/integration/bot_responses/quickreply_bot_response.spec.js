@@ -6,8 +6,8 @@ describe('Bot responses', function() {
         cy.createProject('bf', 'My Project', 'en').then(() => cy.login());
     });
     afterEach(function() {
-        // cy.logout();
-        // cy.deleteProject('bf');
+        cy.logout();
+        cy.deleteProject('bf');
     });
     it('should create a quick reply response using the response editor', function() {
         cy.createResponseFromResponseMenu('quickreply', 'test_A');
@@ -117,6 +117,8 @@ describe('Bot responses', function() {
         cy.createStoryInGroup();
         cy.dataCy('story-title').should('have.value', 'Groupo (1)');
         cy.dataCy('from-qr-template').click({ force: true });
+        cy.dataCy('bot-response-input').find('textarea').click();
+        cy.dataCy('bot-response-input').find('textarea').type('purple').blur();
         cy.dataCy('edit-responses').click({ force: true });
         cy.dataCy('add-variation').click();
         cy.dataCy('response-editor').find('.utterance-container').should('have.length', 2);

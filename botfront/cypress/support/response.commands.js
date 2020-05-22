@@ -75,7 +75,6 @@ Cypress.Commands.add('addButtonOrSetPayload', (title, payload, oldTitleOrPositio
 });
 
 Cypress.Commands.add('setQuickReplyContent', (text, title, intent, index = 0) => {
-    cy.dataCy('response-editor').find('[data-cy=bot-response-input]').eq(index).click();
     cy.dataCy('response-editor').find('[data-cy=button_title]').eq(index).click({ force: true });
     cy.dataCy('enter-button-title').find('input').type(title);
     cy.dataCy('intent-label').should('exist').click();
@@ -84,6 +83,7 @@ Cypress.Commands.add('setQuickReplyContent', (text, title, intent, index = 0) =>
     cy.dataCy('response-editor').find('[data-cy=bot-response-input]')
         .find('textarea')
         .eq(index)
+        .clear()
         .type(text)
         .blur();
 });
