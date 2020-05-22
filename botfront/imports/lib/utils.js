@@ -25,8 +25,11 @@ Meteor.callWithPromise = (method, ...myParameters) => new Promise((resolve, reje
 export const formatError = (error) => {
     if (error instanceof Meteor.Error) return error;
 
+    // eslint-disable-next-line no-console
+    if (process.env.MODE === 'development') console.log(error);
+
     const {
-        response, request, code, message,
+        response, request, code, message, errmsg,
     } = error;
     
     if (response && response.status) {
@@ -35,14 +38,14 @@ export const formatError = (error) => {
     }
     if (request && code === 'ECONNREFUSED') {
         // axios error
-        return new Meteor.Error('500', `Could not reach host at ${error.config.url}`);
+        return new Meteor.Error(code, `Could not reach host at ${error.config.url}`);
     }
 
     if (code === 11000) {
-        return new Meteor.Error('Duplicate key', error.errmsg);
+        return new Meteor.Error(code, errmsg || message);
     }
 
-    return new Meteor.Error('error', message);
+    return new Meteor.Error(code, message);
 };
 
 export const getBackgroundImageUrl = () => {
