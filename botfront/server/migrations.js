@@ -258,11 +258,9 @@ Migrations.add({
     up: async () => {
         const checkIsTypeButtons = (content) => {
             // the only type defining key in the response content should be buttons
-            const key = 'buttons';
             const included = ['image', 'buttons', 'elements', 'custom', 'attachment', 'quick_replies']
                 .filter(k => Object.keys(content).includes(k));
-            if (key) return included.length === 1 && included[0] === key;
-            return included.length === 0;
+            return included.length === 1 && included[0] === 'buttons';
         };
 
         const updateContent = (sequence) => {
