@@ -17,7 +17,8 @@ const findStoryAndSelect = (storyName, saveToAlias = 'alias') => {
 
 const renameStoryOrGroup = (alias, newName) => {
     cy.get(`@${alias}`).find('.item-name').dblclick({ force: true });
-    cy.get(`@${alias}`).find('input').type(`{selectAll}{backSpace}{selectAll}{backSpace}${newName}{enter}`);
+    cy.get(`@${alias}`).find('input').clear()
+        .type(`{selectAll}{backSpace}{selectAll}{backSpace}${newName}{enter}`);
 };
 
 Cypress.Commands.add('browseToStory', (storyName = 'Groupo (1)', groupName) => {
