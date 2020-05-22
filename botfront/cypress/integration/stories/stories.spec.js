@@ -1,9 +1,5 @@
 /* global cy:true */
 
-const storyGroupOne = 'storyGroupOne';
-const storyGroupTwo = 'storyGroupTwo';
-const testText = '* my_intent';
-
 describe('stories', function() {
     afterEach(function() {
         cy.logout();
@@ -21,6 +17,7 @@ describe('stories', function() {
         cy.get('.ace_content').click({ force: true });
         cy.dataCy('story-editor')
             .get('textarea').focus()
+            .clear()
             .type('{selectAll}{backSpace}{selectAll}{backSpace}* intent    ', { force: true });
         cy.browseToStory('Farewells');
         cy.browseToStory('Greetings');

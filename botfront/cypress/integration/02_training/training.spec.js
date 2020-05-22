@@ -8,6 +8,7 @@ describe('Training', function() {
         cy.dataCy('story-editor')
             .get('textarea')
             .focus()
+            .clear()
             .type('{selectAll}{backSpace}{backSpace}* chitchat.greet\n  - utter_hi   ', { force: true })
             .blur();
     }
