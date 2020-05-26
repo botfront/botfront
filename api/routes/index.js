@@ -11,7 +11,10 @@ const {
     uploadImage, deleteImage, uploadImageValidator, deleteImageValidator,
 } = require('./images');
 const {
-    restartRasa, restartRasaValidator,
+    restartRasa,
+    restartRasaValidator,
+    deployModel,
+    deployModelValidator,
 } = require('./webhooks');
 const { version } = require('../package-lock.json')
 
@@ -29,5 +32,7 @@ router.post('/conversations/:project_id/environment/:env', importConversationVal
 router.get('/conversations/:project_id/environment/:env/latest-imported-event', latestImportValidator, latestImport);
 
 router.post('/rasa/restart', restartRasaValidator, restartRasa);
+router.post('/webhook/deploy', deployModelValidator, deployModel);
+
 
 module.exports = router;

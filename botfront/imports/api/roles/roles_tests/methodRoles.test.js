@@ -457,6 +457,11 @@ if (Meteor.isServer) {
             roles: writers.projects,
             args: [projectId],
         },
+        {
+            name: 'stories.changeStatus',
+            roles: writers.stories,
+            args: [projectId, 'unpublished', 'published'],
+        },
     ];
 
 

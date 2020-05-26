@@ -27,6 +27,7 @@ const StoryTopMenu = ({
     initPayload,
     collapseAllStories,
     projectId,
+    isUnpublished,
 }) => {
     const errors = errorDetails.length;
     const warnings = warningDetails.length;
@@ -124,14 +125,17 @@ const StoryTopMenu = ({
                     ) : (
                         <span className='story-title-prefix'>##</span>
                     )}
+
+                   
+                    { isUnpublished && <Label content='Unpublished' /> }
                     <input
                         data-cy='story-title'
+                        disabled
+                        className='story-title'
                         value={newTitle}
-                        onChange={event => setNewTitle(event.target.value.replace('_', ''))}
-                        onKeyDown={handleInputKeyDown}
-                        onBlur={submitTitleInput}
-                        disabled // don't allow name change here, so we don't have to update left-hand tree
                     />
+                   
+                  
                 </Menu.Item>
                 <Menu.Item position='right'>
                     {renderWarnings()}
@@ -215,6 +219,7 @@ StoryTopMenu.propTypes = {
     initPayload: PropTypes.string,
     collapseAllStories: PropTypes.func.isRequired,
     projectId: PropTypes.string.isRequired,
+    isUnpublished: PropTypes.bool,
 };
 
 StoryTopMenu.defaultProps = {
@@ -222,6 +227,7 @@ StoryTopMenu.defaultProps = {
     originStories: [],
     rules: [],
     initPayload: null,
+    isUnpublished: false,
 };
 
 const mapStateToProps = (state, ownProps) => ({

@@ -12,7 +12,9 @@ import { Endpoints } from '../endpoints/endpoints.collection';
 import { Credentials, createCredentials } from '../credentials';
 import { checkIfCan } from '../../lib/scopes';
 import { Conversations } from '../conversations';
-import { createDefaultStoryGroup, createStoriesWithTriggersGroup } from '../storyGroups/storyGroups.methods';
+import {
+    createDefaultStoryGroup, createStoriesWithTriggersGroup, createUnpublishedStoriesGroup,
+} from '../storyGroups/storyGroups.methods';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
 import { Slots } from '../slots/slots.collection';
@@ -79,6 +81,7 @@ if (Meteor.isServer) {
                 createCredentials({ _id, ...item });
                 createPolicies({ _id, ...item });
                 createStoriesWithTriggersGroup(_id);
+                createUnpublishedStoriesGroup(_id);
                 createDefaultStoryGroup(_id);
                 await createInstance({ _id, ...item });
                 auditLog('Created project', {

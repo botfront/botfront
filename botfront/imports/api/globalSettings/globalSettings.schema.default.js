@@ -13,6 +13,7 @@ const webhooksSchema = new SimpleSchema({
     restartRasaWebhook: { type: webhookSchema },
     uploadImageWebhook: { type: webhookSchema },
     deleteImageWebhook: { type: webhookSchema },
+    deploymentWebhook: { type: webhookSchema },
 });
 
 export const privateSettingsSchema = new SimpleSchema({

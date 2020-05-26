@@ -19,8 +19,10 @@ const StoryGroupTreeNode = (props) => {
         handleAddStory,
         handleToggleFocus,
         handleRenameItem,
+        handleTogglePublish,
         selectionIsNonContiguous,
         disabled,
+        showPublish,
     } = props;
     const [newTitle, setNewTitle] = useState('');
     const [renamingModalPosition, setRenamingModalPosition] = useState(null);
@@ -56,6 +58,7 @@ const StoryGroupTreeNode = (props) => {
     };
 
     const isLeaf = !item.canBearChildren;
+    const isPublished = item.status && item.status === 'published';
     const { selected: isFocused } = item;
     const isBeingRenamed = (renamingModalPosition || {}).id === item.id;
     const isHoverTarget = combineTargetFor && !isLeaf;
@@ -78,15 +81,18 @@ const StoryGroupTreeNode = (props) => {
             // otherwise beautiful-dnd throws
             'data-react-beautiful-dnd-drag-handle': provided.dragHandleProps['data-react-beautiful-dnd-drag-handle'],
         };
-    
+
     const tooltipWrapper = (trigger, tooltip) => (
         <Popup size='mini' inverted content={tooltip} trigger={trigger} />
     );
 
+    const cleanStoryId = id => id.replace(/^.*_SMART_/, '');
+    
+
     const renderItemActions = () => (
-        <div className='item-actions'>
+        <div className={`item-actions ${disabled ? 'hidden' : ''}`}>
             {!disableEdit && !isBeingRenamed && (
-                <>
+                <i>
                     {!isLeaf && (
                     <>
                         {tooltipWrapper(
@@ -112,6 +118,7 @@ const StoryGroupTreeNode = (props) => {
                                     onClick: () => handleAddStory(
                                         item.id,
                                         `${item.title} (${item.children.length + 1})`,
+                                        showPublish ? 'unpublished' : 'published',
                                     ),
                                     onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
                                 } : {})}
@@ -129,10 +136,27 @@ const StoryGroupTreeNode = (props) => {
                             onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
                         } : {})}
                     />
-                </>
+                </i>
+            )}
+            { isLeaf && showPublish && !disabled && (
+                <Popup
+                    content={<p>This story is unpublished and is only trained in the development environment</p>}
+                    trigger={(
+                        <Icon
+                            className='cursor pointer'
+                            data-cy='toggle-publish'
+                            name={isPublished ? 'toggle on' : 'toggle off'}
+                            onClick={() => { handleTogglePublish(cleanStoryId(item.id)); }}
+                        />
+                    )}
+                    inverted
+                    on='hover'
+                    disabled={isPublished}
+                />
             )}
         </div>
     );
+
 
     return (
         <div
@@ -185,7 +209,7 @@ const StoryGroupTreeNode = (props) => {
                         />
                     ) : (
                         <span
-                            className={`item-name ${(somethingIsMutating || disableEdit) ? 'uneditable' : ''}`}
+                            className={`item-name ${!isPublished && isLeaf && showPublish ? 'grey' : ''} ${(somethingIsMutating || disableEdit) ? 'uneditable' : ''}`}
                             {...(!(somethingIsMutating || disableEdit) ? { onDoubleClick: () => setRenamingModalPosition(item) } : {})}
                         >
                             {trimLong(item.title)}
@@ -212,12 +236,15 @@ StoryGroupTreeNode.propTypes = {
     handleAddStory: PropTypes.func.isRequired,
     handleToggleFocus: PropTypes.func.isRequired,
     handleRenameItem: PropTypes.func.isRequired,
+    handleTogglePublish: PropTypes.func.isRequired,
     selectionIsNonContiguous: PropTypes.bool.isRequired,
     disabled: PropTypes.bool,
+    showPublish: PropTypes.bool,
 };
 
 StoryGroupTreeNode.defaultProps = {
     disabled: false,
+    showPublish: true,
 };
 
 const StoryGroupTreeNodeWrapped = props => <StoryGroupTreeNode {...props} />;

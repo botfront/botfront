@@ -87,6 +87,7 @@
             .eye.icon,
             .ellipsis.icon,
             .plus.icon,
+            .toggle.on.icon,
             .trash.icon {
                 visibility: hidden;
                 &.focused {
@@ -94,11 +95,17 @@
                     color: @botfront-blue;
                     opacity: 1;
                 }
+            } 
+            .toggle.off.icon {
+                opacity: 0.3;
             }
+
+
             &:hover {
                 .eye.icon,
                 .ellipsis.icon,
                 .plus.icon,
+                .toggle.icon,
                 .trash.icon {
                     visibility: visible;
                     opacity: 0.3;
@@ -137,6 +144,9 @@
                     color: #000;
                     cursor: text;
                 }
+                &.grey{
+                    opacity: 0.4;
+                }
             }
             .item-edit-box input {
                 width: 100%;
@@ -144,7 +154,6 @@
             .item-actions {
                 white-space: nowrap;
                 margin-left: auto !important;
-                max-width: 0;
             }
             &:hover {
                 .item-actions { max-width: max-content; }
@@ -299,15 +308,16 @@
             input {
                 margin: 0 5px;
                 border-style: solid;
-                width: 100%;
                 font-size: 16px;
                 border-color: rgba(176, 176, 176, 0);
                 border-radius: 6px;
                 padding: 4px 9px;
+                padding-left: 2px;
                 border-width: 1px;
                 background-color: #f9f9f9;
                 color: #212121;
                 outline: none;
+                padding-right:0rem;
                 // &:hover {
                 //     border-color: rgba(176, 176, 176, 0.4);
                 // }
@@ -315,6 +325,9 @@
                     border-color: rgb(176, 176, 176);
                     color: rgba(0, 0, 0, 1);
                 }
+            }
+            .label{
+                margin-left:0.7rem
             }
         }
 
@@ -327,6 +340,23 @@
             margin-right: 0;
             padding-bottom: 5px;
         }
+
+        .story-title{
+            margin: 0 5px;
+            margin-bottom: 5px;
+            font-size: 16px;
+            padding: 4px 9px;
+            color: #212121;
+            font-weight: 400
+        }
+
+        .unpublish{
+            margin-bottom: 5px;
+            font-size: 16px;
+            color: #212121;
+            font-weight: 400
+        }
+
 
         //removes borders b/w menu items
         .item::before {
@@ -672,6 +702,9 @@
             margin-bottom: 4px;
             margin-top: 1em;
         }
+    }
+    .story-title{
+        width: auto;
     }
 }
 .ui.warning.attached.message.connected-story-alert {

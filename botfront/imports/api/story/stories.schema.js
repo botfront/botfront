@@ -86,6 +86,7 @@ export const StorySchema = new SimpleSchema({
         type: String,
         trim: true,
     },
+    status: { type: String, defaultValue: 'unpublished', allowedValues: ['published', 'unpublished'] },
     events: { type: Array, optional: true },
     'events.$': { type: String },
     branches: { type: Array, defaultValue: [] },

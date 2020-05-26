@@ -134,6 +134,7 @@ if (Meteor.isServer) {
                     restartRasaWebhook: { name: 'RestartRasa', method: 'POST' },
                     uploadImageWebhook: { name: 'UploadImage', method: 'POST' },
                     deleteImageWebhook: { name: 'DeleteImage', method: 'DELETE' },
+                    deploymentWebhook: { name: 'DeployProject', method: 'POST' },
                 },
             },
         },
@@ -532,7 +533,7 @@ the tests are created by iterating over subscriptions. the test params are as fo
             args: [projectId, 'testStoryGroup'],
             acceptedRoles: readers.stories,
             allowed: (result, done) => {
-                expect(['title', 'checkpoints', 'storyGroupId', '_id', 'rules']).to.include.members(Object.keys(result.stories[0]));
+                expect(['title', 'checkpoints', 'storyGroupId', '_id', 'rules', 'status']).to.include.members(Object.keys(result.stories[0]));
                 expect(result.stories).to.have.length(1);
                 done();
             },
@@ -602,6 +603,20 @@ the tests are created by iterating over subscriptions. the test params are as fo
             },
             args: [],
             acceptedRoles: readers.users,
+        },
+     
+        {
+            name: 'deploymentWebhook',
+            collectionName: 'admin_settings',
+            args: [projectId],
+            acceptedRoles: writers.projects,
+            testDataInsert: async () => {
+                await GlobalSettings.insert(globalSettingsData);
+            },
+            testDataRemove: async (done) => {
+                await GlobalSettings.remove({ _id: 'SETTINGS' });
+                done();
+            },
         },
     ];
 

@@ -24,7 +24,7 @@ function WebHooksForm(props) {
     `),
     ).getType('Webhook');
 
-    const validator = () => {};
+    const validator = () => { };
 
     const schemaData = {
         url: {

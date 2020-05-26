@@ -111,7 +111,7 @@ export const insertSmartPayloads = (story) => {
         if (entityList.length > 0) additionalPayloads.add(`${payloadName}{${entityList.join(',')}}`);
         else additionalPayloads.add(payloadName);
     });
-    
+
     additionalPayloads.delete(newPayload);
     additionalPayloads.forEach((payload) => {
         if (newPayload.length === 0) {
@@ -369,7 +369,30 @@ export const getDefaultDomainAndLanguage = (projectId) => {
     return { defaultDomain, defaultLanguage };
 };
 
-export const getStoriesAndDomain = async (projectId, language) => {
+
+export const generateAndFormatStories = (stories, storyGroups) => {
+    const storiesBySG = addlinkCheckpoints(stories).reduce(
+        (acc, curr) => ({
+            ...acc,
+            [curr.storyGroupId]: [...(acc[curr.storyGroupId] || []), curr],
+        }),
+        {},
+    );
+
+    const formatedStories = [];
+    storyGroups.forEach(({ _id, name }) => {
+        const storiesForThisSG = (storiesBySG[_id] || [])
+            .map(story => appendBranchCheckpoints(story))
+            .map(story => insertSmartPayloads(story))
+            .reduce((acc, story) => [...acc, ...flattenStory(story)], [])
+            .map(story => `## ${story.title}\n${story.story}`)
+            .join('\n');
+        formatedStories.push(`# ${name}\n\n${storiesForThisSG}`);
+    });
+    return formatedStories;
+};
+
+export const getStoriesAndDomain = async (projectId, language, env = 'development') => {
     const appMethodLogger = storyAppLogger.child({
         method: 'getStoriesAndDomain',
         args: { projectId, language },
@@ -387,12 +410,20 @@ export const getStoriesAndDomain = async (projectId, language) => {
         { fields: { _id: 1, name: 1, selected: 1 } },
     ).fetch();
 
-    let selectedStoryGroups = storyGroups.filter(sg => sg.selected);
-    selectedStoryGroups = selectedStoryGroups.length ? selectedStoryGroups : storyGroups;
+    let selectedStoryGroups;
+    if (env === 'development') {
+        selectedStoryGroups = storyGroups.filter(sg => sg.selected);
+        selectedStoryGroups = selectedStoryGroups.length
+            ? selectedStoryGroups
+            : storyGroups;
+    } else {
+        selectedStoryGroups = storyGroups;
+    }
 
     appMethodLogger.debug('Fetching stories');
+    const status = env === 'development' ? {} : { status: 'published' };
     const allStories = Stories.find(
-        { projectId, storyGroupId: { $in: selectedStoryGroups.map(({ _id }) => _id) } },
+        { projectId, storyGroupId: { $in: selectedStoryGroups.map(({ _id }) => _id) }, ...status },
         {
             fields: {
                 story: 1,
@@ -417,24 +448,7 @@ export const getStoriesAndDomain = async (projectId, language) => {
     );
 
     appMethodLogger.debug('Formatting stories');
-    const storiesBySG = addlinkCheckpoints(allStories).reduce(
-        (acc, curr) => ({
-            ...acc,
-            [curr.storyGroupId]: [...(acc[curr.storyGroupId] || []), curr],
-        }),
-        {},
-    );
-
-    const stories = [];
-    selectedStoryGroups.forEach(({ _id, name }) => {
-        const storiesForThisSG = (storiesBySG[_id] || [])
-            .map(story => appendBranchCheckpoints(story))
-            .map(story => insertSmartPayloads(story))
-            .reduce((acc, story) => [...acc, ...flattenStory(story)], [])
-            .map(story => `## ${story.title}\n${story.story}`)
-            .join('\n');
-        stories.push(`# ${name}\n\n${storiesForThisSG}`);
-    });
+    const stories = generateAndFormatStories(allStories, selectedStoryGroups);
 
     return {
         stories,

@@ -57,11 +57,11 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
     const [mouseDown, setMouseDown] = useState(false);
 
     const {
-        project: { _id: projectId, storyGroups: storyGroupOrder = [] },
+        project: { _id: projectId, storyGroups: storyGroupOrder = [], deploymentEnvironments },
     } = useContext(ProjectContext);
 
     const disableEdit = useMemo(() => !can('stories:w', projectId), [projectId]);
-
+    const showPublish = useMemo(() => deploymentEnvironments && deploymentEnvironments.length > 0, [deploymentEnvironments]);
     // It may happen that storyGroups and storyGroupOrder are out of sync
     // This is just a workaround as Meteor does not update storyGroupOrder after importing
     const verifyGroupOrder = (order, groups) => {
@@ -117,6 +117,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
         somethingIsMutating,
         somethingIsDragging,
         handleToggleFocus,
+        handleTogglePublish,
         handleToggleExpansion,
         handleExpand,
         handleCollapse,
@@ -272,6 +273,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
     const renderItem = renderProps => (
         <StoryGroupTreeNode
             {...renderProps}
+            handleTogglePublish={handleTogglePublish}
             somethingIsMutating={somethingIsMutating}
             activeStories={activeStories}
             handleMouseDownInMenu={handleMouseDownInMenu}
@@ -284,6 +286,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
             handleRenameItem={handleRenameItem}
             selectionIsNonContiguous={selectionIsNonContiguous}
             disabled={disableEdit}
+            showPublish={showPublish}
         />
     );
 

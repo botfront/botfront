@@ -1,6 +1,6 @@
 import { check, Match } from 'meteor/check';
 import { Meteor } from 'meteor/meteor';
-import { sample } from 'lodash';
+import { sample, get } from 'lodash';
 import fs from 'fs';
 import yaml from 'js-yaml';
 import path from 'path';
@@ -93,6 +93,16 @@ export const isEntityValid = e => e && e.entity && (!Object.prototype.hasOwnProp
 
 export const getProjectIdFromModelId = modelId => Projects.findOne({ nlu_models: modelId }, { fields: { _id: 1 } })._id;
 
+export const getProjectModelFileName = (projectId, extension = null) => {
+    const modelName = `model-${projectId}`;
+    return extension ? `${modelName}.${extension}` : modelName;
+};
+
+export const getProjectModelLocalFolder = () => process.env.MODELS_LOCAL_PATH || '/app/models';
+
+export const getProjectModelLocalPath = projectId => path.join(getProjectModelLocalFolder(), getProjectModelFileName(projectId, 'tar.gz'));
+
+
 function writeFile (path, bytes) {
     // TODO make it async when we have more traffic
     if (!fs.existsSync(`${Meteor.rootPath}/tmp`)) {
@@ -176,8 +186,8 @@ if (Meteor.isServer) {
             try {
                 const axiosJson = axios.create();
                 addLoggingInterceptors(axiosJson, appMethodLogger);
-                // 4mb
-                const maxContentLength = 4000000;
+                // 400mb
+                const maxContentLength = 400000000;
                 const response = await axiosJson({
                     url, method, data, maxContentLength,
                 });
@@ -185,7 +195,7 @@ if (Meteor.isServer) {
                 return { status, data: responseData };
             } catch (e) {
                 // eslint-disable-next-line no-console
-                console.log('ERROR: Botfront encountered an error while uploading an image', e);
+                console.log('ERROR: Botfront encountered an error while calling a webhook', e);
                 return { status: 500, data: e.message };
             }
         },
@@ -200,6 +210,31 @@ if (Meteor.isServer) {
             if (resp === undefined) throw new Meteor.Error('500', 'No response from the image upload  webhook');
             if (resp.status === 404) throw new Meteor.Error('404', 'Image upload webhook not Found');
             if (resp.status !== 200) throw new Meteor.Error('500', 'Image upload rejected upload.');
+            return resp;
+        },
+
+        async 'deploy.model' (projectId, target) {
+            checkIfCan('nlu-data:x', projectId);
+            check(target, String);
+            check(projectId, String);
+            const trainedModelPath = path.join(getProjectModelLocalPath(projectId));
+            const modelFile = fs.readFileSync(trainedModelPath);
+            const { namespace } = await Projects.findOne({ _id: projectId }, { fields: { namespace: 1 } });
+            const data = {
+                data: Buffer.from(modelFile).toString('base64'), // convert raw data to base64String so axios can handle it
+                projectId,
+                namespace,
+                environment: target,
+                mimeType: 'application/x-tar',
+            };
+            const settings = GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.deploymentWebhook': 1 } });
+            const deploymentWebhook = get(settings, 'settings.private.webhooks.deploymentWebhook', {});
+            const { url, method } = deploymentWebhook;
+            if (!url || !method) throw new Meteor.Error('400', 'No deployment webhook defined.');
+            const resp = Meteor.call('axios.requestWithJsonBody', url, method, data);
+            if (resp === undefined) throw new Meteor.Error('500', 'No response from the deployment webhook');
+            if (resp.status === 404) throw new Meteor.Error('404', 'Deployment webhook not Found');
+            if (resp.status !== 200) throw new Meteor.Error('500', 'Deployment webhook rejected upload.');
             return resp;
         },
     });
@@ -229,14 +264,6 @@ export const validateYaml = function () {
     }
 };
 
-export const getProjectModelFileName = (projectId, extension = null) => {
-    const modelName = `model-${projectId}`;
-    return extension ? `${modelName}.${extension}` : modelName;
-};
-
-export const getProjectModelLocalFolder = () => process.env.MODELS_LOCAL_PATH || '/app/models';
-
-export const getProjectModelLocalPath = projectId => path.join(getProjectModelLocalFolder(), getProjectModelFileName(projectId, 'tar.gz'));
 
 export const formatMessage = (message) => {
     const bits = message.split('*');

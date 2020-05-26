@@ -7,8 +7,12 @@ import {
     getAllResponses,
     aggregateEvents,
     insertSmartPayloads,
+    generateAndFormatStories,
 } from './story.utils';
 import { createResponses } from '../api/graphql/botResponses/mongo/botResponses';
+import {
+    stories, storyGroups, storiesFormatedForRasa, storiesWithCheckpoints, storiesFormatedForRasaWithCheckpoints,
+} from './story.utils.tests.data';
 
 
 /* to do:
@@ -849,5 +853,16 @@ describe('proper addition of smart trigger payloads', () => {
     });
     it('should a handle triggers in a story without story text', () => {
         expect(insertSmartPayloads(triggerNoStory).story).to.be.equal(triggerNoStoryResult);
+    });
+});
+
+
+describe('proper generation of stories for rasa', () => {
+    it('should generate the stories in a rasa format', async () => {
+        expect(generateAndFormatStories(stories, storyGroups)).to.be.deep.equal(storiesFormatedForRasa);
+    });
+
+    it('should generate the stories with checkpoints in a rasa format', async () => {
+        expect(generateAndFormatStories(storiesWithCheckpoints, storyGroups)).to.be.deep.equal(storiesFormatedForRasaWithCheckpoints);
     });
 });

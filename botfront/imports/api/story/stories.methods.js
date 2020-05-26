@@ -69,6 +69,16 @@ Meteor.methods({
         });
     },
 
+    async 'stories.changeStatus'(projectId, oldStatus, newStatus) {
+        checkIfCan('stories:w', projectId);
+        check(projectId, String);
+        check(oldStatus, String);
+        check(newStatus, String);
+        const storiesToUpdate = Stories.find({ projectId, status: oldStatus }, { fields: { projectId: 1, status: 1 } }).fetch();
+        const updatedStories = storiesToUpdate.map(story => ({ ...story, status: newStatus }));
+        return Meteor.call('stories.update', updatedStories);
+    },
+
     async 'stories.update'(story, options = {}) {
         const projectId = Array.isArray(story) ? story[0].projectId : story.projectId;
         checkIfCan('stories:w', projectId);

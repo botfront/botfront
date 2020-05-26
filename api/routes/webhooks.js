@@ -37,3 +37,16 @@ exports.restartRasa = async function (req, res) {
         return res.status(500).send();
     }
 };
+
+exports.deployModelValidator = [
+    body('projectId', 'projectId should be a string').isString(),
+    body('namespace', 'namespace should be a string').isString(),
+    body('environment', 'namespace should be a string').isString(),
+];
+
+exports.deployModel = async function (req, res) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ error: errors.array() });
+    const { projectId, namespace, environment, data } = req.body;
+    return res.status(200).json(null);
+};

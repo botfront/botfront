@@ -30,6 +30,11 @@
                     "name": "DeleteImage",
                     "url": "",
                     "method": "DELETE"
+                },
+                "deploymentWebhook": {
+                    "name": "DeployProject",
+                    "url": "",
+                    "method": "POST"
                 }
             }
         }

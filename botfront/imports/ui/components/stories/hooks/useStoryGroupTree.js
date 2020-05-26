@@ -33,6 +33,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         newStory,
         activeStories,
         replace,
+        togglePublish,
     } = instruction;
     const { setSomethingIsMutating } = externalMutators;
     const fallbackFunction = (...args) => {
@@ -96,7 +97,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
     }
     if (newStory) {
         const { items } = tree;
-        const [parentId, title] = newStory;
+        const [parentId, title, status] = newStory;
         const id = uuidv4();
         if (items[parentId].smartGroup) return tree;
         items[parentId].children = [id, ...items[parentId].children];
@@ -104,7 +105,9 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
             id, title, parentId,
         };
         setSomethingIsMutating(true);
-        addStory(convertId({ id, parentId, title }, false), () => setSomethingIsMutating(false));
+        addStory(convertId({
+            id, parentId, title, status,
+        }, false), () => setSomethingIsMutating(false));
         return mutateTree({ ...tree, items }, parentId, { isExpanded: true }); // make sure destination is open
     }
     if (toggleFocus) {
@@ -113,6 +116,13 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         setSomethingIsMutating(true);
         updateGroup(convertId({ id, selected: !selected }), () => setSomethingIsMutating(false));
         return mutateTree(tree, toggleFocus, { selected: !selected });
+    }
+    if (togglePublish) {
+        const { id, status } = tree.items[togglePublish];
+        const newStatus = status === 'published' ? 'unpublished' : 'published';
+        setSomethingIsMutating(true);
+        updateStory(convertId({ id, status: newStatus }), () => setSomethingIsMutating(false));
+        return mutateTree(tree, togglePublish, { status: newStatus });
     }
     if (move) {
         const [source, requestedDestination] = move;
@@ -250,6 +260,7 @@ export const useStoryGroupTree = (treeFromProps, activeStories) => {
         somethingIsMutating,
         handleToggleFocus: toggleFocus => setTree({ toggleFocus }),
         handleToggleExpansion: toggleExpansion,
+        handleTogglePublish: togglePublish => setTree({ togglePublish }),
         handleExpand: expand => setTree({ expand }),
         handleCollapse: collapse => setTree({ collapse }),
         handleDragEnd: (...move) => {

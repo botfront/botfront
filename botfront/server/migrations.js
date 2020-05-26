@@ -383,6 +383,33 @@ Migrations.add({
     },
 });
 
+
+Migrations.add({
+    version: 17,
+    up: async () => {
+        const globalSettings = JSON.parse(Assets.getText('default-settings.json'));
+        const { webhooks } = globalSettings.settings.private;
+        GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.private.webhooks.deploymentWebhook': webhooks.deploymentWebhook } });
+        
+        const stories = Stories.find().fetch();
+        const projectIds = new Set();
+
+        stories.forEach((s) => {
+            projectIds.add(s.projectId);
+        });
+        Array.from(projectIds).forEach((projectId) => {
+            StoryGroups.insert({
+                name: 'Unpublished stories',
+                projectId,
+                smartGroup: { prefix: 'unpublish', query: '{ "status": "unpublished" }' },
+                isExpanded: false,
+                pinned: true,
+            });
+        });
+        Stories.update({}, { $set: { status: 'published' } }, { multi: true });
+    },
+});
+
 Meteor.startup(() => {
     Migrations.migrateTo('latest');
 });

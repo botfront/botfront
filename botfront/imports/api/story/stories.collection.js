@@ -43,7 +43,7 @@ if (Meteor.isServer) {
         }
         return Stories.find({ projectId }, {
             fields: {
-                title: true, checkpoints: true, storyGroupId: true, rules: true,
+                title: true, checkpoints: true, storyGroupId: true, rules: true, status: true,
             },
         });
     });

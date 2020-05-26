@@ -94,6 +94,9 @@ class ProjectInfo extends React.Component {
         const differenceArray = this.diffArray(value, modelLanguageCodes);
         this.setState({ saving: true });
         // newSupportedLanguages are used to update DOM state
+        if (deploymentEnvironments && deploymentEnvironments.length === 0) {
+            Meteor.call('stories.changeStatus', _id, 'unpublished', 'published');
+        }
         const newSupportedLanguages = modelLanguageCodes.concat(
             differenceArray,
         );
@@ -206,6 +209,15 @@ class ProjectInfo extends React.Component {
                             label='Deployment environments'
                             info='Botfront will enable additional environments for your workflow'
                             data-cy='deployment-environments'
+                        />
+                        <Message
+                            size='tiny'
+                            info
+                            content={(
+                                <>
+                     If you remove all environments, all stories will be published
+                                </>
+                            )}
                         />
 
                         <AutoField

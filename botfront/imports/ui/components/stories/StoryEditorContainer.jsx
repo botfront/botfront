@@ -188,6 +188,7 @@ const StoryEditorContainer = ({
             originStories={story.checkpoints}
             rules={story.rules}
             initPayload={getInitIntent()}
+            isUnpublished={story.status === 'unpublished'}
         />
     );
 

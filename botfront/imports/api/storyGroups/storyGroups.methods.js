@@ -22,6 +22,22 @@ export const createStoriesWithTriggersGroup = (projectId) => {
     );
 };
 
+
+export const createUnpublishedStoriesGroup = (projectId) => {
+    if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
+    checkIfCan('projects:w');
+    Meteor.call(
+        'storyGroups.insert',
+        {
+            name: 'Unpublished stories',
+            projectId,
+            smartGroup: { prefix: 'unpublish', query: '{ "status": "unpublished" }' },
+            isExpanded: false,
+            pinned: true,
+        },
+    );
+};
+
 export const createDefaultStoryGroup = (projectId) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
     checkIfCan('projects:w');
@@ -39,6 +55,7 @@ export const createDefaultStoryGroup = (projectId) => {
                     storyGroupId,
                     projectId,
                     events: ['utter_hi'],
+                    status: 'published',
                 });
                 Meteor.call('stories.insert', {
                     story: '* chitchat.bye\n    - utter_bye',
@@ -46,6 +63,7 @@ export const createDefaultStoryGroup = (projectId) => {
                     storyGroupId,
                     projectId,
                     events: ['utter_bye'],
+                    status: 'published',
                 });
                 Meteor.call('stories.insert', {
                     story: '* get_started\n    - utter_get_started',
@@ -53,6 +71,7 @@ export const createDefaultStoryGroup = (projectId) => {
                     storyGroupId,
                     projectId,
                     events: ['utter_get_started'],
+                    status: 'published',
                 });
             } else {
                 // eslint-disable-next-line no-console

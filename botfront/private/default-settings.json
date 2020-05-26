@@ -16,21 +16,26 @@
       "defaultDefaultDomain": "slots:\n  disambiguation_message:\n    type: unfeaturized\nactions:\n  - action_botfront_disambiguation\n  - action_botfront_disambiguation_followup\n  - action_botfront_fallback\n  - action_botfront_mapping",
       "webhooks": {
         "restartRasaWebhook": {
-            "name": "RestartRasa",
-            "url": "",
-            "method": "POST"
+          "name": "RestartRasa",
+          "url": "",
+          "method": "POST"
         },
         "uploadImageWebhook": {
-            "name": "UploadImage",
-            "url": "",
-            "method": "POST"
+          "name": "UploadImage",
+          "url": "",
+          "method": "POST"
         },
         "deleteImageWebhook": {
-            "name": "DeleteImage",
-            "url": "",
-            "method": "DELETE"
+          "name": "DeleteImage",
+          "url": "",
+          "method": "DELETE"
+        },
+        "deploymentWebhook": {
+          "name": "DeployProject",
+          "url": "",
+          "method": "POST"
         }
-    }
+      }
     }
   }
 }

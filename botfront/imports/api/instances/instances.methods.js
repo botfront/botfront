@@ -217,7 +217,7 @@ if (Meteor.isServer) {
             });
             return data;
         },
-        async 'rasa.getTrainingPayload'(projectId, instance, { language = '', joinStoryFiles = true } = {}) {
+        async 'rasa.getTrainingPayload'(projectId, instance, { env = 'development', language = '', joinStoryFiles = true } = {}) {
             checkIfCan(['nlu-data:x', 'projects:r'], projectId);
             check(projectId, String);
             check(language, String);
@@ -272,7 +272,7 @@ if (Meteor.isServer) {
                     nlu[currentLang] = { data: `# lang:${currentLang}${canonicalText}\n\n${data.data}` };
                     config[currentLang] = `${getConfig(nluModels[i])}\n\n${corePolicies}`;
                 }
-                const { stories, domain } = await getStoriesAndDomain(projectId, language);
+                const { stories, domain } = await getStoriesAndDomain(projectId, language, env);
                 const payload = {
                     domain,
                     stories: joinStoryFiles ? stories.join('\n') : stories,
@@ -299,7 +299,7 @@ if (Meteor.isServer) {
             }
         },
 
-        async 'rasa.train'(projectId, instance) {
+        async 'rasa.train'(projectId, instance, env = 'development', loadModel = true) {
             checkIfCan('nlu-data:x', projectId);
             check(projectId, String);
             check(instance, Object);
@@ -326,7 +326,7 @@ if (Meteor.isServer) {
                     timeout: 3 * 60 * 1000,
                 });
                 addLoggingInterceptors(client, appMethodLogger);
-                const payload = await Meteor.call('rasa.getTrainingPayload', projectId, instance);
+                const payload = await Meteor.call('rasa.getTrainingPayload', projectId, instance, { env });
                 const trainingClient = axios.create({
                     baseURL: instance.host,
                     timeout: 30 * 60 * 1000,
@@ -347,11 +347,13 @@ if (Meteor.isServer) {
                         appMethodLogger.error(`Could not save trained model to ${trainedModelPath}`, { error: e });
                     }
 
-                    await client.put('/model', { model_file: trainedModelPath });
-                    if (process.env.ORCHESTRATOR === 'gke') {
-                        const { modelsBucket } = Projects.findOne({ _id: projectId }, { fields: { modelsBucket: 1 } }) || {};
-                        if (modelsBucket) {
-                            await uploadFileToGcs(trainedModelPath, modelsBucket);
+                    if (loadModel) {
+                        await client.put('/model', { model_file: trainedModelPath });
+                        if (process.env.ORCHESTRATOR === 'gke') {
+                            const { modelsBucket } = Projects.findOne({ _id: projectId }, { fields: { modelsBucket: 1 } }) || {};
+                            if (modelsBucket) {
+                                await uploadFileToGcs(trainedModelPath, modelsBucket);
+                            }
                         }
                     }
                     const modelIds = getModelIdsFromProjectId(projectId);
@@ -366,6 +368,7 @@ if (Meteor.isServer) {
                 throw getAxiosError(e);
             }
         },
+
 
         'rasa.evaluate.nlu'(modelId, projectId, testData) {
             checkIfCan('nlu-data:x', projectId);
