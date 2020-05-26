@@ -11,11 +11,15 @@ const {
     uploadImage, deleteImage, uploadImageValidator, deleteImageValidator,
 } = require('./images');
 const {
-    restartRasa,
-    restartRasaValidator,
     deployModel,
     deployModelValidator,
-} = require('./webhooks');
+} = require('../server/webhooks/deploy/deploy');
+
+const {
+    restartRasa,
+    restartRasaValidator,
+} = require('../server/webhooks/restartRasa/restartRasa');
+
 const { version } = require('../package-lock.json')
 
 let router = express.Router();

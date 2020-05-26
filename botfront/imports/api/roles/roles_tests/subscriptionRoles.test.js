@@ -43,8 +43,8 @@ if (Meteor.isServer) {
         defaultLanguage: 'en',
         defaultDomain: {
             content:
-            // eslint-disable-next-line max-len
-            'slots:\n  disambiguation_message:\n    type: unfeaturized\nactions:\n  - action_botfront_disambiguation\n  - action_botfront_disambiguation_followup\n  - action_botfront_fallback\n  - action_botfront_mapping',
+                // eslint-disable-next-line max-len
+                'slots:\n  disambiguation_message:\n    type: unfeaturized\nactions:\n  - action_botfront_disambiguation\n  - action_botfront_disambiguation_followup\n  - action_botfront_fallback\n  - action_botfront_mapping',
         },
         nluThreshold: 0.75,
         timezoneOffset: 0,
@@ -71,8 +71,8 @@ if (Meteor.isServer) {
         defaultLanguage: 'en',
         defaultDomain: {
             content:
-            // eslint-disable-next-line max-len
-            'slots:\n  disambiguation_message:\n    type: unfeaturized\nactions:\n  - action_botfront_disambiguation\n  - action_botfront_disambiguation_followup\n  - action_botfront_fallback\n  - action_botfront_mapping',
+                // eslint-disable-next-line max-len
+                'slots:\n  disambiguation_message:\n    type: unfeaturized\nactions:\n  - action_botfront_disambiguation\n  - action_botfront_disambiguation_followup\n  - action_botfront_fallback\n  - action_botfront_mapping',
         },
         nluThreshold: 0.75,
         timezoneOffset: 0,
@@ -85,7 +85,7 @@ if (Meteor.isServer) {
         _id: 'testCorePolicy',
         projectId,
         policies:
-        'policies:\n  #- name: KerasPolicy\n    #epochs: 200\n  - name: FallbackPolicy\n  - name: AugmentedMemoizationPolicy\n  - name: MemoizationPolicy',
+            'policies:\n  #- name: KerasPolicy\n    #epochs: 200\n  - name: FallbackPolicy\n  - name: AugmentedMemoizationPolicy\n  - name: MemoizationPolicy',
         createdAt: '2020-02-24T15:57:22.352Z',
         updatedAt: '2020-02-24T15:57:59.681Z',
     };
@@ -94,14 +94,14 @@ if (Meteor.isServer) {
         projectId,
         environment: 'development',
         credentials:
-        'rasa_addons.core.channels.webchat.WebchatInput:\n  session_persistence: true\n  base_url: http://localhost:5005\n  socket_path: \'/socket.io/\'',
+            'rasa_addons.core.channels.webchat.WebchatInput:\n  session_persistence: true\n  base_url: http://localhost:5005\n  socket_path: \'/socket.io/\'',
         updatedAt: '2020-02-24T15:57:59.654Z',
     };
     const endpointsData = {
         _id: 'testEndpoints',
         endpoints:
-        // eslint-disable-next-line max-len
-        'nlg:\n  type: \'rasa_addons.core.nlg.GraphQLNaturalLanguageGenerator\'\n  url: \'http://localhost:3000//graphql\'\naction_endpoint:\n  url: \'undefined\'\ntracker_store:\n  store_type: rasa_addons.core.tracker_stores.AnalyticsTrackerStore\n  url: \'http://localhost:8080\'\n  project_id: \'LrGjcZqm9Fjdj3GRP\'',
+            // eslint-disable-next-line max-len
+            'nlg:\n  type: \'rasa_addons.core.nlg.GraphQLNaturalLanguageGenerator\'\n  url: \'http://localhost:3000//graphql\'\naction_endpoint:\n  url: \'undefined\'\ntracker_store:\n  store_type: rasa_addons.core.tracker_stores.AnalyticsTrackerStore\n  url: \'http://localhost:8080\'\n  project_id: \'LrGjcZqm9Fjdj3GRP\'',
         projectId,
         environment: 'development',
         updatedAt: '2020-02-24T15:57:59.668Z',
@@ -111,8 +111,8 @@ if (Meteor.isServer) {
         settings: {
             public: {
                 defaultNLUConfig:
-                // eslint-disable-next-line max-len
-                'pipeline:\n  - name: WhitespaceTokenizer\n  - name: CountVectorsFeaturizer\n  - name: EmbeddingIntentClassifier\n  - BILOU_flag: true\n    name: CRFEntityExtractor\n    features:\n      - [low, title, upper]\n      - [low, bias, prefix5, prefix2, suffix5, suffix3, suffix2, upper, title, digit, pattern]\n      - [low, title, upper]\n  - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: EntitySynonymMapper',
+                    // eslint-disable-next-line max-len
+                    'pipeline:\n  - name: WhitespaceTokenizer\n  - name: CountVectorsFeaturizer\n  - name: EmbeddingIntentClassifier\n  - BILOU_flag: true\n    name: CRFEntityExtractor\n    features:\n      - [low, title, upper]\n      - [low, bias, prefix5, prefix2, suffix5, suffix3, suffix2, upper, title, digit, pattern]\n      - [low, title, upper]\n  - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: EntitySynonymMapper',
                 backgroundImages: ['https://source.unsplash.com/collection/315548/2400x1500'],
                 docUrl: 'https://botfront.io/docs',
                 chitChatProjectId: 'chitchat-JQ2Kbcp-',
@@ -121,15 +121,15 @@ if (Meteor.isServer) {
                 rasaServerDefaultUrl: 'http://localhost:5005',
                 bfApiHost: 'http://botfront-api:8080',
                 defaultEndpoints:
-                // eslint-disable-next-line max-len
-                'nlg:\n  type: \'rasa_addons.core.nlg.GraphQLNaturalLanguageGenerator\'\n  url: \'{ROOT_URL}/graphql\'\naction_endpoint:\n  url: \'{ACTIONS_URL}\'\ntracker_store:\n  store_type: rasa_addons.core.tracker_stores.AnalyticsTrackerStore\n  url: \'http://localhost:8080\'\n  project_id: \'{BF_PROJECT_ID}\'',
+                    // eslint-disable-next-line max-len
+                    'nlg:\n  type: \'rasa_addons.core.nlg.GraphQLNaturalLanguageGenerator\'\n  url: \'{ROOT_URL}/graphql\'\naction_endpoint:\n  url: \'{ACTIONS_URL}\'\ntracker_store:\n  store_type: rasa_addons.core.tracker_stores.AnalyticsTrackerStore\n  url: \'http://localhost:8080\'\n  project_id: \'{BF_PROJECT_ID}\'',
                 defaultCredentials:
-                'rasa_addons.core.channels.webchat.WebchatInput:\n  session_persistence: true\n  base_url: http://localhost:5005\n  socket_path: \'/socket.io/\'',
+                    'rasa_addons.core.channels.webchat.WebchatInput:\n  session_persistence: true\n  base_url: http://localhost:5005\n  socket_path: \'/socket.io/\'',
                 defaultPolicies:
-                'policies:\n  #- name: KerasPolicy\n    #epochs: 200\n  - name: FallbackPolicy\n  - name: AugmentedMemoizationPolicy\n  - name: MemoizationPolicy',
+                    'policies:\n  #- name: KerasPolicy\n    #epochs: 200\n  - name: FallbackPolicy\n  - name: AugmentedMemoizationPolicy\n  - name: MemoizationPolicy',
                 defaultDefaultDomain:
-                // eslint-disable-next-line max-len
-                'slots:\n  disambiguation_message:\n    type: unfeaturized\nactions:\n  - action_botfront_disambiguation\n  - action_botfront_disambiguation_followup\n  - action_botfront_fallback\n  - action_botfront_mapping',
+                    // eslint-disable-next-line max-len
+                    'slots:\n  disambiguation_message:\n    type: unfeaturized\nactions:\n  - action_botfront_disambiguation\n  - action_botfront_disambiguation_followup\n  - action_botfront_fallback\n  - action_botfront_mapping',
                 webhooks: {
                     restartRasaWebhook: { name: 'RestartRasa', method: 'POST' },
                     uploadImageWebhook: { name: 'UploadImage', method: 'POST' },
@@ -145,8 +145,8 @@ if (Meteor.isServer) {
         settings: {
             public: {
                 defaultNLUConfig:
-                // eslint-disable-next-line max-len
-                'pipeline:\n  - name: WhitespaceTokenizer\n  - name: CountVectorsFeaturizer\n  - name: EmbeddingIntentClassifier\n  - BILOU_flag: true\n    name: CRFEntityExtractor\n    features:\n      - [low, title, upper]\n      - [low, bias, prefix5, prefix2, suffix5, suffix3, suffix2, upper, title, digit, pattern]\n      - [low, title, upper]\n  - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: EntitySynonymMapper',
+                    // eslint-disable-next-line max-len
+                    'pipeline:\n  - name: WhitespaceTokenizer\n  - name: CountVectorsFeaturizer\n  - name: EmbeddingIntentClassifier\n  - BILOU_flag: true\n    name: CRFEntityExtractor\n    features:\n      - [low, title, upper]\n      - [low, bias, prefix5, prefix2, suffix5, suffix3, suffix2, upper, title, digit, pattern]\n      - [low, title, upper]\n  - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: EntitySynonymMapper',
                 backgroundImages: ['https://source.unsplash.com/collection/315548/2400x1500'],
                 docUrl: 'https://botfront.io/docs',
                 chitChatProjectId: 'chitchat-JQ2Kbcp-',
@@ -168,8 +168,8 @@ if (Meteor.isServer) {
         name: 'Default Model',
         language: 'en',
         config:
-        // eslint-disable-next-line max-len
-        'pipeline:\n  - name: WhitespaceTokenizer\n  - name: CountVectorsFeaturizer\n  - name: EmbeddingIntentClassifier\n  - BILOU_flag: true\n    name: CRFEntityExtractor\n    features:\n      - [low, title, upper]\n      - [low, bias, prefix5, prefix2, suffix5, suffix3, suffix2, upper, title, digit, pattern]\n      - [low, title, upper]\n  - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: EntitySynonymMapper',
+            // eslint-disable-next-line max-len
+            'pipeline:\n  - name: WhitespaceTokenizer\n  - name: CountVectorsFeaturizer\n  - name: EmbeddingIntentClassifier\n  - BILOU_flag: true\n    name: CRFEntityExtractor\n    features:\n      - [low, title, upper]\n      - [low, bias, prefix5, prefix2, suffix5, suffix3, suffix2, upper, title, digit, pattern]\n      - [low, title, upper]\n  - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: EntitySynonymMapper',
         evaluations: [],
         intents: [],
         chitchat_intents: [],
@@ -428,7 +428,7 @@ the tests are created by iterating over subscriptions. the test params are as fo
         {
             name: 'projects',
             collectionName: 'projects',
-            testDataInsert: async () => {},
+            testDataInsert: async () => { },
             testDataRemove: async done => done(),
             args: [projectId],
             acceptedRoles: readers.projects,
@@ -481,7 +481,7 @@ the tests are created by iterating over subscriptions. the test params are as fo
         {
             name: 'roles',
             collectionName: 'roles',
-            testDataInsert: async () => {},
+            testDataInsert: async () => { },
             testDataRemove: async done => done(),
             args: [],
             acceptedRoles: readers.roles,
@@ -605,25 +605,12 @@ the tests are created by iterating over subscriptions. the test params are as fo
             acceptedRoles: readers.users,
         },
      
-        {
-            name: 'deploymentWebhook',
-            collectionName: 'admin_settings',
-            args: [projectId],
-            acceptedRoles: writers.projects,
-            testDataInsert: async () => {
-                await GlobalSettings.insert(globalSettingsData);
-            },
-            testDataRemove: async (done) => {
-                await GlobalSettings.remove({ _id: 'SETTINGS' });
-                done();
-            },
-        },
     ];
 
     const setUserScopes = async (userRoles, scope) => {
         await setScopes(formatRoles(userRoles, scope), userId);
     };
-    
+
     const createTestUser = async () => {
         await Meteor.users.remove({ _id: 'testuserid' });
         await Meteor.users.insert({
@@ -646,19 +633,19 @@ the tests are created by iterating over subscriptions. the test params are as fo
             profile: { firstName: 'test', lastName: 'test' },
         });
     };
-    
+
     const deleteTestUser = async () => {
         await Meteor.users.remove({ _id: 'testuserid' });
         await Meteor.roleAssignment.remove({ user: { _id: userId } });
     };
-    
+
     const createProject = async () => {
         await Projects.insert(projectData);
     };
     const deleteProject = async () => {
         await Projects.remove({ _id: 'bf' });
     };
-    
+
     // const testSubscription = async (subscription, role, scope, args, callback, done) => {
     const testSubscription = async (testParams, role, scope, done, callback) => {
         const {
@@ -779,7 +766,7 @@ the tests are created by iterating over subscriptions. the test params are as fo
         'roles:w',
         'global-admin',
     ];
-    
+
     const testRolesAutoSubscription = async (scope, role, done) => {
         await deleteTestUser();
         await deleteProject();
@@ -788,7 +775,7 @@ the tests are created by iterating over subscriptions. the test params are as fo
         await createProject();
         await setUserScopes(role, scope);
         await setScopes(formatRoles(role, scope), 'seconduserid');
-        const result = publishRoles({ userId: 'testuserid', ready: () => {} }).fetch();
+        const result = publishRoles({ userId: 'testuserid', ready: () => { } }).fetch();
         if (allowedRoles.includes(role)) expect(result).to.have.length(2);
         else expect(result).to.have.length(1);
         done();

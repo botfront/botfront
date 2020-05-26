@@ -195,8 +195,9 @@ if (Meteor.isServer) {
                 return { status, data: responseData };
             } catch (e) {
                 // eslint-disable-next-line no-console
-                console.log('ERROR: Botfront encountered an error while calling a webhook', e);
-                return { status: 500, data: e.message };
+                // if we console log the error here, it will write the image/model as a string, and the error message will be too bike and unusable.
+                console.log('ERROR: Botfront encountered an error while calling a webhook');
+                return { status: 500, data: e.response.data };
             }
         },
 
@@ -232,9 +233,10 @@ if (Meteor.isServer) {
             const { url, method } = deploymentWebhook;
             if (!url || !method) throw new Meteor.Error('400', 'No deployment webhook defined.');
             const resp = Meteor.call('axios.requestWithJsonBody', url, method, data);
+
             if (resp === undefined) throw new Meteor.Error('500', 'No response from the deployment webhook');
             if (resp.status === 404) throw new Meteor.Error('404', 'Deployment webhook not Found');
-            if (resp.status !== 200) throw new Meteor.Error('500', 'Deployment webhook rejected upload.');
+            if (resp.status !== 200) throw new Meteor.Error('500', `Deployment webhook ${get(resp, 'data.message', false) || ' rejected upload.'}`);
             return resp;
         },
     });

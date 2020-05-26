@@ -462,6 +462,11 @@ if (Meteor.isServer) {
             roles: writers.stories,
             args: [projectId, 'unpublished', 'published'],
         },
+        {
+            name: 'getDeploymentWebhook',
+            roles: writers.projects,
+            args: [projectId],
+        },
     ];
 
 

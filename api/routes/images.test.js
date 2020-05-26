@@ -5,7 +5,7 @@ const chai = require('chai');
 const expect = chai.expect;
 chai.config.includeStack = true;
 const { Projects } = require('../models/models');
-const { getBucket } = require('./images');
+const { getImagesBucket } = require('../server/utils');
 
 const env = { ...process.env };
 const projects = [
@@ -24,17 +24,17 @@ after(() => {
 describe('## Images', () => {
     describe('### Common', () => {
         it('Should recover bucket from env vars and projectId', async () => {
-            expect(await getBucket('inexistent_project_id', {}))
+            expect(await getImagesBucket('inexistent_project_id', {}))
                 .to.deep.equal({ error: 'unauthorized', status: 401 });
-            expect(await getBucket('project_id_without_namespace', {}))
+            expect(await getImagesBucket('project_id_without_namespace', {}))
                 .to.deep.equal({ error: 'No GC namespace set for project', status: 422 })
-            expect(await getBucket('project_id_with_namespace', {}))
-                .to.deep.equal({ error: 'No DEPLOYMENT_ENVIRONMENT variable set', status: 422 });
-            process.env.DEPLOYMENT_ENVIRONMENT = 'dev';
-            expect(await getBucket('project_id_with_namespace', {}))
+            expect(await getImagesBucket('project_id_with_namespace', {}))
+                .to.deep.equal({ error: 'No CLUSTER_ENVIRONMENT variable set', status: 422 });
+            process.env.CLUSTER_ENVIRONMENT = 'dev';
+            expect(await getImagesBucket('project_id_with_namespace', {}))
                 .to.deep.equal({ error: 'No GCP_PROJECT_ID variable set', status: 422 });
             process.env.GCP_PROJECT_ID = 'project_one';
-            expect(await getBucket('project_id_with_namespace', {}))
+            expect(await getImagesBucket('project_id_with_namespace', {}))
                 .to.deep.equal({ bucket: 'dev-media-yepp-project_one' });
         });
     });

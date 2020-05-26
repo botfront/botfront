@@ -79,7 +79,7 @@ class Instances extends React.Component {
                         {hasWritePermission
                             && webhook
                             && webhook.url
-                            && <Button content='Restart rasa' onClick={(e) => { e.preventDefault(); restartRasa(projectId, webhook); }} />}
+                            && <Button content='Restart rasa' onClick={(e) => { e.preventDefault(); restartRasa(projectId, webhook, 'development'); }} />}
                     </AutoForm>
                 )}
             </>

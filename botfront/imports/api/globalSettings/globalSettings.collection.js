@@ -28,11 +28,5 @@ import(`./globalSettings.schema.${orchestration}`)
                 if (can('global-settings:r', { anyScope: true })) return GlobalSettings.find({ _id: 'SETTINGS' });
                 return GlobalSettings.find({ _id: 'SETTINGS' }, { fields: { 'settings.public': 1 } });
             });
-
-            Meteor.publish('deploymentWebhook', function (projectId) {
-                checkIfCan('projects:w', projectId);
-                check(projectId, String);
-                return GlobalSettings.find({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.deploymentWebhook': 1 } });
-            });
         }
     });

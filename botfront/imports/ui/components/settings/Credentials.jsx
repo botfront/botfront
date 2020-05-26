@@ -29,6 +29,7 @@ class Credentials extends React.Component {
             selectedEnvironment: 'development',
             webhook: {},
         };
+        this.form = React.createRef();
     }
 
     componentDidMount() {
@@ -69,14 +70,15 @@ class Credentials extends React.Component {
                 this.setState({ saving: false, showConfirmation: true });
             }),
         );
-        if (selectedEnvironment === 'development' && webhook && webhook.url) {
-            restartRasa(projectId, webhook);
+
+        if (selectedEnvironment && webhook && webhook.url) {
+            restartRasa(projectId, webhook, selectedEnvironment);
         }
     }
 
     renderCredentials = (saving, credentials, projectId, environment) => {
         const { saved, showConfirmation, selectedEnvironment } = this.state;
-        const { orchestrator } = this.props;
+        const { orchestrator, webhook } = this.props;
         const hasWritePermission = can('projects:w', projectId);
         return (
             <AutoForm
@@ -85,6 +87,7 @@ class Credentials extends React.Component {
                 schema={new SimpleSchema2Bridge(CredentialsSchema)}
                 model={credentials}
                 onSubmit={this.onSave}
+                ref={this.form}
                 modelTransform={(mode, model) => {
                     const newModel = cloneDeep(model);
                     if (mode === 'validate' || mode === 'submit') {
@@ -111,7 +114,16 @@ class Credentials extends React.Component {
                         )}
                     />
                 )}
-                {hasWritePermission && <SaveButton saved={saved} saving={saving} disabled={!!saving || !can('projects:w', projectId)} />}
+                {hasWritePermission
+                    && (
+                        <SaveButton
+                            saved={saved}
+                            saving={saving}
+                            disabled={!!saving}
+                            onSave={(e) => { this.form.current.submit(); }}
+                            confirmText={webhook && webhook.url ? `Saving will restart the ${selectedEnvironment} rasa instance` : ''}
+                        />
+                    )}
             </AutoForm>
         );
     };

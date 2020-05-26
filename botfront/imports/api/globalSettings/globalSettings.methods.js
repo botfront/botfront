@@ -23,5 +23,10 @@ if (Meteor.isServer) {
             check(projectId, String);
             return GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.restartRasaWebhook': 1 } });
         },
+        'getDeploymentWebhook'(projectId) {
+            checkIfCan('projects:w', projectId);
+            check(projectId, String);
+            return GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.deploymentWebhook': 1 } });
+        },
     });
 }

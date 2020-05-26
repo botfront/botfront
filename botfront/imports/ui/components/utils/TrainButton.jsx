@@ -8,18 +8,32 @@ import {
 } from 'semantic-ui-react';
 import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
+import { get } from 'lodash';
 import { isTraining } from '../../../api/nlu_model/nlu_model.utils';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
-import { GlobalSettings } from '../../../api/globalSettings/globalSettings.collection';
-import { Can } from '../../../lib/scopes';
+import { Can, can } from '../../../lib/scopes';
 import { ProjectContext } from '../../layouts/context';
+import { wrapMeteorCallback } from './Errors';
+
 
 class TrainButton extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             modalOpen: { production: false, staging: false },
+            webhooks: {},
         };
+    }
+
+    componentDidMount() {
+        const { projectId } = this.props;
+        if (can('projects:w', projectId)) {
+            Meteor.call('getDeploymentWebhook', projectId, wrapMeteorCallback((err, result) => {
+                if (err) return;
+                const webhook = get(result, 'settings.private.webhooks.deploymentWebhook', {});
+                this.setState({ webhook });
+            }));
+        }
     }
 
     train = async (target = 'development', loadModel = true) => {
@@ -46,7 +60,9 @@ class TrainButton extends React.Component {
     }
 
     renderDeployDropDown = (isTraining) => {
-        const { webhook, environments } = this.props;
+        const { environments } = this.props;
+        const { webhook } = this.state;
+        
         const deployOptions = [];
         const { modalOpen } = this.state;
         // there is no webhooks or environments so we don't render the deployment menu
@@ -103,7 +119,8 @@ class TrainButton extends React.Component {
     }
 
     deploy = (target) => {
-        const { webhook, projectId } = this.props;
+        const { projectId } = this.props;
+        const { webhook } = this.state;
         try {
             if (!webhook.url || !webhook.method) throw new Error('Deployment failed: the webhook parameters are missing');
             if (!target) throw new Error('Deployment failed: the deployment target is missing');
@@ -113,20 +130,20 @@ class TrainButton extends React.Component {
                 if (err || response === undefined || response.status !== 200) {
                     Alert.error(`Deployment failed: ${err.message}`, {
                         position: 'top-right',
-                        timeout: 2000,
+                        timeout: 10000,
                     });
                 }
                 if (response.status === 200) {
                     Alert.success(`Your project has been deployed to the ${target} environment`, {
                         position: 'top-right',
-                        timeout: 2000,
+                        timeout: 5000,
                     });
                 }
             });
         } catch (e) {
             Alert.error(e.message, {
                 position: 'top-right',
-                timeout: 2000,
+                timeout: 10000,
             });
         }
     }
@@ -135,11 +152,15 @@ class TrainButton extends React.Component {
         try {
             const loadModel = target === 'development'; // automaticly load the model only if we are in development
             await this.train(target, loadModel);
+            Alert.info(`Deployment to ${target} has started`, {
+                position: 'top-right',
+                timeout: 5000,
+            });
             this.deploy(target);
         } catch (e) {
             Alert.error('Cannot deploy, training failed', {
                 position: 'top-right',
-                timeout: 2000,
+                timeout: 3000,
             });
         }
     }
@@ -158,7 +179,7 @@ class TrainButton extends React.Component {
                     compact
                     data-cy='train-button'
                 />
-                {this.renderDeployDropDown()}
+                {this.renderDeployDropDown(isTraining(project))}
             </Button.Group>
         ) : (
             <Button.Group color='yellow'>
@@ -166,7 +187,6 @@ class TrainButton extends React.Component {
                     content={popupContent}
                     trigger={
                         (
-                        
                             <Button
                                 icon='eye'
                                 content='Partial training'
@@ -184,7 +204,7 @@ class TrainButton extends React.Component {
                     inverted
                     size='tiny'
                 />
-                {this.renderDeployDropDown()}
+                {this.renderDeployDropDown(isTraining(project))}
 
             </Button.Group>
         )
@@ -238,11 +258,9 @@ export default withTracker((props) => {
     // Gets the required number of selected storygroups and sets the content and popup for the train button
     const { projectId } = props;
     const storyGroupHandler = Meteor.subscribe('storiesGroup', projectId);
-    const deploymentWebhookHandler = Meteor.subscribe('deploymentWebhook', projectId);
-    const ready = storyGroupHandler.ready() && deploymentWebhookHandler.ready();
+    const ready = storyGroupHandler.ready();
 
     let storyGroups;
-    let webhook;
     let selectedStoryGroups;
     let popupContent;
 
@@ -251,12 +269,6 @@ export default withTracker((props) => {
         storyGroups = StoryGroups.find({ projectId }, { field: { _id: 1 } }).fetch();
         selectedStoryGroups = storyGroups.filter(storyGroup => (storyGroup.selected));
 
-        const {
-            settings: {
-                private: { webhooks },
-            },
-        } = GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks': 1 } });
-        webhook = webhooks.deploymentWebhook;
         if (selectedStoryGroups && selectedStoryGroups.length > 1) popupContent = `Train NLU and stories from ${selectedStoryGroups.length} focused story groups.`;
         else if (selectedStoryGroups && selectedStoryGroups.length === 1) popupContent = 'Train NLU and stories from 1 focused story group.';
     }
@@ -264,6 +276,5 @@ export default withTracker((props) => {
     return {
         ready,
         popupContent,
-        webhook,
     };
 })(TrainWithContext);

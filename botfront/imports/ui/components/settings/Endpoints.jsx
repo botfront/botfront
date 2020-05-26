@@ -28,6 +28,7 @@ class Endpoints extends React.Component {
             selectedEnvironment: 'development',
             webhook: {},
         };
+        this.form = React.createRef();
     }
 
 
@@ -69,14 +70,14 @@ class Endpoints extends React.Component {
                 }
             }),
         );
-        if (selectedEnvironment === 'development' && webhook && webhook.url) {
-            restartRasa(projectId, webhook);
+        if (selectedEnvironment && webhook && webhook.url) {
+            restartRasa(projectId, webhook, selectedEnvironment);
         }
     };
 
     renderEndpoints = (saving, endpoints, projectId) => {
         const { saved, showConfirmation, selectedEnvironment } = this.state;
-        const { orchestrator } = this.props;
+        const { orchestrator, webhook } = this.props;
         const hasWritePermission = can('projects:w', projectId);
         return (
             <AutoForm
@@ -85,6 +86,7 @@ class Endpoints extends React.Component {
                 schema={new SimpleSchema2Bridge(EndpointsSchema)}
                 model={endpoints}
                 onSubmit={this.onSave}
+                ref={this.form}
                 modelTransform={(mode, model) => {
                     const newModel = cloneDeep(model);
                     if (mode === 'validate' || mode === 'submit') {
@@ -110,7 +112,16 @@ class Endpoints extends React.Component {
                         )}
                     />
                 )}
-                {hasWritePermission && <SaveButton saved={saved} saving={saving} disabled={!!saving} />}
+                {hasWritePermission
+                    && (
+                        <SaveButton
+                            saved={saved}
+                            saving={saving}
+                            disabled={!!saving}
+                            onSave={(e) => { this.form.current.submit(); }}
+                            confirmText={webhook && webhook.url ? `Saving will restart the ${selectedEnvironment} rasa instance` : ''}
+                        />
+                    )}
             </AutoForm>
         );
     };
