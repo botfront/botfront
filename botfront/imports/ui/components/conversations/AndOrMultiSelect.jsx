@@ -11,6 +11,7 @@ import {
 
 const AndOrMultiselect = ({
     values,
+    operatorValue,
     addItem,
     options,
     onChange,
@@ -44,7 +45,7 @@ const AndOrMultiselect = ({
                 fluid
                 selection
                 onChange={(e, { value }) => { operatorChange(value); }}
-                defaultValue='or'
+                value={operatorValue}
                 options={[
                     {
                         key: 'and', value: 'and', text: 'And',
@@ -56,8 +57,6 @@ const AndOrMultiselect = ({
         </Segment>
     </Segment.Group>
 );
-
-
 AndOrMultiselect.propTypes = {
     values: PropTypes.array.isRequired,
     addItem: PropTypes.func,
@@ -66,12 +65,14 @@ AndOrMultiselect.propTypes = {
     operatorChange: PropTypes.func.isRequired,
     placeholder: PropTypes.string,
     allowAdditions: PropTypes.bool,
+    operatorValue: PropTypes.string,
 };
 
 AndOrMultiselect.defaultProps = {
     addItem: () => {},
     placeholder: '',
     allowAdditions: false,
+    operatorValue: 'or',
 };
 
 

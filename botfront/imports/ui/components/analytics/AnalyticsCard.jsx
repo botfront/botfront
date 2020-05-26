@@ -6,6 +6,8 @@ import PropTypes from 'prop-types';
 import { useQuery, useLazyQuery } from '@apollo/react-hooks';
 import { useDrag, useDrop } from 'react-dnd-cjs';
 import { saveAs } from 'file-saver';
+import { browserHistory } from 'react-router';
+import moment from 'moment';
 import {
     calculateTemporalBuckets, getDataToDisplayAndParamsToUse, generateCSV, applyTimezoneOffset,
 } from '../../../lib/graphs';
@@ -16,10 +18,13 @@ import LineChart from '../charts/LineChart';
 import SettingsPortal from './SettingsPortal';
 import Table from '../charts/Table';
 import { ProjectContext } from '../../layouts/context';
+import { queryifyFilter } from '../../../lib/conversationFilters.utils';
+
 
 function AnalyticsCard(props) {
     const {
         cardName,
+        type,
         displayDateRange,
         chartTypeOptions,
         titleDescription,
@@ -39,8 +44,11 @@ function AnalyticsCard(props) {
         onReorder,
     } = props;
 
-    const { project: { _id: projectId, name: projectName = 'Botfront', timezoneOffset: projectTimezoneOffset = 0 } } = useContext(ProjectContext);
-
+    const {
+        project: {
+            _id: projectId, name: projectName = 'Botfront', timezoneOffset: projectTimezoneOffset = 0, nlu_models,
+        },
+    } = useContext(ProjectContext);
     const [nameEdited, setNameEdited] = useState(null);
     
     const { displayAbsoluteRelative } = graphParams;
@@ -100,15 +108,67 @@ function AnalyticsCard(props) {
         if (process.env.MODE === 'development') console.log(exportError);
     }
 
+    const getCompareObject = (compare) => {
+        if (compare === '< 30') return ({ compareLowerBound: 0, compareUpperBound: 30 });
+        if (compare === '30 < 60') return ({ compareLowerBound: 30, compareUpperBound: 60 });
+        if (compare === '60 < 90') return ({ compareLowerBound: 60, compareUpperBound: 90 });
+        if (compare === '90 < 120') return ({ compareLowerBound: 90, compareUpperBound: 120 });
+        if (compare === '120 < 180') return ({ compareLowerBound: 120, compareUpperBound: 180 });
+        if (compare === '> 180') return ({ compareLowerBound: 180, compareUpperBound: -1 });
+        return undefined;
+    };
+
+    const linkToConversations = (selectedData, fullDataSet) => {
+        const selectedIndex = fullDataSet.findIndex(({ bucket }) => bucket === selectedData.bucket);
+        const prevData = fullDataSet[selectedIndex - 1];
+        const filters = { startDate, endDate };
+        switch (type) {
+        case 'intentFrequencies':
+            filters.intentFilters = [selectedData.name];
+            break;
+        case 'conversationLengths':
+            filters.lengthFilter = { compare: selectedData.length, xThan: 'equals' };
+            break;
+        case 'conversationDurations':
+            filters.durationFilter = getCompareObject(selectedData.duration);
+            break;
+        case 'conversationCounts':
+            filters.intentFilters = settings.includeIntents;
+            filters.operatorIntentsFilters = 'or';
+        // eslint-disable-next-line no-fallthrough
+        case 'actionCounts':
+            // extends conversation counts case (see above)
+            filters.operatorActionsFilters = 'or';
+            filters.actionFilters = settings.includeActions;
+            if (bucketSize === 'week') {
+                const bucketStart = prevData ? prevData.bucket : startDate;
+                const bucketEnd = selectedData.bucket;
+                filters.startDate = bucketStart;
+                filters.endDate = bucketEnd;
+            } else {
+                filters.startDate = moment(selectedData.bucket).startOf('day');
+                filters.endDate = moment(selectedData.bucket).endOf('day');
+            }
+            break;
+        default:
+            break;
+        }
+        const queryObject = {};
+        Object.keys(filters).forEach((key) => {
+            queryObject[key] = queryifyFilter(key, filters[key]);
+        });
+        browserHistory.push({ pathname: `/project/${projectId}/incoming/${nlu_models[0]}/conversations/`, query: queryObject });
+    };
+    
     const renderChart = () => {
         const { dataToDisplay, paramsToUse } = getDataToDisplayAndParamsToUse({
             data, queryParams, graphParams, nTicks, valueType, bucketSize, projectTimezoneOffset, wide, showDenominator,
         });
-        if (!dataToDisplay.length) return <Message color='yellow'><Icon name='calendar times' data-cy='no-data-message' />No data to show for selected period!</Message>;
-        if (chartType === 'pie') return <PieChart {...paramsToUse} data={dataToDisplay} />;
-        if (chartType === 'bar') return <BarChart {...paramsToUse} data={dataToDisplay} />;
-        if (chartType === 'line') return <LineChart {...paramsToUse} data={dataToDisplay} />;
-        if (chartType === 'table') return <Table {...paramsToUse} data={dataToDisplay} bucketSize={bucketSize} />;
+        if (!dataToDisplay.length) return <Message color='yellow'><Icon name='calendar times' data-cy='no-data-message' linkToConversations={linkToConversations} />No data to show for selected period!</Message>;
+        if (chartType === 'pie') return <PieChart {...paramsToUse} data={dataToDisplay} linkToConversations={linkToConversations} />;
+        if (chartType === 'bar') return <BarChart {...paramsToUse} data={dataToDisplay} linkToConversations={linkToConversations} />;
+        if (chartType === 'line') return <LineChart {...paramsToUse} data={dataToDisplay} linkToConversations={linkToConversations} />;
+        if (chartType === 'table') return <Table {...paramsToUse} data={dataToDisplay} bucketSize={bucketSize} linkToConversations={linkToConversations} />;
         return null;
     };
 
@@ -283,13 +343,14 @@ function AnalyticsCard(props) {
                     />
                 )
             }
-            <div className='graph-render-zone' data-cy='analytics-chart'>
+            <div className={`graph-render-zone ${chartType}`} data-cy='analytics-chart'>
                 {(!error && !loading && data) ? (
                     renderChart()
                 ) : (
                     <Loader active size='large'>Loading</Loader>
                 )}
             </div>
+            {/* <Button onClick={() => linkToConversations()}>Conversations</Button> */}
         </div>
     );
 }
@@ -305,6 +366,7 @@ AnalyticsCard.propTypes = {
     settings: PropTypes.object.isRequired,
     onChangeSettings: PropTypes.func.isRequired,
     onReorder: PropTypes.func,
+    type: PropTypes.string,
 };
 
 AnalyticsCard.defaultProps = {
@@ -313,6 +375,7 @@ AnalyticsCard.defaultProps = {
     titleDescription: null,
     graphParams: {},
     onReorder: null,
+    type: null,
 };
 
 export default AnalyticsCard;

@@ -43,7 +43,7 @@ div.bot-response-message {
   display: flex;
   flex-direction: row-reverse;
   flex-wrap: wrap;
-  align-items: center;
+
 
   .ui.buttons.filter-buttons {
     margin-top: 14px;
@@ -53,6 +53,8 @@ div.bot-response-message {
   .conversation-filter {
     padding: 0 0.75em;
     margin-top: 1em;
+    margin-right: auto;
+    margin-left: auto;
     .input { max-height: 32px; }
 
     .segments.horizontal.multiselect-andor{
@@ -66,13 +68,12 @@ div.bot-response-message {
     }
 
     &.actions {
-      max-width: 39.5%;
-      min-width: 39.5%;
+      width: 42%;
+      margin-left: 0;
     }
 
     &.intents{
-      max-width: 40%;
-      min-width: 40%;
+      width: 42%;
       .dropdown.filter-dropdown > .label {
         color:white;
         background-color:#a333c8;;
@@ -180,7 +181,13 @@ div.bot-response-message {
         width: 4em;
       }
       &.duration-number-filter {
-        width: 6em;
+        width: 3.5em;
+        .ui.input {
+          input {
+            padding-left: 0.25em;
+            padding-right: 0.25em;
+          }
+        }
       }
       &.id-filter{
         width: 5rem;
@@ -216,6 +223,9 @@ div.bot-response-message {
           background-color: #e8e8e8;
           color: rgba(0,0,0,.6);
           font-weight: 700;
+          &.white {
+            background-color: white;
+          }
         }
       }
       &.action-filter {

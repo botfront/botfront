@@ -70,7 +70,6 @@ function Stories(props) {
         const { location: { query } } = router;
         let queriedIds = query['ids[]'] || [];
         queriedIds = Array.isArray(queriedIds) ? queriedIds : [queriedIds];
-        
         return queriedIds;
     };
 

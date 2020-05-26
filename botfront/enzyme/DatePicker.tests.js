@@ -148,8 +148,8 @@ if (Meteor.isClient) {
             expect(DatePickerComponent.find('Popup')
                 .prop('trigger').props.children[0]).to.equal(`${moment()
                 .subtract(29, 'days')
-                .format('DD MMM YYYY')} - ${moment()
-                .format('DD MMM YYYY')}`);
+                .format('DD/MM/YYYY')} - ${moment()
+                .format('DD/MM/YYYY')}`);
         });
         
         it('should be able to select a single day', () => {

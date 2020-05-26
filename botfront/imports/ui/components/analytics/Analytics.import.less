@@ -1,7 +1,7 @@
 .analytics-card {
     position: relative;
     width: 48.5%;
-    min-width: 580px;
+    min-width: 610px;
     height: 470px;
     background-color: #ffffff;
     border-radius: 4px;
@@ -66,6 +66,19 @@
         width: 95%;
         top: 100px;
         left: 15px;
+        g {
+            rect:hover {
+                cursor: pointer;
+            }
+            path:hover {
+                cursor: pointer;
+            }
+        }
+        &.line {
+            rect:hover {
+                cursor: default;
+            }
+        }
     }
 
     .bottom-right-buttons {

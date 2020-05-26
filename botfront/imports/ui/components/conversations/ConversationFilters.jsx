@@ -8,6 +8,7 @@ import {
     Accordion,
     Label,
     Icon,
+    Popup,
 } from 'semantic-ui-react';
 import DatePicker from '../common/DatePicker';
 import AndOrMultiSelect from './AndOrMultiSelect';
@@ -131,6 +132,41 @@ const ConversationFilters = ({
                             </Dropdown.Menu>
                         </Dropdown>
                     </Button.Group>
+                    {/* intents filter */}
+                    <div className='conversation-filter intents' data-cy='intent-filter'>
+                        <AndOrMultiSelect
+                            values={newFilters.intentFilters}
+                            options={intentsOptions}
+                            onChange={val => setFilter('intentFilters', val)}
+                            operatorChange={val => setFilter('operatorIntentsFilters', val)}
+                            placeholder='Intent name'
+                            operatorValue={newFilters.operatorIntentsFilters}
+                        />
+                    </div>
+                    {/* actions filter */}
+                    <div className='conversation-filter actions' data-cy='action-filter'>
+                        <AndOrMultiSelect
+                            values={newFilters.actionFilters}
+                            addItem={addNewOption}
+                            options={actionsOptions}
+                            onChange={val => setFilter('actionFilters', val)}
+                            operatorChange={val => setFilter('operatorActionsFilters', val)}
+                            placeholder='Action name'
+                            allowAdditions
+                            operatorValue={newFilters.operatorActionsFilters}
+                        />
+                    </div>
+                    {/* date picker */}
+                    <div className='conversation-filter' data-cy='date-filter'>
+                        <Segment className='date-filter' data-cy='date-picker-container'>
+                            <DatePicker
+                                position='bottom left'
+                                startDate={newFilters.startDate}
+                                endDate={newFilters.endDate}
+                                onConfirm={setNewDates}
+                            />
+                        </Segment>
+                    </div>
                     {/* conversation length filter */}
                     <div
                         className='conversation-filter conv-length'
@@ -174,73 +210,52 @@ const ConversationFilters = ({
                         data-cy='duration-filter'
                     >
                         <Segment.Group horizontal>
-                            <Segment className='x-than-filter'>
-                                <Label> Duration</Label>
-                            </Segment>
-                            <Dropdown
-                                className='filter-dropdown'
-                                options={filterLengthOptions.filter(({ value }) => value !== 'equals')}
-                                selection
-                                fluid
-                                value={newFilters.durationFilter.xThan}
-                                onChange={(e, { value }) => setFilter('durationFilter', {
-                                    ...newFilters.durationFilter,
-                                    xThan: value,
-                                })
-                                }
+                            <Popup
+                                inverted
+                                content='time elapsed between the first and last message in seconds'
+                                trigger={(
+                                    <Segment className='x-than-filter'>
+                                        <Label> Duration</Label>
+                                    </Segment>
+                                )}
                             />
                             <Segment className='duration-number-filter'>
                                 <Input
+                                    data-cy='duration-filter-from'
                                     value={
-                                        newFilters.durationFilter.compare > 0
-                                            ? newFilters.durationFilter.compare
+                                        newFilters.durationFilter.compareLowerBound > 0
+                                            ? newFilters.durationFilter.compareLowerBound
                                             : ''
                                     }
                                     onChange={(e, { value }) => setFilter('durationFilter', {
                                         ...newFilters.durationFilter,
-                                        compare: +value,
+                                        compareLowerBound: +value,
                                     })
                                     }
                                 />
                             </Segment>
-                            <Segment className='static-symbol seconds'>
-                                <p className='static-symbol-text'>(seconds)</p>
+                            <Segment className='static-symbol'>
+                                <p className='static-symbol-text white'>≤</p>
                             </Segment>
-                        </Segment.Group>
-                    </div>
-                    {/* date picker */}
-                    <div className='conversation-filter' data-cy='date-filter'>
-                        <Segment className='date-filter' data-cy='date-picker-container'>
-                            <DatePicker
-                                position='bottom left'
-                                startDate={newFilters.startDate}
-                                endDate={newFilters.endDate}
-                                onConfirm={setNewDates}
-                            />
-                        </Segment>
-                    </div>
-                    {/* user id filter */}
-                    <div className='conversation-filter id-filter' data-cy='id-filter'>
-                        <Segment.Group
-                            horizontal
-                            data-cy='id-filter'
-                            className='conversation-filter'
-                        >
-                            <Segment className='uid-label'>
-                                <Label>User ID</Label>
-                            </Segment>
-                            <Segment className='id-filter'>
+                            <Segment className='duration-number-filter'>
                                 <Input
-                                    value={newFilters.userId || ''}
-                                    onChange={(_e, { value }) => setFilter(
-                                        'userId',
-                                        value.trim(),
-                                    )}
-                                    placeholder='unique identifier'
+                                    data-cy='duration-filter-to'
+                                    value={
+                                        newFilters.durationFilter.compareUpperBound > 0
+                                            ? newFilters.durationFilter.compareUpperBound
+                                            : ''
+                                    }
+                                    onChange={(e, { value }) => setFilter('durationFilter', {
+                                        ...newFilters.durationFilter,
+                                        compareUpperBound: +value,
+                                    })
+                                    }
                                 />
                             </Segment>
                         </Segment.Group>
                     </div>
+                        
+                    
                     {/* conversation confidence filter */}
                     <div className='conversation-filter' data-cy='confidence-filter'>
                         <Segment.Group
@@ -272,27 +287,27 @@ const ConversationFilters = ({
                             </Segment>
                         </Segment.Group>
                     </div>
-                    {/* intents filter */}
-                    <div className='conversation-filter intents' data-cy='intent-filter'>
-                        <AndOrMultiSelect
-                            values={newFilters.intentFilters}
-                            options={intentsOptions}
-                            onChange={val => setFilter('intentFilters', val)}
-                            operatorChange={val => setFilter('operatorIntentsFilters', val)}
-                            placeholder='Intent name'
-                        />
-                    </div>
-                    {/* actions filter */}
-                    <div className='conversation-filter actions' data-cy='action-filter'>
-                        <AndOrMultiSelect
-                            values={newFilters.actionFilters}
-                            addItem={addNewOption}
-                            options={actionsOptions}
-                            onChange={val => setFilter('actionFilters', val)}
-                            operatorChange={val => setFilter('operatorActionsFilters', val)}
-                            placeholder='Action name'
-                            allowAdditions
-                        />
+                    {/* user id filter */}
+                    <div className='conversation-filter id-filter' data-cy='id-filter'>
+                        <Segment.Group
+                            horizontal
+                            data-cy='id-filter'
+                            className='conversation-filter'
+                        >
+                            <Segment className='uid-label'>
+                                <Label>User ID</Label>
+                            </Segment>
+                            <Segment className='id-filter'>
+                                <Input
+                                    value={newFilters.userId || ''}
+                                    onChange={(_e, { value }) => setFilter(
+                                        'userId',
+                                        value.trim(),
+                                    )}
+                                    placeholder='unique identifier'
+                                />
+                            </Segment>
+                        </Segment.Group>
                     </div>
                 </div>
             </Accordion.Content>

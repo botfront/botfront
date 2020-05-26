@@ -420,7 +420,7 @@
             },
             {
               "event": "user",
-              "timestamp": 1572900747.3998685,
+              "timestamp": 1572900969.3998685,
               "text": "test2",
               "parse_data": {
                 "intent": { "name": "test2", "confidence": 0.7139533758163452 },
@@ -463,7 +463,7 @@
           "events": [
             {
               "event": "user",
-              "timestamp": 1572901743.6988153,
+              "timestamp": 1572901622.6988153,
               "text": "/get_started",
               "parse_data": {
                 "text": "/get_started",
@@ -506,8 +506,8 @@
         },
         "status": "new",
         "projectId": "bf",
-        "createdAt": "2019-11-04T20:52:23.685Z",
-        "updatedAt": "2019-11-04T20:55:27.462Z"
+        "createdAt": "2019-11-04T21:52:23.685Z",
+        "updatedAt": "2019-11-04T21:55:27.462Z"
       },
       {
         "_id": "convoC",
@@ -581,8 +581,8 @@
         },
         "status": "new",
         "projectId": "bf",
-        "createdAt": "2019-11-04T20:52:23.685Z",
-        "updatedAt": "2019-11-04T20:55:27.462Z"
+        "createdAt": "2019-11-04T21:52:23.685Z",
+        "updatedAt": "2019-11-04T21:55:27.462Z"
       },
       {
         "_id": "convoD",
@@ -653,8 +653,8 @@
         },
         "status": "new",
         "projectId": "bf",
-        "createdAt": "2019-11-04T20:52:23.685Z",
-        "updatedAt": "2019-11-04T20:55:27.462Z"
+        "createdAt": "2019-11-04T23:52:23.685Z",
+        "updatedAt": "2019-11-04T23:55:27.462Z"
       }
   ],
   "timestamp": 1573511952637

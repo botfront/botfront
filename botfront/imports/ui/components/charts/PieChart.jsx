@@ -8,7 +8,7 @@ export const labelWithPercent = (val, relVal) => `${val}${(relVal && !Number.isN
 
 function PieChart(props) {
     const {
-        data, margin, radialLabel, sliceLabel, tooltip, x, y, formats, ...otherProps
+        data, margin, radialLabel, sliceLabel, tooltip, x, y, formats, linkToConversations, ...otherProps
     } = props;
 
     const nivoData = data
@@ -21,6 +21,10 @@ function PieChart(props) {
         .map(d => ({
             ...d, id: d.x, value: d.y,
         }));
+    
+    const handleOnClick = (target) => {
+        linkToConversations(target);
+    };
 
     return (
         <>
@@ -41,6 +45,7 @@ function PieChart(props) {
                 animate
                 motionStiffness={90}
                 motionDamping={15}
+                onClick={handleOnClick}
                 {...otherProps}
             />
         </>
@@ -56,6 +61,7 @@ PieChart.propTypes = {
     formats: PropTypes.object,
     x: PropTypes.string.isRequired,
     y: PropTypes.array.isRequired,
+    linkToConversations: PropTypes.func,
 };
 
 PieChart.defaultProps = {
@@ -79,6 +85,7 @@ PieChart.defaultProps = {
             </div>
         </div>
     ),
+    linkToConversations: () => {},
 };
 
 export default PieChart;

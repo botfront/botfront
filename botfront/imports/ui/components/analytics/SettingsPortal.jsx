@@ -32,6 +32,7 @@ function SettingsPortal(props) {
                 {Array.isArray(values)
                     ? (
                         <Dropdown
+                            data-cy='settings-portal-dropdown'
                             placeholder={text}
                             options={newValues}
                             search
@@ -46,6 +47,7 @@ function SettingsPortal(props) {
                     )
                     : (
                         <TextArea
+                            data-cy='settings-portal-textarea'
                             value={newValues}
                             style={{ width: '100%' }}
                             onChange={handleModifyText}

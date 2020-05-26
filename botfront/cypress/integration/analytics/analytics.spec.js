@@ -57,16 +57,16 @@ const ExpectedCellData = {
             table: 3, row: 0, column: 1, contents: 1,
         },
         {
-            table: 3, row: 0, column: 2, contents: '25.00%',
+            table: 3, row: 0, column: 2, contents: '33.33%',
         },
         {
             table: 3, row: 1, column: 0, contents: '120 < 180',
         },
         {
-            table: 3, row: 1, column: 1, contents: 2,
+            table: 3, row: 1, column: 1, contents: 1,
         },
         {
-            table: 3, row: 1, column: 2, contents: '50.00%',
+            table: 3, row: 1, column: 2, contents: '33.33%',
         },
         {
             table: 3, row: 2, column: 0, contents: '> 180',
@@ -75,7 +75,7 @@ const ExpectedCellData = {
             table: 3, row: 2, column: 1, contents: 1,
         },
         {
-            table: 3, row: 2, column: 2, contents: '25.00%',
+            table: 3, row: 2, column: 2, contents: '33.33%',
         },
     ],
     fallbackHourly: [
@@ -161,7 +161,7 @@ const ExpectedCellData = {
             table: 0, row: 16, column: 0, contents: '16:00 - 16:59',
         },
         {
-            table: 0, row: 16, column: 1, contents: 1,
+            table: 0, row: 16, column: 1, contents: 2,
         },
         {
             table: 0, row: 16, column: 2, contents: '100.00%',

@@ -1,4 +1,5 @@
 import Conversations from '../conversations.model';
+import { trackerDateRangeStage } from './utils';
 
 const generateBucket = bounds => ({
     case: { $and: bounds },
@@ -37,38 +38,10 @@ export const getConversationDurations = async ({
             ...(langs && langs.length ? { language: { $in: langs } } : {}),
         },
     },
-    {
-        $match: {
-            $and: [
-                {
-                    'tracker.latest_event_time': {
-                        $lt: to, // timestamp
-                        $gte: from, // timestamp
-                    },
-                },
-            ],
-        },
-    },
-    {
-        $unwind: {
-            path: '$tracker.events',
-        },
-    },
-    {
-        $match: {
-            $and: [{ 'tracker.events.event': 'user' }],
-        },
-    },
-    {
-        $group: {
-            _id: '$tracker.sender_id',
-            first: { $first: '$tracker.events' },
-            end: { $first: '$tracker.latest_event_time' },
-        },
-    },
+    ...trackerDateRangeStage(from, to),
     {
         $project: {
-            difference: { $subtract: ['$end', '$first.timestamp'] },
+            difference: { $subtract: ['$endTime', '$startTime'] },
         },
     },
     {

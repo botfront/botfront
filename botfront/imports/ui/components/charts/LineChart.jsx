@@ -3,6 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defaultTheme } from '@nivo/core';
 import { Icon } from 'semantic-ui-react';
+import moment from 'moment';
 import { labelWithPercent, formatOrIdent } from './PieChart';
 
 function LineChart(props) {
@@ -20,6 +21,7 @@ function LineChart(props) {
                 yRel: d[measure.relative],
             })),
         }));
+
     return (
         <>
             <ResponsiveLine

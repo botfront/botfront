@@ -1,5 +1,6 @@
 import Conversations from '../conversations.model';
 import { generateBuckets, fillInEmptyBuckets } from '../../utils';
+import { trackerDateRangeStage } from './utils';
 
 export const getConversationsIncludingIntent = async ({
     projectId,
@@ -17,18 +18,8 @@ export const getConversationsIncludingIntent = async ({
             ...(langs && langs.length ? { language: { $in: langs } } : {}),
         },
     },
-    {
-        $match: {
-            $and: [
-                {
-                    'tracker.latest_event_time': {
-                        $lt: to, // timestamp
-                        $gte: from, // timestamp
-                    },
-                },
-            ],
-        },
-    },
+    ...trackerDateRangeStage(from, to),
+
     {
         $addFields: {
             bucket: {

@@ -21,6 +21,7 @@ import './story.commands';
 import './response.commands';
 import './incoming.commands';
 import './settings.commands';
+import './conversation.commands';
 
 const axios = require('axios');
 require('cypress-plugin-retries');
@@ -419,7 +420,7 @@ Cypress.Commands.add('addTestConversation', (projectId, { id = 'abc', env = null
                             text: `${id}-blah-blah`,
                         },
                         input_channel: 'webchat',
-                        timestamp: 99999,
+                        timestamp: new Date().getTime() / 1000,
                     },
                 ],
                 slots: {
@@ -656,22 +657,20 @@ Cypress.Commands.add('pickDateRange', (datePickerIndex, firstDateStr, secondDate
         .click({ force: true });
 });
 
-Cypress.Commands.add('graphQlQuery', (query, variables) => cy.get('@loginToken').then((token) => {
-    cy.request({
-        method: 'POST',
-        url: '/graphql',
-        headers: { 'Content-Type': 'application/json', Authorization: token },
-        body: { query, variables },
-    });
-}));
+Cypress.Commands.add('graphQlQuery', (query, variables) => cy.get('@loginToken').then(token => cy.request({
+    method: 'POST',
+    url: '/graphql',
+    headers: { 'Content-Type': 'application/json', Authorization: token },
+    body: { query, variables },
+})));
 
-Cypress.Commands.add('addConversation', (projectId, id, conversation) => cy.graphQlQuery(
-    `mutation ($tracker: Any) {\n  insertTrackerStore(senderId: "${id}", projectId: "${projectId}", tracker: $tracker){\n  lastIndex\n  }\n}`,
+Cypress.Commands.add('addConversation', (projectId, id, conversation, env = 'development') => cy.graphQlQuery(
+    `mutation ($tracker: Any) {\n  insertTrackerStore(senderId: "${id}", projectId: "${projectId}", tracker: $tracker, env: ${env}){\n  lastIndex\n  }\n}`,
     { tracker: conversation },
 ));
 
-Cypress.Commands.add('updateConversation', (projectId, id, conversation) => cy.graphQlQuery(
-    `mutation ($tracker: Any) {\n  updateTrackerStore(senderId: "${id}", projectId: "${projectId}", tracker: $tracker){\n  lastIndex\n  }\n}`,
+Cypress.Commands.add('updateConversation', (projectId, id, conversation, env = 'development') => cy.graphQlQuery(
+    `mutation ($tracker: Any) {\n  updateTrackerStore(senderId: "${id}", projectId: "${projectId}", tracker: $tracker, env: ${env}){\n  lastIndex\n  }\n}`,
     { tracker: conversation },
 ));
 

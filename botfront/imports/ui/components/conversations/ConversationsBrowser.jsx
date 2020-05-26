@@ -23,6 +23,8 @@ import apolloClient from '../../../startup/client/apollo';
 import { formatConversationsInMd } from './utils';
 import { ConversationBrowserContext } from './context';
 import { clearTypenameField } from '../../../lib/client.safe.utils';
+import { setConversationFilters } from '../../store/actions/actions';
+import { queryifyFilter } from '../../../lib/conversationFilters.utils';
 
 function ConversationsBrowser(props) {
     const {
@@ -78,13 +80,14 @@ function ConversationsBrowser(props) {
 
     const goToConversation = (newPage, conversationId, replace = false) => {
         // let url = `/project/${projectId}/incoming/${modelId}/conversations/${page || 1}`;
+        const { location: { query } } = router;
         const url = updateIncomingPath({
             ...router.params,
             page: newPage || 1,
             selected_id: conversationId,
         });
-        if (replace) return browserHistory.replace({ pathname: url });
-        return browserHistory.push({ pathname: url });
+        if (replace) return browserHistory.replace({ pathname: url, query });
+        return browserHistory.push({ pathname: url, query });
     };
 
     function handleItemClick(event, { name }) {
@@ -96,11 +99,12 @@ function ConversationsBrowser(props) {
     };
 
     function pageChange(newPage) {
+        const { location: { query } } = router;
         const url = updateIncomingPath(
             { ...router.params, page: newPage || 1 },
             'selected_id',
         );
-        return browserHistory.push({ pathname: url });
+        return browserHistory.push({ pathname: url, query });
     }
 
     function renderMenuItems() {
@@ -229,7 +233,13 @@ ConversationsBrowser.defaultProps = {
 };
 
 const ConversationsBrowserContainer = (props) => {
-    const { environment: env, router } = props;
+    const {
+        environment: env,
+        router,
+        setFiltersInRedux,
+        filtersFromRedux,
+    } = props;
+
     if (!router) {
         return <></>;
     }
@@ -237,10 +247,9 @@ const ConversationsBrowserContainer = (props) => {
     const projectId = router.params.project_id;
     let activeConversationId = router.params.selected_id;
     const page = parseInt(router.params.page, 10) || 1;
-
     const defaults = {
         lengthFilter: { compare: -1, xThan: 'greaterThan' },
-        durationFilter: { compare: -1, xThan: 'greaterThan' },
+        durationFilter: { compareLowerBound: -1, compareUpperBound: -1 },
         confidenceFilter: { compare: -1, xThan: 'lessThan' },
         actionFilters: [],
         intentFilters: [],
@@ -255,12 +264,68 @@ const ConversationsBrowserContainer = (props) => {
         userId: null,
     };
 
-    const [activeFilters, setActiveFilters] = useState(defaults);
+    const getQueryParam = (key) => {
+        const { location: { query } } = router;
+        let value = query[key];
+        switch (key) {
+        case 'actionFilters':
+        case 'intentFilters':
+            value = value || [];
+            return Array.isArray(value) ? value : [value];
+        case 'lengthFilter':
+        case 'confidenceFilter':
+        case 'durationFilter':
+            try {
+                return JSON.parse(value);
+            } catch (e) {
+                return undefined;
+            }
+        case 'startDate':
+        case 'endDate':
+            return value ? moment(value) : undefined;
+        default:
+            return value;
+        }
+    };
+
+    const getFilterFromQuery = (key) => {
+        const filter = getQueryParam(key);
+        return filter || defaults[key];
+    };
+
+    const getInitialFilters = () => ({
+        lengthFilter: getFilterFromQuery('lengthFilter'),
+        confidenceFilter: getFilterFromQuery('confidenceFilter'),
+        durationFilter: getFilterFromQuery('durationFilter'),
+        actionFilters: getFilterFromQuery('actionFilters'),
+        intentFilters: getFilterFromQuery('intentFilters'),
+        startDate: getFilterFromQuery('startDate'),
+        endDate: getFilterFromQuery('endDate'),
+        operatorActionsFilters: getFilterFromQuery('operatorActionsFilters'),
+        operatorIntentsFilters: getFilterFromQuery('operatorIntentsFilters'),
+        userId: getFilterFromQuery('userId'),
+    });
+
+    const [activeFilters, setActiveFiltersHidden] = useState(getInitialFilters());
     const [actionsOptions, setActionOptions] = useState([]);
     const [intentsOptions, setIntentsOptions] = useState([]);
     const [projectTimezoneOffset, setProjectTimezoneOffset] = useState(0);
+    const setActiveFilters = (...args) => {
+        setActiveFiltersHidden(...args);
+    };
 
+
+    const updateQueryParams = (vals) => {
+        const { location: { pathname } } = router;
+        const queryObject = {};
+        Object.keys(activeFilters).forEach((key) => {
+            queryObject[key] = queryifyFilter(key, vals[key]);
+        });
+        router.replace({ pathname, query: queryObject });
+        setFiltersInRedux(vals);
+    };
     function changeFilters(vals = defaults) {
+        updateQueryParams(vals);
         setActiveFilters({
             ...vals,
             startDate: vals.startDate
@@ -282,7 +347,9 @@ const ConversationsBrowserContainer = (props) => {
         );
     }, [projectId]);
 
-    useEffect(changeFilters, [projectTimezoneOffset]);
+    useEffect(() => {
+        changeFilters(activeFilters);
+    }, [projectTimezoneOffset]);
 
 
     useQuery(GET_INTENTS_IN_CONVERSATIONS, {
@@ -300,13 +367,26 @@ const ConversationsBrowserContainer = (props) => {
 
 
     useEffect(() => {
+        const { location: { query: { actionFilters } } } = router;
         Meteor.call(
             'project.getActions',
             projectId,
-            wrapMeteorCallback((err, res) => {
+            wrapMeteorCallback((err, availableActions) => {
                 if (!err) {
+                    let newActionOptions = availableActions;
+                    if (Array.isArray(actionFilters)) {
+                        newActionOptions = [
+                            ...availableActions,
+                            ...actionFilters.filter(actionName => !availableActions.includes(actionName)),
+                        ];
+                    } else if (!availableActions.includes(actionFilters)) {
+                        newActionOptions = [
+                            ...availableActions,
+                            actionFilters,
+                        ];
+                    }
                     setActionOptions(
-                        res.map(action => ({
+                        newActionOptions.map(action => ({
                             text: action,
                             value: action,
                             key: action,
@@ -324,13 +404,12 @@ const ConversationsBrowserContainer = (props) => {
         env,
         ...activeFilters,
         lengthFilter: activeFilters.lengthFilter.compare,
-        durationFilter: activeFilters.durationFilter.compare,
-        xThanDuration: activeFilters.durationFilter.xThan,
+        durationFilterLowerBound: activeFilters.durationFilter.compareLowerBound,
+        durationFilterUpperBound: activeFilters.durationFilter.compareUpperBound,
         xThanLength: activeFilters.lengthFilter.xThan,
         confidenceFilter: activeFilters.confidenceFilter.compare,
         xThanConfidence: activeFilters.confidenceFilter.xThan,
     }), [activeFilters, env, page]);
-
     const {
         loading, error, data, refetch,
     } = useQuery(GET_CONVERSATIONS, {
@@ -393,7 +472,7 @@ const ConversationsBrowserContainer = (props) => {
                 page: page || 1,
                 selected_id: conversations[0]._id,
             }); // tab will always be conversations if set on the converesations tab
-            browserHistory.replace({ pathname: url });
+            browserHistory.replace({ pathname: url, query: router.location.query });
         } else {
             Object.assign(componentProps, {
                 trackers: conversations,
@@ -409,6 +488,15 @@ const ConversationsBrowserContainer = (props) => {
             modelId: router.params.model_id,
         });
     }
+
+    if (
+        !Object.keys(router.location.query).length
+        && Object.keys(filtersFromRedux || {}).length > 0
+    ) {
+        // if there are no filters in the query use the filters from redux
+        changeFilters(filtersFromRedux);
+    }
+
     return (
         <div>
             <Container>
@@ -421,17 +509,22 @@ const ConversationsBrowserContainer = (props) => {
 ConversationsBrowserContainer.propTypes = {
     router: PropTypes.object.isRequired,
     environment: PropTypes.string,
+    conversationFilters: PropTypes.string.isRequired,
+    setFiltersInRedux: PropTypes.func.isRequired,
+    filtersFromRedux: PropTypes.object,
 };
 
 ConversationsBrowserContainer.defaultProps = {
     environment: 'development',
+    filtersFromRedux: {},
 };
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
     environment: state.settings.get('workingDeploymentEnvironment'),
+    filtersFromRedux: state.settings.getIn(['conversationFilters']),
 });
 
 const ConversationsRouter = withRouter(ConversationsBrowserContainer);
 
-export default connect(mapStateToProps)(ConversationsRouter);
+export default connect(mapStateToProps, { setFiltersInRedux: setConversationFilters })(ConversationsRouter);

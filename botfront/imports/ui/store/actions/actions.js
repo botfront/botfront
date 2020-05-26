@@ -105,3 +105,10 @@ export function setShouldRefreshChat (shouldRefreshChat) {
         shouldRefreshChat,
     };
 }
+
+export function setConversationFilters (filters) {
+    return {
+        type: types.SET_CONVERSATION_FILTERS,
+        filters,
+    };
+}

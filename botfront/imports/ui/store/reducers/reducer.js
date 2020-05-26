@@ -17,6 +17,7 @@ const initialState = IMap({
     chatInitPayload: '/get_started',
     showChat: false,
     shouldRefreshChat: false,
+    conversationFilters: null,
 });
 
 function settings(state = initialState, action) {
@@ -44,6 +45,8 @@ function settings(state = initialState, action) {
             return state.set('showChat', action.showChat);
         case types.SET_SHOULD_REFRESH_CHAT:
             return state.set('shouldRefreshChat', action.shouldRefreshChat);
+        case types.SET_CONVERSATION_FILTERS:
+            return state.set('conversationFilters', action.filters);
         default:
             return state;
     }

@@ -140,9 +140,7 @@ describe('incoming page', function() {
     });
 
     it('should be possible to view the conversation from the utterance', function() {
-        cy.addConversation('bf', 'test', conversationToAdd);
-        cy.updateConversation('bf', 'test', conversationUpdate);
-
+        cy.addCustomConversation('bf', 'test', { events: [{ type: 'user', text: 'test conv link' }] });
         cy.visit('/project/bf/incoming');
         cy.get('.utterance-viewer').first().should('have.text', 'test conv link');
         cy.pause();

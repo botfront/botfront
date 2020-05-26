@@ -1,11 +1,12 @@
 import Conversations from '../conversations.model';
+import { trackerDateRangeStage } from './utils';
 
 export const getConversationLengths = async ({
     projectId,
     envs,
     langs,
     from,
-    to = new Date().getTime(),
+    to,
     limit,
 }) => Conversations.aggregate([
     {
@@ -15,18 +16,7 @@ export const getConversationLengths = async ({
             ...(langs && langs.length ? { language: { $in: langs } } : {}),
         },
     },
-    {
-        $match: {
-            $and: [
-                {
-                    'tracker.latest_event_time': {
-                        $lt: to, // timestamp
-                        $gte: from, // timestamp
-                    },
-                },
-            ],
-        },
-    },
+    ...trackerDateRangeStage(from, to),
     {
         $unwind: {
             path: '$tracker.events',

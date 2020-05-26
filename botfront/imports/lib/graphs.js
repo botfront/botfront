@@ -18,9 +18,12 @@ const getXAxisTickInterval = (data, nTicksIncoming, wide) => {
 };
 
 const dateFormatDictionary = {
-    hour: '%H:%M',
-    day: '%d/%m',
-    week: '%d/%m',
+    hour: date => moment(date).format('HH:mm'),
+    day: date => moment(date).format('DD/MM'),
+    week: date => moment(date).format('DD/MM'),
+    // hour: '%H:%M',
+    // day: '%d/%m',
+    // week: '%d/%m',
 };
 
 const formatAxisTitles = ({ axisTitleX, axisTitleY }, valueType, bucketSize) => {

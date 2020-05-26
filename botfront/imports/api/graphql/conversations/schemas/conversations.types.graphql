@@ -16,10 +16,10 @@ type Query {
         lengthFilter: Int
         """comparison operator for the lengthFilter (one of greaterThan, lessThan, equals)"""
         xThanLength: compare
-        """filter by the time ellapsed between the first and last event of the conversation"""
-        durationFilter: Float
-        """comparison operator for the lengthFilter (one of greaterThan, lessThan, equals)"""
-        xThanDuration: compare
+        """exclued conversations with less time elapsed between the first and last event than the value (seconds)"""
+        durationFilterLowerBound: Float
+        """exclude conversations with more time elapsed between the first and last event than the value (seconds)"""
+        durationFilterUpperBound: Float
         """filter by confidence of predicted intents (between 0 and 1)"""
         confidenceFilter: Float
         """ comparison operator for the confidenceFilter (one of greaterThan, lessThan, equals) """

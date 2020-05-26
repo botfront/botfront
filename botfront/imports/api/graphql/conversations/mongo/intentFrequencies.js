@@ -1,4 +1,5 @@
 import Conversations from '../conversations.model';
+import { trackerDateRangeStage } from './utils';
 
 const getExcludeClause = exclude => (
     (!exclude || !exclude.length)
@@ -44,18 +45,7 @@ export const getIntentFrequencies = async ({
             ...(langs && langs.length ? { language: { $in: langs } } : {}),
         },
     },
-    {
-        $match: {
-            $and: [
-                {
-                    'tracker.latest_event_time': {
-                        $lt: to, // timestamp
-                        $gte: from, // timestamp
-                    },
-                },
-            ],
-        },
-    },
+    ...trackerDateRangeStage(from, to),
     {
         $project: {
             events: {

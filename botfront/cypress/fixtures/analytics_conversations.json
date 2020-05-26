@@ -1,0 +1,418 @@
+{
+  "duration_10": {
+    "sender_id": "sender_duration_10",
+    "slots": {
+      "disambiguation_message": null
+    },
+    "latest_message": {
+      "intent": {},
+      "entities": [],
+      "text": null,
+      "message_id": null,
+      "metadata": {"language":"en"}
+    },
+    "latest_event_time": 1573490218.456171,
+    "followup_action": null,
+    "paused": false,
+    "events": [
+      {
+        "event": "action",
+        "timestamp": 1573490208.294734,
+        "name": "action_listen",
+        "policy": null,
+        "confidence": null
+      },
+      {
+        "event": "user",
+        "timestamp": 1573490208.4083405,
+        "text": "nothing",
+        "parse_data": {
+          "intent": {
+            "name": null,
+            "confidence": 0
+          },
+          "entities": [],
+          "language": "en",
+          "intent_ranking": [],
+          "text": "nothing"
+        },
+        "input_channel": "webchat",
+        "message_id": "451e0d9d8b494c5aafae0f4ae923004f",
+        "metadata": {"language":"en"}
+      },
+      {
+        "event": "user",
+        "timestamp": 1573490208.4083405,
+        "text": "nothing",
+        "parse_data": {
+          "intent": {
+            "name": null,
+            "confidence": 0
+          },
+          "entities": [],
+          "language": "en",
+          "intent_ranking": [],
+          "text": "nothing"
+        },
+        "input_channel": "webchat",
+        "message_id": "451e0d9d8b494c5aafae0f4ae923004f",
+        "metadata": {"language":"en"}
+      },
+      {
+        "event": "action",
+        "timestamp": 1573490208.4507365,
+        "name": "action_default_fallback",
+        "policy": "policy_0_FallbackPolicy",
+        "confidence": 1
+      },
+      {
+        "event": "bot",
+        "timestamp": 1573490208.4507587,
+        "text": "utter_default",
+        "data": {
+          "elements": null,
+          "quick_replies": null,
+          "buttons": null,
+          "attachment": null,
+          "image": null,
+          "custom": null
+        },
+        "metadata": {}
+      },
+      {
+        "event": "rewind",
+        "timestamp": 1573490208.4508421
+      },
+      {
+        "event": "action",
+        "timestamp": 1573490208.456171,
+        "name": "action_listen",
+        "policy": null,
+        "confidence": 1
+      }
+    ],
+    "latest_input_channel": "webchat",
+    "active_form": {},
+    "latest_action_name": "action_listen"
+  },
+  "duration_31": {
+    "sender_id": "sender_duration_31",
+    "slots": {
+      "disambiguation_message": null
+    },
+    "latest_message": {
+      "intent": {},
+      "entities": [],
+      "text": null,
+      "message_id": null,
+      "metadata": {"language":"en"}
+    },
+    "latest_event_time": 1573490239.456171,
+    "followup_action": null,
+    "paused": false,
+    "events": [
+      {
+        "event": "action",
+        "timestamp": 1573490208.294734,
+        "name": "action_listen",
+        "policy": null,
+        "confidence": null
+      },
+      {
+        "event": "user",
+        "timestamp": 1573490208.4083405,
+        "text": "nothing",
+        "parse_data": {
+          "intent": {
+            "name": null,
+            "confidence": 0
+          },
+          "entities": [],
+          "language": "en",
+          "intent_ranking": [],
+          "text": "nothing"
+        },
+        "input_channel": "webchat",
+        "message_id": "451e0d9d8b494c5aafae0f4ae923004f",
+        "metadata": {"language":"en"}
+      },
+      {
+        "event": "user",
+        "timestamp": 1573490208.4083405,
+        "text": "nothing",
+        "parse_data": {
+          "intent": {
+            "name": null,
+            "confidence": 0
+          },
+          "entities": [],
+          "language": "en",
+          "intent_ranking": [],
+          "text": "nothing"
+        },
+        "input_channel": "webchat",
+        "message_id": "451e0d9d8b494c5aafae0f4ae923004f",
+        "metadata": {"language":"en"}
+      },
+      {
+        "event": "action",
+        "timestamp": 1573490208.4507365,
+        "name": "action_default_fallback",
+        "policy": "policy_0_FallbackPolicy",
+        "confidence": 1
+      },
+      {
+        "event": "bot",
+        "timestamp": 1573490208.4507587,
+        "text": "utter_default",
+        "data": {
+          "elements": null,
+          "quick_replies": null,
+          "buttons": null,
+          "attachment": null,
+          "image": null,
+          "custom": null
+        },
+        "metadata": {}
+      },
+      {
+        "event": "rewind",
+        "timestamp": 1573490208.4508421
+      },
+      {
+        "event": "action",
+        "timestamp": 1573490208.456171,
+        "name": "action_listen",
+        "policy": null,
+        "confidence": 1
+      }
+    ],
+    "latest_input_channel": "webchat",
+    "active_form": {},
+    "latest_action_name": "action_listen"
+  },
+  "duration_181": {
+    "sender_id": "sender_duration_181",
+    "slots": {
+      "disambiguation_message": null
+    },
+    "latest_message": {
+      "intent": {},
+      "entities": [],
+      "text": null,
+      "message_id": null,
+      "metadata": {"language":"en"}
+    },
+    "latest_event_time": 1573490389.456171,
+    "followup_action": null,
+    "paused": false,
+    "events": [
+      {
+        "event": "action",
+        "timestamp": 1573490208.294734,
+        "name": "action_listen",
+        "policy": null,
+        "confidence": null
+      },
+      {
+        "event": "user",
+        "timestamp": 1573490208.4083405,
+        "text": "nothing",
+        "parse_data": {
+          "intent": {
+            "name": null,
+            "confidence": 0
+          },
+          "entities": [],
+          "language": "en",
+          "intent_ranking": [],
+          "text": "nothing"
+        },
+        "input_channel": "webchat",
+        "message_id": "451e0d9d8b494c5aafae0f4ae923004f",
+        "metadata": {"language":"en"}
+      },
+      {
+        "event": "user",
+        "timestamp": 1573490208.4083405,
+        "text": "nothing",
+        "parse_data": {
+          "intent": {
+            "name": null,
+            "confidence": 0
+          },
+          "entities": [],
+          "language": "en",
+          "intent_ranking": [],
+          "text": "nothing"
+        },
+        "input_channel": "webchat",
+        "message_id": "451e0d9d8b494c5aafae0f4ae923004f",
+        "metadata": {"language":"en"}
+      },
+      {
+        "event": "action",
+        "timestamp": 1573490208.4507365,
+        "name": "action_default_fallback",
+        "policy": "policy_0_FallbackPolicy",
+        "confidence": 1
+      },
+      {
+        "event": "bot",
+        "timestamp": 1573490208.4507587,
+        "text": "utter_default",
+        "data": {
+          "elements": null,
+          "quick_replies": null,
+          "buttons": null,
+          "attachment": null,
+          "image": null,
+          "custom": null
+        },
+        "metadata": {}
+      },
+      {
+        "event": "rewind",
+        "timestamp": 1573490208.4508421
+      },
+      {
+        "event": "action",
+        "timestamp": 1573490208.456171,
+        "name": "action_listen",
+        "policy": null,
+        "confidence": 1
+      }
+    ],
+    "latest_input_channel": "webchat",
+    "active_form": {},
+    "latest_action_name": "action_listen"
+  },
+  "engagement_true": {
+    "sender_id": "3d67c9f951a1432f9744f298f6c41d1e",
+    "slots": {
+      "disambiguation_message": null
+    },
+    "latest_message": {
+      "intent": {},
+      "entities": [],
+      "text": null,
+      "message_id": null,
+      "metadata": {"language":"en"}
+    },
+    "latest_event_time": 1573490218.456171,
+    "followup_action": null,
+    "paused": false,
+    "events": [
+      {
+        "event": "action",
+        "timestamp": 1573490208.294734,
+        "name": "action_listen",
+        "policy": null,
+        "confidence": null
+      },
+      {
+        "event": "user",
+        "timestamp": 1573490208.4083405,
+        "text": "/test_intent",
+        "parse_data": {
+          "intent": {
+            "name": "test_intent",
+            "confidence": 0
+          },
+          "entities": [],
+          "language": "en",
+          "intent_ranking": [],
+          "text": "nothing"
+        },
+        "input_channel": "webchat",
+        "message_id": "451e0d9d8b494c5aafae0f4ae923004f",
+        "metadata": {"language":"en"}
+      },
+      {
+        "event": "user",
+        "timestamp": 1573490208.4083405,
+        "text": "nothing",
+        "parse_data": {
+          "intent": {
+            "name": null,
+            "confidence": 0
+          },
+          "entities": [],
+          "language": "en",
+          "intent_ranking": [],
+          "text": "nothing"
+        },
+        "input_channel": "webchat",
+        "message_id": "451e0d9d8b494c5aafae0f4ae923004f",
+        "metadata": {"language":"en"}
+      },
+      {
+        "event": "action",
+        "timestamp": 1573490208.4507365,
+        "name": "action_default_fallback",
+        "policy": "policy_0_FallbackPolicy",
+        "confidence": 1
+      },
+      {
+        "event": "bot",
+        "timestamp": 1573490208.4507587,
+        "text": "utter_default",
+        "data": {
+          "elements": null,
+          "quick_replies": null,
+          "buttons": null,
+          "attachment": null,
+          "image": null,
+          "custom": null
+        },
+        "metadata": {}
+      },
+      {
+        "event": "action",
+        "timestamp": 1573490208.4507365,
+        "name": "action_test",
+        "policy": null,
+        "confidence": null
+      },
+      {
+        "event": "action",
+        "timestamp": 1573490208.4507365,
+        "name": "action_botfront_fallback",
+        "policy": null,
+        "confidence": null
+      },
+      {
+        "event": "user",
+        "timestamp": 1573490208.4083405,
+        "text": "nothing",
+        "parse_data": {
+          "intent": {
+            "name":"intent_dummy",
+            "confidence": 0
+          },
+          "entities": [],
+          "language": "en",
+          "intent_ranking": [],
+          "text": "g34"
+        },
+        "input_channel": "webchat",
+        "message_id": "451e0d9d8b494c5aafae0f4ae923004f",
+        "metadata": {"language":"en"}
+      },
+      {
+        "event": "rewind",
+        "timestamp": 1573490208.4508421
+      },
+      {
+        "event": "action",
+        "timestamp": 1573490208.456171,
+        "name": "action_listen",
+        "policy": null,
+        "confidence": 1
+      }
+    ],
+    "latest_input_channel": "webchat",
+    "active_form": {},
+    "latest_action_name": "action_listen"
+  }
+}

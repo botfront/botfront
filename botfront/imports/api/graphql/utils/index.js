@@ -7,21 +7,34 @@ export const generateCuttoffs = (from, to, nBuckets) => {
     ]);
 };
 
-export const generateBuckets = (from, to, pathToTimestamp, nBuckets) => (
+export const generateBuckets = (from, to, pathToTimestamp, nBuckets, conversion = v => v) => (
     generateCuttoffs(from, to, nBuckets)
-        .map(bounds => ({
-            case: {
-                $and: [
-                    { $gte: [pathToTimestamp, bounds[0]] },
-                    { $lt: [pathToTimestamp, bounds[1]] },
-                ],
-            },
-            then: bounds[1].toFixed(0).toString(),
-        }))
+        .map((bounds, i, emptyBuckets) => {
+            if (i === emptyBuckets.length - 1) {
+                return {
+                    case: {
+                        $and: [
+                            { $gte: [pathToTimestamp, conversion(bounds[0])] },
+                            { $lt: [pathToTimestamp, conversion(bounds[1])] },
+                        ],
+                    },
+                    then: bounds[1].toFixed(0).toString(),
+                };
+            }
+            return {
+                case: {
+                    $and: [
+                        { $gte: [pathToTimestamp, conversion(bounds[0])] },
+                        { $lt: [pathToTimestamp, conversion(bounds[1])] },
+                    ],
+                },
+                then: bounds[1].toFixed(0).toString(),
+            };
+        })
 );
 
 export const fillInEmptyBuckets = async (collection, from, to, nBuckets) => {
-    // This function inserts buckets with no data in them, so that the full graph can be seen.
+    // This function inserts buckets with no data in them, so that the full graph can be seen
     if (!collection.length) return collection;
     const zeroObject = {};
     Object.keys(collection[0]).forEach((key) => {

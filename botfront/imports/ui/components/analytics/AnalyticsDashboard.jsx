@@ -82,7 +82,7 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
             },
         },
         conversationCounts: {
-            chartTypeOptions: ['line', 'table'],
+            chartTypeOptions: ['line', 'bar', 'table'],
             titleDescription: 'Out of the visits (total number of conversations) in a given temporal window, the conversations that satisfy filters.',
             queryParams: {
                 temporal: true, envs, queryName: 'conversationCounts', langs,
@@ -104,7 +104,7 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
             },
         },
         actionCounts: {
-            chartTypeOptions: ['line', 'table'],
+            chartTypeOptions: ['line', 'bar', 'table'],
             titleDescription: 'Out of all conversational events in a given temporal window, the number of actions occurrences that satisfy filters.',
             queryParams: {
                 temporal: true, envs, queryName: 'actionCounts', langs,
@@ -175,6 +175,7 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
                         <AnalyticsCard
                             key={name}
                             cardName={name}
+                            type={type}
                             {...cardTypes[type]}
                             titleDescription={description || cardTypes[type].titleDescription}
                             settings={{ ...settings, startDate: moment(startDate), endDate: moment(endDate) }}

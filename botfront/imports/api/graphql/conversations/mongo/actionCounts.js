@@ -1,5 +1,6 @@
 import Conversations from '../conversations.model';
 import { generateBuckets, fillInEmptyBuckets } from '../../utils';
+import { trackerDateRangeStage } from './utils';
 
 export const getActionCounts = async ({
     projectId,
@@ -18,18 +19,7 @@ export const getActionCounts = async ({
             ...(langs && langs.length ? { language: { $in: langs } } : {}),
         },
     },
-    {
-        $match: {
-            $and: [
-                {
-                    'tracker.latest_event_time': {
-                        $lt: to, // timestamp
-                        $gte: from, // timestamp
-                    },
-                },
-            ],
-        },
-    },
+    ...trackerDateRangeStage(from, to),
     {
         $unwind: {
             path: '$tracker.events',
@@ -46,7 +36,7 @@ export const getActionCounts = async ({
         $addFields: {
             bucket: {
                 $switch: {
-                    branches: generateBuckets(from, to, '$tracker.events.timestamp', nBuckets),
+                    branches: generateBuckets(from, to, '$endTime', nBuckets),
                     default: 'bad_timestamp',
                 },
             },

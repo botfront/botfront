@@ -1,5 +1,7 @@
+import moment from 'moment';
 import Conversations from '../conversations.model';
 import { generateBuckets, fillInEmptyBuckets } from '../../utils';
+import { trackerDateRangeStage } from './utils';
 
 const intentInList = intentList => ({ $in: ['$$event.parse_data.intent.name', intentList] });
 const actionInList = actionList => ({ $in: ['$$event.name', actionList] });
@@ -9,8 +11,8 @@ export const getConversationCounts = async ({
     projectId,
     envs,
     langs,
-    from = new Date().getTime() - (86400 * 7),
-    to = new Date().getTime(),
+    from,
+    to,
     nBuckets,
     includeIntents = [],
     excludeIntents = [],
@@ -38,23 +40,12 @@ export const getConversationCounts = async ({
                 ...(langs && langs.length ? { language: { $in: langs } } : {}),
             },
         },
-        {
-            $match: {
-                $and: [
-                    {
-                        'tracker.latest_event_time': {
-                            $lt: to, // timestamp
-                            $gte: from, // timestamp
-                        },
-                    },
-                ],
-            },
-        },
+        ...trackerDateRangeStage(from, to),
         {
             $addFields: {
                 bucket: {
                     $switch: {
-                        branches: generateBuckets(from, to, '$tracker.latest_event_time', nBuckets),
+                        branches: generateBuckets(from, to, '$endTime', nBuckets),
                         default: 'bad_timestamp',
                     },
                 },

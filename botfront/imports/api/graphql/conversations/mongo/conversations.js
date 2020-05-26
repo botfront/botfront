@@ -1,4 +1,6 @@
+import moment from 'moment';
 import Conversations from '../conversations.model.js';
+import { addFieldsForDateRange, dateRangeCondition } from './utils';
 
 const createSortObject = (sort) => {
     let fieldName;
@@ -35,7 +37,6 @@ const getComparaisonSymbol = (comparaisonString) => {
     }
     return compare;
 };
-
 
 const createFilterObject = ({
     projectId,
@@ -85,20 +86,7 @@ const createFilterObject = ({
         }
     }
     if (startDate && endDate) {
-        filters.$and = [
-            {
-                $or: [
-                    { createdAt: { $lte: startDate } },
-                    { createdAt: { $lte: endDate } },
-                ],
-            },
-            {
-                $or: [
-                    { updatedAt: { $gte: startDate } },
-                    { updatedAt: { $gte: endDate } },
-                ],
-            },
-        ];
+        filters.$and = dateRangeCondition(moment(startDate).unix(), moment(endDate).unix());
     }
     if (userId) {
         filters.userId = userId;
@@ -116,8 +104,8 @@ export const getConversations = async ({
     env = 'development',
     lengthFilter = null,
     xThanLength = null,
-    durationFilter = null,
-    xThanDuration = null,
+    durationFilterLowerBound = null,
+    durationFilterUpperBound = null,
     confidenceFilter = null,
     xThanConfidence = null,
     actionFilters = null,
@@ -174,36 +162,31 @@ export const getConversations = async ({
         }];
     }
     let durationFilterSteps = [];
-    if (xThanDuration && durationFilter > 0) {
-        const durationCompareSymbol = getComparaisonSymbol(xThanDuration);
+    if (durationFilterLowerBound > 0 || durationFilterUpperBound > 0) {
+        let compareAggregationLowerBound = [];
+        let compareAggregationUpperBound = [];
+        if (durationFilterLowerBound > 0) {
+            compareAggregationLowerBound = [{
+                $match: {
+                    difference: { $gte: durationFilterLowerBound },
+                },
+            }];
+        }
+        if (durationFilterUpperBound > 0) {
+            compareAggregationUpperBound = [{
+                $match: {
+                    difference: { $lte: durationFilterUpperBound },
+                },
+            }];
+        }
         durationFilterSteps = [
             {
                 $addFields: {
-                    userEvents: {
-                        $filter: {
-                            input: '$tracker.events',
-                            as: 'eventElem',
-                            cond: { $eq: ['$$eventElem.event', 'user'] },
-                        },
-                    },
+                    difference: { $subtract: ['$endTime', '$startTime'] },
                 },
             },
-            {
-                $addFields: {
-                    first: { $arrayElemAt: ['$userEvents', 0] },
-                    end: '$tracker.latest_event_time',
-                },
-            },
-            {
-                $addFields: {
-                    difference: { $subtract: ['$end', '$first.timestamp'] },
-                },
-            },
-            {
-                $match: {
-                    difference: { [durationCompareSymbol.mongo]: durationFilter },
-                },
-            },
+            ...compareAggregationLowerBound,
+            ...compareAggregationUpperBound,
         ];
     }
 
@@ -212,12 +195,7 @@ export const getConversations = async ({
     const limit = pageSize > -1 ? [{ $limit: pageSize }] : [];
 
     const aggregation = [
-        {
-            $addFields: {
-                createdAt: { $toString: '$createdAt' },
-                updatedAt: { $toString: '$updatedAt' },
-            },
-        },
+        ...addFieldsForDateRange(),
         {
             $match: { ...filtersObject },
         },

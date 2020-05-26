@@ -6,7 +6,7 @@ import { labelWithPercent, formatOrIdent } from './PieChart';
 
 function BarChart(props) {
     const {
-        data, margin, x, y, tooltip, label, formats, ...otherProps
+        data, margin, x, y, tooltip, label, formats, linkToConversations, tooltipLabels, ...otherProps
     } = props;
 
     const nivoData = data
@@ -17,9 +17,13 @@ function BarChart(props) {
     const keys = y.map(v => v.absolute);
     const relMap = keys.reduce((obj, abs) => ({ ...obj, [abs]: (y.find(el => el.absolute === abs) || { rel: null }).relative }), {});
 
+    const handleOnClick = (target) => {
+        linkToConversations(target.data, data);
+    };
     return (
         <>
             <ResponsiveBar
+                onClick={handleOnClick}
                 data={nivoData}
                 indexBy='x'
                 keys={keys}
@@ -28,13 +32,16 @@ function BarChart(props) {
                 colors={['#1f77b4', '#ff0000']}
                 borderWidth={1}
                 borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
-                tooltip={tooltip({ relMap, formats, x })}
+                tooltip={tooltip({
+                    relMap, formats, x, tooltipLabels,
+                })}
                 label={label}
                 labelSkipWidth={16}
                 labelSkipHeight={16}
                 animate
                 motionStiffness={90}
                 motionDamping={15}
+                groupMode='grouped'
                 {...otherProps}
             />
         </>
@@ -49,6 +56,8 @@ BarChart.propTypes = {
     formats: PropTypes.object,
     x: PropTypes.string.isRequired,
     y: PropTypes.array.isRequired,
+    linkToConversations: PropTypes.func,
+    tooltipLabels: PropTypes.object,
 };
 
 BarChart.defaultProps = {
@@ -60,17 +69,21 @@ BarChart.defaultProps = {
     },
     formats: {},
     label: () => '', // disable label
-    tooltip: ({ formats, relMap, x }) => ({ data: d, id, color }) => (
+    tooltip: ({
+        formats, relMap, x,
+    }) => ({ data: d, id, color }) => (
         <div>
             <strong>{formatOrIdent(formats, x)(d[x])}</strong>
             <div>
                 <span style={{ color }}>
                     <Icon name='window minimize' />
                 </span>
-                {labelWithPercent(formatOrIdent(formats, formats[id])(d[id]), d[relMap[id]])}
+                {labelWithPercent(formatOrIdent(formats, id)(d[id]), d[relMap[id]])}
             </div>
         </div>
     ),
+    linkToConversations: () => {},
+    tooltipLabels: null,
 };
 
 export default BarChart;

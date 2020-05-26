@@ -23,8 +23,8 @@ function DatePicker({
         setNewEndDate(end);
     }
 
-    function getDateString(start, end) {
-        return `${start ? `${start.format('DD MMM YYYY')} - ` : ''}${end ? end.format('DD MMM YYYY') : ''}`;
+    function getDateString(start, end, format = 'DD MMM YYYY') {
+        return `${start ? `${start.format(format)} - ` : ''}${end ? end.format(format) : ''}`;
     }
 
     function sendNewDates(all = false) {
@@ -106,8 +106,8 @@ function DatePicker({
             on='click'
             style={{ height: '450px' }}
             trigger={(
-                <Button icon labelPosition='left' onClick={() => handlePopupState()}>
-                    {startDate ? getDateString(startDate, endDate) : placeholder || 'Pick a range'}
+                <Button icon labelPosition='left' onClick={() => handlePopupState()} className='date-picker-button'>
+                    {startDate ? getDateString(startDate, endDate, 'DD/MM/YYYY') : placeholder || 'Pick a range'}
                     <Icon name='calendar alternate' />
                 </Button>
             )}

@@ -1,20 +1,16 @@
 /* eslint-disable no-undef */
 
 describe('environments-change', function () {
-    before(function () {
-        cy.deleteProject('bf');
-    });
-
     beforeEach(function () {
-        cy.removeTestConversation('dev1');
-        cy.removeTestConversation('dev2');
-        cy.removeTestConversation('prod');
-        cy.removeTestConversation('stage');
-        cy.createProject('bf', 'My Project', 'fr');
+        cy.deleteProject('bf');
+        cy.createProject('bf', 'My Project', 'fr').then(() => {
+            cy.login();
+            cy.setTimezoneOffset();
+        });
     });
 
     afterEach(function () {
-        cy.deleteProject('bf');
+        // cy.deleteProject('bf');
     });
 
     function changeEnv(env) {
@@ -73,10 +69,11 @@ describe('environments-change', function () {
     });
 
     it('should display the right conversations and activity by environment', function () {
-        cy.addTestConversation('bf', { id: 'dev1', env: 'development', lang: 'fr' });
-        cy.addTestConversation('bf', { id: 'dev2', env: 'development', lang: 'fr' });
-        cy.addTestConversation('bf', { id: 'prod', env: 'production', lang: 'fr' });
-        cy.addTestConversation('bf', { id: 'stage', env: 'staging', lang: 'fr' });
+        cy.addConversationFromTemplate('bf', 'dev', 'dev1', { language: 'fr', env: 'development' });
+        cy.addConversationFromTemplate('bf', 'dev', 'dev2', { language: 'fr', env: 'development' });
+        cy.addConversationFromTemplate('bf', 'prod', 'prod', { language: 'fr', env: 'production' });
+        cy.addConversationFromTemplate('bf', 'staging', 'stage', { language: 'fr', env: 'staging' });
+
         cy.visit('/project/bf/settings');
         cy.contains('Project Info').click();
         cy.dataCy('deployment-environments')
@@ -99,10 +96,9 @@ describe('environments-change', function () {
             .should('not.contain.text', 'stage');
         cy.dataCy('newutterances').click();
         cy.dataCy('utterance-text')
-            .should('not.contain.text', 'dev1')
-            .should('not.contain.text', 'dev2')
+            .should('not.contain.text', 'dev')
             .should('contain.text', 'prod')
-            .should('not.contain.text', 'stage');
+            .should('not.contain.text', 'staging');
 
         cy.dataCy('conversations').click();
         changeEnv('development');
@@ -113,10 +109,9 @@ describe('environments-change', function () {
             .should('not.contain.text', 'stage');
         cy.dataCy('newutterances').click();
         cy.dataCy('utterance-text')
-            .should('contain.text', 'dev1')
-            .should('not.contain.text', 'dev2')
+            .should('contain.text', 'dev')
             .should('not.contain.text', 'prod')
-            .should('not.contain.text', 'stage');
+            .should('not.contain.text', 'staging');
 
         cy.dataCy('conversations').click();
         changeEnv('staging');
@@ -127,9 +122,8 @@ describe('environments-change', function () {
             .should('contain.text', 'stage');
         cy.dataCy('newutterances').click();
         cy.dataCy('utterance-text')
-            .should('not.contain.text', 'dev1')
-            .should('not.contain.text', 'dev2')
+            .should('not.contain.text', 'dev')
             .should('not.contain.text', 'prod')
-            .should('contain.text', 'stage');
+            .should('contain.text', 'staging');
     });
 });

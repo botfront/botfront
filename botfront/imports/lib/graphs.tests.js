@@ -2,6 +2,11 @@ import { expect } from 'chai';
 import moment from 'moment';
 import { calculateTemporalBuckets, getDataToDisplayAndParamsToUse } from './graphs';
 
+const formatMoment = moment().year('2010').month('May').date('5')
+    .hour('1')
+    .minute('10');
+const hourFormat = '01:10';
+const dateFormat = '05/05';
 
 if (Meteor.isClient) {
     describe('temporal nBuckets', function () {
@@ -58,13 +63,13 @@ if (Meteor.isClient) {
             ({ paramsToUse } = getDataToDisplayAndParamsToUse({
                 data, queryParams, graphParams, valueType, bucketSize, nTicks, projectTimezoneOffset, size: true,
             }));
-            expect(paramsToUse.axisBottom.format).to.be.equal('%H:%M');
+            expect(paramsToUse.axisBottom.format(formatMoment)).to.be.equal(hourFormat);
 
             ({ nTicks, bucketSize } = calculateTemporalBuckets(startDate, endDate, _));
             ({ paramsToUse } = getDataToDisplayAndParamsToUse({
                 data, queryParams, graphParams, valueType, bucketSize, nTicks, projectTimezoneOffset,
             }));
-            expect(paramsToUse.axisBottom.format).to.be.equal('%d/%m');
+            expect(paramsToUse.axisBottom.format(formatMoment)).to.be.equal(dateFormat);
         });
 
         it('change tick format with time span', function () {
@@ -77,14 +82,14 @@ if (Meteor.isClient) {
             ({ paramsToUse } = getDataToDisplayAndParamsToUse({
                 data, queryParams, graphParams, valueType, bucketSize, nTicks, projectTimezoneOffset,
             }));
-            expect(paramsToUse.axisBottom.format).to.be.equal('%H:%M');
+            expect(paramsToUse.axisBottom.format(formatMoment)).to.be.equal(hourFormat);
 
             startDate = moment().subtract(10, 'd');
             ({ nTicks, bucketSize } = calculateTemporalBuckets(startDate, endDate));
             ({ paramsToUse } = getDataToDisplayAndParamsToUse({
                 data, queryParams, graphParams, valueType, bucketSize, nTicks, projectTimezoneOffset,
             }));
-            expect(paramsToUse.axisBottom.format).to.be.equal('%d/%m');
+            expect(paramsToUse.axisBottom.format(formatMoment)).to.be.equal(dateFormat);
         });
     });
 }
