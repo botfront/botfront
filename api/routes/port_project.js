@@ -80,6 +80,23 @@ const nativizeProject = function (projectId, projectName, backup) {
             _id: modelMapping[m._id],
         }));
     }
+    // activity use conversations ids to display the conversations bubbles
+    // so wee need to update activities with the new conversations ids
+    if ('conversations' in nativizedBackup && 'activity' in nativizedBackup) {
+        const conversationsMapping = {};
+        nativizedBackup.conversations.forEach((conv) =>
+            Object.assign(conversationsMapping, { [conv._id]: uuidv4() }),
+        );
+        nativizedBackup.activity = nativizedBackup.activity.map(activity => ({
+            ...activity,
+            conversation_id: conversationsMapping[activity.conversation_id],
+        }))
+
+        nativizedBackup.conversations = nativizedBackup.conversations.map(conversation => ({
+            ...conversation,
+            _id: conversationsMapping[conversation._id],
+        }))
+    }
 
     if ('storyGroups' in nativizedBackup && 'stories' in nativizedBackup) {
         const storyGroupMapping = {};
@@ -138,7 +155,7 @@ const nativizeProject = function (projectId, projectName, backup) {
 
     Object.keys(nativizedBackup).forEach((col) => {
         // change id of every other doc
-        if (!['project', 'models', 'storyGroups', 'stories'].includes(col)) {
+        if (!['project', 'models', 'storyGroups', 'stories', 'conversations'].includes(col)) {
             nativizedBackup[col] = nativizedBackup[col].map((doc) => ({
                 ...doc,
                 _id: uuidv4(),
