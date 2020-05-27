@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.24.0-ee.0](https://github.com/botfront/botfront/compare/v0.23.0-ee.2...v0.24.0-ee.0) (2020-05-27)
+
+
+### Features
+
+* analytics and conversations link ([c35ba30](https://github.com/botfront/botfront/commit/c35ba30f589d95aedf5cbffce34d482230a7c17d))
+* batch reset intent ([#604](https://github.com/botfront/botfront/issues/604)) ([053d18c](https://github.com/botfront/botfront/commit/053d18c04b412fa386aadcd87b1f84c52632a408))
+* better usability of the incoming tab ([095c5db](https://github.com/botfront/botfront/commit/095c5db332586dee20dbcfe08b9ea576eecfa3eb))
+* date filter for incoming utterances ([0e88c34](https://github.com/botfront/botfront/commit/0e88c342edcb2dd165e90fa6b7ff5866fa273811))
+* deploy hook ([41a511c](https://github.com/botfront/botfront/commit/41a511cc8bf7ca8feb7cc99d0df270af4fa47c85))
+* publish unpublish ([c16e8f7](https://github.com/botfront/botfront/commit/c16e8f7466491f069fe963f9caffeb85d502b96a))
+* quick reply and button bot responses ([3e27604](https://github.com/botfront/botfront/commit/3e276048ad860e51b8dec4c0192f2a5becf800b7))
+
+
+### Bug Fixes
+
+* conversation bubbles were not working after import ([9ff4109](https://github.com/botfront/botfront/commit/9ff41093578bc0a5a6beafcf209e4f096187b843))
+* merging duckling entities with other extractors ([a2d38d6](https://github.com/botfront/botfront/commit/a2d38d6f089e43f736080095d433eb1ba9e18516))
+* nlu modal: add examples with no model trained ([cb19edd](https://github.com/botfront/botfront/commit/cb19edd63f03593bb369c03aec34252d70667036))
+* one too many e's ([f7ffb98](https://github.com/botfront/botfront/commit/f7ffb985de62a4cd3915f117cf7d16a276f78213))
+* out of scope only exports the first page ([a001d47](https://github.com/botfront/botfront/commit/a001d4735e0966fd29c31652919852966abb1f74))
+
 ## [0.23.0-ee.2](https://github.com/botfront/botfront/compare/v0.23.0-ee.1...v0.23.0-ee.2) (2020-05-12)
 
 
