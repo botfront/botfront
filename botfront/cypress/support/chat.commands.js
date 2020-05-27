@@ -8,7 +8,7 @@ Cypress.Commands.add('newChatSesh', (lang) => {
     });
     cy.dataCy('open-chat').should('not.be.visible');
     cy.get('span.rw-loading', { timeout: 10000 }).should('not.exist');
-    cy.get('input.rw-new-message').should('not.be.disabled');
+    cy.get('textarea.rw-new-message').should('not.be.disabled');
     cy.dataCy('restart-chat').click();
     cy.get('span.rw-loading', { timeout: 10000 }).should('not.exist');
     if (lang) {
@@ -40,15 +40,15 @@ Cypress.Commands.add('compareLastMessage', (expectedResponse) => {
 
 Cypress.Commands.add('testChatInput', (utterance, expectedResponse) => {
     cy.get('span.rw-loading', { timeout: 10000 }).should('not.exist');
-    cy.get('input.rw-new-message').should('not.be.disabled');
-    cy.get('input.rw-new-message').click().type(`${utterance}{enter}`, { force: true });
+    cy.get('textarea.rw-new-message').should('not.be.disabled');
+    cy.get('textarea.rw-new-message').click().type(`${utterance}{enter}`, { force: true });
     // Verify response
     cy.compareLastMessage(expectedResponse);
 });
 
 Cypress.Commands.add('testChatQR', (buttonText, expectedResponse) => {
     cy.get('span.rw-loading', { timeout: 10000 }).should('not.exist');
-    cy.get('input.rw-new-message').should('not.be.disabled');
+    cy.get('textarea.rw-new-message').should('not.be.disabled');
     cy.get('.rw-message').last().get('.rw-replies')
         .find('.rw-reply')
         .contains(buttonText)
