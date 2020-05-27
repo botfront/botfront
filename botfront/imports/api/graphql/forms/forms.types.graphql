@@ -6,6 +6,16 @@ type Form {
 type SlotToFill {
     name: String!
     filling: [SlotFilling]
+    validation: SlotValidation
+    utter_on_new_valid_slot: Boolean
+    # utter_valid_{slot_name}
+    # utter_invalid{slot_name}
+    # utter_ask_{slot_name}
+}
+
+type SlotValidation {
+    operator: ValidationOperator!
+    comparatum: Any
 }
 
 interface SlotFilling {
@@ -41,4 +51,18 @@ enum FillingSource {
     from_intent
     from_trigger_intent
     from_text
+}
+
+enum ValidationType {
+    is_in
+    is_exactly
+    contains
+    starts_with
+    ends_with
+    matches
+    eq
+    gt
+    gte
+    lt
+    lte
 }
