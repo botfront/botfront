@@ -149,6 +149,7 @@ type CustomPayload implements BotResponsePayload {
     key: String
     text: Any
     buttons: Any
+    quick_replies: Any
     elements: Any
     attachment: Any
     image: Any
