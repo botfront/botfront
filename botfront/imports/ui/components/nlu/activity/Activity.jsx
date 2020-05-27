@@ -162,7 +162,9 @@ function Activity(props) {
     };
 
     const handleSetIntent = (utterances, intent) => {
-        const message = `Set intent of ${utterances.length} incoming utterances to ${intent}?`;
+        const message = intent
+            ? `Set intent of ${utterances.length} incoming utterances to ${intent}?`
+            : `Reset intent of ${utterances.length} incoming utterances?`;
         const action = () => handleUpdate(utterances.map(({ _id }) => ({
             _id, intent, confidence: null, ...(!intent ? { validated: false } : {}),
         })));

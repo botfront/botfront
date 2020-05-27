@@ -37,6 +37,9 @@ type Mutation {
         language: String!
         newPayload: Any
         key: String!
+        # if the response type has been updated, the resolver needs to know so it
+        # can update the rest of the variations and other languages for this response
+        newResponseType: String
         index: Int = -1
         logging: Boolean
     ): BotResponse
@@ -114,7 +117,14 @@ type TextPayload implements BotResponsePayload {
     metadata: Any
 }
 
-type QuickReplyPayload implements BotResponsePayload {
+type QuickRepliesPayload implements BotResponsePayload {
+    key: String
+    text: String
+    quick_replies: [Button!]
+    metadata: Any
+}
+
+type TextWithButtonsPayload implements BotResponsePayload {
     key: String
     text: String
     buttons: [Button!]
@@ -140,6 +150,7 @@ type CustomPayload implements BotResponsePayload {
     key: String
     text: Any
     buttons: Any
+    quick_replies: Any
     elements: Any
     attachment: Any
     image: Any

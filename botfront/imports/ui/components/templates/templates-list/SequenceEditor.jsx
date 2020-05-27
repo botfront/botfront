@@ -8,12 +8,13 @@ import { safeLoad } from 'js-yaml';
 import BotResponsesContainer from '../../stories/common/BotResponsesContainer';
 import CustomResponseEditor from '../common/CustomResponseEditor';
 import IconButton from '../../common/IconButton';
+import ButtonTypeToggle from '../common/ButtonTypeToggle';
 
 import { addContentType, defaultTemplate } from '../../../../lib/botResponse.utils';
 
 const SequenceEditor = (props) => {
     const {
-        name, sequence, onChange, onDeleteVariation, editable,
+        name, sequence, onChange, onDeleteVariation, editable, onChangePayloadType,
     } = props;
 
     const getContent = (variation) => {
@@ -50,6 +51,18 @@ const SequenceEditor = (props) => {
                     )}
                     <div className='variation-option-menu'>
                         {editable && (
+                        <>
+                            <ButtonTypeToggle
+                                onToggleButtonType={() => {
+                                    if (content.__typename === 'TextWithButtonsPayload') {
+                                        onChangePayloadType('QuickRepliesPayload');
+                                    }
+                                    if (content.__typename === 'QuickRepliesPayload') {
+                                        onChangePayloadType('TextWithButtonsPayload');
+                                    }
+                                }}
+                                responseType={content.__typename}
+                            />
                             <IconButton
                                 id={`delete-${name}-${index}`} // stop the response from saving if the input blur event is the delete button
                                 onClick={() => {
@@ -64,6 +77,7 @@ const SequenceEditor = (props) => {
                                 }}
                                 icon='trash'
                             />
+                        </>
                         )}
                     </div>
                 </>
@@ -96,6 +110,7 @@ SequenceEditor.propTypes = {
     onChange: PropTypes.func.isRequired,
     onDeleteVariation: PropTypes.func.isRequired,
     name: PropTypes.string.isRequired,
+    onChangePayloadType: PropTypes.func.isRequired,
     editable: PropTypes.bool,
 };
 

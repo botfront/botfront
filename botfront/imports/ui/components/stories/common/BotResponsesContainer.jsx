@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import {
     Placeholder, Loader, Header, List,
@@ -7,14 +7,16 @@ import {
 
 import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
+
 import IconButton from '../../common/IconButton';
 import BotResponseEditor from '../../templates/templates-list/BotResponseEditor';
+import ButtonTypeToggle from '../../templates/common/ButtonTypeToggle';
 import BotResponseContainer from './BotResponseContainer';
 import HoverablePopup from '../../common/HoverablePopup';
 import { setStoriesCurrent } from '../../../store/actions/actions';
 import { useUpload } from '../hooks/image.hooks';
 
-import { checkMetadataSet } from '../../../../lib/botResponse.utils';
+import { checkMetadataSet, toggleButtonPersistence } from '../../../../lib/botResponse.utils';
 import { can } from '../../../../lib/scopes';
 
 export const ResponseContext = React.createContext();
@@ -41,6 +43,7 @@ const BotResponsesContainer = (props) => {
     const [focus, setFocus] = useState(null);
     const [uploadImage] = useUpload(name);
     const [responseLocationsOpen, setResponseLocationsOpen] = useState(false);
+    const typeName = useMemo(() => template && template.__typename, [template]);
 
     const editable = can('responses:w', projectId);
 
@@ -74,6 +77,12 @@ const BotResponsesContainer = (props) => {
         }
         onChange(newSequence[0]);
         return setTemplate(newSequence[0]);
+    };
+
+    const handleToggleQuickReply = () => {
+        const update = toggleButtonPersistence(template);
+        onChange(update);
+        setTemplate(update);
     };
 
     const handleCreateReponse = (index) => {
@@ -203,13 +212,17 @@ const BotResponsesContainer = (props) => {
                 )}
                 {getSequence().map(renderResponse)}
                 <div className='side-by-side right narrow top-right'>
+                    <ButtonTypeToggle
+                        onToggleButtonType={handleToggleQuickReply}
+                        responseType={typeName}
+                    />
                     {enableEditPopup && (
                         <IconButton
                             icon='ellipsis vertical'
                             onClick={() => setEditorOpen(true)}
                             data-cy='edit-responses'
                             className={template && checkMetadataSet(template.metadata) ? 'light-green' : 'grey'}
-                            color={null} // prevent default color overiding the color set by the class
+                            color={null}
                         />
                     )}
                     {editorOpen && (

@@ -10,6 +10,7 @@ import {
     deleteVariation,
     getBotResponseById,
     upsertResponse,
+    updateResponseType,
 } from '../mongo/botResponses';
 import { checkIfCan } from '../../../../lib/scopes';
 import { auditLog } from '../../../../../server/logger';
@@ -113,7 +114,9 @@ export default {
         upsertResponse: async (_, args, auth) => {
             checkIfCan('responses:w', args.projectId, auth.user._id);
             const responseBefore = await getBotResponse(args.projectId, args.key);
-            const response = await upsertResponse(args);
+            // if the response type has been updated all the other languages and variations for this response
+            // need to be updated so we use the updateResponseType function instead of upsertResponse
+            const response = args.newResponseType ? await updateResponseType(args) : await upsertResponse(args);
             const { projectId, ...botResponsesModified } = response;
             if (args.logging) {
                 auditLog('Upserted response', {

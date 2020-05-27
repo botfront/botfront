@@ -28,6 +28,7 @@ const Intent = React.forwardRef((props, ref) => {
     const [typeInput, setTypeInput] = useState('');
     const labelRef = useRef();
     const tableRef = useRef();
+    const showReset = allowEditing && enableReset && ((value && value !== OOS_LABEL) || detachedModal);
 
     const intents = [
         ...(value ? [{ intent: value }] : []),
@@ -85,6 +86,7 @@ const Intent = React.forwardRef((props, ref) => {
 
     const handleKeyDown = (event) => {
         event.stopPropagation();
+        if (event.key === 'Backspace' && event.shiftKey && showReset) handleChange('');
         if (event.key === 'Escape') handleClose();
         else if (['ArrowUp', 'ArrowDown'].includes(event.key)) selectSibling(event.key);
         else if (event.key === 'Enter') {
@@ -93,6 +95,22 @@ const Intent = React.forwardRef((props, ref) => {
             );
         } else setSelection([dataToDisplay[0].intent]);
     };
+
+    const renderResetIntent = () => (
+        <div className='reset-intent'>
+            <Popup
+                size='mini'
+                inverted
+                content='Reset intent (Shift + Backspace)'
+                trigger={(
+                    <Button
+                        icon='x'
+                        onClick={() => handleChange('')}
+                    />
+                )}
+            />
+        </div>
+    );
 
     const renderIntent = (row) => {
         const { datum } = row;
@@ -155,6 +173,7 @@ const Intent = React.forwardRef((props, ref) => {
             data-cy='intent-dropdown'
         >
             {allowAdditions && renderInsertNewIntent()}
+            {showReset && renderResetIntent()}
             {dataToDisplay.length ? (
                 <DataTable
                     ref={tableRef}
@@ -228,7 +247,7 @@ const Intent = React.forwardRef((props, ref) => {
                 <Icon name='tag' size='small' />
                 <span>{value || 'no intent'}</span>
             </div>
-            {allowEditing && enableReset && value && value !== OOS_LABEL && (
+            {showReset && (
                 <Icon
                     name='x'
                     className='action-on-label'

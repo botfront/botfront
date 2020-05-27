@@ -4,7 +4,7 @@ import BotResponses from '../botResponses.model';
 import { GlobalSettings } from '../../../globalSettings/globalSettings.collection';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { Stories } from '../../../story/stories.collection';
-import { addTemplateLanguage } from '../../../../lib/botResponse.utils';
+import { addTemplateLanguage, modifyResponseType } from '../../../../lib/botResponse.utils';
 import { parsePayload } from '../../../../lib/storyMd.utils';
 
 const indexResponseContent = (input) => {
@@ -160,6 +160,16 @@ export const getBotResponseById = async (_id) => {
     return botResponse;
 };
 
+export const updateResponseType = async ({
+    projectId, key, newResponseType,
+}) => {
+    const response = await BotResponses.findOne({ projectId, key }).lean();
+    const result = await BotResponses.findOneAndUpdate(
+        { projectId, key },
+        { $set: { values: modifyResponseType(response, newResponseType).values } },
+    );
+    return result;
+};
 
 export const upsertResponse = async ({
     projectId, language, key, newPayload, index,

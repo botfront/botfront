@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file. See [standa
 ## [0.23.0-ee.2](https://github.com/botfront/botfront/compare/v0.23.0-ee.1...v0.23.0-ee.2) (2020-05-12)
 
 
+### Features
+
+* batch reset intent ([#604](https://github.com/botfront/botfront/issues/604)) ([053d18c](https://github.com/botfront/botfront/commit/053d18c))
+* quick reply and button bot responses ([3e27604](https://github.com/botfront/botfront/commit/3e27604))
+
+
+
+## [0.24.0-beta.0](https://github.com/botfront/botfront/compare/v0.23.1...v0.24.0-beta.0) (2020-05-18)
+
+
 ### Bug Fixes
 
 * image webhook was not working ([#139](https://github.com/botfront/botfront/issues/139)) ([41b774d](https://github.com/botfront/botfront/commit/41b774d468dc2734f5e68334f5cd8908d7a836e4))

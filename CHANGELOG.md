@@ -2,7 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [0.23.0-ee.2](https://github.com/botfront/botfront/compare/v0.23.0-ee.1...v0.23.0-ee.2) (2020-05-12)
+
+
+### Features
+
+* batch reset intent ([#604](https://github.com/botfront/botfront/issues/604)) ([053d18c](https://github.com/botfront/botfront/commit/053d18c))
+* quick reply and button bot responses ([3e27604](https://github.com/botfront/botfront/commit/3e27604))
+
+
+
 
 
 ### Bug Fixes

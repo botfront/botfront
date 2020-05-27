@@ -18,7 +18,8 @@ const BotResponseContainer = (props) => {
     const focusGrabber = useRef();
     const isCustom = value.__typename === 'CustomPayload';
     const isTextResponse = value.__typename === 'TextPayload';
-    const isQRResponse = value.__typename === 'QuickReplyPayload';
+    const isQRResponse = value.__typename === 'QuickRepliesPayload';
+    const isButtonsResponse = value.__typename === 'TextWithButtonsPayload';
     const isCarouselResponse = value.__typename === 'CarouselPayload';
     const isImageResponse = value.__typename === 'ImagePayload';
     const hasText = Object.keys(value).includes('text') && value.text !== null;
@@ -83,6 +84,15 @@ const BotResponseContainer = (props) => {
         />
     );
 
+    const renderQuickReply = () => (
+        <QuickReplies
+            value={value.quick_replies}
+            onChange={(buttons) => {
+                onChange({ ...value, quick_replies: buttons }, false);
+            }}
+        />
+    );
+
     const renderCustom = () => (
         <Button
             className='edit-custom-response'
@@ -120,7 +130,8 @@ const BotResponseContainer = (props) => {
                 {hasText && !isImageResponse && renderText()}
                 {isImageResponse && <ImageThumbnail value={value.image} onChange={setImage} />}
                 {isCarouselResponse && <CarouselEditor value={value} onChange={onChange} />}
-                {isQRResponse && renderButtons()}
+                {isButtonsResponse && renderButtons()}
+                {isQRResponse && renderQuickReply()}
                 {isCustom && renderCustom()}
             </div>
         </div>

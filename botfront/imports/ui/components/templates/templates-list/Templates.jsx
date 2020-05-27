@@ -48,8 +48,8 @@ class Templates extends React.Component {
                     data-cy='add-text-response'
                 />
                 <Dropdown.Item
-                    text='Quick replies'
-                    onClick={() => this.setState({ newResponse: { open: true, type: 'QuickReplyPayload' } })}
+                    text='Buttons and quick replies'
+                    onClick={() => this.setState({ newResponse: { open: true, type: 'QuickRepliesPayload' } })}
                     data-cy='add-quickreply-response'
                 />
                 <Dropdown.Item

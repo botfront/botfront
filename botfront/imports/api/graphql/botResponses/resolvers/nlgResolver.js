@@ -79,7 +79,11 @@ export default {
         __resolveType: parseContentType,
         metadata: ({ metadata }) => metadata,
     },
-    QuickReplyPayload: {
+    QuickRepliesPayload: {
+        text: ({ text }) => text,
+        quick_replies: template => template.quick_replies,
+    },
+    TextWithButtonsPayload: {
         text: ({ text }) => text,
         buttons: ({ buttons }) => buttons,
     },
@@ -98,6 +102,7 @@ export default {
         attachment: ({ attachment }) => attachment,
         custom: ({ custom }) => custom,
         buttons: ({ buttons }) => buttons,
+        quick_replies: template => template.quick_replies,
         image: ({ image }) => image,
     },
     CarouselElement: {
