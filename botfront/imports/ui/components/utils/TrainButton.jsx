@@ -4,8 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 
 import { Button, Popup } from 'semantic-ui-react';
-import Alert from 'react-s-alert';
-import 'react-s-alert/dist/s-alert-default.css';
+import { wrapMeteorCallback } from './Errors';
 import { isTraining } from '../../../api/nlu_model/nlu_model.utils';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 
@@ -14,14 +13,7 @@ class TrainButton extends React.Component {
     train = () => {
         const { instance, projectId } = this.props;
         Meteor.call('project.markTrainingStarted', projectId);
-        Meteor.call('rasa.train', projectId, instance, (err) => {
-            if (err) {
-                Alert.error(`Training failed: ${JSON.stringify(err.reason)}`, {
-                    position: 'top-right',
-                    timeout: 'none',
-                });
-            }
-        });
+        Meteor.call('rasa.train', projectId, instance, wrapMeteorCallback());
     }
 
     renderButton = (project, instance, popupContent) => (

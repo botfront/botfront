@@ -9,7 +9,7 @@ import { promisify } from 'util';
 import path from 'path';
 
 import {
-    getAxiosError, getModelIdsFromProjectId, getProjectModelLocalFolder, getProjectModelFileName,
+    formatError, getModelIdsFromProjectId, getProjectModelLocalFolder, getProjectModelFileName,
 } from '../../lib/utils';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
@@ -144,11 +144,7 @@ if (Meteor.isServer) {
             return examples.length < 2 ? result[0] : result;
         } catch (e) {
             if (failSilently) return {};
-            if (e instanceof Meteor.Error) {
-                throw e;
-            } else {
-                throw new Meteor.Error('500', e.message);
-            }
+            throw formatError(e);
         }
     };
 
@@ -259,7 +255,7 @@ if (Meteor.isServer) {
                 const t1 = performance.now();
                 appMethodLogger.error(`Building training payload failed - ${(t1 - t0).toFixed(2)} ms`, { status: e.status });
                 Meteor.call('project.markTrainingStopped', projectId, 'failure', e.reason);
-                throw getAxiosError(e);
+                throw formatError(e);
             }
         },
 
@@ -311,7 +307,7 @@ if (Meteor.isServer) {
                 const t1 = performance.now();
                 appMethodLogger.error(`Training project ${projectId} - ${(t1 - t0).toFixed(2)} ms`, { error: e });
                 Meteor.call('project.markTrainingStopped', projectId, 'failure', e.reason);
-                throw getAxiosError(e);
+                throw formatError(e);
             }
         },
 
