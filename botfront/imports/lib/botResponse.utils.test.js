@@ -49,7 +49,7 @@ const qrEmpty = {
             sequence: [
                 {
                     content:
-                        '__typename: QuickReplyPayload\ntext: \'\'\nbuttons:\n  - title: \'\'\n    type: postback\n    payload: \'\'\n',
+                        '__typename: QuickRepliesPayload\ntext: \'\'\nbuttons:\n  - title: \'\'\n    type: postback\n    payload: \'\'\n',
                 },
             ],
         },
@@ -65,7 +65,7 @@ const qrWithText = {
             sequence: [
                 {
                     content:
-                        '__typename: QuickReplyPayload\ntext: q\nbuttons:\n  - title: \'test\'\n    type: postback\n    payload: \'\'\n',
+                        '__typename: QuickRepliesPayload\ntext: q\nbuttons:\n  - title: \'test\'\n    type: postback\n    payload: \'\'\n',
                 },
             ],
         },
@@ -81,7 +81,7 @@ const qrWithButton = {
             sequence: [
                 {
                     content:
-                        '__typename: QuickReplyPayload\ntext: \'\'\nbuttons:\n  - title: q\n    type: postback\n    payload: /chitchat.greet\n    __typename: PostbackButton\n',
+                        '__typename: QuickRepliesPayload\ntext: \'\'\nbuttons:\n  - title: q\n    type: postback\n    payload: /chitchat.greet\n    __typename: PostbackButton\n',
                 },
             ],
         },

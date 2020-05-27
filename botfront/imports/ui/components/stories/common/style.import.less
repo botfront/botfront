@@ -153,7 +153,7 @@
     padding: 9px 0 5px; // 4px extra because of .utterance-container bottom margin
 
     .side-by-side.top-right {
-        max-width: 70px;
+        max-width: 80px;
         position: absolute;
         top: 5px;
         right: 5px;
@@ -255,6 +255,9 @@
     align-items: center;
 
     > *:last-child {
+        &.utterance-container[agent="bot"] {
+            margin-right: 185px !important;
+        }
         margin-right: 90px !important;
     }
 
@@ -406,6 +409,7 @@ div.add-entity-wrap {
 
     &[agent="bot"] {
         margin-left: 24px;
+        margin-right: auto;
         background: rgba(0, 0, 0, 0.04);
         width: 30rem;
         min-width: ~"fit-content(calc(22rem - 5px))";

@@ -7,7 +7,10 @@
                 "name": "TextPayload"
             },
             {
-                "name": "QuickReplyPayload"
+                "name": "QuickRepliesPayload"
+            },
+            {
+                "name": "TextWithButtonsPayload"
             },
             {
                 "name": "ImagePayload"

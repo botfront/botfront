@@ -23,6 +23,7 @@ import {
     addResponseLanguage,
     getDefaultTemplateFromSequence,
     addContentType,
+    modifyResponseType,
 } from '../../../../lib/botResponse.utils';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { Loading } from '../../utils/Utils';
@@ -94,7 +95,7 @@ const BotResponseEditor = (props) => {
         );
     };
 
-    const updateResponse = (updatedResponse, callback) => {
+    const updateResponse = (updatedResponse, callback = () => {}) => {
         updateBotResponse({
             variables: {
                 projectId, _id: updatedResponse._id, response: clearTypenameField(updatedResponse),
@@ -177,6 +178,15 @@ const BotResponseEditor = (props) => {
         upsertResponse(name, updatedSequence, index);
     };
 
+    const handleChangePayloadType = (newType) => {
+        const updatedBotResponse = modifyResponseType(newBotResponse, newType);
+        if (isNew || !newBotResponse._id) {
+            setNewBotResponse(updatedBotResponse);
+            return;
+        }
+        updateResponse(updatedBotResponse);
+    };
+
     const getActiveSequence = () => {
         const activeValue = newBotResponse.values && newBotResponse.values.find(({ lang }) => lang === language);
         if (!activeValue) {
@@ -238,6 +248,7 @@ const BotResponseEditor = (props) => {
                     sequence={activeSequence}
                     onChange={handleSequenceChange}
                     onDeleteVariation={handleDeleteVariation}
+                    onChangePayloadType={handleChangePayloadType}
                     name={name}
                 />
                 <Segment attached='bottom' className='response-editor-footer' textAlign='center'>

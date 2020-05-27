@@ -1,4 +1,5 @@
 import { safeLoad, safeDump } from 'js-yaml';
+import { clearTypenameField } from './client.safe.utils';
 
 const checkContentEmpty = (content) => {
     switch (true) {
@@ -46,9 +47,19 @@ export const defaultTemplate = (template) => {
     switch (template) {
     case 'TextPayload':
         return { text: '', __typename: 'TextPayload' };
-    case 'QuickReplyPayload':
+    case 'QuickRepliesPayload':
         return {
-            __typename: 'QuickReplyPayload',
+            __typename: 'QuickRepliesPayload',
+            text: '',
+            quick_replies: [
+                {
+                    title: '', type: 'postback', payload: '',
+                },
+            ],
+        };
+    case 'TextWithButtonsPayload':
+        return {
+            __typename: 'TextWithButtonsPayload',
             text: '',
             buttons: [
                 {
@@ -89,7 +100,7 @@ export const createResponseFromTemplate = (type, language, options = {}) => {
 };
 
 const excludeAllButOneKey = (content, key) => {
-    const included = ['image', 'buttons', 'elements', 'custom', 'attachment']
+    const included = ['image', 'buttons', 'elements', 'custom', 'attachment', 'quick_replies']
         .filter(k => Object.keys(content).includes(k));
     if (key) return included.length === 1 && included[0] === key;
     return included.length === 0;
@@ -103,6 +114,7 @@ export const parseContentType = (content) => {
     case ([
         (content.image === undefined || typeof content.image === 'string'),
         (content.buttons === undefined || Array.isArray(content.buttons)),
+        (content.quick_replies === undefined || Array.isArray(content.quick_replies)),
         (content.elements === undefined || (
             Array.isArray(content.elements)
             && typeof content.template_type === 'string'
@@ -116,7 +128,8 @@ export const parseContentType = (content) => {
         )),
     ].some(f => !f)): return 'CustomPayload';
     case excludeAllButOneKey(content, 'image'): return 'ImagePayload';
-    case excludeAllButOneKey(content, 'buttons'): return 'QuickReplyPayload';
+    case excludeAllButOneKey(content, 'quick_replies'): return 'QuickRepliesPayload';
+    case excludeAllButOneKey(content, 'buttons'): return 'TextWithButtonsPayload';
     case excludeAllButOneKey(content, 'elements'): return 'CarouselPayload';
     case Object.keys(content).includes('text') && excludeAllButOneKey(content): return 'TextPayload';
     default: return 'CustomPayload';
@@ -166,3 +179,65 @@ export const addTemplateLanguage = (templates, language) => templates
             payload,
         };
     });
+
+export const setTypeQuickReply = (content) => {
+    const {
+        text, buttons, quick_replies, metadata,
+    } = content;
+    return {
+        text,
+        quick_replies: quick_replies || buttons,
+        metadata,
+        __typename: 'QuickRepliesPayload',
+    };
+};
+export const setTypeTextWithButtons = (content) => {
+    const {
+        text, buttons, quick_replies, metadata,
+    } = content;
+    return {
+        text,
+        buttons: buttons || quick_replies,
+        metadata,
+        __typename: 'TextWithButtonsPayload',
+    };
+};
+
+export const changeContentType = (content, newType) => {
+    switch (newType) {
+    case 'QuickRepliesPayload':
+        return setTypeQuickReply(content);
+    case 'TextWithButtonsPayload':
+        return setTypeTextWithButtons(content);
+    default:
+        throw new Error(
+            `type ${newType} is not cupported by changContentType`,
+        );
+    }
+};
+
+export const modifyResponseType = (response, newType) => {
+    if (newType === 'TextWithButtonsPayload' || newType === 'QuickRepliesPayload') {
+        const updatedValues = response.values.map((v) => {
+            const sequence = v.sequence.map((s) => {
+                const content = addContentType(safeLoad(s.content));
+                return { ...s, content: safeDump(clearTypenameField(changeContentType(content, newType))) };
+            });
+            return { ...v, sequence };
+        });
+        return { ...response, values: updatedValues };
+    }
+};
+
+export const toggleButtonPersistence = (content) => {
+    switch (content.__typename) {
+    case 'QuickRepliesPayload':
+        return setTypeTextWithButtons(content);
+    case 'TextWithButtonsPayload':
+        return setTypeQuickReply(content);
+    default:
+        throw new Error(
+            '__typename must be TextWithButtonsPayload or QuickRepliesPayload to toggle button persistence',
+        );
+    }
+};

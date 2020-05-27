@@ -253,6 +253,50 @@ Migrations.add({
         });
     },
 });
+Migrations.add({
+    version: 10,
+    up: async () => {
+        const checkIsTypeButtons = (content) => {
+            // the only type defining key in the response content should be buttons
+            const included = ['image', 'buttons', 'elements', 'custom', 'attachment', 'quick_replies']
+                .filter(k => Object.keys(content).includes(k));
+            return included.length === 1 && included[0] === 'buttons';
+        };
+
+        const updateContent = (sequence) => {
+            const content = safeLoad(sequence.content);
+            // check if it is a buttons response
+            if (!checkIsTypeButtons(content)) throw new Error('not a buttons response');
+            // replace buttons with quick replies
+            content.quick_replies = content.buttons;
+            delete content.buttons;
+            return { ...sequence, content: safeDump(content) };
+        };
+
+        // start migration
+        const responses = await BotResponses.find().lean();
+        if (!responses || !responses.length) return;
+        
+        const updatedResponses = responses.reduce((buttonResponses, response) => {
+            try {
+                const values = response.values.map(value => ({
+                    ...value, sequence: value.sequence.map(updateContent),
+                }));
+                return [...buttonResponses, { ...response, values }];
+            } catch (err) {
+                // we do not need to update the response if it is not a buttons response
+                return buttonResponses;
+            }
+        }, []);
+
+        updatedResponses.forEach((response) => {
+            BotResponses.update(updatedResponses);
+            const { projectId, key } = response;
+            const { _id, ...rest } = response;
+            BotResponses.updateOne({ projectId, key }, rest).exec();
+        });
+    },
+});
 Meteor.startup(() => {
     Migrations.migrateTo('latest');
 });

@@ -166,17 +166,26 @@ class Project extends React.Component {
         this.setState({ entities: [...new Set([...entities, newEntity])] });
     }
 
-    upsertResponse = (key, payload, index) => {
+    upsertResponse = async (key, payload, index) => {
+        const { responses } = this.state;
+
         const { projectId, workingLanguage: language } = this.props;
         const { isNew, ...newPayload } = payload; // don't pass isNew to mutation
+        let responseTypeVariable = {};
+        // if the response type has changed; add newResponseType to the queryVariables
+        if (responses[key] && responses[key].__typename !== payload.__typename) {
+            responseTypeVariable = { newResponseType: payload.__typename };
+            this.resetResponseInCache(key);
+        }
         const variables = {
-            projectId, language, newPayload, key, index,
+            projectId, language, newPayload, key, index, ...responseTypeVariable,
         };
-        return apolloClient.mutate({
+        const result = await apolloClient.mutate({
             mutation: UPSERT_BOT_RESPONSE,
             variables,
             update: () => this.setResponse(key, { isNew, ...newPayload }),
         });
+        return result;
     }
 
     responsesFrag = () => {
@@ -189,6 +198,36 @@ class Project extends React.Component {
                 }
             `,
         };
+    }
+
+    getMultiLangResponsesFrag = async () => {
+        const { projectId, projectLanguages } = this.props;
+        return projectLanguages.map(({ value }) => ({
+            id: `${projectId}-${value}`,
+            fragment: gql`
+                    fragment C on Cached {
+                        responses
+                    }
+                `,
+        }));
+    };
+
+    resetResponseInCache = async (responseName) => {
+        const frags = await this.getMultiLangResponsesFrag();
+        const fragKeys = Object.keys(frags);
+        const readFrags = fragKeys.map(key => apolloClient.readFragment(frags[key]) || { responses: {} });
+        readFrags.forEach((frag, i) => {
+            const fragResponses = { ...frag.responses };
+            delete fragResponses[responseName];
+            const newFrag = {
+                ...frags[fragKeys[i]],
+                data: {
+                    responses: fragResponses,
+                    __typename: 'Cached',
+                },
+            };
+            apolloClient.writeFragment(newFrag);
+        });
     }
 
     readResponsesFrag = () => apolloClient.readFragment(this.responsesFrag()) || { responses: {} };
