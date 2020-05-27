@@ -9,11 +9,11 @@ import {
 import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
 import { get } from 'lodash';
+import { wrapMeteorCallback } from './Errors';
 import { isTraining } from '../../../api/nlu_model/nlu_model.utils';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Can, can } from '../../../lib/scopes';
 import { ProjectContext } from '../../layouts/context';
-import { wrapMeteorCallback } from './Errors';
 
 
 class TrainButton extends React.Component {
@@ -41,16 +41,12 @@ class TrainButton extends React.Component {
         Meteor.call('project.markTrainingStarted', projectId);
         // a promise is needed so we are able to wait for training to finish before trying to deploy the trained model
         await new Promise((resolve, reject) => {
-            Meteor.call('rasa.train', projectId, instance, target, loadModel, (err) => {
+            Meteor.call('rasa.train', projectId, instance, target, loadModel, wrapMeteorCallback((err) => {
                 if (err) {
-                    Alert.error(`Training failed: ${JSON.stringify(err.reason)}`, {
-                        position: 'top-right',
-                        timeout: 'none',
-                    });
                     reject(new Error());
                 }
                 resolve();
-            });
+            }));
         });
     }
 
@@ -59,7 +55,7 @@ class TrainButton extends React.Component {
         this.setState({ modalOpen: { ...modalOpen, [env]: visible } });
     }
 
-    renderDeployDropDown = (isTraining) => {
+    renderDeployDropDown = (trainingInProgress) => {
         const { environments } = this.props;
         const { webhook } = this.state;
         
@@ -88,7 +84,7 @@ class TrainButton extends React.Component {
                     className='button icon'
                     data-cy='train-and-deploy'
                     floating
-                    disabled={isTraining}
+                    disabled={trainingInProgress}
                     trigger={<React.Fragment />}
                 >
                     <Dropdown.Menu>
@@ -232,14 +228,12 @@ TrainButton.propTypes = {
     popupContent: PropTypes.string,
     ready: PropTypes.bool.isRequired,
     environments: PropTypes.array,
-    webhook: PropTypes.object,
 };
 
 TrainButton.defaultProps = {
     instance: null,
     popupContent: '',
     environments: [],
-    webhook: {},
 };
 
 const TrainWithContext = props => (
