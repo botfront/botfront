@@ -29,12 +29,24 @@ export const formatError = (error) => {
     if (process.env.MODE === 'development') console.log(error);
 
     const {
-        response, request, code, message, errmsg,
+        response, request, code, message, reason, errmsg,
     } = error;
     
-    if (response && response.status) {
+    if (response && response.status && response.data) {
         // axios error
-        return new Meteor.Error(error.response.status, error.response.data.error);
+        let errorInfo = response.data;
+        if (Buffer.isBuffer(errorInfo)) {
+            try {
+                errorInfo = JSON.parse(errorInfo.slice(0, 1000).toString());
+            } catch {
+                //
+            }
+        }
+        const { error: err = {}, message: msg, reason: rs } = errorInfo || {};
+        return new Meteor.Error(
+            response.status,
+            err.message || err.reason || msg || rs || err || message || reason,
+        );
     }
     if (request && code === 'ECONNREFUSED') {
         // axios error
@@ -42,10 +54,10 @@ export const formatError = (error) => {
     }
 
     if (code === 11000) {
-        return new Meteor.Error(code, errmsg || message);
+        return new Meteor.Error(code, errmsg || message || reason);
     }
 
-    return new Meteor.Error(code, message);
+    return new Meteor.Error(code, message || reason);
 };
 
 export const getBackgroundImageUrl = () => {
