@@ -60,7 +60,7 @@
     "prop-types": "^15.7.2",
     "query-string": "^5.1.0",
     "random-seed": "^0.3.0",
-    "rasa-webchat": "0.10.0",
+    "rasa-webchat": "0.10.2",
     "react": "^16.8.6",
     "react-ace": "^6.1.4",
     "react-apollo": "^2.5.8",
