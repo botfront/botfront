@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.24.1](https://github.com/botfront/botfront/compare/v0.24.0...v0.24.1) (2020-05-28)
+
+
+### Bug Fixes
+
+* updagraded rasa-for-botfront with disambiguation fix ([#617](https://github.com/botfront/botfront/issues/617)) ([3ad2a00](https://github.com/botfront/botfront/commit/3ad2a00))
+
+
+
 ## [0.24.0](https://github.com/botfront/botfront/compare/v0.24.0-beta.0...v0.24.0) (2020-05-27)
 
 
