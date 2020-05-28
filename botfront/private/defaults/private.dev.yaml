@@ -15,8 +15,8 @@ endpoints:
     store_type:  rasa_addons.core.tracker_stores.botfront.BotfrontTrackerStore
     url: http://host.docker.internal:3000/graphql
 policies:
-  - name: KerasPolicy
-    epochs: 200
+  - name: TEDPolicy
+    epochs: 50
   - name: rasa_addons.core.policies.BotfrontDisambiguationPolicy
     fallback_trigger: 0.30
     disambiguation_trigger: '$0 < 2 * $1'
