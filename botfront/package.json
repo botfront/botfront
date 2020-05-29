@@ -116,6 +116,7 @@
     "@commitlint/cli": "^8.2.0",
     "@commitlint/config-conventional": "^8.2.0",
     "@meteorjs/eslint-config-meteor": "^1.0.5",
+    "@storybook/addon-actions": "^5.3.18",
     "@storybook/addon-knobs": "^5.1.9",
     "@storybook/react": "^5.1.9",
     "babel-eslint": "^10.0.1",
@@ -136,13 +137,13 @@
     "eslint-plugin-meteor": "^5.1.0",
     "eslint-plugin-react": "^7.11.1",
     "faker": "^4.1.0",
-    "husky": "3.0.9",
+    "husky": "2.7.0",
+    "less": "^3.11.1",
     "less-loader": "^5.0.0",
     "license-checker": "^25.0.1",
     "resolve-from": "^5.0.0",
     "selenium-webdriver": "3.6.0",
     "start-server-and-test": "^1.9.1",
-    "@storybook/addon-actions": "^5.3.18",
     "webpack": "^4.28.4"
   },
   "husky": {
