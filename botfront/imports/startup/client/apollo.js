@@ -8,11 +8,13 @@ import { ApolloLink, Observable, split } from 'apollo-link';
 import { DDPSubscriptionLink, isSubscription } from 'apollo-link-ddp';
 
 import botResponseFragmentTypes from '../../api/graphql/botResponses/schemas/botResponseFragmentTypes.json';
+import formFragmentTypes from '../../api/graphql/forms/formFragmentTypes.json';
 
 const introspectionQueryResultData = {
     __schema: {
         types: [
             ...botResponseFragmentTypes,
+            ...formFragmentTypes,
         ],
     },
 };
