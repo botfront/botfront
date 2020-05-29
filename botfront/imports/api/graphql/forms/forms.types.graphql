@@ -1,6 +1,8 @@
 type Form {
     name: FormName!
     slots: [SlotToFill]
+    collect_in_botfront: Boolean
+    utter_on_submit: Boolean
 }
 
 type SlotToFill {
