@@ -10,6 +10,8 @@ import botResponsesResolvers from './botResponses/resolvers';
 import botResponsesTypes from './botResponses/schemas';
 import configResolver from './config/configResolver';
 import configTypes from './config/config.types.graphql';
+import formResolver from './forms/formResolver';
+import formTypes from './forms/forms.types.graphql';
 import nluResolvers from './nlu/resolvers';
 import nluTypes from './nlu/schemas';
 import storiesTypes from './story/schemas/stories.types.graphql';
@@ -31,6 +33,7 @@ export const resolvers = [
     activityResolver,
     commonResolver,
     configResolver,
+    formResolver,
     storiesResolver,
     trackerStoreResolver,
     analyticsDashboardResolver,
@@ -46,6 +49,7 @@ export const typeDefs = mergeTypes([
     ...trackerStoreTypes,
     commonTypes,
     configTypes,
+    formTypes,
     storiesTypes,
     analyticsDashboardTypes,
 ], { all: true });

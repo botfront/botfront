@@ -1,3 +1,11 @@
+type Mutation {
+    submitForm(
+        projectId: String!
+        environment: String
+        tracker: Any!
+    ): updateResponse!
+} 
+
 type Form {
     name: FormName!
     slots: [SlotToFill]
@@ -55,7 +63,7 @@ enum FillingSource {
     from_text
 }
 
-enum ValidationType {
+enum ValidationOperator {
     is_in
     is_exactly
     contains
