@@ -13,4 +13,5 @@ images:
 env:
   bf_project_id: bf
   bf_url: http://botfront:3000/graphql
-  root_url: http://localhost:8888
+  root_url: http://localhost:8888 # used by meteor
+  augmentation_factor: 50 # used by rasa core
