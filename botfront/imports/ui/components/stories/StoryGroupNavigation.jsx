@@ -43,8 +43,16 @@ class StoryGroupNavigation extends React.Component {
     };
 
     submitTitleInput = (element) => {
-        const { editing, newItemName, itemName } = this.state;
-        const { addGroup, updateGroup } = this.props;
+        const {
+            editing, newItemName, itemName, addMode,
+        } = this.state;
+        const { addGroup, updateGroup, createForm } = this.props;
+        console.log(this.props);
+        if (addMode === 'form') {
+            createForm({ name: newItemName, slots: [] });
+            this.resetAddItem();
+            return;
+        }
         if (editing === -1 && !!newItemName) {
             addGroup({ name: newItemName });
             this.resetAddItem();
@@ -81,7 +89,7 @@ class StoryGroupNavigation extends React.Component {
                     {this.tooltipWrapper(
                         <Button
                             key='newItem'
-                            onClick={() => this.setState({ addMode: true })}
+                            onClick={() => this.setState({ addMode: 'group' })}
                             data-cy='add-item'
                             icon
                             disabled={!allowAddition}
@@ -89,6 +97,18 @@ class StoryGroupNavigation extends React.Component {
                             style={{ width: 0 }}
                         />,
                         'New story group',
+                    )}
+                    {this.tooltipWrapper(
+                        <Button
+                            key='newForm'
+                            onClick={() => this.setState({ addMode: 'form' })}
+                            data-cy='add-form'
+                            icon
+                            disabled={!allowAddition}
+                            content={<Icon name='add' />}
+                            style={{ width: 0 }}
+                        />,
+                        'New form',
                     )}
                     {this.tooltipWrapper(
                         <Button
@@ -154,6 +174,7 @@ StoryGroupNavigation.propTypes = {
     storyMode: PropTypes.string.isRequired,
     addGroup: PropTypes.func.isRequired,
     updateGroup: PropTypes.func.isRequired,
+    createForm: PropTypes.func.isRequired,
 };
 
 StoryGroupNavigation.defaultProps = {

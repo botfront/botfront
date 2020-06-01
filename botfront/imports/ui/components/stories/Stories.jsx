@@ -5,6 +5,7 @@ import React, {
 } from 'react';
 import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
+import { useMutation, useSubscription, useQuery } from '@apollo/react-hooks';
 import PropTypes from 'prop-types';
 import SplitPane from 'react-split-pane';
 import shortId from 'shortid';
@@ -20,6 +21,8 @@ import StoryEditors from './StoryEditors';
 import { Loading } from '../utils/Utils';
 import { useEventListener } from '../utils/hooks';
 import { can } from '../../../lib/scopes';
+import { CREATE_FORM, GET_FORMS } from './graphql/queries';
+import FormEditors from '../forms/FormEditors';
 
 const SlotsEditor = React.lazy(() => import('./Slots'));
 const PoliciesEditor = React.lazy(() => import('../settings/CorePolicy'));
@@ -63,10 +66,14 @@ function Stories(props) {
     const [policiesModal, setPoliciesModal] = useState(false);
     const [resizing, setResizing] = useState(false);
     const [storyEditorsKey, setStoryEditorsKey] = useState(shortId.generate());
+    const [activeForms, setActiveForms] = useState([]);
+    const [activeSlots, setActiveSlots] = useState([]);
 
     const treeRef = useRef();
 
-    const getQueryParams = () => {
+    const [createForm] = useMutation(CREATE_FORM);
+    const { data } = useQuery(GET_FORMS, { variables: { projectId } });
+    const getQueryStories = () => {
         const { location: { query } } = router;
         let queriedIds = query['ids[]'] || [];
         queriedIds = Array.isArray(queriedIds) ? queriedIds : [queriedIds];
@@ -76,15 +83,22 @@ function Stories(props) {
     const cleanId = id => id.replace(/^.*_SMART_/, '');
 
     const setActiveStories = (newActiveStories) => {
-        if (!getQueryParams().every(id => newActiveStories.includes(id))
-        || !newActiveStories.every(id => getQueryParams().includes(id))) {
+        if (!getQueryStories().every(id => newActiveStories.includes(id))
+        || !newActiveStories.every(id => getQueryStories().includes(id))) {
             const { location: { pathname } } = router;
             router.replace({ pathname, query: { 'ids[]': newActiveStories.map(cleanId) } });
         }
         doSetActiveStories(newActiveStories);
     };
+    const setActiveForms = () => {
+    };
 
-    useEffect(() => setActiveStories(getQueryParams().length ? getQueryParams() : activeStories), []);
+    const setActiveStoriesAndForms = () => {
+        setActiveStories(getQueryStories().length ? getQueryStories() : activeStories);
+        setActiveForms();
+    };
+
+    useEffect(() => setActiveStoriesAndForms(), []);
 
     const closeModals = () => {
         setSlotsModal(false);
@@ -111,6 +125,8 @@ function Stories(props) {
     const injectProjectIdInStory = useCallback(story => ({ ...story, projectId }), [projectId]);
 
     const storiesReshaped = useMemo(reshapeStories, [stories]);
+
+    const handleCreateForm = (formData => createForm({ variables: { form: { ...formData, projectId } } }));
 
     const handleAddStoryGroup = useCallback((storyGroup, f) => Meteor.call('storyGroups.insert', { ...storyGroup, projectId }, wrapMeteorCallback(f)), [projectId]);
 
@@ -160,6 +176,7 @@ function Stories(props) {
                     updateStory: handleStoryUpdate,
                     reloadStories: handleReloadStories,
                     getResponseLocations: handleGetResponseLocations,
+                    createForm: handleCreateForm,
                 }}
             >
                 {modalWrapper(
@@ -202,6 +219,11 @@ function Stories(props) {
                             projectId={projectId}
                             selectedIds={activeStories.map(cleanId)}
                             key={storyEditorsKey}
+                        />
+                        <FormEditors
+                            projectId={projectId}
+                            forms={activeForms}
+                            slots={activeSlots}
                         />
                     </Container>
                 </SplitPane>

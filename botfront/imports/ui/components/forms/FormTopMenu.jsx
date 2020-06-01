@@ -34,11 +34,11 @@ const FormTopMenu = (props) => {
 };
 
 FormTopMenu.propTypes = {
-    formName: PropTypes.string.isRequired,
-    slotName: PropTypes.string.isRequired,
-    activeItem: PropTypes.string.isRequired,
-    setActiveItem: PropTypes.func.isRequired,
-    menuItems: PropTypes.array.isRequired,
+    formName: PropTypes.string,
+    slotName: PropTypes.string,
+    activeItem: PropTypes.string,
+    setActiveItem: PropTypes.func,
+    menuItems: PropTypes.array,
 };
 
 export default FormTopMenu;
