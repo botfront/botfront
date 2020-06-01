@@ -1,6 +1,7 @@
 import Forms from '../forms.model';
 
-export const getForms = async (projectId, names = []) => {
+export const getForms = async (projectId, names = null) => {
+    if (!names) await Forms.find({ projectId }).lean();
     const forms = await Forms.find({ projectId, name: { $in: names } }).lean();
     return forms;
 };
