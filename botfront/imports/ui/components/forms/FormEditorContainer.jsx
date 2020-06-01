@@ -49,9 +49,7 @@ const FormEditorContainer = (props) => {
             return <></>;
         }
     };
-    console.log('-------------');
-    console.log(slotToFill);
-    console.log('-------------');
+
     return (
         <Segment.Group>
             <FormTopMenu
@@ -65,9 +63,10 @@ const FormEditorContainer = (props) => {
                 activeItem={activeTab}
                 setActiveItem={setActiveTab}
             />
+            {/*
             <Segment attached='bottom' className='form-settings-tab-container'>
                 {renderActiveTab()}
-            </Segment>
+            </Segment> */}
         </Segment.Group>
     );
 };

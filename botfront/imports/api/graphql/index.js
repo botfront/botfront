@@ -17,6 +17,8 @@ import storiesTypes from './story/schemas/stories.types.graphql';
 import storiesResolver from './story/resolvers/storiesResolver';
 import trackerStoreResolver from './trackerStore/resolvers/trackerStoreResolver';
 import trackerStoreTypes from './trackerStore/schemas';
+import FormTypes from './forms/forms.types.graphql';
+import formResolver from './forms/formResolver';
 
 
 export const resolvers = [
@@ -29,6 +31,7 @@ export const resolvers = [
     formResolver,
     storiesResolver,
     trackerStoreResolver,
+    formResolver,
 ];
 
 export const typeDefs = mergeTypes([
@@ -41,6 +44,7 @@ export const typeDefs = mergeTypes([
     configTypes,
     formTypes,
     storiesTypes,
+    FormTypes,
 ], { all: true });
 
 export const schemaDirectives = {

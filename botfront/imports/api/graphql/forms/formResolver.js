@@ -1,9 +1,21 @@
+import {
+    getForms,
+    createForm,
+} from './mongo/forms';
+
 export default {
-    Query: {},
+    Query: {
+        getForms(_, args, __) {
+            return getForms(args.projectId, args.names);
+        },
+    },
     Mutation: {
         submitForm: async (_root, args) => {
             const { projectId, environment, tracker } = args;
             return { success: true };
+        },
+        createForm(_, args, __) {
+            return createForm(args);
         },
     },
     Form: {

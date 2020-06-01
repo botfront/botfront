@@ -4,13 +4,28 @@ type Mutation {
         environment: String
         tracker: Any!
     ): updateResponse!
-} 
+    createForm(form: FormInput): Any
+    updateForm(form: FormInput): Any
+}
+
+type Query {
+    getForms(projectId: String!, names: String): Any
+}
 
 type Form {
     name: FormName!
     slots: [SlotToFill]
     collect_in_botfront: Boolean
     utter_on_submit: Boolean # utter_submit_{slot_name}
+    description: String
+    projectId: String!
+}
+
+input FormInput {
+    name: FormName!
+    slots: [SlotToFillInput]
+    description: String
+    projectId: String!
 }
 
 type SlotToFill {
@@ -28,8 +43,17 @@ type SlotValidation {
     comparatum: Any
 }
 
+input SlotToFillInput {
+    name: String!
+    filling: [SlotFillingInput]
+}
+
 interface SlotFilling {
     type: FillingSource!
+}
+
+input SlotFillingInput {
+    type: Any
 }
 
 type SlotFillingFromEntity implements SlotFilling {
