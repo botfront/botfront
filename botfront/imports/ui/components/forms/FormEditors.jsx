@@ -16,8 +16,9 @@ const FormEditors = (props) => {
     return (
         <>
             <Loader active={!forms} />
-            Forms:
+            <b>Forms:</b>
             {forms.map(form => <div>{form}</div>)}
+            <b>Slots:</b>
             {slots.map(slot => <div>{slot}</div>)}
             {/* {forms && (
                 <FormEditorContainer slotName='test' form={forms[0]} />

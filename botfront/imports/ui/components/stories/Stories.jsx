@@ -66,13 +66,13 @@ function Stories(props) {
     const [policiesModal, setPoliciesModal] = useState(false);
     const [resizing, setResizing] = useState(false);
     const [storyEditorsKey, setStoryEditorsKey] = useState(shortId.generate());
-    const [activeForms, setActiveForms] = useState([]);
-    const [activeSlots, setActiveSlots] = useState([]);
+    const [activeForms, setActiveForms] = useState(['form1', 'form2']);
+    const [activeSlots, setActiveSlots] = useState(['slot2', 'slot2']);
 
     const treeRef = useRef();
 
     const [createForm] = useMutation(CREATE_FORM);
-    const { data } = useQuery(GET_FORMS, { variables: { projectId } });
+    const { data } = useQuery(GET_FORMS, { variables: { projectId } }); // test code should be replaced
     const getQueryStories = () => {
         const { location: { query } } = router;
         let queriedIds = query['ids[]'] || [];
@@ -90,12 +90,12 @@ function Stories(props) {
         }
         doSetActiveStories(newActiveStories);
     };
-    const setActiveForms = () => {
+    const setActiveFormsFromQuery = () => {
     };
 
     const setActiveStoriesAndForms = () => {
         setActiveStories(getQueryStories().length ? getQueryStories() : activeStories);
-        setActiveForms();
+        setActiveFormsFromQuery();
     };
 
     useEffect(() => setActiveStoriesAndForms(), []);
