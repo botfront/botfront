@@ -31,7 +31,6 @@ export const resolvers = [
     formResolver,
     storiesResolver,
     trackerStoreResolver,
-    formResolver,
 ];
 
 export const typeDefs = mergeTypes([
