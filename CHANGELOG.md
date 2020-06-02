@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.24.2-ee.1](https://github.com/botfront/botfront/compare/v0.24.1-ee.0...v0.24.2-ee.1) (2020-06-02)
+
+
+### Features
+
+* set logos per project ([#151](https://github.com/botfront/botfront/issues/151)) ([a7f1f48](https://github.com/botfront/botfront/commit/a7f1f4806a0f98fe13f3a4bd250b8f1589ef0959))
+* **activity:** shortcut to toggle conversation popup ([b4b20cf](https://github.com/botfront/botfront/commit/b4b20cf334a167b7210d71aa4ccf3f11b5583d1e))
+
+
+### Bug Fixes
+
+* activity with entities ([e8c5ae3](https://github.com/botfront/botfront/commit/e8c5ae3c0576028aa08acbec03c6b43565b364e6))
+* user roles exist after user deletion ([a16485f](https://github.com/botfront/botfront/commit/a16485f9014f5f2bddc7479793dee1799b5d3fb3))
+
 ### [0.24.1-ee.0](https://github.com/botfront/botfront/compare/v0.24.0-ee.0...v0.24.1-ee.0) (2020-05-28)
 
 
