@@ -17,7 +17,6 @@ const FormEditors = (props) => {
     } = props;
     const { upsertForm } = useContext(ConversationOptionsContext);
     const { data, refetch } = useQuery(GET_FORMS, { variables: { projectId, forms } }); // test code should be replaced
-    console.log(data);
 
     const renderForm = (form) => {
         const formData = data.getForms.find(({ name }) => name === form);

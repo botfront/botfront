@@ -18,15 +18,15 @@ import { ProjectContext } from '../../layouts/context';
 import { can } from '../../../lib/scopes';
 
 const openFirstStoryIfNoneSelected = (
-    activeStories,
+    storyMenuSelection,
     tree,
     handleExpand,
     selectSingleItemAndResetFocus,
-    onChangeActiveStories,
+    onChangeStoryMenuSelection,
 ) => () => {
-    const idsActuallyInTree = activeStories.filter(id => id in tree.items);
+    const idsActuallyInTree = storyMenuSelection.filter(id => id in tree.items);
     if (idsActuallyInTree.length) {
-        if (idsActuallyInTree.length !== activeStories.length) { onChangeActiveStories(idsActuallyInTree); }
+        if (idsActuallyInTree.length !== storyMenuSelection.length) { onChangeStoryMenuSelection(idsActuallyInTree); }
         return;
     }
     let storiesFound = [];
@@ -46,8 +46,9 @@ const openFirstStoryIfNoneSelected = (
 
 const StoryGroupTree = React.forwardRef((props, ref) => {
     const {
-        onChangeActiveStories,
-        activeStories,
+        onChangeStoryMenuSelection,
+        storyMenuSelection,
+        forms,
         storyGroups,
         stories,
         isStoryDeletable,
@@ -64,19 +65,23 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
     const showPublish = useMemo(() => deploymentEnvironments && deploymentEnvironments.length > 0, [deploymentEnvironments]);
     // It may happen that storyGroups and storyGroupOrder are out of sync
     // This is just a workaround as Meteor does not update storyGroupOrder after importing
-    const verifyGroupOrder = (order, groups) => {
-        const storyGroupsId = groups.map(({ _id }) => _id);
+    const verifyGroupOrder = (order, incomingGroups, incomingForms) => {
+        const storyGroupsId = incomingGroups.map(({ _id }) => _id);
+        const formIds = incomingForms.map(({ _id }) => _id);
         // check that storygroup order and storygrous are in sync ( have the same value in different orders)
         if (
-            storyGroupsId.length === order.length
+            storyGroupsId.length + formIds.length === order.length
             && storyGroupsId.every(id => order.includes(id))
+            && formIds.every(id => order.includes(id))
         ) {
             return order;
         } // this means that storyGroupOrder and storyGroup are not in sync
         // we keep only the storygroups that are in storygroups for the order
-        let newOrder = intersection(order, storyGroupsId); // so only the one in sync (existing in both)
+        let newOrder = intersection(order, [...storyGroupsId, ...formIds]); // so only the one in sync (existing in both)
         // and add value from story groups that were not intersected
-        newOrder = storyGroupsId.filter(sg => !newOrder.includes(sg)).concat(newOrder); // so the new order is in sync with storygroups
+        newOrder = [...storyGroupsId, ...formIds] // so the new order is in sync with storygroups
+            .filter(sg => !newOrder.includes(sg)).concat(newOrder)
+            .sort((a, b) => b.pinned - a.pinned);
         return newOrder;
     };
 
@@ -86,10 +91,9 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
             rootId: 'root',
             items: {
                 root: {
-                    children: verifyGroupOrder(storyGroupOrder, storyGroups),
+                    children: verifyGroupOrder(storyGroupOrder, storyGroups, forms),
                     id: 'root',
                     title: 'root',
-                    canBearChildren: true,
                 },
             },
         };
@@ -98,6 +102,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
                 ...n,
                 id: _id,
                 parentId: storyGroupId,
+                type: 'story',
             };
         });
         storyGroups.forEach(({ _id, name, ...n }) => {
@@ -106,11 +111,27 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
                 id: _id,
                 parentId: 'root',
                 title: name,
-                canBearChildren: true,
+                type: 'story-group',
+            };
+        });
+        forms.forEach(({ _id, slots, ...form }) => {
+            newTree.items[_id] = {
+                ...form,
+                id: _id,
+                parentId: 'root',
+                title: form.name,
+                children: slots.map(({ name, ...slot }) => {
+                    const id = `${name}_slot_for_${_id}`;
+                    newTree.items[id] = {
+                        id, title: name, ...slot, parentId: _id, type: 'form-slot',
+                    };
+                    return id;
+                }),
+                type: 'form',
             };
         });
         return newTree;
-    }, [storyGroups, stories, storyGroupOrder]);
+    }, [forms, storyGroups, stories, storyGroupOrder]);
 
     const {
         tree,
@@ -126,9 +147,9 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
         handleRemoveItem,
         handleRenameItem,
         handleAddStory,
-    } = useStoryGroupTree(treeFromProps, activeStories);
+    } = useStoryGroupTree(treeFromProps, storyMenuSelection);
     const menuRef = useRef();
-    const lastFocusedItem = useRef(tree.items[activeStories[0]] || null);
+    const lastFocusedItem = useRef(tree.items[storyMenuSelection[0]] || null);
     const draggingHandle = {
         current: document.getElementsByClassName('drag-handle dragging')[0] || null,
     };
@@ -145,7 +166,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
     }
     const selectionIsNonContiguous = useMemo(
         () => !somethingIsMutating
-            && (activeStories || []).some((s, i, a) => {
+            && (storyMenuSelection || []).some((s, i, a) => {
                 if (!(s in tree.items)) return false;
                 const differentMother = tree.items[s].parentId
                     !== tree.items[a[Math.min(i + 1, a.length - 1)]].parentId;
@@ -161,7 +182,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
                     ) > 1
                 );
             }),
-        [tree, activeStories],
+        [tree, storyMenuSelection],
     );
 
     const getSiblingsAndIndex = (story, inputTree) => {
@@ -175,11 +196,14 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
 
     const selectSingleItemAndResetFocus = (item) => {
         lastFocusedItem.current = item;
-        return onChangeActiveStories([item.id]);
+        return onChangeStoryMenuSelection([item.id]);
     };
 
     const handleSelectionChange = ({ shiftKey, item }) => {
-        if (!shiftKey || !activeStories.length) {
+        if (!menuRef.current.contains(document.activeElement)) {
+            document.activeElement.blur(); // blur so edits are saved
+        }
+        if (!shiftKey || !storyMenuSelection.length) {
             return selectSingleItemAndResetFocus(item);
         }
         const { index, siblingIds, parentId } = getSiblingsAndIndex(item, tree);
@@ -189,9 +213,9 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
         );
         if (parentId !== lastParentId) return selectSingleItemAndResetFocus(item); // no cross-group selects
         const [min, max] = index < lastIndex ? [index, lastIndex] : [lastIndex, index];
-        const newActiveStoryIds = siblingIds.slice(min, max + 1);
+        const newSelectionIds = siblingIds.slice(min, max + 1);
 
-        return onChangeActiveStories(newActiveStoryIds);
+        return onChangeStoryMenuSelection(newSelectionIds);
     };
 
     const getTreeContainer = () => document.getElementById('storygroup-tree');
@@ -216,7 +240,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
                     `story-menu-item-${(lastFocusedItem.current || {}).id}`,
                 )
                 : document.activeElement;
-            if (!activeStories.length) return null;
+            if (!storyMenuSelection.length) return null;
             const { previousElementSibling, nextElementSibling } = activeEl;
 
             if (key === 'ArrowUp') {
@@ -248,12 +272,12 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
             } else return null;
             const item = tree.items[getItemDataFromDOMNode(document.activeElement)];
 
-            if (item.canBearChildren) {
+            if (item.type === 'story-group') {
                 return handleKeyDownInMenu({ target, key, shiftKey });
             } // go to next visible leaf
             return handleSelectionChange({ shiftKey, item });
         },
-        [activeStories, tree],
+        [storyMenuSelection, tree],
     );
 
     useEventListener('keydown', handleKeyDownInMenu);
@@ -261,11 +285,11 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
 
     useEffect(
         openFirstStoryIfNoneSelected(
-            activeStories,
+            storyMenuSelection,
             tree,
             handleExpand,
             selectSingleItemAndResetFocus,
-            onChangeActiveStories,
+            onChangeStoryMenuSelection,
         ),
         [projectId],
     );
@@ -275,7 +299,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
             {...renderProps}
             handleTogglePublish={handleTogglePublish}
             somethingIsMutating={somethingIsMutating}
-            activeStories={activeStories}
+            activeStories={storyMenuSelection}
             handleMouseDownInMenu={handleMouseDownInMenu}
             handleMouseEnterInMenu={handleMouseEnterInMenu}
             setDeletionModalVisible={setDeletionModalVisible}
@@ -308,8 +332,8 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
                     ? {
                         onConfirm: () => {
                             handleRemoveItem(deletionModalVisible.id);
-                            onChangeActiveStories(
-                                activeStories.filter(
+                            onChangeStoryMenuSelection(
+                                storyMenuSelection.filter(
                                     id => id !== deletionModalVisible.id,
                                 ),
                             );
@@ -323,9 +347,9 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
                 && draggingHandle.current.parentNode.parentNode.className.includes(
                     'active',
                 )
-                && activeStories.length > 1 && (
+                && storyMenuSelection.length > 1 && (
                 <Portal open mountNode={draggingHandle.current}>
-                    <div className='count-tooltip'>{activeStories.length}</div>
+                    <div className='count-tooltip'>{storyMenuSelection.length}</div>
                 </Portal>
             )}
             <Menu
@@ -352,15 +376,16 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
 });
 
 StoryGroupTree.propTypes = {
+    forms: PropTypes.array.isRequired,
     storyGroups: PropTypes.array.isRequired,
     stories: PropTypes.array.isRequired,
-    onChangeActiveStories: PropTypes.func.isRequired,
-    activeStories: PropTypes.array,
+    onChangeStoryMenuSelection: PropTypes.func.isRequired,
+    storyMenuSelection: PropTypes.array,
     isStoryDeletable: PropTypes.func,
 };
 
 StoryGroupTree.defaultProps = {
-    activeStories: [],
+    storyMenuSelection: [],
     isStoryDeletable: () => [true, 'Delete?'],
 };
 

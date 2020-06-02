@@ -1,4 +1,4 @@
-import shortid from 'shortid';
+import uuidv4 from 'uuid/v4';
 import Forms from '../forms.model';
 
 export const getForms = async (projectId, names = null) => {
@@ -21,7 +21,7 @@ export const upsertForm = async (data) => {
         { projectId, name },
         {
             $set: update,
-            $setOnInsert: { _id: shortid.generate() },
+            $setOnInsert: { _id: uuidv4() },
         },
         { upsert: true },
     );

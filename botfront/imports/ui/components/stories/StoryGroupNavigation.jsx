@@ -46,10 +46,9 @@ class StoryGroupNavigation extends React.Component {
         const {
             editing, newItemName, itemName, addMode,
         } = this.state;
-        const { addGroup, updateGroup, createForm } = this.props;
-        console.log(this.props);
+        const { addGroup, updateGroup, upsertForm } = this.props;
         if (addMode === 'form') {
-            createForm({ name: newItemName, slots: [] });
+            upsertForm({ name: newItemName, slots: [] });
             this.resetAddItem();
             return;
         }
@@ -174,7 +173,7 @@ StoryGroupNavigation.propTypes = {
     storyMode: PropTypes.string.isRequired,
     addGroup: PropTypes.func.isRequired,
     updateGroup: PropTypes.func.isRequired,
-    createForm: PropTypes.func.isRequired,
+    upsertForm: PropTypes.func.isRequired,
 };
 
 StoryGroupNavigation.defaultProps = {

@@ -9,26 +9,18 @@ type Mutation {
 }
 
 type Query {
-    getForms(projectId: String!, names: String): Any
+    getForms(projectId: String!, names: String): [Form]
 }
 
 type Form {
+    _id: String!
     name: FormName!
     slots: [SlotToFill]
     collect_in_botfront: Boolean
     utter_on_submit: Boolean # utter_submit_{slot_name}
     description: String
     projectId: String!
-}
-
-input FormInput {
-    _id: String,
-    name: FormName!
-    slots: [SlotToFillInput]
-    description: String
-    projectId: String!
-    utter_on_submit: Boolean # utter_submit_{slot_name}
-    collect_in_botfront: Boolean
+    isExpanded: Boolean
 }
 
 type SlotToFill {
@@ -46,23 +38,10 @@ type SlotValidation {
     comparatum: Any
 }
 
-input SlotToFillInput {
-    _id: String
-    name: String!
-    filling: [SlotFillingInput]
-}
-
 interface SlotFilling {
     type: FillingSource!
-}
-
-input SlotFillingInput {
-    _id: String
-    type: FillingSource!
-    entity: [String]
     intent: [String]
     not_intent: [String]
-    value: Any
 }
 
 type SlotFillingFromEntity implements SlotFilling {
@@ -108,4 +87,30 @@ enum ValidationOperator {
     gte
     lt
     lte
+}
+
+input FormInput {
+    _id: String,
+    name: FormName
+    slots: [SlotToFillInput]
+    description: String
+    projectId: String!
+    utter_on_submit: Boolean # utter_submit_{slot_name}
+    collect_in_botfront: Boolean
+    isExpanded: Boolean
+}
+
+input SlotToFillInput {
+    _id: String
+    name: String
+    filling: [SlotFillingInput]
+}
+
+input SlotFillingInput {
+    _id: String
+    type: FillingSource
+    entity: [String]
+    intent: [String]
+    not_intent: [String]
+    value: Any
 }

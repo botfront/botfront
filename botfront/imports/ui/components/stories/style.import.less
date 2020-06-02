@@ -57,6 +57,18 @@
                     font-weight: normal;
                 }
             }
+            &[type='form'] {
+                .item-name {
+                    font-weight: bold;
+                    color: red;
+                }
+            }
+            &[type='form-slot'] {
+                .item-name {
+                    font-weight: normal;
+                    color: red;
+                }
+            }
 
             .createcolorclasses(@i:1) when(@i <= length(@basic-colors)) {
                 @name: extract(extract(@basic-colors, @i), 1);
@@ -241,30 +253,6 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
-}
-
-#remove-focus {
-    color: rgb(33, 133, 208);
-    cursor: pointer;
-}
-
-.ui.vertical.menu.intro-story.selected-intro-story > .active.item {
-    background-color: rgba(33, 133, 208, 0.08);
-    span {
-        font-weight: bold;
-    }
-    &:hover {
-        background-color: rgba(33, 133, 208, 0.16);
-    }
-}
-
-.story-name-parent {
-    position: relative;
-}
-
-.ui.vertical.menu.intro-story {
-    border-width: 1px;
-    border-radius: 5px;
 }
 
 .story-editor {

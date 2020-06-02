@@ -51,6 +51,7 @@ if (Meteor.isServer) {
                 },
             }],
         },
+        isExpanded: { type: Boolean, defaultValue: true },
     }, { versionKey: false });
     forms.index({ name: 1, projectId: 1 }, { unique: true });
     module.exports = mongoose.model('Forms', forms, 'forms');
