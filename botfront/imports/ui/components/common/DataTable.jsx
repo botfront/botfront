@@ -147,6 +147,9 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
             setMouseDown(false);
             return;
         }
+        if (document.activeElement !== tableRef.current) {
+            tableRef.current.focus();
+        }
         if (onClickRow) {
             if (onChangeSelection) handleSelectionChange(lastFocusedRowInfo.current);
             onClickRow(lastFocusedRowInfo.current);
