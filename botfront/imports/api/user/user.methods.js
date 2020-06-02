@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { Accounts } from 'meteor/accounts-base';
+import { Roles } from 'meteor/alanning:roles';
 
 import queryString from 'query-string';
 import axios from 'axios';
@@ -134,6 +135,7 @@ if (Meteor.isServer) {
                     resType: 'user',
                 });
                 Meteor.users.remove({ _id: userId });
+                Meteor.roleAssignment.remove({ user: { _id: userId } });
             } catch (e) {
                 if (!failSilently) throw e;
             }
