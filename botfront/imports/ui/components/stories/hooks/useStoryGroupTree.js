@@ -61,6 +61,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         addStory = fallbackFunction,
         deleteStory = fallbackFunction,
         upsertForm = fallbackFunction,
+        deleteForm = fallbackFunction,
     } = externalMutators;
 
     const mutatorMapping = (type, action) => {
@@ -74,9 +75,9 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
             return deleteStory;
         }
         if (type === 'form') {
-            if (action === 'update') return upsertForm;// (...args) => upsertForm(...args).then(extractCallback(args));
-            if (action === 'expand') return upsertForm;// (...args) => upsertForm(...args).then(extractCallback(args));
-            return fallbackFunction;
+            if (action === 'update') return upsertForm;
+            if (action === 'expand') return upsertForm;
+            return deleteForm;
         }
         return fallbackFunction; // not supported
     };

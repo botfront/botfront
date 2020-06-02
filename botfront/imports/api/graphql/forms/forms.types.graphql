@@ -5,7 +5,10 @@ type Mutation {
         tracker: Any!
     ): updateResponse!
     createForm(form: FormInput): Any
-    updateForm(form: FormInput): Any
+    deleteForms(
+        projectId: String!
+        ids: [String]
+    ): [Form]
 }
 
 type Query {

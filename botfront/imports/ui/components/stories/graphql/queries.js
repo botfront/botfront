@@ -6,6 +6,11 @@ export const CREATE_FORM = gql`
         createForm(form: $form)
     }`;
 
+export const DELETE_FORMS = gql`
+    mutation deleteForms($projectId: String!, $ids: [String]) {
+        deleteForms(projectId: $projectId, ids: $ids) { _id }
+    }`;
+
 export const GET_FORMS = gql`
     query getForms(
         $projectId: String!

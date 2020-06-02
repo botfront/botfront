@@ -26,27 +26,39 @@ import StoryEditors from './StoryEditors';
 import { Loading } from '../utils/Utils';
 import { useEventListener } from '../utils/hooks';
 import { can } from '../../../lib/scopes';
-import { CREATE_FORM, GET_FORMS } from './graphql/queries';
+import { CREATE_FORM, GET_FORMS, DELETE_FORMS } from './graphql/queries';
 import FormEditors from '../forms/FormEditors';
+
+const callbackCaller = args => (res) => {
+    const callback = args[args.length - 1];
+    if (typeof callback === 'function') callback(res);
+};
 
 const SlotsEditor = React.lazy(() => import('./Slots'));
 const PoliciesEditor = React.lazy(() => import('../settings/CorePolicy'));
 
-const isStoryDeletable = (story, stories, tree) => {
-    const isDestination = s1 => ((stories.find(s2 => s2._id === s1.id) || {}).checkpoints || []).length;
-    const isOrigin = s1 => stories.some(s2 => (s2.checkpoints || []).some(c => c[0] === s1.id));
+const isDeletionPossible = (node = {}, nodes, tree) => {
+    const isDestination = s1 => ((nodes.find(s2 => s2._id === s1.id) || {}).checkpoints || []).length;
+    const isOrigin = s1 => nodes.some(s2 => (s2.checkpoints || []).some(c => c[0] === s1.id));
     const isDestinationOrOrigin = s => isDestination(s) || isOrigin(s);
-    if (!story) return [false, null];
-    const deletable = !story.type === 'story-group'
-        ? !isDestinationOrOrigin(story)
-        : !(story.children || []).some(c => isDestinationOrOrigin(tree.items[c]));
-    const message = deletable
-        ? story.type === 'story-group'
-            ? `The story group ${story.title} and all its stories in it will be deleted. This action cannot be undone.`
-            : `The story ${story.title} will be deleted. This action cannot be undone.`
-        : story.type === 'story-group'
-            ? `The story group ${story.title} cannot be deleted as it contains links.`
-            : `The story ${story.title} cannot be deleted as it is linked to another story.`;
+    let deletable = false;
+    let message = null;
+    if (node.type === 'story') {
+        deletable = !isDestinationOrOrigin(node);
+        message = deletable
+            ? `The story ${node.title} will be deleted. This action cannot be undone.`
+            : `The story ${node.title} cannot be deleted as it is linked to another story.`;
+    }
+    if (node.type === 'story-group') {
+        deletable = !(node.children || []).some(c => isDestinationOrOrigin(tree.items[c]));
+        message = deletable
+            ? `The story group ${node.title} and all its stories in it will be deleted. This action cannot be undone.`
+            : `The story group ${node.title} cannot be deleted as it contains links.`;
+    }
+    if (node.type === 'form') {
+        deletable = true;
+        message = `The form ${node.title} will be deleted. This action cannot be undone.`;
+    }
     return [deletable, message];
 };
 
@@ -71,6 +83,7 @@ function Stories(props) {
     const treeRef = useRef();
 
     const [upsertForm] = useMutation(CREATE_FORM);
+    const [deleteForms] = useMutation(DELETE_FORMS);
     const { data: { getForms = [] } = {}, loading, refetch } = useQuery(GET_FORMS, {
         variables: { projectId, onlySlotList: true },
     });
@@ -125,10 +138,15 @@ function Stories(props) {
     const storiesReshaped = useMemo(reshapeStories, [stories]);
 
     const handleUpsertForm = useCallback(
-        (formData, ...args) => upsertForm({ variables: { form: { ...formData, projectId } } }).then(() => refetch().then((res) => {
-            const callback = args[args.length - 1];
-            if (typeof callback === 'function') callback(res);
-        })), [projectId],
+        (formData, ...args) => upsertForm({ variables: { form: { ...formData, projectId } } }).then(
+            () => refetch().then(callbackCaller(args), callbackCaller(args)),
+        ), [projectId],
+    );
+
+    const handleDeleteForm = useCallback(
+        ({ _id }, ...args) => deleteForms({ variables: { projectId, ids: [_id] } }).then(
+            () => refetch().then(callbackCaller(args), callbackCaller(args)),
+        ), [projectId],
     );
 
     const handleAddStoryGroup = useCallback(
@@ -235,6 +253,7 @@ function Stories(props) {
                     reloadStories: handleReloadStories,
                     getResponseLocations: handleGetResponseLocations,
                     upsertForm: handleUpsertForm,
+                    deleteForm: handleDeleteForm,
                 }}
             >
                 {modalWrapper(
@@ -270,7 +289,7 @@ function Stories(props) {
                             stories={stories}
                             onChangeStoryMenuSelection={setStoryMenuSelection}
                             storyMenuSelection={storyMenuSelection}
-                            isStoryDeletable={isStoryDeletable}
+                            isDeletionPossible={isDeletionPossible}
                         />
                     </div>
                     <Container>

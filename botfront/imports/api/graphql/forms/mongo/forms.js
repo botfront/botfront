@@ -7,6 +7,11 @@ export const getForms = async (projectId, names = null) => {
     return forms;
 };
 
+export const deleteForms = async ({ projectId, ids }) => {
+    const response = await Forms.remove({ projectId, _id: { $in: ids } }).exec();
+    if (response.ok) return ids.map(_id => ({ _id }));
+    return [];
+};
 export const upsertForm = async (data) => {
     const { projectId, name } = data.form;
     const { _id, ...update } = data.form;

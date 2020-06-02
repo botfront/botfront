@@ -1,6 +1,7 @@
 import {
     getForms,
     upsertForm,
+    deleteForms,
 } from './mongo/forms';
 
 export default {
@@ -14,9 +15,10 @@ export default {
             const { projectId, environment, tracker } = args;
             return { success: true };
         },
-        createForm(_, args, __) {
+        createForm(_, args) {
             return upsertForm(args);
         },
+        deleteForms: (_, args) => deleteForms(args),
     },
     Form: {
         name: ({ name }) => name,

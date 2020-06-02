@@ -51,7 +51,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
         forms,
         storyGroups,
         stories,
-        isStoryDeletable,
+        isDeletionPossible,
     } = props;
 
     const [deletionModalVisible, setDeletionModalVisible] = useState(false);
@@ -315,7 +315,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
     );
 
     const [deletionIsPossible, deletionModalMessage] = useMemo(
-        () => isStoryDeletable(deletionModalVisible, stories, tree),
+        () => isDeletionPossible(deletionModalVisible, stories, tree),
         [!!deletionModalVisible],
     );
 
@@ -381,12 +381,12 @@ StoryGroupTree.propTypes = {
     stories: PropTypes.array.isRequired,
     onChangeStoryMenuSelection: PropTypes.func.isRequired,
     storyMenuSelection: PropTypes.array,
-    isStoryDeletable: PropTypes.func,
+    isDeletionPossible: PropTypes.func,
 };
 
 StoryGroupTree.defaultProps = {
     storyMenuSelection: [],
-    isStoryDeletable: () => [true, 'Delete?'],
+    isDeletionPossible: () => [true, 'Delete?'],
 };
 
 export default StoryGroupTree;
