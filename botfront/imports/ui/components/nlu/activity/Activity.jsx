@@ -96,9 +96,9 @@ function Activity(props) {
     };
 
     const handleUpdate = async (newData) => {
-        const dataUpdated = data.filter(d1 => newData.map(d2 => d2._id).includes(d1._id)).map(
-            ({ __typename, ...d1 }) => ({ ...d1, ...newData.find(d2 => d2._id === d1._id) }),
-        );
+        const dataUpdated = clearTypenameField(data.filter(d1 => newData.map(d2 => d2._id).includes(d1._id)).map(
+            d1 => ({ ...d1, ...newData.find(d2 => d2._id === d1._id) }),
+        ));
         return upsertActivity({
             variables: { modelId, data: dataUpdated },
             optimisticResponse: {
@@ -200,10 +200,7 @@ function Activity(props) {
         return (
             <UserUtteranceViewer
                 value={datum}
-                onChange={({ _id, entities: ents }) => handleUpdate([{
-                    _id,
-                    entities: ents.map(e => clearTypenameField(({ ...e, confidence: null }))),
-                }])}
+                onChange={handleUpdate}
                 projectId={projectId}
                 disabled={isUtteranceOutdated(datum)}
                 disableEditing={isUtteranceOutdated(datum)}
