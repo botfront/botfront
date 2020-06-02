@@ -101,13 +101,11 @@ input FormInput {
 }
 
 input SlotToFillInput {
-    _id: String
     name: String
     filling: [SlotFillingInput]
 }
 
 input SlotFillingInput {
-    _id: String
     type: FillingSource
     entity: [String]
     intent: [String]
