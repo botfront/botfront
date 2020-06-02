@@ -66,13 +66,12 @@ function Stories(props) {
     const [policiesModal, setPoliciesModal] = useState(false);
     const [resizing, setResizing] = useState(false);
     const [storyEditorsKey, setStoryEditorsKey] = useState(shortId.generate());
-    const [activeForms, setActiveForms] = useState(['form1', 'form2']);
-    const [activeSlots, setActiveSlots] = useState(['slot2', 'slot2']);
+    const [activeForms, setActiveForms] = useState([]);
+    const [activeSlots, setActiveSlots] = useState([]);
 
     const treeRef = useRef();
 
     const [createForm] = useMutation(CREATE_FORM);
-    const { data } = useQuery(GET_FORMS, { variables: { projectId } }); // test code should be replaced
     const getQueryStories = () => {
         const { location: { query } } = router;
         let queriedIds = query['ids[]'] || [];
@@ -91,6 +90,9 @@ function Stories(props) {
         doSetActiveStories(newActiveStories);
     };
     const setActiveFormsFromQuery = () => {
+        const { location: { query } } = router;
+        if (query.form) setActiveForms([query.form]);
+        if (query.slot) setActiveSlots([{ slot: query.slot, form: query.form }]);
     };
 
     const setActiveStoriesAndForms = () => {
@@ -128,6 +130,8 @@ function Stories(props) {
 
     const handleCreateForm = (formData => createForm({ variables: { form: { ...formData, projectId } } }));
 
+    const handleUpsertForm = (formData => createForm({ variables: { form: { ...formData, projectId } } }));
+
     const handleAddStoryGroup = useCallback((storyGroup, f) => Meteor.call('storyGroups.insert', { ...storyGroup, projectId }, wrapMeteorCallback(f)), [projectId]);
 
     const handleDeleteGroup = useCallback((storyGroup, f) => Meteor.call('storyGroups.delete', { ...storyGroup, projectId }, wrapMeteorCallback(f)), [projectId]);
@@ -159,7 +163,6 @@ function Stories(props) {
         if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
         if (key === 'ArrowLeft') treeRef.current.focusMenu();
     });
-
     return (
         <Loading loading={!ready}>
             <ConversationOptionsContext.Provider
@@ -177,6 +180,7 @@ function Stories(props) {
                     reloadStories: handleReloadStories,
                     getResponseLocations: handleGetResponseLocations,
                     createForm: handleCreateForm,
+                    upsertForm: handleUpsertForm,
                 }}
             >
                 {modalWrapper(

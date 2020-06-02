@@ -11,7 +11,7 @@ const ExtractionTab = (props) => {
         slotSettings,
         slot,
         onChange,
-        addSlotFilling,
+        addfilling,
     } = props;
 
     const { intents, entities } = useContext(ProjectContext);
@@ -19,13 +19,12 @@ const ExtractionTab = (props) => {
     const entityOptions = useMemo(() => entities.map(entityName => ({ value: entityName, text: entityName })));
 
     const handleAddCondition = () => {
-        addSlotFilling();
+        addfilling();
     };
 
     const renderExtractionItem = (settings, i) => (
         <ExtractionItem intents={intentOptions} slotFilling={settings} index={i} slot={slot} entities={entityOptions} onChange={v => onChange(v, i)} />
     );
-
     return (
         <>
             {slotSettings.length > 0 && slotSettings.map(renderExtractionItem)}
@@ -46,7 +45,7 @@ ExtractionTab.propTypes = {
     slotSettings: PropTypes.array.isRequired,
     slot: PropTypes.object.isRequired,
     onChange: PropTypes.func,
-    addSlotFilling: PropTypes.func.isRequired,
+    addfilling: PropTypes.func.isRequired,
 };
 
 ExtractionTab.defaultProps = {

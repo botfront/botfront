@@ -20,18 +20,26 @@ if (Meteor.isServer) {
         description: {
             type: String,
         },
+        collect_in_botfront: {
+            type: Boolean,
+        },
         slots: {
             type: [{
+                _id: false,
                 name: {
                     type: String,
                 },
                 filling: {
                     type: [{
+                        _id: false,
                         type: {
                             type: String,
                         },
                         intent: {
                             type: [String],
+                        },
+                        entity: {
+                            type: Mixed,
                         },
                         not_intent: {
                             type: [String],

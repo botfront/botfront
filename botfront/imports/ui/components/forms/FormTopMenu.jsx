@@ -21,11 +21,13 @@ const FormTopMenu = (props) => {
     };
     return (
         <Segment attatched='top' className='form-top-menu'>
-            <Breadcrumb
-                className='form-slot-breadcrumb'
-                icon='right angle'
-                sections={[formName, slotName]}
-            />
+            {formName && slotName && (
+                <Breadcrumb
+                    className='form-slot-breadcrumb'
+                    icon='right angle'
+                    sections={[formName, slotName]}
+                />
+            )}
             <Menu pointing secondary compact className='form-editor-tab-menu'>
                 {menuItems.map(renderMenuItem)}
             </Menu>

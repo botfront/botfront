@@ -1,6 +1,6 @@
 import {
     getForms,
-    createForm,
+    upsertForm,
 } from './mongo/forms';
 
 export default {
@@ -15,7 +15,7 @@ export default {
             return { success: true };
         },
         createForm(_, args, __) {
-            return createForm(args);
+            return upsertForm(args);
         },
     },
     Form: {

@@ -13,7 +13,6 @@ const ExtractionItem = (props) => {
             intent,
             not_intent: notIntent,
             value,
-            intentCondition = 'include',
         },
         slotFilling,
         intents,
@@ -22,11 +21,13 @@ const ExtractionItem = (props) => {
         onChange,
         index,
     } = props;
-
+    const intentCondition = useMemo(() => ((Array.isArray(notIntent)) ? 'exclude' : 'include'), [slotFilling]);
     const handleIntentConditionChange = (e, { value: selectedCondition }) => {
         if (selectedCondition === intentCondition) return;
-        if (selectedCondition === 'include') onChange({ intent: notIntent || [], not_intent: null, intentCondition: 'include' });
-        if (selectedCondition === 'exclude') onChange({ intent: null, not_intent: intent || [], intentCondition: 'exclude' });
+        // const update = { intent: null, not_intent: intent || [] };
+        // console.log(update);
+        if (selectedCondition === 'include') onChange({ intent: notIntent || [], not_intent: null });
+        if (selectedCondition === 'exclude') onChange({ intent: null, not_intent: intent || [] });
     };
 
     const handleChangeIntent = (e, { value: intentSelection }) => {
@@ -37,15 +38,11 @@ const ExtractionItem = (props) => {
     };
 
     const handleValueSourceChange = (e, { value: source }) => {
-        onChange({ type: source });
+        onChange({ type: source, value: null });
     };
 
     const handleChangeValue = (e, { value: newValue }) => {
         onChange({ value: newValue });
-    };
-
-    const handleChangeValueFromIntent = () => {
-
     };
 
     const renderSelectEntitiy = () => (
@@ -54,7 +51,7 @@ const ExtractionItem = (props) => {
             selection
             placeholder='select an entity'
             options={entities}
-            value={entity || undefined}
+            value={value}
             onChange={handleChangeValue}
         />
     );
@@ -125,6 +122,7 @@ const ExtractionItem = (props) => {
                 onChange={handleChangeIntent}
                 value={intentCondition === 'include' ? intent : notIntent}
             />
+            <br />
             <span>the value is</span>
             {renderSlotValue()}
         </div>

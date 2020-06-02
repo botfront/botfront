@@ -14,14 +14,8 @@ const QuestionTab = (props) => {
     const { upsertResponse } = useContext(ProjectContext);
 
     const handleResponseChange = (content) => {
-        upsertResponse((response && response.name) || `utter_ask_${slotName}`, content);
+        upsertResponse((response && response.name) || `utter_ask_${slotName}`, content, 0);
     };
-
-    const getDefaultResponse = () => ({
-        __typename: 'TextPayload',
-        text: 'please enter the value for this slot',
-        name: `utter_ask_${slotName}`,
-    });
 
     return (
         <>
@@ -31,7 +25,7 @@ const QuestionTab = (props) => {
             <BotResponsesContainer
                 deletable={false}
                 name={(response && response.name) || `utter_ask_${slotName}`}
-                initialValue={response || getDefaultResponse()}
+                initialValue={response}
                 onChange={handleResponseChange}
                 enableEditPopup
                 enableChangeType
@@ -43,10 +37,10 @@ const QuestionTab = (props) => {
 
 QuestionTab.propTypes = {
     response: PropTypes.object,
-    slotName: PropTypes.string,
+    slotName: PropTypes.string.isRequired,
 };
 QuestionTab.defaultProps = {
-
+    response: null,
 };
 
 export default QuestionTab;

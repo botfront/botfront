@@ -16,43 +16,52 @@ import { ProjectContext } from '../../layouts/context';
 
 const CreateForm = (props) => {
     const {
+        initialModel,
         onSubmit,
     } = props;
+
+    const getFormattedModel = () => ({
+        ...initialModel,
+        slotNames: initialModel.slots.map(({ name }) => name),
+    });
 
     const schemaString = `
         type NewForm {
             name: String!
             description: String
-            slots: [SlotToFill]
-            collectInBotfront: Boolean
-        }  
-        type SlotToFill {
-            name: String!
-            filling: [String]
+            slotNames: [String]
+            collect_in_botfront: Boolean
         }
     `;
 
     const schema = buildASTSchema(parse(`${schemaString}
     `)).getType('NewForm');
 
-    const handleSubmit = (model) => {
-        const modelSlots = model.slots.map(slot => ({ name: slot, filling: [] }));
+    const handleSubmit = (incomingModel) => {
+        console.log(incomingModel.collect_in_botfront);
+        const model = { ...incomingModel };
+        const modelSlots = model.slotNames.map((slot) => {
+            const slotData = initialModel.slots.find(({ name }) => name === slot);
+            return { name: slot, filling: slotData ? slotData.filling : [] };
+        });
+        delete model.slotNames;
         onSubmit({ ...model, slots: modelSlots });
     };
 
     const { slots } = useContext(ProjectContext);
+
     return (
         <div>
-            <AutoForm model={{}} schema={new GraphQLBridge(schema, () => {}, {})} onSubmit={handleSubmit}>
+            <AutoForm model={getFormattedModel()} schema={new GraphQLBridge(schema, () => {}, {})} onSubmit={handleSubmit}>
                 <Segment.Group>
                     <Segment attached='top'>
                         <AutoField name='name' label='' className='create-form-field' />
                     </Segment>
                     <Segment attached='bottom'>
                         <LongTextField name='description' className='create-form-field' />
-                        <SelectField name='slots' options={slots.map(({ name: slot }) => ({ value: slot, text: slot }))} className='create-form-field' />
-                        <ToggleField name='collectInBotfront' />
-                        <SubmitField />
+                        <SelectField name='slotNames' options={slots.map(({ name: slot }) => ({ value: slot, text: slot }))} className='create-form-field' />
+                        <ToggleField name='collect_in_botfront' />
+                        <SubmitField value='Save' />
                     </Segment>
                 </Segment.Group>
             </AutoForm>
@@ -62,6 +71,11 @@ const CreateForm = (props) => {
 
 CreateForm.propTypes = {
     onSubmit: PropTypes.func.isRequired,
+    initialModel: PropTypes.object,
+};
+
+CreateForm.defaultProps = {
+    initialModel: { slotNames: [] },
 };
 
 export default CreateForm;

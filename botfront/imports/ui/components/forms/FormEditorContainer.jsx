@@ -11,30 +11,42 @@ const FormEditorContainer = (props) => {
     const {
         formName,
         slotName,
+        slotFillingProp,
+        onChange,
     } = props;
 
-    const [slotToFill, setSlotToFill] = useState({
-        name: slotName,
-        slotFilling: [{ type: 'from_text' }],
-    });
+    const getInitialFilling = () => {
+        if (slotFillingProp) return slotFillingProp;
+        return {
+            name: slotName,
+            filling: [{ type: 'from_text' }],
+        };
+    };
+
+    const [slotToFill, setSlotToFill] = useState(getInitialFilling());
     const [activeTab, setActiveTab] = useState('question');
-    const { slots, responses } = useContext(ProjectContext);
+    const { slots, responses, addResponses } = useContext(ProjectContext);
     const slot = slots.find(({ name }) => name === slotToFill.name);
     const response = responses[`utter_ask_${slotName}`];
+    if (!response) addResponses([`utter_ask_${slotName}`]);
 
     useEffect(() => {
         setSlotToFill({ ...slotToFill, name: slotName });
     }, [slotName]);
 
-    const handleChangeSlotFilling = (update, i) => {
-        const { slotFilling } = slotToFill;
-        const updatedSlotFilling = [...slotFilling];
-        updatedSlotFilling[i] = { ...updatedSlotFilling[i], ...update };
-        setSlotToFill({ ...slotToFill, slotFilling: updatedSlotFilling });
+    const handleChangefilling = (update, i) => {
+        const { filling } = slotToFill;
+        const updatedfilling = [...filling];
+        updatedfilling[i] = { ...updatedfilling[i], ...update };
+        const updateData = { ...slotToFill, filling: updatedfilling };
+        setSlotToFill(updateData);
+        onChange(formName, updateData);
     };
 
-    const handleAddSlotFilling = () => {
-        setSlotToFill({ ...slotToFill, slotFilling: [...slotToFill.slotFilling, { type: 'from_text' }] });
+    const handleAddfilling = () => {
+        const update = { ...slotToFill, filling: [...slotToFill.filling, { type: 'from_text' }] };
+        setSlotToFill(update);
+        onChange(formName, update);
     };
 
     const renderActiveTab = () => {
@@ -44,7 +56,7 @@ const FormEditorContainer = (props) => {
         case 'validation':
             return <>validation</>;
         case 'extraction':
-            return <ExtractionTab slotSettings={slotToFill.slotFilling} slot={slot} onChange={handleChangeSlotFilling} addSlotFilling={handleAddSlotFilling} />;
+            return <ExtractionTab slotSettings={slotToFill.filling} slot={slot} onChange={handleChangefilling} addfilling={handleAddfilling} />;
         default:
             return <></>;
         }
@@ -63,10 +75,9 @@ const FormEditorContainer = (props) => {
                 activeItem={activeTab}
                 setActiveItem={setActiveTab}
             />
-            {/*
             <Segment attached='bottom' className='form-settings-tab-container'>
                 {renderActiveTab()}
-            </Segment> */}
+            </Segment>
         </Segment.Group>
     );
 };
@@ -74,6 +85,8 @@ const FormEditorContainer = (props) => {
 FormEditorContainer.propTypes = {
     slotName: PropTypes.string.isRequired,
     formName: PropTypes.string.isRequired,
+    slotFillingProp: PropTypes.func.isRequired,
+    onChange: PropTypes.func.isRequired,
 };
 
 export default FormEditorContainer;

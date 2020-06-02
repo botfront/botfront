@@ -22,10 +22,13 @@ type Form {
 }
 
 input FormInput {
+    _id: String,
     name: FormName!
     slots: [SlotToFillInput]
     description: String
     projectId: String!
+    utter_on_submit: Boolean # utter_submit_{slot_name}
+    collect_in_botfront: Boolean
 }
 
 type SlotToFill {
@@ -44,6 +47,7 @@ type SlotValidation {
 }
 
 input SlotToFillInput {
+    _id: String
     name: String!
     filling: [SlotFillingInput]
 }
@@ -53,7 +57,12 @@ interface SlotFilling {
 }
 
 input SlotFillingInput {
-    type: Any
+    _id: String
+    type: FillingSource!
+    entity: [String]
+    intent: [String]
+    not_intent: [String]
+    value: Any
 }
 
 type SlotFillingFromEntity implements SlotFilling {
