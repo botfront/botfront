@@ -10,7 +10,7 @@ import ConversationDialogueViewer from '../../conversations/ConversationDialogue
 
 const ConversationPopup = (props) => {
     const {
-        projectId, datum, index, open, setOpen,
+        projectId, datum, open, setOpen,
     } = props;
     const convId = datum.conversation_id;
     const [getConv, { loading: convLoading, data: convData }] = useLazyQuery(GET_CONVERSATION, {
@@ -22,27 +22,21 @@ const ConversationPopup = (props) => {
 
     const renderPopup = () => (
         <Popup
-            id={`conversation-popup-${index}`}
+            id={`conversation-popup-${datum._id}`}
             className={convId ? 'dialogue-popup' : ''}
             open={open}
-            onClose={(e) => {
-                if (!(/conversation-popup/.test(e.target.id)
-                    || /conversation-popup/.test((e.target.parentElement || {}).id)
-                )) {
-                    setOpen(-1);
-                }
-            }}
+            on='click'
             trigger={(
                 <div>
                     <IconButton
-                        id={`conversation-popup-trigger-${index}`}
+                        id={`conversation-popup-trigger-${datum._id}`}
                         icon='comments'
                         color='grey'
                         data-cy='conversation-viewer'
                         className={`action-icon ${!convId && 'inactive'}`}
                         name='comments'
                         size='mini'
-                        onClick={() => { setOpen(open ? -1 : index); }}
+                        onClick={() => { setOpen(open ? -1 : datum._id); }}
                     />
                 </div>
             )}
@@ -75,7 +69,6 @@ const ConversationPopup = (props) => {
 ConversationPopup.propTypes = {
     projectId: PropTypes.string.isRequired,
     datum: PropTypes.object.isRequired,
-    index: PropTypes.number.isRequired,
     open: PropTypes.bool,
     setOpen: PropTypes.func.isRequired,
 };

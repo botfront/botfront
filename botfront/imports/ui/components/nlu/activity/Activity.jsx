@@ -121,9 +121,9 @@ function Activity(props) {
     };
 
     const handleUpdate = async (newData) => {
-        const dataUpdated = data.filter(d1 => newData.map(d2 => d2._id).includes(d1._id)).map(
-            ({ __typename, ...d1 }) => ({ ...d1, ...newData.find(d2 => d2._id === d1._id) }),
-        );
+        const dataUpdated = clearTypenameField(data.filter(d1 => newData.map(d2 => d2._id).includes(d1._id)).map(
+            d1 => ({ ...d1, ...newData.find(d2 => d2._id === d1._id) }),
+        ));
         return upsertActivity({
             variables: { modelId, data: dataUpdated },
             optimisticResponse: {
@@ -239,10 +239,7 @@ function Activity(props) {
         return (
             <UserUtteranceViewer
                 value={datum}
-                onChange={({ _id, entities: ents }) => handleUpdate([{
-                    _id,
-                    entities: ents.map(e => clearTypenameField(({ ...e, confidence: null }))),
-                }])}
+                onChange={handleUpdate}
                 projectId={projectId}
                 disabled={isUtteranceOutdated(datum)}
                 disableEditing={isUtteranceOutdated(datum)}
@@ -269,7 +266,7 @@ function Activity(props) {
     const renderConvPopup = row => (
         <ConversationPopup
             {...row}
-            open={row.index === openConvPopup}
+            open={(row.datum || {})._id === openConvPopup}
             setOpen={setOpenConvPopup}
         />
     );
@@ -316,9 +313,10 @@ function Activity(props) {
         if (e.target !== tableRef.current.tableRef().current) return;
         if (key === 'Escape') setSelection([]);
         if (key.toLowerCase() === 'd') handleDelete(selectionWithFullData);
-        if (key.toLowerCase() === 'o') {
-            if (selectionWithFullData.some(d => d.intent)) return;
-            handleMarkOoS(selectionWithFullData);
+        if (key.toLowerCase() === 'o') handleMarkOoS(selectionWithFullData);
+        if (key.toLowerCase() === 'c') {
+            if (openConvPopup === selection[0]) setOpenConvPopup(-1);
+            else setOpenConvPopup(selection[0] || -1);
         }
         if (key.toLowerCase() === 'v') {
             if (selectionWithFullData.some(d => !d.intent)) return;
@@ -418,7 +416,10 @@ function Activity(props) {
                             rowClassName='glow-box hoverable'
                             className='new-utterances-table'
                             selection={selection}
-                            onChangeSelection={setSelection}
+                            onChangeSelection={(newSel) => {
+                                setSelection(newSel);
+                                if (openConvPopup !== -1) setOpenConvPopup(newSel[0] || -1);
+                            }}
                         />
                         {can('incoming:w', projectId) && selection.length > 1 && (
                             <ActivityCommandBar
