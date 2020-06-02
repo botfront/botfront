@@ -12,6 +12,11 @@ export const DefaultDomainSchema = new SimpleSchema({
     },
 });
 
+export const logosSchema = new SimpleSchema({
+    smallLogoUrl: { type: String, optional: true },
+    logoUrl: { type: String, optional: true },
+});
+
 export const ProjectsSchema = new SimpleSchema({
     name: {
         type: String,
@@ -59,6 +64,8 @@ export const ProjectsSchema = new SimpleSchema({
     defaultDomain: { type: DefaultDomainSchema, optional: true },
     storyGroups: { type: Array, defaultValue: [] },
     'storyGroups.$': { type: String },
+    logoUrl: { type: String, optional: true },
+    smallLogoUrl: { type: String, optional: true },
 }, { tracker: Tracker });
 
 ProjectsSchema.messageBox.messages({

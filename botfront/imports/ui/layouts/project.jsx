@@ -331,18 +331,18 @@ class Project extends React.Component {
             <div style={{ height: '100vh' }}>
                 {showIntercom && !loading && <Intercom appID={intercomId} {...this.getIntercomUser()} />}
                 <div className='project-sidebar'>
-                    {(settings && settings.settings && settings.settings.public && settings.settings.public.logoUrl) ? (
+                    {(settings && settings.settings && settings.settings.public && settings.settings.public.logoUrl) || project.logoUrl ? (
                         <Header as='h1' className='logo'>
-                            <Image src={!loading ? settings.settings.public.logoUrl : ''} centered className='custom-logo' />
+                            <Image src={!loading ? project.logoUrl || settings.settings.public.logoUrl : ''} centered className='custom-logo' />
                         </Header>
                     ) : (
                         <Header as='h1' className='logo'>
                             Botfront.
                         </Header>
                     )}
-                    {(settings && settings.settings && settings.settings.public && settings.settings.public.smallLogoUrl) ? (
+                    {(settings && settings.settings && settings.settings.public && settings.settings.public.smallLogoUrl) || project.smallLogoUrl ? (
                         <Header as='h1' className='simple-logo'>
-                            <Image src={!loading ? settings.settings.public.smallLogoUrl : ''} centered className='custom-small-logo' />
+                            <Image src={!loading ? project.smallLogoUrl || settings.settings.public.smallLogoUrl : ''} centered className='custom-small-logo' />
                         </Header>
                     ) : (
                         <Header as='h1' className='simple-logo'>

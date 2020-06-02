@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 
 import { PageMenu } from '../utils/Utils';
 import Credentials from './Credentials';
+import Appearance from './Appearance';
 import Endpoints from './Endpoints';
 import ProjectInfo from './ProjectInfo';
 import { can } from '../../../lib/scopes';
@@ -68,6 +69,10 @@ class Settings extends React.Component {
                     menuItem: <Menu.Item data-cy='project-settings-menu-instances' icon='server' content='Instance' key='Instances' />,
                     render: () => <Tab.Pane><Instances /></Tab.Pane>,
                 },
+                {
+                    menuItem: <Menu.Item data-cy='project-settings-menu-appearance' icon='eye' content='Appearance' key='Appearance' />,
+                    render: () => <Tab.Pane><Appearance /></Tab.Pane>,
+                },
             ];
         }
         
@@ -92,7 +97,6 @@ class Settings extends React.Component {
 
 Settings.propTypes = {
     projectId: PropTypes.string.isRequired,
-    router: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({
