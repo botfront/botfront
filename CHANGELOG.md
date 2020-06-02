@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.24.2](https://github.com/botfront/botfront/compare/v0.24.1...v0.24.2) (2020-06-02)
+
+
+### Bug Fixes
+
+* activity with entities ([e8c5ae3](https://github.com/botfront/botfront/commit/e8c5ae3))
+
+
+
 ### [0.24.1](https://github.com/botfront/botfront/compare/v0.24.0...v0.24.1) (2020-05-28)
 
 
