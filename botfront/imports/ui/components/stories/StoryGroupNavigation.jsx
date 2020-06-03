@@ -152,8 +152,8 @@ class StoryGroupNavigation extends React.Component {
                 <Popup
                     size='mini'
                     inverted
-                    content={<span>Form names must end with <i>_form</i>.</span>}
-                    disabled={addMode !== 'form'}
+                    content={<span>Form names must end with <i>_form</i> and have no special characters.</span>}
+                    disabled={addMode !== 'form' || newItemName.match(/^[a-zA-Z0-9-_]+_form$/)}
                     position='bottom center'
                     open
                     trigger={(

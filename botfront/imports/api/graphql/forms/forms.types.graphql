@@ -68,7 +68,7 @@ type SlotFillingFromText implements SlotFilling {
     not_intent: [String]
 }
 
-scalar FormName # (/.*_form$/)
+scalar FormName # (/^[a-zA-Z0-9-_]+_form$/)
 
 enum FillingSource {
     from_entity

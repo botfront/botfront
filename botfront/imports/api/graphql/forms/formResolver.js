@@ -19,7 +19,7 @@ export default {
         upsertForm: (_, args) => upsertForm(args),
         deleteForms: (_, args) => deleteForms(args),
     },
-    FormName: new RegularExpression('FormName', /.*_form$/),
+    FormName: new RegularExpression('FormName', /^[a-zA-Z0-9-_]+_form$/),
     Form: {
         name: ({ name }) => name,
         slots: ({ slots }) => slots,
