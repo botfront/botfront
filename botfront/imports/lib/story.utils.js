@@ -346,8 +346,17 @@ export const extractDomain = ({
         actions: Array.from(domains.actions),
         forms: Array.from(domains.forms),
         responses: domains.responses,
-        slots: domains.slots,
-        ...(bfForms.length ? { bf_forms: bfForms } : {}),
+        slots: {
+            ...domains.slots,
+            ...(bfForms.length
+                ? {
+                    bf_forms: {
+                        type: 'unfeaturized',
+                        initial_value: bfForms,
+                    },
+                } : {}
+            ),
+        },
     });
     return domains;
 };
