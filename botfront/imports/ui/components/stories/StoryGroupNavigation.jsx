@@ -149,16 +149,27 @@ class StoryGroupNavigation extends React.Component {
         return !allowAddition || !addMode
             ? this.renderNavigation()
             : (
-                <Input
-                    placeholder={placeholder}
-                    onChange={this.handleChangeNewItemName}
-                    value={newItemName}
-                    onKeyDown={this.handleKeyDownInput}
-                    autoFocus
-                    onBlur={() => this.submitTitleInput()}
-                    fluid
-                    data-cy='add-item-input'
-                    className='navigation'
+                <Popup
+                    size='mini'
+                    inverted
+                    content={<span>Form names must end with <i>_form</i>.</span>}
+                    disabled={addMode !== 'form'}
+                    position='bottom center'
+                    open
+                    trigger={(
+                        <Input
+                            placeholder={placeholder}
+                            onChange={this.handleChangeNewItemName}
+                            value={newItemName}
+                            onKeyDown={this.handleKeyDownInput}
+                            autoFocus
+                            onBlur={() => this.submitTitleInput()}
+                            fluid
+                            data-cy='add-item-input'
+                            className='navigation'
+                        />
+
+                    )}
                 />
             );
     }
