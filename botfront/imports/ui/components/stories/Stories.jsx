@@ -29,9 +29,10 @@ import { can } from '../../../lib/scopes';
 import { UPSERT_FORM, GET_FORMS, DELETE_FORMS } from './graphql/queries';
 import FormEditors from '../forms/FormEditors';
 
-const callbackCaller = args => (res) => {
+const callbackCaller = (args, afterAll = () => {}) => async (res) => {
     const callback = args[args.length - 1];
-    if (typeof callback === 'function') callback(res);
+    if (typeof callback === 'function') await callback(res);
+    return afterAll(res);
 };
 
 const SlotsEditor = React.lazy(() => import('./Slots'));
@@ -139,7 +140,7 @@ function Stories(props) {
 
     const handleUpsertForm = useCallback(
         (formData, ...args) => upsertForm({ variables: { form: { ...formData, projectId } } }).then(
-            () => refetch().then(callbackCaller(args), callbackCaller(args)),
+            callbackCaller(args, refetch), callbackCaller(args, refetch),
         ), [projectId],
     );
 
