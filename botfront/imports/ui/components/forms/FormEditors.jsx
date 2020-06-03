@@ -42,7 +42,7 @@ const FormEditors = (props) => {
         const slotIndex = updatedSlots.findIndex(({ name }) => name === slotName);
         updatedSlots[slotIndex] = { name: slotName, ...rest };
         const update = { ...formData, slots: updatedSlots };
-        upsertForm(clearTypenameField(update));
+        upsertForm(clearTypenameField(update)).then(() => refetch());
     };
 
     const renderForm = (formId) => {
