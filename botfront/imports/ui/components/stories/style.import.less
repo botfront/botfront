@@ -60,13 +60,18 @@
             &[type='form'] {
                 .item-name {
                     font-weight: bold;
-                    color: red;
+                    color: @botfront-blue;
+                    &:before {
+                        content: '\f298\00a0';
+                        font-weight: normal;
+                        font-family: 'brand-icons';
+                    }
                 }
             }
             &[type='form-slot'] {
                 .item-name {
                     font-weight: normal;
-                    color: red;
+                    color: @botfront-blue;
                 }
             }
 
