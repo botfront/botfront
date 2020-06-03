@@ -91,7 +91,7 @@ class StoryGroupNavigation extends React.Component {
                         className='icon'
                         data-cy='add-item'
                         disabled={!allowAddition}
-                        style={{ width: 0, textAlign: 'center' }}
+                        style={{ textAlign: 'center' }}
                     >
                         <Dropdown.Menu>
                             <Dropdown.Item
