@@ -115,13 +115,13 @@ export class StoryController {
             this.raiseStoryException('form');
             return;
         }
+        this.lines[this.idx].gui = { type: 'form', data: { name: props.name } };
         if (!{}.hasOwnProperty.call(props, 'name')) {
             this.raiseStoryException('form');
-        } else if (this.form !== props.name) {
+        } else if (![this.form, null].includes(props.name)) {
             this.raiseStoryException('declare_form');
         } else {
             this.form = null;
-            this.lines[this.idx].gui = { type: 'form', data: { name: props.name } };
         }
     };
 
@@ -270,7 +270,12 @@ export class StoryController {
 
     toMd = (line) => {
         try {
-            if (['action', 'bot'].includes(line.type)) return `  - ${line.data.name}`;
+            if (['action', 'bot', 'form_decl'].includes(line.type)) return `  - ${line.data.name}`;
+            if (line.type === 'form') {
+                let { name } = line.data;
+                name = name === null ? name : `"${name}"`;
+                return `  - form{"name":${name}}`;
+            }
             if (line.type === 'slot') {
                 const newLine = {};
                 newLine[line.data.name] = line.data.slotValue;
@@ -332,6 +337,7 @@ export class StoryController {
             botUtterance: true,
             action: true,
             slot: true,
+            form: true,
         };
         const [prev, next] = [this.lines[i], this.lines[i + 1]];
         if ((prev && prev.gui.type === 'user') || (next && next.gui.type === 'user')) {

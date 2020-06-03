@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import {
+    Dropdown,
+} from 'semantic-ui-react';
 import BotResponsePopupContent from './BotResponsePopupContent';
 import ActionPopupContent from './ActionPopupContent';
 import SlotPopupContent from './SlotPopupContent';
@@ -9,19 +12,19 @@ import UserUtterancePopupContent from './UserUtterancePopupContent';
 const AddStoryLine = React.forwardRef((props, ref) => {
     const {
         availableActions: {
-            userUtterance, botUtterance, action, slot,
+            userUtterance, botUtterance, action, slot, form,
         },
         noButtonResponse,
         onSelectResponse,
         onCreateResponse,
-        onSelectAction,
-        onSelectSlot,
+        onCreateGenericLine,
         onCreateUtteranceFromInput,
         onCreateUtteranceFromPayload,
         size,
         onBlur,
         trackOpenMenu,
     } = props;
+    const [formMenuOpen, setFormMenuOpen] = useState(false);
     return (
         <div
             className='add-story-line'
@@ -30,7 +33,7 @@ const AddStoryLine = React.forwardRef((props, ref) => {
             role='menuitem'
             onBlur={e => onBlur(e)}
         >
-            { userUtterance && (
+            {userUtterance && (
                 <UserUtterancePopupContent
                     trigger={<DashedButton color='blue' size={size} data-cy='add-user-line'>User</DashedButton>}
                     onCreateFromInput={onCreateUtteranceFromInput}
@@ -38,7 +41,7 @@ const AddStoryLine = React.forwardRef((props, ref) => {
                     trackOpenMenu={trackOpenMenu}
                 />
             )}
-            { botUtterance && (
+            {botUtterance && (
                 <BotResponsePopupContent
                     onSelect={r => onSelectResponse(r)}
                     onCreate={r => onCreateResponse(r)}
@@ -49,19 +52,51 @@ const AddStoryLine = React.forwardRef((props, ref) => {
                     trackOpenMenu={trackOpenMenu}
                 />
             )}
-            { action && (
+            {action && (
                 <ActionPopupContent
-                    onSelect={a => onSelectAction(a)}
+                    onSelect={a => onCreateGenericLine({
+                        type: 'action', data: { name: a },
+                    })}
                     trigger={<DashedButton color='pink' size={size} data-cy='add-action-line'>Action</DashedButton>}
                     trackOpenMenu={trackOpenMenu}
                 />
             )}
-            { slot && (
+            {slot && (
                 <SlotPopupContent
-                    onSelect={s => onSelectSlot(s)}
+                    onSelect={s => onCreateGenericLine({ type: 'slot', data: s })}
                     trigger={<DashedButton color='orange' size={size} data-cy='add-slot-line'>Slot</DashedButton>}
                     trackOpenMenu={trackOpenMenu}
                 />
+            )}
+            {form && (
+                <Dropdown
+                    trigger={<DashedButton color='botfront-blue' size={size} data-cy='add-form-line'>Form</DashedButton>}
+                    className='dropdown-button-trigger'
+                    open={formMenuOpen}
+                    onOpen={() => {
+                        setFormMenuOpen(true);
+                        trackOpenMenu(() => setFormMenuOpen(false));
+                    }}
+                    onClose={() => setFormMenuOpen(false)}
+                >
+                    <Dropdown.Menu>
+                        <Dropdown.Item
+                            content='Start or continue a form'
+                            onClick={() => onCreateGenericLine({ type: 'form_decl', data: { name: 'my_nice_form' } })}
+                            data-cy='start-form'
+                        />
+                        <Dropdown.Item
+                            content='Complete a form'
+                            onClick={() => onCreateGenericLine({ type: 'form', data: { name: null } })}
+                            data-cy='complete-form'
+                        />
+                        <Dropdown.Item
+                            content='Deactivate any form'
+                            onClick={() => onCreateGenericLine({ type: 'action', data: { name: 'action_deactivate_form' } })}
+                            data-cy='deactivate-form'
+                        />
+                    </Dropdown.Menu>
+                </Dropdown>
             )}
         </div>
     );
@@ -73,8 +108,7 @@ AddStoryLine.propTypes = {
     onCreateUtteranceFromPayload: PropTypes.func,
     onSelectResponse: PropTypes.func,
     onCreateResponse: PropTypes.func,
-    onSelectAction: PropTypes.func,
-    onSelectSlot: PropTypes.func,
+    onCreateGenericLine: PropTypes.func,
     noButtonResponse: PropTypes.bool,
     size: PropTypes.string,
     onBlur: PropTypes.func,
@@ -86,8 +120,7 @@ AddStoryLine.defaultProps = {
     onCreateUtteranceFromPayload: () => {},
     onSelectResponse: () => {},
     onCreateResponse: () => {},
-    onSelectAction: () => {},
-    onSelectSlot: () => {},
+    onCreateGenericLine: () => {},
     noButtonResponse: false,
     size: 'mini',
     onBlur: () => {},

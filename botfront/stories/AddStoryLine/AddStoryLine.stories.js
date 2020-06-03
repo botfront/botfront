@@ -38,7 +38,6 @@ export const Basic = () => (
         onCreateUtteranceFromPayload={action('onCreateUtteranceFromPayload')}
         onSelectResponse={action('onSelectResponse')}
         onCreateResponse={action('onCreateResponse')}
-        onSelectAction={action('onSelectAction')}
-        onSelectSlot={action('onSelectSlot')}
+        onCreateGenericLine={action('onCreateGenericLine')}
     />
 );

@@ -127,10 +127,7 @@ export default class StoryVisualEditor extends React.Component {
                     onCreateUtteranceFromInput={() => this.handleCreateUserUtterance(index)}
                     onCreateUtteranceFromPayload={payload => this.handleCreateUserUtterance(index, payload)}
                     onCreateResponse={templateType => this.handleCreateSequence(index, templateType)}
-                    onSelectAction={action => this.handleCreateSlotOrAction(index, {
-                        type: 'action', data: { name: action },
-                    })}
-                    onSelectSlot={slot => this.handleCreateSlotOrAction(index, { type: 'slot', data: slot })}
+                    onCreateGenericLine={data => this.handleCreateSlotOrAction(index, data)}
                     onBlur={({ relatedTarget }) => {
                         const modals = Array.from(document.querySelectorAll('.modal'));
                         const popups = Array.from(document.querySelectorAll('.popup'));
@@ -203,9 +200,9 @@ export default class StoryVisualEditor extends React.Component {
             <ExceptionWrapper exceptions={exceptions}>
                 <div className={`story-line ${this.getReadOnlyClass()}`}>
                     <GenericLabel
-                        label={line.gui.type}
+                        label='form'
                         value={line.gui.data.name}
-                        color={line.gui.type === 'form' ? 'yellow' : 'olive'}
+                        color='botfront-blue'
                     />
                     <IconButton onClick={() => this.handleDeleteLine(index)} icon='trash' />
                 </div>
