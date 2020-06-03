@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
-import {
-    Dropdown,
-} from 'semantic-ui-react';
+import { Dropdown } from 'semantic-ui-react';
 import BotResponsePopupContent from './BotResponsePopupContent';
 import ActionPopupContent from './ActionPopupContent';
 import SlotPopupContent from './SlotPopupContent';
 import DashedButton from './DashedButton';
 import UserUtterancePopupContent from './UserUtterancePopupContent';
+import { ConversationOptionsContext } from '../Context';
 
 const AddStoryLine = React.forwardRef((props, ref) => {
     const {
@@ -25,6 +24,8 @@ const AddStoryLine = React.forwardRef((props, ref) => {
         trackOpenMenu,
     } = props;
     const [formMenuOpen, setFormMenuOpen] = useState(false);
+    const { forms = [] } = useContext(ConversationOptionsContext);
+
     return (
         <div
             className='add-story-line'
@@ -35,7 +36,11 @@ const AddStoryLine = React.forwardRef((props, ref) => {
         >
             {userUtterance && (
                 <UserUtterancePopupContent
-                    trigger={<DashedButton color='blue' size={size} data-cy='add-user-line'>User</DashedButton>}
+                    trigger={(
+                        <DashedButton color='blue' size={size} data-cy='add-user-line'>
+                            User
+                        </DashedButton>
+                    )}
                     onCreateFromInput={onCreateUtteranceFromInput}
                     onCreateFromPayload={u => onCreateUtteranceFromPayload(u)}
                     trackOpenMenu={trackOpenMenu}
@@ -48,29 +53,51 @@ const AddStoryLine = React.forwardRef((props, ref) => {
                     noButtonResponse={noButtonResponse}
                     limitedSelection
                     disableExisting
-                    trigger={<DashedButton color='green' size={size} data-cy='add-bot-line'>Bot</DashedButton>}
+                    trigger={(
+                        <DashedButton color='green' size={size} data-cy='add-bot-line'>
+                            Bot
+                        </DashedButton>
+                    )}
                     trackOpenMenu={trackOpenMenu}
                 />
             )}
             {action && (
                 <ActionPopupContent
                     onSelect={a => onCreateGenericLine({
-                        type: 'action', data: { name: a },
-                    })}
-                    trigger={<DashedButton color='pink' size={size} data-cy='add-action-line'>Action</DashedButton>}
+                        type: 'action',
+                        data: { name: a },
+                    })
+                    }
+                    trigger={(
+                        <DashedButton color='pink' size={size} data-cy='add-action-line'>
+                            Action
+                        </DashedButton>
+                    )}
                     trackOpenMenu={trackOpenMenu}
                 />
             )}
             {slot && (
                 <SlotPopupContent
                     onSelect={s => onCreateGenericLine({ type: 'slot', data: s })}
-                    trigger={<DashedButton color='orange' size={size} data-cy='add-slot-line'>Slot</DashedButton>}
+                    trigger={(
+                        <DashedButton color='orange' size={size} data-cy='add-slot-line'>
+                            Slot
+                        </DashedButton>
+                    )}
                     trackOpenMenu={trackOpenMenu}
                 />
             )}
             {form && (
                 <Dropdown
-                    trigger={<DashedButton color='botfront-blue' size={size} data-cy='add-form-line'>Form</DashedButton>}
+                    trigger={(
+                        <DashedButton
+                            color='botfront-blue'
+                            size={size}
+                            data-cy='add-form-line'
+                        >
+                            Form
+                        </DashedButton>
+                    )}
                     className='dropdown-button-trigger'
                     open={formMenuOpen}
                     onOpen={() => {
@@ -80,19 +107,51 @@ const AddStoryLine = React.forwardRef((props, ref) => {
                     onClose={() => setFormMenuOpen(false)}
                 >
                     <Dropdown.Menu>
+                        <Dropdown.Item className='dropdown'>
+                            <Dropdown
+                                text='Start or continue a form'
+                                fluid
+                                data-cy='start-form'
+                            >
+                                <Dropdown.Menu>
+                                    <Dropdown.Header>Select a form</Dropdown.Header>
+                                    {forms.length
+                                        ? forms.map(f => (
+                                            <Dropdown.Item
+                                                key={`formname-${f.name}`}
+                                                content={f.name}
+                                                onClick={() => onCreateGenericLine({
+                                                    type: 'form_decl',
+                                                    data: { name: f.name },
+                                                })
+                                                }
+                                            />
+                                        )) : (
+                                            <Dropdown.Item
+                                                content='No form found for this project.'
+                                                disabled
+                                            />
+                                        )
+                                    }
+                                </Dropdown.Menu>
+                            </Dropdown>
+                        </Dropdown.Item>
                         <Dropdown.Item
-                            content='Start or continue a form'
-                            onClick={() => onCreateGenericLine({ type: 'form_decl', data: { name: 'my_nice_form' } })}
-                            data-cy='start-form'
-                        />
-                        <Dropdown.Item
-                            content='Complete a form'
-                            onClick={() => onCreateGenericLine({ type: 'form', data: { name: null } })}
+                            content='Pick up after completion'
+                            onClick={() => onCreateGenericLine({
+                                type: 'form',
+                                data: { name: null },
+                            })
+                            }
                             data-cy='complete-form'
                         />
                         <Dropdown.Item
                             content='Deactivate any form'
-                            onClick={() => onCreateGenericLine({ type: 'action', data: { name: 'action_deactivate_form' } })}
+                            onClick={() => onCreateGenericLine({
+                                type: 'action',
+                                data: { name: 'action_deactivate_form' },
+                            })
+                            }
                             data-cy='deactivate-form'
                         />
                     </Dropdown.Menu>
