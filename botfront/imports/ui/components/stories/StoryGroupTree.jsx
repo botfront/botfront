@@ -30,10 +30,11 @@ const openFirstStoryIfNoneSelected = (
         return;
     }
     let storiesFound = [];
-    let groupId;
+    let groupId; let typeOfNode;
     let i = 0;
-    while (!storiesFound.length) {
+    while (typeOfNode !== 'story-group' || !storiesFound.length) {
         groupId = tree.items[tree.rootId].children[i];
+        typeOfNode = tree.items[groupId].type;
         storiesFound = tree.items[groupId].children;
         i += 1;
         if (i > tree.items[tree.rootId].children.length - 1) break;

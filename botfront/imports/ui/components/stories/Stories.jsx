@@ -85,10 +85,9 @@ function Stories(props) {
 
     const [upsertForm] = useMutation(UPSERT_FORM);
     const [deleteForms] = useMutation(DELETE_FORMS);
-    const { data: { getForms = [] } = {}, loading, refetch } = useQuery(GET_FORMS, {
+    const { data: { getForms: forms = [] } = {}, loading, refetch } = useQuery(GET_FORMS, {
         variables: { projectId, onlySlotList: true },
     });
-    const forms = loading ? [] : getForms;
 
     const getQueryParams = () => {
         const { location: { query } } = router;
@@ -282,15 +281,17 @@ function Stories(props) {
                             allowAddition={can('stories:w', projectId)}
                             modals={{ setSlotsModal, setPoliciesModal }}
                         />
-                        <StoryGroupTree
-                            ref={treeRef}
-                            forms={forms}
-                            storyGroups={storyGroups}
-                            stories={stories}
-                            onChangeStoryMenuSelection={setStoryMenuSelection}
-                            storyMenuSelection={storyMenuSelection}
-                            isDeletionPossible={isDeletionPossible}
-                        />
+                        <Loading loading={loading}>
+                            <StoryGroupTree
+                                ref={treeRef}
+                                forms={forms}
+                                storyGroups={storyGroups}
+                                stories={stories}
+                                onChangeStoryMenuSelection={setStoryMenuSelection}
+                                storyMenuSelection={storyMenuSelection}
+                                isDeletionPossible={isDeletionPossible}
+                            />
+                        </Loading>
                     </div>
                     <Container>
                         {forms.some(({ _id }) => (storyMenuSelection[0] || '').replace(/^.*_slot_for_/, '') === _id)
