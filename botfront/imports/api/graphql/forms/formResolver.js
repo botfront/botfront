@@ -1,3 +1,4 @@
+import { RegularExpression } from 'graphql-scalars';
 import {
     getForms,
     upsertForm,
@@ -15,11 +16,10 @@ export default {
             const { projectId, environment, tracker } = args;
             return { success: true };
         },
-        createForm(_, args) {
-            return upsertForm(args);
-        },
+        upsertForm: (_, args) => upsertForm(args),
         deleteForms: (_, args) => deleteForms(args),
     },
+    FormName: new RegularExpression('FormName', /.*_form$/),
     Form: {
         name: ({ name }) => name,
         slots: ({ slots }) => slots,

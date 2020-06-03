@@ -4,7 +4,7 @@ type Mutation {
         environment: String
         tracker: Any!
     ): updateResponse!
-    createForm(form: FormInput): Any
+    upsertForm(form: FormInput): updateResponse!
     deleteForms(
         projectId: String!
         ids: [String]
@@ -24,6 +24,7 @@ type Form {
     description: String
     projectId: String!
     isExpanded: Boolean
+    pinned: Boolean
 }
 
 type SlotToFill {
@@ -69,8 +70,6 @@ type SlotFillingFromText implements SlotFilling {
 
 scalar FormName # (/.*_form$/)
 
-scalar ResponseName # (/^utter_.*/)
-
 enum FillingSource {
     from_entity
     from_intent
@@ -93,7 +92,7 @@ enum ValidationOperator {
 }
 
 input FormInput {
-    _id: String,
+    _id: String
     name: FormName
     slots: [SlotToFillInput]
     description: String
@@ -101,6 +100,7 @@ input FormInput {
     utter_on_submit: Boolean # utter_submit_{slot_name}
     collect_in_botfront: Boolean
     isExpanded: Boolean
+    pinned: Boolean = true
 }
 
 input SlotToFillInput {

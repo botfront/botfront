@@ -26,7 +26,7 @@ import StoryEditors from './StoryEditors';
 import { Loading } from '../utils/Utils';
 import { useEventListener } from '../utils/hooks';
 import { can } from '../../../lib/scopes';
-import { CREATE_FORM, GET_FORMS, DELETE_FORMS } from './graphql/queries';
+import { UPSERT_FORM, GET_FORMS, DELETE_FORMS } from './graphql/queries';
 import FormEditors from '../forms/FormEditors';
 
 const callbackCaller = args => (res) => {
@@ -82,7 +82,7 @@ function Stories(props) {
 
     const treeRef = useRef();
 
-    const [upsertForm] = useMutation(CREATE_FORM);
+    const [upsertForm] = useMutation(UPSERT_FORM);
     const [deleteForms] = useMutation(DELETE_FORMS);
     const { data: { getForms = [] } = {}, loading, refetch } = useQuery(GET_FORMS, {
         variables: { projectId, onlySlotList: true },

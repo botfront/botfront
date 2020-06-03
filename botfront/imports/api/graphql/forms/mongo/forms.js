@@ -1,5 +1,7 @@
 import uuidv4 from 'uuid/v4';
 import Forms from '../forms.model';
+import { StoryGroups } from '../../../storyGroups/storyGroups.collection';
+import { Projects } from '../../../project/project.collection';
 
 export const getForms = async (projectId, names = null) => {
     if (!names) return Forms.find({ projectId }).lean();
@@ -13,21 +15,32 @@ export const deleteForms = async ({ projectId, ids }) => {
     return [];
 };
 export const upsertForm = async (data) => {
-    const { projectId, name } = data.form;
-    const { _id, ...update } = data.form;
-    console.log(update);
+    const {
+        projectId, _id, ...update
+    } = data.form;
     if (_id) {
-        return Forms.updateOne(
-            { _id },
+        const { ok: success } = await Forms.updateOne(
+            { projectId, _id },
             { $set: update },
         );
+        return { success };
     }
-    return Forms.update(
-        { projectId, name },
+    const { upserted } = await Forms.update(
+        { projectId, name: update.form },
         {
             $set: update,
             $setOnInsert: { _id: uuidv4() },
         },
-        { upsert: true },
+        { new: true, upsert: true, rawResult: true },
     );
+    const upsertedIds = upserted.map(({ _id: id }) => id);
+    const $position = update.pinned
+        ? 0
+        : StoryGroups.find({ projectId, pinned: true }).count()
+            + await Forms.countDocuments({ projectId, pinned: true });
+    const success = Projects.update(
+        { _id: projectId },
+        { $push: { storyGroups: { $each: upsertedIds, $position } } },
+    );
+    return { success };
 };

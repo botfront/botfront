@@ -5,7 +5,7 @@ import { Loader } from 'semantic-ui-react';
 import { useMutation, useSubscription, useQuery } from '@apollo/react-hooks';
 import FormEditorContainer from './FormEditorContainer';
 import CreateForm from './CreateForm';
-import { CREATE_FORM, GET_FORMS } from '../stories/graphql/queries';
+import { UPSERT_FORM, GET_FORMS } from '../stories/graphql/queries';
 
 import { ConversationOptionsContext } from '../stories/Context';
 

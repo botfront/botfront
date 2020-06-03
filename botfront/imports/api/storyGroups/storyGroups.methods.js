@@ -3,6 +3,7 @@ import { check } from 'meteor/check';
 import { checkIfCan } from '../../lib/scopes';
 import { auditLogIfOnServer } from '../../lib/utils';
 import { StoryGroups } from './storyGroups.collection';
+import Forms from '../graphql/forms/forms.model';
 import { Projects } from '../project/project.collection';
 import { Stories } from '../story/stories.collection';
 import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo/botResponses';
@@ -92,7 +93,10 @@ Meteor.methods({
     async 'storyGroups.delete'(storyGroup) {
         checkIfCan('stories:w', storyGroup.projectId);
         check(storyGroup, Object);
-        const eventstoRemove = Stories.find({ storyGroupId: storyGroup._id }, { fields: { events: true } })
+        const eventstoRemove = Stories.find(
+            { storyGroupId: storyGroup._id },
+            { fields: { events: true } },
+        )
             .fetch()
             .reduce((acc, { events = [] }) => [...acc, ...events], []);
         Projects.update(
@@ -114,15 +118,18 @@ Meteor.methods({
         return result;
     },
 
-    'storyGroups.insert'(storyGroup) {
-        checkIfCan('stories:w', storyGroup.projectId);
+    async 'storyGroups.insert'(storyGroup) {
         check(storyGroup, Object);
         const { projectId, pinned } = storyGroup;
         try {
             const id = StoryGroups.insert({
-                ...storyGroup, children: [],
+                ...storyGroup,
+                children: [],
             });
-            const $position = pinned ? 0 : StoryGroups.find({ projectId, pinned: true }).count();
+            const $position = pinned
+                ? 0
+                : StoryGroups.find({ projectId, pinned: true }).count()
+                    + await Forms.countDocuments({ projectId, pinned: true });
             Projects.update(
                 { _id: projectId },
                 { $push: { storyGroups: { $each: [id], $position } } },
@@ -179,9 +186,7 @@ Meteor.methods({
         check(storyGroup, Object);
         try {
             const { _id, isExpanded } = storyGroup;
-            return StoryGroups.update(
-                { _id }, { $set: { isExpanded } },
-            );
+            return StoryGroups.update({ _id }, { $set: { isExpanded } });
         } catch (e) {
             return handleError(e);
         }

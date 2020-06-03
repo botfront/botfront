@@ -1,9 +1,9 @@
 import gql from 'graphql-tag';
 
 
-export const CREATE_FORM = gql`
-    mutation createForm($form: FormInput) {
-        createForm(form: $form)
+export const UPSERT_FORM = gql`
+    mutation upsertForm($form: FormInput) {
+        upsertForm(form: $form) { success }
     }`;
 
 export const DELETE_FORMS = gql`
@@ -39,6 +39,7 @@ export const GET_FORMS = gql`
             description @skip(if: $onlySlotList)
             projectId
             isExpanded
+            pinned
         }
     }
 `;
