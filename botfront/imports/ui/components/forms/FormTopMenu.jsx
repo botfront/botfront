@@ -1,6 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Segment, Breadcrumb, Menu } from 'semantic-ui-react';
+import {
+    Breadcrumb, Menu, Icon,
+} from 'semantic-ui-react';
+
 
 const FormTopMenu = (props) => {
     const {
@@ -9,18 +12,21 @@ const FormTopMenu = (props) => {
         activeItem,
         setActiveItem,
         menuItems,
+        collapsed,
+        onToggleCollapsed,
     } = props;
 
     const renderMenuItem = (item) => {
         const { text, value } = item;
         return (
-            <Menu.Item onClick={() => setActiveItem(value)} active={activeItem === value}>
+            <Menu.Item onClick={() => setActiveItem(value)} active={activeItem === value} className='story-card-tab'>
                 {text || value}
             </Menu.Item>
         );
     };
     return (
-        <Segment attatched='top' className='form-top-menu'>
+        <Menu pointing secondary attatched='top' className='form-top-menu story-card-topbar'>
+            <Icon name={`triangle ${collapsed ? 'right' : 'down'}`} onClick={() => onToggleCollapsed(!collapsed)} />
             {formName && slotName && (
                 <Breadcrumb
                     className='form-slot-breadcrumb'
@@ -28,10 +34,10 @@ const FormTopMenu = (props) => {
                     sections={[formName, slotName]}
                 />
             )}
-            <Menu pointing secondary compact className='form-editor-tab-menu'>
+            <Menu.Menu compact className='form-editor-tab-menu'>
                 {menuItems.map(renderMenuItem)}
-            </Menu>
-        </Segment>
+            </Menu.Menu>
+        </Menu>
     );
 };
 
@@ -41,6 +47,8 @@ FormTopMenu.propTypes = {
     activeItem: PropTypes.string,
     setActiveItem: PropTypes.func,
     menuItems: PropTypes.array,
+    collapsed: PropTypes.bool,
+    onToggleCollapsed: PropTypes.func,
 };
 
 export default FormTopMenu;

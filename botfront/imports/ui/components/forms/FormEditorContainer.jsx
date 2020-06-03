@@ -10,10 +10,12 @@ import { ProjectContext } from '../../layouts/context';
 const FormEditorContainer = (props) => {
     const {
         formName,
+        formId,
         slotName,
         slotFillingProp,
         onChange,
     } = props;
+
 
     const getInitialFilling = () => {
         if (slotFillingProp) return slotFillingProp;
@@ -40,13 +42,13 @@ const FormEditorContainer = (props) => {
         updatedfilling[i] = { ...updatedfilling[i], ...update };
         const updateData = { ...slotToFill, filling: updatedfilling };
         setSlotToFill(updateData);
-        onChange(formName, updateData);
+        onChange(formId, updateData);
     };
 
     const handleAddfilling = () => {
         const update = { ...slotToFill, filling: [...slotToFill.filling, { type: 'from_text' }] };
         setSlotToFill(update);
-        onChange(formName, update);
+        onChange(formId, update);
     };
 
     const renderActiveTab = () => {
@@ -63,7 +65,7 @@ const FormEditorContainer = (props) => {
     };
 
     return (
-        <Segment.Group>
+        <Segment.Group className='story-card'>
             <FormTopMenu
                 formName={formName}
                 slotName={slotToFill.name}
@@ -75,7 +77,7 @@ const FormEditorContainer = (props) => {
                 activeItem={activeTab}
                 setActiveItem={setActiveTab}
             />
-            <Segment attached='bottom' className='form-settings-tab-container'>
+            <Segment attached='bottom' className='form-settings-tab-container story-card-content'>
                 {renderActiveTab()}
             </Segment>
         </Segment.Group>
@@ -85,6 +87,7 @@ const FormEditorContainer = (props) => {
 FormEditorContainer.propTypes = {
     slotName: PropTypes.string.isRequired,
     formName: PropTypes.string.isRequired,
+    formId: PropTypes.string.isRequired,
     slotFillingProp: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,
 };

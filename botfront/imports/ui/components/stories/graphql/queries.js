@@ -15,8 +15,9 @@ export const GET_FORMS = gql`
     query getForms(
         $projectId: String!
         $onlySlotList: Boolean = false
+        $ids: [String]
     ) {
-        getForms(projectId: $projectId) {
+        getForms(projectId: $projectId, ids: $ids) {
             _id
             name
             slots {

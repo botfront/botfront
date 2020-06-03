@@ -3,9 +3,9 @@ import Forms from '../forms.model';
 import { StoryGroups } from '../../../storyGroups/storyGroups.collection';
 import { Projects } from '../../../project/project.collection';
 
-export const getForms = async (projectId, names = null) => {
-    if (!names) return Forms.find({ projectId }).lean();
-    const forms = await Forms.find({ projectId, name: { $in: names } }).lean();
+export const getForms = async (projectId, ids = null) => {
+    if (!ids) return Forms.find({ projectId }).lean();
+    const forms = await Forms.find({ projectId, _id: { $in: ids } }).lean();
     return forms;
 };
 

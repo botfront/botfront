@@ -184,6 +184,16 @@ export const addTemplateLanguage = (templates, language) => templates
         };
     });
 
+
+export const setTypeText = (content) => {
+    const { text = '', metadata } = content;
+    return {
+        text,
+        metadata,
+        __typename: 'TextPayload',
+    };
+};
+
 export const setTypeQuickReply = (content) => {
     const {
         text, buttons, quick_replies, metadata,
@@ -197,7 +207,7 @@ export const setTypeQuickReply = (content) => {
 };
 export const setTypeTextWithButtons = (content) => {
     const {
-        text, buttons, quick_replies, metadata,
+        text = '', buttons, quick_replies = [], metadata,
     } = content;
     return {
         text,
@@ -207,30 +217,51 @@ export const setTypeTextWithButtons = (content) => {
     };
 };
 
+export const setTypeCustom = (content) => {
+    const { metadata } = content;
+    return { custom: '', metadata, __typename: 'CustomPayload' };
+};
+
+export const setTypeImage = (content) => {
+    const { metadata } = content;
+    return { ...defaultTemplate('ImagePayload'), metadata };
+};
+
+export const setTypeCarousel = (content) => {
+    const { metadata } = content;
+    return { ...defaultTemplate('CarouselPayload'), metadata };
+};
+
 export const changeContentType = (content, newType) => {
     switch (newType) {
+    case 'TextPayload':
+        return setTypeText(content);
     case 'QuickRepliesPayload':
         return setTypeQuickReply(content);
     case 'TextWithButtonsPayload':
         return setTypeTextWithButtons(content);
+    case 'ImagePayload':
+        return setTypeImage(content);
+    case 'CustomPayload':
+        return setTypeCustom(content);
+    case 'CarouselPayload':
+        return setTypeCarousel(content);
     default:
         throw new Error(
-            `type ${newType} is not cupported by changContentType`,
+            `type ${newType} is not supported by changeContentType`,
         );
     }
 };
 
 export const modifyResponseType = (response, newType) => {
-    if (newType === 'TextWithButtonsPayload' || newType === 'QuickRepliesPayload') {
-        const updatedValues = response.values.map((v) => {
-            const sequence = v.sequence.map((s) => {
-                const content = addContentType(safeLoad(s.content));
-                return { ...s, content: safeDump(clearTypenameField(changeContentType(content, newType))) };
-            });
-            return { ...v, sequence };
+    const updatedValues = response.values.map((v) => {
+        const sequence = v.sequence.map((s) => {
+            const content = addContentType(safeLoad(s.content));
+            return { ...s, content: safeDump(clearTypenameField(changeContentType(content, newType))) };
         });
-        return { ...response, values: updatedValues };
-    }
+        return { ...v, sequence };
+    });
+    return { ...response, values: updatedValues };
 };
 
 export const toggleButtonPersistence = (content) => {

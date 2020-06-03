@@ -3,7 +3,32 @@
     margin-bottom: 2em;
 }
 
-.form-top-menu {
+.ui.segments.story-card {
+    border-color: #eeeeee;
+    box-shadow: 0 1px 5px rgba(34, 36, 38, 0.1);;
+    .story-card-content {
+        border-color: #eeeeee;
+    }
+}
+.ui.menu.pointing.secondary,
+.ui.segment {
+    &.story-card-topbar {
+        padding: 0 2em 0 2em;
+        background-color: #f9f9f9;
+        border-color: #eeeeee;
+        height: 2.85714286em;
+        margin-bottom: 0;
+        &.pointing.secondary {
+            border-bottom: none;
+        }
+        .story-card-tab {
+            border-bottom-width: 4px;
+        }
+    }
+}
+
+.ui.menu.pointing.secondary.form-top-menu {
+    border-bottom: none;
     display: flex;
     .ui.breadcrumb.form-slot-breadcrumb {
         position: relative;
@@ -17,7 +42,7 @@
             color: black;
         }
     }
-    .ui.secondary.pointing.menu.form-editor-tab-menu {
+    .menu.form-editor-tab-menu {
         margin-left: auto;
         margin-right: auto;
     }
@@ -58,10 +83,7 @@
 }
 
 .ui.segment.form-settings-tab-container {
-    padding-top: 40px;
-    padding-bottom: 50px;
-    padding-right: 2em;
-    padding-left: 2em;
+    padding: 2em;
 }
 
 .ui.button.add-condition-button {
@@ -77,4 +99,38 @@
 
 .create-form-field.field{ 
     max-width: 600px;
+}
+
+.ui.segments.form-editor {
+    border-color: #eeeeee;
+    .ui.segment.form-editor-topbar {
+        padding: 0;
+        background-color: #f9f9f9;
+        border-color: #eeeeee;
+        height: 2.85714286em;
+        .create-form-field {
+            .ui.input {
+                box-sizing: border-box;
+                margin-left: 1.5em;
+                margin-top: 0.4em;
+                input {
+                    font-size: 16px;
+                    padding: 0.225em;
+                    padding-left: 0.5em;
+                    background-color: rgba(0,0,0,0);
+                    border-color: rgba(0,0,0,0);
+                    &:focus,
+                    &:hover {
+                        border-color: rgb(220, 220, 220);
+                        background-color: rgba(255, 255, 255, 1);
+                    }
+                }
+                width: 300px;
+            }
+        }
+    }
+    .ui.segment.form-editor-content {
+        border-color: #eeeeee;
+        padding: 2em;
+    }
 }

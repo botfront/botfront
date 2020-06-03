@@ -5,11 +5,20 @@ import {
     deleteForms,
 } from './mongo/forms';
 
+const { PubSub, withFilter } = require('apollo-server-express');
+
+const pubsub = new PubSub();
+const FORMS_MODIFIED = 'FORMS_MODIFIED';
+
 export default {
+    Subscription: {
+        formsModified: withFilter(
+            () => pubsub.asyncIterator([FORMS_MODIFIED]),
+            (payload, variables) => (payload.projectId === variables.projectId),
+        ),
+    },
     Query: {
-        getForms(_, args, __) {
-            return getForms(args.projectId, args.names);
-        },
+        getForms: async (_, args, __) => getForms(args.projectId, args.ids),
     },
     Mutation: {
         submitForm: async (_root, args) => {
@@ -37,7 +46,13 @@ export default {
         comparatum: ({ comparatum }) => comparatum,
     },
     SlotFilling: {
-        __resolveType: () => {},
+        __resolveType: (v) => {
+            if (v.type === 'from_text') return 'SlotFillingFromText';
+            if (v.type === 'from_entity') return 'SlotFillingFromEntity';
+            if (v.type === 'from_trigger_intent') return 'SlotFillingFromIntent';
+            if (v.type === 'from_intent') return 'SlotFillingFromIntent';
+            return 'SlotFillingFromText';
+        },
         type: ({ type }) => type,
     },
     SlotFillingFromEntity: {

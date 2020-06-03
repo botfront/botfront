@@ -12,6 +12,7 @@ import { Segment } from 'semantic-ui-react';
 import SelectField from '../form_fields/SelectField';
 import ToggleField from '../common/ToggleField';
 import { ProjectContext } from '../../layouts/context';
+import { clearTypenameField } from '../../../lib/client.safe.utils';
 
 
 const CreateForm = (props) => {
@@ -20,10 +21,10 @@ const CreateForm = (props) => {
         onSubmit,
     } = props;
 
-    const getFormattedModel = () => ({
+    const getFormattedModel = () => (clearTypenameField({
         ...initialModel,
         slotNames: initialModel.slots.map(({ name }) => name),
-    });
+    }));
 
     const schemaString = `
         type NewForm {
@@ -38,7 +39,6 @@ const CreateForm = (props) => {
     `)).getType('NewForm');
 
     const handleSubmit = (incomingModel) => {
-        console.log(incomingModel.collect_in_botfront);
         const model = { ...incomingModel };
         const modelSlots = model.slotNames.map((slot) => {
             const slotData = initialModel.slots.find(({ name }) => name === slot);
@@ -53,11 +53,11 @@ const CreateForm = (props) => {
     return (
         <div>
             <AutoForm model={getFormattedModel()} schema={new GraphQLBridge(schema, () => {}, {})} onSubmit={handleSubmit}>
-                <Segment.Group>
-                    <Segment attached='top'>
+                <Segment.Group className='story-card form-editor'>
+                    <Segment attached='top' className='form-editor-topbar story-card-topbar'>
                         <AutoField name='name' label='' className='create-form-field' />
                     </Segment>
-                    <Segment attached='bottom'>
+                    <Segment attached='bottom' className='form-editor-content'>
                         <LongTextField name='description' className='create-form-field' />
                         <SelectField name='slotNames' options={slots.map(({ name: slot }) => ({ value: slot, text: slot }))} className='create-form-field' />
                         <ToggleField name='collect_in_botfront' />
