@@ -5,6 +5,7 @@ import { Projects } from '../api/project/project.collection';
 import { Slots } from '../api/slots/slots.collection';
 import { StoryGroups } from '../api/storyGroups/storyGroups.collection';
 import { newGetBotResponses } from '../api/graphql/botResponses/mongo/botResponses';
+import { getForms } from '../api/graphql/forms/mongo/forms';
 
 let storyAppLogger;
 let getAppLoggerForMethodExport;
@@ -245,13 +246,14 @@ export const addlinkCheckpoints = (stories) => {
     return storiesCheckpointed;
 };
 
-export const extractDomain = (
+export const extractDomain = ({
     stories,
     slots,
     responses = {},
     defaultDomain = {},
+    bfForms = [],
     crashOnStoryWithErrors = true,
-) => {
+}) => {
     // extractDomain can be called from outside a Meteor method so Meteor.userId() might not be available
     let userId;
     try {
@@ -345,6 +347,7 @@ export const extractDomain = (
         forms: Array.from(domains.forms),
         responses: domains.responses,
         slots: domains.slots,
+        ...(bfForms.length ? { bf_forms: bfForms } : {}),
     });
     return domains;
 };
@@ -437,15 +440,22 @@ export const getStoriesAndDomain = async (projectId, language, env = 'developmen
         },
     ).fetch();
 
+    appMethodLogger.debug('Fetching forms');
+    const bfForms = (await getForms(projectId))
+        .map(({
+            _id, projectId: pid, pinned, isExpanded, ...rest
+        }) => rest);
+
     appMethodLogger.debug('Generating domain');
     const responses = await getAllResponses(projectId, language);
     const slots = Slots.find({ projectId }).fetch();
-    const domain = extractDomain(
-        allStories.reduce((acc, story) => [...acc, ...flattenStory(story)], []),
+    const domain = extractDomain({
+        stories: allStories.reduce((acc, story) => [...acc, ...flattenStory(story)], []),
         slots,
         responses,
         defaultDomain,
-    );
+        bfForms,
+    });
 
     appMethodLogger.debug('Formatting stories');
     const stories = generateAndFormatStories(allStories, selectedStoryGroups);
