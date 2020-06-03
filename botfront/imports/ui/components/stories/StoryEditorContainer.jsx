@@ -51,7 +51,7 @@ const StoryEditorContainer = ({
     collapsed,
     projectId,
 }) => {
-    const { stories, getResponseLocations } = useContext(ConversationOptionsContext);
+    const { stories, forms, getResponseLocations } = useContext(ConversationOptionsContext);
     const { slots } = useContext(ProjectContext);
     
     // Used to store ace editors instance to dynamically set annotations
@@ -81,6 +81,7 @@ const StoryEditorContainer = ({
         [story._id]: new StoryController({ // the root story
             story: story.story || '',
             slots,
+            forms,
             onUpdate: (content, options) => saveStory(story._id, { story: content }, options),
             onMdType: setLastMdType,
             isABranch: hasCheckpoints(),
@@ -91,6 +92,9 @@ const StoryEditorContainer = ({
     useEffect(() => {
         Object.values(storyControllers).forEach(sc => sc.updateSlots(slots));
     }, [slots]);
+    useEffect(() => {
+        Object.values(storyControllers).forEach(sc => sc.updateForms(forms));
+    }, [forms]);
     
     useEffect(() => {
         const change = storyControllers[story._id].isABranch !== hasCheckpoints();
@@ -137,6 +141,7 @@ const StoryEditorContainer = ({
                 newStoryControllers[currentPath.join()] = new StoryController({
                     story: newStory.story || '',
                     slots,
+                    forms,
                     onUpdate: (content, options) => saveStory(currentPath, { story: content }, options),
                     onMdType: setLastMdType,
                     isABranch: currentPath.length > 1,
@@ -287,6 +292,7 @@ const StoryEditorContainer = ({
                 [pathAsString]: new StoryController({
                     story: storyContent || '',
                     slots,
+                    forms,
                     onUpdate: (content, options) => saveStory(path, { story: content }, options),
                     onMdType: setLastMdType,
                     isABranch: path.length > 1,
