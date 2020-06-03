@@ -279,7 +279,6 @@ function Stories(props) {
                     <div className='storygroup-browser'>
                         <StoryGroupNavigation
                             allowAddition={can('stories:w', projectId)}
-                            placeholderAddItem='Choose a group name'
                             modals={{ setSlotsModal, setPoliciesModal }}
                         />
                         <StoryGroupTree

@@ -1,5 +1,5 @@
 import {
-    Icon, Input, Button, Popup,
+    Icon, Input, Button, Popup, Dropdown,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -85,30 +85,29 @@ class StoryGroupNavigation extends React.Component {
         return (
             <div className='navigation'>
                 <Button.Group fluid>
-                    {this.tooltipWrapper(
-                        <Button
-                            key='newItem'
-                            onClick={() => this.setState({ addMode: 'group' })}
-                            data-cy='add-item'
-                            icon
-                            disabled={!allowAddition}
-                            content={<Icon name='add' />}
-                            style={{ width: 0 }}
-                        />,
-                        'New story group',
-                    )}
-                    {this.tooltipWrapper(
-                        <Button
-                            key='newForm'
-                            onClick={() => this.setState({ addMode: 'form' })}
-                            data-cy='add-form'
-                            icon
-                            disabled={!allowAddition}
-                            content={<Icon name='add' />}
-                            style={{ width: 0 }}
-                        />,
-                        'New form',
-                    )}
+                    <Dropdown
+                        icon='add'
+                        button
+                        className='icon'
+                        data-cy='add-item'
+                        disabled={!allowAddition}
+                        style={{ width: 0, textAlign: 'center' }}
+                    >
+                        <Dropdown.Menu>
+                            <Dropdown.Item
+                                icon='book'
+                                content='Story group'
+                                data-cy='add-story-group'
+                                onClick={() => this.setState({ addMode: 'group' })}
+                            />
+                            <Dropdown.Item
+                                icon='wpforms'
+                                content='Form'
+                                data-cy='add-form'
+                                onClick={() => this.setState({ addMode: 'form' })}
+                            />
+                        </Dropdown.Menu>
+                    </Dropdown>
                     {this.tooltipWrapper(
                         <Button
                             content='Slots'
@@ -141,17 +140,17 @@ class StoryGroupNavigation extends React.Component {
     };
 
     render() {
-        const {
-            allowAddition,
-            placeholderAddItem,
-        } = this.props;
+        const { allowAddition } = this.props;
         const { addMode, newItemName } = this.state;
+        let placeholder = '';
+        if (addMode === 'group') placeholder = 'Choose a group name';
+        if (addMode === 'form') placeholder = 'Choose a form name';
 
         return !allowAddition || !addMode
             ? this.renderNavigation()
             : (
                 <Input
-                    placeholder={placeholderAddItem}
+                    placeholder={placeholder}
                     onChange={this.handleChangeNewItemName}
                     value={newItemName}
                     onKeyDown={this.handleKeyDownInput}
@@ -167,7 +166,6 @@ class StoryGroupNavigation extends React.Component {
 
 StoryGroupNavigation.propTypes = {
     allowAddition: PropTypes.bool,
-    placeholderAddItem: PropTypes.string,
     modals: PropTypes.object.isRequired,
     onSwitchStoryMode: PropTypes.func.isRequired,
     storyMode: PropTypes.string.isRequired,
@@ -178,7 +176,6 @@ StoryGroupNavigation.propTypes = {
 
 StoryGroupNavigation.defaultProps = {
     allowAddition: false,
-    placeholderAddItem: '',
 };
 
 const mapStateToProps = state => ({
