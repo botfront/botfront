@@ -71,7 +71,7 @@ describe('global settings read permissions', () => {
         cy.login();
         cy.visit('/project/bf/settings');
         cy.dataCy('project-settings-more').should('not.exist');
-        cy.get('div.ui.vertical.menu a.item').should('have.length', 6);
+        cy.get('div.ui.vertical.menu a.item').should('have.length', 7);
     });
 });
 
