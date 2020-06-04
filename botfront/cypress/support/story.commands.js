@@ -133,6 +133,7 @@ Cypress.Commands.add('addUtteranceLine', ({
     if (entities) {
         entities.forEach((entity) => {
             cy.dataCy('add-entity').click();
+            cy.dataCy('entity-dropdown').click();
             cy.dataCy('entity-dropdown').find('input').type(`${entity.name}{enter}`);
             cy.dataCy('entity-value-input').click().type(`${entity.value}{enter}`);
         });
