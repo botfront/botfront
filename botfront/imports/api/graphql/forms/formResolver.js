@@ -17,19 +17,19 @@ export default {
         formsModified: {
             subscribe: withFilter(
                 () => pubsub.asyncIterator([FORMS_MODIFIED]),
-                () => true,
+                (payload, variables) => payload.projectId === variables.projectId,
             ),
         },
         formsDeleted: {
             subscribe: withFilter(
                 () => pubsub.asyncIterator([FORMS_DELETED]),
-                () => true,
+                (payload, variables) => payload.projectId === variables.projectId,
             ),
         },
         formsCreated: {
             subscribe: withFilter(
                 () => pubsub.asyncIterator([FORMS_CREATED]),
-                () => true,
+                (payload, variables) => payload.projectId === variables.projectId,
             ),
         },
     },
