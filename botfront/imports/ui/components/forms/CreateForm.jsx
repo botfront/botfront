@@ -45,7 +45,7 @@ const CreateForm = (props) => {
             return { name: slot, filling: slotData ? slotData.filling : [] };
         });
         delete model.slotNames;
-        onSubmit({ ...model, slots: modelSlots });
+        onSubmit(clearTypenameField({ ...model, slots: modelSlots }));
     };
 
     const { slots } = useContext(ProjectContext);
@@ -59,7 +59,14 @@ const CreateForm = (props) => {
                     </Segment>
                     <Segment attached='bottom' className='form-editor-content'>
                         <LongTextField name='description' className='create-form-field' />
-                        <SelectField name='slotNames' options={slots.map(({ name: slot }) => ({ value: slot, text: slot }))} className='create-form-field' />
+                        <SelectField
+                            name='slotNames'
+                            options={slots.map(({ name: slot }) => (
+                                { value: slot, text: slot }
+                            ))}
+                            confirmDeletions
+                            className='create-form-field'
+                        />
                         <ToggleField name='collect_in_botfront' />
                         <SubmitField value='Save' />
                     </Segment>

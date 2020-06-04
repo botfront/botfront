@@ -18,7 +18,7 @@ const QuestionTab = (props) => {
     };
 
     return (
-        <>
+        <div className='question-tab'>
             <Header size='small' className='question-tab-header'>
                 What question should the assistant ask?
             </Header>
@@ -31,7 +31,7 @@ const QuestionTab = (props) => {
                 enableChangeType
             />
             <ChangeResponseType name={(response && response.name) || `utter_ask_${slotName}`} currentType={response && response.__typename} />
-        </>
+        </div>
     );
 };
 

@@ -52,7 +52,7 @@ const ExtractionItem = (props) => {
     const renderSelectEntitiy = () => (
         <>
             <Dropdown
-            // className='extraction-dropdown entity'
+                className='extraction-dropdown entity'
                 selection
                 multiple
                 clearable
@@ -116,22 +116,37 @@ const ExtractionItem = (props) => {
         }
     };
 
-    const renderValueFromIntent = () => (
-        <div>
-            <span>If the intent is</span>
+    const renderIntentSelect = () => (
+        <div className='extraction-line'>
             <Dropdown
                 clearable
+                placeholder='add a condition'
+                className='extraction-dropdown condition-dropdown'
+                selection
+                options={[
+                    { value: 'include', text: 'if the intent is one of' },
+                    { value: 'exclude', text: 'if the intent is NOT one of' },
+                ]}
+                value={intentCondition}
+                onChange={handleIntentConditionChange}
+            />
+            <Dropdown
+                clearable
+                placeholder='select included/excluded intents'
                 className='extraction-dropdown'
                 selection
-                cancel
                 multiple
                 search
                 options={intents}
-                placeholder='select an intent'
-                onChange={handleChangeIntent}
                 value={intentCondition === 'include' ? intent : notIntent}
+                onChange={handleChangeIntent}
             />
-            <br />
+        </div>
+    );
+
+    const renderValueFromIntent = () => (
+        <div>
+            {renderIntentSelect()}
             <span>the value is</span>
             {renderSlotValue()}
         </div>
@@ -160,31 +175,7 @@ const ExtractionItem = (props) => {
                 {type === 'from_intent' && renderValueFromIntent()}
                 {type === 'from_entity' && renderSelectEntitiy()}
             </div>
-            <div className='extraction-line'>
-                <Dropdown
-                    clearable
-                    placeholder='add a condition'
-                    className='extraction-dropdown condition-dropdown'
-                    selection
-                    options={[
-                        { value: 'include', text: 'if the intent is one of' },
-                        { value: 'exclude', text: 'if the intent is NOT one of' },
-                    ]}
-                    value={intentCondition}
-                    onChange={handleIntentConditionChange}
-                />
-                <Dropdown
-                    clearable
-                    placeholder='select included/excluded intents'
-                    className='extraction-dropdown'
-                    selection
-                    multiple
-                    search
-                    options={intents}
-                    value={intentCondition === 'include' ? intent : notIntent}
-                    onChange={handleChangeIntent}
-                />
-            </div>
+            {type !== 'from_intent' && renderIntentSelect()}
         </List.Item>
     );
 };

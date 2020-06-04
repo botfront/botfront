@@ -26,7 +26,7 @@ const FormTopMenu = (props) => {
     };
     return (
         <Menu pointing secondary attatched='top' className='form-top-menu story-card-topbar'>
-            <Icon name={`triangle ${collapsed ? 'right' : 'down'}`} onClick={() => onToggleCollapsed(!collapsed)} />
+            {/* <Icon name={`triangle ${collapsed ? 'right' : 'down'}`} onClick={() => onToggleCollapsed(!collapsed)} /> */}
             {formName && slotName && (
                 <Breadcrumb
                     className='form-slot-breadcrumb'

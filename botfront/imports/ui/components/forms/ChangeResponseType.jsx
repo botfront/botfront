@@ -11,7 +11,6 @@ const ChangeResponseType = (props) => {
 
     const { upsertResponse } = useContext(ProjectContext);
     const handleChangeResponseType = (e, { value }) => {
-        console.log(value);
         console.log(defaultTemplate(value));
         upsertResponse(name, defaultTemplate(value), 0);
     };

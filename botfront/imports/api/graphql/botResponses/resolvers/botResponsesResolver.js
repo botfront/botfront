@@ -98,6 +98,8 @@ export default {
                 resType: 'response',
             });
             pubsub.publish(RESPONSES_MODIFIED, {
+                projectId: args.projectId,
+                botResponsesModified: args.response,
             });
             return { success: response.ok === 1 };
         },
@@ -115,6 +117,15 @@ export default {
             // if the response type has been updated all the other languages and variations for this response
             // need to be updated so we use the updateResponseType function instead of upsertResponse
             const response = args.newResponseType ? await updateResponseType(args) : await upsertResponse(args);
+            if (response) {
+                const { projectId, ...botResponsesModified } = response;
+                pubsub.publish(RESPONSES_MODIFIED, { projectId, botResponsesModified });
+            } else {
+                const { projectId, key } = args;
+                const botResponsesModified = await getBotResponse(projectId, key);
+                console.log(botResponsesModified);
+                pubsub.publish(RESPONSES_MODIFIED, { projectId, botResponsesModified });
+            }
             const { projectId, ...botResponsesModified } = response;
             if (args.logging) {
                 auditLog('Upserted response', {
@@ -128,7 +139,6 @@ export default {
                     resType: 'response',
                 });
             }
-            pubsub.publish(RESPONSES_MODIFIED, { projectId, botResponsesModified });
             return response;
         },
         async createResponse(_, args, auth) {

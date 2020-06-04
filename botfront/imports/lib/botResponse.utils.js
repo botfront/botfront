@@ -253,7 +253,10 @@ export const changeContentType = (content, newType) => {
     }
 };
 
-export const modifyResponseType = (response, newType) => {
+export const modifyResponseType = (response, newType, language, key) => {
+    if (!response) {
+        return createResponseFromTemplate(newType, language, key);
+    }
     const updatedValues = response.values.map((v) => {
         const sequence = v.sequence.map((s) => {
             const content = addContentType(safeLoad(s.content));
