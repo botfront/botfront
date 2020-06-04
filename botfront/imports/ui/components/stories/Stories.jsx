@@ -10,7 +10,7 @@ import React, {
 } from 'react';
 import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
-import { useMutation, useQuery } from '@apollo/react-hooks';
+import { useMutation, useQuery, useSubscription } from '@apollo/react-hooks';
 import PropTypes from 'prop-types';
 import SplitPane from 'react-split-pane';
 import shortId from 'shortid';
@@ -27,6 +27,7 @@ import { Loading } from '../utils/Utils';
 import { useEventListener } from '../utils/hooks';
 import { can } from '../../../lib/scopes';
 import { UPSERT_FORM, GET_FORMS, DELETE_FORMS } from './graphql/queries';
+import { FORMS_MODIFIED, FORMS_DELETED, FORMS_CREATED } from './graphql/subscriptions';
 import FormEditors from '../forms/FormEditors';
 
 const callbackCaller = (args, afterAll = () => {}) => async (res) => {
@@ -80,14 +81,59 @@ function Stories(props) {
     const [policiesModal, setPoliciesModal] = useState(false);
     const [resizing, setResizing] = useState(false);
     const [storyEditorsKey, setStoryEditorsKey] = useState(shortId.generate());
+    const [forms, setForms] = useState([]);
 
     const treeRef = useRef();
 
     const [upsertForm] = useMutation(UPSERT_FORM);
     const [deleteForms] = useMutation(DELETE_FORMS);
-    const { data: { getForms: forms = [] } = {}, loading, refetch } = useQuery(GET_FORMS, {
+    const { data: { getForms = [] } = {}, loading } = useQuery(GET_FORMS, {
         variables: { projectId, onlySlotList: true },
     });
+    useEffect(() => setForms(loading ? [] : getForms), [getForms]);
+
+    useSubscription(
+        FORMS_MODIFIED,
+        {
+            variables: { projectId },
+            onSubscriptionData: ({ subscriptionData }) => {
+                if (!subscriptionData) return;
+                if (!subscriptionData.data) return;
+                const modifiedForm = subscriptionData.data.formsModified;
+                const updatedForms = forms.map((form) => {
+                    if (form._id === modifiedForm._id) return modifiedForm;
+                    return form;
+                });
+                setForms(updatedForms);
+            },
+        },
+    );
+
+    useSubscription(
+        FORMS_CREATED,
+        {
+            variables: { projectId },
+            onSubscriptionData: ({ subscriptionData }) => {
+                if (!subscriptionData) return;
+                if (!subscriptionData.data) return;
+                setForms([...forms, subscriptionData.data.formsCreated]);
+            },
+        },
+    );
+
+    useSubscription(
+        FORMS_DELETED,
+        {
+            variables: { projectId },
+            onSubscriptionData: ({ subscriptionData }) => {
+                if (!subscriptionData) return;
+                if (!subscriptionData.data) return;
+                const deletedForms = subscriptionData.data.formsDeleted;
+                const updatedForms = forms.filter(form => !deletedForms.some(({ _id }) => _id === form._id));
+                setForms(updatedForms);
+            },
+        },
+    );
 
     const getQueryParams = () => {
         const { location: { query } } = router;
@@ -139,14 +185,14 @@ function Stories(props) {
 
     const handleUpsertForm = useCallback(
         (formData, ...args) => upsertForm({ variables: { form: { ...formData, projectId } } }).then(
-            callbackCaller(args, refetch), callbackCaller(args, refetch),
-        ), [projectId],
+            callbackCaller(args), callbackCaller(args),
+        ),
+        [projectId],
     );
 
     const handleDeleteForm = useCallback(
-        ({ _id }, ...args) => deleteForms({ variables: { projectId, ids: [_id] } }).then(
-            () => refetch().then(callbackCaller(args), callbackCaller(args)),
-        ), [projectId],
+        ({ _id }, ...args) => deleteForms({ variables: { projectId, ids: [_id] } }).then(callbackCaller(args), callbackCaller(args)),
+        [projectId],
     );
 
     const handleAddStoryGroup = useCallback(
@@ -299,7 +345,7 @@ function Stories(props) {
                             ? (
                                 <FormEditors
                                     projectId={projectId}
-                                    forms={storyMenuSelection.map(id => id.replace(/^.*_slot_for_/, ''))}
+                                    formIds={storyMenuSelection.map(id => id.replace(/^.*_slot_for_/, ''))}
                                     slots={storyMenuSelection.map(id => id.replace(/_slot_for_.*$/, ''))}
                                 />
                             ) : (

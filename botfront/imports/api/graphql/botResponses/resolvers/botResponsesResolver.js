@@ -98,8 +98,6 @@ export default {
                 resType: 'response',
             });
             pubsub.publish(RESPONSES_MODIFIED, {
-                projectId: args.projectId,
-                botResponsesModified: args.response,
             });
             return { success: response.ok === 1 };
         },

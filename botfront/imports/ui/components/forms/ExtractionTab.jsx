@@ -11,7 +11,8 @@ const ExtractionTab = (props) => {
         slotSettings,
         slot,
         onChange,
-        addfilling,
+        addCondition,
+        deleteCondition,
     } = props;
 
     const { intents, entities } = useContext(ProjectContext);
@@ -19,16 +20,24 @@ const ExtractionTab = (props) => {
     const entityOptions = useMemo(() => entities.map(entityName => ({ value: entityName, text: entityName })));
 
     const handleAddCondition = () => {
-        addfilling();
+        addCondition();
     };
 
     const renderExtractionItem = (settings, i) => (
-        <ExtractionItem intents={intentOptions} slotFilling={settings} index={i} slot={slot} entities={entityOptions} onChange={v => onChange(v, i)} />
+        <ExtractionItem
+            intents={intentOptions}
+            slotFilling={settings}
+            index={i}
+            slot={slot}
+            entities={entityOptions}
+            onChange={v => onChange(v, i)}
+            onDelete={deleteCondition}
+        />
     );
     return (
         <>
             {slotSettings.length > 0 && slotSettings.map(renderExtractionItem)}
-            {slotSettings.length === 0 && renderExtractionItem({ type: 'from-text' }, 0)}
+            {slotSettings.length === 0 && renderExtractionItem({ type: 'from_text' }, 0)}
             <Button
                 className='add-condition-button'
                 basic
@@ -45,7 +54,8 @@ ExtractionTab.propTypes = {
     slotSettings: PropTypes.array.isRequired,
     slot: PropTypes.object.isRequired,
     onChange: PropTypes.func,
-    addfilling: PropTypes.func.isRequired,
+    addCondition: PropTypes.func.isRequired,
+    deleteCondition: PropTypes.func.isRequired,
 };
 
 ExtractionTab.defaultProps = {

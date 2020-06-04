@@ -19,13 +19,14 @@ export const upsertForm = async (data) => {
         projectId, _id, ...update
     } = data.form;
     if (_id) {
-        const { ok: success } = await Forms.updateOne(
+        console.log('A');
+        return Forms.findOneAndUpdate(
             { projectId, _id },
             { $set: update },
-        );
-        return { success };
+        ).lean();
     }
-    const { upserted } = await Forms.update(
+    console.log('B');
+    const result = await Forms.update(
         { projectId, name: update.form },
         {
             $set: update,
@@ -33,6 +34,7 @@ export const upsertForm = async (data) => {
         },
         { new: true, upsert: true, rawResult: true },
     );
+    const { upserted } = result;
     const upsertedIds = upserted.map(({ _id: id }) => id);
     const $position = update.pinned
         ? 0
@@ -42,5 +44,5 @@ export const upsertForm = async (data) => {
         { _id: projectId },
         { $push: { storyGroups: { $each: upsertedIds, $position } } },
     );
-    return { success };
+    return { formsAdded: upsertedIds };
 };

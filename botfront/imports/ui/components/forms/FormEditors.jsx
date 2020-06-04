@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { Loader } from 'semantic-ui-react';
@@ -14,59 +14,69 @@ import { ConversationOptionsContext } from '../stories/Context';
 const FormEditors = (props) => {
     const {
         projectId,
-        forms,
+        formIds,
         slots,
     } = props;
     const { upsertForm } = useContext(ConversationOptionsContext);
-    const { data, refetch } = useQuery(GET_FORMS, { variables: { projectId, ids: forms } });
+    const [forms, setForms] = useState([]);
+    const { data } = useQuery(GET_FORMS, { variables: { projectId, ids: formIds } });
+
+    useEffect(() => setForms(data ? data.getForms : []), [data]);
 
     useSubscription(
         FORMS_MODIFIED,
         {
             variables: { projectId },
-            onSubscriptionData: () => {
+            onSubscriptionData: ({ subscriptionData }) => {
+                if (!subscriptionData) return;
+                if (!subscriptionData.data) return;
+                const modifiedForm = subscriptionData.data.formsModified;
+                const updatedForms = forms.map((form) => {
+                    if (form._id === modifiedForm._id) return modifiedForm;
+                    return form;
+                });
+                setForms(updatedForms);
             },
         },
     );
 
     const getSlotAndFormData = (formId, slotName) => {
-        const form = data.getForms.find(({ _id }) => _id === formId);
-        if (!form) return {};
+        const form = forms.find(({ _id }) => _id === formId);
+        if (!form || !form.slots) return {};
         const slot = form.slots.find(({ name }) => name === slotName);
         return { slot, form };
     };
 
     const handleChangeSlotFilling = (formId, { name: slotName, ...rest }) => {
-        const formData = data.getForms.find(({ _id }) => _id === formId);
+        const formData = forms.find(({ _id }) => _id === formId);
         const updatedSlots = [...formData.slots];
         const slotIndex = updatedSlots.findIndex(({ name }) => name === slotName);
         updatedSlots[slotIndex] = { name: slotName, ...rest };
         const update = { ...formData, slots: updatedSlots };
-        upsertForm(clearTypenameField(update)).then(() => refetch());
+        upsertForm(clearTypenameField(update));
     };
 
     const renderForm = (formId) => {
-        const formData = data.getForms.find(({ _id }) => _id === formId);
+        const formData = forms.find(({ _id }) => _id === formId);
         if (!formData) return <></>;
         return <CreateForm initialModel={formData} onSubmit={upsertForm} />;
     };
 
     const renderSlot = (slotName) => {
-        const formId = forms[0];
+        const formId = formIds[0];
         const { slot, form } = getSlotAndFormData(formId, slotName);
         if (!slot || !form) return <></>;
         return (
             <FormEditorContainer key={`${slotName}-${formId}`} formId={formId} formName={form.name} slotName={slotName} slotFillingProp={slot} onChange={handleChangeSlotFilling} />
         );
     };
-
     return (
         <>
-            <Loader active={!forms || !data} />
+            <Loader active={!formIds || !data} />
             {data && (
                 <>
-                    {slots[0] === forms[0] && forms.map(form => renderForm(form))}
-                    {slots[0] !== forms[0] && slots.map(slot => renderSlot(slot))}
+                    {slots[0] === formIds[0] && formIds.map(form => renderForm(form))}
+                    {slots[0] !== formIds[0] && slots.map(slot => renderSlot(slot))}
                 </>
             )}
         </>
@@ -75,12 +85,12 @@ const FormEditors = (props) => {
 
 FormEditors.propTypes = {
     projectId: PropTypes.string.isRequired,
-    forms: PropTypes.array,
+    formIds: PropTypes.array,
     slots: PropTypes.array,
 };
 
 FormEditors.defaultProps = {
-    forms: [],
+    formIds: [],
     slots: [],
 };
 

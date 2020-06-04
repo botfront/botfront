@@ -4,13 +4,14 @@ import PropTypes from 'prop-types';
 import {
     Dropdown, List, Divider, Input,
 } from 'semantic-ui-react';
+import IconButton from '../common/IconButton';
 
 const ExtractionItem = (props) => {
     const {
         slotFilling: {
             type,
             entity,
-            intent,
+            intent = [],
             not_intent: notIntent,
             value,
         },
@@ -19,13 +20,12 @@ const ExtractionItem = (props) => {
         entities,
         slot,
         onChange,
+        onDelete,
         index,
     } = props;
-    const intentCondition = useMemo(() => ((Array.isArray(notIntent)) ? 'exclude' : 'include'), [slotFilling]);
+    const intentCondition = useMemo(() => ((Array.isArray(intent)) ? 'include' : 'exclude'), [slotFilling]);
     const handleIntentConditionChange = (e, { value: selectedCondition }) => {
         if (selectedCondition === intentCondition) return;
-        // const update = { intent: null, not_intent: intent || [] };
-        // console.log(update);
         if (selectedCondition === 'include') onChange({ intent: notIntent || [], not_intent: null });
         if (selectedCondition === 'exclude') onChange({ intent: null, not_intent: intent || [] });
     };
@@ -45,15 +45,23 @@ const ExtractionItem = (props) => {
         onChange({ value: newValue });
     };
 
+    const handleChangeEntity = (e, { value: newValue }) => {
+        onChange({ value: null, entity: newValue });
+    };
+
     const renderSelectEntitiy = () => (
-        <Dropdown
-            className='extraction-dropdown'
-            selection
-            placeholder='select an entity'
-            options={entities}
-            value={value}
-            onChange={handleChangeValue}
-        />
+        <>
+            <Dropdown
+            // className='extraction-dropdown entity'
+                selection
+                multiple
+                clearable
+                placeholder='select an entity'
+                options={entities}
+                value={entity}
+                onChange={handleChangeEntity}
+            />
+        </>
     );
 
     const rederCategoricalDropdown = () => {
@@ -115,6 +123,7 @@ const ExtractionItem = (props) => {
                 clearable
                 className='extraction-dropdown'
                 selection
+                cancel
                 multiple
                 search
                 options={intents}
@@ -131,6 +140,9 @@ const ExtractionItem = (props) => {
         <List.Item>
             <div>
                 {index !== 0 && <Divider horizontal className='extraction-item-divider'>OR</Divider>}
+                <div className='extraction-option-buttons'>
+                    <IconButton icon='trash' color='grey' onClick={() => onDelete(index)} />
+                </div>
                 <span>
                     Get the slot value:
                 </span>
@@ -172,12 +184,6 @@ const ExtractionItem = (props) => {
                     value={intentCondition === 'include' ? intent : notIntent}
                     onChange={handleChangeIntent}
                 />
-                {/* {type === 'from_intent' && (
-                    <div>
-                        <span>the value is</span>
-                        {renderSlotValue()}
-                    </div>
-                )} */}
             </div>
         </List.Item>
     );
@@ -190,6 +196,7 @@ ExtractionItem.propTypes = {
     entities: PropTypes.array,
     slot: PropTypes.object,
     index: PropTypes.number.isRequired,
+    onDelete: PropTypes.func.isRequired,
 };
 
 ExtractionItem.defaultProps = {

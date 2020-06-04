@@ -45,8 +45,16 @@ const FormEditorContainer = (props) => {
         onChange(formId, updateData);
     };
 
-    const handleAddfilling = () => {
+    const handleAddCondition = () => {
         const update = { ...slotToFill, filling: [...slotToFill.filling, { type: 'from_text' }] };
+        setSlotToFill(update);
+        onChange(formId, update);
+    };
+
+    const handleDeleteCondition = (index) => {
+        const conditions = slotToFill.filling;
+        const result = [...conditions.slice(0, index), ...conditions.slice(index + 1, slotToFill.length)];
+        const update = { ...slotToFill, filling: result };
         setSlotToFill(update);
         onChange(formId, update);
     };
@@ -58,12 +66,19 @@ const FormEditorContainer = (props) => {
         case 'validation':
             return <>validation</>;
         case 'extraction':
-            return <ExtractionTab slotSettings={slotToFill.filling} slot={slot} onChange={handleChangefilling} addfilling={handleAddfilling} />;
+            return (
+                <ExtractionTab
+                    slotSettings={slotToFill.filling}
+                    slot={slot}
+                    onChange={handleChangefilling}
+                    addCondition={handleAddCondition}
+                    deleteCondition={handleDeleteCondition}
+                />
+            );
         default:
             return <></>;
         }
     };
-
     return (
         <Segment.Group className='story-card'>
             <FormTopMenu

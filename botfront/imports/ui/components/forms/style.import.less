@@ -76,6 +76,9 @@
     &.multiple {
         width: ~'calc(100% - 20em)';
         max-width: 30em;
+        &.entity {
+            width: 15em;
+        }
     }
 }
 .extraction-field {
@@ -133,4 +136,14 @@
         border-color: #eeeeee;
         padding: 2em;
     }
+}
+
+.extraction-option-buttons {
+    position: relative;
+    width: max-content;
+    // top: 0;
+    // right: 0;
+    margin-right: 0;
+    margin-left: auto;
+    height: 0;
 }

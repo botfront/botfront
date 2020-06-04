@@ -1,5 +1,15 @@
+
+
+
+
+type Query {
+    getForms(projectId: String!, ids: [String]): [Form]
+}
+
 type Subscription {
-    formsModified(projectId: String!): [Form]
+    formsModified(projectId: String!): Form
+    formsCreated(projectId: String!): Form
+    formsDeleted(projectId: String!): [DeletedForm]
 }
 
 type Mutation {
@@ -12,16 +22,16 @@ type Mutation {
     deleteForms(
         projectId: String!
         ids: [String]
-    ): [Form]
+    ): [DeletedForm]
 }
 
-type Query {
-    getForms(projectId: String!, ids: [String]): [Form]
+type DeletedForm {
+    _id: String
 }
 
 type Form {
     _id: String!
-    name: FormName!
+    name: FormName
     slots: [SlotToFill]
     collect_in_botfront: Boolean
     utter_on_submit: Boolean # utter_submit_{slot_name}
@@ -115,7 +125,7 @@ input SlotToFillInput {
 }
 
 input SlotFillingInput {
-    type: FillingSource
+    type: FillingSource = from_text
     entity: [String]
     intent: [String]
     not_intent: [String]

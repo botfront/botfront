@@ -9,13 +9,29 @@ const { PubSub, withFilter } = require('apollo-server-express');
 
 const pubsub = new PubSub();
 const FORMS_MODIFIED = 'FORMS_MODIFIED';
+const FORMS_DELETED = 'FORMS_DELETED';
+const FORMS_CREATED = 'FORMS_CREATED';
 
 export default {
     Subscription: {
-        formsModified: withFilter(
-            () => pubsub.asyncIterator([FORMS_MODIFIED]),
-            (payload, variables) => (payload.projectId === variables.projectId),
-        ),
+        formsModified: {
+            subscribe: withFilter(
+                () => pubsub.asyncIterator([FORMS_MODIFIED]),
+                () => true,
+            ),
+        },
+        formsDeleted: {
+            subscribe: withFilter(
+                () => pubsub.asyncIterator([FORMS_DELETED]),
+                () => true,
+            ),
+        },
+        formsCreated: {
+            subscribe: withFilter(
+                () => pubsub.asyncIterator([FORMS_CREATED]),
+                () => true,
+            ),
+        },
     },
     Query: {
         getForms: async (_, args, __) => getForms(args.projectId, args.ids),
@@ -25,8 +41,36 @@ export default {
             const { projectId, environment, tracker } = args;
             return { success: true };
         },
-        upsertForm: (_, args) => upsertForm(args),
-        deleteForms: (_, args) => deleteForms(args),
+        upsertForm: async (_, args) => {
+            const updatedForm = await upsertForm(args);
+            if (updatedForm.formsAdded) {
+                pubsub.publish(FORMS_CREATED, {
+                    projectId: args.form.projectId,
+                    formsCreated: {
+                        ...args.form,
+                        _id: updatedForm.formsAdded[0],
+                    },
+                });
+                return { success: true };
+            }
+            const dataUpdate = {
+                ...updatedForm,
+                ...args.form,
+            };
+            pubsub.publish(FORMS_MODIFIED, {
+                projectId: args.form.projectId,
+                formsModified: dataUpdate,
+            });
+            return { success: !!updatedForm };
+        },
+        deleteForms: async (_, args) => {
+            const result = await deleteForms(args);
+            pubsub.publish(FORMS_DELETED, {
+                projectId: args.projectId,
+                formsDeleted: result,
+            });
+            return result;
+        },
     },
     FormName: new RegularExpression('FormName', /^[a-zA-Z0-9-_]+_form$/),
     Form: {

@@ -23,7 +23,7 @@ const CreateForm = (props) => {
 
     const getFormattedModel = () => (clearTypenameField({
         ...initialModel,
-        slotNames: initialModel.slots.map(({ name }) => name),
+        slotNames: (initialModel.slots || []).map(({ name }) => name),
     }));
 
     const schemaString = `
