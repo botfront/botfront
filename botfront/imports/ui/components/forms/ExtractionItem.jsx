@@ -9,7 +9,7 @@ import IconButton from '../common/IconButton';
 const ExtractionItem = (props) => {
     const {
         slotFilling: {
-            type,
+            type = 'from_entity',
             entity,
             intent = [],
             not_intent: notIntent,
@@ -169,7 +169,7 @@ const ExtractionItem = (props) => {
                         { value: 'from_intent', text: 'Conditionally on the intent' },
                         { value: 'from_entity', text: 'From the entity' },
                     ]}
-                    value={type || 'from_text'}
+                    value={type || 'from_entity'}
                     onChange={handleValueSourceChange}
                 />
                 {type === 'from_intent' && renderValueFromIntent()}

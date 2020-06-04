@@ -21,7 +21,7 @@ const FormEditorContainer = (props) => {
         if (slotFillingProp) return slotFillingProp;
         return {
             name: slotName,
-            filling: [{ type: 'from_text' }],
+            filling: [{ type: 'from_entity' }],
         };
     };
 
@@ -46,7 +46,7 @@ const FormEditorContainer = (props) => {
     };
 
     const handleAddCondition = () => {
-        const update = { ...slotToFill, filling: [...slotToFill.filling, { type: 'from_text' }] };
+        const update = { ...slotToFill, filling: [...slotToFill.filling, { type: 'from_entity' }] };
         setSlotToFill(update);
         onChange(formId, update);
     };

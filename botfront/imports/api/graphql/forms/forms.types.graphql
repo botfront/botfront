@@ -125,7 +125,7 @@ input SlotToFillInput {
 }
 
 input SlotFillingInput {
-    type: FillingSource = from_text
+    type: FillingSource = from_entity
     entity: [String]
     intent: [String]
     not_intent: [String]

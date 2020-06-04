@@ -37,7 +37,7 @@ const ExtractionTab = (props) => {
     return (
         <>
             {slotSettings.length > 0 && slotSettings.map(renderExtractionItem)}
-            {slotSettings.length === 0 && renderExtractionItem({ type: 'from_text' }, 0)}
+            {slotSettings.length === 0 && renderExtractionItem({ type: 'from_entity' }, 0)}
             <Button
                 className='add-condition-button'
                 basic
