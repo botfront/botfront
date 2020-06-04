@@ -131,7 +131,7 @@ export class StoryController {
             this.raiseStoryException('declare_form');
         } else {
             this.form = null;
-            if (!this.domain.forms.has(props.name)) {
+            if (!this.domain.forms.has(props.name) && props.name !== null) {
                 this.domain.forms.add(props.name);
                 this.raiseStoryException('no_such_form');
             }
