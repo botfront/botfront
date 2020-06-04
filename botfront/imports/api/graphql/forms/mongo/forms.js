@@ -10,6 +10,10 @@ export const getForms = async (projectId, ids = null) => {
 };
 
 export const deleteForms = async ({ projectId, ids }) => {
+    Projects.update(
+        { _id: projectId },
+        { $pull: { storyGroups: { $in: ids } } },
+    );
     const response = await Forms.remove({ projectId, _id: { $in: ids } }).exec();
     if (response.ok) return ids.map(_id => ({ _id }));
     return [];
@@ -19,13 +23,11 @@ export const upsertForm = async (data) => {
         projectId, _id, ...update
     } = data.form;
     if (_id) {
-        console.log('A');
         return Forms.findOneAndUpdate(
             { projectId, _id },
             { $set: update },
         ).lean();
     }
-    console.log('B');
     const result = await Forms.update(
         { projectId, name: update.form },
         {
@@ -40,7 +42,7 @@ export const upsertForm = async (data) => {
         ? 0
         : StoryGroups.find({ projectId, pinned: true }).count()
             + await Forms.countDocuments({ projectId, pinned: true });
-    const success = Projects.update(
+    Projects.update(
         { _id: projectId },
         { $push: { storyGroups: { $each: upsertedIds, $position } } },
     );
