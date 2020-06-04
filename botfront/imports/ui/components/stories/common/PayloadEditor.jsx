@@ -78,7 +78,6 @@ const PayloadEditor = (props) => {
                                     handleAddOrChangeEntity(entity, newEntity, i);
                                 }}
                                 entity={entity}
-                                autofocus
                             />
                         </Grid.Column>
                         <Grid.Column>
