@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.24.3-ee.1](https://github.com/botfront/botfront/compare/v0.24.2-ee.2...v0.24.3-ee.1) (2020-06-04)
+
+
+### Bug Fixes
+
+* entity tagging by removing autofocus ([f57feda](https://github.com/botfront/botfront/commit/f57feda1e384c3710c602f1ef82d4b84e5b2afb9))
+* entity tagging in activity screen ([4bb335b](https://github.com/botfront/botfront/commit/4bb335b12a094d2dd47267bab7e8c0e02f0e3e24))
+
 ### [0.24.2-ee.2](https://github.com/botfront/botfront/compare/v0.24.2-ee.1...v0.24.2-ee.2) (2020-06-03)
 
 ### [0.24.2-ee.1](https://github.com/botfront/botfront/compare/v0.24.1-ee.0...v0.24.2-ee.1) (2020-06-02)
