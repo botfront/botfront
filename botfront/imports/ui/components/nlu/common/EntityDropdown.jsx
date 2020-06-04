@@ -12,7 +12,6 @@ function EntityDropdown({
     onAddItem,
     onChange,
     options,
-    autofocus,
     allowAdditions,
 }) {
     const uniqueOptions = [...new Set(options.map(option => option.value))]
@@ -33,7 +32,6 @@ function EntityDropdown({
 
     return (
         <Dropdown
-            searchInput={{ autoFocus: (!entity || !entity.entity) && autofocus }}
             icon='code'
             basic
             fluid
@@ -61,12 +59,10 @@ EntityDropdown.propTypes = {
     onAddItem: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,
     options: PropTypes.array.isRequired,
-    autofocus: PropTypes.bool,
     allowAdditions: PropTypes.bool,
 };
 
 EntityDropdown.defaultProps = {
-    autofocus: true,
     allowAdditions: true,
 };
 
