@@ -200,7 +200,7 @@ function Activity(props) {
         return (
             <UserUtteranceViewer
                 value={datum}
-                onChange={handleUpdate}
+                onChange={({ _id, entities }) => handleUpdate([{ _id, entities }])}
                 projectId={projectId}
                 disabled={isUtteranceOutdated(datum)}
                 disableEditing={isUtteranceOutdated(datum)}
