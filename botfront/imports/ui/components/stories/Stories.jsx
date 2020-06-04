@@ -90,8 +90,9 @@ function Stories(props) {
     const [deleteForms] = useMutation(DELETE_FORMS);
     const { data: { getForms = [] } = {}, loading } = useQuery(GET_FORMS, {
         variables: { projectId, onlySlotList: true },
+        fetchPolicy: 'cache-and-network',
     });
-    useEffect(() => setForms(loading ? [] : getForms), [loading]);
+    useEffect(() => setForms(loading ? [] : getForms), [loading, getForms]);
 
     useSubscription(
         FORMS_MODIFIED,
@@ -117,7 +118,8 @@ function Stories(props) {
             onSubscriptionData: ({ subscriptionData }) => {
                 if (!subscriptionData) return;
                 if (!subscriptionData.data) return;
-                setForms([...forms, subscriptionData.data.formsCreated]);
+                const newForm = subscriptionData.data.formsCreated;
+                setForms([...forms, newForm]);
             },
         },
     );
