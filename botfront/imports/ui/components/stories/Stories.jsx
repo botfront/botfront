@@ -29,6 +29,7 @@ import { can } from '../../../lib/scopes';
 import { UPSERT_FORM, GET_FORMS, DELETE_FORMS } from './graphql/queries';
 import { FORMS_MODIFIED, FORMS_DELETED, FORMS_CREATED } from './graphql/subscriptions';
 import FormEditors from '../forms/FormEditors';
+import { clearTypenameField } from '../../../lib/client.safe.utils';
 
 const callbackCaller = (args, afterAll = () => {}) => async (res) => {
     const callback = args[args.length - 1];
@@ -90,7 +91,7 @@ function Stories(props) {
     const { data: { getForms = [] } = {}, loading } = useQuery(GET_FORMS, {
         variables: { projectId, onlySlotList: true },
     });
-    useEffect(() => setForms(loading ? [] : getForms), [getForms]);
+    useEffect(() => setForms(loading ? [] : getForms), [loading]);
 
     useSubscription(
         FORMS_MODIFIED,
@@ -184,7 +185,7 @@ function Stories(props) {
     const storiesReshaped = useMemo(reshapeStories, [stories]);
 
     const handleUpsertForm = useCallback(
-        (formData, ...args) => upsertForm({ variables: { form: { ...formData, projectId } } }).then(
+        (formData, ...args) => upsertForm({ variables: { form: { ...clearTypenameField(formData), projectId } } }).then(
             callbackCaller(args), callbackCaller(args),
         ),
         [projectId],
@@ -194,6 +195,20 @@ function Stories(props) {
         ({ _id }, ...args) => deleteForms({ variables: { projectId, ids: [_id] } }).then(callbackCaller(args), callbackCaller(args)),
         [projectId],
     );
+
+    const handleReorderForm = ({ _id: idToUpdate, children }, ...args) => {
+        const newSlotOrder = children.map(c => c.replace(/_slot_for_.*$/, ''));
+        const formToUpdate = (getForms || []).find(({ _id }) => _id === idToUpdate);
+        let reorderedSlots = [];
+        try {
+            reorderedSlots = newSlotOrder.map((name) => {
+                const foundSlot = (formToUpdate.slots || []).find(s => s.name === name);
+                if (!foundSlot) throw new Error();
+                return foundSlot;
+            });
+        } catch { return; }
+        handleUpsertForm({ _id: idToUpdate, slots: reorderedSlots }, ...args);
+    };
 
     const handleAddStoryGroup = useCallback(
         (storyGroup, f) => Meteor.call(
@@ -300,6 +315,7 @@ function Stories(props) {
                     getResponseLocations: handleGetResponseLocations,
                     upsertForm: handleUpsertForm,
                     deleteForm: handleDeleteForm,
+                    reorderForm: handleReorderForm,
                     forms,
                 }}
             >

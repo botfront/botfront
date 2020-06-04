@@ -62,22 +62,25 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         deleteStory = fallbackFunction,
         upsertForm = fallbackFunction,
         deleteForm = fallbackFunction,
+        reorderForm = fallbackFunction,
     } = externalMutators;
 
     const mutatorMapping = (type, action) => {
         if (type === 'story-group') {
             if (action === 'update') return updateGroup;
             if (action === 'expand') return setExpansionOnGroup;
-            return deleteGroup;
+            if (action === 'reorder') return updateGroup;
+            if (action === 'delete') return deleteGroup;
         }
         if (type === 'story') {
             if (action === 'update') return updateStory;
-            return deleteStory;
+            if (action === 'delete') return deleteStory;
         }
         if (type === 'form') {
             if (action === 'update') return upsertForm;
             if (action === 'expand') return upsertForm;
-            return deleteForm;
+            if (action === 'reorder') return reorderForm;
+            if (action === 'delete') return deleteForm;
         }
         return fallbackFunction; // not supported
     };
@@ -86,19 +89,13 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
     if (expand) {
         const { id, type } = tree.items[expand];
         setSomethingIsMutating(true);
-        mutatorMapping(type, 'expand')(
-            convertId({ id, isExpanded: true }, type),
-            () => setSomethingIsMutating(false),
-        );
+        mutatorMapping(type, 'expand')(convertId({ id, isExpanded: true }, type), () => setSomethingIsMutating(false));
         return mutateTree(tree, expand, { isExpanded: true });
     }
     if (collapse) {
         const { id, type } = tree.items[collapse];
         setSomethingIsMutating(true);
-        mutatorMapping(type, 'expand')(
-            convertId({ id, isExpanded: false }, type),
-            () => setSomethingIsMutating(false),
-        );
+        mutatorMapping(type, 'expand')(convertId({ id, isExpanded: false }, type), () => setSomethingIsMutating(false));
         return mutateTree(tree, collapse, { isExpanded: false });
     }
     if (remove) {
@@ -172,7 +169,6 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
 
         const sourceNode = getSourceNode(tree, source);
 
-        if (sourceNode.type === 'form-slot') return tree; // don't move slots
         if (isSmartNode(sourceNode.id)) return tree; // don't move out of a smartGroup
 
         const sourceNodes = ['story-group', 'form'].includes(sourceNode.type)
@@ -186,7 +182,9 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         let destinationNode = getDestinationNode(tree, destination);
         const acceptanceCriterion = ['story-group', 'form'].includes(sourceNodes[0].type)
             ? candidateNode => candidateNode.id === tree.rootId // only move forms and groups to root
-            : candidateNode => candidateNode.type === 'story-group'; // move leaves to first group
+            : sourceNodes[0].type === 'story'
+                ? candidateNode => candidateNode.type === 'story-group' // move stories to first group
+                : candidateNode => candidateNode.id === sourceNodes[0].parentId; // move slots only to their parent
         const identityCheck = candidateNode => c => c === candidateNode.id;
         while (!acceptanceCriterion(destinationNode)) {
             const parentParentId = destinationNode.parentId;
@@ -238,7 +236,9 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
             sameMother // dropped within selection
             && destination.index >= indexOfFirstActiveNode
             && destination.index <= indexOfFirstActiveNode + sourceNodes.length - 1
-        ) { return tree; }
+        ) {
+            return tree;
+        }
 
         const aboveUnderSameMother = sameMother && destination.index < indexOfFirstActiveNode;
         const underUnderSameMother = !aboveUnderSameMother && sameMother;
@@ -273,7 +273,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         const newDestination = movedTree.items[destination.parentId];
         const newSource = movedTree.items[sourceNode.parentId];
         setSomethingIsMutating(true);
-        const updateDestination = () => updateGroup(
+        const updateDestination = () => mutatorMapping(newDestination.type, 'reorder')(
             convertId({
                 id: newDestination.id,
                 children: newDestination.children,

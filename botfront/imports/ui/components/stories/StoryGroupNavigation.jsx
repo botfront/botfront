@@ -48,7 +48,9 @@ class StoryGroupNavigation extends React.Component {
         } = this.state;
         const { addGroup, updateGroup, upsertForm } = this.props;
         if (addMode === 'form') {
-            upsertForm({ name: newItemName, slots: [] });
+            upsertForm({
+                name: newItemName, slots: [], isExpanded: true, pinned: true,
+            });
             this.resetAddItem();
             return;
         }

@@ -36,8 +36,7 @@ const StoryGroupTreeNode = (props) => {
     const disableEdit = disabled || isSmartNode || item.smartGroup || type === 'form-slot';
     const disableDrag = disabled
         || isSmartNode
-        || (selectionIsNonContiguous && activeStories.includes(item.id))
-        || type === 'form-slot';
+        || (selectionIsNonContiguous && activeStories.includes(item.id));
 
     const icon = ['story-group', 'form'].includes(type) ? (
         <Icon
