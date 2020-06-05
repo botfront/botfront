@@ -89,9 +89,9 @@ if (Meteor.isServer) {
         async 'forms.countSubmissions'({
             projectId,
             environments: suppliedEnvs,
-            formNames = [],
         }) {
             const environments = generateEnvironmentRestriction(suppliedEnvs);
+            const formNames = await FormResults.distinct('formName', { projectId, ...environments });
             const counts = await Promise.all(
                 formNames.map(formName => FormResults.countDocuments({ projectId, ...environments, formName })),
             );

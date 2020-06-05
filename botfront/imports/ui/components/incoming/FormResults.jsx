@@ -13,19 +13,23 @@ const FormResults = (props) => {
     const { projectId, environment } = props;
     const environments = [environment];
 
-    const [counts, setCounts] = useState({});
+    const [counts, setCounts] = useState(null);
 
-    const { data: { getForms: forms = [] } = {}, loading } = useQuery(GET_FORMS, {
+    const { data: { getForms = [] } = {}, loading } = useQuery(GET_FORMS, {
         variables: { projectId, onlySlotList: true },
     });
 
+    // this adds legacy forms (that are no longer defined, but for which results exist)
+    const forms = [
+        ...getForms,
+        ...Object.keys(counts || {})
+            .filter(k => !getForms.some(f => f.name === k))
+            .map(k => ({ name: k })),
+    ];
+
     useEffect(
-        () => Meteor.call(
-            'forms.countSubmissions',
-            { projectId, environments, formNames: forms.map(f => f.name) },
-            (_, res) => setCounts(res || {}),
-        ),
-        [forms, environment],
+        () => Meteor.call('forms.countSubmissions', { projectId, environments }, (_, res) => setCounts(res || {})),
+        [environment],
     );
 
     const handleDownloadSubmissions = formName => async () => {
@@ -39,7 +43,7 @@ const FormResults = (props) => {
     };
 
     const renderFormSegment = (form) => {
-        const count = form.name in counts ? counts[form.name] : 0;
+        const count = form.name in (counts || {}) ? counts[form.name] : 0;
         const disabled = count < 1;
         const content = disabled
             ? !form.collect_in_botfront
@@ -47,7 +51,7 @@ const FormResults = (props) => {
                 : 'No submissions for this form'
             : `Export ${count} submissions to CSV format`;
         return (
-            <Segment key={form._id}>
+            <Segment key={form.name}>
                 <Header>
                     {form.name}
                     {(form.slots || []).length > 0 && (
@@ -75,7 +79,7 @@ const FormResults = (props) => {
 
     return (
         <Tab.Pane>
-            <Loading loading={loading}>
+            <Loading loading={loading || !counts}>
                 {!forms.length ? (
                     <>
                         <Message info content='No forms found' />
