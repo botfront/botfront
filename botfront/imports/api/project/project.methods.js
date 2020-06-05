@@ -251,14 +251,14 @@ if (Meteor.isServer) {
                 const slots = Slots.find({ projectId }).fetch();
                 const {
                     actions: actionsSetFromDomain = [],
-                } = stories.length !== 0 ? yamlLoad(extractDomain(
-                    stories
+                } = stories.length !== 0 ? yamlLoad(extractDomain({
+                    stories: stories
                         .reduce((acc, story) => [...acc, ...flattenStory(story)], [])
                         .map(story => story.story || ''),
                     slots,
                     templates,
                     defaultDomain,
-                )) : {};
+                })) : {};
                 return actionsSetFromDomain;
             } catch (error) {
                 throw error;
