@@ -35,9 +35,9 @@ export const GET_FORMS = gql`
                 }
                 utter_on_new_valid_slot @skip(if: $onlySlotList)
             }
-            collect_in_botfront @skip(if: $onlySlotList)
+            collect_in_botfront
             utter_on_submit @skip(if: $onlySlotList)
-            description @skip(if: $onlySlotList)
+            description
             projectId
             isExpanded
             pinned

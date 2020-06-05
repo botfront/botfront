@@ -3,6 +3,7 @@ import {
     getForms,
     upsertForm,
     deleteForms,
+    submitForm,
 } from './mongo/forms';
 
 const { PubSub, withFilter } = require('apollo-server-express');
@@ -37,10 +38,7 @@ export default {
         getForms: async (_, args, __) => getForms(args.projectId, args.ids),
     },
     Mutation: {
-        submitForm: async (_root, args) => {
-            const { projectId, environment, tracker } = args;
-            return { success: true };
-        },
+        submitForm: async (_root, args) => submitForm(args),
         upsertForm: async (_, args) => {
             const updatedForm = await upsertForm(args);
             if (updatedForm.formsAdded) {

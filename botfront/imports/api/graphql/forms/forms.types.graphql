@@ -1,7 +1,3 @@
-
-
-
-
 type Query {
     getForms(projectId: String!, ids: [String]): [Form]
 }
@@ -17,6 +13,7 @@ type Mutation {
         projectId: String!
         environment: String
         tracker: Any!
+        metadata: Any
     ): updateResponse!
     upsertForm(form: FormInput): updateResponse!
     deleteForms(

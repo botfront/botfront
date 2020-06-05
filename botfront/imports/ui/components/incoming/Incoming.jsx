@@ -18,6 +18,7 @@ import { extractEntities } from '../nlu/models/nluModel.utils';
 import Activity from '../nlu/activity/Activity';
 import ActivityInsertions from '../nlu/activity/ActivityInsertions';
 import ConversationsBrowserContainer from '../conversations/ConversationsBrowserContainer';
+import FormResults from './FormResults';
 import { setWorkingDeploymentEnvironment, setWorkingLanguage } from '../../store/actions/actions';
 import { updateIncomingPath } from './incoming.utils';
 import { WithRefreshOnLoad } from '../../layouts/project';
@@ -84,6 +85,10 @@ class Incoming extends React.Component {
             return (
                 <ConversationsBrowserContainer projectId={project._id} />
             );
+        case 'forms':
+            return (
+                <FormResults />
+            );
         case 'populate':
             return (
                 <ActivityInsertions model={model} instance={instance} />
@@ -111,6 +116,7 @@ class Incoming extends React.Component {
                     tabs={[
                         { value: 'newutterances', text: 'New Utterances' },
                         { value: 'conversations', text: 'Conversations' },
+                        { value: 'forms', text: 'Form results' },
                         { value: 'populate', text: 'Populate', role: 'incoming:w' },
                     ]}
                     onClickTab={this.handleTabClick}
