@@ -50,9 +50,11 @@ const FormResults = (props) => {
             <Segment key={form._id}>
                 <Header>
                     {form.name}
-                    <Header.Subheader>
-                        Slots: <i>{(form.slots || []).map(s => s.name).join(', ')}</i>
-                    </Header.Subheader>
+                    {(form.slots || []).length > 0 && (
+                        <Header.Subheader>
+                            Slots: <i>{form.slots.map(s => s.name).join(', ')}</i>
+                        </Header.Subheader>
+                    )}
                 </Header>
                 <p>
                     {form.description}
