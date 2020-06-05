@@ -9,7 +9,6 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import { Menu, Confirm, Portal } from 'semantic-ui-react';
-import { intersection } from 'lodash';
 import EmbeddedTree from '../common/EmbeddedTree';
 import { useStoryGroupTree } from './hooks/useStoryGroupTree';
 import StoryGroupTreeNode from './StoryGroupTreeNode';
@@ -64,27 +63,23 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
 
     const disableEdit = useMemo(() => !can('stories:w', projectId), [projectId]);
     const showPublish = useMemo(() => deploymentEnvironments && deploymentEnvironments.length > 0, [deploymentEnvironments]);
-    // It may happen that storyGroups and storyGroupOrder are out of sync
-    // This is just a workaround as Meteor does not update storyGroupOrder after importing
-    const verifyGroupOrder = (order, incomingGroups, incomingForms) => {
-        const storyGroupsId = incomingGroups.map(({ _id }) => _id);
-        const formIds = incomingForms.map(({ _id }) => _id);
-        // check that storygroup order and storygrous are in sync ( have the same value in different orders)
-        if (
-            storyGroupsId.length + formIds.length === order.length
-            && storyGroupsId.every(id => order.includes(id))
-            && formIds.every(id => order.includes(id))
-        ) {
-            return order;
-        } // this means that storyGroupOrder and storyGroup are not in sync
-        // we keep only the storygroups that are in storygroups for the order
-        let newOrder = intersection(order, [...storyGroupsId, ...formIds]); // so only the one in sync (existing in both)
-        // and add value from story groups that were not intersected
-        newOrder = [...storyGroupsId, ...formIds] // so the new order is in sync with storygroups
-            .filter(sg => !newOrder.includes(sg)).concat(newOrder)
-            .sort((a, b) => b.pinned - a.pinned);
-        return newOrder;
+
+    const verifyGroupOrder = () => {
+        // It may happen that storyGroups and storyGroupOrder are out of sync
+        // This is just a workaround as Meteor does not update storyGroupOrder after importing
+        const storyGroupsId = storyGroups.map(({ _id }) => _id);
+        const formIds = forms.map(({ _id }) => _id);
+        // check that storygroup forms and storygrous are in sync ( have the same value in different orders)
+        if (!(
+            storyGroupsId.length + formIds.length === storyGroupOrder.length
+            && storyGroupsId.every(id => storyGroupOrder.includes(id))
+            && formIds.every(id => storyGroupOrder.includes(id))
+        )) {
+            Meteor.call('storyGroups.rebuildOrder', projectId);
+        }
     };
+
+    useEffect(verifyGroupOrder, []);
 
     const treeFromProps = useMemo(() => {
         // build tree
@@ -92,7 +87,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
             rootId: 'root',
             items: {
                 root: {
-                    children: verifyGroupOrder(storyGroupOrder, storyGroups, forms),
+                    children: storyGroupOrder,
                     id: 'root',
                     title: 'root',
                 },

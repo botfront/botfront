@@ -191,4 +191,19 @@ Meteor.methods({
             return handleError(e);
         }
     },
+
+    async 'storyGroups.rebuildOrder'(projectId) {
+        checkIfCan('stories:r', projectId);
+        check(projectId, String);
+        const { storyGroups: order = [] } = Projects.findOne({ _id: projectId }, { fields: { storyGroups: 1 } });
+        const storyGroups = StoryGroups.find({ projectId }, { fields: { _id: 1, pinned: 1, name: 1 } }).fetch();
+        const forms = await Forms.find({ projectId }, { _id: 1, pinned: 1, name: 1 }).lean();
+        
+        const newOrder = [...forms, ...storyGroups]
+            .sort((a, b) => order.findIndex(id => id === a._id) - order.findIndex(id => id === b._id))
+            .sort((a, b) => !!b.pinned - !!a.pinned)
+            .map(({ _id }) => _id);
+        
+        return Projects.update({ _id: projectId }, { $set: { storyGroups: newOrder } });
+    },
 });
