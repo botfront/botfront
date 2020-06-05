@@ -195,13 +195,27 @@ export default class StoryVisualEditor extends React.Component {
         </React.Fragment>
     );
 
+    determineFormLineLabelAndValue = (line) => {
+        let value = line.gui.data.name;
+        let label = 'activate form';
+        if (line.gui.type === 'action') {
+            label = 'deactivate form';
+            value = null;
+        }
+        if (line.gui.type === 'form') {
+            label = line.gui.data.name === null
+                ? 'form completed'
+                : 'form activated';
+        }
+        return { value, label };
+    }
+
     renderFormLine = (index, line, exceptions) => (
         <React.Fragment key={`FormLine-${index}`}>
             <ExceptionWrapper exceptions={exceptions}>
                 <div className={`story-line ${this.getReadOnlyClass()}`}>
                     <GenericLabel
-                        label='form'
-                        value={line.gui.data.name}
+                        {...this.determineFormLineLabelAndValue(line)}
                         color='botfront-blue'
                     />
                     <IconButton onClick={() => this.handleDeleteLine(index)} icon='trash' />
@@ -231,6 +245,10 @@ export default class StoryVisualEditor extends React.Component {
                 exception => exception.line === index + 1,
             );
 
+            if (['form_decl', 'form'].includes(line.gui.type)
+                || (line.gui.type === 'action' && line.gui.data.name === 'action_deactivate_form')) {
+                return this.renderFormLine(index, line, exceptions);
+            }
             if (line.gui.type === 'action') return this.renderActionLine(index, line.gui, exceptions);
             if (line.gui.type === 'slot') return this.renderSlotLine(index, line.gui, exceptions);
             if (line.gui.type === 'bot') {
@@ -267,9 +285,6 @@ export default class StoryVisualEditor extends React.Component {
                         {this.renderAddLine(index)}
                     </React.Fragment>
                 );
-            }
-            if (['form_decl', 'form'].includes(line.gui.type)) {
-                return this.renderFormLine(index, line, exceptions);
             }
             return this.renderBadLine(index, line, exceptions);
         });
