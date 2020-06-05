@@ -67,13 +67,11 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
     const verifyGroupOrder = () => {
         // It may happen that storyGroups and storyGroupOrder are out of sync
         // This is just a workaround as Meteor does not update storyGroupOrder after importing
-        const storyGroupsId = storyGroups.map(({ _id }) => _id);
-        const formIds = forms.map(({ _id }) => _id);
+        const ids = [...storyGroups, ...forms].map(({ _id }) => _id);
         // check that storygroup forms and storygrous are in sync ( have the same value in different orders)
         if (!(
-            storyGroupsId.length + formIds.length === storyGroupOrder.length
-            && storyGroupsId.every(id => storyGroupOrder.includes(id))
-            && formIds.every(id => storyGroupOrder.includes(id))
+            ids.length === storyGroupOrder.length
+            && ids.every(id => storyGroupOrder.includes(id))
         )) {
             Meteor.call('storyGroups.rebuildOrder', projectId);
         }
@@ -85,13 +83,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
         // build tree
         const newTree = {
             rootId: 'root',
-            items: {
-                root: {
-                    children: storyGroupOrder,
-                    id: 'root',
-                    title: 'root',
-                },
-            },
+            items: {},
         };
         stories.forEach(({ _id, storyGroupId, ...n }) => {
             newTree.items[_id] = {
@@ -126,6 +118,11 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
                 type: 'form',
             };
         });
+        newTree.items.root = {
+            children: storyGroupOrder.filter(id => id in newTree.items),
+            id: 'root',
+            title: 'root',
+        };
         return newTree;
     }, [forms, storyGroups, stories, storyGroupOrder]);
 
