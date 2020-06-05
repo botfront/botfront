@@ -111,7 +111,7 @@ class Incoming extends React.Component {
                     tabs={[
                         { value: 'newutterances', text: 'New Utterances' },
                         { value: 'conversations', text: 'Conversations' },
-                        { value: 'populate', text: 'Populate', role: 'projects:w' },
+                        { value: 'populate', text: 'Populate', role: 'incoming:w' },
                     ]}
                     onClickTab={this.handleTabClick}
                 />
