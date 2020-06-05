@@ -19,7 +19,7 @@ const FormTopMenu = (props) => {
     const renderMenuItem = (item) => {
         const { text, value } = item;
         return (
-            <Menu.Item onClick={() => setActiveItem(value)} active={activeItem === value} className='story-card-tab'>
+            <Menu.Item onClick={() => setActiveItem(value)} active={activeItem === value} className='story-card-tab' data-cy='form-top-menu-item'>
                 {text || value}
             </Menu.Item>
         );
@@ -29,6 +29,7 @@ const FormTopMenu = (props) => {
             {/* <Icon name={`triangle ${collapsed ? 'right' : 'down'}`} onClick={() => onToggleCollapsed(!collapsed)} /> */}
             {formName && slotName && (
                 <Breadcrumb
+                    data-cy='form-slot-name'
                     className='form-slot-breadcrumb'
                     icon='right angle'
                     sections={[formName, slotName]}

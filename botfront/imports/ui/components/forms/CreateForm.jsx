@@ -55,11 +55,12 @@ const CreateForm = (props) => {
             <AutoForm model={getFormattedModel()} schema={new GraphQLBridge(schema, () => {}, {})} onSubmit={handleSubmit}>
                 <Segment.Group className='story-card form-editor'>
                     <Segment attached='top' className='form-editor-topbar story-card-topbar'>
-                        <AutoField name='name' label='' className='create-form-field' />
+                        <AutoField name='name' label='' className='create-form-field' data-cy='form-name-field' />
                     </Segment>
                     <Segment attached='bottom' className='form-editor-content'>
-                        <LongTextField name='description' className='create-form-field' />
+                        <LongTextField name='description' className='create-form-field' data-cy='form-description-field' />
                         <SelectField
+                            data-cy='form-slots-field'
                             name='slotNames'
                             options={slots.map(({ name: slot }) => (
                                 { value: slot, text: slot }
@@ -67,8 +68,8 @@ const CreateForm = (props) => {
                             confirmDeletions
                             className='create-form-field'
                         />
-                        <ToggleField name='collect_in_botfront' />
-                        <SubmitField value='Save' />
+                        <ToggleField name='collect_in_botfront' data-cy='form-collection-togglefield' />
+                        <SubmitField value='Save' data-cy='form-submit-field' />
                     </Segment>
                 </Segment.Group>
             </AutoForm>

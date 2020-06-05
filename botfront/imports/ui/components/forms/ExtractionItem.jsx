@@ -11,7 +11,7 @@ const ExtractionItem = (props) => {
         slotFilling: {
             type = 'from_entity',
             entity,
-            intent = [],
+            intent,
             not_intent: notIntent,
             value,
         },
@@ -23,9 +23,16 @@ const ExtractionItem = (props) => {
         onDelete,
         index,
     } = props;
-    const intentCondition = useMemo(() => ((Array.isArray(intent)) ? 'include' : 'exclude'), [slotFilling]);
+
+    const intentCondition = useMemo(() => {
+        if (Array.isArray(intent)) return 'include';
+        if (Array.isArray(notIntent)) return 'exclude';
+        return type === 'from_intent' ? 'include' : null;
+    }, [slotFilling]);
+
     const handleIntentConditionChange = (e, { value: selectedCondition }) => {
         if (selectedCondition === intentCondition) return;
+        if (!selectedCondition) onChange({ intent: null, not_intent: null });
         if (selectedCondition === 'include') onChange({ intent: notIntent || [], not_intent: null });
         if (selectedCondition === 'exclude') onChange({ intent: null, not_intent: intent || [] });
     };
@@ -38,11 +45,11 @@ const ExtractionItem = (props) => {
     };
 
     const handleValueSourceChange = (e, { value: source }) => {
-        onChange({ type: source, value: null });
+        onChange({ type: source, value: null, entity: null });
     };
 
     const handleChangeValue = (e, { value: newValue }) => {
-        onChange({ value: newValue });
+        onChange({ value: newValue, entity: null });
     };
 
     const handleChangeEntity = (e, { value: newValue }) => {
@@ -52,6 +59,7 @@ const ExtractionItem = (props) => {
     const renderSelectEntitiy = () => (
         <>
             <Dropdown
+                data-cy='entity-value-dropdown'
                 className='extraction-dropdown entity'
                 selection
                 multiple
@@ -68,6 +76,7 @@ const ExtractionItem = (props) => {
         const { categories } = slot;
         return (
             <Dropdown
+                data-cy='category-value-dropdown'
                 className='extraction-dropdown'
                 selection
                 placeholder='select a category'
@@ -80,6 +89,7 @@ const ExtractionItem = (props) => {
 
     const renderBoolDropdown = () => (
         <Dropdown
+            data-cy='bool-value-dropdown'
             className='extraction-dropdown'
             selection
             options={[
@@ -93,6 +103,7 @@ const ExtractionItem = (props) => {
 
     const renderSlotInput = inputType => (
         <Input
+            data-cy='slot-value-input'
             className='extraction-field'
             placeholder='enter a value'
             type={inputType}
@@ -119,8 +130,9 @@ const ExtractionItem = (props) => {
     const renderIntentSelect = () => (
         <div className='extraction-line'>
             <Dropdown
-                clearable
-                placeholder='add a condition'
+                data-cy='intent-condition'
+                clearable={type !== 'from_intent'}
+                placeholder='add a intent condition'
                 className='extraction-dropdown condition-dropdown'
                 selection
                 options={[
@@ -130,17 +142,20 @@ const ExtractionItem = (props) => {
                 value={intentCondition}
                 onChange={handleIntentConditionChange}
             />
-            <Dropdown
-                clearable
-                placeholder='select included/excluded intents'
-                className='extraction-dropdown'
-                selection
-                multiple
-                search
-                options={intents}
-                value={intentCondition === 'include' ? intent : notIntent}
-                onChange={handleChangeIntent}
-            />
+            {intentCondition && (
+                <Dropdown
+                    data-cy='select-intents-multiselect'
+                    clearable
+                    placeholder='select included/excluded intents'
+                    className='extraction-dropdown'
+                    selection
+                    multiple
+                    search
+                    options={intents}
+                    value={intentCondition === 'include' ? intent : notIntent}
+                    onChange={handleChangeIntent}
+                />
+            )}
         </div>
     );
 
@@ -162,6 +177,7 @@ const ExtractionItem = (props) => {
                     Get the slot value:
                 </span>
                 <Dropdown
+                    data-cy='extraction-source-dropdown'
                     className='extraction-dropdown'
                     selection
                     options={[

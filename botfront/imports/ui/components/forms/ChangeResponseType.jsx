@@ -7,17 +7,17 @@ import { ProjectContext } from '../../layouts/context';
 
 
 const ChangeResponseType = (props) => {
-    const { name, currentType } = props;
+    const { name } = props;
 
     const { upsertResponse } = useContext(ProjectContext);
     const handleChangeResponseType = (e, { value }) => {
-        console.log(defaultTemplate(value));
         upsertResponse(name, defaultTemplate(value), 0);
     };
 
     return (
         <>
             <Dropdown
+                data-cy='change-response-type'
                 icon=''
                 className='change-response-type'
                 text='Change response type'
@@ -36,7 +36,6 @@ const ChangeResponseType = (props) => {
 
 ChangeResponseType.propTypes = {
     name: PropTypes.string.isRequired,
-    currentType: PropTypes.string.isRequired,
 };
 
 export default ChangeResponseType;
