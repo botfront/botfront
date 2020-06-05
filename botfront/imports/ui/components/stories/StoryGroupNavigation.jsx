@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 import { setStoryMode } from '../../store/actions/actions';
 import { Slots } from '../../../api/slots/slots.collection';
 import { ConversationOptionsContext } from './Context';
+import { formNameIsValid } from '../../../lib/client.safe.utils';
 
 class StoryGroupNavigation extends React.Component {
     constructor(props) {
@@ -48,9 +49,11 @@ class StoryGroupNavigation extends React.Component {
         } = this.state;
         const { addGroup, updateGroup, upsertForm } = this.props;
         if (addMode === 'form') {
-            upsertForm({
-                name: newItemName, slots: [], isExpanded: true, pinned: true,
-            });
+            if (formNameIsValid(newItemName)) {
+                upsertForm({
+                    name: newItemName, slots: [], isExpanded: true, pinned: true,
+                });
+            }
             this.resetAddItem();
             return;
         }
@@ -155,7 +158,7 @@ class StoryGroupNavigation extends React.Component {
                     size='mini'
                     inverted
                     content={<span>Form names must end with <i>_form</i> and have no special characters.</span>}
-                    disabled={addMode !== 'form' || newItemName.match(/^[a-zA-Z0-9-_]+_form$/)}
+                    disabled={addMode !== 'form' || formNameIsValid(newItemName)}
                     position='bottom center'
                     open
                     trigger={(
@@ -165,7 +168,7 @@ class StoryGroupNavigation extends React.Component {
                             value={newItemName}
                             onKeyDown={this.handleKeyDownInput}
                             autoFocus
-                            onBlur={() => this.submitTitleInput()}
+                            onBlur={this.submitTitleInput}
                             fluid
                             data-cy='add-item-input'
                             className='navigation'

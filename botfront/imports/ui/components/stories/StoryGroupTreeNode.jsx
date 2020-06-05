@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {
     Icon, Menu, Input, Popup,
 } from 'semantic-ui-react';
+import { formNameIsValid } from '../../../lib/client.safe.utils';
 
 const StoryGroupTreeNode = (props) => {
     const {
@@ -56,7 +57,11 @@ const StoryGroupTreeNode = (props) => {
     ) : null;
 
     const submitNameChange = () => {
-        if (newTitle.trim()) handleRenameItem(renamingModalPosition.id, newTitle.trim());
+        if (newTitle.trim()) {
+            if (!renamingModalPosition.type === 'form' || formNameIsValid(newTitle.trim())) {
+                handleRenameItem(renamingModalPosition.id, newTitle.trim());
+            }
+        }
         setRenamingModalPosition(null);
     };
 
