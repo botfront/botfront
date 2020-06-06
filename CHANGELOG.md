@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.24.3-ee.2](https://github.com/botfront/botfront/compare/v0.24.3-ee.1...v0.24.3-ee.2) (2020-06-06)
+
+
+### Features
+
+* widget props form ([af9440f](https://github.com/botfront/botfront/commit/af9440fc5cd7527a4854b6c83003c85705bd1713))
+
 ### [0.24.3-ee.1](https://github.com/botfront/botfront/compare/v0.24.2-ee.2...v0.24.3-ee.1) (2020-06-04)
 
 
