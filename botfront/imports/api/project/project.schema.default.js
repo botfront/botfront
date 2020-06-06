@@ -3,7 +3,7 @@ import SimpleSchema from 'simpl-schema';
 import { languages } from '../../lib/languages';
 
 import { ENVIRONMENT_OPTIONS } from '../../ui/components/constants.json';
-import { validateYaml } from '../../lib/utils';
+import { validateYaml, validateJSON } from '../../lib/utils';
 
 export const DefaultDomainSchema = new SimpleSchema({
     content: {
@@ -16,6 +16,34 @@ export const logosSchema = new SimpleSchema({
     smallLogoUrl: { type: String, optional: true },
     logoUrl: { type: String, optional: true },
 });
+
+export const chatWidgetSettingsSchema = new SimpleSchema({
+    title: { type: String, optional: true, defaultValue: 'Botfront' },
+    // we need to validate the user input (JSON), but we want to store it as an Object, thus the double type
+    customData: SimpleSchema.oneOf({ type: String, optional: true, custom: validateJSON }, { type: Object, optional: true, blackbox: true }),
+    subtitle: { type: String, optional: true, defaultValue: 'Happy to help' },
+    profileAvatar: { type: String, optional: true },
+    openLauncherImage: { type: String, optional: true },
+    inputTextFieldHint: { type: String, optional: true, defaultValue: 'Type your message...' },
+    closeImage: { type: String, optional: true },
+    initPayload: { type: String, optional: true, defaultValue: 'get_started' },
+    mainColor: { type: String, optional: true },
+    conversationBackgroundColor: { type: String, optional: true },
+    userTextColor: { type: String, optional: true },
+    userBackgroundColor: { type: String, optional: true },
+    assistTextColor: { type: String, optional: true },
+    assistBackgoundColor: { type: String, optional: true },
+    displayUnreadCount: { type: Boolean, optional: true },
+    hideWhenNotConnected: { type: Boolean, optional: true, defaultValue: true },
+    showCloseButton: { type: Boolean, optional: true },
+    showFullScreenButton: { type: Boolean, optional: true },
+    disableTooltips: { type: Boolean, optional: true },
+    showMessageDate: { type: Boolean, optional: true },
+    autoClearCache: { type: Boolean, optional: true },
+    defaultHighlightClassname: { type: String, optional: true },
+    defaultHighlightCss: { type: String, optional: true },
+    defaultHighlightAnimation: { type: String, optional: true },
+}, { strict: false });
 
 export const ProjectsSchema = new SimpleSchema({
     name: {
@@ -62,6 +90,7 @@ export const ProjectsSchema = new SimpleSchema({
     },
 
     defaultDomain: { type: DefaultDomainSchema, optional: true },
+    chatWidgetSettings: { type: chatWidgetSettingsSchema, optional: true },
     storyGroups: { type: Array, defaultValue: [] },
     'storyGroups.$': { type: String },
     logoUrl: { type: String, optional: true },

@@ -47,6 +47,7 @@ const AceField = ({
             <label>{label}</label>
         )}
         <AceEditor
+            readOnly={readOnly}
             width='100%'
             minLines={25}
             maxLines={25}

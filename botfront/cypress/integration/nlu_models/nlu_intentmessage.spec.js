@@ -11,14 +11,15 @@ describe('NLU Intent warning message displays', function() {
         cy.login();
     });
 
-    after(function() {
-        // cy.deleteProject('bf');
-        // cy.logout();
+    afterEach(function() {
+        cy.deleteProject('bf');
+        cy.logout();
     });
 
     it('Should add and delete multiple examples', function() {
         cy.visit('/project/bf/nlu/models');
         cy.dataCy('nlu-menu-training-data').click();
+        cy.wait(100);
         // check warning message exists
         cy.wait(300); // wait for the ui to update
         cy.contains('You need at least two distinct intents to train NLU').should('exist');

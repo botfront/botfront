@@ -9,7 +9,7 @@ describe('stories', function() {
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
     });
-
+    
     it('should autosave stories as you edit them', function() {
         cy.visit('/project/bf/stories');
         cy.dataCy('toggle-md').click({ force: true });
@@ -192,6 +192,7 @@ describe('stories', function() {
         cy.dataCy('toggle-md').click({ force: true });
         cy.browseToStory('Get started');
         cy.dataCy('create-branch').click({ force: true });
+        cy.dataCy('branch-menu').should('exist');
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('branch-label').should('have.length', 4);
         cy.dataCy('single-story-editor').should('have.length', 3);

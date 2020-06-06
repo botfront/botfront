@@ -1,6 +1,5 @@
 
 import SimpleSchema from 'simpl-schema';
-
 import { validateYaml } from '../../lib/utils';
 
 const webhookSchema = new SimpleSchema({
@@ -15,6 +14,7 @@ const webhooksSchema = new SimpleSchema({
     deleteImageWebhook: { type: webhookSchema },
     deploymentWebhook: { type: webhookSchema },
 });
+
 
 export const privateSettingsSchema = new SimpleSchema({
     defaultEndpoints: {

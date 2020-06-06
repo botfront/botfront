@@ -14,7 +14,7 @@ describe('story visual editor', function () {
         cy.createStoryGroup();
         cy.createStoryInGroup();
     });
-
+    
     it('should persist a user utterance, a bot response, and display add-user-line option appropriately', function () {
         cy.importNluData('bf', 'nlu_sample_en.json', 'en');
         cy.train();
@@ -94,7 +94,7 @@ describe('story visual editor', function () {
             .find('textarea')
             .type('I agree let\'s do it!!')
             .blur();
-
+      
         cy.dataCy('language-selector').click().find('div').contains('German')
             .click({ force: true });
         cy.dataCy('single-story-editor').should('not.contain', 'Let\'s get started!');
@@ -102,6 +102,7 @@ describe('story visual editor', function () {
 
         cy.dataCy('language-selector').click().find('div').contains('English')
             .click({ force: true });
+        cy.get('.container > .ui.loader').should('exist');
         cy.dataCy('single-story-editor').should('contain', 'Let\'s get started!');
         cy.dataCy('single-story-editor').should('contain', 'I agree let\'s do it!!');
     });

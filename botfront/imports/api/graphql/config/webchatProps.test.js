@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { getWebchatProps } from './webchatProps';
+import { getWebchatRules } from './webchatProps';
 import { Stories } from '../../story/stories.collection';
 
 const testStoryA = {
@@ -116,6 +116,6 @@ describe('passing props to the webchat', () => {
             await Stories.insert(testStoryD);
             resolve();
         });
-        expect(await initialize.then(async () => getWebchatProps('bf'))).to.be.deep.equal(expectedRules);
+        expect(await initialize.then(async () => getWebchatRules('bf'))).to.be.deep.equal(expectedRules);
     });
 });

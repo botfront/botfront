@@ -210,6 +210,7 @@ if (Meteor.isServer) {
                 environment: target,
                 mimeType: 'application/x-tar',
             };
+            Meteor.call('credentials.appendWidgetSettings', projectId, target);
             const settings = GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.deploymentWebhook': 1 } });
             const deploymentWebhook = get(settings, 'settings.private.webhooks.deploymentWebhook', {});
             const { url, method } = deploymentWebhook;
@@ -245,6 +246,16 @@ export const validateYaml = function () {
         return null;
     } catch (e) {
         return e.reason;
+    }
+};
+
+
+export const validateJSON = function () {
+    try {
+        JSON.parse(this.value);
+        return null;
+    } catch (e) {
+        return e;
     }
 };
 

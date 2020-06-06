@@ -1,8 +1,8 @@
 import { Menu, Tab } from 'semantic-ui-react';
 import { AutoField } from 'uniforms-semantic';
 import React from 'react';
-
 import InfoField from '../../utils/InfoField';
+
 
 export default [
     {

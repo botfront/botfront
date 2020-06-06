@@ -8,9 +8,18 @@ export default function InfoField({
 }) {
     return (
         <div className={`${required ? 'required ' : ''}field info-field`}>
-            <label>{label}</label>
-            {info && <Info info={info} />}
-            <Component name={name} label={false} {...props} />
+           
+            <Component
+                name={name}
+                label={(
+                    <>
+                        {label}
+                        {info && <Info info={info} />}
+                    </>
+                )}
+                {...props}
+            />
+            
         </div>
     );
 }

@@ -2,12 +2,15 @@ import SimpleSchema from 'simpl-schema';
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
-
-import { checkIfCan, can } from '../lib/scopes';
+import { safeLoad, safeDump } from 'js-yaml';
+import { get } from 'lodash';
+import { getWebchatRules } from './graphql/config/webchatProps';
+import { checkIfCan } from '../lib/scopes';
 import { formatError, validateYaml } from '../lib/utils';
 import { GlobalSettings } from './globalSettings/globalSettings.collection';
-
+import { Projects } from './project/project.collection';
 import { ENVIRONMENT_OPTIONS } from '../ui/components/constants.json';
+
 
 export const Credentials = new Mongo.Collection('credentials');
 // Deny all client-side updates on the Credentials collection
@@ -41,6 +44,7 @@ export const createCredentials = ({ _id: projectId, namespace }) => {
     });
 };
 
+
 export const CredentialsSchema = new SimpleSchema(
     {
         credentials: {
@@ -59,6 +63,7 @@ export const CredentialsSchema = new SimpleSchema(
             optional: true,
             autoValue: () => new Date(),
         },
+
     },
     { tracker: Tracker },
 );
@@ -73,7 +78,7 @@ Credentials.attachSchema(CredentialsSchema);
 if (Meteor.isServer) {
     import { auditLog } from '../../server/logger';
 
-    Meteor.publish('credentials', function(projectId) {
+    Meteor.publish('credentials', function (projectId) {
         try {
             checkIfCan(['nlu-data:r', 'projects:r', 'responses:r'], projectId);
         } catch (err) {
@@ -109,6 +114,37 @@ if (Meteor.isServer) {
                         },
                     },
                 );
+            } catch (e) {
+                throw formatError(e);
+            }
+        },
+        async 'credentials.appendWidgetSettings' (projectId, env) {
+            checkIfCan('projects:w', projectId);
+            check(projectId, String);
+            check(env, String);
+            try {
+                const credentials = Credentials.findOne({ projectId, environment: env });
+                const rules = await getWebchatRules(projectId, env);
+                const { chatWidgetSettings, defaultLanguage } = Projects.findOne({ _id: projectId }, { fields: { chatWidgetSettings: 1, defaultLanguage: 1 } });
+                const props = { ...chatWidgetSettings, rules };
+                const jsCrendentials = safeLoad(credentials.credentials);
+                const lang = get(props, 'customData');
+                if (lang && typeof lang === 'string') {
+                    props.customData = JSON.parse(props.customData);
+                } else if (lang === undefined || Object.keys(lang).length === 0) {
+                    props.customData = { language: defaultLanguage };
+                }
+                if (jsCrendentials['rasa_addons.core.channels.rest_plus.BotfrontRestPlusInput']) {
+                    jsCrendentials['rasa_addons.core.channels.rest_plus.BotfrontRestPlusInput'].config = props;
+                }
+                
+                if (jsCrendentials['rasa_addons.core.channels.webchat_plus.WebchatPlusInput']) {
+                    jsCrendentials['rasa_addons.core.channels.webchat_plus.WebchatPlusInput'].config = props;
+                }
+                const newCredentials = {
+                    ...credentials, environment: env, credentials: safeDump(jsCrendentials),
+                };
+                return Meteor.call('credentials.save', newCredentials);
             } catch (e) {
                 throw formatError(e);
             }

@@ -58,6 +58,7 @@ class Settings extends React.Component {
                 render: () => <Tab.Pane><ImportExportProject /></Tab.Pane>,
             },
         ];
+       
 
         if (can('projects:r', projectId)) {
             panes = [...panes,
@@ -74,12 +75,13 @@ class Settings extends React.Component {
                     render: () => <Tab.Pane><Appearance /></Tab.Pane>,
                 },
             ];
-        }
-        
 
-        if (orchestratorMenuItems) {
-            panes = panes.concat(orchestratorMenuItems);
+            if (orchestratorMenuItems) {
+                panes = panes.concat(orchestratorMenuItems);
+            }
         }
+     
+       
         return panes;
     };
 
