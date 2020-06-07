@@ -118,6 +118,7 @@
         border-color: #eeeeee;
         height: 2.85714286em;
         .create-form-field {
+            width: 300px;
             .ui.input {
                 box-sizing: border-box;
                 margin-left: 1.5em;
@@ -134,7 +135,19 @@
                         background-color: rgba(255, 255, 255, 1);
                     }
                 }
-                width: 300px;
+            }
+            &.error {
+                .ui.input {
+                    input {
+                        background-color: #fff6f6;
+                        border-color: #d16e6d;
+                        &:focus,
+                        &:hover {
+                            border-color: #d16e6d;
+                            background-color: #fff6f6;
+                        }
+                    }
+                }
             }
         }
     }

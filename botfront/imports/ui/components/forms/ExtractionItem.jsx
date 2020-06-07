@@ -130,7 +130,7 @@ const ExtractionItem = (props) => {
     const renderIntentSelect = () => (
         <div className='extraction-line'>
             <Dropdown
-                data-cy='intent-condition'
+                data-cy='intent-condition-dropdown'
                 clearable={type !== 'from_intent'}
                 placeholder='add a intent condition'
                 className='extraction-dropdown condition-dropdown'
@@ -144,7 +144,7 @@ const ExtractionItem = (props) => {
             />
             {intentCondition && (
                 <Dropdown
-                    data-cy='select-intents-multiselect'
+                    data-cy='intent-condition-multiselect'
                     clearable
                     placeholder='select included/excluded intents'
                     className='extraction-dropdown'

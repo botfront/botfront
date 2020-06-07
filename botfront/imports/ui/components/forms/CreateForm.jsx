@@ -6,13 +6,14 @@ import {
     AutoForm,
     SubmitField,
     LongTextField,
+    ErrorsField,
 } from 'uniforms-semantic';
 import { buildASTSchema, parse } from 'graphql';
-import { Segment } from 'semantic-ui-react';
+import { Segment, Popup } from 'semantic-ui-react';
 import SelectField from '../form_fields/SelectField';
 import ToggleField from '../common/ToggleField';
 import { ProjectContext } from '../../layouts/context';
-import { clearTypenameField } from '../../../lib/client.safe.utils';
+import { clearTypenameField, formNameIsValid } from '../../../lib/client.safe.utils';
 
 
 const CreateForm = (props) => {
@@ -50,12 +51,31 @@ const CreateForm = (props) => {
 
     const { slots } = useContext(ProjectContext);
 
+    const validator = (model) => {
+        const errors = [];
+        console.log('--------');
+        if (!formNameIsValid(model.name)) {
+            console.log('invalid name');
+            errors.push({ name: 'name', message: 'Form names must end with <i>_form</i> and have no special characters. the text before <i>_form</i> can not contain <i>form</i>' });
+        }
+        if (errors.length) {
+            // eslint-disable-next-line no-throw-literal
+            throw { details: errors };
+        }
+    };
+
     return (
         <div>
-            <AutoForm model={getFormattedModel()} schema={new GraphQLBridge(schema, () => {}, {})} onSubmit={handleSubmit}>
+            <AutoForm model={getFormattedModel()} schema={new GraphQLBridge(schema, validator, {})} onSubmit={handleSubmit}>
                 <Segment.Group className='story-card form-editor'>
                     <Segment attached='top' className='form-editor-topbar story-card-topbar'>
-                        <AutoField name='name' label='' className='create-form-field' data-cy='form-name-field' />
+                        <Popup
+                            inverted
+                            trigger={
+                                <AutoField name='name' label='' className='create-form-field' data-cy='form-name-field' />
+                            }
+                            content={<>form names must end with <i>_form</i> and have no special characters.</>}
+                        />
                     </Segment>
                     <Segment attached='bottom' className='form-editor-content'>
                         <LongTextField name='description' className='create-form-field' data-cy='form-description-field' />
@@ -69,6 +89,7 @@ const CreateForm = (props) => {
                             className='create-form-field'
                         />
                         <ToggleField name='collect_in_botfront' data-cy='form-collection-togglefield' />
+                        <ErrorsField data-cy='error' />
                         <SubmitField value='Save' data-cy='form-submit-field' />
                     </Segment>
                 </Segment.Group>
