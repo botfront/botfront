@@ -1,5 +1,3 @@
-import { mergeTypes } from 'merge-graphql-schemas';
-
 import { mergeTypeDefs } from '@graphql-tools/merge';
 import conversationResolvers from './conversations/resolvers';
 import conversationTypes from './conversations/schemas';

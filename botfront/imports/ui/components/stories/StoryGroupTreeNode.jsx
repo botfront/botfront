@@ -169,7 +169,7 @@ const StoryGroupTreeNode = (props) => {
                     />
                 </i>
             )}
-            { isLeaf && showPublish && !disabled && (
+            { showPublish && !disabled && (
                 <Popup
                     content={<p>This story is unpublished and is only trained in the development environment</p>}
                     trigger={(
