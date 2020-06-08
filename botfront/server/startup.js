@@ -2,7 +2,7 @@ import { DDPRateLimiter } from 'meteor/ddp-rate-limiter';
 import { Accounts } from 'meteor/accounts-base';
 import dotenv from 'dotenv';
 import { createGraphQLPublication } from 'meteor/swydo:ddp-apollo';
-import { makeExecutableSchema } from 'graphql-tools';
+import { makeExecutableSchema } from '@graphql-tools/schema';
 import { typeDefs, resolvers } from '../imports/api/graphql/index';
 import { getAppLoggerForFile } from './logger';
 

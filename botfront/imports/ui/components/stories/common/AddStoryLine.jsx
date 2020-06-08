@@ -14,14 +14,14 @@ const AddStoryLine = React.forwardRef((props, ref) => {
         noButtonResponse,
         onSelectResponse,
         onCreateResponse,
-        onSelectAction,
-        onSelectSlot,
+        onCreateGenericLine,
         onCreateUtteranceFromInput,
         onCreateUtteranceFromPayload,
         size,
         onBlur,
         trackOpenMenu,
     } = props;
+
     return (
         <div
             className='add-story-line'
@@ -30,36 +30,56 @@ const AddStoryLine = React.forwardRef((props, ref) => {
             role='menuitem'
             onBlur={e => onBlur(e)}
         >
-            { userUtterance && (
+            {userUtterance && (
                 <UserUtterancePopupContent
-                    trigger={<DashedButton color='blue' size={size} data-cy='add-user-line'>User</DashedButton>}
+                    trigger={(
+                        <DashedButton color='blue' size={size} data-cy='add-user-line'>
+                            User
+                        </DashedButton>
+                    )}
                     onCreateFromInput={onCreateUtteranceFromInput}
                     onCreateFromPayload={u => onCreateUtteranceFromPayload(u)}
                     trackOpenMenu={trackOpenMenu}
                 />
             )}
-            { botUtterance && (
+            {botUtterance && (
                 <BotResponsePopupContent
                     onSelect={r => onSelectResponse(r)}
                     onCreate={r => onCreateResponse(r)}
                     noButtonResponse={noButtonResponse}
                     limitedSelection
                     disableExisting
-                    trigger={<DashedButton color='green' size={size} data-cy='add-bot-line'>Bot</DashedButton>}
+                    trigger={(
+                        <DashedButton color='green' size={size} data-cy='add-bot-line'>
+                            Bot
+                        </DashedButton>
+                    )}
                     trackOpenMenu={trackOpenMenu}
                 />
             )}
-            { action && (
+            {action && (
                 <ActionPopupContent
-                    onSelect={a => onSelectAction(a)}
-                    trigger={<DashedButton color='pink' size={size} data-cy='add-action-line'>Action</DashedButton>}
+                    onSelect={a => onCreateGenericLine({
+                        type: 'action',
+                        data: { name: a },
+                    })
+                    }
+                    trigger={(
+                        <DashedButton color='pink' size={size} data-cy='add-action-line'>
+                            Action
+                        </DashedButton>
+                    )}
                     trackOpenMenu={trackOpenMenu}
                 />
             )}
-            { slot && (
+            {slot && (
                 <SlotPopupContent
-                    onSelect={s => onSelectSlot(s)}
-                    trigger={<DashedButton color='orange' size={size} data-cy='add-slot-line'>Slot</DashedButton>}
+                    onSelect={s => onCreateGenericLine({ type: 'slot', data: s })}
+                    trigger={(
+                        <DashedButton color='orange' size={size} data-cy='add-slot-line'>
+                            Slot
+                        </DashedButton>
+                    )}
                     trackOpenMenu={trackOpenMenu}
                 />
             )}
@@ -73,8 +93,7 @@ AddStoryLine.propTypes = {
     onCreateUtteranceFromPayload: PropTypes.func,
     onSelectResponse: PropTypes.func,
     onCreateResponse: PropTypes.func,
-    onSelectAction: PropTypes.func,
-    onSelectSlot: PropTypes.func,
+    onCreateGenericLine: PropTypes.func,
     noButtonResponse: PropTypes.bool,
     size: PropTypes.string,
     onBlur: PropTypes.func,
@@ -86,8 +105,7 @@ AddStoryLine.defaultProps = {
     onCreateUtteranceFromPayload: () => {},
     onSelectResponse: () => {},
     onCreateResponse: () => {},
-    onSelectAction: () => {},
-    onSelectSlot: () => {},
+    onCreateGenericLine: () => {},
     noButtonResponse: false,
     size: 'mini',
     onBlur: () => {},

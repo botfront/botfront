@@ -8,7 +8,8 @@ const storyGroups = [
         _id: '0',
         children: ['0-0'],
         isExpanded: false,
-        name: 'Group 0',
+        name: 'Group 0 (pinned)',
+        pinned: true,
     },
     {
         _id: '1',
@@ -105,6 +106,8 @@ const stories = [
     },
 ];
 
+const forms = [];
+
 function StoryGroupTreeWrapped() {
     const [activeStories, setActiveStories] = useState([]);
     const [resizing, setResizing] = useState(false);
@@ -123,10 +126,13 @@ function StoryGroupTreeWrapped() {
         >
             <div className='storygroup-browser'>
                 <StoryGroupTree
+                    forms={forms}
                     stories={stories}
                     storyGroups={storyGroups}
                     onChangeActiveStories={setActiveStories}
                     activeStories={activeStories}
+                    onChangeStoryMenuSelection={setActiveStories}
+                    storyMenuSelection={activeStories}
                 />
             </div>
             <div>

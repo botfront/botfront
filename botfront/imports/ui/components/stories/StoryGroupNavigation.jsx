@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 import { setStoryMode } from '../../store/actions/actions';
 import { Slots } from '../../../api/slots/slots.collection';
 import { ConversationOptionsContext } from './Context';
+import { formNameIsValid } from '../../../lib/client.safe.utils';
 
 class StoryGroupNavigation extends React.Component {
     constructor(props) {
@@ -122,25 +123,36 @@ class StoryGroupNavigation extends React.Component {
     };
 
     render() {
-        const {
-            allowAddition,
-            placeholderAddItem,
-        } = this.props;
+        const { allowAddition } = this.props;
         const { addMode, newItemName } = this.state;
+        let placeholder = '';
+        if (addMode === 'group') placeholder = 'Choose a group name';
+        if (addMode === 'form') placeholder = 'Choose a form name';
 
         return !allowAddition || !addMode
             ? this.renderNavigation()
             : (
-                <Input
-                    placeholder={placeholderAddItem}
-                    onChange={this.handleChangeNewItemName}
-                    value={newItemName}
-                    onKeyDown={this.handleKeyDownInput}
-                    autoFocus
-                    onBlur={() => this.submitTitleInput()}
-                    fluid
-                    data-cy='add-item-input'
-                    className='navigation'
+                <Popup
+                    size='mini'
+                    inverted
+                    content={<span>Form names must end with <i>_form</i> and have no special characters.</span>}
+                    disabled={addMode !== 'form' || formNameIsValid(newItemName)}
+                    position='bottom center'
+                    open
+                    trigger={(
+                        <Input
+                            placeholder={placeholder}
+                            onChange={this.handleChangeNewItemName}
+                            value={newItemName}
+                            onKeyDown={this.handleKeyDownInput}
+                            autoFocus
+                            onBlur={this.submitTitleInput}
+                            fluid
+                            data-cy='add-item-input'
+                            className='navigation'
+                        />
+
+                    )}
                 />
             );
     }
@@ -148,7 +160,6 @@ class StoryGroupNavigation extends React.Component {
 
 StoryGroupNavigation.propTypes = {
     allowAddition: PropTypes.bool,
-    placeholderAddItem: PropTypes.string,
     modals: PropTypes.object.isRequired,
     onSwitchStoryMode: PropTypes.func.isRequired,
     storyMode: PropTypes.string.isRequired,
@@ -158,7 +169,6 @@ StoryGroupNavigation.propTypes = {
 
 StoryGroupNavigation.defaultProps = {
     allowAddition: false,
-    placeholderAddItem: '',
 };
 
 const mapStateToProps = state => ({

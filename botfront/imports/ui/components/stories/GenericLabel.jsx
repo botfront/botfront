@@ -7,9 +7,7 @@ export default function GenericLabel({ color, label, value }) {
             <div>
                 { label }
             </div>
-            <div>
-                {value ? <>{value}</> : <i>null</i>}
-            </div>
+            {value && <div>{value}</div>}
         </div>
     );
 }

@@ -121,12 +121,20 @@ export const getBotResponseById = async (_id) => {
 };
 
 export const updateResponseType = async ({
-    projectId, key, newResponseType,
+    projectId, key, newResponseType, language,
 }) => {
     const response = await BotResponses.findOne({ projectId, key }).lean();
     const result = await BotResponses.findOneAndUpdate(
         { projectId, key },
-        { $set: { values: modifyResponseType(response, newResponseType).values } },
+        {
+            $set: { values: modifyResponseType(response, newResponseType, language, key).values },
+            $setOnInsert: {
+                _id: shortid.generate(),
+                projectId,
+                key,
+            },
+        },
+        { upsert: true },
     );
     return result;
 };
