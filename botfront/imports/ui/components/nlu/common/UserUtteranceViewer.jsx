@@ -272,7 +272,7 @@ function UserUtteranceViewer(props) {
                         <span
                             onMouseDown={(e) => {
                                 setMouseDown(true);
-                                e.stopPropagation();
+                                if (!disableEditing) e.stopPropagation();
                             }}
                             onMouseUp={evt => handleMouseUp(evt, element)}
                             role='application'
