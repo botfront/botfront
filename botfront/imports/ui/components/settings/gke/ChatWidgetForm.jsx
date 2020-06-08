@@ -84,6 +84,10 @@ class ChatWidgetForm extends React.Component {
         const newSettings = settings;
         const { projectId } = this.props;
         newSettings.customData = JSON.parse(newSettings.customData);
+        const { initPayload } = newSettings;
+        if (initPayload) {
+            newSettings.initPayload = initPayload.startsWith('/') ? initPayload : `/${initPayload}`;
+        }
         this.setState({ saving: true, showConfirmation: false });
         clearTimeout(this.successTimeout);
 
@@ -314,6 +318,10 @@ class ChatWidgetForm extends React.Component {
     renderContents = () => {
         const { widgetSettings, projectId } = this.props;
         const { saving, activeMenu } = this.state;
+        const { initPayload } = widgetSettings;
+        if (initPayload) {
+            widgetSettings.initPayload = initPayload.startsWith('/') ? initPayload.slice(1) : initPayload;
+        }
         if (activeMenu === 'Configuration') {
             return this.renderWidgetSettings(saving, widgetSettings, projectId);
         }
