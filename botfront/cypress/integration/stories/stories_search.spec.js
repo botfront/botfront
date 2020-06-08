@@ -59,10 +59,11 @@ describe('test stories searching ui', () => {
         cy.toggleStoryGroupCollapsed({ groupName: 'test group A' });
         cy.toggleStoryGroupCollapsed({ groupName: 'test group B' });
         searchStories('title', 'title A', { addToOpen: true });
-        cy.dataCy('story-title').should('have.value', 'title A');
-        searchStories('title', 'title B', { addToOpen: true });
-        cy.dataCy('story-title').should('have.value', 'title B');
-        
         cy.dataCy('story-title').should('have.length', 2);
+        cy.dataCy('story-title').last().should('have.value', 'title B');
+        cy.dataCy('story-title').first().should('have.value', 'title A');
+        searchStories('title', 'title B', { addToOpen: true });
+        cy.dataCy('story-title').should('have.length', 1);
+        cy.dataCy('story-title').should('have.value', 'title A');
     });
 });

@@ -98,14 +98,15 @@ const SearchBar = (props) => {
         }));
     };
     
-    const pushActiveStory = (_id) => {
+    const toggleStorySelected = (_id) => {
         const { location: { pathname } } = router;
         const nextActiveStories = new Set();
-        nextActiveStories.add(_id);
-        if (typeof activeStories === 'string') {
+        const isSelected = activeStories.includes(_id);
+        if (!isSelected) nextActiveStories.add(_id);
+        if (typeof activeStories === 'string' && !isSelected) {
             nextActiveStories.add(activeStories);
         } else if (Array.isArray(activeStories)) {
-            activeStories.forEach(sid => nextActiveStories.add(sid));
+            activeStories.forEach(sid => sid !== _id && nextActiveStories.add(sid));
         }
         router.replace({
             pathname,
@@ -119,7 +120,7 @@ const SearchBar = (props) => {
         const { location: { pathname } } = router;
         scrollToStoryItem(_id, storyGroupId);
         if (event.shiftKey || event.target.id === 'push-story-icon') {
-            pushActiveStory(_id);
+            toggleStorySelected(_id);
             return;
         }
         router.replace({ pathname, query: { 'ids[]': _id } });
