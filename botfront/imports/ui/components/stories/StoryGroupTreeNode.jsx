@@ -139,6 +139,7 @@ const StoryGroupTreeNode = (props) => {
                                                 `${item.title} (${
                                                     item.children.length + 1
                                                 })`,
+                                                showPublish ? 'unpublished' : 'published',
                                             ),
                                             onMouseDown: (e) => {
                                                 e.preventDefault();
