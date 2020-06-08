@@ -49,7 +49,7 @@ export default {
                         _id: updatedForm.formsAdded[0],
                     },
                 });
-                return { success: true };
+                return { _id: updatedForm.formsAdded[0] };
             }
             const dataUpdate = {
                 ...updatedForm,
@@ -59,7 +59,7 @@ export default {
                 projectId: args.form.projectId,
                 formsModified: dataUpdate,
             });
-            return { success: !!updatedForm };
+            return { _id: args._id };
         },
         deleteForms: async (_, args) => {
             const result = await deleteForms(args);

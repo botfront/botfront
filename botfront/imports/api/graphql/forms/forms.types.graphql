@@ -5,7 +5,7 @@ type Query {
 type Subscription {
     formsModified(projectId: String!): Form
     formsCreated(projectId: String!): Form
-    formsDeleted(projectId: String!): [DeletedForm]
+    formsDeleted(projectId: String!): [Form]
 }
 
 type Mutation {
@@ -15,15 +15,11 @@ type Mutation {
         tracker: Any!
         metadata: Any
     ): updateResponse!
-    upsertForm(form: FormInput): updateResponse!
+    upsertForm(form: FormInput): Form
     deleteForms(
         projectId: String!
         ids: [String]
-    ): [DeletedForm]
-}
-
-type DeletedForm {
-    _id: String
+    ): [Form]
 }
 
 type Form {
@@ -33,7 +29,7 @@ type Form {
     collect_in_botfront: Boolean
     utter_on_submit: Boolean # utter_submit_{slot_name}
     description: String
-    projectId: String!
+    projectId: String
     isExpanded: Boolean
     pinned: Boolean
 }

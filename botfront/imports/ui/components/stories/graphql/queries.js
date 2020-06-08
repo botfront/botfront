@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 
 export const UPSERT_FORM = gql`
     mutation upsertForm($form: FormInput) {
-        upsertForm(form: $form) { success }
+        upsertForm(form: $form) { _id }
     }`;
 
 export const DELETE_FORMS = gql`

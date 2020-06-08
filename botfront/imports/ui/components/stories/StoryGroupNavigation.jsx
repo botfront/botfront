@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
-import { setStoryMode } from '../../store/actions/actions';
+import { setStoryMode, setStoriesCurrent } from '../../store/actions/actions';
 import { Slots } from '../../../api/slots/slots.collection';
 import { ConversationOptionsContext } from './Context';
 import { formNameIsValid } from '../../../lib/client.safe.utils';
@@ -47,14 +47,18 @@ class StoryGroupNavigation extends React.Component {
         const {
             editing, newItemName, itemName, addMode,
         } = this.state;
-        const { addGroup, updateGroup, upsertForm } = this.props;
+        const {
+            addGroup, updateGroup, upsertForm, setStoryMenuSelection,
+        } = this.props;
         if (addMode === 'form') {
             if (formNameIsValid(newItemName)) {
                 upsertForm({
                     name: newItemName, slots: [], isExpanded: true, pinned: true,
+                }, ({ data: { upsertForm: { _id } = {} } = {} } = {}) => {
+                    if (_id) setStoryMenuSelection([_id]);
                 });
+                this.resetAddItem();
             }
-            this.resetAddItem();
             return;
         }
         if (editing === -1 && !!newItemName) {
@@ -187,6 +191,7 @@ StoryGroupNavigation.propTypes = {
     storyMode: PropTypes.string.isRequired,
     addGroup: PropTypes.func.isRequired,
     updateGroup: PropTypes.func.isRequired,
+    setStoryMenuSelection: PropTypes.func.isRequired,
     upsertForm: PropTypes.func.isRequired,
 };
 
@@ -201,6 +206,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = {
     onSwitchStoryMode: setStoryMode,
+    setStoryMenuSelection: setStoriesCurrent,
 };
 
 const BrowserWithState = connect(mapStateToProps, mapDispatchToProps)(StoryGroupNavigation);
