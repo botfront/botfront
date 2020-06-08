@@ -1,19 +1,19 @@
-/* global cy Cypress expect */
+/* global cy Cypress */
 
-const getSlotData = (type) => {
+const getSlotData = (name = 'testSlot', type) => {
     switch (type) {
     case 'text':
         return ({
             _id: 'TextSlot',
             projectId: 'bf',
-            name: 'textSlot',
+            name,
             type: 'text',
         });
     case 'categorical':
         return {
             _id: 'CatSlot',
             projectId: 'bf',
-            name: 'catSlot',
+            name,
             type: 'categorical',
             categories: ['blue', 'red', 'orange', 'yellow'],
         };
@@ -21,27 +21,27 @@ const getSlotData = (type) => {
         return {
             _id: 'BoolSlot',
             projectId: 'bf',
-            name: 'catSlot',
+            name,
             type: 'bool',
         };
     case 'float':
         return {
             _id: 'FloatSlot',
             projectId: 'bf',
-            name: 'floatSlot',
+            name,
             type: 'float',
         };
     default:
         return {
             _id: 'DefaultSlot',
             projectId: 'bf',
-            name: 'defaultSlot',
-            type: 'text',
+            name,
+            type: 'unfeaturized',
         };
     }
 };
 
-Cypress.Commands.add('meteorAddSlot', (type) => {
-    const slotData = getSlotData(type);
+Cypress.Commands.add('meteorAddSlot', (name, type) => {
+    const slotData = getSlotData(name, type);
     cy.MeteorCall('slots.insert', [slotData, 'bf']);
 });

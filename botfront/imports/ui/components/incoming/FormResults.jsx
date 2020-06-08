@@ -49,7 +49,7 @@ const FormResults = (props) => {
             ? !form.collect_in_botfront
                 ? 'Form not set to receive submissions'
                 : 'No submissions for this form'
-            : `Export ${count} submissions to CSV format`;
+            : `Export ${count} submission${count > 1 ? 's' : ''} to CSV format`;
         return (
             <Segment key={form.name}>
                 <Header>

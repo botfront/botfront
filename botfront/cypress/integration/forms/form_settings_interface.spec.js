@@ -1,9 +1,6 @@
-/* global cy Cypress:true */
+/* global cy */
 
 const catSlot = 'catSlot';
-const boolSlot = 'boolSlot';
-const floatSlot = 'floatSlot';
-const textSlot = 'textSlot';
 
 const newFormName = 'testEdited_form';
 const description = 'this is test text';
@@ -21,10 +18,10 @@ describe('use the main form editor interface to', () => {
     it('should edit the form name, description, slots, and collect in botfront status', () => {
         cy.visit('project/bf/stories');
         cy.manuallyCreateForm();
-        cy.meteorAddSlot('categorical');
-        cy.meteorAddSlot('text');
-        cy.meteorAddSlot('bool');
-        cy.meteorAddSlot('float');
+        cy.meteorAddSlot('catSlot', 'categorical');
+        cy.meteorAddSlot('textSlot', 'text');
+        cy.meteorAddSlot('boolSlot', 'bool');
+        cy.meteorAddSlot('floatSlot', 'float');
         cy.meteorAddSlot();
         cy.editFormSettings({
             name: newFormName,
@@ -58,7 +55,7 @@ describe('use the main form editor interface to', () => {
     });
     it('should change the response type via the dropdown', () => {
         cy.visit('project/bf/stories');
-        cy.meteorAddSlot('categorical');
+        cy.meteorAddSlot('catSlot', 'categorical');
         cy.createForm('bf', 'test1_form', {
             slots: [catSlot],
         });
@@ -98,7 +95,7 @@ describe('use the main form editor interface to', () => {
     it('set all slot types', () => {
         cy.visit('project/bf/stories');
         cy.importNluData('bf', 'nlu_entity_sample.json', 'en');
-        cy.meteorAddSlot('categorical');
+        cy.meteorAddSlot('catSlot', 'categorical');
         cy.createForm('bf', 'test1_form', {
             slots: [catSlot],
         });

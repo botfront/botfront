@@ -724,3 +724,7 @@ Cypress.Commands.add('fill', {
     el.value = value;
     return cy.wrap($subject).type('t{backspace}'); // adding/removing character trigger the one change
 });
+
+Cypress.Commands.add('setPolicies', (projectId, policies) => {
+    cy.MeteorCall('policies.save', [{ projectId, policies }]);
+});

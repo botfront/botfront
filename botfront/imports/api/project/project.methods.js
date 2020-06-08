@@ -21,6 +21,7 @@ import { Slots } from '../slots/slots.collection';
 import Forms from '../graphql/forms/forms.model';
 import { flattenStory, extractDomain, getAllResponses } from '../../lib/story.utils';
 import BotResponses from '../graphql/botResponses/botResponses.model';
+import FormResults from '../graphql/forms/form_results.model';
 import AnalyticsDashboards from '../graphql/analyticsDashboards/analyticsDashboards.model';
 import { defaultDashboard } from '../graphql/analyticsDashboards/generateDefaults';
 
@@ -134,6 +135,7 @@ if (Meteor.isServer) {
                 const projectBefore = Projects.findOne({ _id: projectId }); // Delete project
                 await AnalyticsDashboards.deleteOne({ projectId }); // Delete dashboards
                 await Forms.remove({ projectId }); // Delete project
+                await FormResults.remove({ projectId });
                 NLUModels.remove({ _id: { $in: project.nlu_models } }); // Delete NLU models
                 Activity.remove({ modelId: { $in: project.nlu_models } }).exec(); // Delete Logs
                 Instances.remove({ projectId: project._id }); // Delete instances
