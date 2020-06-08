@@ -55,7 +55,7 @@ Cypress.Commands.add('removeSlotFromForm', (slot) => {
 const getSlotTemplates = slots => slots.map(name => ({ name }));
 
 const getFormTemplate = ({
-    projectId, _id, name, slots, collectInBotfront, description,
+    projectId, name, slots, collectInBotfront, description,
 }) => ({
     name,
     projectId,
@@ -67,7 +67,7 @@ const getFormTemplate = ({
 });
 
 Cypress.Commands.add('createForm', (projectId, name, options) => {
-    const query = 'mutation($form: FormInput) {\n  upsertForm(form: $form) {\n  success\n }\n}';
+    const query = 'mutation($form: FormInput) {\n  upsertForm(form: $form) {\n  _id\n }\n}';
     const variables = {
         form: getFormTemplate({
             projectId, name, ...options,
