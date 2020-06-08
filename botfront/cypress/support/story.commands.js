@@ -40,6 +40,7 @@ Cypress.Commands.add('linkStory', (storyName, linkTo) => {
 
 Cypress.Commands.add('createStoryGroup', ({ groupName = 'Groupo' } = {}) => {
     cy.dataCy('add-item').click({ force: true });
+    cy.dataCy('add-story-group').click();
     cy.dataCy('add-item-input')
         .find('input')
         .type(`${groupName}{enter}`);

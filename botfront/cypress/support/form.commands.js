@@ -23,6 +23,7 @@ Cypress.Commands.add('manuallyCreateForm', (formName = defaultFormName) => {
 Cypress.Commands.add('addSlotToForm', (name) => {
     cy.dataCy('form-slots-field').click().find('span.text').contains(name)
         .click();
+    cy.dataCy('form-slots-field').find('input').blur();
 });
 
 Cypress.Commands.add('editFormSettings', ({
