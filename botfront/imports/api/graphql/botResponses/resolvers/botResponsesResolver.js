@@ -86,7 +86,7 @@ export default {
                 args._id,
                 args.response,
             );
-           
+
             auditLog('Updated response', {
                 user: auth.user,
                 type: 'updated',
@@ -123,10 +123,8 @@ export default {
             } else {
                 const { projectId, key } = args;
                 const botResponsesModified = await getBotResponse(projectId, key);
-                console.log(botResponsesModified);
                 pubsub.publish(RESPONSES_MODIFIED, { projectId, botResponsesModified });
             }
-            const { projectId, ...botResponsesModified } = response;
             if (args.logging) {
                 auditLog('Upserted response', {
                     user: auth.user,

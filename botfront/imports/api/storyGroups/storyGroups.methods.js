@@ -119,6 +119,7 @@ Meteor.methods({
     },
 
     async 'storyGroups.insert'(storyGroup) {
+        checkIfCan('stories:w', storyGroup.projectId);
         check(storyGroup, Object);
         const { projectId, pinned } = storyGroup;
         try {
@@ -173,9 +174,7 @@ Meteor.methods({
                 before: { storyGroup: storyGroupBefore },
                 resType: 'story-group',
             });
-            return StoryGroups.update(
-                { _id }, { $set: rest },
-            );
+            return StoryGroups.update({ _id }, { $set: rest });
         } catch (e) {
             return handleError(e);
         }

@@ -58,7 +58,7 @@ const StoryGroupTreeNode = (props) => {
 
     const submitNameChange = () => {
         if (newTitle.trim()) {
-            if (!renamingModalPosition.type === 'form' || formNameIsValid(newTitle.trim())) {
+            if (renamingModalPosition.type !== 'form' || formNameIsValid(newTitle.trim())) {
                 handleRenameItem(renamingModalPosition.id, newTitle.trim());
             }
         }
@@ -93,7 +93,7 @@ const StoryGroupTreeNode = (props) => {
         : {
             // otherwise beautiful-dnd throws
             'data-react-beautiful-dnd-drag-handle':
-                provided.dragHandleProps['data-react-beautiful-dnd-drag-handle'],
+                    provided.dragHandleProps['data-react-beautiful-dnd-drag-handle'],
         };
 
     const tooltipWrapper = (trigger, tooltip) => (
@@ -101,7 +101,6 @@ const StoryGroupTreeNode = (props) => {
     );
 
     const cleanStoryId = id => id.replace(/^.*_SMART_/, '');
-    
 
     const renderItemActions = () => (
         <div className={`item-actions ${disabled ? 'hidden' : ''}`}>
@@ -140,7 +139,6 @@ const StoryGroupTreeNode = (props) => {
                                                 `${item.title} (${
                                                     item.children.length + 1
                                                 })`,
-                                                showPublish ? 'unpublished' : 'published',
                                             ),
                                             onMouseDown: (e) => {
                                                 e.preventDefault();
@@ -169,15 +167,22 @@ const StoryGroupTreeNode = (props) => {
                     />
                 </i>
             )}
-            { showPublish && !disabled && (
+            {type === 'story' && showPublish && !disabled && (
                 <Popup
-                    content={<p>This story is unpublished and is only trained in the development environment</p>}
+                    content={(
+                        <p>
+                            This story is unpublished and is only trained in the
+                            development environment
+                        </p>
+                    )}
                     trigger={(
                         <Icon
                             className='cursor pointer'
                             data-cy='toggle-publish'
                             name={isPublished ? 'toggle on' : 'toggle off'}
-                            onClick={() => { handleTogglePublish(cleanStoryId(item.id)); }}
+                            onClick={() => {
+                                handleTogglePublish(cleanStoryId(item.id));
+                            }}
                         />
                     )}
                     inverted
@@ -187,7 +192,6 @@ const StoryGroupTreeNode = (props) => {
             )}
         </div>
     );
-
 
     return (
         <div
@@ -202,12 +206,15 @@ const StoryGroupTreeNode = (props) => {
         >
             <Menu.Item
                 active={isInSelection || isHoverTarget}
-                {...(type !== 'story-group' ? {
-                    onMouseDown: ({ nativeEvent: { shiftKey } }) => {
-                        handleMouseDownInMenu({ item, shiftKey });
-                    },
-                    onMouseEnter: () => handleMouseEnterInMenu({ item }),
-                } : {})}
+                {...(type !== 'story-group'
+                    ? {
+                        onMouseDown: ({ nativeEvent: { shiftKey } }) => {
+                            handleMouseDownInMenu({ item, shiftKey });
+                        },
+                        onMouseEnter: () => handleMouseEnterInMenu({ item }),
+                    }
+                    : {}
+                )}
             >
                 <div
                     className='side-by-side left narrow middle'
@@ -245,8 +252,10 @@ const StoryGroupTreeNode = (props) => {
                     ) : (
                         <span
                             className={`item-name ${
-                                somethingIsMutating || disableEdit ? 'uneditable' : ''
-                            } ${!isPublished && showPublish ? 'grey' : ''}`}
+                                !isPublished && type === 'story' && showPublish
+                                    ? 'grey'
+                                    : ''
+                            } ${somethingIsMutating || disableEdit ? 'uneditable' : ''}`}
                             {...(!(somethingIsMutating || disableEdit)
                                 ? { onDoubleClick: () => setRenamingModalPosition(item) }
                                 : {})}
