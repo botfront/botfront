@@ -278,7 +278,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
                 id: newDestination.id,
                 children: newDestination.children,
                 isExpanded: true,
-            }),
+            }, newDestination.type),
             () => setSomethingIsMutating(false),
         );
         if (newDestination.id !== newSource.id) {
@@ -287,9 +287,9 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
                 convertId({
                     id: newSource.id,
                     children: newSource.children,
-                }),
+                }, 'story-group'),
                 () => updateStory(
-                    sourceNodes.map(({ id }) => convertId({ id, parentId: newDestination.id }, false)),
+                    sourceNodes.map(({ id }) => convertId({ id, parentId: newDestination.id }, 'story')),
                     updateDestination,
                 ),
             );
