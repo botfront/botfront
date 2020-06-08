@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.24.3-ee.3](https://github.com/botfront/botfront/compare/v0.24.3-ee.2...v0.24.3-ee.3) (2020-06-08)
+
+
+### Bug Fixes
+
+* add / in front of the initPayload in widget props ([1826a39](https://github.com/botfront/botfront/commit/1826a390afb6ff5f41d75b31a3d2ebaf9fbb9c4b))
+
 ### [0.24.3-ee.2](https://github.com/botfront/botfront/compare/v0.24.3-ee.1...v0.24.3-ee.2) (2020-06-06)
 
 
