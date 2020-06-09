@@ -24,7 +24,7 @@ const convertId = ({
     }
     if (title) {
         if (type === 'story-group') titleField = { name: title };
-        if (type === 'form') titleField = { name: title };
+        else if (type === 'form') titleField = { name: title };
         else titleField = { title };
     }
     return {
