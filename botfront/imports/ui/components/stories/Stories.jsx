@@ -93,6 +93,8 @@ function Stories(props) {
         fetchPolicy: 'cache-and-network',
     });
     useEffect(() => setForms(loading ? [] : getForms), [loading, getForms]);
+    const currentForms = useRef(forms); // keep a ref of forms to avoid closure effects in context mutators
+    currentForms.current = forms; // keep it up to date
 
     useSubscription(
         FORMS_MODIFIED,
@@ -200,7 +202,7 @@ function Stories(props) {
 
     const handleReorderForm = ({ _id: idToUpdate, children }, ...args) => {
         const newSlotOrder = children.map(c => c.replace(/_slot_for_.*$/, ''));
-        const formToUpdate = (getForms || []).find(({ _id }) => _id === idToUpdate);
+        const formToUpdate = (currentForms.current || []).find(({ _id }) => _id === idToUpdate);
         let reorderedSlots = [];
         try {
             reorderedSlots = newSlotOrder.map((name) => {
