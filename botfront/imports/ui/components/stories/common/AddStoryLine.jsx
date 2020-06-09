@@ -26,30 +26,6 @@ const AddStoryLine = React.forwardRef((props, ref) => {
     const [formMenuOpen, setFormMenuOpen] = useState(false);
     const { forms = [] } = useContext(ConversationOptionsContext);
 
-    const renderFormDropdown = type => (
-        <Dropdown.Menu>
-            <Dropdown.Header>Select a form</Dropdown.Header>
-            {forms.length
-                ? forms.map(f => (
-                    <Dropdown.Item
-                        key={`formname-${f.name}`}
-                        content={f.name}
-                        onClick={() => onCreateGenericLine({
-                            type,
-                            data: { name: f.name },
-                        })
-                        }
-                    />
-                )) : (
-                    <Dropdown.Item
-                        content='No form found for this project.'
-                        disabled
-                    />
-                )
-            }
-        </Dropdown.Menu>
-    );
-
     return (
         <div
             className='add-story-line'
@@ -133,20 +109,31 @@ const AddStoryLine = React.forwardRef((props, ref) => {
                     <Dropdown.Menu>
                         <Dropdown.Item className='dropdown'>
                             <Dropdown
-                                text='Activate or resume a form'
+                                text='Start or continue a form'
                                 fluid
                                 data-cy='start-form'
                             >
-                                {renderFormDropdown('form_decl')}
-                            </Dropdown>
-                        </Dropdown.Item>
-                        <Dropdown.Item className='dropdown'>
-                            <Dropdown
-                                text='Check form activation'
-                                fluid
-                                data-cy='form-activated'
-                            >
-                                {renderFormDropdown('form')}
+                                <Dropdown.Menu>
+                                    <Dropdown.Header>Select a form</Dropdown.Header>
+                                    {forms.length
+                                        ? forms.map(f => (
+                                            <Dropdown.Item
+                                                key={`formname-${f.name}`}
+                                                content={f.name}
+                                                onClick={() => onCreateGenericLine({
+                                                    type: 'form_decl',
+                                                    data: { name: f.name },
+                                                })
+                                                }
+                                            />
+                                        )) : (
+                                            <Dropdown.Item
+                                                content='No form found for this project.'
+                                                disabled
+                                            />
+                                        )
+                                    }
+                                </Dropdown.Menu>
                             </Dropdown>
                         </Dropdown.Item>
                         <Dropdown.Item
