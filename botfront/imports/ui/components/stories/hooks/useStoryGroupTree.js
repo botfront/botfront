@@ -66,7 +66,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
     } = externalMutators;
 
     const mutatorMapping = (type, action) => {
-        if (type === 'story-group') {
+        if (['story-group', 'root'].includes(type)) {
             if (action === 'update') return updateGroup;
             if (action === 'expand') return setExpansionOnGroup;
             if (action === 'reorder') return updateGroup;
