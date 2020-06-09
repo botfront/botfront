@@ -72,10 +72,12 @@ function SlotEditor(props) {
                 <b>{`Type:  ${type}`}</b>
                 <br />
                 <ErrorsField data-cy='errors-field' />
-                <SaveButton
-                    saved={saved}
-                    saveText={newSlot ? 'Add Slot' : 'Save'}
-                />
+                { canEditSlots && (
+                    <SaveButton
+                        saved={saved}
+                        saveText={newSlot ? 'Add Slot' : 'Save'}
+                    />
+                )}
                 {hover && !newSlot && canEditSlots && (
                     <>
                         <Popup
