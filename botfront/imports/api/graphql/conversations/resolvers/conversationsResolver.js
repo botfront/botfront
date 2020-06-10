@@ -5,6 +5,10 @@ import {
     updateConversationStatus,
     deleteConversation,
 } from '../mongo/conversations';
+import Conversations from '../conversations.model.js';
+import {
+    upsertTrackerStore,
+} from '../../trackerStore/mongo/trackerStore';
 
 export default {
     Query: {
@@ -28,6 +32,35 @@ export default {
             const response = await deleteConversation(args.id);
             return { success: response.ok === 1 };
         },
+        importConversations: async (_, args, __) => {
+            const { conversations, projectId, environment } = args;
+            const latestAddition = await Conversations.findOne({ env: environment, projectId })
+                .select('tracker.latest_event_time')
+                .sort('-tracker.latest_event_time')
+                .lean()
+                .exec();
+            const latestTimestamp = latestAddition
+                ? Math.floor(latestAddition.tracker.latest_event_time) : 0;
+            const results = await Promise.all(conversations
+                .filter(c => c.tracker.latest_event_time >= latestTimestamp)
+                .map(c => upsertTrackerStore({
+                    senderId: c.tracker.sender_id || c._id,
+                    projectId,
+                    env: environment,
+                    tracker: c.tracker,
+                    overwriteEvents: true,
+                })));
+            const notInserted = results.filter(({ status }) => status !== 'inserted');
+            const failed = notInserted.filter(({ status }) => status === 'failed')
+                .map(({ _id }) => _id);
+            const nTotal = conversations.length;
+            const nPushed = results.length;
+            const nInserted = nPushed - notInserted.length;
+            const nUpdated = notInserted.length - failed.length;
+            return {
+                nTotal, nPushed, nInserted, nUpdated, failed,
+            };
+        },
     },
 
     Pagination: {
@@ -43,15 +76,5 @@ export default {
         createdAt: (parent, _, __) => parent.createdAt,
         env: (parent, _, __) => parent.env,
         language: (parent, _, __) => parent.language,
-    },
-    Entity: {
-        entity: (parent, _, __) => parent.entity,
-        value: (parent, _, __) => parent.value,
-        start: (parent, _, __) => parent.start,
-        end: (parent, _, __) => parent.end,
-    },
-    Intent: {
-        confidence: (parent, _, __) => parent.confidence,
-        name: (parent, _, __) => parent.name,
     },
 };

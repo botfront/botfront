@@ -6,3 +6,15 @@ type PageInfo {
     endCursor: String!,
     hasNextPage: Boolean!
 }
+
+type batchMutationOutput {
+    nTotal: Int
+    nPushed: Int
+    nInserted: Int
+    nUpdated: Int
+    failed: [String]
+}
+
+type updateResponse {
+    success: Boolean!
+}

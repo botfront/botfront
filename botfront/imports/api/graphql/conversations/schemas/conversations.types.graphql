@@ -18,10 +18,11 @@ type Mutation {
     markAsRead(id: String!): updateResponse!
     updateStatus(id: String!, status: String): updateResponse!
     delete(id: String!): updateResponse!
-}
-
-type updateResponse {
-    success: Boolean!
+    importConversations(
+        conversations: [ConversationContainerInput]!
+        projectId: String!
+        environment: Environement = development
+    ): batchMutationOutput
 }
 
 type Pagination {
@@ -61,12 +62,14 @@ input EntityInput {
     processors: [String],
 }
 
-type Intent {
-    confidence: Float
-    name: String
-}
-
-input IntentInput {
-    confidence: Float,
-    name: String,
+input ConversationContainerInput {
+    tracker: Any
+    userId: String
+    projectId: String
+    status: String
+    _id: String
+    updatedAt: String
+    createdAt: String
+    env: String
+    language: String
 }
