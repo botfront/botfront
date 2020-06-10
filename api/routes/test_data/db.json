@@ -608,7 +608,7 @@
     ],
     "botResponses": [
         {
-            "_id": "5de93136f5ae1b474dfd6331",
+            "_id": "one-a",
             "key": "utter_get_started",
             "values": [
                 { "sequence": [{ "content": "text: utter_get_started\n" }], "lang": "en" }
@@ -616,7 +616,7 @@
             "projectId": "one"
         },
         {
-            "_id": "5de93143f5ae1b474dfd6332",
+            "_id": "one-b",
             "key": "utter_which_class",
             "values": [
                 {
@@ -627,7 +627,7 @@
             "projectId": "one"
         },
         {
-            "_id": "5de93136f5ae1b474dfd6331",
+            "_id": "two-a",
             "key": "utter_get_stoped",
             "textIndex": "utter_get_stoped\nutter_get_started",
             "values": [
@@ -636,7 +636,7 @@
             "projectId": "two"
         },
         {
-            "_id": "5de93143f5ae1b474dfd6332",
+            "_id": "two-b",
             "key": "utter_which",
             "values": [
                 {

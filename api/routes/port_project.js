@@ -233,12 +233,7 @@ const returnResponse = async (res, response, filename) => {
     return result.send(zippedFile);
 };
 
-exports.exportProjectValidator = [];
-
 exports.exportProject = async function (req, res) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-
     const { project_id: projectId } = req.params;
     const { output = 'zip', thinProject } = req.query;
     const excludedCollections = Object.keys(req.query).filter((k) =>
