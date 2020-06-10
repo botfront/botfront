@@ -24,6 +24,7 @@ const CreateForm = (props) => {
 
     const getFormattedModel = () => (clearTypenameField({
         ...initialModel,
+        description: initialModel.description || '',
         slotNames: (initialModel.slots || []).map(({ name }) => name),
     }));
 
@@ -53,9 +54,7 @@ const CreateForm = (props) => {
 
     const validator = (model) => {
         const errors = [];
-        console.log('--------');
         if (!formNameIsValid(model.name)) {
-            console.log('invalid name');
             errors.push({ name: 'name', message: 'Form names must end with <i>_form</i> and have no special characters. the text before <i>_form</i> can not contain <i>form</i>' });
         }
         if (errors.length) {
@@ -68,16 +67,17 @@ const CreateForm = (props) => {
         <div>
             <AutoForm model={getFormattedModel()} schema={new GraphQLBridge(schema, validator, {})} onSubmit={handleSubmit}>
                 <Segment.Group className='story-card form-editor'>
-                    <Segment attached='top' className='form-editor-topbar story-card-topbar'>
+                    <Segment attached='top' className='form-editor-topbar story-card-topbar' key='topbar'>
                         <Popup
                             inverted
                             trigger={
                                 <AutoField name='name' label='' className='create-form-field' data-cy='form-name-field' />
                             }
+                            size='tiny'
                             content={<>form names must end with <i>_form</i> and have no special characters.</>}
                         />
                     </Segment>
-                    <Segment attached='bottom' className='form-editor-content'>
+                    <Segment attached='bottom' className='form-editor-content' key='content'>
                         <LongTextField name='description' className='create-form-field' data-cy='form-description-field' />
                         <SelectField
                             data-cy='form-slots-field'

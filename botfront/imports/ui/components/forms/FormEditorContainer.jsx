@@ -103,7 +103,7 @@ FormEditorContainer.propTypes = {
     slotName: PropTypes.string.isRequired,
     formName: PropTypes.string.isRequired,
     formId: PropTypes.string.isRequired,
-    slotFillingProp: PropTypes.func.isRequired,
+    slotFillingProp: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired,
 };
 

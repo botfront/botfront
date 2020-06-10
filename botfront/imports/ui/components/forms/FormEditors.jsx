@@ -56,22 +56,22 @@ const FormEditors = (props) => {
         upsertForm(clearTypenameField(update));
     };
 
-    const renderForm = (formId) => {
+    const renderForm = (formId, i) => {
         const formData = forms.find(({ _id }) => _id === formId);
-        if (!formData) return <></>;
-        return <CreateForm initialModel={formData} onSubmit={upsertForm} />;
+        if (!formData) return <React.Fragment key={`form-fragment-${i}`}></React.Fragment>;
+        return <CreateForm key={`form-${formId}`} initialModel={formData} onSubmit={upsertForm} />;
     };
 
-    const renderSlot = (slotName) => {
+    const renderSlot = (slotName, i) => {
         const formId = formIds[0];
         const { slot, form } = getSlotAndFormData(formId, slotName);
-        if (!slot || !form) return <></>;
+        if (!slot || !form) return <React.Fragment key={`slot-fragment-${i}`}></React.Fragment>;
         return (
             <FormEditorContainer key={`${slotName}-${formId}`} formId={formId} formName={form.name} slotName={slotName} slotFillingProp={slot} onChange={handleChangeSlotFilling} />
         );
     };
     return (
-        <>
+        <div>
             <Loader active={!formIds || !data} />
             {data && (
                 <>
@@ -79,7 +79,7 @@ const FormEditors = (props) => {
                     {slots[0] !== formIds[0] && slots.map(slot => renderSlot(slot))}
                 </>
             )}
-        </>
+        </div>
     );
 };
 

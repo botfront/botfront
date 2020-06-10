@@ -66,7 +66,7 @@ const ExtractionItem = (props) => {
                 clearable
                 placeholder='select an entity'
                 options={entities}
-                value={entity}
+                value={entity || []}
                 onChange={handleChangeEntity}
             />
         </>
@@ -107,7 +107,7 @@ const ExtractionItem = (props) => {
             className='extraction-field'
             placeholder='enter a value'
             type={inputType}
-            value={value}
+            value={value || ''}
             onChange={handleChangeValue}
         />
     );
@@ -128,7 +128,7 @@ const ExtractionItem = (props) => {
     };
 
     const renderIntentSelect = () => (
-        <div className='extraction-line'>
+        <div className='extraction-line' key={`extraction-condition-${index}`}>
             <Dropdown
                 data-cy='intent-condition-dropdown'
                 clearable={type !== 'from_intent'}
@@ -152,7 +152,7 @@ const ExtractionItem = (props) => {
                     multiple
                     search
                     options={intents}
-                    value={intentCondition === 'include' ? intent : notIntent}
+                    value={(intentCondition === 'include' ? intent : notIntent) || []}
                     onChange={handleChangeIntent}
                 />
             )}

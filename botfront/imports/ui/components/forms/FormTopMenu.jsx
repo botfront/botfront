@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-    Breadcrumb, Menu, Icon,
+    Breadcrumb, Menu,
 } from 'semantic-ui-react';
 
 
@@ -12,14 +12,18 @@ const FormTopMenu = (props) => {
         activeItem,
         setActiveItem,
         menuItems,
-        collapsed,
-        onToggleCollapsed,
     } = props;
 
     const renderMenuItem = (item) => {
         const { text, value } = item;
         return (
-            <Menu.Item onClick={() => setActiveItem(value)} active={activeItem === value} className='story-card-tab' data-cy='form-top-menu-item'>
+            <Menu.Item
+                onClick={() => setActiveItem(value)}
+                active={activeItem === value}
+                className='story-card-tab'
+                data-cy='form-top-menu-item'
+                key={`${value}-menu-item`}
+            >
                 {text || value}
             </Menu.Item>
         );
@@ -35,7 +39,7 @@ const FormTopMenu = (props) => {
                     sections={[formName, slotName]}
                 />
             )}
-            <Menu.Menu compact className='form-editor-tab-menu'>
+            <Menu.Menu className='form-editor-tab-menu'>
                 {menuItems.map(renderMenuItem)}
             </Menu.Menu>
         </Menu>
@@ -46,10 +50,14 @@ FormTopMenu.propTypes = {
     formName: PropTypes.string,
     slotName: PropTypes.string,
     activeItem: PropTypes.string,
-    setActiveItem: PropTypes.func,
-    menuItems: PropTypes.array,
-    collapsed: PropTypes.bool,
-    onToggleCollapsed: PropTypes.func,
+    setActiveItem: PropTypes.func.isRequired,
+    menuItems: PropTypes.array.isRequired,
+};
+
+FormTopMenu.defaultProps = {
+    formName: null,
+    slotName: null,
+    activeItem: 'question',
 };
 
 export default FormTopMenu;

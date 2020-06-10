@@ -25,6 +25,7 @@ const ExtractionTab = (props) => {
 
     const renderExtractionItem = (settings, i) => (
         <ExtractionItem
+            key={`extration-item-${i}`}
             intents={intentOptions}
             slotFilling={settings}
             index={i}
