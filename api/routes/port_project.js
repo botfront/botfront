@@ -1,9 +1,11 @@
 const {
     Activity,
     Conversations,
+    FormResults,
     CorePolicies,
     Instances,
     Slots,
+    Forms,
     Stories,
     StoryGroups,
     Evaluations,
@@ -29,11 +31,13 @@ const collectionsWithProjectId = {
     storyGroups: StoryGroups,
     stories: Stories,
     slots: Slots,
+    forms: Forms,
     instances: Instances,
     endpoints: Endpoints,
     credentials: Credentials,
     corePolicies: CorePolicies,
     conversations: Conversations,
+    formResults: FormResults,
     botResponses: Responses,
 };
 
@@ -203,16 +207,18 @@ const gatherCollectionsForExport = async (project, models, excludedCollections) 
     delete response.project.training;
     for (let col in collectionsWithModelId) {
         if (!excludedCollections.includes(col)) {
-            response[col] = await collectionsWithModelId[col]
+            const result = await collectionsWithModelId[col]
                 .find({ modelId: { $in: project.nlu_models } })
                 .lean();
+            if (result.length) response[col] = result;
         }
     }
     for (let col in collectionsWithProjectId) {
         if (!excludedCollections.includes(col)) {
-            response[col] = await collectionsWithProjectId[col]
+            const result = await collectionsWithProjectId[col]
                 .find({ projectId: project._id })
                 .lean();
+            if (result.length) response[col] = result;
         }
     }
     response.timestamp = new Date().getTime();

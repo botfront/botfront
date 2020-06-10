@@ -282,7 +282,7 @@ describe('## import format checking', () => {
                 .then(async (res) => {
                     expect(res.body.submissionsToAdd).to.equal(2);
                     expect(res.body.submissionsAdded).to.equal(2);
-                    const submissions = await FormResults.find()
+                    const submissions = await FormResults.find({ projectId: { $in: ['pro1', 'pro2'] } })
                         .lean().exec()
                     // inspect all submissions from 2 previous and current test
                     expect(submissions).to.have.length(6);
