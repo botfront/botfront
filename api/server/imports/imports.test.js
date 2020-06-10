@@ -5,11 +5,28 @@ const expect = chai.expect;
 const app = require('../../app');
 chai.config.includeStack = true;
 const fs = require('fs');
-const { Projects, NLUModels, Conversations, Activity } = require('../../models/models');
+const {
+    Projects,
+    NLUModels,
+    Conversations,
+    FormResults,
+    Activity,
+} = require('../../models/models');
 
 const conversationsToImport = JSON.parse(
     fs.readFileSync(__dirname + '/test_data/conversationsToImport.json', 'utf8'),
 );
+const formSubmissionTemplate = {
+    conversationId: 'conversationId',
+    environment: 'development',
+    projectId: 'pro1',
+    date: '2020-06-05T12:58:48.856Z',
+};
+
+const formSubmissions = [
+    { ...formSubmissionTemplate, date: '2020-06-05T12:57:48.856Z' }, // older
+    { ...formSubmissionTemplate, date: '2020-06-05T12:59:48.856Z' }, // newer
+]
 
 function dateParser(key, value) {
     if (key === 'updatedAt' || key === 'createdAt') {
@@ -31,6 +48,7 @@ before(function(done) {
     Projects.insertMany(projects)
         .then(() => NLUModels.insertMany(models))
         .then(() => Conversations.insertMany(conversation))
+        .then(() => FormResults.insertMany([formSubmissionTemplate]))
         .then(() => {
             done();
         });
@@ -87,7 +105,7 @@ describe('## last import', () => {
                             {
                                 location: 'params',
                                 msg:
-                                    'environement should be one of: production, staging, development',
+                                    'environment should be one of: production, staging, development',
                                 param: 'env',
                                 value: 'prodduction',
                             },
@@ -109,21 +127,10 @@ describe('## import format checking', () => {
                     dummy: [{ name: 'test', confidence: 0.99 }],
                     text: 'blabla',
                 })
-                .expect(httpStatus.UNPROCESSABLE_ENTITY)
+                .expect(httpStatus.BAD_REQUEST)
                 .then((res) => {
                     expect(res.body).to.deep.equal({
-                        errors: [
-                            {
-                                location: 'body',
-                                msg: 'conversations should be an array',
-                                param: 'conversations',
-                            },
-                            {
-                                location: 'body',
-                                msg: 'processNlu should be an boolean',
-                                param: 'processNlu',
-                            },
-                        ],
+                        message: 'Invalid request',
                     });
                     done();
                 })
@@ -175,7 +182,7 @@ describe('## import format checking', () => {
                 })
                 .catch(done);
         });
-        it('should import a new conversation and update and oldOne', (done) => {
+        it('should import a new conversation and update an old one', (done) => {
             request(app)
                 .post('/conversations/pro1/environment/production')
                 .send({
@@ -185,7 +192,10 @@ describe('## import format checking', () => {
                 .expect(httpStatus.OK)
                 .then(async (res) => {
                     expect(res.body).to.deep.equal({
-                        message: 'successfuly imported all conversations',
+                        conversationsAdded: 2,
+                        conversationsToAdd: 2,
+                        conversationFails: [],
+                        message: 'Done',
                     });
                     Conversations.find({ _id: 'new' })
                         .lean()
@@ -211,11 +221,11 @@ describe('## import format checking', () => {
                                         });
                                 });
                         })
-                        .catch(done);
-                });
+                })
+                .catch(done);
         });
 
-        it('should not import a conversation with a non undefined id', (done) => {
+        it('should not import a conversation with an undefined id', (done) => {
             request(app)
                 .post('/conversations/pro1/environment/production')
                 .send({
@@ -224,11 +234,9 @@ describe('## import format checking', () => {
                 })
                 .expect(httpStatus.PARTIAL_CONTENT)
                 .then(async (res) => {
-                    expect(res.body).to.deep.equal({
-                        messageConversation:
-                            'some conversation were not added, the field _id is missing',
-                        notValids: [conversationsToImport[2]],
-                    });
+                    expect(res.body.conversationFails).to.deep.equal([
+                        conversationsToImport[2],
+                    ]);
                     Conversations.find({ _id: 'projectnotexist' })
                         .lean()
                         .exec()
@@ -236,6 +244,57 @@ describe('## import format checking', () => {
                             expect(newData).to.have.length(0);
                             done();
                         });
+                })
+                .catch(done);
+        });
+
+        it('should import form submissions but not older ones', (done) => {
+            request(app)
+                .post('/conversations/pro1/environment/development')
+                .send({ formSubmissions })
+                .expect(httpStatus.OK)
+                .then(async (res) => {
+                    expect(res.body.submissionsToAdd).to.equal(1);
+                    expect(res.body.submissionsAdded).to.equal(1);
+                    done();
+                })
+                .catch(done);
+        });
+
+        it('should import form submissions from a different env', (done) => {
+            request(app)
+                .post('/conversations/pro1/environment/staging') // diff env
+                .send({ formSubmissions })
+                .expect(httpStatus.OK)
+                .then(async (res) => {
+                    expect(res.body.submissionsToAdd).to.equal(2);
+                    expect(res.body.submissionsAdded).to.equal(2);
+                    done();
+                })
+                .catch(done);
+        });
+
+        it('should import form submissions from a different projectId', (done) => {
+            request(app)
+                .post('/conversations/pro2/environment/development') // diff projectId
+                .send({ formSubmissions })
+                .expect(httpStatus.OK)
+                .then(async (res) => {
+                    expect(res.body.submissionsToAdd).to.equal(2);
+                    expect(res.body.submissionsAdded).to.equal(2);
+                    const submissions = await FormResults.find()
+                        .lean().exec()
+                    // inspect all submissions from 2 previous and current test
+                    expect(submissions).to.have.length(6);
+                    const submissionsWithoutId = submissions.map(({ _id, ...rest }) => rest);
+                    const gold = [
+                        formSubmissionTemplate,
+                        formSubmissions[1],
+                        ...formSubmissions.map(s => ({ ...s, environment: 'staging' })),
+                        ...formSubmissions.map(s => ({ ...s, projectId: 'pro2' })),
+                    ].map(({ _id, ...rest }) => rest);
+                    expect(submissionsWithoutId).to.deep.equal(gold);
+                    done();
                 })
                 .catch(done);
         });

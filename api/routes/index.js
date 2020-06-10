@@ -1,7 +1,7 @@
 'use strict';
 const express = require('express');
 
-const { importConversation, importConversationValidator, latestImport, latestImportValidator } = require('../server/imports/imports.controller');
+const { importConversationalData, importConversationalDataValidator, latestImport, latestImportValidator } = require('../server/imports/imports.controller');
 const {
     exportProject,
     exportProjectValidator,
@@ -16,7 +16,7 @@ router.put('/project/:project_id/import', importProject);
 
 router.get('/health-check', (req, res) => res.status(200).json({ version, healthy: true }));
 
-router.post('/conversations/:project_id/environment/:env', importConversationValidator, importConversation);
+router.post('/conversations/:project_id/environment/:env', importConversationalDataValidator, importConversationalData);
 router.get('/conversations/:project_id/environment/:env/latest-imported-event', latestImportValidator, latestImport);
 
 

@@ -364,8 +364,6 @@ exports.importProject = async function (req, res) {
         await Projects.insertMany([overwrittenProject]);
         return res.status(200).send('Success');
     } catch (e) {
-        // eslint-disable-next-line no-console
-        console.log(e);
         return res.status(e.code || 500).json(e.error);
     }
 };
