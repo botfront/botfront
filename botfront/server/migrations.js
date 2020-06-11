@@ -28,16 +28,10 @@ Migrations.add({
     version: 2,
     // add default default domain to global settings, and update projects to have this default domain
     up: () => {
-        let spec = process.env.ORCHESTRATOR ? `.${process.env.ORCHESTRATOR}` : '.docker-compose';
-        if (process.env.MODE === 'development') spec = `${spec}.dev`;
-        if (process.env.MODE === 'test') spec = `${spec}.ci`;
-        let globalSettings;
-        try {
-            globalSettings = JSON.parse(Assets.getText(`default-settings${spec}.json`));
-        } catch (e) {
-            globalSettings = JSON.parse(Assets.getText('default-settings.json'));
-        }
-        const { defaultDefaultDomain } = globalSettings.settings.private;
+        const privateSettings = safeLoad(Assets.getText(
+            process.env.MODE === 'development' ? 'defaults/private.dev.yaml' : 'defaults/private.yaml',
+        ));
+        const defaultDefaultDomain = safeDump(privateSettings.defaultDomain);
 
         GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.private.defaultDefaultDomain': defaultDefaultDomain } });
 
