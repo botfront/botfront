@@ -2,27 +2,48 @@ import { wrapMeteorCallback } from '../utils/Errors';
 import { CREATE_AND_OVERWRITE_RESPONSES as createResponses } from '../templates/mutations';
 import apolloClient from '../../../startup/client/apollo';
 
+const handleImportForms = () => new Promise(resolve => resolve(true));
+
+const handleImportResponse = (responses, projectId) => new Promise(resolve => apolloClient
+    .mutate({
+        mutation: createResponses,
+        variables: { projectId, responses },
+    }).then((res) => {
+        if (!res || !res.data) resolve('Responses not inserted.');
+        const notUpserted = responses.filter(
+            ({ key }) => !res.data.createAndOverwriteResponses
+                .map(d => d.key)
+                .includes(key),
+        );
+        if (notUpserted.length) {
+            resolve(
+                `Responses ${notUpserted.join(', ')} not inserted.`,
+            );
+        }
+        resolve(true);
+    }));
+
 export const handleImportStoryGroups = (files, { projectId, fileReader: [_, setFileList], setImportingState }) => {
     if (!files.length) return;
     setImportingState(true);
     files.forEach(({
         _id, name, parsedStories, filename, lastModified,
     }, idx) => {
-        const callback = (error) => {
+        const callback = wrapMeteorCallback((error) => {
             if (!error) setFileList({ delete: { filename, lastModified } });
             if (error || idx === files.length - 1) setImportingState(false);
-        };
+        });
         Meteor.call(
             'storyGroups.insert',
             { _id, name, projectId },
-            wrapMeteorCallback((err) => {
+            (err) => {
                 if (!parsedStories.length || err) return callback(err);
                 return Meteor.call(
                     'stories.insert',
                     parsedStories.map(s => ({ ...s, projectId })),
-                    wrapMeteorCallback(callback),
+                    callback,
                 );
-            }),
+            },
         );
     });
 };
@@ -31,44 +52,27 @@ export const handleImportDomain = (files, { projectId, fileReader: [_, setFileLi
     if (!files.length) return;
     setImportingState(true);
     files.forEach(({
-        slots, responses, filename, lastModified,
+        slots, bfForms, responses, filename, lastModified,
     }, idx) => {
-        const callback = (error) => {
+        const callback = wrapMeteorCallback((error) => {
             if (!error) setFileList({ delete: { filename, lastModified } });
             if (error || idx === files.length - 1) setImportingState(false);
-        };
+        });
         Meteor.call(
             'slots.upsert',
             slots,
             projectId,
-            wrapMeteorCallback((err) => {
+            (err) => {
                 if (err) return callback(err);
-                return apolloClient
-                    .mutate({
-                        mutation: createResponses,
-                        variables: { projectId, responses },
-                    })
-                    .then((res) => {
-                        if (!res || !res.data) {
-                            return wrapMeteorCallback(callback)({
-                                message: 'Responses not inserted',
-                            });
-                        }
-                        const notUpserted = responses.filter(
-                            ({ key }) => !res.data.createAndOverwriteResponses
-                                .map(d => d.key)
-                                .includes(key),
-                        );
-                        if (notUpserted.length) {
-                            wrapMeteorCallback(callback)({
-                                message: `Responses ${notUpserted.join(
-                                    ', ',
-                                )} not inserted.`,
-                            });
-                        }
-                        return callback();
-                    });
-            }),
+                return Promise.all([
+                    handleImportResponse(responses, projectId),
+                    handleImportForms(bfForms, projectId),
+                ]).then((res) => {
+                    const messages = res.filter(r => r !== true);
+                    if (messages.length) return callback({ message: messages.join('\n') });
+                    return callback();
+                });
+            },
         );
     });
 };

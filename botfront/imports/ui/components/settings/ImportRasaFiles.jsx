@@ -309,6 +309,7 @@ const ImportRasaFiles = (props) => {
         const numbers = {
             story: countAcrossFiles(storyFileReader, 'parsedStories'),
             slot: countAcrossFiles(domainFileReader, 'slots'),
+            form: countAcrossFiles(domainFileReader, 'bfForms'),
             response: countAcrossFiles(domainFileReader, 'responses'),
         };
         projectLanguages.forEach((l) => {
