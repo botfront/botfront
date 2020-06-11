@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.24.3-ee.4](https://github.com/botfront/botfront/compare/v0.24.3-ee.3...v0.24.3-ee.4) (2020-06-11)
+
+
+### Bug Fixes
+
+* images are not deleted on src change ([#155](https://github.com/botfront/botfront/issues/155)) ([05fda01](https://github.com/botfront/botfront/commit/05fda01c84eacb62de6b2f0f015a87ab88c3ebf9))
+
 ### [0.24.3-ee.3](https://github.com/botfront/botfront/compare/v0.24.3-ee.2...v0.24.3-ee.3) (2020-06-08)
 
 
