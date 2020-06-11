@@ -75,6 +75,14 @@ class StoryGroupNavigation extends React.Component {
         this.resetAddItem();
     };
 
+    handleBlurTitleInput = (element) => {
+        const {
+            newItemName,
+        } = this.state;
+        if (!formNameIsValid(newItemName)) this.resetAddItem();
+        this.submitTitleInput(element);
+    }
+
     resetAddItem = () => {
         this.setState({ addMode: false, newItemName: '' });
     };
@@ -172,7 +180,7 @@ class StoryGroupNavigation extends React.Component {
                             value={newItemName}
                             onKeyDown={this.handleKeyDownInput}
                             autoFocus
-                            onBlur={this.submitTitleInput}
+                            onBlur={this.handleBlurTitleInput}
                             fluid
                             data-cy='add-item-input'
                             className='navigation'

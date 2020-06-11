@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { GraphQLBridge } from 'uniforms-bridge-graphql';
 import {
     AutoField,
@@ -10,6 +11,7 @@ import {
 } from 'uniforms-semantic';
 import { buildASTSchema, parse } from 'graphql';
 import { Segment, Popup } from 'semantic-ui-react';
+import { can } from '../../../lib/scopes';
 import SelectField from '../form_fields/SelectField';
 import ToggleField from '../common/ToggleField';
 import { ProjectContext } from '../../layouts/context';
@@ -20,6 +22,7 @@ const CreateForm = (props) => {
     const {
         initialModel,
         onSubmit,
+        projectId,
     } = props;
 
     const getFormattedModel = () => (clearTypenameField({
@@ -65,7 +68,7 @@ const CreateForm = (props) => {
 
     return (
         <div>
-            <AutoForm model={getFormattedModel()} schema={new GraphQLBridge(schema, validator, {})} onSubmit={handleSubmit}>
+            <AutoForm model={getFormattedModel()} schema={new GraphQLBridge(schema, validator, {})} onSubmit={handleSubmit} disabled={!can('stories:w', projectId)}>
                 <Segment.Group className='story-card form-editor'>
                     <Segment attached='top' className='form-editor-topbar story-card-topbar' key='topbar'>
                         <Popup
@@ -101,10 +104,15 @@ const CreateForm = (props) => {
 CreateForm.propTypes = {
     onSubmit: PropTypes.func.isRequired,
     initialModel: PropTypes.object,
+    projectId: PropTypes.string.isRequired,
 };
 
 CreateForm.defaultProps = {
     initialModel: { slotNames: [] },
 };
 
-export default CreateForm;
+const mapStateToProps = state => ({
+    projectId: state.settings.get('projectId'),
+});
+
+export default connect(mapStateToProps)(CreateForm);

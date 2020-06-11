@@ -27,10 +27,15 @@ const FormEditorContainer = (props) => {
 
     const [slotToFill, setSlotToFill] = useState(getInitialFilling());
     const [activeTab, setActiveTab] = useState('question');
-    const { slots, responses, addResponses } = useContext(ProjectContext);
+    const {
+        slots, responses, addResponses, language,
+    } = useContext(ProjectContext);
     const slot = slots.find(({ name }) => name === slotToFill.name);
     const response = responses[`utter_ask_${slotName}`];
     if (!response) addResponses([`utter_ask_${slotName}`]);
+    useEffect(() => {
+        addResponses([`utter_ask_${slotName}`]);
+    }, [language]);
 
     useEffect(() => {
         setSlotToFill({ ...slotToFill, name: slotName });
@@ -62,7 +67,7 @@ const FormEditorContainer = (props) => {
     const renderActiveTab = () => {
         switch (activeTab) {
         case 'question':
-            return <QuestionTab slotName={slotName} response={response} />;
+            return <QuestionTab slotName={slotName} response={response} language={language} />;
         case 'validation':
             return <>validation</>;
         case 'extraction':
@@ -80,7 +85,7 @@ const FormEditorContainer = (props) => {
         }
     };
     return (
-        <Segment.Group className='story-card'>
+        <Segment.Group className='story-card' key={`form-editor-${language}`}>
             <FormTopMenu
                 formName={formName}
                 slotName={slotToFill.name}

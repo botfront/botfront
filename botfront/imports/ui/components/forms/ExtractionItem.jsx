@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-
 import {
     Dropdown, List, Divider, Input,
 } from 'semantic-ui-react';
+import { can } from '../../../lib/scopes';
 import IconButton from '../common/IconButton';
 
 const ExtractionItem = (props) => {
@@ -22,8 +22,10 @@ const ExtractionItem = (props) => {
         onChange,
         onDelete,
         index,
+        projectId,
     } = props;
 
+    const canEdit = can('stories:w', projectId);
     const intentCondition = useMemo(() => {
         if (Array.isArray(intent)) return 'include';
         if (Array.isArray(notIntent)) return 'exclude';
@@ -59,6 +61,7 @@ const ExtractionItem = (props) => {
     const renderSelectEntitiy = () => (
         <>
             <Dropdown
+                disabled={!canEdit}
                 data-cy='entity-value-dropdown'
                 className='extraction-dropdown entity'
                 selection
@@ -76,6 +79,7 @@ const ExtractionItem = (props) => {
         const { categories } = slot;
         return (
             <Dropdown
+                disabled={!canEdit}
                 data-cy='category-value-dropdown'
                 className='extraction-dropdown'
                 selection
@@ -89,6 +93,7 @@ const ExtractionItem = (props) => {
 
     const renderBoolDropdown = () => (
         <Dropdown
+            disabled={!canEdit}
             data-cy='bool-value-dropdown'
             className='extraction-dropdown'
             selection
@@ -103,6 +108,7 @@ const ExtractionItem = (props) => {
 
     const renderSlotInput = inputType => (
         <Input
+            disabled={!canEdit}
             data-cy='slot-value-input'
             className='extraction-field'
             placeholder='enter a value'
@@ -130,9 +136,10 @@ const ExtractionItem = (props) => {
     const renderIntentSelect = () => (
         <div className='extraction-line' key={`extraction-condition-${index}`}>
             <Dropdown
+                disabled={!canEdit}
                 data-cy='intent-condition-dropdown'
                 clearable={type !== 'from_intent'}
-                placeholder='add a intent condition'
+                placeholder='add an intent condition'
                 className='extraction-dropdown condition-dropdown'
                 selection
                 options={[
@@ -144,6 +151,7 @@ const ExtractionItem = (props) => {
             />
             {intentCondition && (
                 <Dropdown
+                    disabled={!canEdit}
                     data-cy='intent-condition-multiselect'
                     clearable
                     placeholder='select included/excluded intents'
@@ -167,16 +175,17 @@ const ExtractionItem = (props) => {
         </div>
     );
     return (
-        <List.Item>
+        <List.Item className={`${canEdit ? '' : 'read-only'}`} data-cy='extraction-item-container'>
             <div>
                 {index !== 0 && <Divider horizontal className='extraction-item-divider'>OR</Divider>}
                 <div className='extraction-option-buttons'>
-                    <IconButton icon='trash' color='grey' onClick={() => onDelete(index)} />
+                    {canEdit && <IconButton icon='trash' color='grey' onClick={() => onDelete(index)} />}
                 </div>
                 <span>
                     Get the slot value:
                 </span>
                 <Dropdown
+                    disabled={!canEdit}
                     data-cy='extraction-source-dropdown'
                     className='extraction-dropdown'
                     selection
@@ -204,6 +213,7 @@ ExtractionItem.propTypes = {
     slot: PropTypes.object,
     index: PropTypes.number.isRequired,
     onDelete: PropTypes.func.isRequired,
+    projectId: PropTypes.string.isRequired,
 };
 
 ExtractionItem.defaultProps = {

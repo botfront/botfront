@@ -6,6 +6,7 @@ import {
     submitForm,
     importSubmissions,
 } from './mongo/forms';
+import { checkIfCan } from '../../../lib/scopes';
 
 const { PubSub, withFilter } = require('apollo-server-express');
 
@@ -14,34 +15,45 @@ const FORMS_MODIFIED = 'FORMS_MODIFIED';
 const FORMS_DELETED = 'FORMS_DELETED';
 const FORMS_CREATED = 'FORMS_CREATED';
 
+export const subscriptionFilter = (payload, variables, context) => {
+    if (checkIfCan('stories:r', payload.projectId, context.userId, { backupPlan: true })) {
+        return payload.projectId === variables.projectId;
+    }
+    return false;
+};
+
 export default {
     Subscription: {
         formsModified: {
             subscribe: withFilter(
                 () => pubsub.asyncIterator([FORMS_MODIFIED]),
-                (payload, variables) => payload.projectId === variables.projectId,
+                subscriptionFilter,
             ),
         },
         formsDeleted: {
             subscribe: withFilter(
                 () => pubsub.asyncIterator([FORMS_DELETED]),
-                (payload, variables) => payload.projectId === variables.projectId,
+                subscriptionFilter,
             ),
         },
         formsCreated: {
             subscribe: withFilter(
                 () => pubsub.asyncIterator([FORMS_CREATED]),
-                (payload, variables) => payload.projectId === variables.projectId,
+                subscriptionFilter,
             ),
         },
     },
     Query: {
-        getForms: async (_, args, __) => getForms(args.projectId, args.ids),
+        getForms: async (_, args, context) => {
+            checkIfCan('stories:r', args.projectId, context.user._id);
+            return getForms(args.projectId, args.ids);
+        },
     },
     Mutation: {
         submitForm: async (_root, args) => submitForm(args),
         importSubmissions: async (_root, args) => importSubmissions(args),
-        upsertForm: async (_, args) => {
+        upsertForm: async (_, args, context) => {
+            checkIfCan('stories:w', args.form.projectId, context.user._id);
             const updatedForm = await upsertForm(args);
             if (updatedForm.formsAdded) {
                 pubsub.publish(FORMS_CREATED, {
@@ -63,7 +75,8 @@ export default {
             });
             return { _id: args.form._id };
         },
-        deleteForms: async (_, args) => {
+        deleteForms: async (_, args, context) => {
+            checkIfCan('stories:w', args.projectId, context.user._id);
             const result = await deleteForms(args);
             pubsub.publish(FORMS_DELETED, {
                 projectId: args.projectId,

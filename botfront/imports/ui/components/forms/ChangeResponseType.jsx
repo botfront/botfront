@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Dropdown, Confirm } from 'semantic-ui-react';
+import { Dropdown, Confirm, Button } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { defaultTemplate } from '../../../lib/botResponse.utils';
 
@@ -43,6 +43,9 @@ const ChangeResponseType = (props) => {
                 content='Are you sure you want to change the response type? The current response will be deleted.'
                 onConfirm={handleChangeResponseType}
                 onCancel={() => setSelectedType(null)}
+                confirmButton={
+                    <Button color='blue' data-cy='confirm-response-type-change'>Ok</Button>
+                }
             />
         </>
     );

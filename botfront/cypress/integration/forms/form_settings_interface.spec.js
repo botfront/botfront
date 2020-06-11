@@ -13,8 +13,13 @@ describe('use the main form editor interface to', () => {
         cy.login();
     });
     afterEach(() => {
+        cy.logout();
         cy.deleteProject('bf');
     });
+    const changeResponseType = (type) => {
+        cy.dataCy('change-response-type').find('span').contains(type).click({ force: true });
+        cy.dataCy('confirm-response-type-change').click();
+    };
     it('should edit the form name, description, slots, and collect in botfront status', () => {
         cy.visit('project/bf/stories');
         cy.manuallyCreateForm();
@@ -65,25 +70,26 @@ describe('use the main form editor interface to', () => {
         // check quick reply responses
         cy.dataCy('change-response-type').click();
         cy.dataCy('change-response-type').find('span').contains('quick reply').click();
+        cy.dataCy('confirm-response-type-change').click();
         cy.dataCy('bot-response-input').find('textarea').should('exist');
         cy.dataCy('button_title').should('exist');
         cy.dataCy('icon-pin').should('not.have.class', 'light-green');
         // check button responses
-        cy.dataCy('change-response-type').find('span').contains('buttons').click({ force: true });
+        changeResponseType('buttons');
         cy.dataCy('bot-response-input').find('textarea').should('exist');
         cy.dataCy('button_title').should('exist');
         cy.dataCy('icon-pin').should('have.class', 'light-green');
         // check carousel responses
-        cy.dataCy('change-response-type').find('span').contains('carousel').click({ force: true });
+        changeResponseType('carousel');
         cy.dataCy('add-slide').should('exist');
         cy.dataCy('image-container').should('exist');
         // check custom responses
-        cy.dataCy('change-response-type').find('span').contains('custom').click({ force: true });
+        changeResponseType('custom');
         cy.dataCy('edit-custom-response').click();
         cy.dataCy('custom-response-editor').should('exist');
         cy.escapeModal();
         // check responses
-        cy.dataCy('change-response-type').find('span').contains('text').click({ force: true });
+        changeResponseType('text');
         cy.dataCy('edit-custom-response').should('not.exist');
         cy.dataCy('bot-response-input').find('textarea').should('exist');
         // edit response
@@ -91,6 +97,24 @@ describe('use the main form editor interface to', () => {
         cy.reload();
         cy.selectFormSlot(catSlot);
         cy.dataCy('bot-response-input').find('textarea').should('have.text', 'categorical slot');
+    });
+    it('should change the response languages', () => {
+        cy.visit('project/bf/stories');
+        cy.createNLUModelProgramatically('bf', 'testModel', 'fr', 'multi lingual test model');
+        cy.visit('project/bf/stories');
+        cy.meteorAddSlot('catSlot', 'categorical');
+        cy.createForm('bf', 'test1_form', {
+            slots: [catSlot],
+        });
+        cy.selectFormSlot('catSlot');
+        cy.dataCy('bot-response-input').find('textarea').click();
+        cy.dataCy('bot-response-input').find('textarea').type('test').blur();
+        cy.dataCy('language-selector').click();
+        cy.dataCy('language-selector').find('span.text').contains('French').click();
+        cy.get('[data-cy=bot-response-input] > div >textarea').should('not.have.value', 'test');
+        cy.dataCy('language-selector').click();
+        cy.dataCy('language-selector').find('span.text').contains('English').click();
+        cy.get('[data-cy=bot-response-input] > div >textarea').should('have.value', 'test');
     });
     it('set all slot types', () => {
         cy.visit('project/bf/stories');

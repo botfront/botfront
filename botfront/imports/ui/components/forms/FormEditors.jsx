@@ -71,7 +71,7 @@ const FormEditors = (props) => {
         );
     };
     return (
-        <div>
+        <>
             <Loader active={!formIds || !data} />
             {data && (
                 <>
@@ -79,7 +79,7 @@ const FormEditors = (props) => {
                     {slots[0] !== formIds[0] && slots.map(slot => renderSlot(slot))}
                 </>
             )}
-        </div>
+        </>
     );
 };
 
