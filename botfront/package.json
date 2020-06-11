@@ -6,7 +6,7 @@
   "scripts": {
     "start": "meteor run",
     "start:docker-compose": "BF_PROJECT_ID=bf ORCHESTRATOR=docker-compose meteor run",
-    "start:docker-compose.dev": "MODE=development BF_PROJECT_ID=bf MONGO_URL=mongodb://localhost:27017/bf ORCHESTRATOR=docker-compose meteor run",
+    "start:docker-compose.dev": "MODE=development BF_PROJECT_ID=bf MONGO_URL=mongodb://localhost:27017/bf-os ORCHESTRATOR=docker-compose meteor run",
     "start:docker-compose.ci": "MODE=test BF_PROJECT_ID=bf MONGO_URL=mongodb://localhost:27017/bf ORCHESTRATOR=docker-compose meteor run",
     "test-watch": "METEOR_PORT=3100 TEST_BROWSER_DRIVER=chrome meteor test --driver-package meteortesting:mocha --port 3100",
     "test-once": "METEOR_PORT=3100 TEST_BROWSER_DRIVER=chrome meteor test --once --driver-package meteortesting:mocha --port 3100",
@@ -111,7 +111,7 @@
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.6",
     "chai": "^4.1.2",
-    "chromedriver": "^80.0.1",
+    "chromedriver": "^83.0.0",
     "commitizen": "^3.0.7",
     "core-js": "^2.5.3",
     "cypress": "^4.0.2",
