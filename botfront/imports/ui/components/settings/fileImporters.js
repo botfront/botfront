@@ -1,8 +1,26 @@
 import { wrapMeteorCallback } from '../utils/Errors';
 import { CREATE_AND_OVERWRITE_RESPONSES as createResponses } from '../templates/mutations';
+import { UPSERT_FORM as upsertForm } from '../stories/graphql/queries';
 import apolloClient from '../../../startup/client/apollo';
 
-const handleImportForms = () => new Promise(resolve => resolve(true));
+const handleImportForms = async (bfForms = [], projectId) => {
+    const res = await Promise.all(bfForms.map(form => apolloClient
+        .mutate({
+            mutation: upsertForm,
+            variables: { form: { ...form, projectId } },
+        })));
+    if (!res) return 'Forms not inserted.';
+    const notUpserted = [];
+    res.forEach(({ data } = {}, index) => {
+        if (!data || !data.upsertForm || !data.upsertForm._id) {
+            notUpserted.push(bfForms[index].name);
+        }
+    });
+    if (notUpserted.length) {
+        return `Forms ${notUpserted.join(', ')} not inserted.`;
+    }
+    return true;
+};
 
 const handleImportResponse = (responses, projectId) => new Promise(resolve => apolloClient
     .mutate({

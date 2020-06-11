@@ -28,7 +28,7 @@ type Mutation {
 }
 
 type Form {
-    _id: String!
+    _id: String
     name: FormName
     slots: [SlotToFill]
     collect_in_botfront: Boolean

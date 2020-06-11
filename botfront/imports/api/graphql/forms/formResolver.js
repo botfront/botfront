@@ -52,28 +52,19 @@ export default {
     Mutation: {
         submitForm: async (_root, args) => submitForm(args),
         importSubmissions: async (_root, args) => importSubmissions(args),
-        upsertForm: async (_, args, context) => {
+        upsertForm: async (_, args) => {
             checkIfCan('stories:w', args.form.projectId, context.user._id);
-            const updatedForm = await upsertForm(args);
-            if (updatedForm.formsAdded) {
-                pubsub.publish(FORMS_CREATED, {
+            const { status, value } = await upsertForm(args);
+            if (status !== 'inserted') {
+                const publication = status === 'inserted' ? FORMS_CREATED : FORMS_MODIFIED;
+                const key = status === 'inserted' ? 'formsCreated' : 'formsModified';
+                pubsub.publish(publication, {
                     projectId: args.form.projectId,
-                    formsCreated: {
-                        ...args.form,
-                        _id: updatedForm.formsAdded[0],
-                    },
+                    [key]: value,
                 });
-                return { _id: updatedForm.formsAdded[0] };
+                return { _id: value._id };
             }
-            const dataUpdate = {
-                ...updatedForm,
-                ...args.form,
-            };
-            pubsub.publish(FORMS_MODIFIED, {
-                projectId: args.form.projectId,
-                formsModified: dataUpdate,
-            });
-            return { _id: args.form._id };
+            return {};
         },
         deleteForms: async (_, args, context) => {
             checkIfCan('stories:w', args.projectId, context.user._id);

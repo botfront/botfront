@@ -18,28 +18,27 @@ export const deleteForms = async ({ projectId, ids }) => {
 };
 export const upsertForm = async (data) => {
     const { projectId, _id, ...update } = data.form;
-    if (_id) {
-        return Forms.findOneAndUpdate({ projectId, _id }, { $set: update }).lean();
-    }
-    const result = await Forms.update(
-        { projectId, name: update.form },
+    
+    const query = { ...(_id ? { _id } : {}), projectId, ...(!_id ? { name: update.name } : {}) };
+    const result = await Forms.findOneAndUpdate(
+        query,
         {
             $set: update,
-            $setOnInsert: { _id: uuidv4() },
+            ...(!_id ? { $setOnInsert: { _id: uuidv4() } } : {}),
         },
         { new: true, upsert: true, rawResult: true },
-    );
-    const { upserted } = result;
-    const upsertedIds = upserted.map(({ _id: id }) => id);
+    ).lean();
+    const { lastErrorObject: { upserted } = {}, ok, value = {} } = result;
     const $position = update.pinned
         ? 0
         : StoryGroups.find({ projectId, pinned: true }).count()
           + (await Forms.countDocuments({ projectId, pinned: true }));
     Projects.update(
         { _id: projectId },
-        { $push: { storyGroups: { $each: upsertedIds, $position } } },
+        { $push: { storyGroups: { $each: [upserted], $position } } },
     );
-    return { formsAdded: upsertedIds };
+    const status = !ok ? 'failed' : upserted ? 'inserted' : 'updated';
+    return { status, value };
 };
 
 export const submitForm = async (args) => {
