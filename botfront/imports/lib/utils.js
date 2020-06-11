@@ -13,7 +13,7 @@ import { checkIfCan } from './scopes';
 import { Projects } from '../api/project/project.collection';
 import { NLUModels } from '../api/nlu_model/nlu_model.collection';
 import { getNluModelLanguages } from '../api/nlu_model/nlu_model.utils';
-import { getImageWebhooks } from '../api/graphql/botResponses/mongo/botResponses';
+import { getImageWebhooks, deleteImages } from '../api/graphql/botResponses/mongo/botResponses';
 
 export const setsAreIdentical = (arr1, arr2) => (
     arr1.every(en => arr2.includes(en))
@@ -194,6 +194,14 @@ if (Meteor.isServer) {
             if (resp.status === 404) throw new Meteor.Error('404', 'Image upload webhook not Found');
             if (resp.status !== 200) throw new Meteor.Error('500', 'Image upload rejected upload.');
             return resp;
+        },
+
+        async 'delete.image' (projectId, imgSrc) {
+            checkIfCan('responses:w', projectId);
+            check(projectId, String);
+            check(imgSrc, String);
+            const { deleteImageWebhook: { url, method } } = getImageWebhooks();
+            if (url && method) deleteImages([imgSrc], projectId, url, method);
         },
 
         async 'deploy.model' (projectId, target) {

@@ -8,6 +8,8 @@ import {
 import { NativeTypes } from 'react-dnd-html5-backend-cjs';
 import { useDrop } from 'react-dnd-cjs';
 import { ResponseContext } from './BotResponsesContainer';
+import { ProjectContext } from '../../../layouts/context';
+import { wrapMeteorCallback } from '../../utils/Errors';
 
 export default function ImageThumbnail(props) {
     const {
@@ -16,14 +18,20 @@ export default function ImageThumbnail(props) {
     const [newValue, setNewValue] = useState(value);
     const [modalOpen, setModalOpen] = useState(false);
     const { uploadImage } = useContext(ResponseContext) || {};
+    const { project: { _id: projectId } } = useContext(ProjectContext);
     useEffect(() => setNewValue(value), [value]);
 
     const imageUrlRef = useRef();
     const fileField = useRef();
     const [isUploading, setIsUploading] = useState();
 
+    const handleSrcChange = (src) => {
+        onChange(src);
+        Meteor.call('delete.image', projectId, value, wrapMeteorCallback);
+    };
+
     const setImageFromUrlBox = () => {
-        onChange(imageUrlRef.current.inputRef.current.value);
+        handleSrcChange(imageUrlRef.current.inputRef.current.value);
         setModalOpen(false);
     };
 
@@ -40,7 +48,7 @@ export default function ImageThumbnail(props) {
         setIsUploading(true);
         setModalOpen(false);
         uploadImage({
-            file: validFiles[0], setImage: onChange, resetUploadStatus: () => setIsUploading(false),
+            file: validFiles[0], setImage: handleSrcChange, resetUploadStatus: () => setIsUploading(false),
         });
     };
 

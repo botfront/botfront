@@ -453,6 +453,11 @@ if (Meteor.isServer) {
             args: [projectId],
         },
         {
+            name: 'delete.image',
+            roles: writers.responses,
+            args: [projectId],
+        },
+        {
             name: 'getRestartRasaWebhook',
             roles: writers.projects,
             args: [projectId],

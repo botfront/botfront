@@ -127,18 +127,12 @@ export const getImageWebhooks = () => {
     return { deleteImageWebhook, uploadImageWebhook };
 };
 
-const deleteImages = async (imgUrls, projectId, url, method) => {
-    const result = await Promise.all(
-        imgUrls.map(imageUrl => Meteor.callWithPromise('axios.requestWithJsonBody', url, method, {
-            projectId,
-            uri: imageUrl,
-        })),
-    );
-    if (result.filter(r => ![204, 404].includes(r.status))) {
-        // Right now, can't find way to get error all the way to client
-        // but we can ignore since an error is not fatal
-    }
-};
+export const deleteImages = async (imgUrls, projectId, url, method) => Promise.all(
+    imgUrls.map(imageUrl => Meteor.callWithPromise('axios.requestWithJsonBody', url, method, {
+        projectId,
+        uri: imageUrl,
+    })),
+);
 
 export const deleteResponse = async (projectId, key) => {
     const response = await BotResponses.findOne({ projectId, key }).lean();
