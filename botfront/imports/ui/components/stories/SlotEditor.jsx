@@ -78,7 +78,7 @@ function SlotEditor(props) {
                         saveText={newSlot ? 'Add Slot' : 'Save'}
                     />
                 )}
-                {hover && !newSlot && canEditSlots && (
+                {hover && canEditSlots && (
                     <>
                         <Popup
                             trigger={(
