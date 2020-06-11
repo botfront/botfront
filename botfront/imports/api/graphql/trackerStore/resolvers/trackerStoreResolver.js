@@ -12,7 +12,7 @@ export default {
     },
     Mutation: {
         async insertTrackerStore(_, args, __) {
-            const response = await upsertTrackerStore(args.senderId, args.projectId, args.tracker);
+            const response = await upsertTrackerStore(args);
             return response;
         },
         async updateTrackerStore(_, args, __) {

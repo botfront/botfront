@@ -65,11 +65,12 @@ const getNewTrackerInfo = async (senderId, projectId) => {
 };
 
 const extractMetadataFromTracker = (tracker) => {
-    if (!tracker || !tracker.events) return null;
-    const { metadata } = tracker.events.filter(e => e.event === 'user')[0] || {
-        metadata: {},
-    };
-    return metadata;
+    if (!tracker) return {};
+    const firstUserEvent = (tracker.events || []).find(
+        e => e.event === 'user' && Object.keys(e.metadata || {}).length,
+    );
+    if (firstUserEvent) return firstUserEvent.metadata;
+    return {};
 };
 
 async function logUtterance(utterance, modelId, convId, env, callback) {
@@ -107,12 +108,7 @@ async function logUtterance(utterance, modelId, convId, env, callback) {
         err => callback(newUtterance, err),
     );
 }
-const logUtterancesFromTracker = async function (
-    projectId,
-    events,
-    env,
-    convId,
-) {
+const logUtterancesFromTracker = async function (projectId, events, env, convId) {
     try {
         const userUtterances = events.filter(
             event => event.event === 'user' && event.text.indexOf('/') !== 0,
@@ -160,50 +156,60 @@ export const upsertTrackerStore = async ({
         logUtterancesFromTracker(projectId, events, env, senderId);
     }
 
-    const setTracker = {};
-    Object.keys(tracker).forEach((key) => {
-        if (key !== 'events') {
-            setTracker[`tracker.${key}`] = tracker[key];
-        }
-    });
-    const intents = events
-        .filter(event => event.event === 'user')
-        .map(event => event.parse_data.intent.name);
-    const actions = events
-        .filter(event => event.event === 'action')
-        .map(event => event.name);
-    const firstEventTimestamp = (events[0] || {}).timestamp;
+    let failed = false;
+    let inserted = [];
+    try {
+        const setTracker = {};
+        Object.keys(tracker).forEach((key) => {
+            if (key !== 'events') {
+                setTracker[`tracker.${key}`] = tracker[key];
+            }
+        });
+        const intents = events
+            .filter(event => event.event === 'user')
+            .map(event => event.parse_data.intent.name);
+        const actions = events
+            .filter(event => event.event === 'action')
+            .map(event => event.name);
+        const firstEventTimestamp = (events[0] || {}).timestamp;
 
-    const { ok, upserted = [] } = await Conversations.update(
-        { projectId, _id: senderId, env },
-        {
-            ...(!overwriteEvents ? {
-                $push: {
-                    'tracker.events': { $each: events },
+        const { ok, upserted = [] } = await Conversations.update(
+            { projectId, _id: senderId, env },
+            {
+                ...(!overwriteEvents
+                    ? {
+                        $push: {
+                            'tracker.events': { $each: events },
+                        },
+                    }
+                    : {}),
+                $set: {
+                    ...setTracker,
+                    ...(overwriteEvents ? { 'tracker.events': events } : {}),
+                    updatedAt: new Date(),
+                    ...(userId ? { userId } : {}),
+                    ...(language ? { language } : {}),
                 },
-            } : {}),
-            $set: {
-                ...setTracker,
-                ...(overwriteEvents ? { 'tracker.events': events } : {}),
-                updatedAt: new Date(),
-                ...(userId ? { userId } : {}),
-                ...(language ? { language } : {}),
+                $addToSet: {
+                    intents: { $each: intents },
+                    actions: { $each: actions },
+                },
+                $setOnInsert: {
+                    status: 'new',
+                    createdAt: firstEventTimestamp
+                        ? new Date(firstEventTimestamp)
+                        : new Date(),
+                },
             },
-            $addToSet: {
-                intents: { $each: intents },
-                actions: { $each: actions },
-            },
-            $setOnInsert: {
-                status: 'new',
-                createdAt: firstEventTimestamp
-                    ? new Date(firstEventTimestamp)
-                    : new Date(),
-            },
-        },
-        { upsert: true },
-    );
+            { upsert: true },
+        );
+        failed = !ok;
+        inserted = upserted;
+    } catch (e) {
+        failed = true;
+    }
     return {
-        ...await getNewTrackerInfo(senderId, projectId),
-        status: !ok ? 'failed' : upserted.length ? 'inserted' : 'updated',
+        ...(await getNewTrackerInfo(senderId, projectId)),
+        status: failed ? 'failed' : inserted.length ? 'inserted' : 'updated',
     };
 };
