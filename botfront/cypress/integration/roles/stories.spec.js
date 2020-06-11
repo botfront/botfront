@@ -116,5 +116,6 @@ describe('story permissions', function() {
         // all editable elements are wraped in a read only container
         cy.dataCy('extraction-item-container').should('have.class', 'read-only');
         cy.dataCy('extraction-source-dropdown').should('have.class', 'disabled');
+        cy.dataCy('extraction-item-container').find('[data-cy=icon-trash]').should('not.exist');
     });
 });
