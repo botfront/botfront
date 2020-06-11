@@ -72,38 +72,13 @@ function SlotEditor(props) {
                 <b>{`Type:  ${type}`}</b>
                 <br />
                 <ErrorsField data-cy='errors-field' />
-                <SaveButton
-                    saved={saved}
-                    saveText={newSlot ? 'Add Slot' : 'Save'}
-                />
-                {hover && canEditSlots && (
-                    <>
-                        <Popup
-                            trigger={(
-                                <Icon
-                                    name='trash'
-                                    color='grey'
-                                    link={deletable}
-                                    data-cy='delete-slot'
-                                    disabled={!deletable}
-                                />
-                            )}
-                            content={(
-                                <ConfirmPopup
-                                    title='Delete Slot ?'
-                                    onYes={() => onDelete(slot)}
-                                    onNo={() => setDeletePopup(false)}
-                                />
-                            )}
-                            on='click'
-                            open={deletePopupOpen}
-                            onOpen={() => setDeletePopup(true)}
-                            disabled={!deletable}
-                        />
-                        {!deletable && <span className='grey'>This slot cannot be deleted as it is used in forms.</span>}
-                    </>
+                { canEditSlots && (
+                    <SaveButton
+                        saved={saved}
+                        saveText={newSlot ? 'Add Slot' : 'Save'}
+                    />
                 )}
-                {hover && !newSlot && canEditSlots && (
+                {hover && canEditSlots && (
                     <>
                         <Popup
                             trigger={(

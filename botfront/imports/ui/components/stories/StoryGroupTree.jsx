@@ -122,6 +122,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
             children: storyGroupOrder.filter(id => id in newTree.items),
             id: 'root',
             title: 'root',
+            type: 'root',
         };
         return newTree;
     }, [forms, storyGroups, stories, storyGroupOrder]);

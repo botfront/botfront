@@ -24,7 +24,7 @@ const convertId = ({
     }
     if (title) {
         if (type === 'story-group') titleField = { name: title };
-        if (type === 'form') titleField = { name: title };
+        else if (type === 'form') titleField = { name: title };
         else titleField = { title };
     }
     return {
@@ -66,7 +66,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
     } = externalMutators;
 
     const mutatorMapping = (type, action) => {
-        if (type === 'story-group') {
+        if (['story-group', 'root'].includes(type)) {
             if (action === 'update') return updateGroup;
             if (action === 'expand') return setExpansionOnGroup;
             if (action === 'reorder') return updateGroup;
@@ -278,7 +278,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
                 id: newDestination.id,
                 children: newDestination.children,
                 isExpanded: true,
-            }),
+            }, newDestination.type),
             () => setSomethingIsMutating(false),
         );
         if (newDestination.id !== newSource.id) {
@@ -287,9 +287,9 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
                 convertId({
                     id: newSource.id,
                     children: newSource.children,
-                }),
+                }, 'story-group'),
                 () => updateStory(
-                    sourceNodes.map(({ id }) => convertId({ id, parentId: newDestination.id }, false)),
+                    sourceNodes.map(({ id }) => convertId({ id, parentId: newDestination.id }, 'story')),
                     updateDestination,
                 ),
             );

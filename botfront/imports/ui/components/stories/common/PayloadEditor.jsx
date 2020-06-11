@@ -45,7 +45,7 @@ const PayloadEditor = (props) => {
     }
 
     return (
-        <div>
+        <div data-cy='payload-editor'>
             <h4 className='payload-title'>Payload</h4>
             <Grid columns={2} className='story-payload-editor'>
                 <Grid.Row>

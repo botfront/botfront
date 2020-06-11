@@ -146,7 +146,7 @@ class StoryGroupNavigation extends React.Component {
                             value={newItemName}
                             onKeyDown={this.handleKeyDownInput}
                             autoFocus
-                            onBlur={this.submitTitleInput}
+                            onBlur={this.resetAddItem}
                             fluid
                             data-cy='add-item-input'
                             className='navigation'
