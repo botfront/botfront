@@ -50,12 +50,12 @@ export default {
         },
     },
     Mutation: {
-        submitForm: async (_root, args) => submitForm(args),
-        importSubmissions: async (_root, args) => importSubmissions(args),
-        upsertForm: async (_, args) => {
+        submitForm: async (_root, args, context) => submitForm(args),
+        importSubmissions: async (_root, args, context) => importSubmissions(args),
+        upsertForm: async (_, args, context) => {
             checkIfCan('stories:w', args.form.projectId, context.user._id);
             const { status, value } = await upsertForm(args);
-            if (status !== 'inserted') {
+            if (status !== 'failed') {
                 const publication = status === 'inserted' ? FORMS_CREATED : FORMS_MODIFIED;
                 const key = status === 'inserted' ? 'formsCreated' : 'formsModified';
                 pubsub.publish(publication, {
