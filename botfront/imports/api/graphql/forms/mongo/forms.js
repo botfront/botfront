@@ -53,6 +53,7 @@ export const submitForm = async (args) => {
     const { userId, language } = metadata;
     const {
         sender_id: conversationId,
+        latest_event_time: latestEventTime,
         active_form: { name: formName } = {},
         latest_input_channel: latestInputChannel,
         slots,
@@ -73,9 +74,50 @@ export const submitForm = async (args) => {
         results,
         environment,
         projectId,
+        date: new Date(latestEventTime),
     });
 
     return { success: true };
+};
+
+export const importSubmissions = async (args) => {
+    const { form_results: formResults, projectId, environment } = args;
+    const latestAddition = await FormResults.findOne({ environment, projectId })
+        .select('date')
+        .sort('-date')
+        .lean()
+        .exec();
+    const latestTimestamp = latestAddition
+        ? new Date(latestAddition.date) : new Date(0);
+    const submissionsToHandle = formResults
+        .filter(c => new Date(c.date) >= latestTimestamp);
+    const results = await Promise.all(submissionsToHandle
+        .map(({
+            _id: oldId, environment: oldEnv, projectId: oldPid, ...submission
+        }) => {
+            const { conversationId, date } = submission;
+            return FormResults.updateOne(
+                {
+                    conversationId, date, environment, projectId,
+                },
+                submission,
+                { upsert: true },
+            );
+        }));
+    const nTotal = formResults.length;
+    const nPushed = submissionsToHandle.length;
+    const failed = [];
+    let nInserted = 0;
+    let nUpdated = 0;
+
+    results.forEach(({ ok, upserted = [] }, index) => {
+        if (!ok) failed.push(submissionsToHandle[index]._id);
+        else if (upserted.length) nInserted += 1;
+        else nUpdated += 1;
+    });
+    return {
+        nTotal, nPushed, nInserted, nUpdated, failed,
+    };
 };
 
 const generateEnvironmentRestriction = suppliedEnvs => (Array.isArray(suppliedEnvs) && suppliedEnvs.length > 0

@@ -20,6 +20,11 @@ type Mutation {
         projectId: String!
         ids: [String]
     ): [Form]
+    importSubmissions(
+        form_results: [Any]!
+        projectId: String!
+        environment: Environement = development
+    ): batchMutationOutput
 }
 
 type Form {
