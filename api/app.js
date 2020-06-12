@@ -6,11 +6,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const port = process.env.PORT || 8080;
+const reqMaxSize = process.env.API_MAX_REQ_SIZE || 500;
 const app = express();
 const { winstonInstance, logsTransport } = require('./loggerConfig')
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json({ limit: '100mb' }));
-app.use(bodyParser.raw({ limit: '100mb' }));
+app.use(bodyParser.json({ limit: `${reqMaxSize}mb` }));
+app.use(bodyParser.raw({ limit: `${reqMaxSize}mb` }));
 
 if (process.env.CORS === '*') {
     app.use(cors());
