@@ -1,4 +1,6 @@
-import React, { useContext } from 'react';
+import React, {
+    useContext, useState, useEffect,
+} from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { GraphQLBridge } from 'uniforms-bridge-graphql';
@@ -24,6 +26,21 @@ const CreateForm = (props) => {
         onSubmit,
         projectId,
     } = props;
+
+    const { slots } = useContext(ProjectContext);
+    const [slotAdditions, setSlotAdditions] = useState([]);
+
+    useEffect(() => {
+        // if any slots in the form do not exist in the database add them to options
+        if (!Array.isArray(initialModel.slots)) return;
+        const newOptions = initialModel.slots.reduce((acc, slot) => {
+            if (!slots.some(({ name }) => name === slot.name)) {
+                return [...acc, { name: slot.name }];
+            }
+            return acc;
+        }, []);
+        setSlotAdditions([...slotAdditions, ...newOptions]);
+    }, [initialModel]);
 
     const getFormattedModel = () => (clearTypenameField({
         ...initialModel,
@@ -53,7 +70,6 @@ const CreateForm = (props) => {
         onSubmit(clearTypenameField({ ...model, slots: modelSlots }));
     };
 
-    const { slots } = useContext(ProjectContext);
 
     const validator = (model) => {
         const errors = [];
@@ -66,6 +82,13 @@ const CreateForm = (props) => {
         }
     };
 
+    const handleAddItem = (_, { value }) => {
+        setSlotAdditions([...slotAdditions, { name: value }]);
+    };
+
+    const options = [...slots, ...slotAdditions].map(({ name: slot }) => (
+        { value: slot, text: slot }
+    ));
     return (
         <div>
             <AutoForm model={getFormattedModel()} schema={new GraphQLBridge(schema, validator, {})} onSubmit={handleSubmit} disabled={!can('stories:w', projectId)}>
@@ -85,11 +108,11 @@ const CreateForm = (props) => {
                         <SelectField
                             data-cy='form-slots-field'
                             name='slotNames'
-                            options={slots.map(({ name: slot }) => (
-                                { value: slot, text: slot }
-                            ))}
+                            options={options}
                             confirmDeletions
                             className='create-form-field'
+                            allowAdditions
+                            onAddItem={handleAddItem}
                         />
                         <ToggleField name='collect_in_botfront' data-cy='form-collection-togglefield' />
                         <ErrorsField data-cy='error' />

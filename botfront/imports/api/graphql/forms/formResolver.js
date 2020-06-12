@@ -54,7 +54,7 @@ export default {
         importSubmissions: async (_root, args, context) => importSubmissions(args),
         upsertForm: async (_, args, context) => {
             checkIfCan('stories:w', args.form.projectId, context.user._id);
-            const { status, value } = await upsertForm(args);
+            const { status, value } = await upsertForm(args, context.user._id);
             if (status !== 'failed') {
                 const publication = status === 'inserted' ? FORMS_CREATED : FORMS_MODIFIED;
                 const key = status === 'inserted' ? 'formsCreated' : 'formsModified';

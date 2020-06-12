@@ -18,7 +18,7 @@ const getOptions = (allowedValues, props = {}) => {
 };
 
 const renderCheckboxes = ({
-    allowedValues, placeholder, disabled, fieldType, id, name, onChange, transform, value, confirmDeletions, props,
+    allowedValues, placeholder, disabled, fieldType, id, name, onChange, transform, value, confirmDeletions, allowAdditions, onAddItem, props,
 }) => {
     const [popupOpen, setPopupOpen] = useState(null);
     const renderLabel = (props, i) => {
@@ -52,6 +52,8 @@ const renderCheckboxes = ({
             placeholder={placeholder}
             multiple
             search
+            allowAdditions={allowAdditions}
+            onAddItem={onAddItem}
             value={value}
             selection
             {...(confirmDeletions ? { renderLabel } : {})}
@@ -81,6 +83,8 @@ const renderSelect = ({
 
 const Select = ({
     allowedValues,
+    allowAdditions,
+    onAddItem,
     checkboxes,
     className,
     disabled,
@@ -116,6 +120,8 @@ const Select = ({
                 value,
                 fieldType,
                 confirmDeletions,
+                allowAdditions,
+                onAddItem,
                 props,
             })
             : renderSelect({

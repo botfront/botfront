@@ -25,6 +25,28 @@ const ExtractionItem = (props) => {
         projectId,
     } = props;
 
+    const entityOptions = useMemo(() => {
+        if (!entity || entities.some(({ value: entityName }) => entityName === entity)) {
+            return entities;
+        }
+        return [...entities, { text: entity, value: entity }];
+    }, [entity, entities]);
+
+    const getMissingIntents = () => {
+        const intentValues = intent || notIntent || [];
+        const missingIntents = intentValues.reduce((acc, intentValue) => {
+            if (intents.some(({ value: name }) => name === intentValue)) return acc;
+            return [...acc, { value: intentValue, text: intentValue }];
+        }, []);
+        return missingIntents;
+    };
+
+    const intentOptions = useMemo(() => {
+        const missingIntentOptions = getMissingIntents();
+        if (!missingIntentOptions.length) return intents;
+        return [...intents, ...missingIntentOptions];
+    }, [intents, notIntent, intent]);
+
     const canEdit = can('stories:w', projectId);
     const intentCondition = useMemo(() => {
         if (Array.isArray(intent)) return 'include';
@@ -55,21 +77,27 @@ const ExtractionItem = (props) => {
     };
 
     const handleChangeEntity = (e, { value: newValue }) => {
+        if (!newValue) {
+            onChange({ entity: null });
+            return;
+        }
         onChange({ value: null, entity: newValue });
     };
 
     const renderSelectEntitiy = () => (
         <>
             <Dropdown
+                key={`${!value ? 'empty-' : ''}entity-dropdown-${value}`}
                 disabled={!canEdit}
+                allowAdditions
+                search
                 data-cy='entity-value-dropdown'
                 className='extraction-dropdown entity'
                 selection
-                multiple
                 clearable
                 placeholder='select an entity'
-                options={entities}
-                value={entity || []}
+                options={entityOptions}
+                value={entity}
                 onChange={handleChangeEntity}
             />
         </>
@@ -157,9 +185,10 @@ const ExtractionItem = (props) => {
                     placeholder='select included/excluded intents'
                     className='extraction-dropdown'
                     selection
+                    allowAdditions
                     multiple
                     search
-                    options={intents}
+                    options={intentOptions}
                     value={(intentCondition === 'include' ? intent : notIntent) || []}
                     onChange={handleChangeIntent}
                 />

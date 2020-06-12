@@ -2,7 +2,9 @@ import uuidv4 from 'uuid/v4';
 import Forms from '../forms.model';
 import FormResults from '../form_results.model';
 import { StoryGroups } from '../../../storyGroups/storyGroups.collection';
+import { Slots } from '../../../slots/slots.collection';
 import { Projects } from '../../../project/project.collection';
+import { auditLogIfOnServer } from '../../../../lib/utils';
 
 export const getForms = async (projectId, ids = null) => {
     if (!ids) return Forms.find({ projectId }).lean();
@@ -16,7 +18,28 @@ export const deleteForms = async ({ projectId, ids }) => {
     if (response.ok) return ids.map(_id => ({ _id }));
     return [];
 };
-export const upsertForm = async (data) => {
+
+const addNewSlots = async (projectId, slots, userId) => {
+    const slotNames = slots.map(({ name }) => name);
+    const matchedSlots = await Slots.find({ projectId, name: { $in: slotNames } }, { fields: { name: 1 } }).fetch();
+    if (!slotNames.length || slotNames.length === matchedSlots.length) return;
+    slots.forEach(({ name }) => {
+        if (matchedSlots.some(slot => slot.name === name)) return;
+        const slotData = { name, type: 'unfeaturized', projectId };
+        const newId = Slots.insert(slotData);
+        auditLogIfOnServer('Inserted slot', {
+            resId: newId,
+            user: userId,
+            type: 'created',
+            operation: 'slots.created',
+            projectId,
+            after: { slot: { _id: newId, ...slotData } },
+            resType: 'slots',
+        });
+    });
+};
+
+export const upsertForm = async (data, userId) => {
     const { projectId, _id, ...update } = data.form;
     
     const query = { ...(_id ? { _id } : {}), projectId, ...(!_id ? { name: update.name } : {}) };
@@ -37,6 +60,7 @@ export const upsertForm = async (data) => {
         { _id: projectId },
         { $push: { storyGroups: { $each: [upserted], $position } } },
     );
+    addNewSlots(projectId, update.slots, userId);
     const status = !ok ? 'failed' : upserted ? 'inserted' : 'updated';
     return { status, value };
 };
