@@ -1,6 +1,6 @@
 {
   "name": "botfront-api",
-  "version": "0.24.3-ee.4",
+  "version": "0.24.3-ee.5",
   "private": true,
   "scripts": {
     "start": "node app.js",
