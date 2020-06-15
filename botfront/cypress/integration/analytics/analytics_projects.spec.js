@@ -1,6 +1,6 @@
 /* global cy */
 
-describe('analytics cards', function () {
+describe('analytics projects', function () {
     beforeEach(function () {
         // Make sure we have two projects, so we can switch from one to the other
         cy.createProject('bf', 'My Project', 'en').then(() => {
