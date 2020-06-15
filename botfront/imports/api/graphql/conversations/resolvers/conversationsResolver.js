@@ -40,7 +40,7 @@ export default {
                 .lean()
                 .exec();
             const latestTimestamp = latestAddition
-                ? Math.floor(latestAddition.tracker.latest_event_time) : 0;
+                ? latestAddition.tracker.latest_event_time : 0;
             const results = await Promise.all(conversations
                 .filter(c => c.tracker.latest_event_time >= latestTimestamp)
                 .map(c => upsertTrackerStore({

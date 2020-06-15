@@ -61,6 +61,7 @@ const getNewTrackerInfo = async (senderId, projectId) => {
         },
     ];
     const results = await Conversations.aggregate(aggregation).allowDiskUse(true);
+    if (!results.length) return { _id: senderId };
     return results[0];
 };
 
