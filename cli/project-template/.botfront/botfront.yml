@@ -12,8 +12,6 @@ images:
 # Note that they will be upper cased in the generated .env file
 env:
   bf_project_id: bf
-  actions_url: http://actions:5055/webhook
   bf_url: http://botfront:3000/graphql
-  orchestrator: docker-compose
-  root_url: http://localhost:8888
-  socket_path: /socket.io/
+  root_url: http://localhost:8888 # used by meteor
+  augmentation_factor: 50 # used by rasa core

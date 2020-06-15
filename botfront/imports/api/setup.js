@@ -2,6 +2,7 @@ import { Accounts } from 'meteor/accounts-base';
 import SimpleSchema from 'simpl-schema';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
+import { safeLoad, safeDump } from 'js-yaml';
 
 import { GlobalSettings } from './globalSettings/globalSettings.collection';
 import { passwordComplexityRegex } from './user/user.methods';
@@ -71,21 +72,28 @@ if (Meteor.isServer) {
                 throw new Meteor.Error('403', 'Not authorized');
             }
 
-            let spec = process.env.ORCHESTRATOR ? `.${process.env.ORCHESTRATOR}` : '.docker-compose';
-            if (process.env.MODE === 'test' || process.env.CI) {
-                spec = `${spec}.ci`;
-            } else if (process.env.MODE === 'development') {
-                spec = `${spec}.dev`;
-            }
-            let globalSettings = null;
-
-            try {
-                globalSettings = JSON.parse(Assets.getText(`default-settings${spec}.json`));
-            } catch (e) {
-                globalSettings = JSON.parse(Assets.getText('default-settings.json'));
-            }
-
-            GlobalSettings.insert({ _id: 'SETTINGS', ...globalSettings });
+            const publicSettings = safeLoad(Assets.getText('defaults/public.yaml'));
+            const privateSettings = safeLoad(Assets.getText(
+                process.env.MODE === 'development' ? 'defaults/private.dev.yaml' : 'defaults/private.yaml',
+            ));
+            
+            const settings = {
+                public: {
+                    backgroundImages: publicSettings.backgroundImages || [],
+                    defaultNLUConfig: safeDump({ pipeline: publicSettings.pipeline }),
+                },
+                private: {
+                    bfApiHost: privateSettings.bfApiHost || '',
+                    defaultEndpoints: safeDump(privateSettings.endpoints),
+                    defaultCredentials: safeDump(privateSettings.credentials)
+                        .replace(/{SOCKET_HOST}/g, process.env.SOCKET_HOST || 'botfront.io'),
+                    defaultPolicies: safeDump({ policies: privateSettings.policies }),
+                    defaultDefaultDomain: safeDump(privateSettings.defaultDomain),
+                    webhooks: privateSettings.webhooks,
+                },
+            };
+            
+            GlobalSettings.insert({ _id: 'SETTINGS', settings });
 
             const {
                 email, password, firstName, lastName,

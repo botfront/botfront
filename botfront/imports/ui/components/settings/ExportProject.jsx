@@ -177,7 +177,7 @@ const ExportProject = ({
                     setLoading(false);
                     return;
                 }
-                rasaZip.downloadAs(`${projectId}_RasaExport`, () => {
+                rasaZip.downloadAs(`${projectId}_RasaExport.zip`, () => {
                     setExportSuccessful(true);
                     setLoading(false);
                 });

@@ -64,6 +64,16 @@ export const useStoryFileReader = (existingStoryGroups) => {
         }
         if (addInstruction) {
             // add: array of files
+            if (addInstruction.some(f => f.firstLine)) {
+                // file already there, but data wiping toggled, so just need to change storygroup name
+                return fileList.map((f) => {
+                    if (!f.firstLine) return f;
+                    const { name } = fileToStoryGroup(f.filename, f.firstLine, [
+                        ...existingStoryGroups,
+                    ]);
+                    return { ...f, name };
+                });
+            }
             addInstruction.forEach((f) => {
                 const reader = new FileReader();
                 reader.readAsText(f);

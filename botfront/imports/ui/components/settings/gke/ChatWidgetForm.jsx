@@ -15,7 +15,7 @@ import ToggleField from '../../common/ToggleField';
 import SelectField from '../../form_fields/SelectField';
 import { Credentials as CredentialsCollection } from '../../../../api/credentials';
 import { Projects as ProjectsCollection } from '../../../../api/project/project.collection';
-import { chatWidgetSettingsSchema } from '../../../../api/project/project.schema.default';
+import { chatWidgetSettingsSchema } from '../../../../api/project/project.schema';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import 'react-s-alert/dist/s-alert-default.css';
 import SaveButton from '../../utils/SaveButton';

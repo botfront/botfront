@@ -10,7 +10,7 @@ import {
 } from 'uniforms-semantic';
 import { Dropdown, Form, Message } from 'semantic-ui-react';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
-import { ProjectsSchema as projectsSchemaDefault } from '../../../api/project/project.schema.default';
+import { ProjectsSchema } from '../../../api/project/project.schema';
 import { Projects } from '../../../api/project/project.collection';
 import InfoField from '../utils/InfoField';
 import { wrapMeteorCallback } from '../utils/Errors';
@@ -133,9 +133,8 @@ class ProjectInfo extends React.Component {
     render() {
         const { project, modelLanguages, ready } = this.props;
         const { saving, value } = this.state;
-        const projectsSchema = Projects.simpleSchema();
         const hasWritePermission = can('projects:w', project._id);
-        const bridge = projectsSchema ? new SimpleSchema2Bridge(projectsSchema) : new SimpleSchema2Bridge(projectsSchemaDefault);
+        const bridge = new SimpleSchema2Bridge(ProjectsSchema);
         return (
             <>
                 {ready && (
@@ -150,22 +149,15 @@ class ProjectInfo extends React.Component {
                             label='Name'
                             className='project-name'
                         />
-                        {projectsSchema
-                            && projectsSchema.allowsKey('namespace') && (
-                            <InfoField
-                                name='namespace'
-                                label='Namespace'
-                                disabled
-                            />
-                        )}
-                        {projectsSchema
-                            && projectsSchema.allowsKey('apiKey') && (
-                            <InfoField
-                                name='apiKey'
-                                label='Botfront API key'
-                                disabled
-                            />
-                        )}
+                        <InfoField
+                            name='namespace'
+                            label='Namespace'
+                            disabled
+                        />
+                        <InfoField
+                            name='modelsBucket'
+                            label='GCS Bucket'
+                        />
                         <Form.Field>
                             <label>Languages supported</label>
                             <Dropdown
@@ -213,11 +205,7 @@ class ProjectInfo extends React.Component {
                         <Message
                             size='tiny'
                             info
-                            content={(
-                                <>
-                     If you remove all environments, all stories will be published
-                                </>
-                            )}
+                            content='If you remove all environments, all stories will be published'
                         />
 
                         <AutoField

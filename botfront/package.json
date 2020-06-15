@@ -6,7 +6,7 @@
   "scripts": {
     "start": "meteor run",
     "start:docker-compose": "BF_PROJECT_ID=bf ORCHESTRATOR=docker-compose meteor run",
-    "start:docker-compose.dev": "MODE=development BF_PROJECT_ID=bf MONGO_URL=mongodb://localhost:27017/bf ORCHESTRATOR=docker-compose meteor run",
+    "start:docker-compose.dev": "MODE=development BF_PROJECT_ID=bf MONGO_URL=mongodb://localhost:27017/bf-os ORCHESTRATOR=docker-compose meteor run",
     "start:docker-compose.ci": "MODE=test BF_PROJECT_ID=bf MONGO_URL=mongodb://localhost:27017/bf ORCHESTRATOR=docker-compose meteor run",
     "test-watch": "METEOR_PORT=3100 TEST_BROWSER_DRIVER=chrome meteor test --driver-package meteortesting:mocha --port 3100",
     "start:gke": "ORCHESTRATOR=gke meteor run",

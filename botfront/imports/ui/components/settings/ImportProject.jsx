@@ -58,8 +58,7 @@ const ImportProject = ({
 
     const importProject = () => {
         setLoading(true);
-        Meteor.call('importProject', uploadedFiles.botfront, apiHost, projectId, (err, result) => {
-            console.log(result);
+        Meteor.call('importProject', uploadedFiles.botfront, apiHost, projectId, (err) => {
             if (!err) {
                 setImportSuccessful(true);
             } else {
