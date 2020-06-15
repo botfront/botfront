@@ -69,9 +69,8 @@ class Settings extends React.Component {
 
     renderMisc = () => (
         <Tab.Pane>
-            <Message info icon='question circle' content='ID of project containing chitchat NLU training data' />
             <InfoField name='settings.private.bfApiHost' label='Botfront API host' data-cy='docker-api-host' />
-            <AutoField name='settings.public.chitChatProjectId' />
+            <AutoField name='settings.public.chitChatProjectId' label='Chitchat project Id' info='ID of project containing chitchat NLU training data' />
             <AutoField name='settings.public.docUrl' />
         </Tab.Pane>
     );

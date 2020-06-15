@@ -1,6 +1,5 @@
 import { sortBy, isEqual } from 'lodash';
 import { safeDump, safeLoad } from 'js-yaml';
-import { Instances } from '../imports/api/instances/instances.collection';
 import { GlobalSettings } from '../imports/api/globalSettings/globalSettings.collection';
 import { Projects } from '../imports/api/project/project.collection';
 import { Stories } from '../imports/api/story/stories.collection';
@@ -14,14 +13,7 @@ import Activity from '../imports/api/graphql/activity/activity.model';
 
 Migrations.add({
     version: 1,
-    up: () => {
-        Instances.find()
-            .fetch()
-            .forEach((i) => {
-                console.log(i);
-                if (!i.type) Instances.update({ _id: i._id }, { $set: { type: ['nlu'] } });
-            });
-    },
+    up: () => {},
 });
 
 Migrations.add({
