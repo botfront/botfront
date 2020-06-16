@@ -40,7 +40,6 @@ describe('global settings read permissions', () => {
             'Webhooks',
             'Security',
             'Misc',
-            'Support',
         ];
         // we check the panes where every single field is disabled
         simpleDisabledCheck.forEach((menu) => {
@@ -54,10 +53,6 @@ describe('global settings read permissions', () => {
         cy.contains('Appearance').click();
         cy.get('div.column div.tab > .field').each(field => cy.wrap(field).should('have.class', 'disabled'));
         cy.get('div.column div.tab > .fields').each(field => cy.wrap(field).should('have.class', 'disabled'));
-        cy.visit('/admin/settings');
-        cy.contains('GKE settings').click();
-        cy.get('div.column div.tab .field .field').each(field => cy.wrap(field).should('have.class', 'disabled'));
-        cy.visit('/admin/settings');
     });
 
 
