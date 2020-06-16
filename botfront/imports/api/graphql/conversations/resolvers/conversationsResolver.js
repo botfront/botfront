@@ -10,6 +10,24 @@ import {
     upsertTrackerStore,
 } from '../../trackerStore/mongo/trackerStore';
 
+const getLatestTimestamp = async (projectId, environment) => {
+    const query = !environment || environment === 'development'
+        ? {
+            $or: [
+                { projectId, env: { $exists: false } },
+                { projectId, env: 'development' },
+            ],
+        }
+        : { projectId, env: environment };
+    const latestAddition = await Conversations.findOne(query)
+        .select('tracker.latest_event_time')
+        .sort('-tracker.latest_event_time')
+        .lean()
+        .exec();
+    return latestAddition
+        ? latestAddition.tracker.latest_event_time : 0;
+};
+
 export default {
     Query: {
         async conversationsPage(_, args, __) {
@@ -18,6 +36,7 @@ export default {
         async conversation(_, args, __) {
             return getConversation(args.projectId, args.id);
         },
+        latestImportedEvent: async (_, args, __) => getLatestTimestamp(args.projectId, args.environment),
     },
     Mutation: {
         async markAsRead(_, args, __) {
@@ -34,13 +53,7 @@ export default {
         },
         importConversations: async (_, args, __) => {
             const { conversations, projectId, environment } = args;
-            const latestAddition = await Conversations.findOne({ env: environment, projectId })
-                .select('tracker.latest_event_time')
-                .sort('-tracker.latest_event_time')
-                .lean()
-                .exec();
-            const latestTimestamp = latestAddition
-                ? latestAddition.tracker.latest_event_time : 0;
+            const latestTimestamp = await getLatestTimestamp(projectId, environment);
             const results = await Promise.all(conversations
                 .filter(c => c.tracker.latest_event_time >= latestTimestamp)
                 .map(c => upsertTrackerStore({
