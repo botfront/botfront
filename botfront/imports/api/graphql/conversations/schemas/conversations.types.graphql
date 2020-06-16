@@ -63,11 +63,11 @@ input EntityInput {
 }
 
 input ConversationContainerInput {
-    tracker: Any
+    tracker: Any!
     userId: String
     projectId: String
     status: String
-    _id: String
+    _id: String!
     updatedAt: String
     createdAt: String
     env: String
