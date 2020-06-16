@@ -84,6 +84,7 @@ if (Meteor.isServer) {
     // ------ test suite -------
     describe('test searching stories by their index', () => {
         before((done) => {
+            removeTestData(done);
             insertDataAndIndex(done);
         });
         after((done) => {
