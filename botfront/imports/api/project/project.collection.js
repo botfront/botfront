@@ -40,14 +40,6 @@ export const createProject = (item) => {
 
 Projects.attachSchema(ProjectsSchema);
 
-Meteor.startup(() => {
-    if (Meteor.isServer) {
-        Projects._ensureIndex({ 'templates.key': 1 });
-        Projects._ensureIndex({ apiKey: 1, _id: 1 });
-        Projects._ensureIndex({ 'templates.match.nlu.intent': 1, 'templates.match.nlu.entities.entity': 1, 'templates.match.nlu.entities.value': 1 });
-    }
-});
-
 if (Meteor.isServer) {
     Meteor.publish('projects', function (projectId) {
         if (!getUserScopes(this.userId, ['nlu-data:r', 'responses:r', 'users:r', 'roles:r', 'nlu-data:x', 'global-settings:r']).includes(projectId)) {
