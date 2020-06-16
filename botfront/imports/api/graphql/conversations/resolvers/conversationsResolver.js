@@ -52,7 +52,9 @@ export default {
             return { success: response.ok === 1 };
         },
         importConversations: async (_, args, __) => {
-            const { conversations, projectId, environment } = args;
+            const {
+                conversations, projectId, environment, importConversationsOnly,
+            } = args;
             const latestTimestamp = await getLatestTimestamp(projectId, environment);
             const results = await Promise.all(conversations
                 .filter(c => c.tracker.latest_event_time >= latestTimestamp)
@@ -62,6 +64,7 @@ export default {
                     env: environment,
                     tracker: c.tracker,
                     overwriteEvents: true,
+                    importConversationsOnly,
                 })));
             const notInserted = results.filter(({ status }) => status !== 'inserted');
             const failed = notInserted.filter(({ status }) => status === 'failed')

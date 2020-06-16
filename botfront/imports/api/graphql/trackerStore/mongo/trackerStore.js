@@ -149,11 +149,12 @@ export const upsertTrackerStore = async ({
     tracker,
     env = 'development',
     overwriteEvents = false,
+    importConversationsOnly = false,
 }) => {
     const { userId, language } = extractMetadataFromTracker(tracker);
     const { events = [] } = tracker;
 
-    if (!process.argv.includes('--logConversationsOnly')) {
+    if (!importConversationsOnly && !process.argv.includes('--logConversationsOnly')) {
         logUtterancesFromTracker(projectId, events, env, senderId);
     }
 

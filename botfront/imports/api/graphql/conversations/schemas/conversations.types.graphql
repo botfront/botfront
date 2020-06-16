@@ -26,6 +26,7 @@ type Mutation {
         conversations: [ConversationContainerInput]!
         projectId: String!
         environment: Environement = development
+        importConversationsOnly: Boolean = false
     ): batchMutationOutput
 }
 
