@@ -55,18 +55,12 @@ describe('global settings read permissions', () => {
         cy.get('div.column div.tab > .fields').each(field => cy.wrap(field).should('have.class', 'disabled'));
     });
 
-
-    it('should not be able to access project settings from global settings', () => {
+    it('should not be able to access project settings from global settings and vice versa', () => {
         cy.login();
         cy.visit('/admin/settings');
-        cy.get('div.ui.vertical.menu a.item').should('have.length', 10);
-    });
-
-    it('should not be able to access global settings from project setting', () => {
-        cy.login();
+        cy.get('div.ui.vertical.menu a.item').contains('Project Settings').should('not.exist');
         cy.visit('/project/bf/settings');
         cy.dataCy('project-settings-more').should('not.exist');
-        cy.get('div.ui.vertical.menu a.item').should('have.length', 7);
     });
 });
 

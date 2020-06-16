@@ -13,6 +13,7 @@ import { can } from '../../../lib/scopes';
 import Instances from './Instances';
 import DefaultDomain from './DefaultDomain';
 import ImportExportProject from './ImportExportProject';
+import ChatWidgetForm from './ChatWidgetForm';
 
 class Settings extends React.Component {
     getSettingsPanes = () => {
@@ -38,6 +39,10 @@ class Settings extends React.Component {
                 {
                     menuItem: <Menu.Item data-cy='project-settings-menu-appearance' icon='eye' content='Appearance' key='Appearance' />,
                     render: () => <Tab.Pane><Appearance /></Tab.Pane>,
+                },
+                {
+                    menuItem: <Menu.Item name='Chat widget settings' icon='chat' content='Chat widget' key='Chat widget' />,
+                    render: () => <Tab.Pane><ChatWidgetForm /></Tab.Pane>,
                 },
             ]
                 : []),

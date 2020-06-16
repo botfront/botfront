@@ -11,24 +11,24 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import PropTypes from 'prop-types';
 import { safeLoad } from 'js-yaml';
-import ToggleField from '../../common/ToggleField';
-import SelectField from '../../form_fields/SelectField';
-import { Credentials as CredentialsCollection } from '../../../../api/credentials';
-import { Projects as ProjectsCollection } from '../../../../api/project/project.collection';
-import { chatWidgetSettingsSchema } from '../../../../api/project/project.schema';
-import { wrapMeteorCallback } from '../../utils/Errors';
+import ToggleField from '../common/ToggleField';
+import SelectField from '../form_fields/SelectField';
+import { Credentials as CredentialsCollection } from '../../../api/credentials';
+import { Projects as ProjectsCollection } from '../../../api/project/project.collection';
+import { chatWidgetSettingsSchema } from '../../../api/project/project.schema';
+import { wrapMeteorCallback } from '../utils/Errors';
 import 'react-s-alert/dist/s-alert-default.css';
-import SaveButton from '../../utils/SaveButton';
-import { can } from '../../../../lib/scopes';
-import ChangesSaved from '../../utils/ChangesSaved';
-import IntentField from '../../form_fields/IntentField';
-import InfoField from '../../utils/InfoField';
+import SaveButton from '../utils/SaveButton';
+import { can } from '../../../lib/scopes';
+import ChangesSaved from '../utils/ChangesSaved';
+import IntentField from '../form_fields/IntentField';
+import InfoField from '../utils/InfoField';
 
-import { languages } from '../../../../lib/languages';
-import { getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
+import { languages } from '../../../lib/languages';
+import { getNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
 
 
-const ColorField = React.lazy(() => import('../../form_fields/ColorField'));
+const ColorField = React.lazy(() => import('../form_fields/ColorField'));
 class ChatWidgetForm extends React.Component {
     constructor(props) {
         super(props);
