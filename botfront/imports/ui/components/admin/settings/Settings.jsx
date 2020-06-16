@@ -11,7 +11,6 @@ import {
 } from 'uniforms-semantic';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import { get } from 'lodash';
-import InfoField from '../../utils/InfoField';
 import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.collection';
 import { GlobalSettingsSchema } from '../../../../api/globalSettings/globalSettings.schema';
 import AceField from '../../utils/AceField';
@@ -157,9 +156,10 @@ class Settings extends React.Component {
 
     renderMisc = () => (
         <Tab.Pane>
-            <InfoField name='settings.private.bfApiHost' label='Botfront API host' data-cy='docker-api-host' />
+            <AutoField name='settings.private.bfApiHost' label='Botfront API host' data-cy='docker-api-host' />
             <AutoField name='settings.public.chitChatProjectId' label='Chitchat project Id' info='ID of project containing chitchat NLU training data' />
             <AutoField name='settings.public.docUrl' />
+            <AutoField name='settings.public.intercomAppId' />
         </Tab.Pane>
     );
 
@@ -186,7 +186,7 @@ class Settings extends React.Component {
         <>
             <PageMenu icon='setting' title='Global Settings' />
             <Container id='admin-settings' data-cy='admin-settings-menu'>
-                <AutoForm schema={new SimpleSchema2Bridge(GlobalSettingsSchema)} model={settings} onSubmit={this.onSave} disabled={saving || !can('global-settings:w')}>
+                <AutoForm schema={new SimpleSchema2Bridge(GlobalSettingsSchema)} model={settings} onSubmit={this.onSave} disabled={saving || !can('global-settings:w', { anyScope: true })}>
                     <Tab
                         menu={{ vertical: true }}
                         grid={{ paneWidth: 13, tabWidth: 3 }}
