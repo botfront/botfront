@@ -24,7 +24,7 @@ export default function InfoField({
                         {info && <Info info={info} />}
                     </>
                 )}
-                disabled
+                disabled={disabled}
                 {...props}
             />
         </div>
