@@ -36,7 +36,6 @@ describe('nlu-data:r restricted permissions', () => {
         cy.get('.ace_editor')
             .should('contain.text', '- name:')
             .should('not.contain.text', 'TYPING BUT FAILING');
-        cy.pause();
         cy.dataCy('save-button').should('not.exist');
         cy.get('.ui.pointing.secondary.menu').should('exist')
             .should('not.contain', 'Delete');

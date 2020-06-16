@@ -143,7 +143,6 @@ describe('incoming page', function() {
         cy.addCustomConversation('bf', 'test', { events: [{ type: 'user', text: 'test conv link' }] });
         cy.visit('/project/bf/incoming');
         cy.get('.utterance-viewer').first().should('have.text', 'test conv link');
-        cy.pause();
         cy.dataCy('conversation-viewer').first().click({ force: true });
         cy.get('.popup').should('exist');
         cy.get('.popup').should('contains.text', 'test conv link');
