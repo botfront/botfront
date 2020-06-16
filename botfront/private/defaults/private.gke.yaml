@@ -1,19 +1,22 @@
 credentials:
   rasa_addons.core.channels.webchat.WebchatInput:
     session_persistence: true
-    base_url: http://localhost:5005
+    base_url: https://{PROJECT_NAMESPACE}.{SOCKET_HOST}
     socket_path: /socket.io/
-instance: http://rasa:5005
-bfApiHost: http://botfront-api:8080
+instance: http://rasa-service.{PROJECT_NAMESPACE}
+bfApiHost: http://botfront-api-service.botfront
 endpoints:
+  models:
+    url: 'https://storage.googleapis.com/{GCP_MODELS_BUCKET}/model-{BF_PROJECT_ID}.tar.gz'
+    wait_time_between_pulls: 3600
   nlg:
     type: rasa_addons.core.nlg.GraphQLNaturalLanguageGenerator
-    url: http://botfront:3000/graphql
+    url: http://botfront-app-service.botfront/graphql
   action_endpoint:
-    url: http://actions:5055/webhook
+    url: http://actions-service.{PROJECT_NAMESPACE}/webhook
   tracker_store:
     store_type:  rasa_addons.core.tracker_stores.botfront.BotfrontTrackerStore
-    url: http://botfront:3000/graphql
+    url: http://botfront-app-service.botfront/graphql
 policies:
   - name: TEDPolicy
     epochs: 50
@@ -55,4 +58,3 @@ webhooks:
     name: DeployProject
     url: ''
     method: POST
-        

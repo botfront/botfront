@@ -61,7 +61,9 @@ Migrations.add({
     // add default default domain to global settings, and update projects to have this default domain
     up: () => {
         const privateSettings = safeLoad(Assets.getText(
-            process.env.MODE === 'development' ? 'defaults/private.dev.yaml' : 'defaults/private.yaml',
+            process.env.MODE === 'development'
+                ? 'defaults/private.dev.yaml'
+                : process.env.MODE === 'test' ? 'defaults/private.yaml' : 'defaults/private.gke.yaml',
         ));
         const defaultDefaultDomain = safeDump(privateSettings.defaultDomain);
 
@@ -220,7 +222,9 @@ Migrations.add({
     // add webhooks in private global settings: EE-SPECIFIC
     up: () => {
         const { webhooks } = safeLoad(Assets.getText(
-            process.env.MODE === 'development' ? 'defaults/private.dev.yaml' : 'defaults/private.yaml',
+            process.env.MODE === 'development'
+                ? 'defaults/private.dev.yaml'
+                : process.env.MODE === 'test' ? 'defaults/private.yaml' : 'defaults/private.gke.yaml',
         ));
         GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.private.webhooks': webhooks } });
     },
@@ -377,7 +381,9 @@ Migrations.add({
     version: 17,
     up: async () => {
         const { webhooks } = safeLoad(Assets.getText(
-            process.env.MODE === 'development' ? 'defaults/private.dev.yaml' : 'defaults/private.yaml',
+            process.env.MODE === 'development'
+                ? 'defaults/private.dev.yaml'
+                : process.env.MODE === 'test' ? 'defaults/private.yaml' : 'defaults/private.gke.yaml',
         ));
         GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.private.webhooks.deploymentWebhook': webhooks.deploymentWebhook } });
         

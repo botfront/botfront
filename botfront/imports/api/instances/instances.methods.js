@@ -26,7 +26,9 @@ export const createInstance = async (project) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
 
     const { instance: host } = yaml.safeLoad(Assets.getText(
-        process.env.MODE === 'development' ? 'defaults/private.dev.yaml' : 'defaults/private.yaml',
+        process.env.MODE === 'development'
+            ? 'defaults/private.dev.yaml'
+            : process.env.MODE === 'test' ? 'defaults/private.yaml' : 'defaults/private.gke.yaml',
     ));
 
     return Instances.insert({

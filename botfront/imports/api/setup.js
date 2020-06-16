@@ -74,7 +74,9 @@ if (Meteor.isServer) {
 
             const publicSettings = safeLoad(Assets.getText('defaults/public.yaml'));
             const privateSettings = safeLoad(Assets.getText(
-                process.env.MODE === 'development' ? 'defaults/private.dev.yaml' : 'defaults/private.yaml',
+                process.env.MODE === 'development'
+                    ? 'defaults/private.dev.yaml'
+                    : process.env.MODE === 'test' ? 'defaults/private.yaml' : 'defaults/private.gke.yaml',
             ));
             
             const settings = {
