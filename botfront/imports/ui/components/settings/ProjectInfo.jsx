@@ -139,22 +139,6 @@ class ProjectInfo extends React.Component {
                             label='Name'
                             className='project-name'
                         />
-                        {ProjectsSchema
-                            && ProjectsSchema.allowsKey('namespace') && (
-                            <InfoField
-                                name='namespace'
-                                label='Namespace'
-                                disabled
-                            />
-                        )}
-                        {ProjectsSchema
-                            && ProjectsSchema.allowsKey('apiKey') && (
-                            <InfoField
-                                name='apiKey'
-                                label='Botfront API key'
-                                disabled
-                            />
-                        )}
                         <Form.Field>
                             <label>Languages supported</label>
                             <Dropdown
