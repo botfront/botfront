@@ -233,6 +233,8 @@ const returnResponse = async (res, response, filename) => {
     return result.send(zippedFile);
 };
 
+exports.exportProjectValidator = [];
+
 exports.exportProject = async function (req, res) {
     const { project_id: projectId } = req.params;
     const { output = 'zip', thinProject } = req.query;
