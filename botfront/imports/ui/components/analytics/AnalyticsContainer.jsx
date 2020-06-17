@@ -84,7 +84,7 @@ function AnalyticsContainer(props) {
         [workingDashboard, dashboards],
     );
     useEffect(() => {
-        if (!loading && !error) {
+        if (!dashboards.some(({ _id }) => _id === workingDashboard) && !loading && !error) {
             changeWorkingDashboard(dashboards[0]._id); // for now we only support a single dashboard, hence [0]
         }
     }, [dashboards]);
