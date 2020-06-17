@@ -404,6 +404,27 @@ export const generateAndFormatStories = (stories, storyGroups) => {
     return formatedStories;
 };
 
+const addRequestedSlot = async (slots, projectId) => {
+    const newSlots = slots.filter(slot => slot.name !== 'requested_slot');
+    const bfForms = await getForms(projectId);
+    let requestedSlotCategories = [];
+
+    bfForms.forEach((form) => {
+        requestedSlotCategories = requestedSlotCategories.concat(form.slots.map(slot => slot.name));
+    });
+
+    const requestedSlot = {
+        name: 'requested_slot',
+        projectId,
+        type: 'categorical',
+        categories: [...new Set(requestedSlotCategories)],
+    };
+
+    newSlots.push(requestedSlot);
+    
+    return newSlots;
+};
+
 export const getStoriesAndDomain = async (projectId, language, env = 'development') => {
     const appMethodLogger = storyAppLogger.child({
         method: 'getStoriesAndDomain',
@@ -457,7 +478,14 @@ export const getStoriesAndDomain = async (projectId, language, env = 'developmen
 
     appMethodLogger.debug('Generating domain');
     const responses = await getAllResponses(projectId, language);
-    const slots = Slots.find({ projectId }).fetch();
+    let slots = Slots.find({ projectId }).fetch();
+    const project = Projects.findOne(
+        { _id: projectId },
+        { allowContextualQuestions: 1 },
+    );
+    if (project.allowContextualQuestions) {
+        slots = await addRequestedSlot(slots, projectId);
+    }
     const domain = extractDomain({
         stories: allStories.reduce((acc, story) => [...acc, ...flattenStory(story)], []),
         slots,

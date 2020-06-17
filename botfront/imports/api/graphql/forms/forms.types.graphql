@@ -45,7 +45,7 @@ type SlotToFill {
     validation: SlotValidation
     utter_on_new_valid_slot: Boolean
     # utter_valid_{slot_name}
-    # utter_invalid{slot_name}
+    # utter_invalid_{slot_name}
     # utter_ask_{slot_name}
 }
 
@@ -93,6 +93,11 @@ enum ValidationOperator {
     is_in
     is_exactly
     contains
+    longer
+    longer_or_equal
+    shorter
+    shorter_or_equal
+    word
     starts_with
     ends_with
     matches
@@ -101,6 +106,7 @@ enum ValidationOperator {
     gte
     lt
     lte
+    email
 }
 
 input FormInput {

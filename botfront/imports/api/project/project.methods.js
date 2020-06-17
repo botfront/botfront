@@ -293,5 +293,41 @@ if (Meteor.isServer) {
                 throw error;
             }
         },
+
+        async 'project.checkAllowContextualQuestions'(projectId) {
+            checkIfCan(['stories:r'], projectId);
+            check(projectId, String);
+            try {
+                const project = Projects.findOne({ _id: projectId }, { fields: { allowContextualQuestions: 1 } });
+                const { allowContextualQuestions } = project;
+                return !!allowContextualQuestions;
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        async 'project.setAllowContextualQuestions' (projectId, allowContextualQuestions) {
+            checkIfCan(['stories:w'], projectId);
+            check(projectId, String);
+            check(allowContextualQuestions, Boolean);
+            try {
+                const project = Projects.findOne({ _id: projectId }, { fields: { allowContextualQuestions: 1 } });
+                const { allowContextualQuestions: aCQBefore } = project;
+                const result = Projects.update({ _id: projectId }, { $set: { allowContextualQuestions } });
+                auditLog('Setting allow contextual questions', {
+                    user: Meteor.user(),
+                    resId: projectId,
+                    type: 'updated',
+                    projectId,
+                    operation: 'project-updated',
+                    before: { allowContextualQuestions: aCQBefore },
+                    after: { allowContextualQuestions },
+                    resType: 'project',
+                });
+                return result;
+            } catch (error) {
+                throw error;
+            }
+        },
     });
 }

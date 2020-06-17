@@ -14,8 +14,9 @@ export const getForms = async (projectId, ids = null) => {
 
 export const deleteForms = async ({ projectId, ids }) => {
     Projects.update({ _id: projectId }, { $pull: { storyGroups: { $in: ids } } });
+    const forms = await Forms.find({ projectId, _id: { $in: ids } }).lean();
     const response = await Forms.remove({ projectId, _id: { $in: ids } }).exec();
-    if (response.ok) return ids.map(_id => ({ _id }));
+    if (response.ok) return forms;
     return [];
 };
 

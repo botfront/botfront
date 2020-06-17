@@ -5,7 +5,7 @@ import { Button } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import ExtractionItem from './ExtractionItem';
 import { ProjectContext } from '../../layouts/context';
-import { can } from '../../../api/roles/roles';
+import { can } from '../../../lib/scopes';
 
 const ExtractionTab = (props) => {
     const {

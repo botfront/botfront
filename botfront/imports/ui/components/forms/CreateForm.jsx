@@ -12,13 +12,16 @@ import {
     ErrorsField,
 } from 'uniforms-semantic';
 import { buildASTSchema, parse } from 'graphql';
-import { Segment, Popup } from 'semantic-ui-react';
+import {
+    Segment, Popup, Checkbox, Icon,
+} from 'semantic-ui-react';
+
 import { can } from '../../../lib/scopes';
 import SelectField from '../form_fields/SelectField';
 import ToggleField from '../common/ToggleField';
 import { ProjectContext } from '../../layouts/context';
 import { clearTypenameField, formNameIsValid } from '../../../lib/client.safe.utils';
-
+import { useMethod } from '../../../lib/utils';
 
 const CreateForm = (props) => {
     const {
@@ -27,6 +30,9 @@ const CreateForm = (props) => {
         projectId,
     } = props;
 
+    const { data: allowContextualQuestionsDB, call: getAllowContextualQuestions } = useMethod('project.checkAllowContextualQuestions');
+    const { call: setAllowContextualQuestionsInDb } = useMethod('project.setAllowContextualQuestions');
+    const [allowContextualQuestions, setAllowContextualQuestions] = useState(null);
     const { slots } = useContext(ProjectContext);
     const [slotAdditions, setSlotAdditions] = useState([]);
 
@@ -41,6 +47,10 @@ const CreateForm = (props) => {
         }, []);
         setSlotAdditions([...slotAdditions, ...newOptions]);
     }, [initialModel]);
+
+    useEffect(() => {
+        getAllowContextualQuestions(projectId);
+    }, []);
 
     const getFormattedModel = () => (clearTypenameField({
         ...initialModel,
@@ -64,9 +74,12 @@ const CreateForm = (props) => {
         const model = { ...incomingModel };
         const modelSlots = model.slotNames.map((slot) => {
             const slotData = initialModel.slots.find(({ name }) => name === slot);
-            return { name: slot, filling: slotData ? slotData.filling : [] };
+            return { name: slot, ...(slotData || {}) };
         });
         delete model.slotNames;
+        if (allowContextualQuestions !== null) {
+            setAllowContextualQuestionsInDb(projectId, allowContextualQuestions);
+        }
         onSubmit(clearTypenameField({ ...model, slots: modelSlots }));
     };
 
@@ -113,6 +126,28 @@ const CreateForm = (props) => {
                             className='create-form-field'
                             allowAdditions
                             onAddItem={handleAddItem}
+                            label='Slots to fill'
+                        />
+                        <Checkbox
+                            // we force it to boolean so that the value is never null
+                            // This way, it's always a controlled component.
+                            checked={!!(allowContextualQuestions !== null ? allowContextualQuestions : allowContextualQuestionsDB)}
+                            label='Allow contextual side questions'
+                            toggle
+                            onChange={() => {
+                                if (allowContextualQuestions !== null) {
+                                    setAllowContextualQuestions(!allowContextualQuestions);
+                                } else {
+                                    setAllowContextualQuestions(!allowContextualQuestionsDB);
+                                }
+                            }}
+                            className='contextual-side-questions'
+                        />
+                        <Popup
+                            size='small'
+                            inverted
+                            content='This will enable contextual side questions in all forms and may increase training time. This setting also requires TEDPolicy in your policies'
+                            trigger={<Icon name='question' circular inverted color='grey' />}
                         />
                         <ToggleField name='collect_in_botfront' data-cy='form-collection-togglefield' />
                         <ErrorsField data-cy='error' />

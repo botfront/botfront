@@ -10,6 +10,7 @@ export const ProjectsSchema = BaseProjectsSchema.extend({
         },
     },
     modelsBucket: { type: String, regEx: /^[a-z0-9-_]+$/, optional: true },
+    allowContextualQuestions: { type: Boolean, defaultValue: false },
 });
 
 ProjectsSchema.messageBox.messages({

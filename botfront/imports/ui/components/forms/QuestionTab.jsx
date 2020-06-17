@@ -18,7 +18,7 @@ const QuestionTab = (props) => {
     };
 
     return (
-        <div className='question-tab'>
+        <div className='response-form'>
             <Header size='small' className='question-tab-header'>
                 What question should the assistant ask?
             </Header>

@@ -1,13 +1,14 @@
-import React, { useContext, useState } from 'react';
 import { Dropdown, Confirm, Button } from 'semantic-ui-react';
+import React, { useContext, useState } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+
 import { defaultTemplate } from '../../../lib/botResponse.utils';
-
 import { ProjectContext } from '../../layouts/context';
-
+import { can } from '../../../api/roles/roles';
 
 const ChangeResponseType = (props) => {
-    const { name, currentResponseType } = props;
+    const { name, currentResponseType, projectId } = props;
     const [selectedType, setSelectedType] = useState();
 
     const { upsertResponse } = useContext(ProjectContext);
@@ -20,6 +21,8 @@ const ChangeResponseType = (props) => {
         if (value === currentResponseType) return;
         setSelectedType(value);
     };
+
+    if (!can('responses:w', projectId)) return (<></>);
 
     return (
         <>
@@ -54,10 +57,15 @@ const ChangeResponseType = (props) => {
 ChangeResponseType.propTypes = {
     name: PropTypes.string.isRequired,
     currentResponseType: PropTypes.string,
+    projectId: PropTypes.string.isRequired,
 };
 
 ChangeResponseType.defaultProps = {
     currentResponseType: '',
 };
 
-export default ChangeResponseType;
+const mapStateToProps = state => ({
+    projectId: state.settings.get('projectId'),
+});
+
+export default connect(mapStateToProps)(ChangeResponseType);

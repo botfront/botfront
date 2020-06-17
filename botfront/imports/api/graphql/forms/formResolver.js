@@ -7,6 +7,7 @@ import {
     importSubmissions,
 } from './mongo/forms';
 import { checkIfCan } from '../../../lib/scopes';
+import { auditLog } from '../../../../server/logger';
 
 const { PubSub, withFilter } = require('apollo-server-express');
 
@@ -50,7 +51,9 @@ export default {
         },
     },
     Mutation: {
+        // eslint-disable-next-line no-unused-vars
         submitForm: async (_root, args, context) => submitForm(args),
+        // eslint-disable-next-line no-unused-vars
         importSubmissions: async (_root, args, context) => importSubmissions(args),
         upsertForm: async (_, args, context) => {
             checkIfCan('stories:w', args.form.projectId, context.user._id);
@@ -58,6 +61,15 @@ export default {
             if (status !== 'failed') {
                 const publication = status === 'inserted' ? FORMS_CREATED : FORMS_MODIFIED;
                 const key = status === 'inserted' ? 'formsCreated' : 'formsModified';
+                auditLog(key === 'formsCreated' ? 'Created form' : 'Updated form', {
+                    user: context.user,
+                    type: key === 'formsCreated' ? 'created' : 'updated',
+                    projectId: args.form.projectId,
+                    operation: key === 'formsCreated' ? 'form-created' : 'form-updated',
+                    resId: value._id,
+                    after: value,
+                    resType: 'form',
+                });
                 pubsub.publish(publication, {
                     projectId: args.form.projectId,
                     [key]: value,
@@ -69,6 +81,15 @@ export default {
         deleteForms: async (_, args, context) => {
             checkIfCan('stories:w', args.projectId, context.user._id);
             const result = await deleteForms(args);
+            auditLog('Deleted form', {
+                user: context.user,
+                type: 'deleted',
+                projectId: args.projectId,
+                operation: 'form-deleted',
+                resId: args.ids,
+                before: { forms: result },
+                resType: 'form',
+            });
             pubsub.publish(FORMS_DELETED, {
                 projectId: args.projectId,
                 formsDeleted: result,
