@@ -101,7 +101,7 @@ function UserUtteranceViewer(props) {
     }
 
     function handleEntityDeletion(index) {
-        onChange({
+        onChangeWrapped({
             ...value,
             entities: [
                 ...value.entities.slice(0, index),
@@ -319,7 +319,7 @@ function UserUtteranceViewer(props) {
                             value={intent}
                             allowEditing={!disableEditing}
                             allowAdditions
-                            onChange={newIntent => onChange({ ...value, intent: newIntent })}
+                            onChange={newIntent => onChangeWrapped({ ...value, intent: newIntent })}
                             disabled={disabled}
                         />
                     )}
