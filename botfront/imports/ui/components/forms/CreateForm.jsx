@@ -151,7 +151,7 @@ const CreateForm = (props) => {
                         />
                         <ToggleField name='collect_in_botfront' data-cy='form-collection-togglefield' />
                         <ErrorsField data-cy='error' />
-                        <SubmitField value='Save' data-cy='form-submit-field' />
+                        <SubmitField value='Save' data-cy='form-submit-field' className='primary' />
                     </Segment>
                 </Segment.Group>
             </AutoForm>
