@@ -244,8 +244,9 @@ if (Meteor.isServer) {
                 appMethodLogger.debug(`Building training payload - ${(t1 - t0).toFixed(2)} ms`);
                 return payload;
             } catch (e) {
+                const error = `${e.message || e.reason} ${(e.stack.split('\n')[2] || '').trim()}`;
                 const t1 = performance.now();
-                appMethodLogger.error(`Building training payload failed - ${(t1 - t0).toFixed(2)} ms`, { status: e.status });
+                appMethodLogger.error(`Building training payload failed - ${(t1 - t0).toFixed(2)} ms`, { error });
                 Meteor.call('project.markTrainingStopped', projectId, 'failure', e.reason);
                 throw formatError(e);
             }
@@ -286,8 +287,8 @@ if (Meteor.isServer) {
                         appMethodLogger.debug(`Saving model at ${trainedModelPath}`);
                         await promisify(fs.writeFile)(trainedModelPath, trainingResponse.data, 'binary');
                     } catch (e) {
-                        // eslint-disable-next-line no-console
-                        appMethodLogger.error(`Could not save trained model to ${trainedModelPath}`, { error: e });
+                        const error = `${e.message || e.reason} ${(e.stack.split('\n')[2] || '').trim()}`;
+                        appMethodLogger.error(`Could not save trained model to ${trainedModelPath}`, { error });
                     }
 
                     await client.put('/model', { model_file: trainedModelPath });
@@ -296,8 +297,9 @@ if (Meteor.isServer) {
                 }
                 Meteor.call('project.markTrainingStopped', projectId, 'success');
             } catch (e) {
+                const error = `${e.message || e.reason} ${(e.stack.split('\n')[2] || '').trim()}`;
                 const t1 = performance.now();
-                appMethodLogger.error(`Training project ${projectId} - ${(t1 - t0).toFixed(2)} ms`, { error: e });
+                appMethodLogger.error(`Training project ${projectId} - ${(t1 - t0).toFixed(2)} ms`, { error });
                 Meteor.call('project.markTrainingStopped', projectId, 'failure', e.reason);
                 throw formatError(e);
             }

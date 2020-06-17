@@ -49,10 +49,6 @@ type Mutation {
     deleteVariation(projectId: String!, key: String!, language: String!, index: Int!): updateResponse!
 }
 
-type updateResponse {
-    success: Boolean!
-}
-
 type BotResponse {
     key: String
     _id: String
