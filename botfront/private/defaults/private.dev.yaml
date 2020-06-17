@@ -38,3 +38,21 @@ defaultDomain:
     - action_botfront_disambiguation_followup
     - action_botfront_fallback
     - action_botfront_mapping
+webhooks:
+  restartRasaWebhook:
+    name: RestartRasa
+    url: ''
+    method: POST
+  uploadImageWebhook:
+    name: UploadImage
+    url: ''
+    method: POST
+  deleteImageWebhook:
+    name: DeleteImage
+    url: ''
+    method: DELETE
+  deploymentWebhook:
+    name: DeployProject
+    url: ''
+    method: POST
+    

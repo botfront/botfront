@@ -23,7 +23,7 @@ Migrations.add({
             .find()
             .fetch()
             .forEach((u) => {
-                const { roles } = u;
+                const { roles = [] } = u;
                 const isAdmin = !!roles.find(r => r._id === 'admin');
                 if (isAdmin) {
                     Roles.removeUsersFromRoles(u._id, 'admin');
@@ -61,7 +61,9 @@ Migrations.add({
     // add default default domain to global settings, and update projects to have this default domain
     up: () => {
         const privateSettings = safeLoad(Assets.getText(
-            process.env.MODE === 'development' ? 'defaults/private.dev.yaml' : 'defaults/private.yaml',
+            process.env.MODE === 'development'
+                ? 'defaults/private.dev.yaml'
+                : process.env.MODE === 'test' ? 'defaults/private.yaml' : 'defaults/private.gke.yaml',
         ));
         const defaultDefaultDomain = safeDump(privateSettings.defaultDomain);
 
@@ -219,8 +221,11 @@ Migrations.add({
     version: 8,
     // add webhooks in private global settings: EE-SPECIFIC
     up: () => {
-        const globalSettings = JSON.parse(Assets.getText('default-settings.json'));
-        const { webhooks } = globalSettings.settings.private;
+        const { webhooks } = safeLoad(Assets.getText(
+            process.env.MODE === 'development'
+                ? 'defaults/private.dev.yaml'
+                : process.env.MODE === 'test' ? 'defaults/private.yaml' : 'defaults/private.gke.yaml',
+        ));
         GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.private.webhooks': webhooks } });
     },
 });
@@ -375,8 +380,11 @@ Migrations.add({
 Migrations.add({
     version: 17,
     up: async () => {
-        const globalSettings = JSON.parse(Assets.getText('default-settings.json'));
-        const { webhooks } = globalSettings.settings.private;
+        const { webhooks } = safeLoad(Assets.getText(
+            process.env.MODE === 'development'
+                ? 'defaults/private.dev.yaml'
+                : process.env.MODE === 'test' ? 'defaults/private.yaml' : 'defaults/private.gke.yaml',
+        ));
         GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.private.webhooks.deploymentWebhook': webhooks.deploymentWebhook } });
         
         const stories = Stories.find().fetch();

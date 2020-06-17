@@ -149,6 +149,15 @@ class ProjectInfo extends React.Component {
                             label='Name'
                             className='project-name'
                         />
+                        <InfoField
+                            name='namespace'
+                            label='Namespace'
+                            disabled
+                        />
+                        <InfoField
+                            name='modelsBucket'
+                            label='GCS Bucket'
+                        />
                         <Form.Field>
                             <label>Languages supported</label>
                             <Dropdown
@@ -196,11 +205,7 @@ class ProjectInfo extends React.Component {
                         <Message
                             size='tiny'
                             info
-                            content={(
-                                <>
-                     If you remove all environments, all stories will be published
-                                </>
-                            )}
+                            content='If you remove all environments, all stories will be published'
                         />
 
                         <AutoField

@@ -40,7 +40,6 @@ describe('global settings read permissions', () => {
             'Webhooks',
             'Security',
             'Misc',
-            'Support',
         ];
         // we check the panes where every single field is disabled
         simpleDisabledCheck.forEach((menu) => {
@@ -54,24 +53,14 @@ describe('global settings read permissions', () => {
         cy.contains('Appearance').click();
         cy.get('div.column div.tab > .field').each(field => cy.wrap(field).should('have.class', 'disabled'));
         cy.get('div.column div.tab > .fields').each(field => cy.wrap(field).should('have.class', 'disabled'));
-        cy.visit('/admin/settings');
-        cy.contains('GKE settings').click();
-        cy.get('div.column div.tab .field .field').each(field => cy.wrap(field).should('have.class', 'disabled'));
-        cy.visit('/admin/settings');
     });
 
-
-    it('should not be able to access project settings from global settings', () => {
+    it('should not be able to access project settings from global settings and vice versa', () => {
         cy.login();
         cy.visit('/admin/settings');
-        cy.get('div.ui.vertical.menu a.item').should('have.length', 10);
-    });
-
-    it('should not be able to access global settings from project setting', () => {
-        cy.login();
+        cy.get('div.ui.vertical.menu a.item').contains('Project Settings').should('not.exist');
         cy.visit('/project/bf/settings');
         cy.dataCy('project-settings-more').should('not.exist');
-        cy.get('div.ui.vertical.menu a.item').should('have.length', 7);
     });
 });
 
