@@ -20,7 +20,7 @@ export const deleteForms = async ({ projectId, ids }) => {
     return [];
 };
 
-const addNewSlots = async (projectId, slots, userId) => {
+const addNewSlots = async (projectId, slots, user) => {
     const slotNames = slots.map(({ name }) => name);
     const matchedSlots = await Slots.find({ projectId, name: { $in: slotNames } }, { fields: { name: 1 } }).fetch();
     if (!slotNames.length || slotNames.length === matchedSlots.length) return;
@@ -30,7 +30,7 @@ const addNewSlots = async (projectId, slots, userId) => {
         const newId = Slots.insert(slotData);
         auditLogIfOnServer('Inserted slot', {
             resId: newId,
-            user: userId,
+            user,
             type: 'created',
             operation: 'slots.created',
             projectId,
@@ -40,7 +40,7 @@ const addNewSlots = async (projectId, slots, userId) => {
     });
 };
 
-export const upsertForm = async (data, userId) => {
+export const upsertForm = async (data, user) => {
     const { projectId, _id, ...update } = data.form;
     
     const query = { ...(_id ? { _id } : {}), projectId, ...(!_id ? { name: update.name } : {}) };
@@ -61,7 +61,7 @@ export const upsertForm = async (data, userId) => {
         { _id: projectId },
         { $push: { storyGroups: { $each: [upserted], $position } } },
     );
-    addNewSlots(projectId, update.slots, userId);
+    addNewSlots(projectId, update.slots, user);
     const status = !ok ? 'failed' : upserted ? 'inserted' : 'updated';
     return { status, value };
 };

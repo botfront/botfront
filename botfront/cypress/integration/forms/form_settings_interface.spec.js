@@ -4,7 +4,6 @@ const catSlot = 'catSlot';
 
 const newFormName = 'testEdited_form';
 const description = 'this is test text';
-const entityName = 'shop';
 
 
 describe('use the main form editor interface to', () => {
@@ -125,8 +124,8 @@ describe('use the main form editor interface to', () => {
         });
         cy.selectFormSlot(catSlot);
         cy.dataCy('form-top-menu-item').contains('Extraction').click();
-        cy.dataCy('entity-value-dropdown').click('').find('span');
-        cy.dataCy('entity-value-dropdown').contains(entityName).click();
+        cy.dataCy('entity-value-dropdown').click().find('span');
+        cy.dataCy('entity-value-dropdown').type('shop{enter}');
         cy.dataCy('add-condition').click();
         cy.dataCy('extraction-source-dropdown').should('have.length', 2);
         cy.dataCy('extraction-source-dropdown').last().click();
@@ -158,7 +157,7 @@ describe('use the main form editor interface to', () => {
         cy.dataCy('extraction-source-dropdown').eq(1).find('div.text').should('have.text', 'Conditionally on the intent');
         cy.dataCy('extraction-source-dropdown').eq(2).find('div.text').should('have.text', 'From the user message');
         // values
-        cy.get('.ui.label').contains('shop').should('exist');
+        cy.dataCy('entity-value-dropdown').find('div.text').should('have.text', 'shop');
         cy.get('.ui.label').contains('chitchat.greet').should('exist');
         cy.get('.ui.label').contains('chitchat.bye').should('exist');
         cy.dataCy('category-value-dropdown').find('div.text').should('have.text', 'blue');
