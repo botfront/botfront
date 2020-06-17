@@ -1,6 +1,5 @@
-import '../../../../lib/dynamic_import';
 import {
-    Container, Tab, Message, Grid, Menu,
+    Container, Tab, Message, Grid,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -13,6 +12,7 @@ import {
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import { get } from 'lodash';
 import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.collection';
+import { GlobalSettingsSchema } from '../../../../api/globalSettings/globalSettings.schema';
 import AceField from '../../utils/AceField';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import { PageMenu } from '../../utils/Utils';
@@ -22,22 +22,7 @@ import { can } from '../../../../lib/scopes';
 class Settings extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { saving: false, schema: null, activePane: null };
-    }
-
-    async componentDidMount() {
-        const orchestrator = await Meteor.callWithPromise('orchestration.type');
-        const { GlobalSettingsSchema: schema } = await import(
-            // eslint-disable-next-line comma-dangle
-            `../../../../api/globalSettings/globalSettings.schema.${orchestrator}`
-        );
-        let orchestratorSettingsComponent = null;
-        if (orchestrator !== 'default') {
-            const { default: def } = await import(`./Settings.${orchestrator}`);
-            orchestratorSettingsComponent = def;
-        }
-
-        this.setState({ schema, orchestratorSettingsComponent, orchestrator });
+        this.state = { saving: false };
     }
 
     onSave = (settings) => {
@@ -171,23 +156,16 @@ class Settings extends React.Component {
 
     renderMisc = () => (
         <Tab.Pane>
-            <Message
-                info
-                icon='question circle'
-                content='ID of project containing chitchat NLU training data'
-            />
-            <AutoField name='settings.public.chitChatProjectId' />
+            <AutoField name='settings.private.bfApiHost' label='Botfront API host' data-cy='docker-api-host' />
+            <AutoField name='settings.public.chitChatProjectId' label='Chitchat project Id' info='ID of project containing chitchat NLU training data' />
             <AutoField name='settings.public.docUrl' />
+            <AutoField name='settings.public.intercomAppId' />
         </Tab.Pane>
     );
 
     getSettingsPanes = () => {
         const { settings } = this.props;
-        const {
-            orchestratorSettingsComponent: OrchestratorSettingsComponent,
-            orchestrator,
-        } = this.state;
-        let panes = [
+        const panes = [
             { menuItem: 'Default NLU Pipeline', render: this.renderDefaultNLUPipeline },
             { menuItem: 'Default credentials', render: this.renderDefaultCredentials },
             { menuItem: 'Default endpoints', render: this.renderDefaultEndpoints },
@@ -201,65 +179,49 @@ class Settings extends React.Component {
             { menuItem: 'Misc', render: this.renderMisc },
         ];
 
-        if (OrchestratorSettingsComponent) {
-            panes = panes.concat(OrchestratorSettingsComponent);
-        }
-
-       
         return panes;
     };
 
-    renderSettings = (saving, settings, schema) => {
-        const { activePane } = this.state;
-        return (
-            <>
-                <PageMenu icon='setting' title='Global Settings' />
-                <Container id='admin-settings' data-cy='admin-settings-menu'>
-                    <AutoForm
-                        schema={new SimpleSchema2Bridge(schema)}
-                        model={settings}
-                        onSubmit={this.onSave}
-                        disabled={saving || !can('global-settings:w')}
-                    >
-                        <Tab
-                            menu={{ vertical: true }}
-                            grid={{ paneWidth: 13, tabWidth: 3 }}
-                            panes={this.getSettingsPanes()}
-                            onTabChange={(_e, { activeIndex }) => this.setState({
-                                activePane: this.getSettingsPanes()[activeIndex].menuItem,
-                            })
-                            }
-                        />
-                        <br />
-                        <Grid>
-                            <Grid.Row>
-                                <Grid.Column width={3} />
-                                <Grid.Column width={13}>
-                                    <ErrorsField />
-                                    { activePane !== 'Webhooks' && can('global-settings:w', { anyScope: true }) && <SubmitField data-cy='save-global-settings' value='Save' className='primary' />}
-                                </Grid.Column>
-                            </Grid.Row>
-                        </Grid>
-                    </AutoForm>
-                </Container>
-            </>
-        );
-    };
+    renderSettings = (saving, settings, activePane) => (
+        <>
+            <PageMenu icon='setting' title='Global Settings' />
+            <Container id='admin-settings' data-cy='admin-settings-menu'>
+                <AutoForm schema={new SimpleSchema2Bridge(GlobalSettingsSchema)} model={settings} onSubmit={this.onSave} disabled={saving || !can('global-settings:w', { anyScope: true })}>
+                    <Tab
+                        menu={{ vertical: true }}
+                        grid={{ paneWidth: 13, tabWidth: 3 }}
+                        panes={this.getSettingsPanes()}
+                        onTabChange={(_e, { activeIndex }) => this.setState({
+                            activePane: this.getSettingsPanes()[activeIndex].menuItem,
+                        })}
+                    />
+                    <br />
+                    <Grid>
+                        <Grid.Row>
+                            <Grid.Column width={3} />
+                            <Grid.Column width={13}>
+                                <ErrorsField />
+                                { activePane !== 'Webhooks' && can('global-settings:w', { anyScope: true }) && <SubmitField data-cy='save-global-settings' value='Save' className='primary' />}
+                            </Grid.Column>
+                        </Grid.Row>
+                    </Grid>
+                </AutoForm>
+            </Container>
+        </>
+    );
 
     renderLoading = () => <div />;
 
     render() {
         const { settings, ready } = this.props;
-        const { saving, schema } = this.state;
-        if (ready && schema) return this.renderSettings(saving, settings, schema);
+        const { saving, activePane } = this.state;
+        if (ready) return this.renderSettings(saving, settings, activePane);
         return this.renderLoading();
     }
 }
 
 Settings.propTypes = {
     settings: PropTypes.object,
-    projectId: PropTypes.string.isRequired,
-    router: PropTypes.object.isRequired,
     ready: PropTypes.bool.isRequired,
 };
 

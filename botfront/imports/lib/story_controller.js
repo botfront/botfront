@@ -23,10 +23,11 @@ const RASA_BUILT_IN_ACTIONS = [
 
 export class StoryController {
     constructor({
-        story, isASmartStory, slots, onUpdate = () => {}, onMdType = () => {}, isABranch = false,
+        story, isASmartStory, slots, onUpdate = () => {}, onMdType = () => {}, isABranch = false, forms = [],
     }) {
         this.domain = {
             slots: this.getSlots(slots),
+            forms: new Set(forms.map(({ name }) => name)),
         };
         this.md = story;
         this.isSmartStory = isASmartStory;
@@ -55,6 +56,11 @@ export class StoryController {
 
     updateSlots = (slots) => {
         this.domain.slots = this.getSlots(slots);
+        this.validateStory(false);
+    }
+
+    updateForms = (forms) => {
+        this.domain.forms = new Set(forms.map(({ name }) => name));
         this.validateStory(false);
     }
 
@@ -102,8 +108,11 @@ export class StoryController {
     validateFormDecl = () => {
         this.form = this.response;
         if (!this.hasInvalidChars(this.response)) {
-            this.domain.forms.add(this.response);
             this.lines[this.idx].gui = { type: 'form_decl', data: { name: this.response } };
+            if (!this.domain.forms.has(this.response)) {
+                this.domain.forms.add(this.response);
+                this.raiseStoryException('no_such_form');
+            }
         }
     };
 
@@ -115,13 +124,17 @@ export class StoryController {
             this.raiseStoryException('form');
             return;
         }
+        this.lines[this.idx].gui = { type: 'form', data: { name: props.name } };
         if (!{}.hasOwnProperty.call(props, 'name')) {
             this.raiseStoryException('form');
-        } else if (this.form !== props.name) {
+        } else if (![this.form, null].includes(props.name)) {
             this.raiseStoryException('declare_form');
         } else {
             this.form = null;
-            this.lines[this.idx].gui = { type: 'form', data: { name: props.name } };
+            if (!this.domain.forms.has(props.name) && props.name !== null) {
+                this.domain.forms.add(props.name);
+                this.raiseStoryException('no_such_form');
+            }
         }
     };
 
@@ -155,6 +168,7 @@ export class StoryController {
         form: ['error', 'Form calls should look like this: `- form{"name": "MyForm"}`.'],
         slot: ['error', 'Slot calls should look like this: `- slot{"slot_name": "slot_value"}`.'],
         no_such_slot: ['warning', 'Slot was not found. Have you defined it?'],
+        no_such_form: ['warning', 'Form was not found. Have you defined it?'],
         bool_slot: ['error', 'Expected a boolean value for this slot.'],
         text_slot: ['error', 'Expected a text value for this slot.'],
         float_slot: ['error', 'Expected a numerical value for this slot.'],
@@ -256,7 +270,7 @@ export class StoryController {
             intents: new Set(),
             actions: new Set(),
             slots: this.domain.slots,
-            forms: new Set(),
+            forms: this.domain.forms,
         };
         this.prefix = null;
         this.content = null;
@@ -270,7 +284,12 @@ export class StoryController {
 
     toMd = (line) => {
         try {
-            if (['action', 'bot'].includes(line.type)) return `  - ${line.data.name}`;
+            if (['action', 'bot', 'form_decl'].includes(line.type)) return `  - ${line.data.name}`;
+            if (line.type === 'form') {
+                let { name } = line.data;
+                name = name === null ? name : `"${name}"`;
+                return `  - form{"name":${name}}`;
+            }
             if (line.type === 'slot') {
                 const newLine = {};
                 newLine[line.data.name] = line.data.slotValue;
@@ -332,6 +351,7 @@ export class StoryController {
             botUtterance: true,
             action: true,
             slot: true,
+            form: true,
         };
         const [prev, next] = [this.lines[i], this.lines[i + 1]];
         if ((prev && prev.gui.type === 'user') || (next && next.gui.type === 'user')) {

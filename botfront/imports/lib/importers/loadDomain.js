@@ -1,6 +1,11 @@
 import { safeLoad, safeDump } from 'js-yaml';
 import { isEqual } from 'lodash';
 
+const INTERNAL_SLOTS = [
+    'bf_forms',
+    'fallback_language',
+];
+
 export const loadDomain = ({
     rawText,
     defaultDomain = {},
@@ -17,10 +22,15 @@ export const loadDomain = ({
     const { slots: slotsFromFile = {}, templates: legacyResponsesFromFile = {}, responses: modernResponsesFromFile = {} } = domain;
     const { slots: defaultSlots = {}, responses: defaultResponses = {} } = defaultDomain;
     const responsesFromFile = { ...legacyResponsesFromFile, ...modernResponsesFromFile };
-    // do not import slots or responses that are in current default domain
-    Object.keys(defaultSlots).forEach((k) => {
+    // get forms
+    const bfForms = 'bf_forms' in slotsFromFile
+        ? slotsFromFile.bf_forms.initial_value
+        : [];
+    // do not import slots that are in current default domain or are programmatically generated
+    [...Object.keys(defaultSlots), ...INTERNAL_SLOTS].forEach((k) => {
         delete slotsFromFile[k];
     });
+    // do not import responses that are in current default domain
     Object.keys(defaultResponses).forEach((k) => {
         delete responsesFromFile[k];
     });
@@ -61,11 +71,13 @@ export const loadDomain = ({
                 }
             }
         });
-        responses.push({
-            ...(firstMetadataFound ? { metadata: firstMetadataFound } : {}),
-            values,
-            key,
-        });
+        if (values.length) {
+            responses.push({
+                ...(firstMetadataFound ? { metadata: firstMetadataFound } : {}),
+                values,
+                key,
+            });
+        }
     });
 
     Object.keys(slotsFromFile).forEach((name) => {
@@ -83,6 +95,6 @@ export const loadDomain = ({
     });
 
     return {
-        rawText, warnings, slots, responses,
+        rawText, warnings, slots, bfForms, responses,
     };
 };

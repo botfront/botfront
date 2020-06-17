@@ -245,13 +245,13 @@ export const addlinkCheckpoints = (stories) => {
     return storiesCheckpointed;
 };
 
-export const extractDomain = (
+export const extractDomain = ({
     stories,
     slots,
     responses = {},
     defaultDomain = {},
     crashOnStoryWithErrors = true,
-) => {
+}) => {
     // extractDomain can be called from outside a Meteor method so Meteor.userId() might not be available
     let userId;
     try {
@@ -320,7 +320,9 @@ export const extractDomain = (
                     intents: [],
                     actions: [],
                     forms: [],
-                    slots: {},
+                    slots: {
+                        ...domains.slots,
+                    },
                 };
             }
         }
@@ -440,12 +442,12 @@ export const getStoriesAndDomain = async (projectId, language, env = 'developmen
     appMethodLogger.debug('Generating domain');
     const responses = await getAllResponses(projectId, language);
     const slots = Slots.find({ projectId }).fetch();
-    const domain = extractDomain(
-        allStories.reduce((acc, story) => [...acc, ...flattenStory(story)], []),
+    const domain = extractDomain({
+        stories: allStories.reduce((acc, story) => [...acc, ...flattenStory(story)], []),
         slots,
         responses,
         defaultDomain,
-    );
+    });
 
     appMethodLogger.debug('Formatting stories');
     const stories = generateAndFormatStories(allStories, selectedStoryGroups);

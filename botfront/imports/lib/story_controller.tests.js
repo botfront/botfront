@@ -54,6 +54,7 @@ const exceptionsGold = [
     { line: 22, code: 'invalid_char' },
     { line: 24, code: 'invalid_char' },
     { line: 25, code: 'empty_intent' },
+    { line: 26, code: 'no_such_form' },
     { line: 27, code: 'form' },
     { line: 31, code: 'declare_form' },
     { line: 32, code: 'declare_form' },
@@ -156,11 +157,15 @@ if (Meteor.isServer) {
     describe('extract domain from storyfile fixtures', function() {
         it('should output yaml matching the gold', function() {
             const storiesOne = fs.readFileSync('./assets/app/fixtures/stories_01.md', 'utf8');
-            expect(safeLoad(extractDomain(storiesOne.split('\n\n'), slots, responses))).to.be.deep.equal(domainGold);
+            expect(safeLoad(extractDomain({
+                stories: storiesOne.split('\n\n'), slots, responses,
+            }))).to.be.deep.equal(domainGold);
         });
         it('should output yaml matching the gold with a default domain', function() {
             const storiesOne = fs.readFileSync('./assets/app/fixtures/stories_01.md', 'utf8');
-            expect(safeLoad(extractDomain(storiesOne.split('\n\n'), slots, responses, defaultDomain)))
+            expect(safeLoad(extractDomain({
+                stories: storiesOne.split('\n\n'), slots, responses, defaultDomain,
+            })))
                 .to.be.deep.equal(domainGoldWithDefault);
         });
         it('should output exceptions matching the gold', function() {

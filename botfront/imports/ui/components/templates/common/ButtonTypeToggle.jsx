@@ -52,12 +52,13 @@ const ButtonTypeToggle = (props) => {
 
 ButtonTypeToggle.propTypes = {
     onToggleButtonType: PropTypes.func.isRequired,
-    responseType: PropTypes.string.isRequired,
+    responseType: PropTypes.string,
     className: PropTypes.string,
 };
 
 ButtonTypeToggle.defaultProps = {
     className: '',
+    responseType: null,
 };
 
 export default ButtonTypeToggle;

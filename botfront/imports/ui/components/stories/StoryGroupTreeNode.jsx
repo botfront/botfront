@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {
     Icon, Menu, Input, Popup,
 } from 'semantic-ui-react';
+import { formNameIsValid } from '../../../lib/client.safe.utils';
 
 const StoryGroupTreeNode = (props) => {
     const {
@@ -24,6 +25,7 @@ const StoryGroupTreeNode = (props) => {
         disabled,
         showPublish,
     } = props;
+    const { type } = item;
     const [newTitle, setNewTitle] = useState('');
     const [renamingModalPosition, setRenamingModalPosition] = useState(null);
     const renamerRef = useRef();
@@ -32,23 +34,34 @@ const StoryGroupTreeNode = (props) => {
 
     const trimLong = string => (string.length > 50 ? `${string.substring(0, 48)}...` : string);
     const isInSelection = activeStories.includes(item.id);
-    const disableEdit = disabled || isSmartNode || item.smartGroup;
-    const disableDrag = disabled || isSmartNode || (selectionIsNonContiguous && activeStories.includes(item.id));
+    const disableEdit = disabled || isSmartNode || item.smartGroup || type === 'form-slot';
+    const disableDrag = disabled
+        || isSmartNode
+        || (selectionIsNonContiguous && activeStories.includes(item.id));
 
-    const icon = item.canBearChildren ? (
+    const icon = ['story-group', 'form'].includes(type) ? (
         <Icon
             name={`caret ${item.isExpanded ? 'down' : 'right'}`}
-            {...(!somethingIsMutating ? {
-                onClick: () => handleToggleExpansion(item),
-                onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
-            } : {})}
+            {...(!somethingIsMutating
+                ? {
+                    onClick: () => handleToggleExpansion(item),
+                    onMouseDown: (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    },
+                }
+                : {})}
             className='cursor pointer'
             data-cy='toggle-expansion-story-group'
         />
     ) : null;
 
     const submitNameChange = () => {
-        if (newTitle.trim()) handleRenameItem(renamingModalPosition.id, newTitle.trim());
+        if (newTitle.trim()) {
+            if (renamingModalPosition.type !== 'form' || formNameIsValid(newTitle.trim())) {
+                handleRenameItem(renamingModalPosition.id, newTitle.trim());
+            }
+        }
         setRenamingModalPosition(null);
     };
 
@@ -57,29 +70,30 @@ const StoryGroupTreeNode = (props) => {
         if (e.key === 'Escape') setRenamingModalPosition(null);
     };
 
-    const isLeaf = !item.canBearChildren;
     const isPublished = item.status && item.status === 'published';
     const { selected: isFocused } = item;
     const isBeingRenamed = (renamingModalPosition || {}).id === item.id;
-    const isHoverTarget = combineTargetFor && !isLeaf;
+    const isHoverTarget = combineTargetFor && type === 'story-group';
 
     useEffect(() => {
         if (!renamingModalPosition) setNewTitle('');
         if (!!renamingModalPosition) setNewTitle(renamingModalPosition.title);
     }, [!!renamingModalPosition]);
 
-    const handleProps = (!somethingIsMutating && !disableDrag)
+    const handleProps = !somethingIsMutating && !disableDrag
         ? {
             ...provided.dragHandleProps,
             onMouseDown: (e, ...args) => {
-                e.preventDefault(); e.stopPropagation();
+                e.preventDefault();
+                e.stopPropagation();
                 if (item.isExpanded) handleCollapse(item.id);
                 provided.dragHandleProps.onMouseDown(e, ...args);
             },
         }
         : {
             // otherwise beautiful-dnd throws
-            'data-react-beautiful-dnd-drag-handle': provided.dragHandleProps['data-react-beautiful-dnd-drag-handle'],
+            'data-react-beautiful-dnd-drag-handle':
+                    provided.dragHandleProps['data-react-beautiful-dnd-drag-handle'],
         };
 
     const tooltipWrapper = (trigger, tooltip) => (
@@ -87,66 +101,89 @@ const StoryGroupTreeNode = (props) => {
     );
 
     const cleanStoryId = id => id.replace(/^.*_SMART_/, '');
-    
 
     const renderItemActions = () => (
         <div className={`item-actions ${disabled ? 'hidden' : ''}`}>
             {!disableEdit && !isBeingRenamed && (
                 <i>
-                    {!isLeaf && (
-                    <>
-                        {tooltipWrapper(
-                            <Icon
-                                className={`cursor pointer ${
-                                    isFocused ? 'focused' : ''
-                                }`}
-                                data-cy='focus-story-group'
-                                name='eye'
-                                {...(!somethingIsMutating ? {
-                                    onClick: () => handleToggleFocus(item.id),
-                                    onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
-                                } : {})}
-                            />,
-                            'Focus story group',
-                        )}
-                        {tooltipWrapper(
-                            <Icon
-                                className='cursor pointer'
-                                data-cy='add-story-in-story-group'
-                                name='plus'
-                                {...(!somethingIsMutating ? {
-                                    onClick: () => handleAddStory(
-                                        item.id,
-                                        `${item.title} (${item.children.length + 1})`,
-                                        showPublish ? 'unpublished' : 'published',
-                                    ),
-                                    onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
-                                } : {})}
-                            />,
-                            'Add new story to group',
-                        )}
-                    </>
+                    {type === 'story-group' && (
+                        <>
+                            {tooltipWrapper(
+                                <Icon
+                                    className={`cursor pointer ${
+                                        isFocused ? 'focused' : ''
+                                    }`}
+                                    data-cy='focus-story-group'
+                                    name='eye'
+                                    {...(!somethingIsMutating
+                                        ? {
+                                            onClick: () => handleToggleFocus(item.id),
+                                            onMouseDown: (e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                            },
+                                        }
+                                        : {})}
+                                />,
+                                'Focus story group',
+                            )}
+                            {tooltipWrapper(
+                                <Icon
+                                    className='cursor pointer'
+                                    data-cy='add-story-in-story-group'
+                                    name='plus'
+                                    {...(!somethingIsMutating
+                                        ? {
+                                            onClick: () => handleAddStory(
+                                                item.id,
+                                                `${item.title} (${
+                                                    item.children.length + 1
+                                                })`,
+                                                showPublish ? 'unpublished' : 'published',
+                                            ),
+                                            onMouseDown: (e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                            },
+                                        }
+                                        : {})}
+                                />,
+                                'Add new story to group',
+                            )}
+                        </>
                     )}
                     <Icon
                         className='cursor pointer'
                         data-cy='delete-story-group'
                         name='trash'
-                        {...(!somethingIsMutating ? {
-                            onClick: () => setDeletionModalVisible(item),
-                            onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
-                        } : {})}
+                        {...(!somethingIsMutating
+                            ? {
+                                onClick: () => setDeletionModalVisible(item),
+                                onMouseDown: (e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                },
+                            }
+                            : {})}
                     />
                 </i>
             )}
-            { isLeaf && showPublish && !disabled && (
+            {type === 'story' && showPublish && !disabled && (
                 <Popup
-                    content={<p>This story is unpublished and is only trained in the development environment</p>}
+                    content={(
+                        <p>
+                            This story is unpublished and is only trained in the
+                            development environment
+                        </p>
+                    )}
                     trigger={(
                         <Icon
                             className='cursor pointer'
                             data-cy='toggle-publish'
                             name={isPublished ? 'toggle on' : 'toggle off'}
-                            onClick={() => { handleTogglePublish(cleanStoryId(item.id)); }}
+                            onClick={() => {
+                                handleTogglePublish(cleanStoryId(item.id));
+                            }}
                         />
                     )}
                     inverted
@@ -165,17 +202,21 @@ const StoryGroupTreeNode = (props) => {
             tabIndex={0} // eslint-disable-line jsx-a11y/no-noninteractive-tabindex
             className={`item-focus-holder ${item.smartGroup ? 'blue' : ''}`}
             id={`story-menu-item-${item.id}`}
-            type={isLeaf ? 'story' : 'story-group'}
+            type={type}
             data-pinned={!!item.pinned}
             data-cy='story-group-menu-item'
         >
             <Menu.Item
                 active={isInSelection || isHoverTarget}
-                {...(isLeaf ? {
-                    // we blur the active element so if something was being type, it's saved
-                    onMouseDown: ({ nativeEvent: { shiftKey } }) => { document.activeElement.blur(); handleMouseDownInMenu({ item, shiftKey }); },
-                    onMouseEnter: () => handleMouseEnterInMenu({ item }),
-                } : {})}
+                {...(type !== 'story-group'
+                    ? {
+                        onMouseDown: ({ nativeEvent: { shiftKey } }) => {
+                            handleMouseDownInMenu({ item, shiftKey });
+                        },
+                        onMouseEnter: () => handleMouseEnterInMenu({ item }),
+                    }
+                    : {}
+                )}
             >
                 <div
                     className='side-by-side left narrow middle'
@@ -185,7 +226,9 @@ const StoryGroupTreeNode = (props) => {
                         name='bars'
                         size='small'
                         color='grey'
-                        className={`drag-handle ${isDragging ? 'dragging' : ''} ${disableDrag ? 'hidden' : ''}`}
+                        className={`drag-handle ${isDragging ? 'dragging' : ''} ${
+                            disableDrag ? 'hidden' : ''
+                        }`}
                         {...handleProps}
                     />
                     <div className='item-chevron'>{icon}</div>
@@ -201,16 +244,23 @@ const StoryGroupTreeNode = (props) => {
                             {...(renamerRef.current
                                 ? {
                                     style: {
-                                        width: `${renamerRef.current
-                                            .clientWidth - 25}px`,
+                                        width: `${
+                                            renamerRef.current.clientWidth - 25
+                                        }px`,
                                     },
                                 }
                                 : {})}
                         />
                     ) : (
                         <span
-                            className={`item-name ${!isPublished && isLeaf && showPublish ? 'grey' : ''} ${(somethingIsMutating || disableEdit) ? 'uneditable' : ''}`}
-                            {...(!(somethingIsMutating || disableEdit) ? { onDoubleClick: () => setRenamingModalPosition(item) } : {})}
+                            className={`item-name ${
+                                !isPublished && type === 'story' && showPublish
+                                    ? 'grey'
+                                    : ''
+                            } ${somethingIsMutating || disableEdit ? 'uneditable' : ''}`}
+                            {...(!(somethingIsMutating || disableEdit)
+                                ? { onDoubleClick: () => setRenamingModalPosition(item) }
+                                : {})}
                         >
                             {trimLong(item.title)}
                         </span>
@@ -244,7 +294,7 @@ StoryGroupTreeNode.propTypes = {
 
 StoryGroupTreeNode.defaultProps = {
     disabled: false,
-    showPublish: true,
+    showPublish: false,
 };
 
 const StoryGroupTreeNodeWrapped = props => <StoryGroupTreeNode {...props} />;

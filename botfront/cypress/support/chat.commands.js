@@ -38,11 +38,14 @@ Cypress.Commands.add('compareLastMessage', (expectedResponse) => {
     }
 });
 
-Cypress.Commands.add('testChatInput', (utterance, expectedResponse) => {
+Cypress.Commands.add('typeChatMessage', (utterance) => {
     cy.get('span.rw-loading', { timeout: 10000 }).should('not.exist');
     cy.get('textarea.rw-new-message').should('not.be.disabled');
     cy.get('textarea.rw-new-message').click().type(`${utterance}{enter}`, { force: true });
-    // Verify response
+});
+
+Cypress.Commands.add('testChatInput', (utterance, expectedResponse) => {
+    cy.typeChatMessage(utterance);
     cy.compareLastMessage(expectedResponse);
 });
 

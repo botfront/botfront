@@ -1,5 +1,4 @@
-import { mergeTypes } from 'merge-graphql-schemas';
-
+import { mergeTypeDefs } from '@graphql-tools/merge';
 import conversationResolvers from './conversations/resolvers';
 import conversationTypes from './conversations/schemas';
 import activityResolver from './activity/resolvers/activityResolver';
@@ -36,7 +35,7 @@ export const resolvers = [
     analyticsDashboardResolver,
 ];
 
-export const typeDefs = mergeTypes([
+export const typeDefs = mergeTypeDefs([
     ...conversationTypes,
     ...botResponsesTypes,
     ...nluTypes,

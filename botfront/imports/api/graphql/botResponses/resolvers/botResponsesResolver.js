@@ -117,7 +117,14 @@ export default {
             // if the response type has been updated all the other languages and variations for this response
             // need to be updated so we use the updateResponseType function instead of upsertResponse
             const response = args.newResponseType ? await updateResponseType(args) : await upsertResponse(args);
-            const { projectId, ...botResponsesModified } = response;
+            if (response) {
+                const { projectId, ...botResponsesModified } = response;
+                pubsub.publish(RESPONSES_MODIFIED, { projectId, botResponsesModified });
+            } else {
+                const { projectId, key } = args;
+                const botResponsesModified = await getBotResponse(projectId, key);
+                pubsub.publish(RESPONSES_MODIFIED, { projectId, botResponsesModified });
+            }
             if (args.logging) {
                 auditLog('Upserted response', {
                     user: auth.user,
@@ -130,7 +137,6 @@ export default {
                     resType: 'response',
                 });
             }
-            pubsub.publish(RESPONSES_MODIFIED, { projectId, botResponsesModified });
             return response;
         },
         async createResponse(_, args, auth) {

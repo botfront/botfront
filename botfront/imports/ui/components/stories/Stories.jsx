@@ -1,7 +1,12 @@
 import { Modal, Container } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, {
-    useState, useContext, useMemo, useCallback, useEffect, useRef,
+    useState,
+    useContext,
+    useMemo,
+    useCallback,
+    useEffect,
+    useRef,
 } from 'react';
 import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
@@ -24,25 +29,28 @@ import { can } from '../../../lib/scopes';
 const SlotsEditor = React.lazy(() => import('./Slots'));
 const PoliciesEditor = React.lazy(() => import('../settings/CorePolicy'));
 
-const isStoryDeletable = (story, stories, tree) => {
-    const isDestination = s1 => ((stories.find(s2 => s2._id === s1.id) || {}).checkpoints || []).length;
-    const isOrigin = s1 => stories.some(s2 => (s2.checkpoints || []).some(c => c[0] === s1.id));
+const isDeletionPossible = (node = {}, nodes, tree) => {
+    const isDestination = s1 => ((nodes.find(s2 => s2._id === s1.id) || {}).checkpoints || []).length;
+    const isOrigin = s1 => nodes.some(s2 => (s2.checkpoints || []).some(c => c[0] === s1.id));
     const isDestinationOrOrigin = s => isDestination(s) || isOrigin(s);
-    if (!story) return [false, null];
-    const deletable = !story.canBearChildren
-        ? !isDestinationOrOrigin(story)
-        : !(story.children || []).some(c => isDestinationOrOrigin(tree.items[c]));
-    const message = deletable
-        ? story.canBearChildren
-            ? `The story group ${story.title
-            } and all its stories in it will be deleted. This action cannot be undone.`
-            : `The story ${story.title
-            } will be deleted. This action cannot be undone.`
-        : story.canBearChildren
-            ? `The story group ${story.title
-            } cannot be deleted as it contains links.`
-            : `The story ${story.title
-            } cannot be deleted as it is linked to another story.`;
+    let deletable = false;
+    let message = null;
+    if (node.type === 'story') {
+        deletable = !isDestinationOrOrigin(node);
+        message = deletable
+            ? `The story ${node.title} will be deleted. This action cannot be undone.`
+            : `The story ${node.title} cannot be deleted as it is linked to another story.`;
+    }
+    if (node.type === 'story-group') {
+        deletable = !(node.children || []).some(c => isDestinationOrOrigin(tree.items[c]));
+        message = deletable
+            ? `The story group ${node.title} and all its stories in it will be deleted. This action cannot be undone.`
+            : `The story group ${node.title} cannot be deleted as it contains links.`;
+    }
+    if (node.type === 'form') {
+        deletable = true;
+        message = `The form ${node.title} will be deleted. This action cannot be undone.`;
+    }
     return [deletable, message];
 };
 
@@ -53,8 +61,8 @@ function Stories(props) {
         stories,
         ready,
         router,
-        activeStories,
-        setActiveStories: doSetActiveStories,
+        storyMenuSelection,
+        setStoryMenuSelection: doSetStoryMenuSelection,
     } = props;
 
     const { slots } = useContext(ProjectContext);
@@ -75,16 +83,17 @@ function Stories(props) {
 
     const cleanId = id => id.replace(/^.*_SMART_/, '');
 
-    const setActiveStories = (newActiveStories) => {
-        if (!getQueryParams().every(id => newActiveStories.includes(id))
-        || !newActiveStories.every(id => getQueryParams().includes(id))) {
+
+    const setStoryMenuSelection = (newSelection) => {
+        if (!getQueryParams().every(id => newSelection.includes(id))
+        || !newSelection.every(id => getQueryParams().includes(id))) {
             const { location: { pathname } } = router;
-            router.replace({ pathname, query: { 'ids[]': newActiveStories.map(cleanId) } });
+            router.replace({ pathname, query: { 'ids[]': newSelection.map(cleanId) } });
         }
-        doSetActiveStories(newActiveStories);
+        doSetStoryMenuSelection(newSelection);
     };
 
-    useEffect(() => setActiveStories(getQueryParams().length ? getQueryParams() : activeStories), []);
+    useEffect(() => setStoryMenuSelection(getQueryParams().length ? getQueryParams() : storyMenuSelection), []);
 
     const closeModals = () => {
         setSlotsModal(false);
@@ -108,36 +117,94 @@ function Stories(props) {
             return 0;
         });
     
-    const injectProjectIdInStory = useCallback(story => ({ ...story, projectId }), [projectId]);
+    const injectProjectIdInStory = useCallback(story => ({ ...story, projectId }), [
+        projectId,
+    ]);
 
     const storiesReshaped = useMemo(reshapeStories, [stories]);
 
-    const handleAddStoryGroup = useCallback((storyGroup, f) => Meteor.call('storyGroups.insert', { ...storyGroup, projectId }, wrapMeteorCallback(f)), [projectId]);
+    const handleAddStoryGroup = useCallback(
+        (storyGroup, f) => Meteor.call(
+            'storyGroups.insert',
+            { ...storyGroup, projectId },
+            wrapMeteorCallback(f),
+        ),
+        [projectId],
+    );
 
-    const handleDeleteGroup = useCallback((storyGroup, f) => Meteor.call('storyGroups.delete', { ...storyGroup, projectId }, wrapMeteorCallback(f)), [projectId]);
+    const handleDeleteGroup = useCallback(
+        (storyGroup, f) => Meteor.call(
+            'storyGroups.delete',
+            { ...storyGroup, projectId },
+            wrapMeteorCallback(f),
+        ),
+        [projectId],
+    );
 
-    const handleStoryGroupUpdate = useCallback((storyGroup, f) => Meteor.call('storyGroups.update', { ...storyGroup, projectId }, wrapMeteorCallback(f)), [projectId]);
+    const handleStoryGroupUpdate = useCallback(
+        (storyGroup, f) => Meteor.call(
+            'storyGroups.update',
+            { ...storyGroup, projectId },
+            wrapMeteorCallback(f),
+        ),
+        [projectId],
+    );
 
-    const handleStoryGroupSetExpansion = useCallback((storyGroup, f) => Meteor.call('storyGroups.setExpansion', { ...storyGroup, projectId }, wrapMeteorCallback(f)), [projectId]);
+    const handleStoryGroupSetExpansion = useCallback(
+        (storyGroup, f) => Meteor.call(
+            'storyGroups.setExpansion',
+            { ...storyGroup, projectId },
+            wrapMeteorCallback(f),
+        ),
+        [projectId],
+    );
 
-    const handleNewStory = useCallback((story, f) => Meteor.call(
-        'stories.insert', {
-            story: '', projectId, branches: [], ...story,
-        },
-        wrapMeteorCallback(f),
-    ), [projectId]);
+    const handleNewStory = useCallback(
+        (story, f) => Meteor.call(
+            'stories.insert',
+            {
+                story: '',
+                projectId,
+                branches: [],
+                ...story,
+            },
+            wrapMeteorCallback(f),
+        ),
+        [projectId],
+    );
 
-    const handleStoryDeletion = useCallback((story, f) => Meteor.call('stories.delete', injectProjectIdInStory(story), wrapMeteorCallback(f)), [projectId]);
+    const handleStoryDeletion = useCallback(
+        (story, f) => Meteor.call(
+            'stories.delete',
+            injectProjectIdInStory(story),
+            wrapMeteorCallback(f),
+        ),
+        [projectId],
+    );
 
-    const handleStoryUpdate = useCallback((story, f) => Meteor.call(
-        'stories.update', !Array.isArray(story) ? injectProjectIdInStory(story) : story.map(injectProjectIdInStory), wrapMeteorCallback(f),
-    ), [projectId]);
+    const handleStoryUpdate = useCallback(
+        (story, f) => Meteor.call(
+            'stories.update',
+            !Array.isArray(story)
+                ? injectProjectIdInStory(story)
+                : story.map(injectProjectIdInStory),
+            wrapMeteorCallback(f),
+        ),
+        [projectId],
+    );
 
     const handleReloadStories = () => {
         setStoryEditorsKey(shortId.generate());
     };
 
-    const handleGetResponseLocations = (responses, f) => { Meteor.call('stories.includesResponse', projectId, responses, wrapMeteorCallback(f)); };
+    const handleGetResponseLocations = (responses, f) => {
+        Meteor.call(
+            'stories.includesResponse',
+            projectId,
+            responses,
+            wrapMeteorCallback(f),
+        );
+    };
 
     useEventListener('keydown', ({ key }) => {
         if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
@@ -188,19 +255,22 @@ function Stories(props) {
                             placeholderAddItem='Choose a group name'
                             modals={{ setSlotsModal, setPoliciesModal }}
                         />
-                        <StoryGroupTree
-                            ref={treeRef}
-                            storyGroups={storyGroups}
-                            stories={stories}
-                            onChangeActiveStories={setActiveStories}
-                            activeStories={activeStories}
-                            isStoryDeletable={isStoryDeletable}
-                        />
+                        <Loading loading={false}>
+                            <StoryGroupTree
+                                ref={treeRef}
+                                forms={[]}
+                                storyGroups={storyGroups}
+                                stories={stories}
+                                onChangeStoryMenuSelection={setStoryMenuSelection}
+                                storyMenuSelection={storyMenuSelection}
+                                isDeletionPossible={isDeletionPossible}
+                            />
+                        </Loading>
                     </div>
                     <Container>
                         <StoryEditors
                             projectId={projectId}
-                            selectedIds={activeStories.map(cleanId)}
+                            selectedIds={storyMenuSelection.map(cleanId)}
                             key={storyEditorsKey}
                         />
                     </Container>
@@ -216,12 +286,11 @@ Stories.propTypes = {
     storyGroups: PropTypes.array.isRequired,
     stories: PropTypes.array.isRequired,
     router: PropTypes.object.isRequired,
-    activeStories: PropTypes.array.isRequired,
-    setActiveStories: PropTypes.func.isRequired,
+    storyMenuSelection: PropTypes.array.isRequired,
+    setStoryMenuSelection: PropTypes.func.isRequired,
 };
 
-Stories.defaultProps = {
-};
+Stories.defaultProps = {};
 
 const StoriesWithTracker = withRouter(withTracker((props) => {
     const { projectId } = props;
@@ -248,16 +317,14 @@ const StoriesWithTracker = withRouter(withTracker((props) => {
     const stories = [...regularStories, ...smartStories];
 
     return {
-        ready:
-            storyGroupsHandler.ready()
-            && storiesHandler.ready(),
+        ready: storyGroupsHandler.ready() && storiesHandler.ready(),
         storyGroups,
         stories,
     };
 })(Stories));
 
 const mapStateToProps = state => ({
-    activeStories: state.stories.get('storiesCurrent').toJS(),
+    storyMenuSelection: state.stories.get('storiesCurrent').toJS(),
 });
 
-export default connect(mapStateToProps, { setActiveStories: setStoriesCurrent })(StoriesWithTracker);
+export default connect(mapStateToProps, { setStoryMenuSelection: setStoriesCurrent })(StoriesWithTracker);

@@ -24,28 +24,14 @@ import { getStoriesAndDomain } from '../../lib/story.utils';
 
 export const createInstance = async (project) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
-    const orchestration = process.env.ORCHESTRATOR ? process.env.ORCHESTRATOR : 'docker-compose';
-
-    try {
-        const { getDefaultInstance } = await import(`./instances.${orchestration}`);
-        const instance = await getDefaultInstance(project);
-        if (Array.isArray(instance)) {
-            instance.forEach((inst) => {
-                // eslint-disable-next-line no-param-reassign
-                if (!inst.host) inst.host = 'http://replaceThatUrl';
-                Instances.insert(inst);
-            });
-            return;
-        }
-        if (instance) {
-            if (!instance.host) instance.host = 'http://replaceThatUrl';
-            // eslint-disable-next-line consistent-return
-            return await Instances.insert(instance);
-        }
-    } catch (e) {
-        console.log(e);
-        throw new Error('Could not create default instance', e);
-    }
+    const { instance: host } = yaml.safeLoad(Assets.getText(
+        process.env.MODE === 'development'
+            ? 'defaults/private.dev.yaml'
+            : process.env.MODE === 'test' ? 'defaults/private.yaml' : 'defaults/private.gke.yaml',
+    ));
+    return Instances.insert({
+        name: 'Default Instance', host: host.replace(/{PROJECT_NAMESPACE}/g, project.namespace), projectId: project._id,
+    });
 };
 
 const getConfig = (model) => {
@@ -288,8 +274,9 @@ if (Meteor.isServer) {
                 });
                 return payload;
             } catch (e) {
+                const error = `${e.message || e.reason} ${(e.stack.split('\n')[2] || '').trim()}`;
                 const t1 = performance.now();
-                appMethodLogger.error(`Building training payload failed - ${(t1 - t0).toFixed(2)} ms`, { status: e.status });
+                appMethodLogger.error(`Building training payload failed - ${(t1 - t0).toFixed(2)} ms`, { error });
                 Meteor.call('project.markTrainingStopped', projectId, 'failure', e.reason);
                 throw formatError(e);
             }
@@ -339,8 +326,8 @@ if (Meteor.isServer) {
                         appMethodLogger.debug(`Saving model at ${trainedModelPath}`);
                         await promisify(fs.writeFile)(trainedModelPath, trainingResponse.data, 'binary');
                     } catch (e) {
-                        // eslint-disable-next-line no-console
-                        appMethodLogger.error(`Could not save trained model to ${trainedModelPath}`, { error: e });
+                        const error = `${e.message || e.reason} ${(e.stack.split('\n')[2] || '').trim()}`;
+                        appMethodLogger.error(`Could not save trained model to ${trainedModelPath}`, { error });
                     }
 
                     if (loadModel) {
@@ -358,8 +345,9 @@ if (Meteor.isServer) {
 
                 Meteor.call('project.markTrainingStopped', projectId, 'success');
             } catch (e) {
+                const error = `${e.message || e.reason} ${(e.stack.split('\n')[2] || '').trim()}`;
                 const t1 = performance.now();
-                appMethodLogger.error(`Training project ${projectId} - ${(t1 - t0).toFixed(2)} ms`, { error: e });
+                appMethodLogger.error(`Training project ${projectId} - ${(t1 - t0).toFixed(2)} ms`, { error });
                 Meteor.call('project.markTrainingStopped', projectId, 'failure', e.reason);
                 throw formatError(e);
             }

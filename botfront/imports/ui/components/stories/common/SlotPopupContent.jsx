@@ -1,9 +1,7 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import {
-    Dropdown, Button, Popup,
-} from 'semantic-ui-react';
+import { Dropdown, Button, Popup } from 'semantic-ui-react';
 import { groupBy } from 'lodash';
 import { ConversationOptionsContext } from '../Context';
 import { ProjectContext } from '../../../layouts/context';
@@ -17,8 +15,9 @@ const SlotPopupContent = (props) => {
     const { slots } = useContext(ProjectContext);
     const [popupOpen, setPopupOpen] = useState();
     const [menuOpen, setMenuOpen] = useState();
+    const allowedTypes = ['bool', 'float', 'list', 'text', 'categorical'];
 
-    if (!slots.length) {
+    if (!slots.filter(s => allowedTypes.includes(s.type)).length) {
         return (
             <Popup
                 trigger={trigger}
@@ -32,17 +31,23 @@ const SlotPopupContent = (props) => {
                 onClose={() => setPopupOpen(false)}
             >
                 <p>
-                    Go to the <strong>Slot</strong> tab to create your first
-                    slot!
+                    No featurized slot found to insert.
                 </p>
                 <div>
-                    <Button fluid color='orange' content='Go to slots' onClick={browseToSlots} />
+                    <Button
+                        fluid
+                        color='orange'
+                        content='Edit slots'
+                        onClick={() => {
+                            setPopupOpen(false);
+                            browseToSlots();
+                        }}
+                    />
                 </div>
             </Popup>
         );
     }
 
-    const allowedTypes = ['bool', 'float', 'list', 'text', 'categorical'];
     const { name: activeName, type: activeType, slotValue } = active || {
         name: null,
         type: null,
@@ -79,48 +84,30 @@ const SlotPopupContent = (props) => {
                         className='dropdown'
                         key={`slotcat-${c}`}
                     >
-                        <Dropdown
-                            text={c}
-                            fluid
-                        >
+                        <Dropdown text={c} fluid>
                             <Dropdown.Menu>
                                 {slotsByCat[c].map(s => (
                                     <Dropdown.Item
-                                        active={
-                                            activeName
-                                            === s.name
-                                        }
+                                        active={activeName === s.name}
                                         className='dropdown'
                                         key={`slotname-${s.name}`}
                                     >
-                                        <Dropdown
-                                            text={s.name}
-                                            fluid
-                                        >
+                                        <Dropdown text={s.name} fluid>
                                             <Dropdown.Menu>
-                                                {getSlotValue(
-                                                    s,
-                                                ).map(
-                                                    content => (
-                                                        <Dropdown.Item
-                                                            onClick={() => onSelect(
-                                                                {
-                                                                    ...s,
-                                                                    slotValue: content,
-                                                                },
-                                                            )
-                                                            }
-                                                            active={
-                                                                slotValue
-                                                                === content
-                                                            }
-                                                            key={`slotname-${s.name}-value-${content}`}
-                                                            className='color-column'
-                                                        >
-                                                            {slotValueToLabel(content)}
-                                                        </Dropdown.Item>
-                                                    ),
-                                                )}
+                                                {getSlotValue(s).map(content => (
+                                                    <Dropdown.Item
+                                                        onClick={() => onSelect({
+                                                            ...s,
+                                                            slotValue: content,
+                                                        })
+                                                        }
+                                                        active={slotValue === content}
+                                                        key={`slotname-${s.name}-value-${content}`}
+                                                        className='color-column'
+                                                    >
+                                                        {slotValueToLabel(content)}
+                                                    </Dropdown.Item>
+                                                ))}
                                             </Dropdown.Menu>
                                         </Dropdown>
                                     </Dropdown.Item>

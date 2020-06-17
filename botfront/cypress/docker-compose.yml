@@ -47,7 +47,6 @@ services:
       - BF_PROJECT_ID=bf
       - MODE=test
       - MONGO_URL=mongodb://mongo:27017/bf
-      - ORCHESTRATOR=gke
       - ROOT_URL=http://botfront:3000
 
   botfront-api:

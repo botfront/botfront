@@ -79,6 +79,7 @@ class Slots extends React.Component {
                         key={slot._id}
                         onDelete={this.handleDeleteSlot}
                         canEditSlots={canEditSlots}
+                        deletable
                     />
                 ))}
                 {/* @matt The bool slot is not required here. you can use the value of the slot to know it it's new */}
@@ -91,6 +92,8 @@ class Slots extends React.Component {
                         projectId={projectId}
                         newSlot
                         canEditSlots={canEditSlots}
+                        onDelete={() => this.setState({ newSlot: false })}
+                        deletable
                     />
                 )}
                 {!newSlot && canEditSlots && (

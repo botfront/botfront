@@ -17,11 +17,11 @@ const webhooksSchema = new SimpleSchema({
 
 
 export const privateSettingsSchema = new SimpleSchema({
+    bfApiHost: { type: String, optional: true },
     defaultEndpoints: {
         type: String, custom: validateYaml, optional: true, defaultValue: '',
     },
     defaultCredentials: { type: String, custom: validateYaml, optional: true },
-    defaultRules: { type: String, custom: validateYaml, optional: true },
     defaultPolicies: { type: String, custom: validateYaml, optional: true },
     defaultDefaultDomain: { type: String, optional: true, custom: validateYaml },
     webhooks: { type: webhooksSchema },

@@ -127,10 +127,7 @@ export default class StoryVisualEditor extends React.Component {
                     onCreateUtteranceFromInput={() => this.handleCreateUserUtterance(index)}
                     onCreateUtteranceFromPayload={payload => this.handleCreateUserUtterance(index, payload)}
                     onCreateResponse={templateType => this.handleCreateSequence(index, templateType)}
-                    onSelectAction={action => this.handleCreateSlotOrAction(index, {
-                        type: 'action', data: { name: action },
-                    })}
-                    onSelectSlot={slot => this.handleCreateSlotOrAction(index, { type: 'slot', data: slot })}
+                    onCreateGenericLine={data => this.handleCreateSlotOrAction(index, data)}
                     onBlur={({ relatedTarget }) => {
                         const modals = Array.from(document.querySelectorAll('.modal'));
                         const popups = Array.from(document.querySelectorAll('.popup'));
@@ -198,14 +195,28 @@ export default class StoryVisualEditor extends React.Component {
         </React.Fragment>
     );
 
+    determineFormLineLabelAndValue = (line) => {
+        let value = line.gui.data.name;
+        let label = 'activate form';
+        if (line.gui.type === 'action') {
+            label = 'deactivate form';
+            value = null;
+        }
+        if (line.gui.type === 'form') {
+            label = line.gui.data.name === null
+                ? 'form completed'
+                : 'form activated';
+        }
+        return { value, label };
+    }
+
     renderFormLine = (index, line, exceptions) => (
         <React.Fragment key={`FormLine-${index}`}>
             <ExceptionWrapper exceptions={exceptions}>
                 <div className={`story-line ${this.getReadOnlyClass()}`}>
                     <GenericLabel
-                        label={line.gui.type}
-                        value={line.gui.data.name}
-                        color={line.gui.type === 'form' ? 'yellow' : 'olive'}
+                        {...this.determineFormLineLabelAndValue(line)}
+                        color='botfront-blue'
                     />
                     <IconButton onClick={() => this.handleDeleteLine(index)} icon='trash' />
                 </div>
@@ -234,6 +245,10 @@ export default class StoryVisualEditor extends React.Component {
                 exception => exception.line === index + 1,
             );
 
+            if (['form_decl', 'form'].includes(line.gui.type)
+                || (line.gui.type === 'action' && line.gui.data.name === 'action_deactivate_form')) {
+                return this.renderFormLine(index, line, exceptions);
+            }
             if (line.gui.type === 'action') return this.renderActionLine(index, line.gui, exceptions);
             if (line.gui.type === 'slot') return this.renderSlotLine(index, line.gui, exceptions);
             if (line.gui.type === 'bot') {
@@ -270,9 +285,6 @@ export default class StoryVisualEditor extends React.Component {
                         {this.renderAddLine(index)}
                     </React.Fragment>
                 );
-            }
-            if (['form_decl', 'form'].includes(line.gui.type)) {
-                return this.renderFormLine(index, line, exceptions);
             }
             return this.renderBadLine(index, line, exceptions);
         });

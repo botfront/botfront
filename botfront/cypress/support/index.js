@@ -22,6 +22,7 @@ import './response.commands';
 import './incoming.commands';
 import './settings.commands';
 import './conversation.commands';
+import './slot.commands';
 
 const axios = require('axios');
 require('cypress-plugin-retries');
@@ -721,4 +722,8 @@ Cypress.Commands.add('fill', {
     const el = $subject[0];
     el.value = value;
     return cy.wrap($subject).type('t{backspace}'); // adding/removing character trigger the one change
+});
+
+Cypress.Commands.add('setPolicies', (projectId, policies) => {
+    cy.MeteorCall('policies.save', [{ projectId, policies }]);
 });

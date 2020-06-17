@@ -1,4 +1,4 @@
-import { check, Match } from 'meteor/check';
+import { check } from 'meteor/check';
 import uuidv4 from 'uuid/v4';
 import shortid from 'shortid';
 import {
@@ -12,7 +12,6 @@ import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { NLUModels } from './nlu_model.collection';
 import {
     checkNoEmojisInExamples,
-    renameIntentsInTemplates,
     getNluModelLanguages,
     canonicalizeExamples,
 } from './nlu_model.utils';
@@ -631,66 +630,6 @@ if (Meteor.isServer) {
                 if (e instanceof Meteor.Error) throw e;
                 throw new Meteor.Error(e);
             }
-        },
-
-        'nlu.renameIntent'(modelId, oldIntent, newIntent, renameBotResponses = false) {
-            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
-            check(modelId, String);
-            check(oldIntent, String);
-            check(newIntent, String);
-            check(renameBotResponses, Boolean);
-
-            try {
-                const rawCollection = NLUModels.rawCollection();
-                const updateSync = Meteor.wrapAsync(rawCollection.update, rawCollection);
-                updateSync({ _id: modelId },
-                    { $set: { 'training_data.common_examples.$[elem].intent': newIntent } },
-                    { arrayFilters: [{ 'elem.intent': oldIntent }], multi: true });
-
-                if (renameBotResponses) {
-                    const project = Projects.find({ nlu_models: modelId }).fetch();
-
-                    const newTemplates = renameIntentsInTemplates(project[0].templates, oldIntent, newIntent);
-
-                    Projects.update({ nlu_models: modelId }, { $set: { templates: newTemplates } });
-                }
-                auditLog('Nlu renamed intent', {
-                    user: Meteor.user(),
-                    resId: modelId,
-                    projectId: getProjectIdFromModelId(modelId),
-                    type: 'updated',
-                    operation: 'nlu-data-updated',
-                    before: { intent: oldIntent },
-                    after: { intent: newIntent },
-                    resType: 'nlu-data',
-                });
-                return true;
-            } catch (e) {
-                throw new Meteor.Error(e);
-            }
-        },
-
-        'nlu.removeExamplesByIntent'(modelId, arg) {
-            checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
-            check(modelId, String);
-            check(arg, Match.OneOf(String, [String]));
-            const intents = typeof arg === 'string' ? [arg] : arg;
-            const examplesBefore = NLUModels.findOne({ _id: modelId, 'training_data.common_examples': { intent: { $in: intents } } }, { fields: { 'training_data.common_examples.$': 1 } });
-            const properExamples = get(examplesBefore, 'training_data.common_examples');
-            try {
-                NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { intent: { $in: intents } } } });
-            } catch (e) {
-                throw formatError(e);
-            }
-            auditLog('Nlu data removed example by intent', {
-                userId: Meteor.user(),
-                resId: modelId,
-                type: 'updated',
-                operation: 'nlu-data-deleted',
-                projectId: getProjectIdFromModelId(modelId),
-                before: { examples: properExamples },
-                resType: 'nlu-data',
-            });
         },
 
         async 'nlu.getUtteranceFromPayload'(projectId, payload, lang = 'en') {

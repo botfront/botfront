@@ -220,16 +220,6 @@ if (Meteor.isServer) {
             args: [null, projectId],
         },
         {
-            name: 'nlu.renameIntent',
-            roles: writers.nluData,
-            args: [modelId],
-        },
-        {
-            name: 'nlu.removeExamplesByIntent',
-            roles: writers.nluData,
-            args: [modelId],
-        },
-        {
             name: 'nlu.getUtteranceFromPayload',
             roles: readers.nluData,
             args: [projectId],

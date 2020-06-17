@@ -27,7 +27,7 @@ import { defaultDashboard } from '../graphql/analyticsDashboards/generateDefault
 if (Meteor.isServer) {
     import { auditLog } from '../../../server/logger';
 
-    export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain(stories, slots, {}, {}, false));
+    export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain({ stories, slots, crashOnStoryWithErrors: false }));
 
     export const getExamplesFromTrainingData = (trainingData, startIntents = [], startEntities = []) => {
         /*  input: training data and optional initial arrays of intents and entities

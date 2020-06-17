@@ -86,6 +86,25 @@ describe('story visual editor', function () {
             .should('exist'); // there nlu example is there too
     });
 
+    it('should be able to click on intent in dropdown to change it', function () {
+        cy.visit('/project/bf/stories');
+        cy.browseToStory('Groupo (1)');
+
+        cy.dataCy('add-user-line').click({ force: true });
+        cy.dataCy('user-line-from-input').last().click({ force: true });
+        cy.dataCy('utterance-input')
+            .find('input')
+            .type('hello !{enter}');
+        cy.dataCy('intent-label').should('have.length', 1);
+        cy.dataCy('intent-label').eq(0).click();
+        cy.get('.intent-dropdown input')
+            .click({ force: true });
+        cy.pause();
+        cy.get('.row').contains('chitchat.bye').click();
+        cy.dataCy('save-new-user-input').click({ force: true });
+        cy.get('.utterances-container').contains('chitchat.bye').should('exist');
+    });
+
     it('should rerender on language change', function () {
         cy.importNluData('bf', 'nlu_sample_en.json', 'en');
 

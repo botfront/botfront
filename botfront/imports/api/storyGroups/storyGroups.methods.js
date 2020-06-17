@@ -92,7 +92,10 @@ Meteor.methods({
     async 'storyGroups.delete'(storyGroup) {
         checkIfCan('stories:w', storyGroup.projectId);
         check(storyGroup, Object);
-        const eventstoRemove = Stories.find({ storyGroupId: storyGroup._id }, { fields: { events: true } })
+        const eventstoRemove = Stories.find(
+            { storyGroupId: storyGroup._id },
+            { fields: { events: true } },
+        )
             .fetch()
             .reduce((acc, { events = [] }) => [...acc, ...events], []);
         Projects.update(
@@ -114,13 +117,14 @@ Meteor.methods({
         return result;
     },
 
-    'storyGroups.insert'(storyGroup) {
+    async 'storyGroups.insert'(storyGroup) {
         checkIfCan('stories:w', storyGroup.projectId);
         check(storyGroup, Object);
         const { projectId, pinned } = storyGroup;
         try {
             const id = StoryGroups.insert({
-                ...storyGroup, children: [],
+                ...storyGroup,
+                children: [],
             });
             const $position = pinned ? 0 : StoryGroups.find({ projectId, pinned: true }).count();
             Projects.update(
@@ -166,9 +170,7 @@ Meteor.methods({
                 before: { storyGroup: storyGroupBefore },
                 resType: 'story-group',
             });
-            return StoryGroups.update(
-                { _id }, { $set: rest },
-            );
+            return StoryGroups.update({ _id }, { $set: rest });
         } catch (e) {
             return handleError(e);
         }
@@ -179,11 +181,22 @@ Meteor.methods({
         check(storyGroup, Object);
         try {
             const { _id, isExpanded } = storyGroup;
-            return StoryGroups.update(
-                { _id }, { $set: { isExpanded } },
-            );
+            return StoryGroups.update({ _id }, { $set: { isExpanded } });
         } catch (e) {
             return handleError(e);
         }
+    },
+    async 'storyGroups.rebuildOrder'(projectId) {
+        checkIfCan('stories:r', projectId);
+        check(projectId, String);
+        const { storyGroups: order = [] } = Projects.findOne({ _id: projectId }, { fields: { storyGroups: 1 } });
+        const storyGroups = StoryGroups.find({ projectId }, { fields: { _id: 1, pinned: 1, name: 1 } }).fetch();
+        
+        const newOrder = [...storyGroups]
+            .sort((a, b) => order.findIndex(id => id === a._id) - order.findIndex(id => id === b._id))
+            .sort((a, b) => !!b.pinned - !!a.pinned)
+            .map(({ _id }) => _id);
+        
+        return Projects.update({ _id: projectId }, { $set: { storyGroups: newOrder } });
     },
 });
