@@ -24,13 +24,19 @@ export const getTracker = async (senderId, projectId, after, maxEvents = 100) =>
                 'tracker.latest_input_channel': 1,
                 'tracker.active_form': 1,
                 'tracker.latest_action_name': 1,
-                'tracker.events': { $slice: ['$tracker.events', { $subtract: [after, { $size: '$tracker.events' }] }] },
+                'tracker.events': {
+                    $slice: [
+                        '$tracker.events',
+                        { $subtract: [after, { $size: '$tracker.events' }] },
+                    ],
+                },
                 trackerLen: { $size: '$tracker.events' },
             },
         },
         {
             $addFields: {
-                'tracker.events': { $slice: ['$tracker.events', -maxEvents] }, // take the last <maxevent> elements from the array, not doable in the previous step
+                'tracker.events': { $slice: ['$tracker.events', -maxEvents] },
+                // take the last <maxevent> elements from the array, not doable in the previous step
                 lastTimeStamp: '$tracker.latest_event_time',
             },
         },
@@ -52,67 +58,68 @@ const getNewTrackerInfo = async (senderId, projectId) => {
                 trackerLen: { $size: '$tracker.events' },
                 lastTimeStamp: '$tracker.latest_event_time',
             },
-        }];
+        },
+    ];
     const results = await Conversations.aggregate(aggregation).allowDiskUse(true);
+    if (!results.length) return { _id: senderId };
     return results[0];
 };
 
-export const insertTrackerStore = async (senderId, projectId, tracker) => {
-    await Conversations.create({
-        _id: senderId,
-        tracker,
-        status: 'new',
-        projectId,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    });
-    return getNewTrackerInfo(senderId, projectId);
-};
-
 const extractMetadataFromTracker = (tracker) => {
-    if (!tracker || !tracker.events) return null;
-    const { metadata } = tracker.events.filter(e => e.event === 'user')[0] || { metadata: {} };
-    return metadata;
+    if (!tracker) return {};
+    const firstUserEvent = (tracker.events || []).find(
+        e => e.event === 'user' && Object.keys(e.metadata || {}).length,
+    );
+    if (firstUserEvent) return firstUserEvent.metadata;
+    return {};
 };
 
-async function logUtterance(modelId, parseData, callback, env = 'development') {
+async function logUtterance(utterance, modelId, convId, env, callback) {
+    const { parse_data: parseData, message_id: mid } = utterance;
     const { text } = parseData;
     const newData = {
         ...parseData,
+        conversation_id: convId,
+        message_id: mid,
         intent: parseData.intent.name,
         confidence: parseData.intent.confidence,
+        createdAt: new Date(utterance.timestamp),
     };
+
     // eslint-disable-next-line no-underscore-dangle
-    const { _id, ...utterance } = { ...new Activity(newData) }._doc;
-    if (!parseData.intent) utterance.intent = null;
+    const { _id, ...newUtterance } = { ...new Activity(newData) }._doc;
+    if (!parseData.intent) newUtterance.intent = null;
 
     if (utterance.entities) {
-        utterance.entities = utterance.entities.filter(e => e.extractor !== 'ner_duckling_http');
+        newUtterance.entities = utterance.entities.filter(
+            e => e.extractor !== 'ner_duckling_http',
+        );
     }
-    utterance.env = env;
 
     Activity.updateOne(
         { modelId, text, env },
         {
-            $set: utterance,
+            $set: newUtterance,
             $setOnInsert: { _id: uuidv4() },
         },
         {
             upsert: true,
             runValidators: true,
         },
-        err => callback(utterance, err),
+        err => callback(newUtterance, err),
     );
 }
-const logUtterancesFromTracker = async function (projectId, tracker, filter = () => true, env = 'development') {
+const logUtterancesFromTracker = async function (projectId, events, env, convId) {
     try {
-        const userUtterances = tracker.events.filter(
+        const userUtterances = events.filter(
             event => event.event === 'user' && event.text.indexOf('/') !== 0,
-        )
-            .filter(filter);
+        );
         if (userUtterances.length) {
             const { language } = userUtterances[0].metadata || {}; // take lang from first
-            const project = await Projects.findOne({ _id: projectId }, { nlu_models: 1, defaultLanguage: 1 }).lean();
+            const project = await Projects.findOne(
+                { _id: projectId },
+                { nlu_models: 1, defaultLanguage: 1 },
+            ).lean();
             const { defaultLanguage } = project;
             if (!language && !defaultLanguage) return;
             const model = await NLUModels.findOne(
@@ -123,11 +130,12 @@ const logUtterancesFromTracker = async function (projectId, tracker, filter = ()
                 { _id: 1 },
             ).lean();
             if (!model) return;
-            userUtterances.forEach(u => logUtterance(
+            userUtterances.forEach(utterance => logUtterance(
+                utterance,
                 model._id,
-                u.parse_data,
-                (_u, e) => e && console.log('Logging failed: ', e, u),
+                convId,
                 env,
+                (_, e) => e && console.log('Logging failed: ', e, utterance),
             ));
         }
     } catch (e) {
@@ -135,42 +143,75 @@ const logUtterancesFromTracker = async function (projectId, tracker, filter = ()
     }
 };
 
-
-export const updateTrackerStore = async (senderId, projectId, tracker) => {
-    if (!process.argv.includes('--logConversationsOnly')) logUtterancesFromTracker(projectId, tracker);
-
+export const upsertTrackerStore = async ({
+    senderId,
+    projectId,
+    tracker,
+    env = 'development',
+    overwriteEvents = false,
+    importConversationsOnly = false,
+}) => {
     const { userId, language } = extractMetadataFromTracker(tracker);
-    const setTracker = {};
-    Object.keys(tracker).forEach((key) => {
-        if (key !== 'events') {
-            setTracker[`tracker.${key}`] = tracker[key];
-        }
-    });
-    const intents = tracker.events.filter(event => event.event === 'user').map((event => event.parse_data.intent.name));
-    const actions = tracker.events.filter(event => event.event === 'action').map((event => event.name));
+    const { events = [] } = tracker;
 
-    const exist = Conversations.findOne({ _id: senderId });
-    if (exist) {
-        await Conversations.updateOne(
-            { _id: senderId },
+    if (!importConversationsOnly && !process.argv.includes('--logConversationsOnly')) {
+        logUtterancesFromTracker(projectId, events, env, senderId);
+    }
+
+    let failed = false;
+    let inserted = [];
+    try {
+        const setTracker = {};
+        Object.keys(tracker).forEach((key) => {
+            if (key !== 'events') {
+                setTracker[`tracker.${key}`] = tracker[key];
+            }
+        });
+        const intents = events
+            .filter(event => event.event === 'user')
+            .map(event => event.parse_data.intent.name);
+        const actions = events
+            .filter(event => event.event === 'action')
+            .map(event => event.name);
+        const firstEventTimestamp = (events[0] || {}).timestamp;
+
+        const { ok, upserted = [] } = await Conversations.update(
+            { projectId, _id: senderId, env },
             {
-                $push: {
-                    'tracker.events': { $each: tracker.events },
-                },
+                ...(!overwriteEvents
+                    ? {
+                        $push: {
+                            'tracker.events': { $each: events },
+                        },
+                    }
+                    : {}),
                 $set: {
                     ...setTracker,
+                    ...(overwriteEvents ? { 'tracker.events': events } : {}),
                     updatedAt: new Date(),
-                    ...({ userId } || {}),
-                    ...({ language } || {}),
+                    ...(userId ? { userId } : {}),
+                    ...(language ? { language } : {}),
                 },
                 $addToSet: {
                     intents: { $each: intents },
                     actions: { $each: actions },
                 },
+                $setOnInsert: {
+                    status: 'new',
+                    createdAt: firstEventTimestamp
+                        ? new Date(firstEventTimestamp)
+                        : new Date(),
+                },
             },
+            { upsert: true },
         );
-    } else {
-        await insertTrackerStore(senderId, projectId, tracker);
+        failed = !ok;
+        inserted = upserted;
+    } catch (e) {
+        failed = true;
     }
-    return getNewTrackerInfo(senderId, projectId);
+    return {
+        ...(await getNewTrackerInfo(senderId, projectId)),
+        status: failed ? 'failed' : inserted.length ? 'inserted' : 'updated',
+    };
 };

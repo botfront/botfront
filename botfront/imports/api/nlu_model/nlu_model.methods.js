@@ -12,7 +12,6 @@ import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { NLUModels } from './nlu_model.collection';
 import {
     checkNoEmojisInExamples,
-    renameIntentsInTemplates,
     getNluModelLanguages,
     canonicalizeExamples,
 } from './nlu_model.utils';
@@ -401,45 +400,6 @@ if (Meteor.isServer) {
             } catch (e) {
                 if (e instanceof Meteor.Error) throw e;
                 throw new Meteor.Error(e);
-            }
-        },
-
-        'nlu.renameIntent'(modelId, oldIntent, newIntent, renameBotResponses = false) {
-            check(modelId, String);
-            check(oldIntent, String);
-            check(newIntent, String);
-            check(renameBotResponses, Boolean);
-
-            try {
-                const rawCollection = NLUModels.rawCollection();
-                const updateSync = Meteor.wrapAsync(rawCollection.update, rawCollection);
-                updateSync({ _id: modelId },
-                    { $set: { 'training_data.common_examples.$[elem].intent': newIntent } },
-                    { arrayFilters: [{ 'elem.intent': oldIntent }], multi: true });
-
-                if (renameBotResponses) {
-                    const project = Projects.find({ nlu_models: modelId }).fetch();
-
-                    const newTemplates = renameIntentsInTemplates(project[0].templates, oldIntent, newIntent);
-
-                    Projects.update({ nlu_models: modelId }, { $set: { templates: newTemplates } });
-                }
-
-                return true;
-            } catch (e) {
-                throw new Meteor.Error(e);
-            }
-        },
-
-        'nlu.removeExamplesByIntent'(modelId, arg) {
-            check(modelId, String);
-            check(arg, Match.OneOf(String, [String]));
-            const intents = typeof arg === 'string' ? [arg] : arg;
-
-            try {
-                NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { intent: { $in: intents } } } });
-            } catch (e) {
-                throw formatError(e);
             }
         },
 

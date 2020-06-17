@@ -92,9 +92,11 @@ const evaluations = new Schema({ _id: String }, { strict: false, versionKey: fal
 const story_groups = new Schema({ _id: String }, { strict: false, versionKey: false });
 const stories = new Schema({ _id: String }, { strict: false, versionKey: false });
 const slots = new Schema({ _id: String }, { strict: false, versionKey: false });
+const forms = new Schema({ _id: String }, { strict: false, versionKey: false });
 const instances = new Schema({ _id: String }, { strict: false, versionKey: false });
 const core_policies = new Schema({ _id: String }, { strict: false, versionKey: false });
 const conversations = new Schema({ _id: String }, { strict: false, versionKey: false });
+const form_results = new Schema({ _id: String }, { strict: false, versionKey: false });
 const activity = new Schema({
     _id: { type: String, default: shortid.generate },
     modelId: { type: String, required: true },
@@ -112,9 +114,11 @@ activity.index({ text: 1, modelId: 1, env: 1 }, { unique: true });
 
 exports.Activity = mongoose.model('Activity', activity, 'activity');
 exports.Conversations = mongoose.model('Conversations', conversations, 'conversations');
+exports.FormResults = mongoose.model('FormResults', form_results, 'form_results');
 exports.CorePolicies = mongoose.model('CorePolicies', core_policies, 'core_policies');
 exports.Instances = mongoose.model('Instances', instances, 'nlu_instances');
 exports.Slots = mongoose.model('Slots', slots, 'slots');
+exports.Forms = mongoose.model('Forms', forms, 'forms');
 exports.Stories = mongoose.model('Stories', stories, 'stories');
 exports.StoryGroups = mongoose.model('StoryGroups', story_groups, 'storyGroups');
 exports.Evaluations = mongoose.model('Evaluations', evaluations, 'nlu_evaluations');
