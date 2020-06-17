@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.25.0-rc.1](https://github.com/botfront/botfront/compare/v0.24.3...v0.25.0-rc.1) (2020-06-17)
+
+
+### Bug Fixes
+
+* click on intent in dropdown had no effect in story visual editor ([c71f9de](https://github.com/botfront/botfront/commit/c71f9de))
+* entity tagging by removing autofocus ([f57feda](https://github.com/botfront/botfront/commit/f57feda))
+* hide publish switch ([ff30b76](https://github.com/botfront/botfront/commit/ff30b76))
+* intent dropdown not clickable on canonical example ([c196994](https://github.com/botfront/botfront/commit/c196994))
+
+
+### Features
+
+* add option to erase existing data during import ([cf80335](https://github.com/botfront/botfront/commit/cf80335))
+* new pipeline, policies ([a96bc81](https://github.com/botfront/botfront/commit/a96bc81))
+* stories search de-select ([33ec116](https://github.com/botfront/botfront/commit/33ec116))
+
+
+
 ### [0.24.3](https://github.com/botfront/botfront/compare/v0.24.2...v0.24.3) (2020-06-04)
 
 
