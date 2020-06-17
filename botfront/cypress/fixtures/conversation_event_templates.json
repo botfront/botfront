@@ -35,6 +35,16 @@
         { "type": "action", "name": "action_dummy" },
         { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" }
     ],
+    "action_test_and_autre": [
+        { "type": "user", "text": "hello", "name": "chitchat.greet" },
+        { "type": "action", "name": "action_test" },
+        { "type": "action", "name": "action_dummy" },
+        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" },
+        { "type": "user", "text": "hello", "name": "chitchat.greet" },
+        { "type": "action", "name": "action_autre" },
+        { "type": "action", "name": "action_dummy" },
+        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" }
+    ],
     "action_autre": [
         { "type": "user", "text": "hello", "name": "chitchat.greet" },
         { "type": "action", "name": "action_autre" },
@@ -48,6 +58,16 @@
         { "type": "bot", "text": "test successful", "name": "utter_dummy" }
     ],
     "intent_autre": [
+        { "type": "user", "text": "hello", "name": "intent_autre" },
+        { "type": "bot", "text": "autre test successful", "name": "utter_autre" },
+        { "type": "user", "text": "hello", "name": "intent_dummy" },
+        { "type": "bot", "text": "test successful", "name": "utter_dummy" }
+    ],
+    "intent_test_and_autre": [
+        { "type": "user", "text": "hello", "name": "intent_test" },
+        { "type": "bot", "text": "test successful", "name": "utter_test" },
+        { "type": "user", "text": "hello", "name": "intent_dummy" },
+        { "type": "bot", "text": "test successful", "name": "utter_dummy" },
         { "type": "user", "text": "hello", "name": "intent_autre" },
         { "type": "bot", "text": "autre test successful", "name": "utter_autre" },
         { "type": "user", "text": "hello", "name": "intent_dummy" },

@@ -133,12 +133,24 @@ export const getDataToDisplayAndParamsToUse = ({
             xScale: { type: 'time', format: 'native' },
         };
     }
+    if (graphParams.xCanRepeat) { // only used by sequence for now
+        paramsToUse = {
+            ...paramsToUse,
+            axisBottom: {
+                ...(paramsToUse.axisBottom || {}),
+                format: value => `Step ${value.match(/[0-9]+$/)[0]}`, // get the index from the name as it was added to make it unique
+            },
+            xScale: { type: 'point' },
+        };
+    }
 
     paramsToUse = {
         ...paramsToUse,
         axisBottom: { ...paramsToUse.axisBottom, ...(graphParams.noXLegend ? {} : axisTitles.x) },
         axisLeft: { ...paramsToUse.axisLeft, ...(graphParams.noYLegend ? {} : axisTitles.y) },
     };
+  
+
     return { dataToDisplay, paramsToUse };
 };
 

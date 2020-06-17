@@ -19,7 +19,7 @@ import SettingsPortal from './SettingsPortal';
 import Table from '../charts/Table';
 import { ProjectContext } from '../../layouts/context';
 import { queryifyFilter } from '../../../lib/conversationFilters.utils';
-
+import { clearTypenameField } from '../../../lib/client.safe.utils';
 
 function AnalyticsCard(props) {
     const {
@@ -50,7 +50,7 @@ function AnalyticsCard(props) {
         },
     } = useContext(ProjectContext);
     const [nameEdited, setNameEdited] = useState(null);
-    
+
     const { displayAbsoluteRelative } = graphParams;
     const uniqueChartOptions = [...new Set(chartTypeOptions)];
 
@@ -82,13 +82,13 @@ function AnalyticsCard(props) {
         langs: queryParams.langs,
         from: applyTimezoneOffset(startDate, projectTimezoneOffset).valueOf() / 1000,
         to: applyTimezoneOffset(endDate, projectTimezoneOffset).valueOf() / 1000,
-        ...settings,
+        ...clearTypenameField(settings),
         nBuckets,
     };
     const { loading, error, data } = query
         ? useQuery(query, { variables })
         : { loading: true };
-    
+
     const [getExportData, { error: exportError, data: exportData }] = useLazyQuery(query);
     const downloadCSV = () => {
         const csvData = generateCSV(exportData, queryParams, graphParams, bucketSize, projectTimezoneOffset);
@@ -118,13 +118,30 @@ function AnalyticsCard(props) {
         return undefined;
     };
 
+    const reshapeIntentOrActionArray = (array, exclude) => {
+        if (array) {
+            return array.map(elm => ({ name: elm, excluded: exclude }));
+        }
+        return [];
+    };
+
+
     const linkToConversations = (selectedData, fullDataSet) => {
         const selectedIndex = fullDataSet.findIndex(({ bucket }) => bucket === selectedData.bucket);
         const prevData = fullDataSet[selectedIndex - 1];
         const filters = { startDate, endDate };
+        const intentsActionsFilters = [];
+        const {
+            includeIntents = [],
+            excludeIntents = [],
+            includeActions = [],
+            excludeActions = [],
+        } = settings;
+        let conversationFunnelIndex;
         switch (type) {
         case 'intentFrequencies':
-            filters.intentFilters = [selectedData.name];
+            intentsActionsFilters.push(...reshapeIntentOrActionArray([selectedData.name], false));
+            filters.intentsActionsFilters = clearTypenameField(intentsActionsFilters);
             break;
         case 'conversationLengths':
             filters.lengthFilter = { compare: selectedData.length, xThan: 'equals' };
@@ -132,14 +149,24 @@ function AnalyticsCard(props) {
         case 'conversationDurations':
             filters.durationFilter = getCompareObject(selectedData.duration);
             break;
+        case 'conversationsFunnel':
+            conversationFunnelIndex = parseInt(selectedData.name.match(/[0-9]+$/)[0], 10);
+            filters.intentsActionsFilters = clearTypenameField(settings.selectedSequence.slice(0, conversationFunnelIndex + 1));
+
+            filters.intentsActionsOperator = 'inOrder';
+            break;
         case 'conversationCounts':
-            filters.intentFilters = settings.includeIntents;
-            filters.operatorIntentsFilters = 'or';
+            intentsActionsFilters.push(...reshapeIntentOrActionArray(includeIntents, false));
+            intentsActionsFilters.push(...reshapeIntentOrActionArray(excludeIntents, true));
         // eslint-disable-next-line no-fallthrough
         case 'actionCounts':
-            // extends conversation counts case (see above)
-            filters.operatorActionsFilters = 'or';
-            filters.actionFilters = settings.includeActions;
+        /* conversation counts support intents other wise it uses the same parameters as action counts
+        that's why ere using a adjustDatesAccordingToBucket
+        */
+            intentsActionsFilters.push(...reshapeIntentOrActionArray(includeActions, false));
+            intentsActionsFilters.push(...reshapeIntentOrActionArray(excludeActions, true));
+            filters.intentsActionsFilters = clearTypenameField(intentsActionsFilters);
+            filters.intentsActionsOperator = 'or';
             if (bucketSize === 'week') {
                 const bucketStart = prevData ? prevData.bucket : startDate;
                 const bucketEnd = selectedData.bucket;
@@ -159,11 +186,12 @@ function AnalyticsCard(props) {
         });
         browserHistory.push({ pathname: `/project/${projectId}/incoming/${nlu_models[0]}/conversations/`, query: queryObject });
     };
-    
+
     const renderChart = () => {
         const { dataToDisplay, paramsToUse } = getDataToDisplayAndParamsToUse({
             data, queryParams, graphParams, nTicks, valueType, bucketSize, projectTimezoneOffset, wide, showDenominator,
         });
+        
         if (!dataToDisplay.length) return <Message color='yellow'><Icon name='calendar times' data-cy='no-data-message' linkToConversations={linkToConversations} />No data to show for selected period!</Message>;
         if (chartType === 'pie') return <PieChart {...paramsToUse} data={dataToDisplay} linkToConversations={linkToConversations} />;
         if (chartType === 'bar') return <BarChart {...paramsToUse} data={dataToDisplay} linkToConversations={linkToConversations} />;
@@ -179,6 +207,7 @@ function AnalyticsCard(props) {
         if (setting === 'excludeActions') text = 'Excluded actions';
         if (setting === 'includeIntents') text = 'Included intents';
         if (setting === 'excludeIntents') text = 'Excluded intents';
+        if (setting === 'selectedSequence') text = 'Selected Sequence';
         return (
             <React.Fragment key={setting}>
                 <SettingsPortal

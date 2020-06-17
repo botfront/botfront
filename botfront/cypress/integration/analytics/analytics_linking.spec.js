@@ -13,6 +13,7 @@ describe('link from analytics to conversations and apply filters', () => {
         cy.logout();
         cy.deleteProject('bf');
     });
+    
     it('should link from the conversations card', () => {
         cy.addConversationFromTemplate('bf', 'intent_test', 'intenttest');
         cy.addConversationFromTemplate('bf', 'action_test', 'actiontest');
@@ -43,10 +44,10 @@ describe('link from analytics to conversations and apply filters', () => {
         cy.dataCy('analytics-card').first().find('rect').last()
             .click();
         // check that the correct filters were set on the conversation page
-        cy.dataCy('intent-filter').find('.label').should('have.length', 1); // wait for page to load
-        cy.dataCy('action-filter').find('.label').should('have.length', 1); // wait for page to load
+        cy.dataCy('intents-actions-filter').find('.label').should('have.length', 3); // wait for page to load
         cy.get('.label').contains('intent_test').should('exist');
         cy.get('.label').contains('action_test').should('exist');
+        cy.get('.label').contains('get_started').should('exist').should('have.class', 'red');
         cy.dataCy('date-picker-container')
             .find('button')
             .contains(`${moment().format('DD/MM/YYYY')} - ${moment().format('DD/MM/YYYY')}`); // the date range should only include the current day
@@ -72,7 +73,7 @@ describe('link from analytics to conversations and apply filters', () => {
         cy.dataCy('analytics-card').last().find('rect').last()
             .click();
         // check that the correct filters were set on the conversation page
-        cy.dataCy('action-filter').find('.label').should('have.length', 2); // wait for page to load
+        cy.dataCy('intents-actions-filter').find('.label').should('have.length', 2); // wait for page to load
         cy.get('.label').contains('action_test').should('exist');
         cy.get('.label').contains('action_botfront_fallback').should('exist');
         cy.dataCy('date-picker-container')
@@ -124,7 +125,7 @@ describe('link from analytics to conversations and apply filters', () => {
         cy.dataCy('analytics-card').eq(2).find('rect').last()
             .click();
         cy.dataCy('conversation-item').should('exist'); // wait for the page to load
-        cy.dataCy('intent-filter').find('.label').should('have.length', 1); // wait for page to load
+        cy.dataCy('intents-actions-filter').find('.label').should('have.length', 1); // wait for page to load
         cy.get('.label').contains('intent_dummy').should('exist');
     });
     it('should set the date when linking from an analytics card', () => {
@@ -144,5 +145,90 @@ describe('link from analytics to conversations and apply filters', () => {
         cy.dataCy('conversation-item').should('exist'); // wait for the page to load
         cy.dataCy('date-picker-container').find('button')
             .contains(`${moment().subtract(29, 'days').startOf('day').format('DD/MM/YYYY')} - ${moment().format('DD/MM/YYYY')}`);
+    });
+
+    it('should set the correct order from an funnnel', () => {
+        cy.addConversationFromTemplate('bf', 'action_test', 'actiontest1');
+        cy.addConversationFromTemplate('bf', 'action_test', 'actiontest2');
+        cy.addConversationFromTemplate('bf', 'action_autre', 'actionautre1');
+        cy.addConversationFromTemplate('bf', 'action_autre', 'actionautre2');
+        cy.visit('/project/bf/analytics');
+        cy.dataCy('analytics-card').should('have.length', 6); // wait for the page to load
+        // set date to a 30 day range
+        cy.dataCy('create-card').click();
+        cy.dataCy('create-card').find('div.item').eq(5).click();
+        cy.dataCy('analytics-card').should('have.length', 7);
+        cy.dataCy('card-ellipsis-menu').first().click();
+        cy.dataCy('edit-selectedSequence').click({ force: true });
+        cy.dataCy('remove-step-0').click();
+        cy.dataCy('sequence-selector')
+            .click()
+            .find('input')
+            .type('chitchat.greet');
+        cy.dataCy('add-option')
+            .click();
+        cy.dataCy('sequence-selector')
+            .click()
+            .find('input')
+            .type('action_test');
+        cy.dataCy('add-option')
+            .click();
+        cy.get('.page').click({ force: true });
+        cy.dataCy('analytics-card').first().find('rect').last()
+            .click();
+       
+
+        cy.dataCy('intents-actions-filter').find('.label').should('have.length', 2); // wait for page to load
+        cy.get('.label').contains('chitchat.greet').should('exist');
+        cy.get('.label').contains('action_test').should('exist');
+        cy.dataCy('intents-actions-filter').find('.and-or-order div.text').should('have.text', 'In order');
+        cy.get(' .four > .ui ').should('have.text', 'actiontest2actiontest1');
+    });
+
+    it('should set the correct order from an funnnel with exclusion', () => {
+        cy.addConversationFromTemplate('bf', 'action_test', 'actiontest1');
+        cy.addConversationFromTemplate('bf', 'action_test', 'actiontest2');
+        cy.addConversationFromTemplate('bf', 'action_autre', 'actionautre1');
+        cy.addConversationFromTemplate('bf', 'action_autre', 'actionautre2');
+        cy.addConversationFromTemplate('bf', 'action_test_and_autre', 'actiontestautre');
+        cy.visit('/project/bf/analytics');
+        cy.visit('/project/bf/analytics');
+        cy.dataCy('analytics-card').should('have.length', 6); // wait for the page to load
+        // set date to a 30 day range
+        cy.dataCy('create-card').click();
+        cy.dataCy('create-card').find('div.item').eq(5).click();
+        cy.dataCy('analytics-card').should('have.length', 7);
+        cy.dataCy('card-ellipsis-menu').first().click();
+        cy.dataCy('edit-selectedSequence').click({ force: true });
+        cy.dataCy('remove-step-0').click();
+        cy.dataCy('sequence-selector')
+            .click()
+            .find('input')
+            .type('chitchat.greet');
+        cy.dataCy('add-option')
+            .click();
+        cy.dataCy('sequence-selector')
+            .click()
+            .find('input')
+            .type('action_test');
+        cy.dataCy('add-option')
+            .click();
+        cy.dataCy('sequence-selector')
+            .click()
+            .find('input')
+            .type('action_autre');
+        cy.dataCy('add-option')
+            .click();
+        cy.dataCy('sequence-step-2').click();
+
+        cy.get('.page').click({ force: true });
+        cy.dataCy('analytics-card').first().find('rect').last()
+            .click();
+
+        cy.dataCy('intents-actions-filter').find('.label').should('have.length', 3); // wait for page to load
+        cy.get('.label').contains('chitchat.greet').should('exist');
+        cy.get('.label').contains('action_test').should('exist');
+        cy.dataCy('intents-actions-filter').find('.and-or-order div.text').should('have.text', 'In order');
+        cy.get(' .four > .ui ').should('have.text', 'actiontest2actiontest1');
     });
 });

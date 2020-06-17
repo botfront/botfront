@@ -35,6 +35,7 @@ type AnalyticsCard {
     excludeActions: [String]
     includeIntents: [String]
     excludeIntents: [String]
+    selectedSequence: [Step]
     wide: Boolean
     showDenominator: Boolean
 }

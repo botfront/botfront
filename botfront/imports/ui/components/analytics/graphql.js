@@ -18,6 +18,10 @@ const dashboardFields = gql`
             excludeIntents
             includeActions
             excludeActions
+            selectedSequence {
+                name
+                excluded
+            }
             wide
             showDenominator
         }

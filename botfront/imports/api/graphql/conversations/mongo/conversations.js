@@ -1,6 +1,7 @@
 import moment from 'moment';
 import Conversations from '../conversations.model.js';
 import { addFieldsForDateRange, dateRangeCondition } from './utils';
+import { reshapeSequence, countMatchesPerConversation } from './conversationsFunnel.js';
 
 const createSortObject = (sort) => {
     let fieldName;
@@ -38,19 +39,112 @@ const getComparaisonSymbol = (comparaisonString) => {
     return compare;
 };
 
-const createFilterObject = ({
+const createIntentsActionsStep = ({
+    intentsActionsOperator,
+    intentsActionsFilters,
+}) => {
+    if (!intentsActionsFilters || intentsActionsFilters.length === 0 || intentsActionsOperator === 'inOrder') {
+        return {};
+    }
+    const filters = {};
+    const included = intentsActionsFilters.filter(intentAction => !intentAction.excluded).map(intentAction => intentAction.name);
+    const excluded = intentsActionsFilters.filter(intentAction => intentAction.excluded).map(intentAction => intentAction.name);
+
+    const includedActions = included.filter(intentAction => intentAction.startsWith('utter_') || intentAction.startsWith('action_'));
+    const excludedActions = excluded.filter(intentAction => intentAction.startsWith('utter_') || intentAction.startsWith('action_'));
+
+    const includedIntents = included.filter(intentAction => !intentAction.startsWith('utter_') && !intentAction.startsWith('action_'));
+    const excludedIntents = excluded.filter(intentAction => !intentAction.startsWith('utter_') && !intentAction.startsWith('action_'));
+    if (intentsActionsFilters && intentsActionsFilters.length > 0) {
+        if (intentsActionsOperator === 'or') {
+            filters.$or = [];
+            if (includedActions.length > 0) {
+                filters.$or.push({ actions: { $in: includedActions } });
+            }
+            if (includedIntents.length > 0) {
+                filters.$or.push({ intents: { $in: includedIntents } });
+            }
+            if (excludedActions.length > 0) {
+                filters.$or.push({ actions: { $nin: excludedActions } });
+            }
+            if (excludedIntents.length > 0) {
+                filters.$or.push({ intents: { $nin: excludedIntents } });
+            }
+        } else if (intentsActionsOperator === 'and') {
+            filters.$and = [];
+            if (includedActions.length > 0) {
+                filters.$and.push({ actions: { $all: includedActions } });
+            }
+            if (includedIntents.length > 0) {
+                filters.$and.push({ intents: { $all: includedIntents } });
+            }
+            if (excludedIntents.length > 0 || excludedActions.length > 0) {
+                let exclusions = [];
+                if (excludedActions.length > 0) {
+                    exclusions = exclusions.concat(excludedActions.map(action => ({ $in: [action, '$actions'] })));
+                }
+                if (excludedIntents.length > 0) {
+                    exclusions = exclusions.concat(excludedIntents.map(intent => ({ $in: [intent, '$intents'] })));
+                }
+                filters.$and.push({
+                    $expr: {
+                        $not: [
+                            {
+                                $or: exclusions,
+                            },
+                        ],
+                    },
+                });
+            }
+        }
+    }
+    return filters;
+};
+
+
+const createMatchingSteps = ({
+    intentsActionsOperator,
+    intentsActionsFilters,
+}) => {
+    if (!intentsActionsFilters || intentsActionsFilters.length === 0 || intentsActionsOperator !== 'inOrder') {
+        return [];
+    }
+
+    const reshapedSequence = reshapeSequence(intentsActionsFilters);
+    const matchSteps = [
+        {
+            $addFields: {
+                sequence: reshapedSequence,
+                'tracker.events': { $concatArrays: ['$tracker.events', ['END']] },
+            },
+        },
+        countMatchesPerConversation('$tracker.events'),
+        // that part check the order of the elements in the sequence, and store then in a dedicated field if they match
+       
+        {
+            $set: {
+                matching: {
+                    $filter: { input: '$matching', cond: { $ne: ['$$this', 'STOP'] } },
+                },
+            },
+        },
+        {
+            $match: { matching: { $size: reshapedSequence.length } },
+        },
+    ];
+    return matchSteps;
+};
+
+
+export const createFilterObject = ({
     projectId,
     status = [],
     env = 'development',
     confidenceFilter,
     xThanConfidence,
-    actionFilters,
     startDate,
     endDate,
     userId,
-    operatorActionsFilters,
-    operatorIntentsFilters,
-    intentFilters,
 }) => {
     const filters = { projectId };
     if (status.length > 0) filters.status = { $in: status };
@@ -71,20 +165,7 @@ const createFilterObject = ({
                 { 'tracker.events.confidence': { [mongo]: confidenceFilter } }],
         }];
     }
-    if (actionFilters && actionFilters.length > 0) {
-        if (operatorActionsFilters === 'and') {
-            filters.actions = { $all: actionFilters };
-        } else {
-            filters.actions = { $in: actionFilters };
-        }
-    }
-    if (intentFilters && intentFilters.length > 0) {
-        if (operatorIntentsFilters === 'and') {
-            filters.intents = { $all: intentFilters };
-        } else {
-            filters.intents = { $in: intentFilters };
-        }
-    }
+   
     if (startDate && endDate) {
         filters.$and = dateRangeCondition(moment(startDate).unix(), moment(endDate).unix());
     }
@@ -108,13 +189,11 @@ export const getConversations = async ({
     durationFilterUpperBound = null,
     confidenceFilter = null,
     xThanConfidence = null,
-    actionFilters = null,
     startDate = null,
     endDate = null,
     userId = null,
-    operatorActionsFilters = 'or',
-    operatorIntentsFilters = 'or',
-    intentFilters = null,
+    intentsActionsOperator = 'or',
+    intentsActionsFilters = null,
 }) => {
     const filtersObject = createFilterObject({
         projectId,
@@ -122,14 +201,24 @@ export const getConversations = async ({
         env,
         confidenceFilter,
         xThanConfidence,
-        actionFilters,
         startDate,
         endDate,
         userId,
-        operatorActionsFilters,
-        operatorIntentsFilters,
-        intentFilters,
+
     });
+
+   
+    const intentsActionsStep = createIntentsActionsStep({
+        intentsActionsOperator,
+        intentsActionsFilters,
+    });
+ 
+
+    const sequenceMatchingSteps = createMatchingSteps({
+        intentsActionsOperator,
+        intentsActionsFilters,
+    });
+
     const sortObject = createSortObject(sort);
     
 
@@ -199,8 +288,12 @@ export const getConversations = async ({
         {
             $match: { ...filtersObject },
         },
+        {
+            $match: { ...intentsActionsStep },
+        },
         ...lengthFilterStages,
         ...durationFilterSteps,
+        ...sequenceMatchingSteps,
         {
             $sort: sortObject,
         },
@@ -220,7 +313,6 @@ export const getConversations = async ({
             },
         },
     ];
-    
     const paginatedResults = await Conversations.aggregate(aggregation).allowDiskUse(true);
     if (paginatedResults[0].conversations.length < 1) {
         return ({

@@ -17,7 +17,7 @@ import TopMenu from './TopMenu';
 import { extractEntities } from '../nlu/models/nluModel.utils';
 import Activity from '../nlu/activity/Activity';
 import ActivityInsertions from '../nlu/activity/ActivityInsertions';
-import ConversationBrowser from '../conversations/ConversationsBrowser';
+import ConversationsBrowserContainer from '../conversations/ConversationsBrowserContainer';
 import { setWorkingDeploymentEnvironment, setWorkingLanguage } from '../../store/actions/actions';
 import { updateIncomingPath } from './incoming.utils';
 import { WithRefreshOnLoad } from '../../layouts/project';
@@ -82,7 +82,7 @@ class Incoming extends React.Component {
             );
         case 'conversations':
             return (
-                <ConversationBrowser projectId={project._id} />
+                <ConversationsBrowserContainer projectId={project._id} />
             );
         case 'populate':
             return (

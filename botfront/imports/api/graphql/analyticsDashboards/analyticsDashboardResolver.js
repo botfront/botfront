@@ -42,6 +42,7 @@ export default {
         excludeActions: ({ excludeActions }) => excludeActions,
         includeIntents: ({ includeIntents }) => includeIntents,
         excludeIntents: ({ excludeIntents }) => excludeIntents,
+        selectedSequence: ({ selectedSequence }) => selectedSequence,
         wide: ({ wide }) => wide,
         showDenominator: ({ showDenominator }) => showDenominator,
     },

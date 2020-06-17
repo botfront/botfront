@@ -11,6 +11,7 @@ describe('filters', function () {
 
     afterEach(function () {
         cy.logout();
+        // Cypress.runner.stop();
     });
     
     it('should keep the filter state between hide and reveal', function () {
@@ -30,11 +31,13 @@ describe('filters', function () {
         cy.dataCy('confidence-filter')
             .find('input')
             .type('75');
-        cy.dataCy('action-filter')
-            .find('.filter-dropdown')
+        cy.dataCy('intents-actions-filter')
+            .find('.icon.sequence-addition')
             .click()
             .find('input')
-            .type('test{enter}{esc}');
+            .type('test');
+        cy.dataCy('add-option')
+            .click();
         cy.dataCy('toggle-filters')
             .click();
         cy.get('.accordion.ui > .content').should('not.have.class', 'active');
@@ -42,9 +45,9 @@ describe('filters', function () {
         cy.get('.accordion.ui > .content').should('have.class', 'active');
         cy.dataCy('length-filter').find('input').should('have.value', '5');
         cy.dataCy('confidence-filter').find('input').should('have.value', '75');
-        cy.get('.fluid > .ui').should('have.text', 'test');
+        cy.get('.fourteen').should('have.text', ' test');
     });
-    
+  
     it('should be resetable', function () {
         cy.visit('/project/bf/incoming');
         cy.dataCy('conversations')
@@ -57,15 +60,17 @@ describe('filters', function () {
         cy.dataCy('confidence-filter')
             .find('input')
             .type('75');
-        cy.dataCy('action-filter')
-            .find('.filter-dropdown')
+        cy.dataCy('intents-actions-filter')
+            .find('.icon.sequence-addition')
             .click()
             .find('input')
-            .type('test{enter}{esc}');
+            .type('test');
+        cy.dataCy('add-option')
+            .click();
         cy.dataCy('reset-filter').click();
         cy.dataCy('length-filter').find('input').should('have.value', '');
         cy.dataCy('confidence-filter').find('input').should('have.value', '');
-        cy.get('[data-cy=action-filter] > .segment > .fluid > .label').should('not.exist');
+        cy.get('.fourteen .label').should('not.exist');
     });
     
     it('should filter by length', function () {
@@ -137,7 +142,7 @@ describe('filters', function () {
         cy.dataCy('conversation-item').should('have.text', 'conf70');
         cy.dataCy('conversation-item').should('not.have.text', 'conf90');
     });
-    
+     
     it('should filter by action', function () {
         // both conversation that have been added also gave an action_dummy
         cy.addConversationFromTemplate('bf', 'action_test', 'test');
@@ -145,36 +150,45 @@ describe('filters', function () {
         cy.visit('/project/bf/incoming');
         cy.dataCy('conversations')
             .click();
-        cy.dataCy('action-filter')
-            .find('.filter-dropdown')
+        cy.dataCy('intents-actions-filter')
+            .find('.icon.sequence-addition')
             .click()
             .find('input')
-            .type('action_test{enter}{esc}');
+            .clear()
+            .type('action_test');
+        cy.dataCy('add-option')
+            .click();
         cy.dataCy('apply-filters').click();
         cy.wait(100);
         cy.dataCy('conversation-item').should('have.text', 'test');
         cy.dataCy('conversation-item').should('not.have.text', 'autre');
-        cy.dataCy('action-filter')
+        cy.dataCy('intents-actions-filter')
             .click()
             .find('.label')
             .contains('action_test')
-            .find('.icon')
+            .find('.icon.delete')
             .click();
-        cy.dataCy('action-filter')
-            .find('.filter-dropdown')
+        cy.dataCy('intents-actions-filter')
+            .find('.icon.sequence-addition')
             .click()
             .find('input')
-            .type('action_autre{enter}{esc}');
-        cy.dataCy('action-filter')
-            .find('.filter-dropdown')
+            .clear()
+            .type('action_autre');
+        cy.dataCy('add-option')
+            .click();
+        cy.dataCy('intents-actions-filter')
+            .find('.icon.sequence-addition')
             .click()
             .find('input')
-            .type('action_dummy{enter}{esc}');
+            .clear()
+            .type('action_dummy');
+        cy.dataCy('add-option')
+            .click();
         cy.dataCy('apply-filters').click();
         cy.wait(100);
         cy.dataCy('conversation-item').should('have.text', 'autretest');
-        cy.dataCy('action-filter')
-            .find('.andor')
+        cy.dataCy('intents-actions-filter')
+            .find('.and-or-order')
             .click()
             .find('div')
             .contains('And')
@@ -187,6 +201,7 @@ describe('filters', function () {
         cy.dataCy('conversation-item').should('have.text', 'autre');
         cy.dataCy('conversation-item').should('not.have.text', 'test');
     });
+     
     it('should filter by intent', function () {
         // both conversation that have been added also gave an intent_dummy
         cy.addConversationFromTemplate('bf', 'intent_test', 'test');
@@ -194,36 +209,45 @@ describe('filters', function () {
         cy.visit('/project/bf/incoming');
         cy.dataCy('conversations')
             .click();
-        cy.dataCy('intent-filter')
-            .find('.filter-dropdown')
+        cy.dataCy('intents-actions-filter')
+            .find('.icon.sequence-addition')
             .click()
             .find('input')
-            .type('intent_test{enter}{esc}');
+            .clear()
+            .type('intent_test');
+        cy.dataCy('add-option')
+            .click();
         cy.dataCy('apply-filters').click();
         cy.wait(100);
         cy.dataCy('conversation-item').should('have.text', 'test');
         cy.dataCy('conversation-item').should('not.have.text', 'autre');
-        cy.dataCy('intent-filter')
+        cy.dataCy('intents-actions-filter')
             .click()
             .find('.label')
             .contains('intent_test')
             .find('.icon')
             .click();
-        cy.dataCy('intent-filter')
-            .find('.filter-dropdown')
+        cy.dataCy('intents-actions-filter')
+            .find('.icon.sequence-addition')
             .click()
             .find('input')
-            .type('intent_autre{enter}{esc}');
-        cy.dataCy('intent-filter')
-            .find('.filter-dropdown')
+            .clear()
+            .type('intent_autre');
+        cy.dataCy('add-option')
+            .click();
+        cy.dataCy('intents-actions-filter')
+            .find('.icon.sequence-addition')
             .click()
             .find('input')
-            .type('intent_dummy{enter}{esc}');
+            .clear()
+            .type('intent_dummy');
+        cy.dataCy('add-option')
+            .click();
         cy.dataCy('apply-filters').click();
         cy.wait(100);
         cy.dataCy('conversation-item').should('have.text', 'autretest');
-        cy.dataCy('intent-filter')
-            .find('.andor')
+        cy.dataCy('intents-actions-filter')
+            .find('.and-or-order')
             .click()
             .find('div')
             .contains('And')
@@ -236,6 +260,96 @@ describe('filters', function () {
         cy.dataCy('conversation-item').should('have.text', 'autre');
         cy.dataCy('conversation-item').should('not.have.text', 'test');
     });
+
+    it('should filter in order', function () {
+        // both conversation that have been added also gave an intent_dummy
+        cy.addConversationFromTemplate('bf', 'intent_test', 'test');
+        cy.addConversationFromTemplate('bf', 'intent_autre', 'autre');
+        cy.visit('/project/bf/incoming');
+        cy.dataCy('conversations')
+            .click();
+        cy.dataCy('intents-actions-filter')
+            .find('.and-or-order')
+            .click()
+            .find('div')
+            .contains('In order')
+            .click();
+        cy.dataCy('intents-actions-filter')
+            .find('.icon.sequence-addition')
+            .click()
+            .find('input')
+            .clear()
+            .type('intent_test');
+        cy.dataCy('add-option')
+            .click();
+            
+        cy.dataCy('intents-actions-filter')
+            .find('.icon.sequence-addition')
+            .click()
+            .find('input')
+            .clear()
+            .type('intent_dummy');
+        cy.dataCy('add-option')
+            .click();
+        cy.dataCy('apply-filters').click();
+        cy.wait(100);
+        cy.dataCy('conversation-item').should('have.text', 'test');
+        cy.dataCy('conversation-item').should('not.have.text', 'autre');
+       
+       
+        cy.reload();
+        cy.dataCy('conversation-item').should('have.text', 'test');
+        cy.dataCy('conversation-item').should('not.have.text', 'autre');
+    });
+
+    it('should filter in order with exlusion', function () {
+        // both conversation that have been added also gave an intent_dummy
+        cy.addConversationFromTemplate('bf', 'intent_test', 'test');
+        cy.addConversationFromTemplate('bf', 'intent_autre', 'autre');
+        cy.addConversationFromTemplate('bf', 'intent_test_and_autre', 'autretest');
+        cy.visit('/project/bf/incoming');
+        cy.visit('/project/bf/incoming');
+        cy.dataCy('conversations')
+            .click();
+        cy.dataCy('intents-actions-filter')
+            .find('.and-or-order')
+            .click()
+            .find('div')
+            .contains('In order')
+            .click();
+        cy.dataCy('intents-actions-filter')
+            .find('.icon.sequence-addition')
+            .click()
+            .find('input')
+            .clear()
+            .type('intent_test');
+        cy.dataCy('add-option')
+            .click();
+        cy.dataCy('intents-actions-filter')
+            .find('.icon.sequence-addition')
+            .click()
+            .find('input')
+            .clear()
+            .type('intent_dummy');
+        cy.dataCy('add-option')
+            .click();
+            
+        cy.dataCy('intents-actions-filter')
+            .find('.icon.sequence-addition')
+            .click()
+            .find('input')
+            .clear()
+            .type('utter_autre');
+        cy.dataCy('add-option')
+            .click();
+        cy.dataCy('sequence-step-2').click();
+        cy.dataCy('apply-filters').click();
+        cy.wait(100);
+        cy.dataCy('conversation-item').should('have.text', 'test');
+        cy.dataCy('conversation-item').should('not.have.text', 'autretest');
+        cy.dataCy('conversation-item').should('not.have.text', 'autre');
+    });
+
 
     it('should filter by date', function () {
         // cy.importProject('bf', 'filter_by_date_data.json');
@@ -329,11 +443,15 @@ describe('filters', function () {
         cy.visit('/project/bf/incoming');
         cy.dataCy('conversations')
             .click();
-        cy.dataCy('action-filter')
-            .find('.filter-dropdown')
+        cy.dataCy('intents-actions-filter')
+            .find('.icon.sequence-addition')
             .click()
             .find('input')
-            .type('action_test{enter}{esc}');
+            .clear()
+            .type('action_test');
+        cy.dataCy('add-option')
+            .click();
+       
         cy.dataCy('confidence-filter')
             .find('input')
             .type('75');
@@ -343,7 +461,6 @@ describe('filters', function () {
         cy.dataCy('apply-filters').click();
         cy.dataCy('conversation-item').should('have.text', 'pass_all');
     });
-
     it('should filter by a single user after clicking on a userId in the conversation viewer', () => {
         cy.addConversationFromTemplate('bf', 'uid_aaa', 'uidaaa');
         cy.addConversationFromTemplate('bf', 'uid_bbb', 'uidbbb');
@@ -358,6 +475,7 @@ describe('filters', function () {
         cy.dataCy('conversation-item').should('not.have.text', 'uidbbb');
         cy.dataCy('id-filter').find('input').should('have.value', 'aaa');
     });
+    
     it('should persist filters after a page refresh', () => {
         cy.addConversationFromTemplate('bf', 'intent_test', 'test');
         cy.visit('/project/bf/incoming');
@@ -369,27 +487,27 @@ describe('filters', function () {
         cy.dataCy('length-filter').find('.filter-dropdown').click();
         cy.dataCy('length-filter').find('span.text').contains('≤').click();
         cy.dataCy('confidence-filter').find('input').type('50');
-        cy.dataCy('action-filter')
-            .find('.filter-dropdown')
+        cy.dataCy('intents-actions-filter')
+            .find('.icon.sequence-addition')
             .click()
             .find('input')
-            .type('action_dummy{enter}{esc}');
-        cy.dataCy('action-filter')
-            .find('.andor')
+            .clear()
+            .type('action_dummy');
+        cy.dataCy('add-option')
+            .click();
+        cy.dataCy('intents-actions-filter')
+            .find('.and-or-order')
             .click()
             .find('div')
             .contains('And')
             .click();
-        cy.dataCy('intent-filter')
-            .find('.filter-dropdown')
+        cy.dataCy('intents-actions-filter')
+            .find('.icon.sequence-addition')
             .click()
             .find('input')
-            .type('intent_dummy{enter}{esc}');
-        cy.dataCy('intent-filter')
-            .find('.andor')
-            .click()
-            .find('div')
-            .contains('And')
+            .clear()
+            .type('intent_dummy');
+        cy.dataCy('add-option')
             .click();
         cy.dataCy('apply-filters').click();
 
@@ -408,9 +526,8 @@ describe('filters', function () {
         cy.dataCy('length-filter').find('input').should('have.value', '2');
         cy.dataCy('length-filter').find('div.text').should('have.text', '≤');
         cy.dataCy('confidence-filter').find('input').should('have.value', '50');
-        cy.dataCy('intent-filter').find('.ui.label').contains('intent_dummy').should('exist');
-        cy.dataCy('intent-filter').find('div.text').should('have.text', 'And');
-        cy.dataCy('action-filter').find('.ui.label').contains('action_dummy').should('exist');
-        cy.dataCy('action-filter').find('div.text').should('have.text', 'And');
+        
+        cy.dataCy('intents-actions-filter').find('.fourteen').should('have.text', ' action_dummyintent_dummy');
+        cy.get('.and-or-order').find('div.text').should('have.text', 'And');
     });
 });

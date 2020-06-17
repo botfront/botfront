@@ -12,13 +12,11 @@ query retreiveConversations(
     $durationFilterUpperBound: Float
     $confidenceFilter: Float
     $xThanConfidence: compare
-    $actionFilters: [String]
     $startDate: String
     $endDate: String
     $userId: String
-    $operatorActionsFilters: String
-    $operatorIntentsFilters: String
-    $intentFilters: [String]
+    $intentsActionsOperator: String
+    $intentsActionsFilters: [StepInput]
     $fetchTrackers: Boolean = false
     ) {
     conversationsPage(
@@ -34,13 +32,11 @@ query retreiveConversations(
         durationFilterUpperBound: $durationFilterUpperBound,
         confidenceFilter: $confidenceFilter,
         xThanConfidence: $xThanConfidence,
-        actionFilters: $actionFilters,
         startDate: $startDate,
         endDate: $endDate,
         userId: $userId
-        operatorActionsFilters: $operatorActionsFilters,
-        operatorIntentsFilters: $operatorIntentsFilters,
-        intentFilters: $intentFilters
+        intentsActionsOperator: $intentsActionsOperator,
+        intentsActionsFilters: $intentsActionsFilters
     ) {
         conversations {
             _id

@@ -9,21 +9,22 @@ import {
     Label,
     Icon,
     Popup,
+    Message,
 } from 'semantic-ui-react';
 import DatePicker from '../common/DatePicker';
-import AndOrMultiSelect from './AndOrMultiSelect';
+import IntentAndActionSelector from '../common/IntentAndActionSelector';
+
 
 const ConversationFilters = ({
     activeFilters,
     changeFilters,
-    actionsOptions,
-    setActionOptions,
-    intentsOptions,
+    intentsActionsOptions,
     onDownloadConversations,
 }) => {
+    const [filtersErrors, setFiltersErrors] = useState(activeFilters);
+
     const [newFilters, setNewFilters] = useState(activeFilters);
     useEffect(() => setNewFilters(activeFilters), [activeFilters]);
-    const setFilter = (key, val) => setNewFilters({ ...newFilters, [key]: val });
     const [activeAccordion, setActiveAccordion] = useState(true);
 
     const filterLengthOptions = [
@@ -31,12 +32,53 @@ const ConversationFilters = ({
         { value: 'lessThan', text: '≤' },
         { value: 'equals', text: '=' },
     ];
+   
 
     const setNewDates = (startDate, endDate) => {
         setNewFilters({ ...newFilters, startDate, endDate });
     };
 
     const applyFilters = () => changeFilters(newFilters);
+
+    const validateFilters = (filters) => {
+        let errors = [];
+        if (filters.intentsActionsFilters && filters.intentsActionsOperator) {
+            const intentsAndAction = filters.intentsActionsFilters;
+            if (filters.intentsActionsOperator === 'inOrder') {
+                let isNewSequenceValid = true;
+                let previousExcluded = false;
+                intentsAndAction.forEach((step) => {
+                    if (previousExcluded && step.excluded) isNewSequenceValid = false;
+                    previousExcluded = step.excluded;
+                });
+                if (!isNewSequenceValid) errors.push('You cannot have two exclusion next to each other when using in order');
+                if (intentsAndAction.length > 0 && intentsAndAction[0].excluded) errors.push('You cannot start with an exclusion when using in order');
+            } else {
+                const uniq = intentsAndAction
+                    .map(elm => ({
+                        count: 1,
+                        name: elm.name,
+                    }))
+                    .reduce((a, b) => {
+                        // eslint-disable-next-line no-param-reassign
+                        a[b.name] = (a[b.name] || 0) + b.count;
+                        return a;
+                    }, {});
+            
+                const duplicates = Object.keys(uniq).filter(a => uniq[a] > 1);
+                if (duplicates.length > 0) {
+                    errors = errors.concat(duplicates.map(elm => `${elm} is duplicated`));
+                }
+            }
+        }
+        return errors;
+    };
+
+    const setFilter = (key, val) => {
+        const updatedFilers = { ...newFilters, [key]: val };
+        setNewFilters(updatedFilers);
+        setFiltersErrors(validateFilters(updatedFilers));
+    };
 
     const resetFilters = (e) => {
         e.stopPropagation();
@@ -56,18 +98,7 @@ const ConversationFilters = ({
     ) {
         numberOfActiveFilter += 1;
     }
-    if (
-        newFilters.actionFilters.length > 0
-        && newFilters.actionFilters.every(e => activeFilters.actionFilters.includes(e))
-    ) {
-        numberOfActiveFilter += 1;
-    }
-    if (
-        newFilters.intentFilters.length > 0
-        && newFilters.intentFilters.every(e => activeFilters.intentFilters.includes(e))
-    ) {
-        numberOfActiveFilter += 1;
-    }
+   
     if (
         newFilters.startDate !== null
         && newFilters.endDate !== null
@@ -82,11 +113,7 @@ const ConversationFilters = ({
         : '';
 
     const handleAccordionClick = () => setActiveAccordion(!activeAccordion);
-
-    const addNewOption = (newOption) => {
-        const optionObject = { key: newOption, value: newOption, text: newOption };
-        setActionOptions([...actionsOptions, optionObject]);
-    };
+   
 
     return (
         <Accordion className='filter-accordion'>
@@ -114,6 +141,10 @@ const ConversationFilters = ({
                 </span>
             </Accordion.Title>
             <Accordion.Content active={activeAccordion}>
+            
+                {filtersErrors.length > 0 ? (<Message negative header='Errors' list={filtersErrors} />) : null}
+           
+
                 <div className='conversation-filter-container'>
                     <Button.Group color='teal' className='filter-buttons'>
                         <Button
@@ -132,30 +163,18 @@ const ConversationFilters = ({
                             </Dropdown.Menu>
                         </Dropdown>
                     </Button.Group>
-                    {/* intents filter */}
-                    <div className='conversation-filter intents' data-cy='intent-filter'>
-                        <AndOrMultiSelect
-                            values={newFilters.intentFilters}
-                            options={intentsOptions}
-                            onChange={val => setFilter('intentFilters', val)}
-                            operatorChange={val => setFilter('operatorIntentsFilters', val)}
-                            placeholder='Intent name'
-                            operatorValue={newFilters.operatorIntentsFilters}
+                    {/* intents actions filter */}
+                    <div className='conversation-filter intents-actions' data-cy='intents-actions-filter'>
+                        <IntentAndActionSelector
+                            options={intentsActionsOptions}
+                            operatorValue={newFilters.intentsActionsOperator}
+                            sequence={newFilters.intentsActionsFilters}
+                            operatorChange={value => setFilter('intentsActionsOperator', value)}
+                            onChange={value => setFilter('intentsActionsFilters', [...value])}
                         />
                     </div>
-                    {/* actions filter */}
-                    <div className='conversation-filter actions' data-cy='action-filter'>
-                        <AndOrMultiSelect
-                            values={newFilters.actionFilters}
-                            addItem={addNewOption}
-                            options={actionsOptions}
-                            onChange={val => setFilter('actionFilters', val)}
-                            operatorChange={val => setFilter('operatorActionsFilters', val)}
-                            placeholder='Action name'
-                            allowAdditions
-                            operatorValue={newFilters.operatorActionsFilters}
-                        />
-                    </div>
+                    
+                 
                     {/* date picker */}
                     <div className='conversation-filter' data-cy='date-filter'>
                         <Segment className='date-filter' data-cy='date-picker-container'>
@@ -167,6 +186,7 @@ const ConversationFilters = ({
                             />
                         </Segment>
                     </div>
+
                     {/* conversation length filter */}
                     <div
                         className='conversation-filter conv-length'
@@ -318,15 +338,13 @@ const ConversationFilters = ({
 ConversationFilters.propTypes = {
     changeFilters: PropTypes.func.isRequired,
     activeFilters: PropTypes.object.isRequired,
-    actionsOptions: PropTypes.array,
-    setActionOptions: PropTypes.func.isRequired,
-    intentsOptions: PropTypes.array,
+    intentsActionsOptions: PropTypes.array,
     onDownloadConversations: PropTypes.func.isRequired,
 };
 
 ConversationFilters.defaultProps = {
-    actionsOptions: [],
-    intentsOptions: PropTypes.array,
+    intentsActionsOptions: [],
+   
 };
 
 export default ConversationFilters;

@@ -17,6 +17,9 @@ import LanguageDropdown from '../common/LanguageDropdown';
 import { PageMenu, Loading } from '../utils/Utils';
 import { ProjectContext } from '../../layouts/context';
 import { findName } from '../../../lib/utils';
+import { GET_INTENTS_IN_CONVERSATIONS } from '../conversations/queries';
+import { wrapMeteorCallback } from '../utils/Errors';
+import { AnalyticsContext } from './AnalyticsContext';
 
 const Dashboard = React.lazy(() => import('./AnalyticsDashboard'));
 
@@ -29,6 +32,7 @@ function AnalyticsContainer(props) {
     } = props;
 
     const [availableEnvs, setAvailableEnvs] = useState(['development']);
+    const [sequenceOptions, setSequenceOptions] = useState([]);
     const {
         project: { _id: projectId },
         projectLanguages,
@@ -40,6 +44,31 @@ function AnalyticsContainer(props) {
         });
     }, []);
 
+    
+    useQuery(GET_INTENTS_IN_CONVERSATIONS, {
+        variables: { projectId },
+        fetchPolicy: 'no-cache',
+        onCompleted: (data) => {
+            setSequenceOptions([...sequenceOptions,
+                ...data.intentsInConversations
+                    .filter(intent => intent !== null)
+                    .map(intent => ({ key: intent, text: intent, value: { name: intent, excluded: false } }))]);
+        },
+    });
+
+
+    useEffect(() => {
+        Meteor.call(
+            'project.getActions',
+            projectId,
+            wrapMeteorCallback((err, availableActions) => {
+                if (!err) {
+                    setSequenceOptions([...sequenceOptions, ...availableActions.map(action => ({ key: action, text: action, value: { name: action, excluded: false } }))]);
+                }
+            }),
+        );
+    }, []);
+   
     const {
         loading,
         error,
@@ -52,7 +81,6 @@ function AnalyticsContainer(props) {
         },
         [workingDashboard, dashboards],
     );
-
     useEffect(() => {
         if (!workingDashboard && !loading && !error) {
             changeWorkingDashboard(dashboards[0]._id); // for now we only support a single dashboard, hence [0]
@@ -84,12 +112,13 @@ function AnalyticsContainer(props) {
                 visible: true,
                 startDate: moment().subtract(6, 'days').startOf('day').toISOString(),
                 endDate: moment().endOf('day').toISOString(),
-                chartType: ['conversationLengths', 'intentFrequencies', 'conversationDurations'].includes(type) ? 'bar' : 'line',
+                chartType: ['conversationLengths', 'intentFrequencies', 'conversationDurations', 'conversationsFunnel'].includes(type) ? 'bar' : 'line',
                 valueType: 'absolute',
                 includeActions: undefined,
                 excludeActions: undefined,
                 includeIntents: undefined,
                 excludeIntents: ['intentFrequencies'].includes(type) ? ['get_started'] : undefined,
+                selectedSequence: ['conversationsFunnel'].includes(type) ? [{ name: 'get_started', excluded: false }] : undefined,
             },
             ...dashboard.cards,
         ],
@@ -114,6 +143,7 @@ function AnalyticsContainer(props) {
         ['intentFrequencies', 'Top 10 Intents'],
         ['conversationCounts', 'Conversations over time'],
         ['actionCounts', 'Action occurrences over time'],
+        ['conversationsFunnel', 'Conversations Funnel'],
     ];
 
     const renderAddCard = () => (
@@ -139,7 +169,7 @@ function AnalyticsContainer(props) {
     );
 
     return (
-        <>
+        <AnalyticsContext.Provider value={{ sequenceOptions }}>
             {canDrop && (
                 <div data-cy='delete-card-dropzone' className={`top-menu-red-dropzone ${isOver ? 'hover' : ''}`} ref={drop}>
                     <Header as='h3' color='red' textAlign='center'><Icon name='trash' />Drop here to delete</Header>
@@ -181,7 +211,7 @@ function AnalyticsContainer(props) {
                     />
                 </Loading>
             </React.Suspense>
-        </>
+        </AnalyticsContext.Provider>
     );
 }
 

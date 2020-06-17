@@ -4,6 +4,7 @@ import intentFrequenciesResolver from './intentFrequenciesResolver';
 import conversationCountsResolver from './conversationCountsResolver';
 import actionCountsResolver from './actionCountsResolver';
 import conversationsResolver from './conversationsResolver';
+import funnelResolver from './conversationsFunnelResolver';
 
 
 export default [
@@ -13,4 +14,5 @@ export default [
     conversationCountsResolver,
     actionCountsResolver,
     conversationsResolver,
+    funnelResolver,
 ];

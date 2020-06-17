@@ -9,6 +9,7 @@ import conversationDurations from '../../../api/graphql/conversations/queries/co
 import intentFrequencies from '../../../api/graphql/conversations/queries/intentFrequencies.graphql';
 import actionCounts from '../../../api/graphql/conversations/queries/actionCounts.graphql';
 import conversationCounts from '../../../api/graphql/conversations/queries/conversationCounts.graphql';
+import conversationsFunnel from '../../../api/graphql/conversations/queries/conversationsFunnel.graphql';
 import { ProjectContext } from '../../layouts/context';
 import { setsAreIdentical, findName } from '../../../lib/utils';
 
@@ -124,6 +125,46 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
                 axisTitleY: 'Action occurrences',
                 displayConfigs: ['includeActions', 'excludeActions'],
             },
+        },
+        conversationsFunnel: {
+            chartTypeOptions: ['bar'],
+            titleDescription: 'Conversations matching sequence',
+            queryParams: {
+                envs, queryName: 'conversationsFunnel', langs,
+            },
+            query: conversationsFunnel,
+            graphParams: {
+                x: 'name',
+                y: { absolute: 'matchCount', relative: 'proportion' },
+                axisTitleY: 'Matching',
+                axisTitleX: 'Step',
+                noXLegend: false,
+                axisBottom: {
+                    tickRotation: -25,
+                    legendOffset: 36,
+                    legendPosition: 'middle',
+                },
+                formats: {
+                    name: n => n.replace(/_[0-9]+$/, ''),
+                    proportion: v => `${v}%`,
+                },
+                displayAbsoluteRelative: true,
+                displayConfigs: ['selectedSequence'],
+                enableArea: true,
+                xCanRepeat: true,
+                padding: 0,
+                enableLabel: true,
+                label: d => (`${d.value.toFixed(2)}`),
+                colors: (bar) => {
+                    if (bar.data && bar.data.name) {
+                        if (bar.data.name.includes('utter')) return 'rgb(122, 204, 147)';
+                        if (bar.data.name.includes('action')) return 'rgb(239, 171, 208)';
+                    }
+                    return 'rgb(174, 214, 243)';
+                },
+                
+            },
+        
         },
     };
 

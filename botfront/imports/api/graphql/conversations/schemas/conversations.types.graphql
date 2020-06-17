@@ -25,19 +25,16 @@ type Query {
         """ comparison operator for the confidenceFilter (one of greaterThan, lessThan, equals) """
         xThanConfidence: compare
         """ filter conversations by actions, goes with operatorActionsFilters"""
-        actionFilters: [String]
-        """ keep the conversations after this date using the format ISO 8601 (AAAA-MM-JJThh:mm:ssZ) """
         startDate: String
         """ keep the conversations before this date using the format ISO 8601 (AAAA-MM-JJThh:mm:ssZ) """
         endDate: String
         """ unique identifier of the user"""
         userId: String
-        """ String (default ‘or’, possible other value ‘and’) type of filtering for action  filters """
-        operatorActionsFilters: String,
-        """ SString (default ‘or’, possible other value ‘and') type of filtering for intent filters """
-        operatorIntentsFilters: String,
-        """ filter conversation containing the listed intents goes with operatorIntentsFilters """
-        intentFilters: [String]
+        """ filter conversation containing the listed intents/ actions goes with intentsActionsOperator """
+        intentsActionsFilters: [StepInput],
+        """ String (default ‘or’, possible other value ‘and', 'inorder') type of filtering for intents/ actions filters """
+        intentsActionsOperator: String,
+       
     ): Pagination
     conversation(projectId: String!, id: String!): ConversationContainer!
     intentsInConversations(projectId: String!): [String]
