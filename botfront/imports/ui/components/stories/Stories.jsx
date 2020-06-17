@@ -181,7 +181,7 @@ function Stories(props) {
             if (storyA.text > storyB.text) return 1;
             return 0;
         });
-
+    
     const injectProjectIdInStory = useCallback(story => ({ ...story, projectId }), [
         projectId,
     ]);
@@ -431,6 +431,4 @@ const mapStateToProps = state => ({
     storyMenuSelection: state.stories.get('storiesCurrent').toJS(),
 });
 
-export default connect(mapStateToProps, { setStoryMenuSelection: setStoriesCurrent })(
-    StoriesWithTracker,
-);
+export default connect(mapStateToProps, { setStoryMenuSelection: setStoriesCurrent })(StoriesWithTracker);

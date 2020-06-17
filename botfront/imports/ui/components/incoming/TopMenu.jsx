@@ -39,17 +39,17 @@ const TopMenu = ({
     return (
         <Menu borderless className={`top-menu ${className}`}>
             <div className='language-container'>
-                {['conversations', 'forms'].includes(activeTab) ? (
-                    <></>
-                ) : (
-                    <Menu.Item header borderless className='language-item'>
+                <Menu.Item header borderless className='language-item'>
+                    {['conversations', 'forms'].includes(activeTab) ? (
+                        <></>
+                    ) : (
                         <LanguageDropdown
                             languageOptions={projectLanguages}
                             selectedLanguage={selectedLanguage}
                             handleLanguageChange={handleLanguageChange}
                         />
-                    </Menu.Item>
-                )}
+                    )}
+                </Menu.Item>
                 <Menu.Item header className='env-select'>
                     {['populate'].includes(activeTab) ? (
                         <></>

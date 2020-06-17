@@ -1,7 +1,6 @@
 import { Roles } from 'meteor/alanning:roles';
 import { sortBy, isEqual } from 'lodash';
 import { safeDump, safeLoad } from 'js-yaml';
-import { Instances } from '../imports/api/instances/instances.collection';
 import { Credentials } from '../imports/api/credentials';
 import { Endpoints } from '../imports/api/endpoints/endpoints.collection';
 import { GlobalSettings } from '../imports/api/globalSettings/globalSettings.collection';
@@ -20,16 +19,11 @@ import { defaultDashboard } from '../imports/api/graphql/analyticsDashboards/gen
 Migrations.add({
     version: 1,
     up: () => {
-        Instances.find()
-            .fetch()
-            .forEach((i) => {
-                if (!i.type) Instances.update({ _id: i._id }, { $set: { type: ['nlu'] } });
-            });
         Meteor.users
             .find()
             .fetch()
             .forEach((u) => {
-                const { roles } = u;
+                const { roles = [] } = u;
                 const isAdmin = !!roles.find(r => r._id === 'admin');
                 if (isAdmin) {
                     Roles.removeUsersFromRoles(u._id, 'admin');
@@ -66,16 +60,12 @@ Migrations.add({
     version: 3,
     // add default default domain to global settings, and update projects to have this default domain
     up: () => {
-        let spec = process.env.ORCHESTRATOR ? `.${process.env.ORCHESTRATOR}` : '.docker-compose';
-        if (process.env.MODE === 'development') spec = `${spec}.dev`;
-        if (process.env.MODE === 'test') spec = `${spec}.ci`;
-        let globalSettings;
-        try {
-            globalSettings = JSON.parse(Assets.getText(`default-settings${spec}.json`));
-        } catch (e) {
-            globalSettings = JSON.parse(Assets.getText('default-settings.json'));
-        }
-        const { defaultDefaultDomain } = globalSettings.settings.private;
+        const privateSettings = safeLoad(Assets.getText(
+            process.env.MODE === 'development'
+                ? 'defaults/private.dev.yaml'
+                : process.env.MODE === 'test' ? 'defaults/private.yaml' : 'defaults/private.gke.yaml',
+        ));
+        const defaultDefaultDomain = safeDump(privateSettings.defaultDomain);
 
         GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.private.defaultDefaultDomain': defaultDefaultDomain } });
 
@@ -231,8 +221,11 @@ Migrations.add({
     version: 8,
     // add webhooks in private global settings: EE-SPECIFIC
     up: () => {
-        const globalSettings = JSON.parse(Assets.getText('default-settings.json'));
-        const { webhooks } = globalSettings.settings.private;
+        const { webhooks } = safeLoad(Assets.getText(
+            process.env.MODE === 'development'
+                ? 'defaults/private.dev.yaml'
+                : process.env.MODE === 'test' ? 'defaults/private.yaml' : 'defaults/private.gke.yaml',
+        ));
         GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.private.webhooks': webhooks } });
     },
 });
@@ -387,8 +380,11 @@ Migrations.add({
 Migrations.add({
     version: 17,
     up: async () => {
-        const globalSettings = JSON.parse(Assets.getText('default-settings.json'));
-        const { webhooks } = globalSettings.settings.private;
+        const { webhooks } = safeLoad(Assets.getText(
+            process.env.MODE === 'development'
+                ? 'defaults/private.dev.yaml'
+                : process.env.MODE === 'test' ? 'defaults/private.yaml' : 'defaults/private.gke.yaml',
+        ));
         GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.private.webhooks.deploymentWebhook': webhooks.deploymentWebhook } });
         
         const stories = Stories.find().fetch();

@@ -13,7 +13,7 @@ const {storyFixture,
 
 
 
-describe('story indexing', () => {
+describe('## Story indexing', () => {
     it('should index the story', () => {
         const result = indexStory(storyFixture);
         expect(result).to.be.deep.equal({
@@ -26,7 +26,7 @@ describe('story indexing', () => {
 });
 
 
-describe('bot response indexing', () => {
+describe('## Bot response indexing', () => {
     it('should index a text response', () => {
         const result = indexBotResponse(textFixture);
         expect(result).to.be.equal('utter_Xywmv8uc\nHi i am great, how about you?\ngood! how are you?\nsava, et toi?');

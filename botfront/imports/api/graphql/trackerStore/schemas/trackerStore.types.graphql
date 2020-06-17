@@ -13,13 +13,13 @@ type Mutation {
 }
 
 
-type trackerStoreInfo{
+type trackerStoreInfo {
     tracker: Any,
     lastIndex: Int,
     lastTimestamp: Float
 }
 
-enum Environement{
+enum Environement { # typo!!!
     development
     production
     staging

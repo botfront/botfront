@@ -54,7 +54,6 @@ class Instances extends React.Component {
         } = this.props;
         const { webhook } = this.state;
         const hasWritePermission = can('projects:w', projectId);
-        if (!instance.type) instance.type = 'server';
         return (
             <>
                 {ready && (

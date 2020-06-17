@@ -1,18 +1,5 @@
 /* global cy Cypress:true */
 describe('Training', function() {
-    function createStories() {
-        cy.visit('/project/bf/stories');
-        cy.createStoryGroup();
-        cy.createStoryInGroup();
-        cy.dataCy('toggle-md').click({ force: true });
-        cy.dataCy('story-editor')
-            .get('textarea')
-            .focus()
-            .clear()
-            .type('{selectAll}{backSpace}{backSpace}* chitchat.greet\n  - utter_hi   ', { force: true })
-            .blur();
-    }
-
     before(function() {
         // just in case it's not deleted
         cy.deleteProject('bf');
@@ -25,6 +12,7 @@ describe('Training', function() {
         cy.waitForResolve(Cypress.env('RASA_URL'));
         cy.wait(1000);
         cy.request('DELETE', `${Cypress.env('RASA_URL')}/model`);
+        cy.visit('/project/bf/stories');
     });
     
     afterEach(function() {
@@ -33,7 +21,6 @@ describe('Training', function() {
     });
     
     it('Should train and serve a model containing only stories (no NLU) and adding a language should work', function() {
-        createStories();
         cy.train();
         cy.newChatSesh();
         cy.testChatInput('/chitchat.greet', 'utter_hi');
@@ -44,9 +31,7 @@ describe('Training', function() {
     });
 
     it('Should train and serve a model containing stories + NLU in one language and adding a second language should work too', function() {
-        cy.visit('/project/bf/stories');
         cy.importNluData('bf', 'nlu_sample_en.json', 'en');
-        createStories();
         cy.train();
         cy.newChatSesh();
         cy.testChatInput('hi', 'utter_hi');
@@ -59,11 +44,9 @@ describe('Training', function() {
     });
 
     it('Should train and serve a model containing stories and NLU in 2 languages', function() {
-        cy.visit('/project/bf/stories');
         cy.importNluData('bf', 'nlu_sample_en.json', 'en');
         cy.createNLUModelProgramatically('bf', '', 'fr');
         cy.importNluData('bf', 'nlu_sample_fr.json', 'fr');
-        createStories();
         cy.train();
         cy.newChatSesh();
         cy.testChatInput('hi', 'utter_hi');
@@ -72,25 +55,27 @@ describe('Training', function() {
     });
 
     it('Should only train focused stories', function() {
-        createStories();
         cy.get('.eye.icon.focused').should('have.length', 0);
+        cy.createStoryGroup();
+        cy.moveStoryOrGroup({ name: 'Greetings' }, { name: 'Groupo' });
+        cy.checkMenuItemAtIndex(1, 'Greetings');
+        cy.createStoryGroup({ groupName: 'Intro stories' });
+        cy.moveStoryOrGroup({ name: 'Get started' }, { name: 'Intro stories' });
+        cy.checkMenuItemAtIndex(1, 'Get started');
         cy.toggleStoryGroupFocused();
         cy.get('.eye.icon.focused').should('have.length', 1);
         cy.train();
         cy.newChatSesh();
-        cy.testChatInput('/get_started', 'utter_default');
+        cy.testChatInput('/get_started', 'utter_hi');
         cy.testChatInput('/chitchat.greet', 'utter_hi');
         cy.toggleStoryGroupFocused();
         cy.get('.eye.icon.focused').should('have.length', 0);
-        cy.createStoryGroup({ groupName: 'Intro stories' });
-        cy.moveStoryOrGroup({ name: 'Get started' }, { name: 'Intro stories' });
-        cy.checkMenuItemAtIndex(1, 'Get started');
         cy.toggleStoryGroupFocused('Intro stories');
         cy.get('.eye.icon.focused').should('have.length', 1);
         cy.train();
         cy.newChatSesh();
         cy.testChatInput('/get_started', 'utter_get_started');
-        cy.testChatInput('/chitchat.greet', 'utter_default');
+        cy.testChatInput('/chitchat.greet', 'utter_get_started');
     });
     
     it('Should train and serve a model containing branches and links', function() {

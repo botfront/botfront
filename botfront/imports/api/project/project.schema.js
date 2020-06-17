@@ -53,10 +53,15 @@ export const ProjectsSchema = new SimpleSchema({
             return !this.value.match(/^[A-Za-z0-9 ]+$/) ? 'name' : null;
         },
     },
-    // apiKey: { type: String, optional: true },
-    // namespace: {
-    //     type: String, regEx: /^[a-z0-9-_]+$/, unique: 1, sparse: 1,
-    // },
+    namespace: {
+        type: String,
+        unique: 1,
+        sparse: 1,
+        custom() {
+            return !this.value.match(/^bf-[a-zA-Z0-9-]+$/) ? 'invalidNamespace' : null;
+        },
+    },
+    modelsBucket: { type: String, regEx: /^[a-z0-9-_]+$/, optional: true },
     nluThreshold: {
         type: Number, defaultValue: 0.75, min: 0.5, max: 0.95,
     },
@@ -95,16 +100,12 @@ export const ProjectsSchema = new SimpleSchema({
     'storyGroups.$': { type: String },
     logoUrl: { type: String, optional: true },
     smallLogoUrl: { type: String, optional: true },
+    allowContextualQuestions: { type: Boolean, defaultValue: false },
 }, { tracker: Tracker });
 
 ProjectsSchema.messageBox.messages({
     en: {
         name: 'The name can only contain alphanumeric characters',
-    },
-});
-
-ProjectsSchema.messageBox.messages({
-    en: {
-        duplicateTemplate: 'Template keys must be unique',
+        invalidNamespace: 'The namespace must starts with \'bf-\' and can only contain letters, numbers and dashes (\'-\')',
     },
 });

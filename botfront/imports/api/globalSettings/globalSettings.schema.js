@@ -17,11 +17,11 @@ const webhooksSchema = new SimpleSchema({
 
 
 export const privateSettingsSchema = new SimpleSchema({
+    bfApiHost: { type: String, optional: true },
     defaultEndpoints: {
         type: String, custom: validateYaml, optional: true, defaultValue: '',
     },
     defaultCredentials: { type: String, custom: validateYaml, optional: true },
-    defaultRules: { type: String, custom: validateYaml, optional: true },
     defaultPolicies: { type: String, custom: validateYaml, optional: true },
     defaultDefaultDomain: { type: String, optional: true, custom: validateYaml },
     webhooks: { type: webhooksSchema },
@@ -39,6 +39,7 @@ export const publicSettingsSchema = new SimpleSchema({
     'backgroundImages.$': { type: String },
     logoUrl: { type: String, optional: true },
     smallLogoUrl: { type: String, optional: true },
+    intercomAppId: { type: String, optional: true },
 });
 
 export const GlobalSettingsSchema = new SimpleSchema(

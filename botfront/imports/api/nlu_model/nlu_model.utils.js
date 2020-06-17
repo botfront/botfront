@@ -53,22 +53,6 @@ export const getNluModelLanguages = (modelIds, asOptions = false) => {
     return languageCodes;
 };
 
-export const renameIntentsInTemplates = (templates, oldIntent, newIntent) => {
-    const newTemplate = templates;
-    templates.forEach((template, index) => {
-        // We rely on short circuit evaluation to prevent it from evaluating the 2nd expression
-        // Thus this will not crash if template.match doesn't exist
-        if (template.match && Array.isArray(template.match.nlu)) {
-            template.match.nlu.forEach((match, matchIndex) => {
-                if (match.intent === oldIntent) {
-                    newTemplate[index].match.nlu[matchIndex].intent = newIntent;
-                }
-            });
-        }
-    });
-    return newTemplate;
-};
-
 export const getEntityCountDictionary = (entities) => {
     const entitiesCount = {}; // total occurances of each entity
     entities.forEach(({ entity }) => {

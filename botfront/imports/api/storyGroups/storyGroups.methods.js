@@ -190,7 +190,6 @@ Meteor.methods({
             return handleError(e);
         }
     },
-
     async 'storyGroups.rebuildOrder'(projectId) {
         checkIfCan('stories:r', projectId);
         check(projectId, String);

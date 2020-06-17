@@ -152,7 +152,7 @@ if (Meteor.isServer) {
         done();
     };
     describe('test indexing for bot response mutations', () => {
-        afterEach((done) => {
+        beforeEach((done) => {
             cleanUpDB(done);
         });
         it('createResponse: generate text index', (done) => {

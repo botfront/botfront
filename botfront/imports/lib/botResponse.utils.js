@@ -184,7 +184,6 @@ export const addTemplateLanguage = (templates, language) => templates
         };
     });
 
-
 export const setTypeText = (content) => {
     const { text = '', metadata } = content;
     return {
@@ -205,6 +204,7 @@ export const setTypeQuickReply = (content) => {
         __typename: 'QuickRepliesPayload',
     };
 };
+
 export const setTypeTextWithButtons = (content) => {
     const {
         text = '', buttons, quick_replies = [], metadata,
@@ -216,7 +216,6 @@ export const setTypeTextWithButtons = (content) => {
         __typename: 'TextWithButtonsPayload',
     };
 };
-
 export const setTypeCustom = (content) => {
     const { metadata } = content;
     return { custom: '', metadata, __typename: 'CustomPayload' };

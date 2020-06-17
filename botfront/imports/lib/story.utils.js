@@ -322,7 +322,9 @@ export const extractDomain = ({
                     intents: [],
                     actions: [],
                     forms: [],
-                    slots: {},
+                    slots: {
+                        ...domains.slots,
+                    },
                 };
             }
         }

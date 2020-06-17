@@ -293,7 +293,7 @@ StoryGroupTreeNode.propTypes = {
 
 StoryGroupTreeNode.defaultProps = {
     disabled: false,
-    showPublish: true,
+    showPublish: false,
 };
 
 const StoryGroupTreeNodeWrapped = props => <StoryGroupTreeNode {...props} />;

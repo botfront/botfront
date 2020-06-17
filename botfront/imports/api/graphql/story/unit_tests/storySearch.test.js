@@ -20,10 +20,9 @@ if (Meteor.isServer) {
     setUpRoles();
 
     const userId = 'storiesSearchTest';
-    let userData;
 
     const insertDataAndIndex = async (done) => {
-        userData = await createTestUser(userId);
+        await createTestUser(userId);
         await BotResponses.deleteMany(({ projectId }));
         await Projects.remove({ _id: projectId });
         await NLUModels.remove({ _id: enModelId });
@@ -51,7 +50,7 @@ if (Meteor.isServer) {
                 projectId: 'bf',
                 language,
                 queryString,
-            }, { user: userData });
+            }, { user: { _id: userId } });
             if (!reject) {
                 expect(searchResult[0]).to.be.deep.equal({ _id: 'TEST_STORY', title: 'story fixture', storyGroupId: 'TEST_STORY_GROUP' });
             } else {

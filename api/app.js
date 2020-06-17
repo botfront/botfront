@@ -90,11 +90,11 @@ config().then(async config => {
         retries += 1;
         try {
             await mongoose.connect(config.mongo.host, {
-                keepAlive: true,
-                useNewUrlParser: true,
-                useFindAndModify: false,
-                useUnifiedTopology: true,
-                useCreateIndex: true,
+                keepAlive: 1,
+                useUnifiedTopology: 1,
+                useFindAndModify: 0,
+                useNewUrlParser: 1,
+                useCreateIndex: 1,
             });
             clearInterval(mongoConnectInterval)
             app.listen(port, function() {

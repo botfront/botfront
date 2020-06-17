@@ -204,5 +204,7 @@ export const fileToStoryGroup = (filename, text, existingStoryGroups = []) => {
             .replace('T', ' ')
             .replace('Z', '')})`;
     }
-    return { name, rawText, _id: uuidv4() };
+    return {
+        name, firstLine, rawText, _id: uuidv4(),
+    };
 };

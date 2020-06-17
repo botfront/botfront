@@ -2,7 +2,7 @@ images:
   default:
     botfront: botfront/botfront:v0.24.3-ee.5
     botfront-api: botfront/botfront-api:v0.24.3-ee.5
-    rasa: botfront/rasa-for-botfront:v1.10.1-bf.1-beta.5
+    rasa: botfront/rasa-for-botfront:v1.10.1-bf.1
     duckling: botfront/duckling:latest
     mongo: mongo:latest
     actions: rasa/rasa-sdk:1.9.0
@@ -12,8 +12,6 @@ images:
 # Note that they will be upper cased in the generated .env file
 env:
   bf_project_id: bf
-  actions_url: http://actions:5055/webhook
   bf_url: http://botfront:3000/graphql
-  orchestrator: docker-compose
-  root_url: http://localhost:8888
-  socket_path: /socket.io/
+  root_url: http://localhost:8888 # used by meteor
+  augmentation_factor: 50 # used by rasa core
