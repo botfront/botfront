@@ -22,22 +22,14 @@ import { getStoriesAndDomain } from '../../lib/story.utils';
 
 export const createInstance = async (project) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
-    const orchestration = process.env.ORCHESTRATOR ? process.env.ORCHESTRATOR : 'docker-compose';
 
-    try {
-        const { getDefaultInstance } = await import(`./instances.${orchestration}`);
-        const instance = await getDefaultInstance(project);
-        if (Array.isArray(instance)) {
-            instance.forEach(inst => Instances.insert(inst));
-            return;
-        }
-        if (instance) {
-            // eslint-disable-next-line consistent-return
-            return await Instances.insert(instance);
-        }
-    } catch (e) {
-        throw new Error('Could not create default instance', e);
-    }
+    const { instance: host } = yaml.safeLoad(Assets.getText(
+        process.env.MODE === 'development' ? 'defaults/private.dev.yaml' : 'defaults/private.yaml',
+    ));
+
+    return Instances.insert({
+        name: 'Default Instance', host, projectId: project._id,
+    });
 };
 
 const getConfig = (model) => {

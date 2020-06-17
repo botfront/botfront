@@ -10,8 +10,6 @@ import { CorePolicies, createPolicies } from '../core_policies';
 import { createEndpoints } from '../endpoints/endpoints.methods';
 import { Endpoints } from '../endpoints/endpoints.collection';
 import { Credentials, createCredentials } from '../credentials';
-import { createDeployment } from '../deployment/deployment.methods';
-import { Deployments } from '../deployment/deployment.collection';
 import { Conversations } from '../conversations';
 import { createDefaultStoryGroup } from '../storyGroups/storyGroups.methods';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
@@ -70,7 +68,6 @@ if (Meteor.isServer) {
             try {
                 _id = createProject(item);
                 createEndpoints({ _id, ...item });
-                createDeployment({ _id, ...item });
                 createCredentials({ _id, ...item });
                 createPolicies({ _id, ...item });
                 createDefaultStoryGroup(_id);
@@ -111,7 +108,6 @@ if (Meteor.isServer) {
                 Stories.remove({ projectId });
                 Slots.remove({ projectId });
                 Projects.remove({ _id: projectId }); // Delete project
-                Deployments.remove({ projectId }); // Delete deployment
                 await BotResponses.remove({ projectId });
             } catch (e) {
                 if (!failSilently) throw e;

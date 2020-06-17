@@ -4,6 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import slugify from 'slugify';
 import axios from 'axios';
+import { safeLoad, safeDump } from 'js-yaml';
 
 import { GlobalSettings } from './globalSettings/globalSettings.collection';
 import { passwordComplexityRegex } from './user/user.methods';
@@ -71,14 +72,13 @@ if (Meteor.isServer) {
     } from '../../server/logger';
 
     const requestMailSubscription = async (email, firstName, lastName) => {
-        const mailChimpUrl =
-            process.env.MAILING_LIST_URI ||
-            'https://europe-west1-botfront-project.cloudfunctions.net/subscribeToMailchimp';
+        const mailChimpUrl = process.env.MAILING_LIST_URI
+            || 'https://europe-west1-botfront-project.cloudfunctions.net/subscribeToMailchimp';
         const appMethodLogger = getAppLoggerForMethod(
             getAppLoggerForFile(__filename),
             'requestMailSubscription',
             Meteor.userId(),
-            { email, firstName, lastName }
+            { email, firstName, lastName },
         );
         try {
             const mailAxios = axios.create();
@@ -102,18 +102,26 @@ if (Meteor.isServer) {
             check(accountData, Object);
             check(consent, Boolean);
 
-            let spec = process.env.ORCHESTRATOR ? `.${process.env.ORCHESTRATOR}` : '.docker-compose';
-            if (process.env.MODE === 'development') spec = `${spec}.dev`;
-            if (process.env.MODE === 'test') spec = `${spec}.ci`;
-            let globalSettings = null;
-
-            try {
-                globalSettings = JSON.parse(Assets.getText(`default-settings${spec}.json`));
-            } catch (e) {
-                globalSettings = JSON.parse(Assets.getText('default-settings.json'));
-            }
+            const publicSettings = safeLoad(Assets.getText('defaults/public.yaml'));
+            const privateSettings = safeLoad(Assets.getText(
+                process.env.MODE === 'development' ? 'defaults/private.dev.yaml' : 'defaults/private.yaml',
+            ));
             
-            GlobalSettings.insert({ _id: 'SETTINGS', ...globalSettings });
+            const settings = {
+                public: {
+                    backgroundImages: publicSettings.backgroundImages || [],
+                    defaultNLUConfig: safeDump({ pipeline: publicSettings.pipeline }),
+                },
+                private: {
+                    bfApiHost: privateSettings.bfApiHost || '',
+                    defaultEndpoints: safeDump(privateSettings.endpoints),
+                    defaultCredentials: safeDump(privateSettings.credentials),
+                    defaultPolicies: safeDump({ policies: privateSettings.policies }),
+                    defaultDefaultDomain: safeDump(privateSettings.defaultDomain),
+                },
+            };
+            
+            GlobalSettings.insert({ _id: 'SETTINGS', settings });
 
             const empty = await Meteor.callWithPromise('users.checkEmpty');
             if (!empty) {

@@ -1,6 +1,5 @@
 import { sortBy, isEqual } from 'lodash';
 import { safeDump, safeLoad } from 'js-yaml';
-import { Instances } from '../imports/api/instances/instances.collection';
 import { GlobalSettings } from '../imports/api/globalSettings/globalSettings.collection';
 import { Projects } from '../imports/api/project/project.collection';
 import { Stories } from '../imports/api/story/stories.collection';
@@ -14,30 +13,17 @@ import Activity from '../imports/api/graphql/activity/activity.model';
 
 Migrations.add({
     version: 1,
-    up: () => {
-        Instances.find()
-            .fetch()
-            .forEach((i) => {
-                console.log(i);
-                if (!i.type) Instances.update({ _id: i._id }, { $set: { type: ['nlu'] } });
-            });
-    },
+    up: () => {},
 });
 
 Migrations.add({
     version: 2,
     // add default default domain to global settings, and update projects to have this default domain
     up: () => {
-        let spec = process.env.ORCHESTRATOR ? `.${process.env.ORCHESTRATOR}` : '.docker-compose';
-        if (process.env.MODE === 'development') spec = `${spec}.dev`;
-        if (process.env.MODE === 'test') spec = `${spec}.ci`;
-        let globalSettings;
-        try {
-            globalSettings = JSON.parse(Assets.getText(`default-settings${spec}.json`));
-        } catch (e) {
-            globalSettings = JSON.parse(Assets.getText('default-settings.json'));
-        }
-        const { defaultDefaultDomain } = globalSettings.settings.private;
+        const privateSettings = safeLoad(Assets.getText(
+            process.env.MODE === 'development' ? 'defaults/private.dev.yaml' : 'defaults/private.yaml',
+        ));
+        const defaultDefaultDomain = safeDump(privateSettings.defaultDomain);
 
         GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.private.defaultDefaultDomain': defaultDefaultDomain } });
 

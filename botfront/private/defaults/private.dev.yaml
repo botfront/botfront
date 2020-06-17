@@ -1,0 +1,40 @@
+credentials:
+  rasa_addons.core.channels.webchat.WebchatInput:
+    session_persistence: true
+    base_url: http://localhost:5005
+    socket_path: /socket.io/
+instance: http://localhost:5005
+bfApiHost: http://localhost:8080
+endpoints:
+  nlg:
+    type: rasa_addons.core.nlg.GraphQLNaturalLanguageGenerator
+    url: http://host.docker.internal:3000/graphql
+  action_endpoint:
+    url: http://host.docker.internal:5055/webhook
+  tracker_store:
+    store_type:  rasa_addons.core.tracker_stores.botfront.BotfrontTrackerStore
+    url: http://host.docker.internal:3000/graphql
+policies:
+  - name: TEDPolicy
+    epochs: 50
+  - name: rasa_addons.core.policies.BotfrontDisambiguationPolicy
+    fallback_trigger: 0.30
+    disambiguation_trigger: '$0 < 2 * $1'
+    disambiguation_template: 'utter_disambiguation'
+    n_suggestions: 2
+    excluded_intents:
+      - ^chitchat\..*
+      - ^basics\..*
+  - name: rasa_addons.core.policies.BotfrontMappingPolicy
+    triggers:
+      - trigger: '^map\..+'
+        action: 'action_botfront_mapping'
+defaultDomain:
+  slots:
+    disambiguation_message:
+      type: unfeaturized
+  actions:
+    - action_botfront_disambiguation
+    - action_botfront_disambiguation_followup
+    - action_botfront_fallback
+    - action_botfront_mapping

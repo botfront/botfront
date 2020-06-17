@@ -26,7 +26,10 @@ const getDefaultCredentials = () => {
     const fields = {
         'settings.private.defaultCredentials': 1,
     };
-    const { settings: { private: { defaultCredentials = '' } = {} } = {} } = GlobalSettings.findOne({}, { fields }) || {};
+    let { settings: { private: { defaultCredentials = '' } = {} } = {} } = GlobalSettings.findOne({}, { fields }) || {};
+    if (process.env.MODE === 'test') {
+        defaultCredentials = defaultCredentials.replace(/localhost:5005/g, 'rasa:5005');
+    }
     return defaultCredentials;
 };
 

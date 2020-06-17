@@ -1,4 +1,3 @@
-import '../../../lib/dynamic_import';
 import { Container, Menu, Tab } from 'semantic-ui-react';
 import React from 'react';
 import 'react-s-alert/dist/s-alert-default.css';
@@ -14,46 +13,24 @@ import DefaultDomain from './DefaultDomain';
 import ImportExportProject from './ImportExportProject';
 
 class Settings extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = { orchestratorMenuItems: null, orchestrator: null };
-    }
-
-    async componentDidMount() {
-        const orchestrator = await Meteor.callWithPromise('orchestration.type');
-        let orchestratorMenuItems = null;
-        if (orchestrator !== 'default') {
-            try {
-                const { default: def } = await import(`./${orchestrator}/Settings.${orchestrator}`);
-                orchestratorMenuItems = def;
-            } catch (e) {
-                // eslint-disable-next-line no-console
-                if (!process.env.production) console.log('this is not displayed in production environment \n', e);
-            }
-        }
-
-        this.setState({ orchestratorMenuItems, orchestrator });
-    }
-
     handleMoreSettings = () => {
         const { router, projectId } = this.props;
         router.push(`/project/${projectId}/settings/global`);
     }
 
     getSettingsPanes = () => {
-        const { orchestratorMenuItems, orchestrator } = this.state;
-        let panes = [
+        const panes = [
             {
                 menuItem: <Menu.Item data-cy='project-settings-menu-info' icon='info' content='Project Info' key='Project Info' />,
                 render: () => <Tab.Pane><ProjectInfo /></Tab.Pane>,
             },
             {
                 menuItem: <Menu.Item data-cy='project-settings-menu-credentials' icon='key' content='Credentials' key='Credentials' />,
-                render: () => <Tab.Pane><Credentials orchestrator={orchestrator} /></Tab.Pane>,
+                render: () => <Tab.Pane><Credentials /></Tab.Pane>,
             },
             {
                 menuItem: <Menu.Item data-cy='project-settings-menu-endpoints' icon='code' content='Endpoints' key='Endpoints' />,
-                render: () => <Tab.Pane><Endpoints orchestrator={orchestrator} /></Tab.Pane>,
+                render: () => <Tab.Pane><Endpoints /></Tab.Pane>,
             },
             {
                 menuItem: <Menu.Item data-cy='project-settings-menu-instances' icon='server' content='Instance' key='Instances' />,
@@ -80,9 +57,6 @@ class Settings extends React.Component {
             },
         ];
 
-        if (orchestratorMenuItems) {
-            panes = panes.concat(orchestratorMenuItems);
-        }
         return panes;
     };
 

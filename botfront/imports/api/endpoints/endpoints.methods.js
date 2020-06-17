@@ -3,19 +3,23 @@ import { check } from 'meteor/check';
 import { formatError } from '../../lib/utils';
 import { Endpoints } from './endpoints.collection';
 import { checkIfCan } from '../../lib/scopes';
+import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 
 export const createEndpoints = async (project) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
-    const orchestration = process.env.ORCHESTRATOR ? process.env.ORCHESTRATOR : 'docker-compose';
-    const { getDefaultEndpoints } = await import(`./endpoints.${orchestration}`);
-    const endpoints = await getDefaultEndpoints(project);
+    const {
+        settings: { private: { defaultEndpoints: endpoints } } = {},
+    } = GlobalSettings.findOne({}, { 'settings.private.defaultEndpoints': 1 });
     if (endpoints) Endpoints.insert({ endpoints, projectId: project._id });
 };
 
 export const saveEndpoints = async (endpoints) => {
     try {
         if (!Meteor.isServer) throw Meteor.Error(400, 'Not Authorized');
-        return Endpoints.upsert({ projectId: endpoints.projectId }, { $set: { endpoints: endpoints.endpoints } });
+        return Endpoints.upsert(
+            { projectId: endpoints.projectId },
+            { $set: { endpoints: endpoints.endpoints } },
+        );
     } catch (e) {
         throw formatError(e);
     }
