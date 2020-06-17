@@ -1,4 +1,4 @@
-import { check, Match } from 'meteor/check';
+import { check } from 'meteor/check';
 import { Meteor } from 'meteor/meteor';
 import { sample, get } from 'lodash';
 import fs from 'fs';
@@ -83,30 +83,6 @@ export const getProjectModelFileName = (projectId, extension = null) => {
 export const getProjectModelLocalFolder = () => process.env.MODELS_LOCAL_PATH || '/app/models';
 
 export const getProjectModelLocalPath = projectId => path.join(getProjectModelLocalFolder(), getProjectModelFileName(projectId, 'tar.gz'));
-
-
-function writeFile (path, bytes) {
-    // TODO make it async when we have more traffic
-    if (!fs.existsSync(`${Meteor.rootPath}/tmp`)) {
-        fs.mkdirSync(`${Meteor.rootPath}/tmp`);
-    }
-    return new Promise((resolve, reject) => {
-        fs.writeFile(path, bytes, (err) => {
-            if (err) reject(err);
-            else resolve();
-        });
-    });
-}
-
-function deleteTemp (path) {
-    return new Promise((resolve) => {
-        fs.unlink(path, (err) => {
-            // TODO we don't want to reject here but probably log this somewhere
-            if (err) console.log(err);
-            resolve();
-        });
-    });
-}
 
 export function uploadFileToGcs (filePath, bucket) {
     const { Storage } = require('@google-cloud/storage');
