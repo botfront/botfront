@@ -73,4 +73,10 @@ if (Meteor.isServer) {
         const projects = getUserScopes(this.userId, ['responses:r', 'nlu-data:r', 'nlu-data:x']);
         return Projects.find({ _id: { $in: projects } }, { fields: { name: 1 } });
     });
+
+    Meteor.publish('project.requestedSlot', function (projectId) {
+        check(projectId, String);
+        checkIfCan('stories:r', projectId);
+        return Projects.find({ _id: projectId }, { fields: { allowContextualQuestions: 1 } });
+    });
 }

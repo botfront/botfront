@@ -24,6 +24,7 @@ import BotResponses from '../graphql/botResponses/botResponses.model';
 import FormResults from '../graphql/forms/form_results.model';
 import AnalyticsDashboards from '../graphql/analyticsDashboards/analyticsDashboards.model';
 import { defaultDashboard } from '../graphql/analyticsDashboards/generateDefaults';
+import { getForms } from '../graphql/forms/mongo/forms';
 
 
 if (Meteor.isServer) {
@@ -328,6 +329,32 @@ if (Meteor.isServer) {
             } catch (error) {
                 throw error;
             }
+        },
+
+        async 'project.getContextualSlot' (projectId) {
+            checkIfCan(['stories:r'], projectId);
+            check(projectId, String);
+
+            const project = Projects.findOne({ _id: projectId }, { fields: { allowContextualQuestions: 1 } });
+            const { allowContextualQuestions } = project;
+
+            if (!allowContextualQuestions) return null;
+
+            const bfForms = await getForms(projectId);
+            let requestedSlotCategories = [];
+
+            bfForms.forEach((form) => {
+                requestedSlotCategories = requestedSlotCategories.concat(form.slots.map(slot => slot.name));
+            });
+
+            const requestedSlot = {
+                name: 'requested_slot',
+                projectId,
+                type: 'categorical',
+                categories: [...new Set(requestedSlotCategories)],
+            };
+
+            return requestedSlot;
         },
     });
 }

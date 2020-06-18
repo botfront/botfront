@@ -50,12 +50,17 @@ class Project extends React.Component {
             intents: [],
             exampleMap: {},
             responses: {},
+            requestedSlot: null,
         };
     }
 
+    componentDidMount() {
+        this.refreshRequestedSlot();
+    }
+
     componentDidUpdate = (prevProps) => {
-        const { projectId, workingLanguage: language } = this.props;
-        const { projectId: prevProjectId, workingLanguage: prevLanguage } = prevProps;
+        const { projectId, workingLanguage: language, allowContextualQuestions } = this.props;
+        const { projectId: prevProjectId, workingLanguage: prevLanguage, allowContextualQuestions: prevAllowContextualQuestions } = prevProps;
         const { showIntercom } = this.state;
         if (window.Intercom && showIntercom) {
             window.Intercom('show');
@@ -69,6 +74,9 @@ class Project extends React.Component {
         if ((language && prevLanguage !== language)
             || (projectId && prevProjectId !== projectId)) {
             this.refreshEntitiesAndIntents(true);
+        }
+        if (allowContextualQuestions !== prevAllowContextualQuestions) {
+            this.refreshRequestedSlot();
         }
     }
 
@@ -103,6 +111,17 @@ class Project extends React.Component {
                     this.setState({ intents: Object.keys(res.intents) });
                     this.setState({ exampleMap: res.intents });
                 }
+            }),
+        );
+    }
+
+    refreshRequestedSlot = () => {
+        const { projectId } = this.props;
+        Meteor.call(
+            'project.getContextualSlot',
+            projectId,
+            wrapMeteorCallback((err, res) => {
+                this.setState({ requestedSlot: res });
             }),
         );
     }
@@ -324,7 +343,7 @@ class Project extends React.Component {
             changeShowChat,
         } = this.props;
         const {
-            showIntercom, intercomId, resizingChatPane, intents, entities, responses,
+            showIntercom, intercomId, resizingChatPane, intents, entities, responses, requestedSlot,
         } = this.state;
 
         return (
@@ -397,6 +416,7 @@ class Project extends React.Component {
                                     addUtterancesToTrainingData: this.addUtterancesToTrainingData,
                                     getCanonicalExamples: this.getCanonicalExamples,
                                     refreshEntitiesAndIntents: this.refreshEntitiesAndIntents,
+                                    requestedSlot,
                                 }}
                             >
                                 <DndProvider backend={HTML5Backend}>
@@ -441,6 +461,7 @@ Project.propTypes = {
     settings: PropTypes.object,
     showChat: PropTypes.bool.isRequired,
     changeShowChat: PropTypes.func.isRequired,
+    allowContextualQuestions: PropTypes.bool,
 };
 
 Project.defaultProps = {
@@ -449,6 +470,7 @@ Project.defaultProps = {
     project: {},
     instance: {},
     workingLanguage: 'en',
+    allowContextualQuestions: false,
 };
 
 const ProjectContainer = withTracker((props) => {
@@ -465,6 +487,7 @@ const ProjectContainer = withTracker((props) => {
     });
     const instanceHandler = Meteor.subscribe('nlu_instances', projectId);
     const slotsHandler = Meteor.subscribe('slots', projectId);
+    const allowContextualQuestionsHandler = Meteor.subscribe('project.requestedSlot', projectId);
     const instance = Instances.findOne({ projectId });
     const readyHandler = handler => (handler);
     const readyHandlerList = [
@@ -475,6 +498,7 @@ const ProjectContainer = withTracker((props) => {
         settingsHandler.ready(),
         instanceHandler.ready(),
         slotsHandler.ready(),
+        allowContextualQuestionsHandler.ready(),
     ];
     const ready = readyHandlerList.every(readyHandler);
     const project = Projects.findOne({ _id: projectId });
@@ -513,6 +537,7 @@ const ProjectContainer = withTracker((props) => {
         slots: Slots.find({}).fetch(),
         projectLanguages,
         settings,
+        allowContextualQuestions: ready ? project.allowContextualQuestions : false,
     };
 })(Project);
 

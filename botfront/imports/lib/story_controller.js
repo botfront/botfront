@@ -23,7 +23,7 @@ const RASA_BUILT_IN_ACTIONS = [
 
 export class StoryController {
     constructor({
-        story, isASmartStory, slots, onUpdate = () => {}, onMdType = () => {}, isABranch = false, forms = [],
+        story, isASmartStory, slots, onUpdate = () => {}, onMdType = () => {}, isABranch = false, forms = [], requestedSlotActive,
     }) {
         this.domain = {
             slots: this.getSlots(slots),
@@ -35,6 +35,7 @@ export class StoryController {
         this.onMdType = onMdType; // onMdType what happens when we need to notify update without saving
         this.saveUpdate = options => onUpdate(this.md, options);
         this.validateStory(false);
+        this.requestedSlotActive = requestedSlotActive;
     }
 
     getSlots = (slots) => {
@@ -152,7 +153,8 @@ export class StoryController {
 
         const slot = this.domain.slots[slotName] || {};
         this.lines[this.idx].gui = { type: 'slot', data: { name: slotName, type: slot.type, slotValue } };
-        if (!{}.hasOwnProperty.call(this.domain.slots, slotName)) { this.raiseStoryException('no_such_slot'); return; }
+
+        if ((!{}.hasOwnProperty.call(this.domain.slots, slotName) && (!this.requestedSlotActive || slotName !== 'requested_slot'))) { this.raiseStoryException('no_such_slot'); return; }
         if (slot.type === 'bool' && typeof slotValue !== 'boolean') this.raiseStoryException('bool_slot');
         else if (slot.type === 'text' && !(slotValue === null || typeof slotValue === 'string')) this.raiseStoryException('text_slot');
         else if (slot.type === 'float' && !(slotValue === null || typeof slotValue === 'number')) this.raiseStoryException('float_slot');

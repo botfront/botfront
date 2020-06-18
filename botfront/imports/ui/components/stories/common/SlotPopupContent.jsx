@@ -12,12 +12,13 @@ const SlotPopupContent = (props) => {
         value: active, onSelect, trigger, trackOpenMenu,
     } = props;
     const { browseToSlots } = useContext(ConversationOptionsContext);
-    const { slots } = useContext(ProjectContext);
+    const { slots, requestedSlot } = useContext(ProjectContext);
+    const slotsToUse = requestedSlot ? [...(slots.filter(x => x.name !== 'requested_slot')), requestedSlot] : slots;
     const [popupOpen, setPopupOpen] = useState();
     const [menuOpen, setMenuOpen] = useState();
     const allowedTypes = ['bool', 'float', 'list', 'text', 'categorical'];
 
-    if (!slots.filter(s => allowedTypes.includes(s.type)).length) {
+    if (!slotsToUse.filter(s => allowedTypes.includes(s.type)).length) {
         return (
             <Popup
                 trigger={trigger}
@@ -53,7 +54,7 @@ const SlotPopupContent = (props) => {
         type: null,
         slotValue: null,
     };
-    const slotsByCat = groupBy(slots, s => s.type);
+    const slotsByCat = groupBy(slotsToUse, s => s.type);
     const cats = Object.keys(slotsByCat).filter(cat => allowedTypes.includes(cat));
 
     function getSlotValue(slot) {
@@ -62,7 +63,7 @@ const SlotPopupContent = (props) => {
         if (type === 'text') return ['set', null];
         if (type === 'float') return [1.0, null];
         if (type === 'list') return [['not-empty'], []];
-        return slot.categories;
+        return [...slot.categories, null];
     }
 
     return (

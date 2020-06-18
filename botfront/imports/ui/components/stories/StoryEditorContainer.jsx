@@ -52,7 +52,7 @@ const StoryEditorContainer = ({
     projectId,
 }) => {
     const { stories, forms, getResponseLocations } = useContext(ConversationOptionsContext);
-    const { slots } = useContext(ProjectContext);
+    const { slots, requestedSlot } = useContext(ProjectContext);
     
     // Used to store ace editors instance to dynamically set annotations
     // the ace edtior react component has a bug where it does not set properly
@@ -86,6 +86,7 @@ const StoryEditorContainer = ({
             onMdType: setLastMdType,
             isABranch: hasCheckpoints(),
             isASmartStory: story.rules && story.rules.length > 0,
+            requestedSlotActive: !!requestedSlot,
         }),
     });
 
@@ -146,6 +147,7 @@ const StoryEditorContainer = ({
                     onMdType: setLastMdType,
                     isABranch: currentPath.length > 1,
                     triggerRules: newStory.triggerRules,
+                    requestedSlotActive: !!requestedSlot,
                 });
             }
         });
@@ -296,6 +298,7 @@ const StoryEditorContainer = ({
                     onUpdate: (content, options) => saveStory(path, { story: content }, options),
                     onMdType: setLastMdType,
                     isABranch: path.length > 1,
+                    requestedSlotActive: !!requestedSlot,
                 }),
             });
         }
