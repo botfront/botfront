@@ -49,7 +49,7 @@ function SlotEditor(props) {
                 }
                 disabled={!canEditSlots}
             >
-                <AutoField name='name' data-cy='slot-name' disabled={!deletable} />
+                <AutoField name='name' data-cy='slot-name' disabled={!deletable || !canEditSlots} />
                 {type !== 'unfeaturized' && (
                     <AutoField
                         name='initialValue'
