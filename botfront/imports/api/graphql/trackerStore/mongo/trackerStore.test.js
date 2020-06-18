@@ -37,13 +37,15 @@ if (Meteor.isServer) {
             await Project.create({ _id: projectId, defaultLanguage: 'en' });
             done();
         });
-        // before((done) => {
-        //     cleanUpDB(done);
-        // });
+        after(async (done) => {
+            await Conversations.deleteMany({ projectId });
+            await Project.deleteMany({ _id: projectId });
+            done();
+        });
         beforeEach((done) => {
             cleanUpDB(done);
         });
-        /* it('Should get an empty tracker', (done) => {
+        it('Should get an empty tracker', (done) => {
             getATracker(done, 'Notexisting', undefined);
         });
         it('should get tracker', async (done) => {
@@ -67,7 +69,7 @@ if (Meteor.isServer) {
             } catch (e) {
                 done(e);
             }
-        }); */
+        });
         it('should update a tracker', async (done) => {
             await Conversations.create(testConversation);
         
