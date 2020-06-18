@@ -23,7 +23,7 @@ const RASA_BUILT_IN_ACTIONS = [
 
 export class StoryController {
     constructor({
-        story, isASmartStory, slots, onUpdate = () => {}, onMdType = () => {}, isABranch = false, forms = [], requestedSlotActive,
+        story, isASmartStory, slots, onUpdate = () => {}, onMdType = () => {}, isABranch = false, forms = [], requestedSlotActive = false,
     }) {
         this.domain = {
             slots: this.getSlots(slots),
@@ -34,8 +34,9 @@ export class StoryController {
         this.isABranch = isABranch;
         this.onMdType = onMdType; // onMdType what happens when we need to notify update without saving
         this.saveUpdate = options => onUpdate(this.md, options);
-        this.validateStory(false);
         this.requestedSlotActive = requestedSlotActive;
+        
+        this.validateStory(false);
     }
 
     getSlots = (slots) => {

@@ -348,6 +348,7 @@ const StoryEditorContainer = ({
             setStoryControllers,
             saveStory,
             setLastMdType,
+            !!requestedSlot,
         );
         setExceptions(newExceptions);
     }, [story, lastMdType, slots]);
