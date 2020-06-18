@@ -43,7 +43,6 @@ class Endpoints extends React.Component {
 
     renderEndpoints = (saving, endpoints, projectId) => {
         const { saved, showConfirmation } = this.state;
-        const { orchestrator } = this.props;
         return (
             <AutoForm
                 disabled={saving}
@@ -66,11 +65,7 @@ class Endpoints extends React.Component {
                         onDismiss={() => this.setState({ saved: false, showConfirmation: false })}
                         content={(
                             <p>
-                                {orchestrator === 'docker-compose' && (
-                                    <span>
-                                        Run <b>botfront restart rasa</b> from your project's folder to apply changes.
-                                    </span>
-                                )}
+                                Run <b>botfront restart rasa</b> from your project&apos;s folder to apply changes.
                             </p>
                         )}
                     />
@@ -94,12 +89,10 @@ Endpoints.propTypes = {
     projectId: PropTypes.string.isRequired,
     endpoints: PropTypes.object,
     ready: PropTypes.bool.isRequired,
-    orchestrator: PropTypes.string,
 };
 
 Endpoints.defaultProps = {
     endpoints: {},
-    orchestrator: '',
 };
 
 const EndpointsContainer = withTracker(({ projectId }) => {
