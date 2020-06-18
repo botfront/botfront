@@ -1,6 +1,7 @@
 import { AutoForm, ErrorsField } from 'uniforms-semantic';
 import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
+import { Input, Header, Tab } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { cloneDeep } from 'lodash';
 import React from 'react';
@@ -16,23 +17,35 @@ import AceField from '../utils/AceField';
 class Endpoints extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { saving: false, saved: false, showConfirmation: false };
+        this.state = {
+            saving: false,
+            saved: false,
+            showConfirmation: false,
+            actionEndpoint: '',
+        };
+    }
+
+    componentDidUpdate(prevProps) {
+        const { endpoints: { actionEndpoint = '' } = {} } = this.props;
+        const { endpoints: { actionEndpoint: prevActionEndpoint = '' } = {} } = prevProps;
+        if (prevActionEndpoint !== actionEndpoint) this.setState({ actionEndpoint });
     }
 
     componentWillUnmount() {
         clearTimeout(this.sucessTimeout);
     }
 
-    onSave = (endpoints) => {
+    onSave = which => (data) => {
+        const method = which === 'endpoints' ? 'endpoints.save' : 'actionEndpoint.save';
         this.setState({ saving: true, showConfirmation: false });
         clearTimeout(this.sucessTimeout);
         Meteor.call(
-            'endpoints.save',
-            endpoints,
+            method,
+            data,
             wrapMeteorCallback((err) => {
                 this.setState({ saving: false });
                 if (!err) {
-                    this.setState({ saved: true, showConfirmation: true });
+                    this.setState({ saved: which, showConfirmation: true });
                     this.sucessTimeout = setTimeout(() => {
                         this.setState({ saved: false });
                     }, 2 * 1000);
@@ -41,14 +54,15 @@ class Endpoints extends React.Component {
         );
     };
 
-    renderEndpoints = (saving, endpoints, projectId) => {
-        const { saved, showConfirmation } = this.state;
+    renderEndpoints = () => {
+        const { endpoints, projectId } = this.props;
+        const { saving, saved } = this.state;
         return (
             <AutoForm
                 disabled={saving}
                 schema={new SimpleSchema2Bridge(EndpointsSchema)}
                 model={endpoints}
-                onSubmit={this.onSave}
+                onSubmit={this.onSave('endpoints')}
                 modelTransform={(mode, model) => {
                     const newModel = cloneDeep(model);
                     if (mode === 'validate' || mode === 'submit') {
@@ -60,27 +74,63 @@ class Endpoints extends React.Component {
             >
                 <AceField name='endpoints' label='Endpoints' mode='yaml' />
                 <ErrorsField />
-                {showConfirmation && (
-                    <ChangesSaved
-                        onDismiss={() => this.setState({ saved: false, showConfirmation: false })}
-                        content={(
-                            <p>
-                                Run <b>botfront restart rasa</b> from your project&apos;s folder to apply changes.
-                            </p>
-                        )}
-                    />
-                )}
-                <SaveButton saved={saved} saving={saving} />
+                <SaveButton saved={saved === 'endpoints'} saving={saving} />
             </AutoForm>
+        );
+    };
+
+    renderActionEndpoint = () => {
+        const { saving, saved, actionEndpoint } = this.state;
+        const { endpoints: { _id, projectId } } = this.props;
+        return (
+            <>
+                <Header as='h5'>Action Endpoint</Header>
+                <div className='side-by-side'>
+                    <Input
+                        value={actionEndpoint}
+                        onChange={(_, { value }) => this.setState({ actionEndpoint: value })}
+                        disabled={saving}
+                        style={{ width: '100%' }}
+                    />
+                    <SaveButton
+                        saved={saved === 'actionEndpoint'}
+                        saving={saving}
+                        onSave={() => this.onSave('actionEndpoint')({
+                            _id,
+                            projectId,
+                            actionEndpoint,
+                        })}
+                    />
+                </div>
+            </>
         );
     };
 
     renderLoading = () => <div />;
 
     render() {
-        const { projectId, endpoints, ready } = this.props;
-        const { saving } = this.state;
-        if (ready) return this.renderEndpoints(saving, endpoints, projectId);
+        const { ready } = this.props;
+        const { showConfirmation } = this.state;
+        if (ready) {
+            return (
+                <>
+                    <Tab.Pane>{this.renderActionEndpoint()}</Tab.Pane>
+                    <Tab.Pane>{this.renderEndpoints()}</Tab.Pane>
+                    {showConfirmation && (
+                        <ChangesSaved
+                            onDismiss={() => this.setState({ saved: false, showConfirmation: false })
+                            }
+                            content={(
+                                <p>
+                                    Run <b>botfront restart rasa</b> from your
+                                    project&apos;s folder to apply changes.
+                                </p>
+                            )}
+                        />
+                    )}
+                </>
+            );
+        }
         return this.renderLoading();
     }
 }

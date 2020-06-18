@@ -8,7 +8,9 @@ export const EndpointsSchema = new SimpleSchema({
         custom: validateYaml,
         optional: true,
     },
-
+    actionEndpoint: {
+        type: String, optional: true,
+    },
     projectId: { type: String },
     createdAt: {
         type: Date,

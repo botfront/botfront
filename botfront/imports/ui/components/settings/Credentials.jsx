@@ -7,7 +7,10 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 
-import { CredentialsSchema, Credentials as CredentialsCollection } from '../../../api/credentials';
+import {
+    CredentialsSchema,
+    Credentials as CredentialsCollection,
+} from '../../../api/credentials';
 import { wrapMeteorCallback } from '../utils/Errors';
 import ChangesSaved from '../utils/ChangesSaved';
 import SaveButton from '../utils/SaveButton';
@@ -62,10 +65,12 @@ class Credentials extends React.Component {
                 <ErrorsField />
                 {showConfirmation && (
                     <ChangesSaved
-                        onDismiss={() => this.setState({ saved: false, showConfirmation: false })}
+                        onDismiss={() => this.setState({ saved: false, showConfirmation: false })
+                        }
                         content={(
                             <p>
-                                Run <b>botfront restart rasa</b> from your project&apos;s folder to apply changes.
+                                Run <b>botfront restart rasa</b> from your project&apos;s
+                                folder to apply changes.
                             </p>
                         )}
                     />

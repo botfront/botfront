@@ -30,7 +30,7 @@ class Settings extends React.Component {
             },
             {
                 menuItem: <Menu.Item data-cy='project-settings-menu-endpoints' icon='code' content='Endpoints' key='Endpoints' />,
-                render: () => <Tab.Pane><Endpoints /></Tab.Pane>,
+                render: () => <Endpoints />,
             },
             {
                 menuItem: <Menu.Item data-cy='project-settings-menu-instances' icon='server' content='Instance' key='Instances' />,

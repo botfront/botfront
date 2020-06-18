@@ -1,10 +1,10 @@
 import React from 'react';
 import classnames from 'classnames';
+import { Header } from 'semantic-ui-react';
 import connectField from 'uniforms/connectField';
 import filterDOMProps from 'uniforms/filterDOMProps';
 import AceEditor from 'react-ace';
 import yaml from 'js-yaml';
-import brace from 'brace';
 import 'brace/mode/yaml';
 import 'brace/theme/xcode';
 import 'brace/ext/language_tools';
@@ -44,7 +44,7 @@ const AceField = ({
 }) => (
     <div className={classnames(className, { disabled, error, required }, 'field')} {...filterDOMProps(props)}>
         {label && (
-            <label>{label}</label>
+            <Header as='h5'>{label}</Header>
         )}
         <AceEditor
             width='100%'
