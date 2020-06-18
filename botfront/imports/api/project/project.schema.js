@@ -18,16 +18,11 @@ export const ProjectsSchema = new SimpleSchema({
             return !this.value.match(/^[A-Za-z0-9 ]+$/) ? 'name' : null;
         },
     },
-    // apiKey: { type: String, optional: true },
-    // namespace: {
-    //     type: String, regEx: /^[a-z0-9-_]+$/, unique: 1, sparse: 1,
-    // },
     defaultLanguage: { type: String, allowedValues: Object.keys(languages) },
     createdAt: { type: Date, optional: true },
     disabled: { type: Boolean, defaultValue: false, index: 1 },
     nlu_models: { type: Array, defaultValue: [] },
     'nlu_models.$': { type: String },
-    responsesUpdatedAt: { type: SimpleSchema.Integer, optional: true },
     updatedAt: {
         type: Date,
         optional: true,
@@ -47,11 +42,5 @@ export const ProjectsSchema = new SimpleSchema({
 ProjectsSchema.messageBox.messages({
     en: {
         name: 'The name can only contain alphanumeric characters',
-    },
-});
-
-ProjectsSchema.messageBox.messages({
-    en: {
-        duplicateTemplate: 'Template keys must be unique',
     },
 });
