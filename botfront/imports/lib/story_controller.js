@@ -35,7 +35,7 @@ export class StoryController {
         this.onMdType = onMdType; // onMdType what happens when we need to notify update without saving
         this.saveUpdate = options => onUpdate(this.md, options);
         this.requestedSlotActive = requestedSlotActive;
-        
+
         this.validateStory(false);
     }
 
@@ -160,7 +160,7 @@ export class StoryController {
         else if (slot.type === 'text' && !(slotValue === null || typeof slotValue === 'string')) this.raiseStoryException('text_slot');
         else if (slot.type === 'float' && !(slotValue === null || typeof slotValue === 'number')) this.raiseStoryException('float_slot');
         else if (slot.type === 'list' && !Array.isArray(slotValue)) this.raiseStoryException('list_slot');
-        else if (slot.type === 'categorical' && !slot.values.includes(slotValue)) this.raiseStoryException('cat_slot');
+        else if (slot.type === 'categorical' && ![...slot.values, null].includes(slotValue)) this.raiseStoryException('cat_slot');
     };
 
     exceptionMessages = {
