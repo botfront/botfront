@@ -132,7 +132,7 @@ export const withProjectContext = (story) => {
     return (
         <ProjectContext.Provider
             value={{
-                project: { _id: 'bf', storyGroups: ['0', '1', '2', '3', '4', '5', '6'] },
+                project: { _id: 'bf', storyGroups: ['0', '1', '2', '3', '4', 'form1', 'form2', '5', '6'] },
                 slots,
                 intents,
                 entities,

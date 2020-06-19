@@ -51,8 +51,8 @@ const StoryEditorContainer = ({
     collapsed,
     projectId,
 }) => {
-    const { stories, getResponseLocations } = useContext(ConversationOptionsContext);
-    const { slots } = useContext(ProjectContext);
+    const { stories, forms, getResponseLocations } = useContext(ConversationOptionsContext);
+    const { slots, requestedSlot } = useContext(ProjectContext);
     
     // Used to store ace editors instance to dynamically set annotations
     // the ace edtior react component has a bug where it does not set properly
@@ -81,16 +81,21 @@ const StoryEditorContainer = ({
         [story._id]: new StoryController({ // the root story
             story: story.story || '',
             slots,
+            forms,
             onUpdate: (content, options) => saveStory(story._id, { story: content }, options),
             onMdType: setLastMdType,
             isABranch: hasCheckpoints(),
             isASmartStory: story.rules && story.rules.length > 0,
+            requestedSlotActive: !!requestedSlot,
         }),
     });
 
     useEffect(() => {
         Object.values(storyControllers).forEach(sc => sc.updateSlots(slots));
     }, [slots]);
+    useEffect(() => {
+        Object.values(storyControllers).forEach(sc => sc.updateForms(forms));
+    }, [forms]);
     
     useEffect(() => {
         const change = storyControllers[story._id].isABranch !== hasCheckpoints();
@@ -137,10 +142,12 @@ const StoryEditorContainer = ({
                 newStoryControllers[currentPath.join()] = new StoryController({
                     story: newStory.story || '',
                     slots,
+                    forms,
                     onUpdate: (content, options) => saveStory(currentPath, { story: content }, options),
                     onMdType: setLastMdType,
                     isABranch: currentPath.length > 1,
                     triggerRules: newStory.triggerRules,
+                    requestedSlotActive: !!requestedSlot,
                 });
             }
         });
@@ -287,9 +294,11 @@ const StoryEditorContainer = ({
                 [pathAsString]: new StoryController({
                     story: storyContent || '',
                     slots,
+                    forms,
                     onUpdate: (content, options) => saveStory(path, { story: content }, options),
                     onMdType: setLastMdType,
                     isABranch: path.length > 1,
+                    requestedSlotActive: !!requestedSlot,
                 }),
             });
         }
@@ -339,6 +348,7 @@ const StoryEditorContainer = ({
             setStoryControllers,
             saveStory,
             setLastMdType,
+            !!requestedSlot,
         );
         setExceptions(newExceptions);
     }, [story, lastMdType, slots]);

@@ -10,7 +10,7 @@ import { CorePolicies, createPolicies } from '../core_policies';
 import { createEndpoints } from '../endpoints/endpoints.methods';
 import { Endpoints } from '../endpoints/endpoints.collection';
 import { Credentials, createCredentials } from '../credentials';
-import { checkIfCan } from '../../lib/scopes';
+import { checkIfCan, can } from '../../lib/scopes';
 import { Conversations } from '../conversations';
 import {
     createDefaultStoryGroup, createStoriesWithTriggersGroup, createUnpublishedStoriesGroup,
@@ -18,10 +18,13 @@ import {
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
 import { Slots } from '../slots/slots.collection';
+import Forms from '../graphql/forms/forms.model';
 import { flattenStory, extractDomain, getAllResponses } from '../../lib/story.utils';
 import BotResponses from '../graphql/botResponses/botResponses.model';
+import FormResults from '../graphql/forms/form_results.model';
 import AnalyticsDashboards from '../graphql/analyticsDashboards/analyticsDashboards.model';
 import { defaultDashboard } from '../graphql/analyticsDashboards/generateDefaults';
+import { getForms } from '../graphql/forms/mongo/forms';
 
 
 if (Meteor.isServer) {
@@ -132,6 +135,8 @@ if (Meteor.isServer) {
                 if (!project) throw new Meteor.Error('Project not found');
                 const projectBefore = Projects.findOne({ _id: projectId }); // Delete project
                 await AnalyticsDashboards.deleteOne({ projectId }); // Delete dashboards
+                await Forms.remove({ projectId }); // Delete project
+                await FormResults.remove({ projectId });
                 NLUModels.remove({ _id: { $in: project.nlu_models } }); // Delete NLU models
                 Activity.remove({ modelId: { $in: project.nlu_models } }).exec(); // Delete Logs
                 Instances.remove({ projectId: project._id }); // Delete instances
@@ -288,6 +293,69 @@ if (Meteor.isServer) {
             } catch (error) {
                 throw error;
             }
+        },
+
+        async 'project.checkAllowContextualQuestions'(projectId) {
+            checkIfCan(['stories:r'], projectId);
+            check(projectId, String);
+            try {
+                const project = Projects.findOne({ _id: projectId }, { fields: { allowContextualQuestions: 1 } });
+                const { allowContextualQuestions } = project;
+                return !!allowContextualQuestions;
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        async 'project.setAllowContextualQuestions' (projectId, allowContextualQuestions) {
+            checkIfCan(['stories:w'], projectId);
+            check(projectId, String);
+            check(allowContextualQuestions, Boolean);
+            try {
+                const project = Projects.findOne({ _id: projectId }, { fields: { allowContextualQuestions: 1 } });
+                const { allowContextualQuestions: aCQBefore } = project;
+                const result = Projects.update({ _id: projectId }, { $set: { allowContextualQuestions } });
+                auditLog('Setting allow contextual questions', {
+                    user: Meteor.user(),
+                    resId: projectId,
+                    type: 'updated',
+                    projectId,
+                    operation: 'project-updated',
+                    before: { allowContextualQuestions: aCQBefore },
+                    after: { allowContextualQuestions },
+                    resType: 'project',
+                });
+                return result;
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        async 'project.getContextualSlot' (projectId) {
+            check(projectId, String);
+            if (!can(['stories:r'], projectId)) return null;
+            checkIfCan(['stories:r'], projectId);
+
+            const project = Projects.findOne({ _id: projectId }, { fields: { allowContextualQuestions: 1 } });
+            const { allowContextualQuestions } = project;
+
+            if (!allowContextualQuestions) return null;
+
+            const bfForms = await getForms(projectId);
+            let requestedSlotCategories = [];
+
+            bfForms.forEach((form) => {
+                requestedSlotCategories = requestedSlotCategories.concat(form.slots.map(slot => slot.name));
+            });
+
+            const requestedSlot = {
+                name: 'requested_slot',
+                projectId,
+                type: 'categorical',
+                categories: [...new Set(requestedSlotCategories)],
+            };
+
+            return requestedSlot;
         },
     });
 }

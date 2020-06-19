@@ -60,6 +60,7 @@ if (Meteor.isServer) {
                 training: 1,
                 timezoneOffset: 1,
                 nluThreshold: 1,
+                ...(can('stories:r', projectId) ? { storyGroups: 1 } : {}),
             },
         });
     });
@@ -71,5 +72,11 @@ if (Meteor.isServer) {
         }
         const projects = getUserScopes(this.userId, ['responses:r', 'nlu-data:r', 'nlu-data:x']);
         return Projects.find({ _id: { $in: projects } }, { fields: { name: 1 } });
+    });
+
+    Meteor.publish('project.requestedSlot', function (projectId) {
+        check(projectId, String);
+        if (!can('stories:r', projectId)) return this.ready();
+        return Projects.find({ _id: projectId }, { fields: { allowContextualQuestions: 1 } });
     });
 }

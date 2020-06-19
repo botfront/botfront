@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
+import { useMutation, useQuery, useSubscription } from '@apollo/react-hooks';
 import PropTypes from 'prop-types';
 import SplitPane from 'react-split-pane';
 import shortId from 'shortid';
@@ -25,6 +26,16 @@ import StoryEditors from './StoryEditors';
 import { Loading } from '../utils/Utils';
 import { useEventListener } from '../utils/hooks';
 import { can } from '../../../lib/scopes';
+import { UPSERT_FORM, GET_FORMS, DELETE_FORMS } from './graphql/queries';
+import { FORMS_MODIFIED, FORMS_DELETED, FORMS_CREATED } from './graphql/subscriptions';
+import FormEditors from '../forms/FormEditors';
+import { clearTypenameField } from '../../../lib/client.safe.utils';
+
+const callbackCaller = (args, afterAll = () => {}) => async (res) => {
+    const callback = args[args.length - 1];
+    if (typeof callback === 'function') await callback(res);
+    return afterAll(res);
+};
 
 const SlotsEditor = React.lazy(() => import('./Slots'));
 const PoliciesEditor = React.lazy(() => import('../settings/CorePolicy'));
@@ -71,8 +82,63 @@ function Stories(props) {
     const [policiesModal, setPoliciesModal] = useState(false);
     const [resizing, setResizing] = useState(false);
     const [storyEditorsKey, setStoryEditorsKey] = useState(shortId.generate());
+    const [forms, setForms] = useState([]);
 
     const treeRef = useRef();
+
+    const [upsertForm] = useMutation(UPSERT_FORM);
+    const [deleteForms] = useMutation(DELETE_FORMS);
+    const { data: { getForms = [] } = {}, loading } = useQuery(GET_FORMS, {
+        variables: { projectId, onlySlotList: true },
+        fetchPolicy: 'cache-and-network',
+    });
+    useEffect(() => setForms(loading ? [] : getForms), [loading, getForms]);
+    const currentForms = useRef(forms); // keep a ref of forms to avoid closure effects in context mutators
+    currentForms.current = forms; // keep it up to date
+
+    useSubscription(
+        FORMS_MODIFIED,
+        {
+            variables: { projectId },
+            onSubscriptionData: ({ subscriptionData }) => {
+                if (!subscriptionData) return;
+                if (!subscriptionData.data) return;
+                const modifiedForm = subscriptionData.data.formsModified;
+                const updatedForms = forms.map((form) => {
+                    if (form._id === modifiedForm._id) return modifiedForm;
+                    return form;
+                });
+                setForms(updatedForms);
+            },
+        },
+    );
+
+    useSubscription(
+        FORMS_CREATED,
+        {
+            variables: { projectId },
+            onSubscriptionData: ({ subscriptionData }) => {
+                if (!subscriptionData) return;
+                if (!subscriptionData.data) return;
+                const newForm = subscriptionData.data.formsCreated;
+                setForms([...forms, newForm]);
+            },
+        },
+    );
+
+    useSubscription(
+        FORMS_DELETED,
+        {
+            variables: { projectId },
+            onSubscriptionData: ({ subscriptionData }) => {
+                if (!subscriptionData) return;
+                if (!subscriptionData.data) return;
+                const deletedForms = subscriptionData.data.formsDeleted;
+                const updatedForms = forms.filter(form => !deletedForms.some(({ _id }) => _id === form._id));
+                setForms(updatedForms);
+            },
+        },
+    );
 
     const getQueryParams = () => {
         const { location: { query } } = router;
@@ -82,7 +148,6 @@ function Stories(props) {
     };
 
     const cleanId = id => id.replace(/^.*_SMART_/, '');
-
 
     const setStoryMenuSelection = (newSelection) => {
         if (!getQueryParams().every(id => newSelection.includes(id))
@@ -122,6 +187,32 @@ function Stories(props) {
     ]);
 
     const storiesReshaped = useMemo(reshapeStories, [stories]);
+
+    const handleUpsertForm = useCallback(
+        (formData, ...args) => upsertForm({ variables: { form: { ...clearTypenameField(formData), projectId } } }).then(
+            callbackCaller(args), callbackCaller(args),
+        ),
+        [projectId],
+    );
+
+    const handleDeleteForm = useCallback(
+        ({ _id }, ...args) => deleteForms({ variables: { projectId, ids: [_id] } }).then(callbackCaller(args), callbackCaller(args)),
+        [projectId],
+    );
+
+    const handleReorderForm = ({ _id: idToUpdate, children }, ...args) => {
+        const newSlotOrder = children.map(c => c.replace(/_slot_for_.*$/, ''));
+        const formToUpdate = (currentForms.current || []).find(({ _id }) => _id === idToUpdate);
+        let reorderedSlots = [];
+        try {
+            reorderedSlots = newSlotOrder.map((name) => {
+                const foundSlot = (formToUpdate.slots || []).find(s => s.name === name);
+                if (!foundSlot) throw new Error();
+                return foundSlot;
+            });
+        } catch { return; }
+        handleUpsertForm({ _id: idToUpdate, slots: reorderedSlots }, ...args);
+    };
 
     const handleAddStoryGroup = useCallback(
         (storyGroup, f) => Meteor.call(
@@ -210,7 +301,6 @@ function Stories(props) {
         if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
         if (key === 'ArrowLeft') treeRef.current.focusMenu();
     });
-
     return (
         <Loading loading={!ready}>
             <ConversationOptionsContext.Provider
@@ -227,6 +317,10 @@ function Stories(props) {
                     updateStory: handleStoryUpdate,
                     reloadStories: handleReloadStories,
                     getResponseLocations: handleGetResponseLocations,
+                    upsertForm: handleUpsertForm,
+                    deleteForm: handleDeleteForm,
+                    reorderForm: handleReorderForm,
+                    forms,
                 }}
             >
                 {modalWrapper(
@@ -252,13 +346,12 @@ function Stories(props) {
                     <div className='storygroup-browser'>
                         <StoryGroupNavigation
                             allowAddition={can('stories:w', projectId)}
-                            placeholderAddItem='Choose a group name'
                             modals={{ setSlotsModal, setPoliciesModal }}
                         />
-                        <Loading loading={false}>
+                        <Loading loading={loading}>
                             <StoryGroupTree
                                 ref={treeRef}
-                                forms={[]}
+                                forms={forms}
                                 storyGroups={storyGroups}
                                 stories={stories}
                                 onChangeStoryMenuSelection={setStoryMenuSelection}
@@ -268,11 +361,22 @@ function Stories(props) {
                         </Loading>
                     </div>
                     <Container>
-                        <StoryEditors
-                            projectId={projectId}
-                            selectedIds={storyMenuSelection.map(cleanId)}
-                            key={storyEditorsKey}
-                        />
+                        {forms.some(({ _id }) => (storyMenuSelection[0] || '').replace(/^.*_slot_for_/, '') === _id)
+                            ? (
+                                <FormEditors
+                                    projectId={projectId}
+                                    formIds={storyMenuSelection.map(id => id.replace(/^.*_slot_for_/, ''))}
+                                    slots={storyMenuSelection.map(id => id.replace(/_slot_for_.*$/, ''))}
+                                />
+                            ) : (
+                                <StoryEditors
+                                    projectId={projectId}
+                                    selectedIds={storyMenuSelection.map(cleanId)}
+                                    key={storyEditorsKey}
+                                />
+
+                            )
+                        }
                     </Container>
                 </SplitPane>
             </ConversationOptionsContext.Provider>

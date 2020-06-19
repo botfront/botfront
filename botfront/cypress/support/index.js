@@ -22,6 +22,7 @@ import './response.commands';
 import './incoming.commands';
 import './settings.commands';
 import './conversation.commands';
+import './form.commands';
 import './slot.commands';
 
 const axios = require('axios');

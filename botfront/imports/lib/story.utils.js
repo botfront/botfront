@@ -5,6 +5,7 @@ import { Projects } from '../api/project/project.collection';
 import { Slots } from '../api/slots/slots.collection';
 import { StoryGroups } from '../api/storyGroups/storyGroups.collection';
 import { newGetBotResponses } from '../api/graphql/botResponses/mongo/botResponses';
+import { getForms } from '../api/graphql/forms/mongo/forms';
 
 let storyAppLogger;
 let getAppLoggerForMethodExport;
@@ -250,6 +251,7 @@ export const extractDomain = ({
     slots,
     responses = {},
     defaultDomain = {},
+    bfForms = [],
     crashOnStoryWithErrors = true,
 }) => {
     // extractDomain can be called from outside a Meteor method so Meteor.userId() might not be available
@@ -346,7 +348,17 @@ export const extractDomain = ({
         actions: Array.from(domains.actions),
         forms: Array.from(domains.forms),
         responses: domains.responses,
-        slots: domains.slots,
+        slots: {
+            ...domains.slots,
+            ...(bfForms.length
+                ? {
+                    bf_forms: {
+                        type: 'unfeaturized',
+                        initial_value: bfForms,
+                    },
+                } : {}
+            ),
+        },
     });
     return domains;
 };
@@ -394,6 +406,27 @@ export const generateAndFormatStories = (stories, storyGroups) => {
     return formatedStories;
 };
 
+const addRequestedSlot = async (slots, projectId) => {
+    const newSlots = slots.filter(slot => slot.name !== 'requested_slot');
+    const bfForms = await getForms(projectId);
+    let requestedSlotCategories = [];
+
+    bfForms.forEach((form) => {
+        requestedSlotCategories = requestedSlotCategories.concat(form.slots.map(slot => slot.name));
+    });
+
+    const requestedSlot = {
+        name: 'requested_slot',
+        projectId,
+        type: 'categorical',
+        categories: [...new Set(requestedSlotCategories)],
+    };
+
+    newSlots.push(requestedSlot);
+    
+    return newSlots;
+};
+
 export const getStoriesAndDomain = async (projectId, language, env = 'development') => {
     const appMethodLogger = storyAppLogger.child({
         method: 'getStoriesAndDomain',
@@ -439,14 +472,28 @@ export const getStoriesAndDomain = async (projectId, language, env = 'developmen
         },
     ).fetch();
 
+    appMethodLogger.debug('Fetching forms');
+    const bfForms = (await getForms(projectId))
+        .map(({
+            _id, projectId: pid, pinned, isExpanded, ...rest
+        }) => rest);
+
     appMethodLogger.debug('Generating domain');
     const responses = await getAllResponses(projectId, language);
-    const slots = Slots.find({ projectId }).fetch();
+    let slots = Slots.find({ projectId }).fetch();
+    const project = Projects.findOne(
+        { _id: projectId },
+        { allowContextualQuestions: 1 },
+    );
+    if (project.allowContextualQuestions) {
+        slots = await addRequestedSlot(slots, projectId);
+    }
     const domain = extractDomain({
         stories: allStories.reduce((acc, story) => [...acc, ...flattenStory(story)], []),
         slots,
         responses,
         defaultDomain,
+        bfForms,
     });
 
     appMethodLogger.debug('Formatting stories');
@@ -465,6 +512,7 @@ export const accumulateExceptions = (
     setStoryControllers,
     saveStoryMethod,
     setLastMdTypeMethod,
+    requestedSlotActive = false,
 ) => {
     const exceptions = {};
     const newStoryControllers = {};
@@ -480,6 +528,7 @@ export const accumulateExceptions = (
                 onMdType: setLastMdTypeMethod,
                 isABranch,
                 triggerRules: currentStory.rules,
+                requestedSlotActive,
             });
             currentController = newStoryControllers[currentPathAsString];
         } else {

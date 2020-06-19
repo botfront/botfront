@@ -100,6 +100,7 @@ export const ProjectsSchema = new SimpleSchema({
     'storyGroups.$': { type: String },
     logoUrl: { type: String, optional: true },
     smallLogoUrl: { type: String, optional: true },
+    allowContextualQuestions: { type: Boolean, defaultValue: false },
 }, { tracker: Tracker });
 
 ProjectsSchema.messageBox.messages({

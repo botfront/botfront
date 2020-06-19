@@ -194,7 +194,6 @@ const StoryGroupTreeNode = (props) => {
         </div>
     );
 
-
     return (
         <div
             ref={provided.innerRef}

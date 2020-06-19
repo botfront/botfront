@@ -83,7 +83,7 @@ async function logUtterance(utterance, modelId, convId, env, callback) {
         message_id: mid,
         intent: parseData.intent.name,
         confidence: parseData.intent.confidence,
-        createdAt: new Date(utterance.timestamp),
+        createdAt: new Date(utterance.timestamp * 1000), // utterance timestamp is in seconds date uses ms
     };
 
     // eslint-disable-next-line no-underscore-dangle
@@ -199,7 +199,7 @@ export const upsertTrackerStore = async ({
                 $setOnInsert: {
                     status: 'new',
                     createdAt: firstEventTimestamp
-                        ? new Date(firstEventTimestamp)
+                        ? new Date(firstEventTimestamp * 1000) // firstEventTimestamp  is in seconds date uses ms
                         : new Date(),
                 },
             },

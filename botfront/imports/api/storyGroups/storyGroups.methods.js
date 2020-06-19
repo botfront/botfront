@@ -3,6 +3,7 @@ import { check } from 'meteor/check';
 import { checkIfCan } from '../../lib/scopes';
 import { auditLogIfOnServer } from '../../lib/utils';
 import { StoryGroups } from './storyGroups.collection';
+import Forms from '../graphql/forms/forms.model';
 import { Projects } from '../project/project.collection';
 import { Stories } from '../story/stories.collection';
 import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo/botResponses';
@@ -126,7 +127,10 @@ Meteor.methods({
                 ...storyGroup,
                 children: [],
             });
-            const $position = pinned ? 0 : StoryGroups.find({ projectId, pinned: true }).count();
+            const $position = pinned
+                ? 0
+                : StoryGroups.find({ projectId, pinned: true }).count()
+                    + await Forms.countDocuments({ projectId, pinned: true });
             Projects.update(
                 { _id: projectId },
                 { $push: { storyGroups: { $each: [id], $position } } },
@@ -191,8 +195,9 @@ Meteor.methods({
         check(projectId, String);
         const { storyGroups: order = [] } = Projects.findOne({ _id: projectId }, { fields: { storyGroups: 1 } });
         const storyGroups = StoryGroups.find({ projectId }, { fields: { _id: 1, pinned: 1, name: 1 } }).fetch();
+        const forms = await Forms.find({ projectId }, { _id: 1, pinned: 1, name: 1 }).lean();
         
-        const newOrder = [...storyGroups]
+        const newOrder = [...forms, ...storyGroups]
             .sort((a, b) => order.findIndex(id => id === a._id) - order.findIndex(id => id === b._id))
             .sort((a, b) => !!b.pinned - !!a.pinned)
             .map(({ _id }) => _id);

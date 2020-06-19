@@ -86,7 +86,7 @@ export default {
                 args._id,
                 args.response,
             );
-           
+
             auditLog('Updated response', {
                 user: auth.user,
                 type: 'updated',
@@ -163,7 +163,7 @@ export default {
             checkIfCan('responses:w', args.projectId, auth.user._id);
             auditLog('Created responses', {
                 user: auth.user,
-                type: 'updated',
+                type: 'created',
                 projectId: args.projectId,
                 operation: 'response-created',
                 resId: args.responses.map(resp => resp.key),

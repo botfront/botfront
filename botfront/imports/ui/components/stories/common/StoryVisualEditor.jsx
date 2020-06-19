@@ -104,11 +104,14 @@ export default class StoryVisualEditor extends React.Component {
         return can('stories:w', projectId) ? '' : 'read-only';
     }
 
-    renderAddLine = (index) => {
+    renderAddLine = (rawIndex) => {
         const { lineInsertIndex } = this.state;
         const { project: { _id: projectId } } = this.context;
         const { story } = this.props;
         if (!can('stories:w', projectId)) return <div className='line-spacer' />; // prevent crowding of story elements in read only mode
+        let index = rawIndex;
+        const [currentLine, nextLine] = [story.lines[index], story.lines[index + 1]];
+        if (this.formLinesMatch(currentLine, nextLine)) index += 1;
 
         const options = story.getPossibleInsertions(index);
 
@@ -195,35 +198,60 @@ export default class StoryVisualEditor extends React.Component {
         </React.Fragment>
     );
 
-    determineFormLineLabelAndValue = (line) => {
+    determineFormLineLabelAndValue = (line, isStart = false) => {
         let value = line.gui.data.name;
-        let label = 'activate form';
+        let label = 'continue form';
+        if (isStart) label = 'activate form';
         if (line.gui.type === 'action') {
             label = 'deactivate form';
             value = null;
         }
         if (line.gui.type === 'form') {
-            label = line.gui.data.name === null
-                ? 'form completed'
-                : 'form activated';
+            label = line.gui.data.name === null ? 'form completed' : 'active form';
         }
         return { value, label };
-    }
+    };
 
-    renderFormLine = (index, line, exceptions) => (
-        <React.Fragment key={`FormLine-${index}`}>
-            <ExceptionWrapper exceptions={exceptions}>
-                <div className={`story-line ${this.getReadOnlyClass()}`}>
-                    <GenericLabel
-                        {...this.determineFormLineLabelAndValue(line)}
-                        color='botfront-blue'
-                    />
-                    <IconButton onClick={() => this.handleDeleteLine(index)} icon='trash' />
-                </div>
-            </ExceptionWrapper>
-            {this.renderAddLine(index)}
-        </React.Fragment>
+    formLinesMatch = (firstLine, secondLine) => (
+        firstLine
+        && secondLine
+        && firstLine.gui.type === 'form_decl'
+        && secondLine.gui.type === 'form'
+        && firstLine.gui.data.name === secondLine.gui.data.name
     );
+
+    renderFormLine = (index, line, exceptions) => {
+        const { story } = this.props;
+        const before = index > 0 ? story.lines[index - 1] : null;
+        const after = index < story.lines.length - 1 ? story.lines[index + 1] : null;
+        const isFirstLineOfStart = this.formLinesMatch(line, after);
+        const isSecondLineOfStart = this.formLinesMatch(before, line);
+        if (isSecondLineOfStart) return null;
+        return (
+            <React.Fragment key={`FormLine-${index}`}>
+                <ExceptionWrapper exceptions={exceptions}>
+                    <div className={`story-line ${this.getReadOnlyClass()}`}>
+                        <GenericLabel
+                            {...this.determineFormLineLabelAndValue(
+                                line,
+                                isFirstLineOfStart,
+                            )}
+                            color='botfront-blue'
+                        />
+                        <IconButton
+                            onClick={() => {
+                                this.handleDeleteLine(index);
+                                // and a second time...
+                                if (isFirstLineOfStart) this.handleDeleteLine(index);
+                            }}
+                            icon='trash'
+                        />
+                    </div>
+                </ExceptionWrapper>
+                {this.renderAddLine(index)}
+            </React.Fragment>
+        );
+    };
 
     handleBotResponseChange = async (name, newResponse) => {
         const { upsertResponse, responses } = this.context;

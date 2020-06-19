@@ -5,7 +5,7 @@ describe('incoming:r restricted permissions', () => {
         cy.createProject('bf', 'My Project', 'en');
         cy.login();
         cy.setTimezoneOffset();
-        cy.addTestConversation('bf', { id: 'dev1', env: 'development', lang: 'en' });
+        cy.addConversationFromTemplate('bf', 'default', 'dev1', { language: 'en' });
         cy.createDummyRoleAndUser({ permission: ['incoming:r'] });
     });
 

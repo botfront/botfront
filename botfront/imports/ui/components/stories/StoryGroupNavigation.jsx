@@ -1,11 +1,11 @@
 import {
-    Icon, Input, Button, Popup,
+    Icon, Input, Button, Popup, Dropdown,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
-import { setStoryMode } from '../../store/actions/actions';
+import { setStoryMode, setStoriesCurrent } from '../../store/actions/actions';
 import { Slots } from '../../../api/slots/slots.collection';
 import { ConversationOptionsContext } from './Context';
 import { formNameIsValid } from '../../../lib/client.safe.utils';
@@ -44,8 +44,23 @@ class StoryGroupNavigation extends React.Component {
     };
 
     submitTitleInput = (element) => {
-        const { editing, newItemName, itemName } = this.state;
-        const { addGroup, updateGroup } = this.props;
+        const {
+            editing, newItemName, itemName, addMode,
+        } = this.state;
+        const {
+            addGroup, updateGroup, upsertForm, setStoryMenuSelection,
+        } = this.props;
+        if (addMode === 'form') {
+            if (formNameIsValid(newItemName)) {
+                upsertForm({
+                    name: newItemName, slots: [], isExpanded: true, pinned: true,
+                }, ({ data: { upsertForm: { _id } = {} } = {} } = {}) => {
+                    if (_id) setStoryMenuSelection([_id]);
+                });
+                this.resetAddItem();
+            }
+            return;
+        }
         if (editing === -1 && !!newItemName) {
             addGroup({ name: newItemName });
             this.resetAddItem();
@@ -79,18 +94,29 @@ class StoryGroupNavigation extends React.Component {
         return (
             <div className='navigation'>
                 <Button.Group fluid>
-                    {this.tooltipWrapper(
-                        <Button
-                            key='newItem'
-                            onClick={() => this.setState({ addMode: true })}
-                            data-cy='add-item'
-                            icon
-                            disabled={!allowAddition}
-                            content={<Icon name='add' />}
-                            style={{ width: 0 }}
-                        />,
-                        'New story group',
-                    )}
+                    <Dropdown
+                        icon='add'
+                        button
+                        className='icon'
+                        data-cy='add-item'
+                        disabled={!allowAddition}
+                        style={{ textAlign: 'center' }}
+                    >
+                        <Dropdown.Menu>
+                            <Dropdown.Item
+                                icon='book'
+                                content='Story group'
+                                data-cy='add-story-group'
+                                onClick={() => this.setState({ addMode: 'group' })}
+                            />
+                            <Dropdown.Item
+                                icon='wpforms'
+                                content='Form'
+                                data-cy='add-form'
+                                onClick={() => this.setState({ addMode: 'form' })}
+                            />
+                        </Dropdown.Menu>
+                    </Dropdown>
                     {this.tooltipWrapper(
                         <Button
                             content='Slots'
@@ -165,6 +191,8 @@ StoryGroupNavigation.propTypes = {
     storyMode: PropTypes.string.isRequired,
     addGroup: PropTypes.func.isRequired,
     updateGroup: PropTypes.func.isRequired,
+    setStoryMenuSelection: PropTypes.func.isRequired,
+    upsertForm: PropTypes.func.isRequired,
 };
 
 StoryGroupNavigation.defaultProps = {
@@ -178,6 +206,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = {
     onSwitchStoryMode: setStoryMode,
+    setStoryMenuSelection: setStoriesCurrent,
 };
 
 const BrowserWithState = connect(mapStateToProps, mapDispatchToProps)(StoryGroupNavigation);

@@ -5,6 +5,7 @@ if (Meteor.isServer) {
     import { expect } from 'chai';
     // resolvers
     import { subscriptionFilter as responsesSub } from '../../graphql/botResponses/resolvers/botResponsesResolver';
+    import { subscriptionFilter as formsSub } from '../../graphql/forms/formResolver';
 
     import { setScopes } from '../../../lib/scopes';
     import { roles, readers, formatRoles } from './roleTestUtils';
@@ -25,6 +26,13 @@ if (Meteor.isServer) {
             variables: { projectId: 'bf' },
             payload: { projectId: 'bf' },
             acceptedRoles: readers.responses,
+        },
+        {
+            name: 'forms',
+            subFunction: formsSub,
+            variables: { projectId: 'bf' },
+            payload: { projectId: 'bf' },
+            acceptedRoles: readers.stories,
         },
     ];
 

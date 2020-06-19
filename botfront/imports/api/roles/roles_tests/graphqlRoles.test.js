@@ -24,6 +24,8 @@ if (Meteor.isServer) {
 
     import storiesResolver from '../../graphql/story/resolvers/storiesResolver';
 
+    import formsResolver from '../../graphql/forms/formResolver';
+
     import { setScopes } from '../../../lib/scopes';
     import { Projects } from '../../project/project.collection';
     import {
@@ -275,6 +277,24 @@ if (Meteor.isServer) {
             query: storiesResolver.Query.stories,
             args: { projectId },
             acceptedRoles: readers.stories,
+        },
+        {
+            name: 'get forms',
+            query: formsResolver.Query.getForms,
+            args: { projectId },
+            acceptedRoles: readers.stories,
+        },
+        {
+            name: 'upsert form',
+            query: formsResolver.Mutation.upsertForm,
+            args: { form: { projectId } },
+            acceptedRoles: writers.stories,
+        },
+        {
+            name: 'deleteForms',
+            query: formsResolver.Mutation.deleteForms,
+            args: { projectId },
+            acceptedRoles: writers.stories,
         },
     ];
 
