@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.25.0-ee.1](https://github.com/botfront/botfront/compare/v0.24.3-ee.5...v0.25.0-ee.1) (2020-06-19)
+
+
+### Features
+
+* add form results import mutation ([0e6e243](https://github.com/botfront/botfront/commit/0e6e243e3655a047db5cd8da2163460edfbb51e0))
+* add option to erase existing data during import ([cf80335](https://github.com/botfront/botfront/commit/cf80335b93c9b60932790d9a9235070e2e6bc2d4))
+* add requested slot as a slot ([e717819](https://github.com/botfront/botfront/commit/e7178190236ae5ace94edf8f68706223f732ad6f))
+* conversations funnel in analytics ([c9ad480](https://github.com/botfront/botfront/commit/c9ad480670d93f8bc677243584ba61c40b90ff43))
+* forms ([2bd1525](https://github.com/botfront/botfront/commit/2bd15250c7390ffabbeacf27a7baa83c94b9178e))
+* new pipeline, policies ([a96bc81](https://github.com/botfront/botfront/commit/a96bc813e63ab5ff4799ba4903b6ecad73df707c))
+* stories search de-select ([33ec116](https://github.com/botfront/botfront/commit/33ec1160fd6bc92c51bc7512f22fc879884519c6))
+* validation tab ([41c4bd4](https://github.com/botfront/botfront/commit/41c4bd4612dbe478c942cb3fafa1090923c1407d))
+* **forms:** add result viewing page ([22e83be](https://github.com/botfront/botfront/commit/22e83be28e5ec7cccdfad30df41c1f9d5d96c29b))
+
+
+### Bug Fixes
+
+* click on intent in dropdown had no effect in story visual editor ([c71f9de](https://github.com/botfront/botfront/commit/c71f9dee31566c12b425f19c9745d8a2f0975139))
+* hide publish switch ([ff30b76](https://github.com/botfront/botfront/commit/ff30b76f49d9deca50318085c3edc5c8140917f5))
+* intent dropdown not clickable on canonical example ([c196994](https://github.com/botfront/botfront/commit/c196994e7c4e0b74bd65a456fabe691c9fcfe958))
+* requested_slot ([5ca25a4](https://github.com/botfront/botfront/commit/5ca25a44d0b15aea8b09a14a92cbbc9d2df6f153))
+
 ### [0.24.3-ee.5](https://github.com/botfront/botfront/compare/v0.24.3-ee.4...v0.24.3-ee.5) (2020-06-13)
 
 ### [0.24.3-ee.4](https://github.com/botfront/botfront/compare/v0.24.3-ee.3...v0.24.3-ee.4) (2020-06-11)
