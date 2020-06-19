@@ -10,7 +10,7 @@ import { CorePolicies, createPolicies } from '../core_policies';
 import { createEndpoints } from '../endpoints/endpoints.methods';
 import { Endpoints } from '../endpoints/endpoints.collection';
 import { Credentials, createCredentials } from '../credentials';
-import { checkIfCan } from '../../lib/scopes';
+import { checkIfCan, can } from '../../lib/scopes';
 import { Conversations } from '../conversations';
 import {
     createDefaultStoryGroup, createStoriesWithTriggersGroup, createUnpublishedStoriesGroup,
@@ -332,8 +332,9 @@ if (Meteor.isServer) {
         },
 
         async 'project.getContextualSlot' (projectId) {
-            checkIfCan(['stories:r'], projectId);
             check(projectId, String);
+            if (!can(['stories:r'], projectId)) return null;
+            checkIfCan(['stories:r'], projectId);
 
             const project = Projects.findOne({ _id: projectId }, { fields: { allowContextualQuestions: 1 } });
             const { allowContextualQuestions } = project;

@@ -76,7 +76,7 @@ if (Meteor.isServer) {
 
     Meteor.publish('project.requestedSlot', function (projectId) {
         check(projectId, String);
-        checkIfCan('stories:r', projectId);
+        if (!can('stories:r', projectId)) return this.ready();
         return Projects.find({ _id: projectId }, { fields: { allowContextualQuestions: 1 } });
     });
 }
