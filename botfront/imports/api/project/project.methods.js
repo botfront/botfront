@@ -118,7 +118,7 @@ if (Meteor.isServer) {
             check(projectId, String);
 
             try {
-                return Projects.update({ _id: projectId }, { $set: { training: { status: 'training', startTime: new Date() } } });
+                return Projects.update({ _id: projectId }, { $set: { training: { instanceStatus: 'training', startTime: new Date() } } });
             } catch (e) {
                 throw e;
             }
@@ -130,7 +130,7 @@ if (Meteor.isServer) {
             check(error, Match.Optional(String));
 
             try {
-                const set = { training: { status, endTime: new Date() } };
+                const set = { training: { status, instanceStatus: 'notTraining', endTime: new Date() } };
                 if (error) {
                     set.training.message = error;
                 }

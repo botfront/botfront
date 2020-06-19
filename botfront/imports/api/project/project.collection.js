@@ -34,4 +34,10 @@ if (Meteor.isServer) {
     Meteor.publish('projects.names', function () {
         return Projects.find({}, { name: 1 });
     });
+
+    Meteor.publish('training.status', function (projectId) {
+        check(projectId, String);
+       
+        return Projects.find({ projectId }, { fields: { 'training.instanceStatus': 1 } });
+    });
 }
