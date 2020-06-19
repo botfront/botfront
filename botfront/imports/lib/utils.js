@@ -108,7 +108,7 @@ if (Meteor.isServer) {
 
 export const getModelIdsFromProjectId = projectId => (Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }) || {}).nlu_models;
 
-export const getLanguagesFromProjectId = projectId => getNluModelLanguages(getModelIdsFromProjectId(projectId));
+export const getLanguagesFromProjectId = (projectId, asOptions = false) => getNluModelLanguages(getModelIdsFromProjectId(projectId), asOptions);
 
 export const getAllTrainingDataGivenProjectIdAndLanguage = (projectId, language) => {
     const nluModelIds = getModelIdsFromProjectId(projectId);
