@@ -53,25 +53,42 @@ const ChatDemo = (props) => {
 
     const renderError = () => <div>{error}</div>;
 
-    const renderTopMenu = () => (
-        <div className='side-by-side middle'>
+    const render = () => (
+        <div className='side-by-side'>
             <ResponsiveAlternants
-                cutoff={500}
+                cutoff={600}
                 as='span'
-                style={{ marginTop: '10px' }}
-                className='logo pale-grey'
+                className='logo pale-grey title'
             >
                 <>Botfront.</>
                 <>B.</>
             </ResponsiveAlternants>
-            <ResponsiveAlternants cutoff={1000} as='span' className='large grey'>
-                <>
-                    You have been invited to test the&nbsp;
-                    <b>{widgetProps.projectName}</b> assistant.
-                </>
-                <b>{widgetProps.projectName}</b>
-            </ResponsiveAlternants>
-            <ResponsiveAlternants cutoff={769}>
+            <div className='center-pane'>
+                <div className='greeting-container'>
+                    <ResponsiveAlternants cutoff={1100} as='span' className='large grey'>
+                        <>
+                            You have been invited to test the&nbsp;
+                            <b>{widgetProps.projectName}</b> assistant.
+                        </>
+                        <b>{widgetProps.projectName}</b>
+                    </ResponsiveAlternants>
+                </div>
+                <div className='widget-container'>
+                    <Widget
+                        interval={0}
+                        initPayload={`/${widgetProps.initPayload}`}
+                        socketUrl={widgetProps.socketUrl}
+                        socketPath={widgetProps.socketPath}
+                        inputTextFieldHint='Try out your chatbot...'
+                        hideWhenNotConnected={false}
+                        customData={{ language }}
+                        embedded
+                        customMessageDelay={() => 0}
+                        key={updateKey}
+                    />
+                </div>
+            </div>
+            <ResponsiveAlternants cutoff={850}>
                 <Button.Group className='transparent grey'>
                     <Button basic icon='redo' content='Restart' onClick={handleRestart} />
                     <Dropdown
@@ -105,32 +122,6 @@ const ChatDemo = (props) => {
                 </Dropdown>
             </ResponsiveAlternants>
         </div>
-    );
-
-    const render = () => (
-        <>
-            {renderTopMenu()}
-            <div
-                style={{
-                    height: 'calc(100vh - 105px)', // 60 + 15 * 3
-                    maxWidth: '700px',
-                    margin: '15px auto',
-                }}
-            >
-                <Widget
-                    interval={0}
-                    initPayload={`/${widgetProps.initPayload}`}
-                    socketUrl={widgetProps.socketUrl}
-                    socketPath={widgetProps.socketPath}
-                    inputTextFieldHint='Try out your chatbot...'
-                    hideWhenNotConnected={false}
-                    customData={{ language }}
-                    embedded
-                    customMessageDelay={() => 0}
-                    key={updateKey}
-                />
-            </div>
-        </>
     );
 
     return (
