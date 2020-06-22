@@ -32,7 +32,8 @@ describe('projects:r can access but not edit settings', () => {
         cy.dataCy('port-project-menu').find('.item').first().should('have.text', 'Export');
         // endpoints tab
         cy.dataCy('project-settings-menu-endpoints').click();
-        cy.dataCy('ace-field').should('have.class', 'disabled');
+        cy.dataCy('ace-field').should('not.exist');
+        cy.dataCy('webhook-url-field').should('have.class', 'disabled');
         cy.dataCy('save-button').should('not.exist');
         // instances tab
         cy.dataCy('project-settings-menu-instances').click();
@@ -65,7 +66,7 @@ describe('projects:r can access but not edit settings', () => {
         cy.dataCy('port-project-menu').children('.item').should('have.length', 2);
         // endpoints tab
         cy.dataCy('project-settings-menu-endpoints').click();
-        cy.dataCy('webhook-url-field').should('have.class', 'disabled');
+        cy.dataCy('webhook-url-field').should('exist');
         cy.dataCy('ace-field').should('not.exist');
         cy.dataCy('save-button').should('exist');
         // instances tab
