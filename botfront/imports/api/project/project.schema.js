@@ -18,6 +18,7 @@ export const ProjectsSchema = new SimpleSchema({
             return !this.value.match(/^[A-Za-z0-9 ]+$/) ? 'name' : null;
         },
     },
+    enableSharing: { type: Boolean, defaultValue: false },
     defaultLanguage: { type: String, allowedValues: Object.keys(languages) },
     createdAt: { type: Date, optional: true },
     disabled: { type: Boolean, defaultValue: false, index: 1 },

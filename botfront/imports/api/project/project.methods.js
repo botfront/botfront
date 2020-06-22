@@ -205,6 +205,15 @@ if (Meteor.isServer) {
             }
         },
 
+        async 'project.setEnableSharing'(projectId, enableSharing) {
+            check(projectId, String);
+            check(enableSharing, Boolean);
+            return Projects.update(
+                { _id: projectId },
+                { $set: { enableSharing } },
+            );
+        },
+
         async 'project.getChatProps'(projectId) {
             check(projectId, String);
 
@@ -220,7 +229,7 @@ if (Meteor.isServer) {
                 },
             );
 
-            // if (!enableSharing) { throw new Meteor.Error(403, `Sharing not enabled for project '${projectName}'.`); }
+            if (!enableSharing) { throw new Meteor.Error(403, `Sharing not enabled for project '${projectName}'.`); }
 
             const query = {
                 $or: [

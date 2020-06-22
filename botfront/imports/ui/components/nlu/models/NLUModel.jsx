@@ -386,7 +386,7 @@ const NLUDataLoaderContainer = withTracker((props) => {
         training,
     } = Projects.findOne({ _id: projectId }, {
         fields: {
-            name: 1, nlu_models: 1, defaultLanguage: 1, training: 1,
+            name: 1, nlu_models: 1, defaultLanguage: 1, training: 1, enableSharing: 1,
         },
     });
     // For handling '/project/:project_id/nlu/models'
