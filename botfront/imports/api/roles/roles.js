@@ -106,6 +106,11 @@ if (Meteor.isServer) {
         );
         Roles.addRolesToParent(['projects:r', 'nlu-data:x', 'analytics:w', 'incoming:w', 'triggers:w', 'stories:w', 'responses:w', 'nlu-data:w'], 'projects:w');
 
+        createRole('resources:r', 'Can access project deployment environment and endpoint settings');
+        Roles.addRolesToParent('projects:r', 'resources:r');
+        createRole('resources:w', 'Can access and edit project deployment environment, and endpoint settings');
+        Roles.addRolesToParent(['projects:w', 'resources:r'], 'resources:w');
+
         createRole('global-settings:r', 'Can access global settings.');
         createRole('global-settings:w', 'Can edit global settings. Extends `global-settings:r.`');
         Roles.addRolesToParent('global-settings:r', 'global-settings:w');
@@ -122,7 +127,7 @@ if (Meteor.isServer) {
         createRole('project-admin', 'Can access and edit all resources of a project. Extends `projects:w`, `users:w`  ');
         Roles.addRolesToParent(['projects:w', 'users:w'], 'project-admin');
         createRole('global-admin', 'Can access and edit all resources of all projects and edit global settigs. Extends All permissions ');
-        Roles.addRolesToParent(['project-admin', 'roles:w', 'global-settings:w'], 'global-admin');
+        Roles.addRolesToParent(['project-admin', 'roles:w', 'global-settings:w', 'resources:w'], 'global-admin');
     };
 
     Meteor.startup(function() {

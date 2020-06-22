@@ -1,5 +1,6 @@
 import { check, Match } from 'meteor/check';
 import { safeLoad as yamlLoad } from 'js-yaml';
+import { isEqual } from 'lodash';
 import { Projects, createProject } from './project.collection';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { createInstance } from '../instances/instances.methods';
@@ -108,6 +109,11 @@ if (Meteor.isServer) {
             try {
                 // eslint-disable-next-line no-param-reassign
                 const projectBefore = Projects.findOne({ _id: item._id });
+                if (projectBefore
+                    && !isEqual(projectBefore.deploymentEnvironments, item.deploymentEnvironments)
+                ) {
+                    checkIfCan('resources:w', item._id);
+                }
                 delete item.createdAt;
                 auditLog('Updated project', {
                     user: Meteor.user(),

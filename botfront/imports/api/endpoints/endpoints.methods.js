@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
+import { safeLoad, safeDump } from 'js-yaml';
 import { formatError } from '../../lib/utils';
 import { Endpoints } from './endpoints.collection';
 import { checkIfCan } from '../../lib/scopes';
@@ -54,6 +55,17 @@ if (Meteor.isServer) {
                 resType: 'project',
             });
             return saveEndpoints(endpoints);
+        },
+        async 'actionsEndpoints.save'(projectId, env, actionsUrl) {
+            checkIfCan('projects:w', projectId);
+            check(projectId, String);
+            check(env, String);
+            check(actionsUrl, String);
+            const oldEndpoints = Endpoints.findOne({ projectId, environment: env });
+            if (!oldEndpoints) throw new Error(`${env} endpoint settings do not exist`);
+            const endpoints = safeLoad(oldEndpoints.endpoints);
+            endpoints.action_endpoint.url = actionsUrl;
+            return Endpoints.update({ projectId, environment: env }, { $set: { endpoints: safeDump(endpoints) } });
         },
     });
 }

@@ -32,7 +32,7 @@ describe('Training and deploy', function() {
         cy.contains('Webhooks').click();
         cy.get('div.column .segment.tab:nth-child(4) .input input').type('http://dummy.dummy');
 
-        cy.get('div.column .segment.tab:nth-child(4) [data-cy=save-global-settings]').click();
+        cy.get('div.column .segment.tab:nth-child(4) [data-cy=save-button]').click();
         cy.visit('/project/bf/settings');
         cy.contains('Project Info').click();
         cy.dataCy('deployment-environments')

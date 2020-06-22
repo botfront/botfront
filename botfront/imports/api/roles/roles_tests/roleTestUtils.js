@@ -14,6 +14,8 @@ export const roles = [
     'incoming:w',
     'analytics:r',
     'analytics:w',
+    'resources:r',
+    'resources:w',
     'projects:r',
     'projects:w',
     'global-settings:r',
@@ -137,6 +139,11 @@ export const writers = {
     ],
     projects: [
         'projects:w',
+        'resources:w',
+        'global-admin',
+    ],
+    resources: [
+        'resources:w',
         'global-admin',
     ],
     globalSettings: [

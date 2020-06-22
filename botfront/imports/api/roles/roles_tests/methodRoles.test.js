@@ -249,7 +249,12 @@ if (Meteor.isServer) {
         {
             name: 'project.update',
             roles: writers.projects,
-            args: [{ _id: projectId }],
+            args: [{ _id: projectId, deploymentEnvironments: [] }],
+        },
+        {
+            name: 'project.update',
+            roles: writers.resources,
+            args: [{ _id: projectId, deploymentEnvironments: ['staging'] }],
         },
         {
             name: 'project.delete',
@@ -516,7 +521,7 @@ if (Meteor.isServer) {
         }
     };
 
-    describe('check roles accepted by every method', () => {
+    describe.only('check roles accepted by every method', () => {
         methods.forEach((method) => {
             beforeEach((done) => {
                 if (method.before) {

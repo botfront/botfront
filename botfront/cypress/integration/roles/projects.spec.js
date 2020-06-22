@@ -16,6 +16,7 @@ describe('projects:r can access but not edit settings', () => {
         // project info tab
         cy.get('.project-name').find('input').should('have.value', 'myProject');
         cy.dataCy('language-selector').should('have.class', 'disabled');
+        cy.dataCy('deployment-evironments').should('not.exist');
         cy.dataCy('save-button').should('not.exist');
         // credentials tab
         cy.dataCy('project-settings-menu-credentials').click();
@@ -64,7 +65,8 @@ describe('projects:r can access but not edit settings', () => {
         cy.dataCy('port-project-menu').children('.item').should('have.length', 2);
         // endpoints tab
         cy.dataCy('project-settings-menu-endpoints').click();
-        cy.dataCy('ace-field').should('not.have.class', 'disabled');
+        cy.dataCy('webhook-url-field').should('have.class', 'disabled');
+        cy.dataCy('ace-field').should('not.exist');
         cy.dataCy('save-button').should('exist');
         // instances tab
         cy.dataCy('project-settings-menu-instances').click();
