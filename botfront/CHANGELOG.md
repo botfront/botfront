@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.25.0-ee.2](https://github.com/botfront/botfront/compare/v0.25.0-ee.1...v0.25.0-ee.2) (2020-06-22)
+
+
+### Bug Fixes
+
+* added test case to reproduce error ([9a42d97](https://github.com/botfront/botfront/commit/9a42d97faee9acc683e0d5aca570856e490da0a0))
+* analytics screen crash when switching projects ([1ed1e45](https://github.com/botfront/botfront/commit/1ed1e45e3c20a151271a44d37e0b28dbb6b7956e))
+* fixed test set name ([ad451cd](https://github.com/botfront/botfront/commit/ad451cde47888632b92b13156fe452c97380571b))
+* fixed whitescreen when switching project ([c555519](https://github.com/botfront/botfront/commit/c555519cf0d2ae83cbbfcb3473a939b9ff541d2b))
+
 ## [0.25.0-ee.1](https://github.com/botfront/botfront/compare/v0.24.3-ee.5...v0.25.0-ee.1) (2020-06-19)
 
 
