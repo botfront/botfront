@@ -274,7 +274,7 @@ function AnalyticsCard(props) {
                 </div>
             )}
             <span className='top-right-buttons'>
-                {!error && !loading && data[queryParams.queryName].length > 0 && (
+                {!error && !loading && data && data[queryParams.queryName].length > 0 && (
                     <Button
                         className='export-card-button'
                         data-cy='analytics-export-button'

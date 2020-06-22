@@ -255,6 +255,6 @@ export const getConversationsFunnel = async ({
     2 tracker store matched until step 2 of sequence
     1 tracker store matched until step 4 of sequence
     */
-    const arregationResult = await Conversations.aggregate(aggregation);
+    const arregationResult = await Conversations.aggregate(aggregation).allowDiskUse(true);
     return (fillVoidsAndReshape(arregationResult, selectedSequence));
 };
