@@ -204,7 +204,7 @@ class ProjectInfo extends React.Component {
                                 label='Deployment environments'
                                 info='Botfront will enable additional environments for your workflow'
                                 data-cy='deployment-environments'
-                                disable={!can('resources:r', project._id)}
+                                disabled={!can('resources:w', project._id)}
                             />
                             <Message
                                 size='tiny'
