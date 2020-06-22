@@ -39,19 +39,21 @@ const ChatDemo = (props) => {
 
     useEffect(
         () => Meteor.call('project.getChatProps', projectId, (err, res) => {
-            if (err) setError(err.code);
-            else setWidgetProps(res);
-            const initLang = 'lang' in queryParams
-                    && res.languages.some(({ value }) => value === queryParams.lang)
-                ? queryParams.lang
-                : res.defaultLanguage;
-            handleChangeLanguage(initLang);
+            if (err) setError(err.message);
+            else {
+                setWidgetProps(res);
+                const initLang = 'lang' in queryParams
+                        && res.languages.some(({ value }) => value === queryParams.lang)
+                    ? queryParams.lang
+                    : res.defaultLanguage;
+                handleChangeLanguage(initLang);
+            }
             setLoading(false);
         }),
         [],
     );
 
-    const renderError = () => <div>{error}</div>;
+    const renderError = () => <h1>{error}</h1>;
 
     const renderTopMenu = () => (
         <div className='side-by-side middle'>
@@ -66,8 +68,8 @@ const ChatDemo = (props) => {
             </ResponsiveAlternants>
             <ResponsiveAlternants cutoff={1000} as='span' className='large grey'>
                 <>
-                    You have been invited to test the&nbsp;
-                    <b>{widgetProps.projectName}</b> assistant.
+                    Try out the&nbsp;
+                    <b>{widgetProps.projectName}</b> assistant!
                 </>
                 <b>{widgetProps.projectName}</b>
             </ResponsiveAlternants>
@@ -110,13 +112,7 @@ const ChatDemo = (props) => {
     const render = () => (
         <>
             {renderTopMenu()}
-            <div
-                style={{
-                    height: 'calc(100vh - 105px)', // 60 + 15 * 3
-                    maxWidth: '700px',
-                    margin: '15px auto',
-                }}
-            >
+            <div className='widget-container'>
                 <Widget
                     interval={0}
                     initPayload={`/${widgetProps.initPayload}`}

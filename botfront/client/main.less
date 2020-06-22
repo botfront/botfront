@@ -101,19 +101,24 @@ html {
 .chat-demo-container {
     background-color: #f4f4f5;
     height: 100%;
-    padding: 15px;
     .rw-conversation-container {
         box-shadow: none;
     }
     .side-by-side.middle {
         height: 60px;
         text-align: center;
+        padding: 15px;
     }
     .grey, .ui.basic.button {
         color: #3b3b3b !important;
     }
     .pale-grey {
         color: grey;
+    }
+    .widget-container {
+        height: ~"calc(100vh - 75px)"; // 60 + 15 * 3
+        max-width: 700px;
+        margin: 15px auto;
     }
 }
 
