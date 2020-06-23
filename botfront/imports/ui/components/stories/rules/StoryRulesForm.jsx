@@ -11,7 +11,6 @@ import { eachTriggerValidators, hasTrigger } from '../../../../lib/storyRules.ut
 import { getModelField } from '../../../../lib/autoForm.utils';
 import OptionalField from '../../form_fields/OptionalField';
 import SelectField from '../../form_fields/SelectField';
-import ToggleField from '../../common/ToggleField';
 import { can } from '../../../../api/roles/roles';
 import URLIsSequence from './URLIsSequence';
 import ButtonSelectField from '../../form_fields/ButtonSelectField';
@@ -31,7 +30,7 @@ class RulesForm extends AutoForm {
         switch (field) {
         case 'eventListeners':
             return {
-                selector: '', event: null, once: false, visualization: 'none',
+                selector: '', event: null, visualization: 'none',
             };
         case 'url':
             return { partialMatch: true, path: '' };
@@ -121,7 +120,6 @@ function StoryRulesForm({
     const EventListenersSchema = new SimpleSchema({
         selector: { type: String, trim: true },
         event: { type: String, trim: true },
-        once: { type: Boolean, defaultValue: false },
         visualization: { type: String, defaultValue: 'none' },
     });
     
@@ -486,7 +484,6 @@ function StoryRulesForm({
                                                         },
                                                     ]}
                                                 />
-                                                <ToggleField name='once' label='Trigger only the first time this event occurs' />
                                             </NestField>
                                         </ListItemField>
                                     </ListField>
