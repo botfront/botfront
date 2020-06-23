@@ -98,6 +98,8 @@ export default class StoryVisualEditor extends React.Component {
         }
     };
 
+    getReadOnlyClass = () => ''
+
     renderAddLine = (rawIndex) => {
         const { lineInsertIndex } = this.state;
         const { story } = this.props;
