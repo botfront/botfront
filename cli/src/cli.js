@@ -55,7 +55,7 @@ program
     .option('--img-botfront-api <image:tag>', 'Image used by the botfront-api service')
     .option('--img-rasa <image:tag>', 'Image used by the Rasa service')
     .option('--ci', 'No spinners, no prompt confirmations')
-    .option('--no-mongo-auth', 'Do not use MongoDB authentication. The database will not be protected')
+    .option('--enable-mongo-auth', 'Set up MongoDB with password authentication.')
     .description('Create a new Botfront project.')
     .action(initCommand);
 
@@ -149,7 +149,6 @@ async function killAllCommand(cmd) {
         } catch (e) {
             failSpinner(spinner, e);
         }
-
     }
 }
 
