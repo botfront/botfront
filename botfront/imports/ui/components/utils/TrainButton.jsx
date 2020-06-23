@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Button, Popup } from 'semantic-ui-react';
+import { get } from 'lodash';
 import { wrapMeteorCallback } from './Errors';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Projects } from '../../../api/project/project.collection';
-
 
 class TrainButton extends React.Component {
     train = () => {
@@ -87,7 +87,7 @@ export default withTracker((props) => {
     let partialTrainning = false;
     if (ready) {
         status = Projects.findOne({ _id: projectId }, { field: { 'training.instanceStatus': 1 } });
-        status = status.training.instanceStatus;
+        status = get(status, 'training.instanceStatus', 'notReachable'); // if it is undefined we consider it not reachable
         storyGroups = StoryGroups.find({ projectId }, { field: { _id: 1 } }).fetch();
         selectedStoryGroups = storyGroups.filter(storyGroup => (storyGroup.selected));
         partialTrainning = selectedStoryGroups.length > 0;
