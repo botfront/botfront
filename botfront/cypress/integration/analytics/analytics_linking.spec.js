@@ -231,4 +231,15 @@ describe('link from analytics to conversations and apply filters', () => {
         cy.dataCy('intents-actions-filter').find('.and-or-order div.text').should('have.text', 'In order');
         cy.get(' .four > .ui ').should('have.text', 'actiontest2actiontest1');
     });
+    it('should link from a pie chart', () => {
+        cy.addConversationFromTemplate('bf', 'intent_test', 'intenttest');
+        cy.visit('/project/bf/analytics');
+        cy.dataCy('analytics-card').should('have.length', 6); // wait for the page to load
+        cy.dataCy('analytics-card').eq(2).find('[data-cy=pie-chart-button]').click();
+        cy.dataCy('analytics-card').eq(2).find('path').first()
+            .click({ force: true });
+        cy.dataCy('conversation-item').should('exist'); // wait for the page to load
+        cy.dataCy('intents-actions-filter').find('.label').should('have.length', 1); // wait for page to load
+        cy.get('.label').contains('intent_dummy').should('exist');
+    });
 });
