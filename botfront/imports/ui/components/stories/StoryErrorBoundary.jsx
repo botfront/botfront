@@ -1,30 +1,40 @@
 import { Message } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
+import CrashReportButton from '../utils/CrashReportButton';
 
 class StoryErrorBoundary extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { hasError: false };
+        this.state = { error: null };
     }
 
-    static getDerivedStateFromError() {
-        return { hasError: true };
-    }
-
-    componentDidCatch() {
-        // TODO: log error somewhere
+    componentDidCatch(...error) {
+        this.setState({ error });
     }
 
     render() {
-        const { hasError } = this.state;
-        if (hasError) {
+        const { error } = this.state;
+        if (error) {
             return (
                 <div className='story-error-wrapper'>
                     <Message
                         icon='warning'
                         header='Sorry, something went wrong with the story'
-                        content='Please try to refresh the page, if the problem persists, try editing the story in text mode.'
+                        content={(
+                            <>
+                                <p>
+                                    Please try to refresh the page. If the problem persists,
+                                    try editing the story in text mode.
+                                </p>
+                                <p>
+                                    Help the Botfront project by reporting the issue.
+                                </p>
+                                <p>
+                                    <CrashReportButton error={error} />
+                                </p>
+                            </>
+                        )}
                         negative
                     />
                 </div>

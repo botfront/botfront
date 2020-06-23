@@ -255,6 +255,9 @@ if (Meteor.isServer) {
                 defaultLanguage,
                 initPayload,
             };
+        async reportCrash(error) {
+            check(error, String);
+            return { reported: false };
         },
     });
 }
