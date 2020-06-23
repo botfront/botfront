@@ -18,7 +18,7 @@ import { can } from '../../../lib/scopes';
 import ContextualSaveMessage from './ContextualSaveMessage';
 import { ENVIRONMENT_OPTIONS } from '../constants.json';
 import restartRasa from './restartRasa';
-import WebhooksForm from '../admin/settings/WebhooksForm';
+import HttpRequestsForm from '../common/HttpRequestsForm';
 
 class Endpoints extends React.Component {
     constructor(props) {
@@ -59,7 +59,7 @@ class Endpoints extends React.Component {
 
     onSave = (endpoints) => {
         const newEndpoints = endpoints;
-        const { selectedEnvironment, webhook } = this.state;
+        const { selectedEnvironment } = this.state;
         const { projectId } = this.props;
         this.setState({ saving: true, showConfirmation: false });
         clearTimeout(this.sucessTimeout);
@@ -90,44 +90,34 @@ class Endpoints extends React.Component {
     }
 
 
-    handleWebhookSave = (value, callback) => {
+    handleActionEndpointSave = (value, callback) => {
         const { projectId } = this.props;
-        if (value.development) {
-            Meteor.call('actionsEndpoints.save', projectId, 'development', value.development.url, (...args) => {
-                callback(...args);
-                this.restartRasa();
-            });
+        const { selectedEnvironment } = this.state;
+        if (!value[selectedEnvironment]) {
+            callback(new Error('Actions server not saved'));
         }
-        if (value.staging && this.checkEnvironmentEnabled('staging')) {
-            Meteor.call('actionsEndpoints.save', projectId, 'staging', value.staging.url, (...args) => {
-                callback(...args);
-                this.restartRasa();
-            });
-        }
-        if (value.production && this.checkEnvironmentEnabled('production')) {
-            Meteor.call('actionsEndpoints.save', projectId, 'production', value.production.url, (...args) => {
-                callback(...args);
-                this.callRestartRasa();
-            });
-        }
+        Meteor.call('actionsEndpoints.save', projectId, selectedEnvironment, value[selectedEnvironment].url, (...args) => {
+            callback(...args);
+            this.restartRasa();
+        });
     }
 
     renderActionEndpoints = (saving, data, projectId) => {
         const { selectedEnvironment } = this.state;
         if (!data) return <></>;
         const endpointSettings = safeLoad(data.endpoints);
-        const webhooks = {
+        const urls = {
             [selectedEnvironment]: {
                 name: 'Actions Server',
                 url: endpointSettings.action_endpoint.url,
             },
         };
         return (
-            <WebhooksForm
+            <HttpRequestsForm
                 disableMethodField
-                onSave={this.handleWebhookSave}
+                onSave={this.handleActionEndpointSave}
                 editable={can('projects:w', projectId)}
-                webhooks={webhooks}
+                urls={urls}
             />
         );
     }
@@ -175,7 +165,7 @@ class Endpoints extends React.Component {
                             saved={saved}
                             saving={saving}
                             disabled={!!saving}
-                            onSave={(e) => { this.form.current.submit(); }}
+                            onSave={() => { this.form.current.submit(); }}
                             confirmText={webhook && webhook.url ? `Saving will restart the ${selectedEnvironment} rasa instance` : ''}
                         />
                     )}
@@ -223,7 +213,7 @@ class Endpoints extends React.Component {
         return (
             <>
                 {((!can('resources:w', projectId) && can('projects:w', projectId))
-                || (can('projects:r', projectId) && !can('resources:r', projectId)))
+                || !can('resources:r', projectId))
                 && this.renderActionEndpoints(saving, endpoints[selectedEnvironment], projectId)
                 }
                 {can('resources:r', projectId) && this.renderEndpoints(saving, endpoints[selectedEnvironment], projectId)}

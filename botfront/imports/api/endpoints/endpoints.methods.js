@@ -41,14 +41,14 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         'endpoints.save'(endpoints) {
-            checkIfCan('projects:w', endpoints.projectId);
+            checkIfCan('resources:w', endpoints.projectId);
             check(endpoints, Object);
             const endpointsBefore = Endpoints.findOne({ projectId: endpoints.projectId, _id: endpoints._id });
             auditLog('Saved endpoints', {
                 user: Meteor.user(),
                 projectId: endpoints.projectId,
                 type: 'updated',
-                operation: 'project-updated',
+                operation: 'endpoints-updated',
                 resId: endpoints.projectId,
                 after: { endpoints },
                 before: { endpoints: endpointsBefore },
@@ -65,7 +65,18 @@ if (Meteor.isServer) {
             if (!oldEndpoints) throw new Error(`${env} endpoint settings do not exist`);
             const endpoints = safeLoad(oldEndpoints.endpoints);
             endpoints.action_endpoint.url = actionsUrl;
-            return Endpoints.update({ projectId, environment: env }, { $set: { endpoints: safeDump(endpoints) } });
+            const update = { endpoints: safeDump(endpoints) };
+            auditLog('Saved endpoints', {
+                user: Meteor.user(),
+                projectId,
+                type: 'updated',
+                operation: 'endpoints-updated',
+                resId: projectId,
+                after: { endpoints: { ...oldEndpoints, ...update } },
+                before: { endpoints: oldEndpoints },
+                resType: 'project',
+            });
+            return Endpoints.update({ projectId, environment: env }, { $set: update });
         },
     });
 }

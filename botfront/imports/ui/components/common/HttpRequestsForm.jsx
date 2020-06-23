@@ -6,19 +6,19 @@ import {
     AutoForm, AutoField,
 } from 'uniforms-semantic';
 import { Divider } from 'semantic-ui-react';
-import SelectField from '../../form_fields/SelectField';
-import SaveButton from '../../utils/SaveButton';
-import { wrapMeteorCallback } from '../../utils/Errors';
+import SelectField from '../form_fields/SelectField';
+import SaveButton from '../utils/SaveButton';
+import { wrapMeteorCallback } from '../utils/Errors';
 
-function WebHooksForm(props) {
+function HttpRequestForm(props) {
     const {
-        onSave, webhooks, editable, disableMethodField, path,
+        onSave, urls, editable, disableMethodField, path,
     } = props;
     const [saved, setSaved] = useState(null);
     const [saving, setSaving] = useState(null);
     const schema = buildASTSchema(
         parse(`
-        type Webhook {
+        type request {
             name: String!
             url: String!
             ${!disableMethodField ? 'method: String!' : ''}
@@ -27,7 +27,7 @@ function WebHooksForm(props) {
         # This is required by buildASTSchema
         type Query { anything: ID }
     `),
-    ).getType('Webhook');
+    ).getType('request');
 
     const validator = () => { };
 
@@ -70,18 +70,18 @@ function WebHooksForm(props) {
             setSaved(key);
         }));
     };
-    return Object.keys(webhooks).map((k, i) => (
+    return Object.keys(urls).map((k, i) => (
         <>
-            {i > 0 && <Divider className='webhook-divider' />}
+            {i > 0 && <Divider className='url-divider' />}
             <AutoForm
-                model={webhooks[k]}
+                model={urls[k]}
                 schema={new GraphQLBridge(schema, validator, schemaData)}
                 onSubmit={data => handleSave(k, data)}
                 disabled={!editable}
-                key={`webhook-${i}`}
+                key={`url-${i}`}
             >
-                <h3>{webhooks[k].name}</h3>
-                <AutoField name='url' data-cy={webhooks[k].dataCy || 'webhook-url-field'} />
+                <h3>{urls[k].name}</h3>
+                <AutoField name='url' data-cy={urls[k].dataCy || 'url-field'} />
                 {!disableMethodField && <SelectField name='method' />}
                 <div className='side-by-side left'>
                     {editable && (
@@ -93,7 +93,7 @@ function WebHooksForm(props) {
     ));
 }
 
-WebHooksForm.propTypes = {
+HttpRequestForm.propTypes = {
     webhooks: PropTypes.object.isRequired,
     onSave: PropTypes.func.isRequired,
     editable: PropTypes.bool.isRequired,
@@ -101,9 +101,9 @@ WebHooksForm.propTypes = {
     path: PropTypes.string,
 };
 
-WebHooksForm.defaultProps = {
+HttpRequestForm.defaultProps = {
     path: '',
     disableMethodField: false,
 };
 
-export default WebHooksForm;
+export default HttpRequestForm;

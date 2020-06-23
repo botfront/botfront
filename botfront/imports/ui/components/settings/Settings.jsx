@@ -19,6 +19,7 @@ class Settings extends React.Component {
     getSettingsPanes = () => {
         const { projectId } = this.props;
         const canViewProjects = can('projects:r', projectId);
+        const canViewResources = can('resources:r', projectId);
         const panes = [
             {
                 menuItem: <Menu.Item data-cy='project-settings-menu-info' icon='info' content='Project Info' key='Project Info' />,
@@ -28,14 +29,16 @@ class Settings extends React.Component {
                 menuItem: <Menu.Item data-cy='project-settings-menu-credentials' icon='key' content='Credentials' key='Credentials' />,
                 render: () => <Tab.Pane><Credentials /></Tab.Pane>,
             },
+            ...(canViewResources ? [
+                {
+                    menuItem: <Menu.Item data-cy='project-settings-menu-instances' icon='server' content='Instance' key='Instances' />,
+                    render: () => <Tab.Pane><Instances /></Tab.Pane>,
+                },
+            ] : []),
             ...(canViewProjects ? [
                 {
                     menuItem: <Menu.Item data-cy='project-settings-menu-endpoints' icon='code' content='Endpoints' key='Endpoints' />,
                     render: () => <Tab.Pane><Endpoints /></Tab.Pane>,
-                },
-                {
-                    menuItem: <Menu.Item data-cy='project-settings-menu-instances' icon='server' content='Instance' key='Instances' />,
-                    render: () => <Tab.Pane><Instances /></Tab.Pane>,
                 },
                 {
                     menuItem: <Menu.Item data-cy='project-settings-menu-appearance' icon='eye' content='Appearance' key='Appearance' />,

@@ -16,7 +16,7 @@ import { GlobalSettingsSchema } from '../../../../api/globalSettings/globalSetti
 import AceField from '../../utils/AceField';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import { PageMenu } from '../../utils/Utils';
-import WebhooksForm from './WebhooksForm';
+import HttpRequestsForm from '../../common/HttpRequestsForm';
 import { can } from '../../../../lib/scopes';
 
 class Settings extends React.Component {
@@ -180,10 +180,10 @@ class Settings extends React.Component {
                 menuItem: 'Webhooks',
                 render: () => (
                     <Tab.Pane>
-                        <WebhooksForm
+                        <HttpRequestsForm
                             onSave={this.onSave}
                             path='settings.private.webhooks.'
-                            webhooks={get(settings, 'settings.private.webhooks', {})}
+                            urls={get(settings, 'settings.private.webhooks', {})}
                             editable={can('global-settings:w')}
                         />
                     </Tab.Pane>

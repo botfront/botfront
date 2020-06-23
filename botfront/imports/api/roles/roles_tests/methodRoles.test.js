@@ -85,8 +85,13 @@ if (Meteor.isServer) {
         },
         {
             name: 'endpoints.save',
-            roles: writers.projects,
+            roles: writers.resources,
             args: [{ projectId }],
+        },
+        {
+            name: 'actionsEndpoints.save',
+            roles: writers.projects,
+            args: [projectId],
         },
         {
             name: 'settings.save',
@@ -111,7 +116,7 @@ if (Meteor.isServer) {
         },
         {
             name: 'instance.update',
-            roles: writers.projects,
+            roles: writers.resources,
             args: [{ projectId }],
         },
         {
@@ -521,7 +526,7 @@ if (Meteor.isServer) {
         }
     };
 
-    describe.only('check roles accepted by every method', () => {
+    describe('check roles accepted by every method', () => {
         methods.forEach((method) => {
             beforeEach((done) => {
                 if (method.before) {

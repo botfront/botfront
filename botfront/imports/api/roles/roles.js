@@ -106,9 +106,9 @@ if (Meteor.isServer) {
         );
         Roles.addRolesToParent(['projects:r', 'nlu-data:x', 'analytics:w', 'incoming:w', 'triggers:w', 'stories:w', 'responses:w', 'nlu-data:w'], 'projects:w');
 
-        createRole('resources:r', 'Can access project deployment environment and endpoint settings');
+        createRole('resources:r', 'Can access project deployment environment, instance, and endpoint settings. Inherits projects:r');
         Roles.addRolesToParent('projects:r', 'resources:r');
-        createRole('resources:w', 'Can access and edit project deployment environment, and endpoint settings');
+        createRole('resources:w', 'Can access and edit project deployment environment, instance, and endpoint settings. extends `projects:w`, `resources:r`');
         Roles.addRolesToParent(['projects:w', 'resources:r'], 'resources:w');
 
         createRole('global-settings:r', 'Can access global settings.');

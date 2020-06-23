@@ -79,6 +79,11 @@ export const readers = {
         'projects:r',
         'global-admin',
     ],
+    resources: [
+        'global-admin',
+        'resources:r',
+        'resources:w',
+    ],
     stories: [
         'stories:r',
         'stories:w',
