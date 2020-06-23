@@ -16,11 +16,16 @@ export default class ErrorBoundary extends React.Component {
 
     renderError = () => {
         const { error } = this.state;
-        const { children: { props: { location: { pathname = '' } = {} } = {} } = {} } = this.props;
+        const {
+            children: { props: { location: { pathname = '' } = {} } = {} } = {},
+        } = this.props;
         return (
             <Container style={{ height: '100%', display: 'flex', alignItems: 'center' }}>
                 <div>
-                    <Header as='h1' style={{ fontFamily: 'Hind, sans-serif', fontSize: '160px' }}>
+                    <Header
+                        as='h1'
+                        style={{ fontFamily: 'Hind, sans-serif', fontSize: '160px' }}
+                    >
                         Oops!
                         <Header.Subheader style={{ marginTop: '10px' }}>
                             Something went wrong. Sorry about that.
@@ -30,13 +35,16 @@ export default class ErrorBoundary extends React.Component {
                         Help the Botfront project by reporting the issue.
                     </p>
                     <p>
-                        <CrashReportButton error={error} pathname={pathname} />
+                        <CrashReportButton
+                            error={error}
+                            pathname={pathname}
+                        />
                     </p>
                     <Link to='/'>&#8617; home</Link>
                 </div>
             </Container>
         );
-    }
+    };
 
     render() {
         const { error } = this.state;
