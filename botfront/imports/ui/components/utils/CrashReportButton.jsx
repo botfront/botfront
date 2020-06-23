@@ -5,21 +5,28 @@ import { Button } from 'semantic-ui-react';
 const { version } = require('/package.json');
 
 const CrashReportButton = (props) => {
-    const { error, pathname } = props;
+    const { error, pathname: path } = props;
     const [reported, setReported] = useState(false);
 
-    const generateReport = () => {
+    const generateReport = (text = true) => {
         const [err, info] = error;
-        const report = (
-            `Version: ${version}\n`
-            + `${pathname ? `Path: ${pathname}\n` : ''}`
-            + `Trace: ${err.toString()}`
-            + `${info.componentStack || ''}`
-        );
-        return report;
+        if (text) {
+            return (
+                `Version: ${version}\n`
+                + `${path ? `Path: ${path}\n` : ''}`
+                + `Trace: ${err.toString()}`
+                + `${info.componentStack || ''}`
+            );
+        }
+        return ({
+            version,
+            path,
+            error: err.toString().replace(/\n/g, ' '),
+            trace: info.componentStack || '',
+        });
     };
 
-    useEffect(() => Meteor.call('reportCrash', generateReport(), (_, res) => {
+    useEffect(() => Meteor.call('reportCrash', generateReport(false), (_, res) => {
         if (res.reported) setReported(res.reported);
     }), []);
 
