@@ -37,6 +37,7 @@ describe('branches', function() {
             .focus()
             .wait(50)
             .type('xxx', { force: true })
+            .wait(100)
             .blur();
         cy.visit('/project/bf/stories'); // reload page
         cy.browseToStory();

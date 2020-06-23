@@ -37,6 +37,7 @@ describe('Story play button', function() {
         cy.browseToStory('Test Story', 'Test Group');
         cy.dataCy('story-title').should('have.value', 'Test Story');
         cy.dataCy('play-story').click();
+        cy.get('span.rw-loading').should('not.exist');
         cy.dataCy('chat-pane').find('p').contains('utter_play_success');
     });
     it('should disable the play button when a story does not start with a user utterance', () => {
