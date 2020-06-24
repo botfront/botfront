@@ -293,7 +293,7 @@ const eventListenerTriggerExistsA = [
     {
         text: 'text',
         trigger: {
-            eventListeners: [{ once: false, selector: 'test', event: 'mouseover' }],
+            eventListeners: [{ selector: 'test', event: 'mouseover' }],
         },
         payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },

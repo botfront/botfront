@@ -48,6 +48,8 @@ export const hasTrigger = trigger => (
             if (!trigger[key] && trigger[key] !== 0) return false;
             if (!triggerValidators[key]) return false;
             if (trigger[`${key}__DISPLAYIF`] === false) return false;
+            if (key === 'triggerLimit') return false;
+            if (key === 'timeLimit') return false;
             return triggerValidators[key](trigger[key]);
         })
 );

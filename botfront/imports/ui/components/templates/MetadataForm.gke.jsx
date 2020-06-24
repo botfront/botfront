@@ -18,6 +18,7 @@ import IntentField from '../form_fields/IntentField';
 import InfoField from '../utils/InfoField';
 import ToggleField from '../common/ToggleField';
 import DisplayIf from '../DisplayIf';
+import ButtonSelectField from '../form_fields/ButtonSelectField';
 
 
 import {
@@ -139,16 +140,19 @@ function ResponseMetadataForm({
             allowedValues: ['default', 'class', 'custom'],
             options: [
                 {
-                    text: 'Use default',
+                    text: 'Default style',
                     value: 'default',
+                    description: 'Use the default highlight appearance',
                 },
                 {
-                    text: 'Use an existing css class',
+                    text: 'Existing class',
                     value: 'class',
+                    description: 'Specify a CSS class to apply to the element when it is highlighted',
                 },
                 {
-                    text: 'Specify custom css style',
+                    text: 'Custom style',
                     value: 'custom',
+                    description: 'Create a custom style for this highlight',
                 },
             ],
         },
@@ -157,12 +161,14 @@ function ResponseMetadataForm({
             allowedValues: ['class', 'custom'],
             options: [
                 {
-                    text: 'Use an existing css class',
+                    text: 'Existing class',
                     value: 'class',
+                    description: 'Apply a CSS class to this response',
                 },
                 {
-                    text: 'Specify custom css style',
+                    text: 'Custom style',
                     value: 'custom',
+                    description: 'Create a custom style for this response',
                 },
             ],
         },
@@ -177,7 +183,7 @@ function ResponseMetadataForm({
                     <DisplayIf condition={context => context.model.domHighlight && context.model.domHighlight.enabled}>
                         <>
                             <InfoField name='domHighlight.selector' label='CSS selector' info='The CSS selector of the DOM element to highlight' />
-                            <SelectField name='domHighlight.style' />
+                            <ButtonSelectField name='domHighlight.style' />
                             
                             <DisplayIf condition={context => context.model.domHighlight && context.model.domHighlight.style === 'class'}>
                                 <AutoField name='domHighlight.css' label='Class name' />
@@ -255,7 +261,7 @@ function ResponseMetadataForm({
                     <ToggleField name='customCss.enabled' className='toggle' label='Enable custom message style' />
                     <DisplayIf condition={context => context.model.customCss && context.model.customCss.enabled}>
                         <>
-                            <SelectField name='customCss.style' data-cy='style-dropdown' />
+                            <ButtonSelectField name='customCss.style' data-cy='style-dropdown' />
                             <DisplayIf condition={context => context.model.customCss && context.model.customCss.style === 'custom'}>
                                 <LongTextField className='monospaced' name='customCss.css' label='Custom CSS' data-cy='custom-message-css' />
                             </DisplayIf>

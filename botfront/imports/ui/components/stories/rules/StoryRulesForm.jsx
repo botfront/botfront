@@ -11,27 +11,29 @@ import { eachTriggerValidators, hasTrigger } from '../../../../lib/storyRules.ut
 import { getModelField } from '../../../../lib/autoForm.utils';
 import OptionalField from '../../form_fields/OptionalField';
 import SelectField from '../../form_fields/SelectField';
-import ToggleField from '../../common/ToggleField';
 import { can } from '../../../../api/roles/roles';
 import URLIsSequence from './URLIsSequence';
+import ButtonSelectField from '../../form_fields/ButtonSelectField';
 
 
 class RulesForm extends AutoForm {
-    resetOptionalArray = (keyArray, fieldName) => {
-        const eventListenersValueKey = [...keyArray];
-        eventListenersValueKey[eventListenersValueKey.length - 1] = fieldName;
+    resetOptionalArray = (displayIfPath, fieldName) => {
+        const resetPath = [...displayIfPath];
+        resetPath[resetPath.length - 1] = fieldName;
         super.onChange(
-            eventListenersValueKey.join('.'),
-            getModelField(eventListenersValueKey.join('.'), this.props.model) || [],
+            resetPath.join('.'),
+            getModelField(resetPath.join('.'), this.props.model) || [],
         );
     }
 
     getDefaultValue = (field) => {
         switch (field) {
         case 'eventListeners':
-            return { selector: '', event: null, once: false };
+            return {
+                selector: '', event: null, visualization: 'none',
+            };
         case 'url':
-            return '';
+            return { partialMatch: true, path: '' };
         case 'queryString':
             return { value: '', param: '', value__DISPLAYIF: true };
         default:
@@ -55,21 +57,8 @@ class RulesForm extends AutoForm {
         const keyArray = key.split('.');
         const fieldName = keyArray[keyArray.length - 1]; // the last value is the name of the edited field
 
-        if (fieldName === 'timeOnPage__DISPLAYIF' && value === true) {
-            // disabled the eventListener field when timeOnPage is enabled
-            const eventListenersBoolKey = [...keyArray];
-            eventListenersBoolKey[eventListenersBoolKey.length - 1] = 'eventListeners__DISPLAYIF';
-            super.onChange(eventListenersBoolKey.join('.'), false);
-            this.resetOptionalArray(keyArray, 'eventListeners');
-        }
-        if (fieldName === 'eventListeners__DISPLAYIF' && value === true) {
-            // disabled the timeOnPage field when eventListener field is enabled
-            const timeOnPageBoolKey = [...keyArray];
-            timeOnPageBoolKey[timeOnPageBoolKey.length - 1] = 'timeOnPage__DISPLAYIF';
-            super.onChange(timeOnPageBoolKey.join('.'), false);
-        }
         if (fieldName === 'sendAsEntity') {
-            // This one hide or shows the value for the query string depending on the value of sendAsEntity
+            // This one hides or shows the value for the query string depending on the value of sendAsEntity
             const valueDisplayIfKey = [...keyArray];
             valueDisplayIfKey[valueDisplayIfKey.length - 1] = 'value__DISPLAYIF';
             super.onChange(valueDisplayIfKey.join('.'), !value === true);
@@ -109,6 +98,9 @@ class RulesForm extends AutoForm {
             case 'queryString__DISPLAYIF':
                 this.resetOptionalArray(keyArray, 'queryString');
                 break;
+            case 'url__DISPLAYIF':
+                this.resetOptionalArray(keyArray, 'url');
+                break;
             default:
                 break;
             }
@@ -128,7 +120,7 @@ function StoryRulesForm({
     const EventListenersSchema = new SimpleSchema({
         selector: { type: String, trim: true },
         event: { type: String, trim: true },
-        once: { type: Boolean, defaultValue: false },
+        visualization: { type: String, defaultValue: 'none' },
     });
     
     const QueryStringSchema = new SimpleSchema({
@@ -353,15 +345,15 @@ function StoryRulesForm({
                 <ListAddField name='rules.$' className='add-trigger-field' />
                 <ListField name='rules' label=''>
                     <ListItemField name='$'>
-                        <NestField>
+                        <NestField name=''>
                             <AutoField name='trigger' label='Conditions'>
-                                <SelectField
+                                <ButtonSelectField
                                     name='when'
                                     label='When should this event be triggered?'
                                     options={[
-                                        { value: 'always', text: 'Always' },
-                                        { value: 'init', text: 'Only if no conversation has started' },
-                                        { value: 'limited', text: 'Choose a limit' },
+                                        { value: 'always', description: 'Always' },
+                                        { value: 'init', description: 'Only if no conversation has started' },
+                                        { value: 'limited', description: 'Limit the number of times the rule will trigger' },
                                     ]}
                                 />
 
@@ -383,10 +375,10 @@ function StoryRulesForm({
                                     />
                                 </OptionalField>
                                 <OptionalField name='url' label='Trigger based on browsing history' getError={getEnabledError}>
-                                    <URLIsSequence />
+                                    <URLIsSequence name='' />
                                     <ListField name=''>
                                         <ListItemField name='$'>
-                                            <NestField>
+                                            <NestField name=''>
                                                 <AutoField
                                                     name='path'
                                                 />
@@ -423,7 +415,7 @@ function StoryRulesForm({
                                 >
                                     <ListField name='' data-cy='query-string-field'>
                                         <ListItemField name='$'>
-                                            <NestField>
+                                            <NestField name=''>
                                                 <AutoField name='param' />
                                                 <OptionalField name='value' getError={getEnabledError} showToggle={false}>
                                                     <AutoField name='' />
@@ -448,7 +440,7 @@ function StoryRulesForm({
                                 <OptionalField name='eventListeners' label='Trigger based on user actions' data-cy='toggle-event-listeners' getError={getEnabledError}>
                                     <ListField name=''>
                                         <ListItemField name='$'>
-                                            <NestField>
+                                            <NestField name=''>
                                                 <AutoField name='selector' label='CSS selector' />
                                                 <SelectField
                                                     name='event'
@@ -467,7 +459,31 @@ function StoryRulesForm({
                                                         { value: 'focusout', text: 'focusout' },
                                                     ]}
                                                 />
-                                                <ToggleField name='once' label='Trigger only the first time this event occurs' />
+                                                <ButtonSelectField
+                                                    name='visualization'
+                                                    label='Show interactivity with'
+                                                    options={[
+                                                        {
+                                                            value: 'none',
+                                                            text: 'Nothing',
+                                                        },
+                                                        {
+                                                            value: 'questionMark',
+                                                            text: 'Question mark',
+                                                            description: 'Add a question mark to the top right of the target element',
+                                                        },
+                                                        {
+                                                            value: 'pulsating',
+                                                            text: 'Pulse',
+                                                            description: 'The entire element will pulsate',
+                                                        },
+                                                        {
+                                                            value: 'pulsatingDot',
+                                                            text: 'Pulsating dot',
+                                                            description: 'Add a pulsating circle to the top right of the target element',
+                                                        },
+                                                    ]}
+                                                />
                                             </NestField>
                                         </ListItemField>
                                     </ListField>
