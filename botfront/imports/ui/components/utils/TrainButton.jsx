@@ -65,7 +65,7 @@ renderButton = (project, instance, popupContent, status, partialTrainning) => (
                         color='grey'
                         size='large'
                         link
-                        style={{ marginBottom: '5px' }}
+                        style={{ margin: '0 0 5px 5px' }}
                     />
                 )}
                 hoverable
