@@ -131,7 +131,9 @@ class ProjectInfo extends React.Component {
     );
 
     render() {
-        const { project, modelLanguages, ready } = this.props;
+        const {
+            project, modelLanguages, ready,
+        } = this.props;
         const { saving, value } = this.state;
         const hasWritePermission = can('projects:w', project._id);
         const bridge = new SimpleSchema2Bridge(ProjectsSchema);
@@ -195,19 +197,22 @@ class ProjectInfo extends React.Component {
                             data-cy='change-nlu-threshold'
                         />
                         <br />
-
-                        <InfoField
-                            name='deploymentEnvironments'
-                            label='Deployment environments'
-                            info='Botfront will enable additional environments for your workflow'
-                            data-cy='deployment-environments'
-                        />
-                        <Message
-                            size='tiny'
-                            info
-                            content='If you remove all environments, all stories will be published'
-                        />
-
+                        {can('resources:r', project._id) && (
+                        <>
+                            <InfoField
+                                name='deploymentEnvironments'
+                                label='Deployment environments'
+                                info='Botfront will enable additional environments for your workflow'
+                                data-cy='deployment-environments'
+                                disabled={!can('resources:w', project._id)}
+                            />
+                            <Message
+                                size='tiny'
+                                info
+                                content='If you remove all environments, all stories will be published'
+                            />
+                        </>
+                        )}
                         <AutoField
                             step='0.5'
                             name='timezoneOffset'

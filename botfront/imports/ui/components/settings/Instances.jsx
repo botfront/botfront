@@ -27,7 +27,7 @@ class Instances extends React.Component {
 
     componentDidMount() {
         const { projectId } = this.props;
-        if (can('projects:w', projectId)) {
+        if (can('resources:w', projectId)) {
             Meteor.call('getRestartRasaWebhook', projectId, wrapMeteorCallback((err, result) => {
                 if (err) return;
                 const webhook = get(result, 'settings.private.webhooks.restartRasaWebhook', {});
@@ -53,7 +53,7 @@ class Instances extends React.Component {
             ready, instance, projectId,
         } = this.props;
         const { webhook } = this.state;
-        const hasWritePermission = can('projects:w', projectId);
+        const hasWritePermission = can('resources:w', projectId);
         return (
             <>
                 {ready && (

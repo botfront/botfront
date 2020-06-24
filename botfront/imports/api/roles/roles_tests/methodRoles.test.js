@@ -85,8 +85,13 @@ if (Meteor.isServer) {
         },
         {
             name: 'endpoints.save',
-            roles: writers.projects,
+            roles: writers.resources,
             args: [{ projectId }],
+        },
+        {
+            name: 'actionsEndpoints.save',
+            roles: writers.projects,
+            args: [projectId],
         },
         {
             name: 'settings.save',
@@ -111,7 +116,7 @@ if (Meteor.isServer) {
         },
         {
             name: 'instance.update',
-            roles: writers.projects,
+            roles: writers.resources,
             args: [{ projectId }],
         },
         {
@@ -249,7 +254,12 @@ if (Meteor.isServer) {
         {
             name: 'project.update',
             roles: writers.projects,
-            args: [{ _id: projectId }],
+            args: [{ _id: projectId, deploymentEnvironments: [] }],
+        },
+        {
+            name: 'project.update',
+            roles: writers.resources,
+            args: [{ _id: projectId, deploymentEnvironments: ['staging'] }],
         },
         {
             name: 'project.delete',

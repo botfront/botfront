@@ -28,6 +28,7 @@ describe('global settings read permissions', () => {
         cy.get('div.ui.vertical.menu a.item').each((item) => {
             cy.wrap(item).click();
             cy.dataCy('save-global-settings').should('not.exist');
+            cy.dataCy('save-button').should('not.exist');
         });
     });
     

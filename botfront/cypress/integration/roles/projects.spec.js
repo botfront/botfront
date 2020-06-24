@@ -16,6 +16,7 @@ describe('projects:r can access but not edit settings', () => {
         // project info tab
         cy.get('.project-name').find('input').should('have.value', 'myProject');
         cy.dataCy('language-selector').should('have.class', 'disabled');
+        cy.dataCy('deployment-evironments').should('not.exist');
         cy.dataCy('save-button').should('not.exist');
         // credentials tab
         cy.dataCy('project-settings-menu-credentials').click();
@@ -31,12 +32,11 @@ describe('projects:r can access but not edit settings', () => {
         cy.dataCy('port-project-menu').find('.item').first().should('have.text', 'Export');
         // endpoints tab
         cy.dataCy('project-settings-menu-endpoints').click();
-        cy.dataCy('ace-field').should('have.class', 'disabled');
+        cy.dataCy('ace-field').should('not.exist');
+        cy.dataCy('url-field').should('have.class', 'disabled');
         cy.dataCy('save-button').should('not.exist');
         // instances tab
-        cy.dataCy('project-settings-menu-instances').click();
-        cy.get('.field').should('have.class', 'disabled');
-        cy.dataCy('save-instance').should('not.exist');
+        cy.dataCy('project-settings-menu-instances').should('not.exist');
         // remove test user
         cy.removeDummyRoleAndUser();
     });
@@ -64,12 +64,9 @@ describe('projects:r can access but not edit settings', () => {
         cy.dataCy('port-project-menu').children('.item').should('have.length', 2);
         // endpoints tab
         cy.dataCy('project-settings-menu-endpoints').click();
-        cy.dataCy('ace-field').should('not.have.class', 'disabled');
+        cy.dataCy('url-field').should('exist');
+        cy.dataCy('ace-field').should('not.exist');
         cy.dataCy('save-button').should('exist');
-        // instances tab
-        cy.dataCy('project-settings-menu-instances').click();
-        cy.get('.field').should('not.have.class', 'disabled');
-        cy.dataCy('save-instance').should('exist');
         // remove user
         cy.removeDummyRoleAndUser('test@test.test', 'projects:w');
     });

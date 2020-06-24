@@ -6,6 +6,7 @@ import { cloneDeep, get } from 'lodash';
 import React from 'react';
 import { Menu } from 'semantic-ui-react';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
+import { safeLoad } from 'js-yaml';
 import { Endpoints as EndpointsCollection } from '../../../api/endpoints/endpoints.collection';
 import { Projects as ProjectsCollection } from '../../../api/project/project.collection';
 import { EndpointsSchema } from '../../../api/endpoints/endpoints.schema';
@@ -17,6 +18,7 @@ import { can } from '../../../lib/scopes';
 import ContextualSaveMessage from './ContextualSaveMessage';
 import { ENVIRONMENT_OPTIONS } from '../constants.json';
 import restartRasa from './restartRasa';
+import HttpRequestsForm from '../common/HttpRequestsForm';
 
 class Endpoints extends React.Component {
     constructor(props) {
@@ -47,9 +49,17 @@ class Endpoints extends React.Component {
         clearTimeout(this.sucessTimeout);
     }
 
+    callRestartRasa = () => {
+        const { selectedEnvironment, webhook } = this.state;
+        const { projectId } = this.props;
+        if (selectedEnvironment && webhook && webhook.url) {
+            restartRasa(projectId, webhook, selectedEnvironment);
+        }
+    }
+
     onSave = (endpoints) => {
         const newEndpoints = endpoints;
-        const { selectedEnvironment, webhook } = this.state;
+        const { selectedEnvironment } = this.state;
         const { projectId } = this.props;
         this.setState({ saving: true, showConfirmation: false });
         clearTimeout(this.sucessTimeout);
@@ -70,15 +80,52 @@ class Endpoints extends React.Component {
                 }
             }),
         );
-        if (selectedEnvironment && webhook && webhook.url) {
-            restartRasa(projectId, webhook, selectedEnvironment);
-        }
+        this.callRestartRasa();
     };
+
+    checkEnvironmentEnabled = (environment) => {
+        const { projectSettings } = this.props;
+        if (environment === 'development') return true;
+        return projectSettings.deploymentEnvironments.includes(environment);
+    }
+
+
+    handleActionEndpointSave = (value, callback) => {
+        const { projectId } = this.props;
+        const { selectedEnvironment } = this.state;
+        if (!value[selectedEnvironment]) {
+            callback(new Error('Actions server not saved'));
+        }
+        Meteor.call('actionsEndpoints.save', projectId, selectedEnvironment, value[selectedEnvironment].url, (...args) => {
+            callback(...args);
+            this.restartRasa();
+        });
+    }
+
+    renderActionEndpoints = (saving, data, projectId) => {
+        const { selectedEnvironment } = this.state;
+        if (!data) return <></>;
+        const endpointSettings = safeLoad(data.endpoints);
+        const urls = {
+            [selectedEnvironment]: {
+                name: 'Actions Server',
+                url: endpointSettings.action_endpoint.url,
+            },
+        };
+        return (
+            <HttpRequestsForm
+                disableMethodField
+                onSave={this.handleActionEndpointSave}
+                editable={can('projects:w', projectId)}
+                urls={urls}
+            />
+        );
+    }
 
     renderEndpoints = (saving, endpoints, projectId) => {
         const { saved, showConfirmation, selectedEnvironment } = this.state;
         const { orchestrator, webhook } = this.props;
-        const hasWritePermission = can('projects:w', projectId);
+        const hasWritePermission = can('resources:w', projectId);
         return (
             <AutoForm
                 key={selectedEnvironment}
@@ -118,7 +165,7 @@ class Endpoints extends React.Component {
                             saved={saved}
                             saving={saving}
                             disabled={!!saving}
-                            onSave={(e) => { this.form.current.submit(); }}
+                            onSave={() => { this.form.current.submit(); }}
                             confirmText={webhook && webhook.url ? `Saving will restart the ${selectedEnvironment} rasa instance` : ''}
                         />
                     )}
@@ -163,32 +210,36 @@ class Endpoints extends React.Component {
     renderContents = () => {
         const { endpoints, projectId } = this.props;
         const { selectedEnvironment, saving } = this.state;
-        return this.renderEndpoints(saving, endpoints[selectedEnvironment], projectId);
+        return (
+            <>
+                {((!can('resources:w', projectId) && can('projects:w', projectId))
+                || !can('resources:r', projectId))
+                && this.renderActionEndpoints(saving, endpoints[selectedEnvironment], projectId)
+                }
+                {can('resources:r', projectId) && this.renderEndpoints(saving, endpoints[selectedEnvironment], projectId)}
+            </>
+        );
     }
 
     render() {
-        const { ready } = this.props;
         const { projectSettings } = this.props;
-        if (ready) {
-            const isMultipleTabs = projectSettings.deploymentEnvironments && projectSettings.deploymentEnvironments.length > 0;
-            if (isMultipleTabs) {
-                return (
-                    <>
-                        <Menu secondary pointing data-cy='endpoints-environment-menu'>
-                            {this.renderMenu()}
-                        </Menu>
-                        {this.renderContents()}
-                    </>
-                );
-            }
+        const isMultipleTabs = projectSettings.deploymentEnvironments && projectSettings.deploymentEnvironments.length > 0;
+        if (isMultipleTabs) {
             return (
                 <>
-                    <h4 data-cy='endpoints-environment-menu'>Development</h4>
+                    <Menu secondary pointing data-cy='endpoints-environment-menu'>
+                        {this.renderMenu()}
+                    </Menu>
                     {this.renderContents()}
                 </>
             );
         }
-        return this.renderLoading();
+        return (
+            <>
+                <h4 data-cy='endpoints-environment-menu'>Development</h4>
+                {this.renderContents()}
+            </>
+        );
     }
 }
 
@@ -198,12 +249,14 @@ Endpoints.propTypes = {
     ready: PropTypes.bool.isRequired,
     orchestrator: PropTypes.string,
     projectSettings: PropTypes.object,
+    webhook: PropTypes.object,
 };
 
 Endpoints.defaultProps = {
     endpoints: {},
     orchestrator: '',
     projectSettings: {},
+    webhook: null,
 };
 
 

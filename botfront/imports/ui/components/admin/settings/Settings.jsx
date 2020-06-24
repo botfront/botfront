@@ -16,7 +16,7 @@ import { GlobalSettingsSchema } from '../../../../api/globalSettings/globalSetti
 import AceField from '../../utils/AceField';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import { PageMenu } from '../../utils/Utils';
-import WebhooksForm from './WebhooksForm';
+import HttpRequestsForm from '../../common/HttpRequestsForm';
 import { can } from '../../../../lib/scopes';
 
 class Settings extends React.Component {
@@ -25,12 +25,15 @@ class Settings extends React.Component {
         this.state = { saving: false };
     }
 
-    onSave = (settings) => {
+    onSave = (settings, callback = () => {}) => {
         this.setState({ saving: true });
         Meteor.call(
             'settings.save',
             settings,
-            wrapMeteorCallback(() => this.setState({ saving: false }), 'Settings saved'),
+            wrapMeteorCallback((...args) => {
+                this.setState({ saving: false });
+                callback(...args);
+            }, 'Settings saved'),
         );
     };
 
@@ -173,7 +176,19 @@ class Settings extends React.Component {
                 menuItem: 'Default default domain',
                 render: this.renderDefaultDefaultDomain,
             },
-            { menuItem: 'Webhooks', render: () => WebhooksForm({ onSave: this.onSave, webhooks: get(settings, 'settings.private.webhooks', {}) }) },
+            {
+                menuItem: 'Webhooks',
+                render: () => (
+                    <Tab.Pane>
+                        <HttpRequestsForm
+                            onSave={this.onSave}
+                            path='settings.private.webhooks.'
+                            urls={get(settings, 'settings.private.webhooks', {})}
+                            editable={can('global-settings:w')}
+                        />
+                    </Tab.Pane>
+                ),
+            },
             { menuItem: 'Security', render: this.renderSecurityPane },
             { menuItem: 'Appearance', render: this.renderAppearance },
             { menuItem: 'Misc', render: this.renderMisc },

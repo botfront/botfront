@@ -14,6 +14,8 @@ export const roles = [
     'incoming:w',
     'analytics:r',
     'analytics:w',
+    'resources:r',
+    'resources:w',
     'projects:r',
     'projects:w',
     'global-settings:r',
@@ -40,6 +42,8 @@ export const readers = {
         'global-admin',
         'projects:w',
         'projects:r',
+        'resources:r',
+        'resources:w',
     ],
     responses: [
         'responses:r',
@@ -55,6 +59,8 @@ export const readers = {
         'global-admin',
         'projects:w',
         'projects:r',
+        'resources:r',
+        'resources:w',
     ],
     incoming: [
         'incoming:r',
@@ -64,6 +70,8 @@ export const readers = {
         'global-admin',
         'projects:w',
         'projects:r',
+        'resources:r',
+        'resources:w',
     ],
     analytics: [
         'analytics:r',
@@ -71,11 +79,20 @@ export const readers = {
         'global-admin',
         'projects:w',
         'projects:r',
+        'resources:r',
+        'resources:w',
     ],
     projects: [
         'projects:w',
         'projects:r',
         'global-admin',
+        'resources:r',
+        'resources:w',
+    ],
+    resources: [
+        'global-admin',
+        'resources:r',
+        'resources:w',
     ],
     stories: [
         'stories:r',
@@ -89,6 +106,8 @@ export const readers = {
         'global-admin',
         'projects:w',
         'projects:r',
+        'resources:r',
+        'resources:w',
     ],
     roles: [
         'roles:r',
@@ -113,22 +132,26 @@ export const writers = {
     nluData: [
         'nlu-data:w',
         'incoming:w',
+        'resources:w',
         'projects:w',
         'global-admin',
     ],
     responses: [
         'responses:w',
+        'resources:w',
         'projects:w',
         'global-admin',
     ],
     incoming: [
         'incoming:w',
+        'resources:w',
         'projects:w',
         'global-admin',
     ],
     analytics: [
         'analytics:w',
         'global-admin',
+        'resources:w',
         'projects:w',
     ],
     roles: [
@@ -136,7 +159,12 @@ export const writers = {
         'global-admin',
     ],
     projects: [
+        'resources:w',
         'projects:w',
+        'global-admin',
+    ],
+    resources: [
+        'resources:w',
         'global-admin',
     ],
     globalSettings: [
@@ -145,11 +173,13 @@ export const writers = {
     ],
     stories: [
         'stories:w',
+        'resources:w',
         'projects:w',
         'global-admin',
     ],
     triggers: [
         'triggers:w',
+        'resources:w',
         'projects:w',
         'global-admin',
     ],
@@ -163,6 +193,7 @@ export const otherRoles = {
     nluDataX: [
         'nlu-data:x',
         'projects:w',
+        'resources:w',
         'global-admin',
     ],
 };
