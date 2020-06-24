@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.25.0-ee.3](https://github.com/botfront/botfront/compare/v0.25.0-ee.2...v0.25.0-ee.3) (2020-06-24)
+
+
+### Features
+
+* choose tooltip placement ([f30d0fa](https://github.com/botfront/botfront/commit/f30d0fa3c4fe58dbd3e9fd163790cfa973edba34))
+* choose tooltip placement ([da38957](https://github.com/botfront/botfront/commit/da38957ea62471c849251def3f73e6ac9f5da93b))
+* resource role ([8a5bfe9](https://github.com/botfront/botfront/commit/8a5bfe962ac13f95b6d875a862a7eb814b59b4d8))
+* trigger visualization option ([fc68ed2](https://github.com/botfront/botfront/commit/fc68ed2fd4c2084ef18a032cf3b98d8035b9c968))
+* **story-triggers:** visualization option ([6874c71](https://github.com/botfront/botfront/commit/6874c715a220ef91c591577547b36dc0574cb253))
+* resources:r/w role for editing endpoints ([8efbc68](https://github.com/botfront/botfront/commit/8efbc681361b2063b905e8753ccc1ecf9e3bfc8d))
+
+
+### Bug Fixes
+
+* prevent the saving of incomplete triggers ([bedefad](https://github.com/botfront/botfront/commit/bedefada0da5b5798ee0d2d510bd07423bb30192))
+
 ## [0.25.0-ee.2](https://github.com/botfront/botfront/compare/v0.25.0-ee.1...v0.25.0-ee.2) (2020-06-22)
 
 
