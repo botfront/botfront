@@ -7,7 +7,7 @@ import CrashReportButton from './utils/CrashReportButton';
 export default class ErrorBoundary extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { error: null };
+        this.state = { error: null, reported: false };
     }
 
     componentDidCatch(...error) {
@@ -15,7 +15,7 @@ export default class ErrorBoundary extends React.Component {
     }
 
     renderError = () => {
-        const { error } = this.state;
+        const { error, reported } = this.state;
         const {
             children: { props: { location: { pathname = '' } = {} } = {} } = {},
         } = this.props;
@@ -32,12 +32,16 @@ export default class ErrorBoundary extends React.Component {
                         </Header.Subheader>
                     </Header>
                     <p>
-                        Help the Botfront project by reporting the issue.
+                        {reported
+                            ? 'We\'re working on it!'
+                            : 'Help the Botfront project by reporting the issue.'}
                     </p>
                     <p>
                         <CrashReportButton
-                            error={error}
                             pathname={pathname}
+                            error={error}
+                            reported={reported}
+                            onLoad={rep => this.setState({ reported: rep })}
                         />
                     </p>
                     <Link to='/'>&#8617; home</Link>

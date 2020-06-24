@@ -6,7 +6,7 @@ import CrashReportButton from '../utils/CrashReportButton';
 class StoryErrorBoundary extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { error: null };
+        this.state = { error: null, reported: false };
     }
 
     componentDidCatch(...error) {
@@ -14,7 +14,7 @@ class StoryErrorBoundary extends React.Component {
     }
 
     render() {
-        const { error } = this.state;
+        const { error, reported } = this.state;
         if (error) {
             return (
                 <div className='story-error-wrapper'>
@@ -24,14 +24,20 @@ class StoryErrorBoundary extends React.Component {
                         content={(
                             <>
                                 <p>
-                                    Please try to refresh the page. If the problem persists,
-                                    try editing the story in text mode.
+                                    Please try to refresh the page. If the problem
+                                    persists, try editing the story in text mode.
                                 </p>
                                 <p>
-                                    Help the Botfront project by reporting the issue.
+                                    {reported
+                                        ? 'We\'re working on it!'
+                                        : 'Help the Botfront project by reporting the issue.'}
                                 </p>
                                 <p>
-                                    <CrashReportButton error={error} />
+                                    <CrashReportButton
+                                        error={error}
+                                        reported={reported}
+                                        onLoad={rep => this.setState({ reported: rep })}
+                                    />
                                 </p>
                             </>
                         )}

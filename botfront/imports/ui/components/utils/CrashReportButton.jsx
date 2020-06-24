@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'semantic-ui-react';
 
@@ -37,8 +37,9 @@ Add any other context about the problem here.
 `;
 
 const CrashReportButton = (props) => {
-    const { error, pathname: path } = props;
-    const [reported, setReported] = useState(false);
+    const {
+        error, pathname: path, setReported, reported,
+    } = props;
 
     const generateReport = (text = true) => {
         const [err, info] = error;
@@ -106,10 +107,14 @@ const CrashReportButton = (props) => {
 CrashReportButton.propTypes = {
     error: PropTypes.array.isRequired,
     pathname: PropTypes.string,
+    reported: PropTypes.bool,
+    setReported: PropTypes.func,
 };
 
 CrashReportButton.defaultProps = {
     pathname: null,
+    reported: false,
+    setReported: () => {},
 };
 
 export default CrashReportButton;
