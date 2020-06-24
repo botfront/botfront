@@ -43,11 +43,13 @@ const CrashReportButton = (props) => {
 
     const generateReport = (text = true) => {
         const [err, info] = error;
+        const method = err.stack.split('\n')[0].replace(/@.*/, '').replace(/.*\//, '');
         if (text) {
             return (
                 `Version: ${version}\n`
                 + `${path ? `Path: ${path}\n` : ''}`
-                + `Trace: ${err.toString()}`
+                + `Trace: ${err.toString()}\n`
+                + `    in ${method}`
                 + `${info.componentStack || ''}`
             );
         }
@@ -56,9 +58,8 @@ const CrashReportButton = (props) => {
             path,
             error: err.toString().replace(/\n/g, ' '),
             trace:
-                (info.componentStack || '')
+                (`${method}${info.componentStack || ''}`)
                     .replace(/\n\s{3,4}in\s/g, ' >> ')
-                    .replace(' >> ', '')
                     .split(' >> '),
         };
     };

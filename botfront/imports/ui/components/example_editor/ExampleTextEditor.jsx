@@ -183,7 +183,7 @@ export class ExampleTextEditor extends React.Component {
     }
 
     highLightEntitiesInText = () => {
-        const { example: { entities, text } = {} } = this.state;
+        const { example: { entities = [], text } = {} } = this.state;
         const sortedEntities = sortBy(entities.filter(e => !e.extractor || e.extractor === 'ner_crf'), 'start');
         const spans = [];
         sortedEntities.forEach((e, i) => {
