@@ -156,14 +156,14 @@ function ResponseMetadataForm({
         },
         'domHighlight.tooltipPlacement': {
             label: 'where should the tooltip be placed in relation to the highlighted element',
-            initialValue: 'right',
+            initialValue: 'auto',
             allowedValues: ['left', 'right', 'top', 'bottom', 'auto'],
             options: [
+                { text: 'auto', value: 'auto' },
                 { text: 'left', value: 'left' },
                 { text: 'right', value: 'right' },
                 { text: 'top', value: 'top' },
                 { text: 'bottom', value: 'bottom' },
-                { text: 'auto', value: 'auto' },
             ],
         },
         'customCss.style': {
