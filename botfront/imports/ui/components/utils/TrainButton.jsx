@@ -65,7 +65,6 @@ renderButton = (project, instance, popupContent, status, partialTrainning) => (
                         color='grey'
                         size='large'
                         link
-                        style={{ margin: '0 0 5px 5px' }}
                     />
                 )}
                 hoverable
@@ -102,7 +101,7 @@ renderButton = (project, instance, popupContent, status, partialTrainning) => (
         } = this.props;
         return (
             ready && (
-                <div>
+                <div className='side-by-side middle'>
                     {this.renderButton(project, instance, popupContent, status, partialTrainning)}
                     {this.renderShareLink()}
                 </div>
