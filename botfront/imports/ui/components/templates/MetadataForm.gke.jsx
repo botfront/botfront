@@ -13,6 +13,7 @@ import {
 import { cloneDeep } from 'lodash';
 import { can } from '../../../lib/scopes';
 
+import ButtonSelectField from '../form_fields/ButtonSelectField';
 import SelectField from '../form_fields/SelectField';
 import IntentField from '../form_fields/IntentField';
 import InfoField from '../utils/InfoField';
@@ -105,6 +106,7 @@ function ResponseMetadataForm({
         style: String!
         selector: String
         css: String
+        tooltipPlacement: String
     }
 
     type CustomCss {
@@ -133,7 +135,7 @@ function ResponseMetadataForm({
         pageEventCallbacks: null,
     };
 
-    const schemaDataAdvanved = {
+    const schemaDataAdvanced = {
         ...schemaData,
         'domHighlight.style': {
             initialValue: 'default',
@@ -154,6 +156,18 @@ function ResponseMetadataForm({
                     value: 'custom',
                     description: 'Create a custom style for this highlight',
                 },
+            ],
+        },
+        'domHighlight.tooltipPlacement': {
+            label: 'where should the tooltip be placed in relation to the highlighted element',
+            initialValue: 'auto',
+            allowedValues: ['left', 'right', 'top', 'bottom', 'auto'],
+            options: [
+                { text: 'auto', value: 'auto' },
+                { text: 'left', value: 'left' },
+                { text: 'right', value: 'right' },
+                { text: 'top', value: 'top' },
+                { text: 'bottom', value: 'bottom' },
             ],
         },
         'customCss.style': {
@@ -191,6 +205,7 @@ function ResponseMetadataForm({
                             <DisplayIf condition={context => context.model.domHighlight && context.model.domHighlight.style === 'custom'}>
                                 <LongTextField className='monospaced' name='domHighlight.css' label='Custom css' />
                             </DisplayIf>
+                            <ButtonSelectField name='domHighlight.tooltipPlacement' />
                         </>
                     </DisplayIf>
                 </div>
@@ -401,7 +416,7 @@ function ResponseMetadataForm({
                 autosave
                 autosaveDelay={250}
                 model={displayModel}
-                schema={new GraphQLBridge(schema, validator, schemaDataAdvanved)}
+                schema={new GraphQLBridge(schema, validator, schemaDataAdvanced)}
                 onSubmit={model => onChange(postProcess(model))}
                 disabled={!can('responses:w', projectId)}
             >
