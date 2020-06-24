@@ -13,13 +13,13 @@ export const isTraining = (project) => {
         training,
         training: {
             startTime,
-            status,
+            instanceStatus,
         } = {},
     } = project;
     if (!training) {
         return false;
     }
-    const statusOk = status === 'training' && moment().diff(moment(startTime), 'minutes') < 30;
+    const statusOk = instanceStatus === 'training' && moment().diff(moment(startTime), 'minutes') < 30;
     const timeStampOk = moment().diff(moment(startTime), 'minutes') < 30;
     if (statusOk && !timeStampOk) { // something went wrong and training timed out
         Meteor.call('project.markTrainingStopped', projectId, 'failure', 'training timed out');
