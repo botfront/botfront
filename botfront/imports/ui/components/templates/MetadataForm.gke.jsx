@@ -19,7 +19,6 @@ import IntentField from '../form_fields/IntentField';
 import InfoField from '../utils/InfoField';
 import ToggleField from '../common/ToggleField';
 import DisplayIf from '../DisplayIf';
-import ButtonSelectField from '../form_fields/ButtonSelectField';
 
 
 import {
