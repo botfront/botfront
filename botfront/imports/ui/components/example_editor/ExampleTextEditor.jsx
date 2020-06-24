@@ -13,7 +13,8 @@ export class ExampleTextEditor extends React.Component {
         super(props);
         this.inputSelectionRef = null; // reference to the parent of the example text input
         this.selectionAnchorRef = null; // reference to the example text input
-        this.state = {};
+        const { example } = props;
+        this.state = { example };
     }
 
     componentDidMount() {
