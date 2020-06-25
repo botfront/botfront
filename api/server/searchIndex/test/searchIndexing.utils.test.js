@@ -17,10 +17,8 @@ describe('## Story indexing', () => {
     it('should index the story', () => {
         const result = indexStory(storyFixture);
         expect(result).to.be.deep.equal({
-            textIndex: {
-                contents: 'hello \n helpOptions \n how_are_you \n mood positive \n utter_hello \n utter_tXd-Pm66 \n utter_Xywmv8uc \n utter_hwZIDQ5P \n utter_0H5XEC9h \n action_help \n mood',
-                info: 'Welcome Story',
-            },
+            contents: 'hello \n helpOptions \n how_are_you \n mood positive \n utter_hello \n utter_tXd-Pm66 \n utter_Xywmv8uc \n utter_hwZIDQ5P \n utter_0H5XEC9h \n action_help \n mood',
+            info: 'Welcome Story',
         });
     });
 });
