@@ -31,9 +31,13 @@ export class ExampleTextEditor extends React.Component {
         }
     }
 
-    componentDidUpdate(_, prevState) {
-        const { example } = this.props;
-        if (prevState.example !== example) this.setExample(example);
+    componentDidUpdate(prevProps) {
+        const { example } = this.state;
+        const { example: exampleFromProps } = this.props;
+        const { example: exampleFromPrevProps } = prevProps;
+        if (exampleFromProps !== exampleFromPrevProps && exampleFromProps !== example) {
+            this.setExample(exampleFromProps);
+        }
     }
 
     componentWillUnmount() {

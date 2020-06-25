@@ -18,9 +18,13 @@ export default class NLUExampleTester extends React.Component {
         }, 300);
     }
 
-    componentDidUpdate(_, prevState) {
-        const { text } = this.props;
-        if (prevState.text !== text) this.setText(text);
+    componentDidUpdate(prevProps) {
+        const { text } = this.state;
+        const { text: textFromProps } = this.props;
+        const { text: textFromPrevProps } = prevProps;
+        if (textFromProps !== textFromPrevProps && textFromProps !== text) {
+            this.setText(textFromProps);
+        }
     }
 
     setText = text => this.setState({ text }, this.debouncedFunction());
