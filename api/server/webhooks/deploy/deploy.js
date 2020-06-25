@@ -99,8 +99,8 @@ exports.deployModel = async function (req, res) {
     const { bucket: imagesBucket, error: imagesError, status: imagesStatus } = await getImagesBucket(projectId, req)
     const { bucket: modelsBucket, error: modelsError, status: modelsStatus } = await getModelsBucket(projectId, req)
 
-    if (imagesError) return res.status(imagesStatus).json({ imagesError });
-    if (modelsError) return res.status(modelsStatus).json({ modelsError });
+    if (imagesError) return res.status(imagesStatus).json({ message: imagesError });
+    if (modelsError) return res.status(modelsStatus).json({ message: modelsError });
 
     const name = `${projectId}-${namespace}-${environment}`
     const filename = `/tmp/trained-model-${name}.tar.gz`;
