@@ -23,7 +23,7 @@ function PieChart(props) {
         }));
     
     const handleOnClick = (target) => {
-        linkToConversations(target);
+        linkToConversations(target, data);
     };
 
     return (
