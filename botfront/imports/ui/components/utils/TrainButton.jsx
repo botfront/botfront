@@ -12,7 +12,7 @@ import { wrapMeteorCallback } from './Errors';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Projects } from '../../../api/project/project.collection';
 import { ProjectContext } from '../../layouts/context';
-import { can } from '../../../lib/scopes';
+import { can, Can } from '../../../lib/scopes';
 
 
 class TrainButton extends React.Component {
@@ -241,7 +241,9 @@ renderButton = (instance, popupContent, status, partialTrainning) => (
         return (
             ready && (
                 <div className='side-by-side middle'>
-                    {this.renderButton(instance, popupContent, status, partialTrainning)}
+                    <Can I='nlu-data:x'>
+                        {this.renderButton(instance, popupContent, status, partialTrainning)}
+                    </Can>
                     {this.renderShareLink()}
                 </div>
             )
