@@ -62,6 +62,7 @@ renderButton = (project, instance, popupContent, status, partialTrainning) => (
                 trigger={(
                     <Icon
                         name='mail forward'
+                        data-cy='share-bot'
                         color='grey'
                         size='large'
                         link
@@ -73,6 +74,7 @@ renderButton = (project, instance, popupContent, status, partialTrainning) => (
                         <Checkbox
                             toggle
                             checked={enableSharing}
+                            data-cy='toggle-bot-sharing'
                             onChange={() => Meteor.call(
                                 'project.setEnableSharing',
                                 projectId,
@@ -84,7 +86,7 @@ renderButton = (project, instance, popupContent, status, partialTrainning) => (
                         {enableSharing && (
                             <p>
                                 <br />
-                                <button type='button' className='link-like' onClick={this.copyToClipboard}>
+                                <button type='button' className='link-like' data-cy='copy-sharing-link' onClick={this.copyToClipboard}>
                                     <Icon name='linkify' /> Copy link
                                 </button>
                             </p>
