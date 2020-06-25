@@ -6,7 +6,12 @@ import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { createInstance } from '../instances/instances.methods';
 import { Instances } from '../instances/instances.collection';
 import Activity from '../graphql/activity/activity.model';
-import { getAllTrainingDataGivenProjectIdAndLanguage, setsAreIdentical, formatError } from '../../lib/utils';
+import {
+    getAllTrainingDataGivenProjectIdAndLanguage,
+    setsAreIdentical,
+    formatError,
+    getLanguagesFromProjectId,
+} from '../../lib/utils';
 import { CorePolicies, createPolicies } from '../core_policies';
 import { createEndpoints } from '../endpoints/endpoints.methods';
 import { Endpoints } from '../endpoints/endpoints.collection';
@@ -33,7 +38,11 @@ if (Meteor.isServer) {
 
     export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain({ stories, slots, crashOnStoryWithErrors: false }));
 
-    export const getExamplesFromTrainingData = (trainingData, startIntents = [], startEntities = []) => {
+    export const getExamplesFromTrainingData = (
+        trainingData,
+        startIntents = [],
+        startEntities = [],
+    ) => {
         /*  input: training data and optional initial arrays of intents and entities
             output: {
                 entities: [entityName, ...]
@@ -63,12 +72,17 @@ if (Meteor.isServer) {
             .sort((a, b) => b.canonical || false - a.canonical || false)
             .forEach((ex) => {
                 const exEntities = (ex.entities || []).map(en => en.entity);
-                entities = entities.concat(exEntities.filter(en => !entities.includes(en)));
+                entities = entities.concat(
+                    exEntities.filter(en => !entities.includes(en)),
+                );
                 if (!Object.keys(intents).includes(ex.intent)) intents[ex.intent] = [];
-                if (!intents[ex.intent].some(ex2 => setsAreIdentical(ex2.entities, exEntities))) {
+                if (
+                    !intents[ex.intent].some(ex2 => setsAreIdentical(ex2.entities, exEntities))
+                ) {
                     intents[ex.intent].push({ entities: exEntities, example: ex });
                 }
             });
+
         return { intents, entities };
     };
 
@@ -135,7 +149,10 @@ if (Meteor.isServer) {
             check(projectId, String);
             check(options, Object);
             const { failSilently } = options;
-            const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
+            const project = Projects.findOne(
+                { _id: projectId },
+                { fields: { nlu_models: 1 } },
+            );
 
             try {
                 if (!project) throw new Meteor.Error('Project not found');
@@ -149,7 +166,7 @@ if (Meteor.isServer) {
                 CorePolicies.remove({ projectId: project._id }); // Delete Core Policies
                 Credentials.remove({ projectId: project._id }); // Delete credentials
                 Endpoints.remove({ projectId: project._id }); // Delete endpoints
-                Conversations.remove({ projectId: project._id });// Delete Conversations
+                Conversations.remove({ projectId: project._id }); // Delete Conversations
                 StoryGroups.remove({ projectId });
                 Stories.remove({ projectId });
                 Slots.remove({ projectId });
@@ -176,7 +193,7 @@ if (Meteor.isServer) {
             check(projectId, String);
             try {
                 const projectBefore = Projects.findOne({ _id: projectId });
-                const result = Projects.update({ _id: projectId }, { $set: { training: { status: 'training', startTime: new Date() } } });
+                const result = Projects.update({ _id: projectId }, { $set: { training: { instanceStatus: 'training', startTime: new Date() } } });
                 const projectAfter = Projects.findOne({ _id: projectId });
                 auditLog('Marked trainning as started', {
                     user: Meteor.user(),
@@ -201,7 +218,7 @@ if (Meteor.isServer) {
             check(error, Match.Optional(String));
 
             try {
-                const set = { training: { status, endTime: new Date() } };
+                const set = { training: { status, instanceStatus: 'notTraining', endTime: new Date() } };
                 if (error) {
                     set.training.message = error;
                 }
@@ -235,15 +252,27 @@ if (Meteor.isServer) {
                 const {
                     intents: intentSetFromDomain = [],
                     entities: entitiesSetFromDomain = [],
-                } = stories.length !== 0 ? extractDomainFromStories(
-                    stories
-                        .reduce((acc, story) => [...acc, ...flattenStory(story)], [])
-                        .map(story => story.story || ''),
-                    slots,
-                ) : {};
-                const trainingData = getAllTrainingDataGivenProjectIdAndLanguage(projectId, language);
-                
-                return getExamplesFromTrainingData(trainingData, intentSetFromDomain, entitiesSetFromDomain);
+                } = stories.length !== 0
+                    ? extractDomainFromStories(
+                        stories
+                            .reduce(
+                                (acc, story) => [...acc, ...flattenStory(story)],
+                                [],
+                            )
+                            .map(story => story.story || ''),
+                        slots,
+                    )
+                    : {};
+                const trainingData = getAllTrainingDataGivenProjectIdAndLanguage(
+                    projectId,
+                    language,
+                );
+
+                return getExamplesFromTrainingData(
+                    trainingData,
+                    intentSetFromDomain,
+                    entitiesSetFromDomain,
+                );
             } catch (error) {
                 throw error;
             }
@@ -280,7 +309,10 @@ if (Meteor.isServer) {
             checkIfCan(['nlu-data:r', 'responses:r'], projectId);
             check(projectId, String);
             try {
-                const { defaultLanguage } = Projects.findOne({ _id: projectId }, { fields: { defaultLanguage: 1 } });
+                const { defaultLanguage } = Projects.findOne(
+                    { _id: projectId },
+                    { fields: { defaultLanguage: 1 } },
+                );
                 return defaultLanguage;
             } catch (error) {
                 throw error;
@@ -362,6 +394,58 @@ if (Meteor.isServer) {
             };
 
             return requestedSlot;
+        },
+        
+        async 'project.setEnableSharing'(projectId, enableSharing) {
+            check(projectId, String);
+            check(enableSharing, Boolean);
+            return Projects.update(
+                { _id: projectId },
+                { $set: { enableSharing } },
+            );
+        },
+
+        async 'project.getChatProps'(projectId) {
+            check(projectId, String);
+
+            const {
+                chatWidgetSettings: { initPayload = 'get_started' } = {},
+                enableSharing,
+                name: projectName,
+                defaultLanguage,
+            } = Projects.findOne(
+                { _id: projectId },
+                {
+                    chatWidgetSettings: 1, enableSharing: 1, name: 1, defaultLanguage: 1,
+                },
+            );
+
+            if (!enableSharing) { throw new Meteor.Error(403, `Sharing not enabled for project '${projectName}'.`); }
+
+            const query = {
+                $or: [
+                    { projectId, environment: { $exists: false } },
+                    { projectId, environment: 'development' },
+                ],
+            };
+            let { credentials = '' } = Credentials.findOne(query, { credentials: 1 }) || {};
+            credentials = yamlLoad(credentials);
+            const channel = Object.keys(credentials).find(k => ['WebchatInput', 'WebchatPlusInput'].some(c => k.includes(c)));
+            if (!channel) { throw new Meteor.Error(404, `No credentials found for project '${projectName}'.`); }
+            const { base_url: socketUrl, socket_path: socketPath } = credentials[channel];
+
+            const languages = (await getLanguagesFromProjectId(projectId, true)) || [];
+
+            if (!languages.length) { throw new Meteor.Error(404, `No languages found for project '${projectName}'.`); }
+
+            return {
+                projectName,
+                socketUrl,
+                socketPath,
+                languages,
+                defaultLanguage,
+                initPayload,
+            };
         },
     });
 }

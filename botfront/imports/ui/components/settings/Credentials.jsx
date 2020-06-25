@@ -14,7 +14,6 @@ import ChangesSaved from '../utils/ChangesSaved';
 import SaveButton from '../utils/SaveButton';
 import AceField from '../utils/AceField';
 import { can } from '../../../lib/scopes';
-import ContextualSaveMessage from './ContextualSaveMessage';
 import { ENVIRONMENT_OPTIONS } from '../constants.json';
 import restartRasa from './restartRasa';
 
@@ -77,8 +76,9 @@ class Credentials extends React.Component {
     }
 
     renderCredentials = (saving, credentials, projectId, environment) => {
-        const { saved, showConfirmation, selectedEnvironment } = this.state;
-        const { orchestrator, webhook } = this.props;
+        const {
+            saved, showConfirmation, selectedEnvironment, webhook,
+        } = this.state;
         const hasWritePermission = can('projects:w', projectId);
         return (
             <AutoForm
@@ -104,13 +104,7 @@ class Credentials extends React.Component {
                     <ChangesSaved
                         onDismiss={() => this.setState({ saved: false, showConfirmation: false })}
                         content={(
-                            <p>
-                                {orchestrator === 'docker-compose' && (
-                                    <span>
-                                        <ContextualSaveMessage selectedEnvironment={selectedEnvironment} />
-                                    </span>
-                                )}
-                            </p>
+                            <p />
                         )}
                     />
                 )}
@@ -120,7 +114,7 @@ class Credentials extends React.Component {
                             saved={saved}
                             saving={saving}
                             disabled={!!saving}
-                            onSave={(e) => { this.form.current.submit(); }}
+                            onSave={() => { this.form.current.submit(); }}
                             confirmText={webhook && webhook.url ? `Saving will restart the ${selectedEnvironment} rasa instance` : ''}
                         />
                     )}
@@ -195,13 +189,10 @@ Credentials.propTypes = {
     credentials: PropTypes.object,
     projectSettings: PropTypes.object,
     ready: PropTypes.bool.isRequired,
-    orchestrator: PropTypes.string,
-
 };
 
 Credentials.defaultProps = {
     projectSettings: {},
-    orchestrator: '',
     credentials: {},
 };
 
@@ -231,7 +222,6 @@ const CredentialsContainer = withTracker(({ projectId }) => {
         ready: (handler.ready() && handlerproj.ready()),
         credentials,
         projectSettings,
-        webhook: {},
     };
 })(Credentials);
 

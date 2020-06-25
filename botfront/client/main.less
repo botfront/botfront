@@ -95,11 +95,42 @@
     outline: none;
 }
 
+.link-like {
+    color: @blue;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
 html {
     overflow: hidden;
     height: 100%;
     font-size: @emSize !important;
     font-family: @fontFamily !important;
+}
+
+.chat-demo-container {
+    text-align: center;
+    background-color: #f4f4f5;
+    height: 100%;
+    .rw-conversation-container {
+        box-shadow: none;
+    }
+    .side-by-side.middle {
+        height: 60px;
+        padding: 15px;
+    }
+    .grey, .ui.basic.button {
+        color: #3b3b3b !important;
+    }
+    .pale-grey {
+        color: grey;
+    }
+    .widget-container {
+        height: ~"calc(100vh - 75px)"; // 60 + 15 * 3
+        max-width: 700px;
+        margin: 15px auto;
+    }
 }
 
 body {
@@ -122,6 +153,9 @@ h3 {
 span {
     &.small {
         font-size: small;
+    }
+    &.large {
+        font-size: x-large;
     }
     &.grey {
         color: grey;
@@ -302,6 +336,9 @@ p.overflow {
     }
     &.white {
         background: #fff none !important;
+    }
+    &.transparent {
+        background: transparent none !important;
     }
 }
 

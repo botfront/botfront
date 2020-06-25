@@ -68,12 +68,12 @@ export const ProjectsSchema = new SimpleSchema({
     timezoneOffset: {
         type: Number, defaultValue: 0, min: -22, max: 22,
     },
+    enableSharing: { type: Boolean, defaultValue: false },
     defaultLanguage: { type: String, allowedValues: Object.keys(languages) },
     createdAt: { type: Date, optional: true },
     disabled: { type: Boolean, defaultValue: false, index: 1 },
     nlu_models: { type: Array, defaultValue: [] },
     'nlu_models.$': { type: String },
-    responsesUpdatedAt: { type: SimpleSchema.Integer, optional: true },
     updatedAt: {
         type: Date,
         optional: true,
@@ -81,7 +81,8 @@ export const ProjectsSchema = new SimpleSchema({
         index: -1,
     },
     training: { type: Object, optional: true },
-    'training.status': { type: String, allowedValues: ['training', 'success', 'failure'] },
+    'training.status': { type: String, allowedValues: ['success', 'failure'], optional: true },
+    'training.instanceStatus': { type: String, allowedValues: ['training', 'notTraining', 'notReachable'], optional: true },
     'training.startTime': { type: Date, optional: true },
     'training.endTime': { type: Date, optional: true },
     'training.message': { type: String, optional: true },

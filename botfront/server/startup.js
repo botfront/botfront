@@ -3,9 +3,12 @@ import { Accounts } from 'meteor/accounts-base';
 import dotenv from 'dotenv';
 import { createGraphQLPublication } from 'meteor/swydo:ddp-apollo';
 import { makeExecutableSchema } from '@graphql-tools/schema';
+import axios from 'axios';
+import { get } from 'lodash';
 import { typeDefs, resolvers } from '../imports/api/graphql/index';
 import { getAppLoggerForFile } from './logger';
-
+import { Projects } from '../imports/api/project/project.collection';
+import { Instances } from '../imports/api/instances/instances.collection';
 
 const fileAppLogger = getAppLoggerForFile(__filename);
 
@@ -47,6 +50,32 @@ Meteor.startup(function() {
             300000,
         );
 
+
         fileAppLogger.info(`Botfront ${packageInfo.version} started`);
+        Meteor.setInterval(async () => {
+            try {
+                const instancesInfo = await Instances.find();
+                const newStatuses = await Promise.all(instancesInfo.map(async (instance) => {
+                    let instanceState;
+                    try {
+                        const data = await axios.get(`${instance.host}/status`);
+                        instanceState = get(data, 'data.num_active_training_jobs', -1);
+                    } catch {
+                        instanceState = -1;
+                    }
+                    if (instanceState >= 1) return { status: 'training', projectId: instance.projectId };
+                    if (instanceState === 0) return { status: 'notTraining', projectId: instance.projectId };
+                    if (instanceState === -1) return { status: 'notReachable', projectId: instance.projectId };
+                }));
+                newStatuses.forEach((status) => {
+                    Projects.update({ _id: status.projectId }, { $set: { 'training.instanceStatus': status.status } });
+                });
+            } catch (e) {
+                // eslint-disable-next-line no-console
+                console.log(e);
+                // eslint-disable-next-line no-console
+                console.log('Something went wrong while trying to get the rasa status');
+            }
+        }, 10000); // run every 10 seconds == 10000 msec
     }
 });

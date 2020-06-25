@@ -79,4 +79,10 @@ if (Meteor.isServer) {
         if (!can('stories:r', projectId)) return this.ready();
         return Projects.find({ _id: projectId }, { fields: { allowContextualQuestions: 1 } });
     });
+
+    Meteor.publish('training.status', function (projectId) {
+        check(projectId, String);
+       
+        return Projects.find({ projectId }, { fields: { 'training.instanceStatus': 1 } });
+    });
 }

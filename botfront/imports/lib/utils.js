@@ -130,8 +130,8 @@ if (Meteor.isServer) {
                 const { status, data: responseData } = response;
                 return { status, data: responseData };
             } catch (e) {
-                // eslint-disable-next-line no-console
                 // if we console log the error here, it will write the image/model as a string, and the error message will be too bike and unusable.
+                // eslint-disable-next-line no-console
                 console.log('ERROR: Botfront encountered an error while calling a webhook');
                 return { status: 500, data: e.response.data };
             }
@@ -192,7 +192,7 @@ export const getModelIdsFromProjectId = projectId => (Projects.findOne({ _id: pr
 
 // used from outside botfront
 // -permission- add check with apikey
-export const getLanguagesFromProjectId = projectId => getNluModelLanguages(getModelIdsFromProjectId(projectId));
+export const getLanguagesFromProjectId = (projectId, asOptions = false) => getNluModelLanguages(getModelIdsFromProjectId(projectId), asOptions);
 
 export const getAllTrainingDataGivenProjectIdAndLanguage = (projectId, language) => {
     const nluModelIds = getModelIdsFromProjectId(projectId);

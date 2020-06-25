@@ -15,7 +15,6 @@ import ChangesSaved from '../utils/ChangesSaved';
 import SaveButton from '../utils/SaveButton';
 import AceField from '../utils/AceField';
 import { can } from '../../../lib/scopes';
-import ContextualSaveMessage from './ContextualSaveMessage';
 import { ENVIRONMENT_OPTIONS } from '../constants.json';
 import restartRasa from './restartRasa';
 import HttpRequestsForm from '../common/HttpRequestsForm';
@@ -123,8 +122,9 @@ class Endpoints extends React.Component {
     }
 
     renderEndpoints = (saving, endpoints, projectId) => {
-        const { saved, showConfirmation, selectedEnvironment } = this.state;
-        const { orchestrator, webhook } = this.props;
+        const {
+            saved, showConfirmation, selectedEnvironment, webhook,
+        } = this.state;
         const hasWritePermission = can('resources:w', projectId);
         return (
             <AutoForm
@@ -149,13 +149,7 @@ class Endpoints extends React.Component {
                     <ChangesSaved
                         onDismiss={() => this.setState({ saved: false, showConfirmation: false })}
                         content={(
-                            <p>
-                                {orchestrator === 'docker-compose' && (
-                                    <span>
-                                        <ContextualSaveMessage selectedEnvironment={selectedEnvironment} />
-                                    </span>
-                                )}
-                            </p>
+                            <p />
                         )}
                     />
                 )}
@@ -247,16 +241,12 @@ Endpoints.propTypes = {
     projectId: PropTypes.string.isRequired,
     endpoints: PropTypes.object,
     ready: PropTypes.bool.isRequired,
-    orchestrator: PropTypes.string,
     projectSettings: PropTypes.object,
-    webhook: PropTypes.object,
 };
 
 Endpoints.defaultProps = {
     endpoints: {},
-    orchestrator: '',
     projectSettings: {},
-    webhook: null,
 };
 
 
@@ -284,7 +274,6 @@ const EndpointsContainer = withTracker(({ projectId }) => {
         ready: handler.ready(),
         endpoints,
         projectSettings,
-        webhook: {},
     };
 })(Endpoints);
 

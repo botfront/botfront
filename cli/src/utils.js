@@ -164,7 +164,7 @@ export async function displayProjectUpdateMessage() {
 /*
 Augment the botfront.yml file with version and project specific values
 */
-export async function updateProjectFile(projectAbsPath, images, mongoAuth = true, mongoPassword = randomString()) {
+export async function updateProjectFile(projectAbsPath, images, enableMongoAuth = true, mongoPassword = randomString()) {
     const config = getProjectConfig(projectAbsPath);
     if (!config.version) {
         config.version = getBotfrontVersion();
@@ -175,7 +175,7 @@ export async function updateProjectFile(projectAbsPath, images, mongoAuth = true
         if (images[service]) config.images.current[service] = images[service];
     });
 
-    if (mongoAuth){
+    if (enableMongoAuth){
         Object.assign(config.env, {
             mongo_url: `mongodb://root:${mongoPassword}@mongo:27017/bf?authSource=admin`,
             mongo_initdb_root_username: 'root',

@@ -25,7 +25,7 @@ const access = promisify(fs.access);
 const copy = promisify(ncp);
 
 export async function initCommand(
-    { path, imgBotfront, imgBotfrontApi, imgRasa, ci, mongoAuth } = {},
+    { path, imgBotfront, imgBotfrontApi, imgRasa, ci, enableMongoAuth } = {},
 ) {
     await displayNpmUpdateMessage();
     try {
@@ -44,7 +44,7 @@ export async function initCommand(
                 message: 'Create a new project in the current directory?',
                 default: true,
             });
-            if (current) return await createProject(null, images, ci, mongoAuth);
+            if (current) return await createProject(null, images, ci, enableMongoAuth);
         }
 
         if (!ci && !currentDirEmpty) {
@@ -55,7 +55,7 @@ export async function initCommand(
                     'The project will be created in a subdirectory. How do you want to name it?',
                 default: uniqueNamesGenerator({ length: 2 }),
             })
-            return await createProject(subDir, images, ci, mongoAuth)
+            return await createProject(subDir, images, ci, enableMongoAuth)
         }
 
         consoleError('Missing path argument to initialize project.')
@@ -64,7 +64,7 @@ export async function initCommand(
     }
 }
 
-export async function copyTemplateFilesToProjectDir(targetAbsolutePath, images, update, mongoAuth = true, mongoPassword = randomString()) {
+export async function copyTemplateFilesToProjectDir(targetAbsolutePath, images, update, enableMongoAuth = true, mongoPassword = randomString()) {
     try {
         const templateDir = path.resolve(__dirname, '..', '..', 'project-template');
         await access(templateDir, fs.constants.R_OK);
@@ -74,7 +74,7 @@ export async function copyTemplateFilesToProjectDir(targetAbsolutePath, images, 
         } else {
             await copy(templateDir, targetAbsolutePath, { clobber: false });
         }
-        updateProjectFile(targetAbsolutePath, images, mongoAuth, mongoPassword);
+        updateProjectFile(targetAbsolutePath, images, enableMongoAuth, mongoPassword);
     } catch (e) {
         consoleError(e);
     }
@@ -105,7 +105,7 @@ export async function pullDockerImages(images,
     }
 }
 
-export async function createProject(targetDirectory, images, ci = false, mongoAuth = true) {
+export async function createProject(targetDirectory, images, ci = false, enableMongoAuth = false) {
     let projectAbsPath = process.cwd();
     let projectCreatedInAnotherDir = false;
     if (targetDirectory) {
@@ -118,7 +118,7 @@ export async function createProject(targetDirectory, images, ci = false, mongoAu
     }
 
     try {
-        await copyTemplateFilesToProjectDir(projectAbsPath, images, false, mongoAuth);
+        await copyTemplateFilesToProjectDir(projectAbsPath, images, false, enableMongoAuth);
         let command = 'botfront up';
         if (projectCreatedInAnotherDir) {
             command = `cd ${targetDirectory} && ${command}`;

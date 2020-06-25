@@ -436,9 +436,10 @@ const NLUDataLoaderContainer = withTracker((props) => {
         defaultLanguage,
         training,
         nluThreshold,
+        enableSharing,
     } = Projects.findOne({ _id: projectId }, {
         fields: {
-            name: 1, nlu_models: 1, defaultLanguage: 1, instance: 1, training: 1, nluThreshold: 1,
+            name: 1, nlu_models: 1, defaultLanguage: 1, instance: 1, training: 1, nluThreshold: 1, enableSharing: 1,
         },
     });
     const instances = Instances.find({ projectId }).fetch();
@@ -477,6 +478,7 @@ const NLUDataLoaderContainer = withTracker((props) => {
         _id: projectId,
         training,
         nluThreshold,
+        enableSharing,
     };
     return {
         instances,
