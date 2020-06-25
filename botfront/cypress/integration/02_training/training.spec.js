@@ -91,4 +91,17 @@ describe('Training', function() {
         cy.testChatInput('/yes', 'utter_sugar');
         cy.testChatInput('/no', 'utter_oknosugar');
     });
+
+    it('Should access bot via sharing link if and only if sharing is enabled', function() {
+        cy.visit('/chat/bf/');
+        cy.get('body').contains('Sharing not enabled for project').should('exist');
+        cy.train();
+        cy.dataCy('share-bot').trigger('mouseover');
+        cy.dataCy('toggle-bot-sharing').should('exist').should('not.have.class', 'checked')
+            .click()
+            .should('have.class', 'checked');
+        cy.visit('/chat/bf/');
+        cy.get('body').contains('Sharing not enabled for project').should('not.exist');
+        cy.get('body').contains('utter_get_started').should('exist');
+    });
 });

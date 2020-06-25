@@ -11,30 +11,23 @@ export default class NLUExampleTester extends React.Component {
         this.state = {
             example: null,
             clickable: false,
-            text: this.props.text,
+            text: '',
         };
         this.debouncedFunction = debounce(() => {
             this.parseNlu();
         }, 300);
     }
 
-    componentDidMount() {
-        this._ismounted = true;
-        this.parseNlu();
-    }
-
-    componentWillReceiveProps(props) {
-        this.props = props;
-
-        if (this._ismounted) {
-            this.setState({ text: this.props.text });
-            this.debouncedFunction();
+    componentDidUpdate(prevProps) {
+        const { text } = this.state;
+        const { text: textFromProps } = this.props;
+        const { text: textFromPrevProps } = prevProps;
+        if (textFromProps !== textFromPrevProps && textFromProps !== text) {
+            this.setText(textFromProps);
         }
     }
 
-    componentWillUnmount() {
-        this._ismounted = false;
-    }
+    setText = text => this.setState({ text }, this.debouncedFunction());
 
     parseNlu = () => {
         const { text } = this.state;

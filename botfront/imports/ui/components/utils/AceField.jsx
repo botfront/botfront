@@ -1,7 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
 import connectField from 'uniforms/connectField';
-import filterDOMProps from 'uniforms/filterDOMProps';
 import AceEditor from 'react-ace';
 import yaml from 'js-yaml';
 import brace from 'brace';
@@ -42,7 +41,7 @@ const AceField = ({
     convertYaml,
     ...props
 }) => (
-    <div className={classnames(className, { disabled, error, required }, 'field')} {...filterDOMProps(props)}>
+    <div className={classnames(className, { disabled, error, required }, 'field')}>
         {label && (
             <label>{label}</label>
         )}

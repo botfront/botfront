@@ -1,3 +1,4 @@
+import { check } from 'meteor/check';
 import { Meteor } from 'meteor/meteor';
 import { sample } from 'lodash';
 import yaml from 'js-yaml';
@@ -102,6 +103,10 @@ if (Meteor.isServer) {
                 if (e.response) return { status: e.response.status };
                 return { status: 408 };
             }
+        },
+        async reportCrash(error) {
+            check(error, Object);
+            return { reported: false };
         },
     });
 }
