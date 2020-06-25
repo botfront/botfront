@@ -149,7 +149,7 @@ export default function ImageThumbnail(props) {
 }
 
 ImageThumbnail.propTypes = {
-    onChange: PropTypes.func.isRequired,
+    onChange: PropTypes.func,
     value: PropTypes.string,
     editable: PropTypes.bool,
     otherActions: PropTypes.array,
@@ -157,6 +157,7 @@ ImageThumbnail.propTypes = {
 };
 
 ImageThumbnail.defaultProps = {
+    onChange: () => {},
     otherActions: [],
     editable: true,
     value: '',

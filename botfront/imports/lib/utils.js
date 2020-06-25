@@ -184,6 +184,11 @@ if (Meteor.isServer) {
             if (resp.status !== 200) throw new Meteor.Error('500', `Deployment webhook ${get(resp, 'data.message', false) || ' rejected upload.'}`);
             return resp;
         },
+        
+        async reportCrash(error) {
+            check(error, Object);
+            return { reported: false };
+        },
     });
 }
 

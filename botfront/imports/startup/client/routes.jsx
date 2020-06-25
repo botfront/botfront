@@ -27,6 +27,7 @@ import Incoming from '../../ui/components/incoming/Incoming';
 import { can, areScopeReady } from '../../lib/scopes';
 import AccountLayout from '../../ui/layouts/account';
 import NotFound from '../../ui/components/NotFound';
+import ErrorCatcher from '../../ui/components/ErrorCatcher';
 import SetupLayout from '../../ui/layouts/setup';
 import Project from '../../ui/layouts/project';
 import ChatDemo from '../../ui/layouts/chat.demo';
@@ -114,6 +115,7 @@ const redirectToPath = pathname => (nextState, replace) => {
         });
     });
 };
+const withErrorCatcher = Component => props => <ErrorCatcher><Component {...props} /></ErrorCatcher>;
 
 Meteor.startup(() => {
     render(
@@ -122,11 +124,11 @@ Meteor.startup(() => {
                 <ApolloHooksProvider client={apolloClient}>
                     <Provider store={store}>
                         <Router history={browserHistory}>
-                            <Route exact path='/setup' component={SetupLayout} onEnter={validateCanSetup()}>
+                            <Route exact path='/setup' component={withErrorCatcher(SetupLayout)} onEnter={validateCanSetup()}>
                                 <Route path='/setup/welcome' component={Welcome} name='Welcome' />
                                 <Route path='/setup/account' component={SetupSteps} name='Account' />
                             </Route>
-                            <Route exact path='/' component={AccountLayout}>
+                            <Route exact path='/' component={withErrorCatcher(AccountLayout)}>
                                 <IndexRoute component={Index} />
                                 <Route path='/login' component={Login} name='Login' />
                                 {/* <Route path="/signup" component={ Signup } onEnter={ logout } name='Signup' /> */}
@@ -135,7 +137,7 @@ Meteor.startup(() => {
                                 <Route path='/reset-password/:token' component={ResetPassword} name='Reset Password' />
                                 <Route path='/enroll-account/:token' component={ResetPassword} name='Reset Password' />
                             </Route>
-                            <Route exact path='/project' component={Project}>
+                            <Route exact path='/project' component={withErrorCatcher(Project)}>
                                 <Route path='/project/:project_id/nlu/models' component={NLUModelComponent} name='NLU Models' onEnter={authenticate('nlu-data:r')} />
                                 <Route path='/project/:project_id/nlu/model/:model_id' component={NLUModelComponent} name='NLU Models' onEnter={authenticate('nlu-data:r')} />
                                 <Route path='/project/:project_id/incoming' component={Incoming} name='Incoming' onEnter={authenticate('incoming:r')} />
