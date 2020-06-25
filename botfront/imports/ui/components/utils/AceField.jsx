@@ -41,7 +41,7 @@ const AceField = ({
     convertYaml,
     ...props
 }) => (
-    <div className={classnames(className, { disabled, error, required }, 'field')} {...filterDOMProps(props)}>
+    <div className={classnames(className, { disabled, error, required }, 'field')}>
         {label && (
             <label>{label}</label>
         )}
