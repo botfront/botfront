@@ -1,0 +1,8 @@
+{
+    "default": [
+        { "type": "user", "text": "hello", "name": "chitchat.greet" },
+        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" },
+        { "type": "user", "text": "goodbye", "name": "chitchat.bye" },
+        { "type": "bot", "text": "bye, thank you for visiting", "name": "utter_bye" }
+    ]
+}
