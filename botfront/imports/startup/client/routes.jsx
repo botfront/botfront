@@ -29,6 +29,7 @@ import AccountLayout from '../../ui/layouts/account';
 import NotFound from '../../ui/components/NotFound';
 import SetupLayout from '../../ui/layouts/setup';
 import Project from '../../ui/layouts/project';
+import ChatDemo from '../../ui/layouts/chat.demo';
 import Index from '../../ui/components/index';
 import store from '../../ui/store/store';
 
@@ -144,6 +145,7 @@ Meteor.startup(() => {
                                 <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticateProject} />
                                 <Route path='/project/:project_id/settings/global' component={SettingsContainer} name='More Settings' onEnter={authenticateAdmin} />
                             </Route>
+                            <Route path='/chat/:project_id' component={ChatDemo} name='Chat Demo' />
                             <Route path='/404' component={() => <NotFound code={404} />} />
                             <Route path='/403' component={() => <NotFound code={403} />} />
                             <Route path='*' exact onEnter={redirectToPath('/404')} />
