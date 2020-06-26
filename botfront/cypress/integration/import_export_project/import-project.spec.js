@@ -28,7 +28,7 @@ const changeAPIUrl = (url) => {
         .find('input')
         .clear()
         .type(`${url}{enter}`);
-    cy.get('.primary.button').first().click();
+    cy.dataCy('save-button').click();
 };
 
 describe('Importing a project', function() {

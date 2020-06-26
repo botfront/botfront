@@ -36,7 +36,7 @@ class Settings extends React.Component {
     renderSubmitButton = () => (
         <>
             <ErrorsField />
-            <SubmitField value='Save' className='primary' />
+            <SubmitField value='Save' className='primary' data-cy='save-button' />
         </>
     )
 
@@ -82,6 +82,12 @@ class Settings extends React.Component {
         return (
             <>
                 <Segment>
+                    <AutoField name='settings.private.bfApiHost' label='Botfront API host' data-cy='docker-api-host' />
+                    <AutoField name='settings.public.chitChatProjectId' label='Chitchat project Id' info='ID of project containing chitchat NLU training data' />
+                    <AutoField name='settings.public.docUrl' />
+                    {this.renderSubmitButton()}
+                </Segment>
+                <Segment>
                     <MigrationControl />
                     <Header>Rebuild search indicies</Header>
                     <Confirm
@@ -105,12 +111,6 @@ class Settings extends React.Component {
                     >
                         Rebuild
                     </Button>
-                </Segment>
-                <Segment>
-                    <AutoField name='settings.private.bfApiHost' label='Botfront API host' data-cy='docker-api-host' />
-                    <AutoField name='settings.public.chitChatProjectId' label='Chitchat project Id' info='ID of project containing chitchat NLU training data' />
-                    <AutoField name='settings.public.docUrl' />
-                    {this.renderSubmitButton()}
                 </Segment>
             </>
         );
