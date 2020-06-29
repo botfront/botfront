@@ -39,7 +39,9 @@ if (Meteor.isServer) {
         'settings.getMigrationStatus'() {
             // eslint-disable-next-line no-underscore-dangle
             const { locked, version } = Migrations._getControl();
-            return { locked, version };
+            // eslint-disable-next-line no-underscore-dangle
+            const latest = Migrations._list.length - 1;
+            return { locked, version, latest };
         },
         'settings.unlockMigration' () {
             Migrations.unlock();

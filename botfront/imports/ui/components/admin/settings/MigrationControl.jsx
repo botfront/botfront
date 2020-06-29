@@ -23,7 +23,8 @@ const MigrationControl = () => {
             {migration && can('global-admin') && (
             <>
                 <Header>Migrations Control</Header>
-                <p data-cy='migration-version'>version: {migration.version}</p>
+                <p data-cy='migration-version'>Current version: {migration.version}</p>
+                <p data-cy='migration-latest-version'>Latest version: {migration.latest}</p>
                 <p data-cy='migration-status'>Status: {migration.locked ? 'Locked' : 'OK'}</p>
                 {migration.locked && (
                     <>
