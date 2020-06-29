@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.25.0](https://github.com/botfront/botfront/compare/v0.25.0-rc.1...v0.25.0) (2020-06-29)
+
+
+### Bug Fixes
+
+* crash when form present in story ([79ecb6d](https://github.com/botfront/botfront/commit/79ecb6d))
+
+
+### Features
+
+* dev chatbot made shareable via a link ([3638dff](https://github.com/botfront/botfront/commit/3638dff))
+* error page with report buttons ([d656c12](https://github.com/botfront/botfront/commit/d656c12))
+* **cli:** replaced --no-mongo-auth with --enable-mongo-auth ([5b89af1](https://github.com/botfront/botfront/commit/5b89af1))
+
+
+
 ## [0.25.0-rc.1](https://github.com/botfront/botfront/compare/v0.24.3...v0.25.0-rc.1) (2020-06-17)
 
 
