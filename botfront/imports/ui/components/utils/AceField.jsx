@@ -25,6 +25,7 @@ const AceField = ({
     className,
     disabled,
     readOnly,
+    'data-cy': dataCy,
     error,
     errorMessage,
     id,
@@ -41,7 +42,10 @@ const AceField = ({
     convertYaml,
     ...props
 }) => (
-    <div className={classnames(className, { disabled, error, required }, 'field')}>
+    <div
+        className={classnames(className, { disabled, error, required }, 'field')}
+        data-cy={dataCy}
+    >
         {label && (
             <label>{label}</label>
         )}
@@ -53,7 +57,6 @@ const AceField = ({
             mode={mode || 'yaml'}
             theme='xcode'
             name={name}
-            readOnly={readOnly}
             onChange={v => onChange(v)}
             fontSize={fontSize || 14}
             showPrintMargin={false}
