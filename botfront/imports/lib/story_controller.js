@@ -23,7 +23,7 @@ const RASA_BUILT_IN_ACTIONS = [
 
 export class StoryController {
     constructor({
-        story, isASmartStory, slots, onUpdate = () => {}, onMdType = () => {}, isABranch = false, forms = [],
+        story, isASmartStory, slots, onUpdate = () => {}, onMdType = () => {}, isABranch = false, forms = [], requestedSlotActive = false, triggerRules = [],
     }) {
         this.domain = {
             slots: this.getSlots(slots),
@@ -34,6 +34,9 @@ export class StoryController {
         this.isABranch = isABranch;
         this.onMdType = onMdType; // onMdType what happens when we need to notify update without saving
         this.saveUpdate = options => onUpdate(this.md, options);
+        this.requestedSlotActive = requestedSlotActive;
+        this.triggerRules = triggerRules;
+
         this.validateStory(false);
     }
 
@@ -152,12 +155,13 @@ export class StoryController {
 
         const slot = this.domain.slots[slotName] || {};
         this.lines[this.idx].gui = { type: 'slot', data: { name: slotName, type: slot.type, slotValue } };
-        if (!{}.hasOwnProperty.call(this.domain.slots, slotName)) { this.raiseStoryException('no_such_slot'); return; }
+
+        if ((!{}.hasOwnProperty.call(this.domain.slots, slotName) && (!this.requestedSlotActive || slotName !== 'requested_slot'))) { this.raiseStoryException('no_such_slot'); return; }
         if (slot.type === 'bool' && typeof slotValue !== 'boolean') this.raiseStoryException('bool_slot');
         else if (slot.type === 'text' && !(slotValue === null || typeof slotValue === 'string')) this.raiseStoryException('text_slot');
         else if (slot.type === 'float' && !(slotValue === null || typeof slotValue === 'number')) this.raiseStoryException('float_slot');
         else if (slot.type === 'list' && !Array.isArray(slotValue)) this.raiseStoryException('list_slot');
-        else if (slot.type === 'categorical' && !slot.values.includes(slotValue)) this.raiseStoryException('cat_slot');
+        else if (slot.type === 'categorical' && ![...slot.values, null].includes(slotValue)) this.raiseStoryException('cat_slot');
     };
 
     exceptionMessages = {
@@ -365,7 +369,9 @@ export class StoryController {
         if (errors.length > 0) {
             throw new Error(`Error at line ${errors[0].line}: ${errors[0].message}`);
         }
-        return this.domain;
+        const intentsWithSmartTriggers = this.domain.intents;
+        this.triggerRules.forEach(t => intentsWithSmartTriggers.add(t.payload.substring(1)));
+        return { ...this.domain, intents: intentsWithSmartTriggers };
     };
 
     setIsSmart = (isSmartStory) => {
