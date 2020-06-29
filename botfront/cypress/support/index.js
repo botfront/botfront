@@ -676,16 +676,6 @@ Cypress.Commands.add('updateConversation', (projectId, id, conversation, env = '
     { tracker: conversation },
 ));
 
-Cypress.Commands.add('addConversation', (projectId, id, conversation, env = 'development') => cy.graphQlQuery(
-    `mutation ($tracker: Any) {\n  insertTrackerStore(senderId: "${id}", projectId: "${projectId}", tracker: $tracker, env: ${env}){\n  lastIndex\n  }\n}`,
-    { tracker: conversation },
-));
-
-Cypress.Commands.add('updateConversation', (projectId, id, conversation) => cy.graphQlQuery(
-    `mutation ($tracker: Any) {\n  updateTrackerStore(senderId: "${id}", projectId: "${projectId}", tracker: $tracker){\n  lastIndex\n  }\n}`,
-    { tracker: conversation },
-));
-
 Cypress.Commands.overwrite('log', (subject, message) => cy.task('log', message));
 
 Cypress.Commands.add('getBranchContainer', (depth) => {
