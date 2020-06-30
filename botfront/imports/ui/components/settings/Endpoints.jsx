@@ -97,7 +97,7 @@ class Endpoints extends React.Component {
         }
         Meteor.call('actionsEndpoints.save', projectId, selectedEnvironment, value[selectedEnvironment].url, (...args) => {
             callback(...args);
-            this.restartRasa();
+            this.callRestartRasa();
         });
     }
 
