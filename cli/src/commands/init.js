@@ -5,7 +5,6 @@ import ncp from 'ncp';
 import path from 'path';
 import { promisify } from 'util';
 import { Docker } from 'docker-cli-js';
-import ora from 'ora';
 import inquirer from 'inquirer';
 import boxen from 'boxen';
 import { uniqueNamesGenerator } from 'unique-names-generator';
@@ -67,17 +66,13 @@ export async function initCommand(
 }
 
 export async function copyTemplateFilesToProjectDir(targetAbsolutePath, images, update, enableMongoAuth = true, cloud,  mongoPassword = randomString()) {
-    console.log(cloud)
     try {
         const templateDir = path.resolve(__dirname, '..', '..', `project-template${cloud ? '-actions' : ''}`);
-        console.log(cloud)
         await access(templateDir, fs.constants.R_OK);
-        console.log(cloud)
         if (update){
             await fs.copy(path.join(templateDir, '.botfront', 'botfront.yml'), path.join(targetAbsolutePath, '.botfront', 'botfront.yml'));
             await fs.copy(path.join(templateDir, '.botfront', 'docker-compose-template.yml'), path.join(targetAbsolutePath, '.botfront', 'docker-compose-template.yml'));
         } else {
-            console.log(cloud)
             await copy(templateDir, targetAbsolutePath, { clobber: false });
         }
         updateProjectFile(targetAbsolutePath, images, enableMongoAuth, cloud, mongoPassword);
