@@ -66,11 +66,11 @@ const isUtteranceOutdated = ({ training: { endTime = 0 } = {} }, { updatedAt }) 
 const getSimilarTD = (model, utterance) => {
     // const synonyms = model.training_data.entity_synonyms;
     // const gazette = model.training_data.gazette;
-    const utteranceEntities = utterance.entities.map(entity => entity.entity);
+    const utteranceEntities = utterance.entities ? utterance.entities.map(entity => entity.entity) : [];
     const examples = model.training_data.common_examples
         .filter((example) => {
             if (example.intent !== utterance.intent) return false;
-            const exEntities = example.entities.map(entity => entity.entity);
+            const exEntities = example.entities ? example.entities.map(entity => entity.entity) : [];
             return (utteranceEntities.every(entity => exEntities.includes(entity))
                 && exEntities.some(entity => !utteranceEntities.includes(entity)));
         });
