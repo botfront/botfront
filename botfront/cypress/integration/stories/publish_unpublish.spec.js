@@ -33,9 +33,9 @@ describe('publish and unpublish stories', function() {
         cy.dataCy('story-group-menu-item', 'Greetings').find('span').should('have.class', 'grey');
         // we chech that clicking on unpublish reveal one more item
         // because it's difficult to check for parent link with cypress
-        cy.get('.item > .middle').should('have.length', 6);
+        cy.dataCy('story-group-menu-item').should('have.length', 6);
         cy.get('.item > .side-by-side > .item-chevron').first().click();
-        cy.get('.item > .middle').should('have.length', 7);
+        cy.dataCy('story-group-menu-item').should('have.length', 7);
     });
 
     it('when removing production environement, all stories should be published', function() {
