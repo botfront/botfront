@@ -7,7 +7,15 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Bug Fixes
 
-* story play buttons ([c346ed4](https://github.com/botfront/botfront/commit/c346ed4c6b4537d5b2cd3a87685d3ca0356c9642))
+* fix init payload for chat demo ([9676012](https://github.com/botfront/botfront/commit/9676012))
+* story play buttons ([c346ed4](https://github.com/botfront/botfront/commit/c346ed4))
+
+
+### Features
+
+* actions project  ([c1de834](https://github.com/botfront/botfront/commit/c1de834))
+
+
 
 ## [0.25.0](https://github.com/botfront/botfront/compare/v0.25.0-rc.1...v0.25.0) (2020-06-29)
 
