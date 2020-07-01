@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.25.1](https://github.com/botfront/botfront/compare/v0.25.0...v0.25.1) (2020-07-01)
+
+
+### Bug Fixes
+
+* story play buttons ([c346ed4](https://github.com/botfront/botfront/commit/c346ed4c6b4537d5b2cd3a87685d3ca0356c9642))
+
 ## [0.25.0](https://github.com/botfront/botfront/compare/v0.25.0-rc.1...v0.25.0) (2020-06-29)
 
 
