@@ -115,7 +115,7 @@ const ChatDemo = (props) => {
             <div className='widget-container'>
                 <Widget
                     interval={0}
-                    initPayload={`/${widgetProps.initPayload}`}
+                    initPayload={widgetProps.initPayload}
                     socketUrl={widgetProps.socketUrl}
                     socketPath={widgetProps.socketPath}
                     inputTextFieldHint='Try out your chatbot...'
