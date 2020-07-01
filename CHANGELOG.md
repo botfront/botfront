@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.25.0-ee.5](https://github.com/botfront/botfront/compare/v0.25.0-ee.4...v0.25.0-ee.5) (2020-07-01)
+
+
+### Bug Fixes
+
+* action endpoint save does not restart rasa ([0aa0c56](https://github.com/botfront/botfront/commit/0aa0c565c84f9da511617330158b7fccfda846f9))
+
 ## [0.25.0-ee.4](https://github.com/botfront/botfront/compare/v0.25.0...v0.25.0-ee.4) (2020-06-30)
 
 
