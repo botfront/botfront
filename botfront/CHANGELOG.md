@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.25.1-ee.1](https://github.com/botfront/botfront/compare/v0.25.0-ee.5...v0.25.1-ee.1) (2020-07-01)
+
+
+### Features
+
+* actions project  ([c1de834](https://github.com/botfront/botfront/commit/c1de834258692e3583b78ccd9b209f8867bd0673))
+
+
+### Bug Fixes
+
+* fix init payload for chat demo ([9676012](https://github.com/botfront/botfront/commit/9676012319e7ed7ad9b8f3e8232c32703b23d6e2))
+* story play buttons ([c346ed4](https://github.com/botfront/botfront/commit/c346ed4c6b4537d5b2cd3a87685d3ca0356c9642))
+* wrong defaultPayload initial value  ([d063ebd](https://github.com/botfront/botfront/commit/d063ebdabb591c5758895bf6bb090dac4dd8be6e))
+
 ## [0.25.0-ee.5](https://github.com/botfront/botfront/compare/v0.25.0-ee.4...v0.25.0-ee.5) (2020-07-01)
 
 
