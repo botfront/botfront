@@ -218,7 +218,7 @@ if (Meteor.isServer) {
             check(projectId, String);
 
             const {
-                chatWidgetSettings: { initPayload = 'get_started' } = {},
+                chatWidgetSettings: { initPayload = '/get_started' } = {},
                 enableSharing,
                 name: projectName,
                 defaultLanguage,
@@ -227,8 +227,9 @@ if (Meteor.isServer) {
                 {
                     chatWidgetSettings: 1, enableSharing: 1, name: 1, defaultLanguage: 1,
                 },
-            );
+            ) || {};
 
+            if (!projectName) { throw new Meteor.Error(404, `Project '${projectName}' not found.`); }
             if (!enableSharing) { throw new Meteor.Error(403, `Sharing not enabled for project '${projectName}'.`); }
 
             const query = {
