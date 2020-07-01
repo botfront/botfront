@@ -5,7 +5,6 @@ import ncp from 'ncp';
 import path from 'path';
 import { promisify } from 'util';
 import { Docker } from 'docker-cli-js';
-import ora from 'ora';
 import inquirer from 'inquirer';
 import boxen from 'boxen';
 import { uniqueNamesGenerator } from 'unique-names-generator';
@@ -25,8 +24,9 @@ const access = promisify(fs.access);
 const copy = promisify(ncp);
 
 export async function initCommand(
-    { path, imgBotfront, imgBotfrontApi, imgRasa, ci, enableMongoAuth } = {},
+    { path, imgBotfront, imgBotfrontApi, imgRasa, ci, enableMongoAuth, cloud } = {},
 ) {
+
     await displayNpmUpdateMessage();
     try {
         await verifySystem();
@@ -36,7 +36,7 @@ export async function initCommand(
         if (imgRasa) images = {...images, rasa: imgRasa};
 
         const currentDirEmpty = fs.readdirSync(process.cwd()).length === 0;
-        if (path) return await createProject(path, images, ci);
+        if (path) return await createProject(path, images, ci, enableMongoAuth, cloud);
         if (!ci && currentDirEmpty) {
             const { current } = await inquirer.prompt({
                 type: 'confirm',
@@ -44,10 +44,11 @@ export async function initCommand(
                 message: 'Create a new project in the current directory?',
                 default: true,
             });
-            if (current) return await createProject(null, images, ci, enableMongoAuth);
+            if (current) return await createProject(null, images, ci, enableMongoAuth, cloud);
         }
 
         if (!ci && !currentDirEmpty) {
+
             const { subDir } = await inquirer.prompt({
                 type: 'input',
                 name: 'subDir',
@@ -55,7 +56,7 @@ export async function initCommand(
                     'The project will be created in a subdirectory. How do you want to name it?',
                 default: uniqueNamesGenerator({ length: 2 }),
             })
-            return await createProject(subDir, images, ci, enableMongoAuth)
+            return await createProject(subDir, images, ci, enableMongoAuth, cloud)
         }
 
         consoleError('Missing path argument to initialize project.')
@@ -64,9 +65,9 @@ export async function initCommand(
     }
 }
 
-export async function copyTemplateFilesToProjectDir(targetAbsolutePath, images, update, enableMongoAuth = true, mongoPassword = randomString()) {
+export async function copyTemplateFilesToProjectDir(targetAbsolutePath, images, update, enableMongoAuth = true, cloud,  mongoPassword = randomString()) {
     try {
-        const templateDir = path.resolve(__dirname, '..', '..', 'project-template');
+        const templateDir = path.resolve(__dirname, '..', '..', `project-template${cloud ? '-actions' : ''}`);
         await access(templateDir, fs.constants.R_OK);
         if (update){
             await fs.copy(path.join(templateDir, '.botfront', 'botfront.yml'), path.join(targetAbsolutePath, '.botfront', 'botfront.yml'));
@@ -74,7 +75,7 @@ export async function copyTemplateFilesToProjectDir(targetAbsolutePath, images, 
         } else {
             await copy(templateDir, targetAbsolutePath, { clobber: false });
         }
-        updateProjectFile(targetAbsolutePath, images, enableMongoAuth, mongoPassword);
+        updateProjectFile(targetAbsolutePath, images, enableMongoAuth, cloud, mongoPassword);
     } catch (e) {
         consoleError(e);
     }
@@ -105,7 +106,7 @@ export async function pullDockerImages(images,
     }
 }
 
-export async function createProject(targetDirectory, images, ci = false, enableMongoAuth = false) {
+export async function createProject(targetDirectory, images, ci = false, enableMongoAuth = false, cloud = false) {
     let projectAbsPath = process.cwd();
     let projectCreatedInAnotherDir = false;
     if (targetDirectory) {
@@ -118,7 +119,7 @@ export async function createProject(targetDirectory, images, ci = false, enableM
     }
 
     try {
-        await copyTemplateFilesToProjectDir(projectAbsPath, images, false, enableMongoAuth);
+        await copyTemplateFilesToProjectDir(projectAbsPath, images, false, enableMongoAuth, cloud);
         let command = 'botfront up';
         if (projectCreatedInAnotherDir) {
             command = `cd ${targetDirectory} && ${command}`;

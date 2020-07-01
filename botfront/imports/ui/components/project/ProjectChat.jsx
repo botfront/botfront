@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import PropTypes from 'prop-types';
@@ -23,15 +22,11 @@ class ProjectChat extends React.Component {
     componentDidMount() {
         this.loadInstance();
         this.loadAvailableLanguages();
+        this.checkRefreshChat();
     }
 
     componentWillReceiveProps(props) {
-        this.props = props;
-        const { shouldRefreshChat, changeShouldRefreshChat } = this.props;
-        if (shouldRefreshChat) {
-            changeShouldRefreshChat(false);
-            this.handleReloadChat();
-        }
+        this.checkRefreshChat(props);
     }
 
     loadInstance = () => {
@@ -76,6 +71,14 @@ class ProjectChat extends React.Component {
         }));
     };
 
+    checkRefreshChat(props) {
+        const { shouldRefreshChat, changeShouldRefreshChat } = props || this.props;
+
+        if (shouldRefreshChat) {
+            changeShouldRefreshChat(false);
+            setTimeout(this.handleReloadChat, 100);
+        }
+    }
 
     render() {
         const {
@@ -182,7 +185,9 @@ ProjectChat.propTypes = {
     triggerChatPane: PropTypes.func.isRequired,
     channel: PropTypes.object.isRequired,
     initPayload: PropTypes.string,
+    // eslint-disable-next-line react/no-unused-prop-types
     shouldRefreshChat: PropTypes.bool.isRequired,
+    // eslint-disable-next-line react/no-unused-prop-types
     changeShouldRefreshChat: PropTypes.func.isRequired,
 };
 

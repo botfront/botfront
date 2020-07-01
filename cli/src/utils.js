@@ -164,7 +164,7 @@ export async function displayProjectUpdateMessage() {
 /*
 Augment the botfront.yml file with version and project specific values
 */
-export async function updateProjectFile(projectAbsPath, images, enableMongoAuth = true, mongoPassword = randomString()) {
+export async function updateProjectFile(projectAbsPath, images, enableMongoAuth = true, cloud, mongoPassword = randomString()) {
     const config = getProjectConfig(projectAbsPath);
     if (!config.version) {
         config.version = getBotfrontVersion();
@@ -174,17 +174,18 @@ export async function updateProjectFile(projectAbsPath, images, enableMongoAuth 
     Object.keys(config.images.current).forEach(service => {
         if (images[service]) config.images.current[service] = images[service];
     });
-
-    if (enableMongoAuth){
-        Object.assign(config.env, {
-            mongo_url: `mongodb://root:${mongoPassword}@mongo:27017/bf?authSource=admin`,
-            mongo_initdb_root_username: 'root',
-            mongo_initdb_root_password: mongoPassword,
-        })
-    } else {
-        Object.assign(config.env, {
-            mongo_url: 'mongodb://mongo:27017/bf',
-        })
+    if (!cloud){
+        if (enableMongoAuth){
+            Object.assign(config.env, {
+                mongo_url: `mongodb://root:${mongoPassword}@mongo:27017/bf?authSource=admin`,
+                mongo_initdb_root_username: 'root',
+                mongo_initdb_root_password: mongoPassword,
+            })
+        } else {
+            Object.assign(config.env, {
+                mongo_url: 'mongodb://mongo:27017/bf',
+            })
+        }
     }
 
     fs.writeFileSync(getProjectInfoFilePath(projectAbsPath), yaml.safeDump(config));
@@ -196,6 +197,11 @@ export async function updateEnvFile(projectAbsPath) {
     envFileContent +=    '# This file is generated when `botfront up` is invoked.                #\n';
     envFileContent +=    '# You can change / add environment variables in .botfront/botfront.yml #\n';
     envFileContent +=    '########################################################################\n\n';
+
+    if (!config.env) {
+        config.env = {}
+    }
+
     Object.keys(config.env).forEach(variable => {
         envFileContent += `${variable.toUpperCase()}=${config.env[variable]}\n`;
     });
