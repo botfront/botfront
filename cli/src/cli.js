@@ -51,6 +51,7 @@ program
 program
     .command('init')
     .option('--path <path>', 'Desired project path')
+    .option('--cloud', 'Create a project with an actions server to be used with Botfront Cloud.')
     .option('--img-botfront <image:tag>', 'Image for the botfront service')
     .option('--img-botfront-api <image:tag>', 'Image used by the botfront-api service')
     .option('--img-rasa <image:tag>', 'Image used by the Rasa service')

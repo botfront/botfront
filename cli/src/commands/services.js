@@ -97,12 +97,12 @@ export async function dockerComposeUp({ verbose = false, exclude = [], ci = fals
     await pullDockerImages(missingImgs, spinner, 'Downloading Docker images...');
     await stopRunningProjects('Shutting down running project first...', null, null, spinner);
     let command = 'docker-compose up -d';
+    const services = getServiceNames(workingDir)
     try {
         startSpinner(spinner, 'Starting Botfront...')
         await shellAsync(command, { silent: !verbose });
         if (ci) process.exit(0); // exit now if ci
-
-        if (!exclude.includes('botfront')) await waitForService('botfront');
+        if (services.includes('botfront') && !exclude.includes('botfront')) await waitForService('botfront');
         stopSpinner();
         console.log(`\n\n        🎉 🎈  Botfront is ${chalk.green.bold('UP')}! 🎉 🎈\n`);
         const message = 'Useful commands:\n\n' + (
@@ -115,7 +115,7 @@ export async function dockerComposeUp({ verbose = false, exclude = [], ci = fals
         );
         console.log(boxen(message) + '\n');
 
-        if (!exclude.includes('botfront')) await postUpLaunch(spinner); // browser stuff is botfront is not excluded
+        if (services.includes('botfront') && !exclude.includes('botfront')) await postUpLaunch(spinner); // browser stuff is botfront is not excluded
         stopSpinner();
         process.exit(0);
     } catch (e) {
