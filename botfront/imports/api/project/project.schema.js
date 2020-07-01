@@ -26,7 +26,7 @@ export const chatWidgetSettingsSchema = new SimpleSchema({
     openLauncherImage: { type: String, optional: true },
     inputTextFieldHint: { type: String, optional: true, defaultValue: 'Type your message...' },
     closeImage: { type: String, optional: true },
-    initPayload: { type: String, optional: true, defaultValue: 'get_started' },
+    initPayload: { type: String, optional: true, defaultValue: '/get_started' },
     mainColor: { type: String, optional: true },
     conversationBackgroundColor: { type: String, optional: true },
     userTextColor: { type: String, optional: true },
