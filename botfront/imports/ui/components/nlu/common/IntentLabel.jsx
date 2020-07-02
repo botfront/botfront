@@ -62,8 +62,8 @@ const Intent = React.forwardRef((props, ref) => {
 
     const handleChange = (intentName) => {
         if (intentName) addIntent(intentName);
-        onChange(intentName);
         handleClose();
+        onChange(intentName);
     };
 
     const selectSibling = (key) => {
@@ -138,8 +138,8 @@ const Intent = React.forwardRef((props, ref) => {
             style={{
                 height: dataToDisplay.length
                     ? allowAdditions
-                        ? '250px'
-                        : '200px'
+                        ? '300px'
+                        : '250px'
                     : '50px',
                 width: '300px',
             }}
@@ -148,7 +148,16 @@ const Intent = React.forwardRef((props, ref) => {
         >
             {allowAdditions && renderInsertNewIntent()}
             {showReset && renderResetIntent()}
-            {dataToDisplay.length ? (
+            {allowAdditions && (
+                <Button
+                    fluid
+                    color='purple'
+                    content='Create new intent'
+                    onClick={() => handleChange(typeInput)}
+                />
+            )}
+            {dataToDisplay.length && (
+            
                 <DataTable
                     ref={tableRef}
                     height={200}
@@ -159,13 +168,6 @@ const Intent = React.forwardRef((props, ref) => {
                     selection={selection}
                     onChangeSelection={setSelection}
                     externallyControlledSelection
-                />
-            ) : (
-                <Button
-                    fluid
-                    color='purple'
-                    content='Create new intent'
-                    onClick={() => handleChange(typeInput)}
                 />
             )}
         </div>
