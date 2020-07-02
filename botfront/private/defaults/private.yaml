@@ -55,4 +55,7 @@ webhooks:
     name: DeployProject
     url: ''
     method: POST
-        
+  reportCrashWebhook:
+    name: ReportCrash
+    url: ''
+    method: POST

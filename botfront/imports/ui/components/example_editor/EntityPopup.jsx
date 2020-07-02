@@ -191,7 +191,7 @@ EntityPopup.propTypes = {
     selection: PropTypes.bool,
     onSelectionReset: PropTypes.func,
     length: PropTypes.number.isRequired,
-    projectId: PropTypes.string.isRequired,
+    projectId: PropTypes.string,
     disabled: PropTypes.bool,
 };
 
@@ -201,6 +201,7 @@ EntityPopup.defaultProps = {
     selection: false,
     onSelectionReset: () => {},
     disabled: false,
+    projectId: undefined,
 };
 
 export default EntityPopup;

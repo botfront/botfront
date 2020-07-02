@@ -95,22 +95,30 @@ class TrainButton extends React.Component {
                 >
                     <Dropdown.Menu>
                         {deployOptions.map(opt => (
-                            <>
+                            <React.Fragment key={opt.key}>
                                 <Dropdown.Item
                                     value={opt.value}
-                                    key={opt.key}
-                                    onClick={() => { this.showModal(opt.value, true); }}
+                                    onClick={() => {
+                                        this.showModal(opt.value, true);
+                                    }}
                                 >
                                     {opt.text}
                                 </Dropdown.Item>
                                 <Confirm
                                     open={modalOpen[opt.value]}
-                                    //                                                   we need to stop the propagation, otherwise it reopen the dropdown
-                                    onCancel={(e) => { this.showModal(opt.value, false); e.stopPropagation(); }}
-                                    onConfirm={(e) => { this.trainAndDeploy(opt.value); this.showModal(opt.value, false); e.stopPropagation(); }}
+                                    // we need to stop the propagation, otherwise it reopen the dropdown
+                                    onCancel={(e) => {
+                                        this.showModal(opt.value, false);
+                                        e.stopPropagation();
+                                    }}
+                                    onConfirm={(e) => {
+                                        this.trainAndDeploy(opt.value);
+                                        this.showModal(opt.value, false);
+                                        e.stopPropagation();
+                                    }}
                                     content={`Do you really want to deploy your project to ${opt.value}`}
                                 />
-                            </>
+                            </React.Fragment>
                         ))}
                     </Dropdown.Menu>
                 </Dropdown>

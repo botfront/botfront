@@ -10,7 +10,7 @@ import SelectField from '../form_fields/SelectField';
 import SaveButton from '../utils/SaveButton';
 import { wrapMeteorCallback } from '../utils/Errors';
 
-function HttpRequestForm(props) {
+function HttpRequestsForm(props) {
     const {
         onSave, urls, editable, disableMethodField, path,
     } = props;
@@ -81,7 +81,7 @@ function HttpRequestForm(props) {
                 key={`url-${i}`}
             >
                 <h3>{urls[k].name}</h3>
-                <AutoField name='url' data-cy={urls[k].dataCy || 'url-field'} />
+                <AutoField name='url' data-cy={urls[k].name.replace(/ /g, '-')} />
                 {!disableMethodField && <SelectField name='method' />}
                 <div className='side-by-side left'>
                     {editable && (
@@ -93,17 +93,17 @@ function HttpRequestForm(props) {
     ));
 }
 
-HttpRequestForm.propTypes = {
-    webhooks: PropTypes.object.isRequired,
+HttpRequestsForm.propTypes = {
+    urls: PropTypes.object.isRequired,
     onSave: PropTypes.func.isRequired,
     editable: PropTypes.bool.isRequired,
     disableMethodField: PropTypes.bool,
     path: PropTypes.string,
 };
 
-HttpRequestForm.defaultProps = {
+HttpRequestsForm.defaultProps = {
     path: '',
     disableMethodField: false,
 };
 
-export default HttpRequestForm;
+export default HttpRequestsForm;

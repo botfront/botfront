@@ -13,7 +13,6 @@ import { checkIfCan } from './scopes';
 import { Projects } from '../api/project/project.collection';
 import { NLUModels } from '../api/nlu_model/nlu_model.collection';
 import { getNluModelLanguages } from '../api/nlu_model/nlu_model.utils';
-import { getImageWebhooks, deleteImages } from '../api/graphql/botResponses/mongo/botResponses';
 
 export const setsAreIdentical = (arr1, arr2) => (
     arr1.every(en => arr2.includes(en))
@@ -93,6 +92,22 @@ export function uploadFileToGcs (filePath, bucket) {
         .catch(reject));
 }
 
+export const getWebhooks = () => {
+    const {
+        settings: {
+            private: { webhooks },
+        },
+    } = GlobalSettings.findOne({}, { fields: { 'settings.private.webhooks': 1 } });
+    return webhooks;
+};
+
+export const deleteImages = async (imgUrls, projectId, url, method) => Promise.all(
+    imgUrls.map(imageUrl => Meteor.callWithPromise('axios.requestWithJsonBody', url, method, {
+        projectId,
+        uri: imageUrl,
+    })),
+);
+
 if (Meteor.isServer) {
     import {
         getAppLoggerForMethod,
@@ -137,11 +152,29 @@ if (Meteor.isServer) {
             }
         },
 
+        async reportCrash(error) {
+            check(error, Object);
+            try {
+                const { reportCrashWebhook: { url, method } = {} } = await getWebhooks();
+                if (url && method) {
+                    try {
+                        await Meteor.callWithPromise('axios.requestWithJsonBody', url, method, error);
+                    } catch {
+                        //
+                    }
+                    return { reported: true };
+                }
+                throw new Error();
+            } catch {
+                return { reported: false };
+            }
+        },
+
         async 'upload.image' (projectId, data) {
             checkIfCan('responses:w', projectId);
             check(projectId, String);
             check(data, Object);
-            const { uploadImageWebhook: { url, method } } = await getImageWebhooks();
+            const { uploadImageWebhook: { url, method } } = await getWebhooks();
             if (!url || !method) throw new Meteor.Error('400', 'No image upload webhook defined.');
             const resp = Meteor.call('axios.requestWithJsonBody', url, method, data);
             if (resp === undefined) throw new Meteor.Error('500', 'No response from the image upload  webhook');
@@ -154,7 +187,7 @@ if (Meteor.isServer) {
             checkIfCan('responses:w', projectId);
             check(projectId, String);
             check(imgSrc, String);
-            const { deleteImageWebhook: { url, method } } = getImageWebhooks();
+            const { deleteImageWebhook: { url, method } } = getWebhooks();
             if (url && method) deleteImages([imgSrc], projectId, url, method);
         },
 
@@ -183,11 +216,6 @@ if (Meteor.isServer) {
             if (resp.status === 404) throw new Meteor.Error('404', 'Deployment webhook not Found');
             if (resp.status !== 200) throw new Meteor.Error('500', `Deployment webhook ${get(resp, 'data.message', false) || ' rejected upload.'}`);
             return resp;
-        },
-        
-        async reportCrash(error) {
-            check(error, Object);
-            return { reported: false };
         },
     });
 }

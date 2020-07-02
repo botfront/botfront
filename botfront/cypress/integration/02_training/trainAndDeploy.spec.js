@@ -22,8 +22,7 @@ describe('Training and deploy', function() {
     it('Should not show deploy option if deploy hook not set', function() {
         cy.visit('/admin/settings');
         cy.contains('Webhooks').click();
-        cy.dataCy('url-field').should('have.length', 4);
-        cy.dataCy('url-field').eq(3).should('have.value', '');
+        cy.dataCy('DeployProject').should('have.value', '');
         cy.visit('/project/bf/stories');
         cy.dataCy('train-and-deploy').should('not.exist');
     });
@@ -31,8 +30,7 @@ describe('Training and deploy', function() {
     it('Should only show activated environemnt', function() {
         cy.visit('/admin/settings');
         cy.contains('Webhooks').click();
-        cy.dataCy('url-field').should('have.length', 4);
-        cy.dataCy('url-field').eq(3).find('input').type('http://dummy.dummy');
+        cy.dataCy('DeployProject').find('input').type('http://dummy.dummy');
 
         cy.dataCy('save-button').eq(3).click();
         cy.visit('/project/bf/settings');

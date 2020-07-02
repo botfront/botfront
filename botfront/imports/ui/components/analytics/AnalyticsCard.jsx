@@ -192,11 +192,11 @@ function AnalyticsCard(props) {
             data, queryParams, graphParams, nTicks, valueType, bucketSize, projectTimezoneOffset, wide, showDenominator,
         });
         
-        if (!dataToDisplay.length) return <Message color='yellow'><Icon name='calendar times' data-cy='no-data-message' linkToConversations={linkToConversations} />No data to show for selected period!</Message>;
+        if (!dataToDisplay.length) return <Message color='yellow'><Icon name='calendar times' data-cy='no-data-message' />No data to show for selected period!</Message>;
         if (chartType === 'pie') return <PieChart {...paramsToUse} data={dataToDisplay} linkToConversations={linkToConversations} />;
         if (chartType === 'bar') return <BarChart {...paramsToUse} data={dataToDisplay} linkToConversations={linkToConversations} />;
         if (chartType === 'line') return <LineChart {...paramsToUse} data={dataToDisplay} linkToConversations={linkToConversations} />;
-        if (chartType === 'table') return <Table {...paramsToUse} data={dataToDisplay} bucketSize={bucketSize} linkToConversations={linkToConversations} />;
+        if (chartType === 'table') return <Table {...paramsToUse} data={dataToDisplay} bucketSize={bucketSize} />;
         return null;
     };
 

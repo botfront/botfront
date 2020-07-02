@@ -33,7 +33,7 @@ describe('projects:r can access but not edit settings', () => {
         // endpoints tab
         cy.dataCy('project-settings-menu-endpoints').click();
         cy.dataCy('ace-field').should('not.exist');
-        cy.dataCy('url-field').should('have.class', 'disabled');
+        cy.dataCy('Actions-Server').should('have.class', 'disabled');
         cy.dataCy('save-button').should('not.exist');
         // instances tab
         cy.dataCy('project-settings-menu-instances').should('not.exist');
@@ -64,7 +64,7 @@ describe('projects:r can access but not edit settings', () => {
         cy.dataCy('port-project-menu').children('.item').should('have.length', 2);
         // endpoints tab
         cy.dataCy('project-settings-menu-endpoints').click();
-        cy.dataCy('url-field').should('exist');
+        cy.dataCy('Actions-Server').should('exist');
         cy.dataCy('ace-field').should('not.exist');
         cy.dataCy('save-button').should('exist');
         // remove user

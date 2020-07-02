@@ -451,6 +451,18 @@ Migrations.add({
     },
 });
 
+Migrations.add({
+    version: 19,
+    up: async () => {
+        const { webhooks } = safeLoad(Assets.getText(
+            process.env.MODE === 'development'
+                ? 'defaults/private.dev.yaml'
+                : process.env.MODE === 'test' ? 'defaults/private.yaml' : 'defaults/private.gke.yaml',
+        ));
+        GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.private.webhooks.reportCrashWebhook': webhooks.reportCrashWebhook } });
+    },
+});
+
 Meteor.startup(() => {
     Migrations.migrateTo('latest');
 });

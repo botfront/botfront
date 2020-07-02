@@ -147,10 +147,22 @@ export const getDefaultTemplateFromSequence = (sequence) => {
 export const addResponseLanguage = (response, language) => {
     const updatedResponse = response;
     const newValue = {
-        sequence: [{ content: safeDump(defaultTemplate(parseContentType(safeLoad(response.values[0].sequence[0].content)))) }],
+        sequence: response.values
+            ? [
+                {
+                    content: safeDump(
+                        defaultTemplate(
+                            parseContentType(
+                                safeLoad(response.values[0].sequence[0].content),
+                            ),
+                        ),
+                    ),
+                },
+            ]
+            : [{ content: 'text: \'\'' }],
         lang: language,
     };
-    updatedResponse.values = [...response.values, newValue];
+    updatedResponse.values = [...(response.values || []), newValue];
     return updatedResponse;
 };
 

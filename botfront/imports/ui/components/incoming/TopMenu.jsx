@@ -39,7 +39,7 @@ const TopMenu = ({
     return (
         <Menu borderless className={`top-menu ${className}`}>
             <div className='language-container'>
-                <Menu.Item header borderless className='language-item'>
+                <Menu.Item header className='language-item'>
                     {['conversations', 'forms'].includes(activeTab) ? (
                         <></>
                     ) : (

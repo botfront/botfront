@@ -13,6 +13,7 @@ const webhooksSchema = new SimpleSchema({
     uploadImageWebhook: { type: webhookSchema },
     deleteImageWebhook: { type: webhookSchema },
     deploymentWebhook: { type: webhookSchema },
+    reportCrashWebhook: { type: webhookSchema },
 });
 
 

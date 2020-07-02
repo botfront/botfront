@@ -7,7 +7,7 @@ import { generateTurns } from './utils';
 import UserUtteredEventViewer from '../example_editor/UserUtteredEventViewer';
 
 function BotResponse({
-    type, text, data, key,
+    type, text, data,
 }) {
     if (!text && !data) {
         return null;
@@ -17,7 +17,7 @@ function BotResponse({
 
     const dataEmpty = !data || !Object.keys(data).length;
     return (
-        <div className='bot-response-message' key={key}>
+        <div className='bot-response-message'>
             {text && <p className='bot-response-text'>{text}</p>}
             {!dataEmpty && <ReactJson className='bot-response-json' src={data} collapsed name={type} />}
         </div>
@@ -28,24 +28,22 @@ BotResponse.propTypes = {
     type: PropTypes.string.isRequired,
     text: PropTypes.string,
     data: PropTypes.object,
-    key: PropTypes.string,
 };
 
 BotResponse.defaultProps = {
     text: '',
     data: null,
-    key: 'bot-response',
 };
 
 function Turn({
-    userSays, userId, botResponses, key, userRef,
+    userSays, userId, botResponses, userRef,
 }) {
     if (!userSays && botResponses.length === 0) {
         return null;
     }
 
     return (
-        <Comment key={key}>
+        <Comment>
             {userSays && ([
                 <div ref={userRef} />,
                 <Comment.Avatar src='/images/avatars/matt.jpg' />,
@@ -64,7 +62,9 @@ function Turn({
                         </Comment.Metadata>
                         <Comment.Text>
                             {botResponses.map((response, index) => (
-                                <BotResponse {...response} key={`bot-response-${index}`} />
+                                <React.Fragment key={`bot-response-${index}`}>
+                                    <BotResponse {...response} />
+                                </React.Fragment>
                             ))}
                         </Comment.Text>
                         <Comment.Actions>
@@ -80,14 +80,12 @@ Turn.propTypes = {
     userSays: PropTypes.object,
     userId: PropTypes.string,
     botResponses: PropTypes.arrayOf(PropTypes.object).isRequired,
-    key: PropTypes.string,
     userRef: PropTypes.object,
 };
 
 Turn.defaultProps = {
     userSays: null,
     userId: null,
-    key: 'dialogue-turn',
     userRef: null,
 };
 
@@ -109,14 +107,15 @@ function ConversationDialogueViewer({
         <Comment.Group>
             {turns.length > 0 ? (
                 turns.map(({ userSays, botResponses, messageId }, index) => (
-                    <Turn
-                        userSays={userSays}
-                        userId={userId}
-                        botResponses={botResponses}
-                        // eslint-disable-next-line camelcase
-                        userRef={messageId === messageIdInView ? toScrollTo : null}
-                        key={`dialogue-turn-${index}`}
-                    />
+                    <React.Fragment key={`dialogue-turn-${index}`}>
+                        <Turn
+                            userSays={userSays}
+                            userId={userId}
+                            botResponses={botResponses}
+                            // eslint-disable-next-line camelcase
+                            userRef={messageId === messageIdInView ? toScrollTo : null}
+                        />
+                    </React.Fragment>
                 ))
             ) : (
                 <Message

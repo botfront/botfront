@@ -186,18 +186,32 @@ export default class NluDataTable extends React.Component {
                             <Popup.Header>Canonical Example</Popup.Header>
                             <Popup.Content className='popup-canonical'>
                                 This example is canonical for the intent
-                                <span className='intent-name'> {props.row.example.intent}</span>
-
-                                {props.row.example.entities && props.row.example.entities.length > 0
-                                    ? (
+                                <span className='intent-name'>
+                                    {' '}
+                                    {props.row.example.intent}
+                                </span>
+                                {props.row.example.entities
+                                    && props.row.example.entities.length > 0 ? (
                                         <>
-                                            and for the following entity - entity value combinations: <br />
+                                            and for the following entity - entity value
+                                            combinations: <br />
                                             {props.row.example.entities.map(entity => (
-                                                <span><strong style={{ color: getColor(entity.entity).backgroundColor }}>{entity.entity}</strong>: {entity.value}</span>
+                                                <span key={`${entity.entity}${entity.value}`}>
+                                                    <strong
+                                                        style={{
+                                                            color: getColor(entity.entity)
+                                                                .backgroundColor,
+                                                        }}
+                                                    >
+                                                        {entity.entity}
+                                                    </strong>
+                                                    : {entity.value}
+                                                </span>
                                             ))}
                                         </>
-                                    )
-                                    : ''}
+                                    ) : (
+                                        ''
+                                    )}
                             </Popup.Content>
                         </>
                     );
@@ -429,11 +443,12 @@ NluDataTable.propTypes = {
     intentColumns: PropTypes.arrayOf(PropTypes.object),
     onSwitchCanonical: PropTypes.func.isRequired,
     projectId: PropTypes.string.isRequired,
-    conditionalRowFormatter: PropTypes.func.isRequired,
+    conditionalRowFormatter: PropTypes.func,
     className: PropTypes.string,
 };
 
 NluDataTable.defaultProps = {
+    conditionalRowFormatter: null,
     hideHeader: false,
     extraColumns: [],
     intentColumns: null,

@@ -1,11 +1,11 @@
 import { safeDump, safeLoad } from 'js-yaml/lib/js-yaml';
 import shortid from 'shortid';
 import BotResponses from '../botResponses.model';
-import { GlobalSettings } from '../../../globalSettings/globalSettings.collection';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { Stories } from '../../../story/stories.collection';
 import { addTemplateLanguage, modifyResponseType } from '../../../../lib/botResponse.utils';
 import { parsePayload } from '../../../../lib/storyMd.utils';
+import { getWebhooks, deleteImages } from '../../../../lib/utils';
 
 const indexResponseContent = (input) => {
     if (Array.isArray(input)) return input.reduce((acc, curr) => [...acc, ...indexResponseContent(curr)], []);
@@ -117,27 +117,10 @@ const getImageUrls = response => response.values.reduce(
     [],
 );
 
-export const getImageWebhooks = () => {
-    const {
-        settings: {
-            private: { webhooks },
-        },
-    } = GlobalSettings.findOne({}, { fields: { 'settings.private.webhooks': 1 } });
-    const { deleteImageWebhook, uploadImageWebhook } = webhooks;
-    return { deleteImageWebhook, uploadImageWebhook };
-};
-
-export const deleteImages = async (imgUrls, projectId, url, method) => Promise.all(
-    imgUrls.map(imageUrl => Meteor.callWithPromise('axios.requestWithJsonBody', url, method, {
-        projectId,
-        uri: imageUrl,
-    })),
-);
-
 export const deleteResponse = async (projectId, key) => {
     const response = await BotResponses.findOne({ projectId, key }).lean();
     if (!response) return;
-    const { deleteImageWebhook: { url, method } } = getImageWebhooks();
+    const { deleteImageWebhook: { url, method } } = getWebhooks();
     if (url && method) deleteImages(getImageUrls(response), projectId, url, method);
     return BotResponses.findOneAndDelete({ _id: response._id }).lean(); // eslint-disable-line consistent-return
 };

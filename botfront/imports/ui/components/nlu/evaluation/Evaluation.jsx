@@ -230,7 +230,7 @@ class Evaluation extends React.Component {
 
 Evaluation.propTypes = {
     model: PropTypes.object.isRequired,
-    evaluation: requiredIf(PropTypes.object, props => !props.loading),
+    evaluation: PropTypes.object,
     projectId: PropTypes.string.isRequired,
     loading: PropTypes.bool.isRequired,
     validationRender: PropTypes.func,
