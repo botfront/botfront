@@ -86,6 +86,7 @@ export const updateResponse = async (projectId, _id, newResponse) => {
         { ...newResponse, textIndex },
         { runValidators: true },
     ).exec();
+    console.log(response);
     if (!!responseWithNameExists) return response;
     await replaceStoryLines(projectId, response.key, newResponse.key);
     return { ok: 1 };
@@ -156,6 +157,7 @@ export const upsertResponse = async ({
         projectId, language, key, newPayload, index,
     });
     const newNameIsTaken = await isResponseNameTaken(projectId, newKey);
+    if (newNameIsTaken) throw new Error('E11000'); // response names must be unique
     const update = index === -1
         ? {
             $push: {

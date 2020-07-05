@@ -2,7 +2,6 @@
 
 describe('rename responses in the visual editor', () => {
     beforeEach(() => {
-        cy.deleteProject('bf');
         cy.createProject('bf', 'trial', 'en').then(() => {
             cy.login();
         });
@@ -36,7 +35,7 @@ describe('rename responses in the visual editor', () => {
     });
 
     afterEach(() => {
-        Cypress.runner.stop();
+        cy.deleteProject('bf');
     });
 
     it('should rename a bot response from the visual editor and update all stories', () => {
