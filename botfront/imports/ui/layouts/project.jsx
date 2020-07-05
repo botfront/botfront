@@ -166,9 +166,9 @@ class Project extends React.Component {
         this.setState({ entities: [...new Set([...entities, newEntity])] });
     }
 
-    upsertResponse = async (key, payload, index) => {
+    upsertResponse = async (key, newResponse, index) => {
         const { responses } = this.state;
-
+        const { payload, key: newKey } = newResponse;
         const { projectId, workingLanguage: language } = this.props;
         const { isNew, ...newPayload } = payload; // don't pass isNew to mutation
         let responseTypeVariable = {};
@@ -177,13 +177,16 @@ class Project extends React.Component {
             responseTypeVariable = { newResponseType: payload.__typename };
             this.resetResponseInCache(key);
         }
+        if (newKey) {
+            this.resetResponseInCache(newKey);
+        }
         const variables = {
-            projectId, language, newPayload, key, index, ...responseTypeVariable,
+            projectId, language, newPayload, key, newKey, index, ...responseTypeVariable,
         };
         const result = await apolloClient.mutate({
             mutation: UPSERT_BOT_RESPONSE,
             variables,
-            update: () => this.setResponse(key, { isNew, ...newPayload }),
+            update: () => this.setResponse(newKey || key, { isNew, ...newPayload }),
         });
         return result;
     }
@@ -382,6 +385,8 @@ class Project extends React.Component {
                                     addUtterancesToTrainingData: this.addUtterancesToTrainingData,
                                     getCanonicalExamples: this.getCanonicalExamples,
                                     refreshEntitiesAndIntents: this.refreshEntitiesAndIntents,
+                                    resetResponseInCache: this.resetResponseInCache,
+                                    setResponseInCache: this.setResponse,
                                 }}
                             >
                                 <DndProvider backend={HTML5Backend}>

@@ -13,6 +13,7 @@ import { RESPONSES_MODIFIED } from './subscriptions';
 import { GET_BOT_RESPONSE } from '../queries';
 // components
 import { ProjectContext } from '../../../layouts/context';
+import { ConversationOptionsContext } from '../../stories/Context';
 import SequenceEditor from './SequenceEditor';
 import MetadataForm from '../MetadataForm.ce';
 import ResponseNameInput from '../common/ResponseNameInput';
@@ -24,6 +25,7 @@ import {
     getDefaultTemplateFromSequence,
     addContentType,
     modifyResponseType,
+    generateRenamingErrorMessage,
 } from '../../../../lib/botResponse.utils';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { Loading } from '../../utils/Utils';
@@ -41,14 +43,14 @@ const BotResponseEditor = (props) => {
         botResponse,
         open,
         closeModal,
-        renameable,
         isNew,
         language,
         projectId,
         name,
     } = props;
 
-    const { upsertResponse } = useContext(ProjectContext); // using the upsert function from the project context ensures the visual story is updated
+    const { upsertResponse, resetResponseInCache, setResponseInCache } = useContext(ProjectContext); // using the upsert function from the project context ensures the visual story is updated
+    const { reloadStories } = useContext(ConversationOptionsContext);
     const [createBotResponse] = useMutation(CREATE_BOT_RESPONSE);
     const [updateBotResponse] = useMutation(UPDATE_BOT_RESPONSE);
     const [deleteVariation] = useMutation(DELETE_VARIATION);
@@ -67,17 +69,7 @@ const BotResponseEditor = (props) => {
     }, [botResponse]);
 
     const validateResponseName = (err) => {
-        if (!err) {
-            setRenameError();
-            return;
-        }
-        if (err.message.match(/E11000/)) {
-            setRenameError('Response names must be unique');
-        } else if (err.message.match(/alidation failed: key: Path `key` is invalid/)) {
-            setRenameError('Response names must start with utter_');
-        } else {
-            setRenameError('an unexpected error occured while saving this response');
-        }
+        setRenameError(generateRenamingErrorMessage(err));
     };
 
     const insertResponse = (newResponse, callback) => {
@@ -201,7 +193,7 @@ const BotResponseEditor = (props) => {
         return { ...ret, metadata };
     };
 
-    const handleModalClose = () => {
+    const handleModalClose = async () => {
         const validResponse = newBotResponse;
         if (!open) return false;
         // the response is new or
@@ -215,9 +207,11 @@ const BotResponseEditor = (props) => {
                 }
             });
         } if (!renameError) {
-            const newPayload = getRefreshData();
-            return upsertResponse(name, newPayload, 0).then(() => { // update the content of the first variation to ensure consistency in visual story editor
-                closeModal();
+            return resetResponseInCache(name).then(() => {
+                if (name !== responseKey) {
+                    setResponseInCache(responseKey, getRefreshData);
+                    reloadStories();
+                } else closeModal();
             });
         }
         return false;
@@ -270,7 +264,7 @@ const BotResponseEditor = (props) => {
                 <Segment attached='top' className='resonse-editor-topbar'>
                     <div className='response-editor-topbar-section'>
                         <ResponseNameInput
-                            renameable={renameable}
+                            renameable
                             onChange={(_e, target) => setResponseKey(target.value)}
                             saveResponseName={handleChangeKey}
                             errorMessage={renameError}

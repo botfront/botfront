@@ -46,8 +46,9 @@ const StoryEditorContainer = ({
     branchPath,
     changeStoryPath,
     collapsed,
+    versionKey,
 }) => {
-    const { stories, getResponseLocations } = useContext(ConversationOptionsContext);
+    const { stories, getResponseLocations, reloadStories } = useContext(ConversationOptionsContext);
     const { slots } = useContext(ProjectContext);
     
     // Used to store ace editors instance to dynamically set annotations
@@ -60,6 +61,7 @@ const StoryEditorContainer = ({
     const hasCheckpoints = () => !!(story.checkpoints && story.checkpoints.length > 0);
     const [lastMdType, setLastMdType] = useReducer(() => Date.now(), 0);
     const saveStory = (path, content, options = {}) => {
+        console.log('-------- saving story --------');
         Meteor.call(
             'stories.update',
             {
@@ -142,7 +144,7 @@ const StoryEditorContainer = ({
             ...storyControllers,
             ...newStoryControllers,
         });
-    }, [branchPath]);
+    }, [branchPath, versionKey]);
 
     const GetExceptionsLengthByType = exceptionType => (
         // valid types are "errors" and "warnings"
@@ -238,7 +240,7 @@ const StoryEditorContainer = ({
         }
         return (
             <StoryErrorBoundary>
-                <StoryVisualEditor story={storyControllers[path.join()]} getResponseLocations={getResponseLocations} />
+                <StoryVisualEditor story={storyControllers[path.join()]} getResponseLocations={getResponseLocations} reloadStories={reloadStories} />
             </StoryErrorBoundary>
         );
     };
@@ -454,6 +456,7 @@ StoryEditorContainer.propTypes = {
     changeStoryPath: PropTypes.func.isRequired,
     collapsed: PropTypes.bool.isRequired,
     projectId: PropTypes.string,
+    versionKey: PropTypes.string.isRequired,
 };
 
 StoryEditorContainer.defaultProps = {

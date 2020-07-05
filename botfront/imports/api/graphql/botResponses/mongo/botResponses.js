@@ -6,6 +6,7 @@ import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { Stories } from '../../../story/stories.collection';
 import { addTemplateLanguage, modifyResponseType } from '../../../../lib/botResponse.utils';
 import { parsePayload } from '../../../../lib/storyMd.utils';
+import { replaceStoryLines } from '../../story/mongo/stories';
 
 const indexResponseContent = (input) => {
     if (Array.isArray(input)) return input.reduce((acc, curr) => [...acc, ...indexResponseContent(curr)], []);
@@ -71,14 +72,23 @@ export const createResponses = async (projectId, responses) => {
     return Promise.all(answer);
 };
 
+const isResponseNameTaken = async(projectId, key) => {
+    if (!key || !projectId) return false;
+    return !!(await BotResponses.findOne({ projectId, key }).lean());
+};
+
 export const updateResponse = async (projectId, _id, newResponse) => {
+    const { key } = newResponse;
+    const responseWithNameExists = await BotResponses.findOne({ key, _id: { $not: new RegExp(`^${_id}$`) } }).lean();
     const textIndex = indexBotResponse(newResponse);
-    const result = BotResponses.updateOne(
+    const response = await BotResponses.findOneAndUpdate(
         { projectId, _id },
         { ...newResponse, textIndex },
         { runValidators: true },
     ).exec();
-    return result;
+    if (!!responseWithNameExists) return response;
+    await replaceStoryLines(projectId, response.key, newResponse.key);
+    return { ok: 1 };
 };
 
 
@@ -140,15 +150,23 @@ export const updateResponseType = async ({
 };
 
 export const upsertResponse = async ({
-    projectId, language, key, newPayload, index,
+    projectId, language, key, newPayload, index, newKey,
 }) => {
     const textIndex = await mergeAndIndexBotResponse({
         projectId, language, key, newPayload, index,
     });
+    const newNameIsTaken = await isResponseNameTaken(projectId, newKey);
     const update = index === -1
-        ? { $push: { 'values.$.sequence': { $each: [{ content: safeDump(clearTypenameField(newPayload)) }] } }, $set: { textIndex } }
-        : { $set: { [`values.$.sequence.${index}`]: { content: safeDump(clearTypenameField(newPayload)) }, textIndex } };
-    return BotResponses.findOneAndUpdate(
+        ? {
+            $push: {
+                'values.$.sequence': {
+                    $each: [{ content: safeDump(clearTypenameField(newPayload)) }],
+                },
+            },
+            $set: { textIndex, ...(newKey ? { key: newKey } : {}) },
+        }
+        : { $set: { [`values.$.sequence.${index}`]: { content: safeDump(clearTypenameField(newPayload)) }, textIndex, ...(newKey ? { key: newKey } : {}) } };
+    const updatedResponse = await BotResponses.findOneAndUpdate(
         { projectId, key, 'values.lang': language },
         update,
         { new: true, lean: true },
@@ -161,13 +179,17 @@ export const upsertResponse = async ({
             $setOnInsert: {
                 _id: shortid.generate(),
                 projectId,
-                key,
+                key: newKey || key,
                 textIndex,
             },
         },
         { new: true, lean: true, upsert: true },
     )
     ));
+    if (!newNameIsTaken && updatedResponse && newKey === updatedResponse.key) {
+        await replaceStoryLines(projectId, key, newKey);
+    }
+    return updatedResponse;
 };
 
 export const deleteVariation = async ({

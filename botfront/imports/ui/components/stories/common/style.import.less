@@ -44,7 +44,6 @@
             .response-name-container {
                 visibility: visible;
                 white-space: nowrap;
-                opacity: 0.5;
             }
             .side-by-side {
                 visibility: visible;
@@ -160,49 +159,62 @@
         visibility: hidden;
     }
     .response-name-container {
-        display: flex;
-        opacity: 0;
-        transition: opacity 0.1s ease-in-out;
         position: absolute;
+        visibility: hidden;
         bottom: 5px;
         right: 5px;
-        max-width: 22%;
+        font-size: 0.78571429rem;
         .response-name {
-            max-width: 100%;
-            z-index: 1;
-            color: #767676;
-            font-size: 0.78571429rem;
-            padding: 0 5px;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            white-space: nowrap;
-            text-align: right;
-            &.response-name-link {
-                text-align: right;
-                cursor: pointer;
-                color: #0b71be;
-                font-weight: 501;
-                padding-right: 0;
-            }
-        }
-        .response-instance-count {
-            color: #0b71be;
-            font-weight: 501;
-            font-size: 0.78571429rem;
-            padding-left: 0;
-            cursor: pointer;
-        }
-        .response-name-link-container {
             display: flex;
-            overflow: hidden;
-            white-space: nowrap;
-        }
-        .item.popup-trigger-wrapper {
-            max-width: 100%;
-            overflow: block;
-        }
-        .ui.inline.loader.response-name-loader {
-            margin-right:0.50em;
+            &.locations-link {
+                visibility: visible;
+                .response-name-input {
+                    color: #92bfe1;
+                    input {
+                        color: #92bfe1;
+                    }
+                }
+            }
+            .response-name-input {
+                color: #cdcdcd;
+                input {
+                    color: #cdcdcd;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    text-align: right;
+                    padding: 0;
+                    padding-right: 0.5em;
+                    border-style: none;
+                    &:focus {
+                        visibility: visible;
+                        border-style: solid;
+                        border-color: rgba(34,36,38,.15);
+                    }
+                    &:hover {
+                        border-style: solid;
+                    }
+                }
+                &.error {
+                    input {
+                        border-style: solid;
+                        color: #9f3a38;
+                        &:focus {
+                            border-style: solid;
+                        }
+                        &:hover {
+                            border-style: solid;
+                        }
+                    }
+                }
+            }
+            .response-locations-count {
+                cursor: pointer;
+                color: #92bfe1;
+            }
+            .ui.active.loader.response-name-loader {
+                opacity: 0.5;
+            }
         }
     }
 }
