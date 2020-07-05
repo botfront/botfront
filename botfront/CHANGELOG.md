@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.25.1-ee.2](https://github.com/botfront/botfront/compare/v0.25.1-ee.1...v0.25.1-ee.2) (2020-07-05)
+
+
+### Features
+
+* error page with report buttons ([03c7fec](https://github.com/botfront/botfront/commit/03c7fec745101ad2de08cfbaec7d24cabf646248))
+
 ### [0.25.1-ee.1](https://github.com/botfront/botfront/compare/v0.25.0-ee.5...v0.25.1-ee.1) (2020-07-01)
 
 
