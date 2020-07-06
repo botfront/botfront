@@ -91,21 +91,6 @@ describe('Bot responses', function() {
         addTextResponse('{backspace}test_A', 'response content', true);
         cy.dataCy('response-name-error').should('exist');
     });
-    it('should disable response name input if the response is used in a story', function() {
-        cy.visit('/project/bf/stories');
-        cy.createStoryGroup();
-        cy.createStoryInGroup();
-        cy.wait(250);
-        cy.dataCy('toggle-md').click();
-        cy.get('.ace_content').click({ force: true });
-        cy.get('textarea').type('  - utter_test_A               '); // the spaces are a workaround for a bug with md saving
-        cy.get('.book.icon').eq(0).click();
-        addTextResponse('test_A', 'response content');
-
-        cy.visit('/project/bf/dialogue/templates');
-        cy.dataCy('template-intent').parents('.rt-tr-group').find('.edit.icon').click();
-        cy.dataCy('response-name-input').should('have.class', 'disabled');
-    });
     
     it('should create a response using the response editor', function() {
         cy.visit('/project/bf/dialogue/templates');
@@ -162,7 +147,6 @@ describe('Bot responses', function() {
         cy.dataCy('response-editor').should('exist');
 
         cy.dataCy('response-editor').find('[data-cy=bot-response-input]').type('{backspace}{backspace}edited by response editor');
-        cy.dataCy('response-name-input').should('have.class', 'disabled');
         cy.dataCy('metadata-tab').click();
         cy.dataCy('toggle-force-open').click();
         cy.wait(100);
