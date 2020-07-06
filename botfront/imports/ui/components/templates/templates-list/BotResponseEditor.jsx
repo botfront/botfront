@@ -160,11 +160,10 @@ const BotResponseEditor = (props) => {
     };
 
     const handleSequenceChange = (updatedSequence, index) => {
-        const { metadata, ...content } = updatedSequence;
+        const { payload: { metadata, ...content } } = updatedSequence;
         if (isNew) {
             const tempvar = updateSequence(newBotResponse, content, index);
             setNewBotResponse(tempvar);
-            
             return;
         }
         upsertResponse(name, updatedSequence, index);
@@ -301,7 +300,6 @@ BotResponseEditor.propTypes = {
     botResponse: PropTypes.object,
     open: PropTypes.bool.isRequired,
     closeModal: PropTypes.func.isRequired,
-    renameable: PropTypes.bool,
     isNew: PropTypes.bool,
     language: PropTypes.string.isRequired,
     projectId: PropTypes.string.isRequired,
