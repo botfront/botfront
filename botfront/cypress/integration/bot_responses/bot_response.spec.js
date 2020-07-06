@@ -181,10 +181,12 @@ describe('Bot responses', function() {
         cy.dataCy('single-story-editor').find('.ace_text-input').focus().type('- utter_test{enter}', { force: true });
         cy.dataCy('story-title').click({ force: true }); // force textarea blur and save
         cy.dataCy('toggle-visual').click();
-        cy.dataCy('response-name').trigger('mouseover', { force: true });
-        cy.dataCy('response-name').click({ force: true });
-        cy.dataCy('response-name').should('have.class', 'response-name-link');
-        cy.dataCy('response-name').click();
+        cy.get('.response-name').trigger('mouseover', { force: true });
+        cy.dataCy('response-locations-count').should('include.text', '2');
+        cy.dataCy('response-locations-count').click({ force: true });
+        cy.get('.response-name.locations-link').should('exist');
+        cy.dataCy('response-locations-count').click();
+        cy.dataCy('response-locations-count').click();
         cy.dataCy('story-name-link').contains('Groupo (1)').click();
         cy.dataCy('story-title').should('have.length', 2);
         cy.dataCy('story-title').first().should('have.value', 'Groupo (1)');

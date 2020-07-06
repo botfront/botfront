@@ -85,7 +85,7 @@ const BotResponseName = (props) => {
                     className='response-locations-popup'
                     trigger={(
                         <>
-                            <span className='response-locations-count'>({responseLocations.length})</span>
+                            <span className='response-locations-count' data-cy='response-locations-count'>({responseLocations.length})</span>
                         </>
                     )}
                     content={(

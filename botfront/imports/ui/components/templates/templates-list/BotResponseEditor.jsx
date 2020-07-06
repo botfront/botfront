@@ -227,7 +227,7 @@ const BotResponseEditor = (props) => {
     const addSequence = () => {
         const activeSequence = getActiveSequence();
         const template = getDefaultTemplateFromSequence(activeSequence);
-        handleSequenceChange(template);
+        handleSequenceChange({ payload: template });
     };
 
     const renderActiveTab = () => {

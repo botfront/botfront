@@ -20,7 +20,7 @@ const CustomResponseEditor = (props) => {
 
     const handleSave = (e) => {
         try {
-            onChange({ ...safeLoad(value), __typename, metadata });
+            onChange({ payload: { ...safeLoad(value), __typename, metadata } });
         } catch (error) {
             e.preventDefault();
         }
