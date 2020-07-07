@@ -97,6 +97,7 @@ const instances = new Schema({ _id: String }, { strict: false, versionKey: false
 const core_policies = new Schema({ _id: String }, { strict: false, versionKey: false });
 const conversations = new Schema({ _id: String }, { strict: false, versionKey: false });
 const form_results = new Schema({ _id: String }, { strict: false, versionKey: false });
+const analytics_dashboards = new Schema({ _id: String }, { strict: false, versionKey: false });
 const activity = new Schema({
     _id: { type: String, default: shortid.generate },
     modelId: { type: String, required: true },
@@ -113,6 +114,7 @@ const activity = new Schema({
 activity.index({ text: 1, modelId: 1, env: 1 }, { unique: true });
 
 exports.Activity = mongoose.model('Activity', activity, 'activity');
+exports.AnalyticsDashboads = mongoose.model('AnalyticsDashboads', analytics_dashboards, 'analyticsDashboards');
 exports.Conversations = mongoose.model('Conversations', conversations, 'conversations');
 exports.FormResults = mongoose.model('FormResults', form_results, 'form_results');
 exports.CorePolicies = mongoose.model('CorePolicies', core_policies, 'core_policies');
