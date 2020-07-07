@@ -69,9 +69,10 @@ const SequenceEditor = (props) => {
                                     const blankTemplate = defaultTemplate(
                                         content.__typename,
                                     );
-                                    onChange(blankTemplate, 0);
+                                    onChange({ payload: blankTemplate }, 0);
                                     return;
                                 }
+                                console.log('hmmmmm');
                                 onDeleteVariation(index);
                             }}
                             icon='trash'

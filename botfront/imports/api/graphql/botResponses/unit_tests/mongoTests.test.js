@@ -1,8 +1,7 @@
 import { expect } from 'chai';
 import { Meteor } from 'meteor/meteor';
 import {
-    upsertResponse,
-    createResponse, createResponses, createAndOverwriteResponses, upsertFullResponse, deleteVariation,
+    upsertResponse, createResponses, createAndOverwriteResponses, upsertFullResponse, deleteVariation,
 } from '../mongo/botResponses';
 
 if (Meteor.isServer) {
@@ -57,15 +56,6 @@ if (Meteor.isServer) {
     const upsertIndexFixtureB = 'utter_TEST\nHi i am great, how about you?\nwelcome to our website, how can I help?\nsava, et toi?';
     const deleteVariationFixture = 'utter_TEST\nHi i am great, how about you?\nsava, et toi?';
 
-    const testCreateResponse = async (done) => {
-        try {
-            const result = await createResponse(projectId, responseFixture);
-            expect(result.textIndex).to.be.equal(textIndexFixture);
-            done();
-        } catch (e) {
-            done(e);
-        }
-    };
     const testCreateResponses = async (done) => {
         try {
             await createResponses(projectId, [responseFixture]);
@@ -88,7 +78,7 @@ if (Meteor.isServer) {
     };
     const testUpdateResponse = async (done) => {
         try {
-            const newResponse = await createResponse(projectId, responseFixture);
+            const newResponse = await createResponses(projectId, [responseFixture]);
             await upsertFullResponse(projectId, newResponse._id, responseUpdateFixture);
             const response = await BotResponses.findOne({ key: 'utter_UPDATE_TEST' }).lean();
             expect(response.textIndex).to.be.equal(updatedIndexFixture);
@@ -116,7 +106,7 @@ if (Meteor.isServer) {
 
     const updateWithUpsertResponse = async (done) => {
         try {
-            await createResponse(projectId, responseFixture);
+            await createResponses(projectId, [responseFixture]);
             await upsertResponse({
                 projectId,
                 language: 'en',
@@ -134,7 +124,7 @@ if (Meteor.isServer) {
 
     const testDeleteVariation = async (done) => {
         try {
-            await createResponse(projectId, responseFixture);
+            await createResponses(projectId, [responseFixture]);
             await deleteVariation({
                 projectId, language: 'en', key: 'utter_TEST', index: 1,
             });
@@ -154,9 +144,6 @@ if (Meteor.isServer) {
     describe('test indexing for bot response mutations', () => {
         beforeEach((done) => {
             cleanUpDB(done);
-        });
-        it('createResponse: generate text index', (done) => {
-            testCreateResponse(done);
         });
         it('createResponses: generate text index', (done) => {
             testCreateResponses(done);

@@ -50,16 +50,18 @@ const replaceLine = (story, lineToReplace, newLine) => {
 };
 const replaceIndexLine = (index, lineToReplace, newLine) => {
     const regex = new RegExp(`(^|\n|[ ])${lineToReplace}(\n|$|[ ])`, 'g');
-    return index.replace(regex, `\n${newLine}\n`);
+    return index.replace(regex, ` ${newLine} `);
 };
 
-const traverseReplaceLine = (story, lineToReplace, newLine) => {
+const traverseReplaceLine = (story, lineToReplace, newLine, isBranch) => {
     const updatedStory = story;
     updatedStory.story = replaceLine(updatedStory.story, lineToReplace, newLine);
-    updatedStory.textIndex.contents = replaceIndexLine(updatedStory.textIndex.contents, lineToReplace, newLine);
-    updatedStory.events = updatedStory.events.map(event => (event === lineToReplace ? newLine : event));
+    if (!isBranch) {
+        updatedStory.textIndex.contents = replaceIndexLine(updatedStory.textIndex.contents, lineToReplace, newLine);
+        updatedStory.events = updatedStory.events.map(event => (event === lineToReplace ? newLine : event));
+    }
     updatedStory.branches.forEach((branch) => {
-        traverseReplaceLine(branch, lineToReplace, newLine);
+        traverseReplaceLine(branch, lineToReplace, newLine, true);
     });
     return updatedStory;
 };

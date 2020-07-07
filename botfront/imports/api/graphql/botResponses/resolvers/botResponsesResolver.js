@@ -89,14 +89,6 @@ export default {
             }
             return response;
         },
-        async createResponse(_, args, __) {
-            const response = await createResponse(args.projectId, args.response, args.originalKey);
-            pubsub.publish(RESPONSES_MODIFIED, {
-                projectId: args.projectId,
-                botResponsesModified: response,
-            });
-            return { success: !!response.id, _id: response.id };
-        },
         async createResponses(_, args, __) {
             const response = await createResponses(args.projectId, args.responses);
             return { success: !!response.id };

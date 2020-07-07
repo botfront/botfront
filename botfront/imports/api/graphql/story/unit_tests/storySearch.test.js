@@ -8,7 +8,7 @@ import {
 import { indexStory } from '../../../story/stories.index';
 import { Projects } from '../../../project/project.collection';
 import { NLUModels } from '../../../nlu_model/nlu_model.collection';
-import { createResponse, deleteResponse, createResponses } from '../../botResponses/mongo/botResponses';
+import { deleteResponse, createResponses } from '../../botResponses/mongo/botResponses';
 import BotResponses from '../../botResponses/botResponses.model';
 
 import StoryResolver from '../resolvers/storiesResolver';
@@ -21,7 +21,7 @@ if (Meteor.isServer) {
         await NLUModels.remove({ _id: enModelId });
         await NLUModels.remove({ _id: frModelId });
         await Stories.remove({ _id: storyId });
-        await createResponse(projectId, botResponseFixture);
+        await createResponses(projectId, [botResponseFixture]);
         await createResponses(projectId, botResponsesFixture);
         await NLUModels.insert({ ...enModelFixture });
         await NLUModels.insert(frModelFixture);

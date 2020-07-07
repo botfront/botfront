@@ -108,21 +108,6 @@ export const upsertFullResponse = async (projectId, _id, key, newResponse) => {
     return { ok: 1, _id: response._id };
 };
 
-
-export const createResponse = async (projectId, newResponse, originalKey) => {
-    const keyIsTaken = await isResponseNameTaken(projectId, newResponse.key);
-    const textIndex = indexBotResponse(newResponse);
-    const createdResponse = await BotResponses.create({
-        ...clearTypenameField(newResponse),
-        projectId,
-        textIndex,
-    });
-    if (!keyIsTaken) {
-        await replaceStoryLines(projectId, originalKey, newResponse.key);
-    }
-    return createdResponse;
-};
-
 export const createAndOverwriteResponses = async (projectId, responses) => Promise.all(
     responses.map(({ key, _id, ...rest }) => {
         const textIndex = indexBotResponse({ key, _id, ...rest });

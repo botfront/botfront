@@ -45,7 +45,6 @@ type Mutation {
         index: Int = -1
     ): BotResponse
 
-    createResponse(projectId: String!, response: BotResponseInput, originalKey: String): updateResponse!
     createResponses(projectId: String!, responses: String): updateResponse!
 
     deleteVariation(projectId: String!, key: String!, language: String!, index: Int!): updateResponse!

@@ -104,7 +104,7 @@ const BotResponseEditor = (props) => {
         const variables = {
             projectId,
             language,
-            key: responseKey,
+            key: newBotResponse.key,
             index,
         };
         deleteVariation({ variables });
