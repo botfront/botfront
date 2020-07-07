@@ -46,7 +46,6 @@ const StoryEditorContainer = ({
     branchPath,
     changeStoryPath,
     collapsed,
-    versionKey,
 }) => {
     const { stories, getResponseLocations, reloadStories } = useContext(ConversationOptionsContext);
     const { slots } = useContext(ProjectContext);
@@ -61,7 +60,6 @@ const StoryEditorContainer = ({
     const hasCheckpoints = () => !!(story.checkpoints && story.checkpoints.length > 0);
     const [lastMdType, setLastMdType] = useReducer(() => Date.now(), 0);
     const saveStory = (path, content, options = {}) => {
-        console.log('-------- saving story --------');
         Meteor.call(
             'stories.update',
             {
@@ -144,7 +142,7 @@ const StoryEditorContainer = ({
             ...storyControllers,
             ...newStoryControllers,
         });
-    }, [branchPath, versionKey]);
+    }, [branchPath]);
 
     const GetExceptionsLengthByType = exceptionType => (
         // valid types are "errors" and "warnings"
@@ -456,7 +454,6 @@ StoryEditorContainer.propTypes = {
     changeStoryPath: PropTypes.func.isRequired,
     collapsed: PropTypes.bool.isRequired,
     projectId: PropTypes.string,
-    versionKey: PropTypes.string.isRequired,
 };
 
 StoryEditorContainer.defaultProps = {

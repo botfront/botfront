@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { Meteor } from 'meteor/meteor';
 import {
     upsertResponse,
-    createResponse, createResponses, createAndOverwriteResponses, updateResponse, deleteVariation,
+    createResponse, createResponses, createAndOverwriteResponses, upsertFullResponse, deleteVariation,
 } from '../mongo/botResponses';
 
 if (Meteor.isServer) {
@@ -89,7 +89,7 @@ if (Meteor.isServer) {
     const testUpdateResponse = async (done) => {
         try {
             const newResponse = await createResponse(projectId, responseFixture);
-            await updateResponse(projectId, newResponse._id, responseUpdateFixture);
+            await upsertFullResponse(projectId, newResponse._id, responseUpdateFixture);
             const response = await BotResponses.findOne({ key: 'utter_UPDATE_TEST' }).lean();
             expect(response.textIndex).to.be.equal(updatedIndexFixture);
             done();

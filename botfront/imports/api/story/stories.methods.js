@@ -47,7 +47,6 @@ Meteor.methods({
     },
 
     async 'stories.update'(story, options = {}) {
-        console.log('-------- saving story --------');
         const projectId = Array.isArray(story) ? story[0].projectId : story.projectId;
         check(story, Match.OneOf(Object, [Object]));
         check(options, Object);

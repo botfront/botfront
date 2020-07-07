@@ -23,9 +23,10 @@ type Subscription {
 
 type Mutation {
     deleteResponse(projectId: String!, key: String!): updateResponse!
-    updateResponse(
+    upsertFullResponse(
         projectId: String!
-        _id: String!
+        _id: String
+        key: String
         response: BotResponseInput
     ): updateResponse!
     createAndOverwriteResponses(
@@ -44,7 +45,7 @@ type Mutation {
         index: Int = -1
     ): BotResponse
 
-    createResponse(projectId: String!, response: BotResponseInput): updateResponse!
+    createResponse(projectId: String!, response: BotResponseInput, originalKey: String): updateResponse!
     createResponses(projectId: String!, responses: String): updateResponse!
 
     deleteVariation(projectId: String!, key: String!, language: String!, index: Int!): updateResponse!

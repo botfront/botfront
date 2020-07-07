@@ -72,34 +72,55 @@ export const createResponses = async (projectId, responses) => {
     return Promise.all(answer);
 };
 
-const isResponseNameTaken = async(projectId, key) => {
+const isResponseNameTaken = async(projectId, key, _id) => {
     if (!key || !projectId) return false;
+    if (_id) return !!(await BotResponses.findOne({ projectId, key, _id: { $not: new RegExp(`^${_id}$`) } }).lean());
     return !!(await BotResponses.findOne({ projectId, key }).lean());
 };
 
-export const updateResponse = async (projectId, _id, newResponse) => {
-    const { key } = newResponse;
-    const responseWithNameExists = await BotResponses.findOne({ key, _id: { $not: new RegExp(`^${_id}$`) } }).lean();
+export const upsertFullResponse = async (projectId, _id, key, newResponse) => {
+    const update = newResponse;
+    const responseWithNameExists = await isResponseNameTaken(projectId, newResponse.key, _id);
     const textIndex = indexBotResponse(newResponse);
-    const response = await BotResponses.findOneAndUpdate(
-        { projectId, _id },
-        { ...newResponse, textIndex },
-        { runValidators: true },
+    delete update._id;
+    let response = await BotResponses.findOneAndUpdate(
+        { projectId, ...(_id ? { _id } : { key }) },
+        {
+            $set: { ...update, textIndex },
+            $setOnInsert: {
+                _id: shortid.generate(),
+            },
+        },
+        { runValidators: true, upsert: true },
     ).exec();
-    console.log(response);
-    if (!!responseWithNameExists) return response;
-    await replaceStoryLines(projectId, response.key, newResponse.key);
-    return { ok: 1 };
+    if (responseWithNameExists) {
+        return response;
+    }
+    const oldKey = response ? response.key : key;
+    // if response was inserted
+    if (!response) {
+        response = await BotResponses.findOne({ key: newResponse.key, projectId }).lean();
+    }
+    // if response was renamed
+    if (!responseWithNameExists && oldKey !== newResponse.key) {
+        await replaceStoryLines(projectId, oldKey, newResponse.key);
+    }
+    return { ok: 1, _id: response._id };
 };
 
 
-export const createResponse = async (projectId, newResponse) => {
+export const createResponse = async (projectId, newResponse, originalKey) => {
+    const keyIsTaken = await isResponseNameTaken(projectId, newResponse.key);
     const textIndex = indexBotResponse(newResponse);
-    return BotResponses.create({
+    const createdResponse = await BotResponses.create({
         ...clearTypenameField(newResponse),
         projectId,
         textIndex,
     });
+    if (!keyIsTaken) {
+        await replaceStoryLines(projectId, originalKey, newResponse.key);
+    }
+    return createdResponse;
 };
 
 export const createAndOverwriteResponses = async (projectId, responses) => Promise.all(

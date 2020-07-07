@@ -8,16 +8,18 @@ mutation deleteResponse($projectId: String!, $key: String!) {
 }`;
 
 export const CREATE_BOT_RESPONSE = gql`
-mutation createResponse($projectId: String!, $response: BotResponseInput) {
-    createResponse(projectId: $projectId, response: $response){
+mutation createResponse($projectId: String!, $response: BotResponseInput, $originalKey: String) {
+    createResponse(projectId: $projectId, response: $response, originalKey: $originalKey){
       success
+      _id
     }
 }`;
 
-export const UPDATE_BOT_RESPONSE = gql`
-mutation updateResponse($projectId: String!, $_id: String!, $response: BotResponseInput) {
-    updateResponse(projectId: $projectId, _id: $_id, response: $response){
+export const UPSERT__FULL_BOT_RESPONSE = gql`
+mutation upsertFullResponse($projectId: String!, $_id: String, $key: String, $response: BotResponseInput) {
+  upsertFullResponse(projectId: $projectId, _id: $_id, key: $key, response: $response){
       success
+      _id
     }
 }`;
 

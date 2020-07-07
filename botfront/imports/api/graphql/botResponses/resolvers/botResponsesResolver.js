@@ -2,7 +2,7 @@
 import {
     getBotResponses,
     getBotResponse,
-    updateResponse,
+    upsertFullResponse,
     createAndOverwriteResponses,
     createResponse,
     createResponses,
@@ -54,15 +54,17 @@ export default {
             });
             return { success: !!botResponseDeleted };
         },
-        async updateResponse(_, args, __) {
-            const response = await updateResponse(
+        async upsertFullResponse(_, args, __) {
+            const response = await upsertFullResponse(
                 args.projectId,
                 args._id,
+                args.key,
                 args.response,
             );
+            const { _id } = response;
             pubsub.publish(RESPONSES_MODIFIED, {
                 projectId: args.projectId,
-                botResponsesModified: args.response,
+                botResponsesModified: { ...args.response, _id },
             });
             return { success: response.ok === 1 };
         },
@@ -88,12 +90,12 @@ export default {
             return response;
         },
         async createResponse(_, args, __) {
-            const response = await createResponse(args.projectId, args.response);
+            const response = await createResponse(args.projectId, args.response, args.originalKey);
             pubsub.publish(RESPONSES_MODIFIED, {
                 projectId: args.projectId,
                 botResponsesModified: response,
             });
-            return { success: !!response.id };
+            return { success: !!response.id, _id: response.id };
         },
         async createResponses(_, args, __) {
             const response = await createResponses(args.projectId, args.responses);
