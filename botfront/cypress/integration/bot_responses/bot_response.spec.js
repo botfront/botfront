@@ -146,13 +146,15 @@ describe('Bot responses', function() {
         cy.dataCy('edit-responses').click({ force: true });
         cy.dataCy('response-editor').should('exist');
 
-        cy.dataCy('response-editor').find('[data-cy=bot-response-input]').type('{backspace}{backspace}edited by response editor');
+        cy.dataCy('response-editor').find('[data-cy=bot-response-input]').click();
+        cy.dataCy('response-editor').find('[data-cy=bot-response-input]').find('textarea').type('{backspace}{backspace}edited by response editor')
+            .blur();
         cy.dataCy('metadata-tab').click();
         cy.dataCy('toggle-force-open').click();
         cy.wait(100);
         cy.escapeModal();
 
-        cy.dataCy('bot-response-input').contains('edited by response editor').should('exist');
+        cy.dataCy('bot-response-input').should('include.text', 'edited by response editor');
         cy.dataCy('bot-response-input').type('edited by visual story');
 
         cy.dataCy('edit-responses').click({ force: true });
