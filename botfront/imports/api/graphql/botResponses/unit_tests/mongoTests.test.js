@@ -79,7 +79,7 @@ if (Meteor.isServer) {
     const testUpdateResponse = async (done) => {
         try {
             const newResponse = await createResponses(projectId, [responseFixture]);
-            await upsertFullResponse(projectId, newResponse._id, responseUpdateFixture);
+            await upsertFullResponse(projectId, newResponse._id, null, responseUpdateFixture);
             const response = await BotResponses.findOne({ key: 'utter_UPDATE_TEST' }).lean();
             expect(response.textIndex).to.be.equal(updatedIndexFixture);
             done();

@@ -102,7 +102,7 @@ export const upsertFullResponse = async (projectId, _id, key, newResponse) => {
         response = await BotResponses.findOne({ key: newResponse.key, projectId }).lean();
     }
     // if response was renamed
-    if (!responseWithNameExists && oldKey !== newResponse.key) {
+    if (!responseWithNameExists && oldKey && oldKey !== newResponse.key) {
         await replaceStoryLines(projectId, oldKey, newResponse.key);
     }
     return { ok: 1, _id: response._id };
