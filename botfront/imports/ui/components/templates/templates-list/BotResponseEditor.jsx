@@ -190,8 +190,8 @@ const BotResponseEditor = (props) => {
             });
         } if (!renameError) {
             return resetResponseInCache(name).then(() => {
+                setResponseInCache(responseKey, getRefreshData());
                 if (name !== responseKey) {
-                    setResponseInCache(responseKey, getRefreshData());
                     reloadStories();
                 } else closeModal();
             });

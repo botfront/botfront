@@ -160,7 +160,7 @@ export const upsertResponse = async ({
     projectId, language, key, newPayload, index, newKey,
 }) => {
     const textIndex = await mergeAndIndexBotResponse({
-        projectId, language, key, newPayload, index,
+        projectId, language, key: newKey || key, newPayload, index,
     });
     const newNameIsTaken = await isResponseNameTaken(projectId, newKey);
     if (newNameIsTaken) throw new Error('E11000'); // response names must be unique

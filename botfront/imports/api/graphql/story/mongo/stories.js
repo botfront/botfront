@@ -2,6 +2,7 @@ import { Stories } from '../../../story/stories.collection';
 import { Projects } from '../../../project/project.collection';
 import { NLUModels } from '../../../nlu_model/nlu_model.collection';
 import BotResponses from '../../botResponses/botResponses.model';
+import { indexStory } from '../../../story/stories.index';
 
 const combineSearches = (search, responseKeys, intents) => {
     const searchRegex = [search];
@@ -48,20 +49,14 @@ const replaceLine = (story, lineToReplace, newLine) => {
     const regex = new RegExp(`- ${lineToReplace}([ ]+\n|\n|[ ]+$|$)`, 'g');
     return story.replace(regex, `- ${newLine}\n`);
 };
-const replaceIndexLine = (index, lineToReplace, newLine) => {
-    const regex = new RegExp(`(^|\n|[ ])${lineToReplace}(\n|$|[ ])`, 'g');
-    return index.replace(regex, ` ${newLine} `);
-};
 
-const traverseReplaceLine = (story, lineToReplace, newLine, isBranch) => {
+const traverseReplaceLine = (story, lineToReplace, newLine) => {
     const updatedStory = story;
-    updatedStory.story = replaceLine(updatedStory.story, lineToReplace, newLine);
-    if (!isBranch) {
-        updatedStory.textIndex.contents = replaceIndexLine(updatedStory.textIndex.contents, lineToReplace, newLine);
-        updatedStory.events = updatedStory.events.map(event => (event === lineToReplace ? newLine : event));
+    if (story.story) {
+        updatedStory.story = replaceLine(updatedStory.story, lineToReplace, newLine);
     }
-    updatedStory.branches.forEach((branch) => {
-        traverseReplaceLine(branch, lineToReplace, newLine, true);
+    (updatedStory.branches || []).forEach((branch) => {
+        traverseReplaceLine(branch, lineToReplace, newLine);
     });
     return updatedStory;
 };
@@ -78,6 +73,6 @@ export const replaceStoryLines = (projectId, lineToReplace, newLine) => {
     return Promise.all(matchingStories.map(({ _id }) => {
         const story = Stories.findOne({ _id });
         const { _id: excludeId, ...rest } = traverseReplaceLine(story, lineToReplace, newLine);
-        return Stories.update({ _id }, { $set: { ...rest } });
+        return Stories.update({ _id }, { $set: { ...rest, ...indexStory(rest, { includeEventsField: true }) } });
     }));
 };

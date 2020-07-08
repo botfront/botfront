@@ -72,7 +72,6 @@ const SequenceEditor = (props) => {
                                     onChange({ payload: blankTemplate }, 0);
                                     return;
                                 }
-                                console.log('hmmmmm');
                                 onDeleteVariation(index);
                             }}
                             icon='trash'

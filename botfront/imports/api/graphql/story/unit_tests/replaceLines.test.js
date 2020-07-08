@@ -56,7 +56,7 @@ if (Meteor.isServer) {
         done();
     };
     // ------ test suite -------
-    describe.only('replace story lines', () => {
+    describe('replace story lines', () => {
         before((done) => {
             insertDataAndIndex(done);
         });
