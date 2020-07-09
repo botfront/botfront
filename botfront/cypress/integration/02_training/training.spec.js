@@ -71,6 +71,7 @@ describe('Training', function() {
         cy.toggleStoryGroupFocused();
         cy.get('.eye.icon.focused').should('have.length', 0);
         cy.toggleStoryGroupFocused('Intro stories');
+        cy.wait(500);
         cy.get('.eye.icon.focused').should('have.length', 1);
         cy.train();
         cy.newChatSesh();

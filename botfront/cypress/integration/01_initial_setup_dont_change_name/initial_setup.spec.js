@@ -18,6 +18,7 @@ describe('intial setup', function () {
 
     it('Should create projects when completing the initial setup', () => {
         cy.visit('/');
+        
         cy.url().should('be', '/setup/welcome');
         cy.get('[data-cy=start-setup]').click();
 
