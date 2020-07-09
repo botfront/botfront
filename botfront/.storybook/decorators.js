@@ -144,9 +144,9 @@ export const withProjectContext = (story) => {
                     );
                     callback();
                 },
-                upsertResponse: (title, content) => new Promise((resolve) => {
-                    updateResponses({ ...responses, [title]: content });
-                    return resolve({ ...responses, [title]: content })
+                upsertResponse: (title, { payload }) => new Promise((resolve) => {
+                    updateResponses({ ...responses, [title]: payload });
+                    return resolve({ ...responses, [title]: payload })
                 }),
                 addEntity,
                 addIntent,

@@ -91,21 +91,6 @@ describe('Bot responses', function() {
         addTextResponse('{backspace}test_A', 'response content', true);
         cy.dataCy('response-name-error').should('exist');
     });
-    it('should disable response name input if the response is used in a story', function() {
-        cy.visit('/project/bf/stories');
-        cy.createStoryGroup();
-        cy.createStoryInGroup();
-        cy.wait(250);
-        cy.dataCy('toggle-md').click();
-        cy.get('.ace_content').click({ force: true });
-        cy.get('textarea').type('  - utter_test_A               '); // the spaces are a workaround for a bug with md saving
-        cy.get('.book.icon').eq(0).click();
-        addTextResponse('test_A', 'response content');
-
-        cy.visit('/project/bf/dialogue/templates');
-        cy.dataCy('template-intent').parents('.rt-tr-group').find('.edit.icon').click();
-        cy.dataCy('response-name-input').should('have.class', 'disabled');
-    });
     
     it('should create a response using the response editor', function() {
         cy.visit('/project/bf/dialogue/templates');
@@ -161,14 +146,15 @@ describe('Bot responses', function() {
         cy.dataCy('edit-responses').click({ force: true });
         cy.dataCy('response-editor').should('exist');
 
-        cy.dataCy('response-editor').find('[data-cy=bot-response-input]').type('{backspace}{backspace}edited by response editor');
-        cy.dataCy('response-name-input').should('have.class', 'disabled');
+        cy.dataCy('response-editor').find('[data-cy=bot-response-input]').click();
+        cy.dataCy('response-editor').find('[data-cy=bot-response-input]').find('textarea').type('{backspace}{backspace}edited by response editor')
+            .blur();
         cy.dataCy('metadata-tab').click();
         cy.dataCy('toggle-force-open').click();
         cy.wait(100);
         cy.escapeModal();
 
-        cy.dataCy('bot-response-input').contains('edited by response editor').should('exist');
+        cy.dataCy('bot-response-input').should('include.text', 'edited by response editor');
         cy.dataCy('bot-response-input').type('edited by visual story');
 
         cy.dataCy('edit-responses').click({ force: true });
@@ -197,10 +183,12 @@ describe('Bot responses', function() {
         cy.dataCy('single-story-editor').find('.ace_text-input').focus().type('- utter_test{enter}', { force: true });
         cy.dataCy('story-title').click({ force: true }); // force textarea blur and save
         cy.dataCy('toggle-visual').click();
-        cy.dataCy('response-name').trigger('mouseover', { force: true });
-        cy.dataCy('response-name').click({ force: true });
-        cy.dataCy('response-name').should('have.class', 'response-name-link');
-        cy.dataCy('response-name').click();
+        cy.get('.response-name').trigger('mouseover', { force: true });
+        cy.dataCy('response-locations-count').should('include.text', '2');
+        cy.dataCy('response-locations-count').click({ force: true });
+        cy.get('.response-name.locations-link').should('exist');
+        cy.dataCy('response-locations-count').click();
+        cy.dataCy('response-locations-count').click();
         cy.dataCy('story-name-link').contains('Groupo (1)').click();
         cy.dataCy('story-title').should('have.length', 2);
         cy.dataCy('story-title').first().should('have.value', 'Groupo (1)');

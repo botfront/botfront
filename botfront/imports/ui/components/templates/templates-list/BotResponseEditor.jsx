@@ -1,5 +1,4 @@
 import React, { useState, useContext, useEffect } from 'react';
-import shortid from 'shortid';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { safeDump, safeLoad } from 'js-yaml';
@@ -8,11 +7,12 @@ import {
     Segment, Menu, MenuItem, Modal, Button,
 } from 'semantic-ui-react';
 // connections
-import { CREATE_BOT_RESPONSE, UPDATE_BOT_RESPONSE, DELETE_VARIATION } from '../mutations';
+import { UPSERT__FULL_BOT_RESPONSE, DELETE_VARIATION } from '../mutations';
 import { RESPONSES_MODIFIED } from './subscriptions';
 import { GET_BOT_RESPONSE } from '../queries';
 // components
 import { ProjectContext } from '../../../layouts/context';
+import { ConversationOptionsContext } from '../../stories/Context';
 import SequenceEditor from './SequenceEditor';
 import MetadataForm from '../MetadataForm.ce';
 import ResponseNameInput from '../common/ResponseNameInput';
@@ -24,6 +24,7 @@ import {
     getDefaultTemplateFromSequence,
     addContentType,
     modifyResponseType,
+    generateRenamingErrorMessage,
 } from '../../../../lib/botResponse.utils';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { Loading } from '../../utils/Utils';
@@ -41,16 +42,15 @@ const BotResponseEditor = (props) => {
         botResponse,
         open,
         closeModal,
-        renameable,
         isNew,
         language,
         projectId,
         name,
     } = props;
 
-    const { upsertResponse } = useContext(ProjectContext); // using the upsert function from the project context ensures the visual story is updated
-    const [createBotResponse] = useMutation(CREATE_BOT_RESPONSE);
-    const [updateBotResponse] = useMutation(UPDATE_BOT_RESPONSE);
+    const { resetResponseInCache, setResponseInCache } = useContext(ProjectContext); // using the upsert function from the project context ensures the visual story is updated
+    const { reloadStories } = useContext(ConversationOptionsContext);
+    const [upsertWholeBotResponse] = useMutation(UPSERT__FULL_BOT_RESPONSE);
     const [deleteVariation] = useMutation(DELETE_VARIATION);
     
     const [newBotResponse, setNewBotResponse] = useState(botResponse);
@@ -62,43 +62,19 @@ const BotResponseEditor = (props) => {
     useEffect(() => {
         if (botResponse) {
             setNewBotResponse(botResponse);
-            setResponseKey(botResponse.key);
         }
     }, [botResponse]);
 
     const validateResponseName = (err) => {
-        if (!err) {
-            setRenameError();
-            return;
-        }
-        if (err.message.match(/E11000/)) {
-            setRenameError('Response names must be unique');
-        } else if (err.message.match(/alidation failed: key: Path `key` is invalid/)) {
-            setRenameError('Response names must start with utter_');
-        } else {
-            setRenameError('an unexpected error occured while saving this response');
-        }
+        const newRenameError = generateRenamingErrorMessage(err);
+        setRenameError(newRenameError);
+        return newRenameError;
     };
 
-    const insertResponse = (newResponse, callback) => {
-        const key = newResponse.key === 'utter_'
-            ? `utter_${shortid.generate()}`
-            : newResponse.key;
-        createBotResponse({
+    const upsertFullResponse = (updatedResponse, callback = () => {}) => {
+        upsertWholeBotResponse({
             variables: {
-                projectId,
-                response: clearTypenameField({ ...newResponse, key }),
-            },
-        }).then(
-            (result) => { callback(undefined, result); },
-            (error) => { callback(error); },
-        );
-    };
-
-    const updateResponse = (updatedResponse, callback = () => {}) => {
-        updateBotResponse({
-            variables: {
-                projectId, _id: updatedResponse._id, response: clearTypenameField(updatedResponse),
+                projectId, _id: updatedResponse._id, response: clearTypenameField(updatedResponse), ...(isNew ? {} : { key: newBotResponse.key }),
             },
         }).then(
             (result) => {
@@ -128,7 +104,7 @@ const BotResponseEditor = (props) => {
         const variables = {
             projectId,
             language,
-            key: name,
+            key: newBotResponse.key,
             index,
         };
         deleteVariation({ variables });
@@ -141,7 +117,7 @@ const BotResponseEditor = (props) => {
             );
             return;
         }
-        updateResponse({ ...newBotResponse, metadata: updatedMetadata }, () => {});
+        upsertFullResponse({ ...newBotResponse, metadata: updatedMetadata }, () => {});
     };
 
     const handleChangeKey = async () => {
@@ -149,7 +125,7 @@ const BotResponseEditor = (props) => {
             setNewBotResponse({ ...newBotResponse, key: responseKey });
             return;
         }
-        updateResponse({ ...newBotResponse, key: responseKey }, validateResponseName);
+        upsertFullResponse({ ...newBotResponse, key: responseKey }, validateResponseName);
     };
 
     const updateSequence = (oldResponse, contentInput, index) => {
@@ -168,14 +144,13 @@ const BotResponseEditor = (props) => {
     };
 
     const handleSequenceChange = (updatedSequence, index) => {
-        const { metadata, ...content } = updatedSequence;
+        const { payload: { metadata, ...content } } = updatedSequence;
+        const updatedBotResponse = updateSequence(newBotResponse, content, index);
         if (isNew) {
-            const tempvar = updateSequence(newBotResponse, content, index);
-            setNewBotResponse(tempvar);
-            
+            setNewBotResponse(updatedBotResponse);
             return;
         }
-        upsertResponse(name, updatedSequence, index);
+        upsertFullResponse(updatedBotResponse);
     };
 
     const handleChangePayloadType = (newType) => {
@@ -184,7 +159,7 @@ const BotResponseEditor = (props) => {
             setNewBotResponse(updatedBotResponse);
             return;
         }
-        updateResponse(updatedBotResponse);
+        upsertFullResponse(updatedBotResponse);
     };
 
     const getActiveSequence = () => {
@@ -201,23 +176,25 @@ const BotResponseEditor = (props) => {
         return { ...ret, metadata };
     };
 
-    const handleModalClose = () => {
-        const validResponse = newBotResponse;
+    const handleModalClose = async () => {
         if (!open) return false;
         // the response is new or
         // the response was one of the default defined one and thus does not really exist in db
-        if (isNew || validResponse._id === undefined) {
-            if (checkResponseEmpty(validResponse)) return closeModal();
-            return insertResponse(validResponse, (err) => {
+        if (isNew || newBotResponse._id === undefined) {
+            if (checkResponseEmpty(newBotResponse)) return closeModal();
+            return upsertFullResponse(newBotResponse, (err) => {
                 validateResponseName(err);
                 if (!err) {
                     closeModal();
                 }
             });
         } if (!renameError) {
-            const newPayload = getRefreshData();
-            return upsertResponse(name, newPayload, 0).then(() => { // update the content of the first variation to ensure consistency in visual story editor
-                closeModal();
+            return resetResponseInCache(name).then(() => {
+                setResponseInCache(responseKey, getRefreshData()).then(() => {
+                    if (name !== responseKey) {
+                        reloadStories();
+                    } else closeModal();
+                });
             });
         }
         return false;
@@ -234,7 +211,7 @@ const BotResponseEditor = (props) => {
     const addSequence = () => {
         const activeSequence = getActiveSequence();
         const template = getDefaultTemplateFromSequence(activeSequence);
-        handleSequenceChange(template);
+        handleSequenceChange({ payload: template });
     };
 
     const renderActiveTab = () => {
@@ -270,7 +247,7 @@ const BotResponseEditor = (props) => {
                 <Segment attached='top' className='resonse-editor-topbar'>
                     <div className='response-editor-topbar-section'>
                         <ResponseNameInput
-                            renameable={renameable}
+                            renameable
                             onChange={(_e, target) => setResponseKey(target.value)}
                             saveResponseName={handleChangeKey}
                             errorMessage={renameError}
@@ -307,7 +284,6 @@ BotResponseEditor.propTypes = {
     botResponse: PropTypes.object,
     open: PropTypes.bool.isRequired,
     closeModal: PropTypes.func.isRequired,
-    renameable: PropTypes.bool,
     isNew: PropTypes.bool,
     language: PropTypes.string.isRequired,
     projectId: PropTypes.string.isRequired,
@@ -316,7 +292,6 @@ BotResponseEditor.propTypes = {
 
 BotResponseEditor.defaultProps = {
     botResponse: {},
-    renameable: true,
     isNew: false,
     name: null,
 };

@@ -6,6 +6,7 @@ import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { Stories } from '../../../story/stories.collection';
 import { addTemplateLanguage, modifyResponseType } from '../../../../lib/botResponse.utils';
 import { parsePayload } from '../../../../lib/storyMd.utils';
+import { replaceStoryLines } from '../../story/mongo/stories';
 
 const indexResponseContent = (input) => {
     if (Array.isArray(input)) return input.reduce((acc, curr) => [...acc, ...indexResponseContent(curr)], []);
@@ -71,24 +72,40 @@ export const createResponses = async (projectId, responses) => {
     return Promise.all(answer);
 };
 
-export const updateResponse = async (projectId, _id, newResponse) => {
-    const textIndex = indexBotResponse(newResponse);
-    const result = BotResponses.updateOne(
-        { projectId, _id },
-        { ...newResponse, textIndex },
-        { runValidators: true },
-    ).exec();
-    return result;
+const isResponseNameTaken = async(projectId, key, _id) => {
+    if (!key || !projectId) return false;
+    if (_id) return !!(await BotResponses.findOne({ projectId, key, _id: { $not: new RegExp(`^${_id}$`) } }).lean());
+    return !!(await BotResponses.findOne({ projectId, key }).lean());
 };
 
-
-export const createResponse = async (projectId, newResponse) => {
+export const upsertFullResponse = async (projectId, _id, key, newResponse) => {
+    const update = newResponse;
+    const responseWithNameExists = await isResponseNameTaken(projectId, newResponse.key, _id);
     const textIndex = indexBotResponse(newResponse);
-    return BotResponses.create({
-        ...clearTypenameField(newResponse),
-        projectId,
-        textIndex,
-    });
+    delete update._id;
+    let response = await BotResponses.findOneAndUpdate(
+        { projectId, ...(_id ? { _id } : { key }) },
+        {
+            $set: { ...update, textIndex },
+            $setOnInsert: {
+                _id: shortid.generate(),
+            },
+        },
+        { runValidators: true, upsert: true },
+    ).exec();
+    if (responseWithNameExists) {
+        return response;
+    }
+    const oldKey = response ? response.key : key;
+    // if response was inserted
+    if (!response) {
+        response = await BotResponses.findOne({ key: newResponse.key, projectId }).lean();
+    }
+    // if response was renamed
+    if (!responseWithNameExists && oldKey && oldKey !== newResponse.key) {
+        await replaceStoryLines(projectId, oldKey, newResponse.key);
+    }
+    return { ok: 1, _id: response._id };
 };
 
 export const createAndOverwriteResponses = async (projectId, responses) => Promise.all(
@@ -140,15 +157,24 @@ export const updateResponseType = async ({
 };
 
 export const upsertResponse = async ({
-    projectId, language, key, newPayload, index,
+    projectId, language, key, newPayload, index, newKey,
 }) => {
     const textIndex = await mergeAndIndexBotResponse({
-        projectId, language, key, newPayload, index,
+        projectId, language, key: newKey || key, newPayload, index,
     });
+    const newNameIsTaken = await isResponseNameTaken(projectId, newKey);
+    if (newNameIsTaken) throw new Error('E11000'); // response names must be unique
     const update = index === -1
-        ? { $push: { 'values.$.sequence': { $each: [{ content: safeDump(clearTypenameField(newPayload)) }] } }, $set: { textIndex } }
-        : { $set: { [`values.$.sequence.${index}`]: { content: safeDump(clearTypenameField(newPayload)) }, textIndex } };
-    return BotResponses.findOneAndUpdate(
+        ? {
+            $push: {
+                'values.$.sequence': {
+                    $each: [{ content: safeDump(clearTypenameField(newPayload)) }],
+                },
+            },
+            $set: { textIndex, ...(newKey ? { key: newKey } : {}) },
+        }
+        : { $set: { [`values.$.sequence.${index}`]: { content: safeDump(clearTypenameField(newPayload)) }, textIndex, ...(newKey ? { key: newKey } : {}) } };
+    const updatedResponse = await BotResponses.findOneAndUpdate(
         { projectId, key, 'values.lang': language },
         update,
         { new: true, lean: true },
@@ -161,13 +187,17 @@ export const upsertResponse = async ({
             $setOnInsert: {
                 _id: shortid.generate(),
                 projectId,
-                key,
+                key: newKey || key,
                 textIndex,
             },
         },
         { new: true, lean: true, upsert: true },
     )
     ));
+    if (!newNameIsTaken && updatedResponse && newKey === updatedResponse.key) {
+        await replaceStoryLines(projectId, key, newKey);
+    }
+    return updatedResponse;
 };
 
 export const deleteVariation = async ({

@@ -17,4 +17,5 @@ type batchMutationOutput {
 
 type updateResponse {
     success: Boolean!
+    _id: String
 }

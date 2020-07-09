@@ -47,7 +47,7 @@ const StoryEditorContainer = ({
     changeStoryPath,
     collapsed,
 }) => {
-    const { stories, getResponseLocations } = useContext(ConversationOptionsContext);
+    const { stories, getResponseLocations, reloadStories } = useContext(ConversationOptionsContext);
     const { slots } = useContext(ProjectContext);
     
     // Used to store ace editors instance to dynamically set annotations
@@ -238,7 +238,7 @@ const StoryEditorContainer = ({
         }
         return (
             <StoryErrorBoundary>
-                <StoryVisualEditor story={storyControllers[path.join()]} getResponseLocations={getResponseLocations} />
+                <StoryVisualEditor story={storyControllers[path.join()]} getResponseLocations={getResponseLocations} reloadStories={reloadStories} />
             </StoryErrorBoundary>
         );
     };

@@ -274,3 +274,17 @@ export const toggleButtonPersistence = (content) => {
         );
     }
 };
+
+export const generateRenamingErrorMessage = (error) => {
+    if (!error) {
+        return null;
+    }
+    if (!error.message) return 'an unexpected error occured while renaming this response';
+    if (error.message.match(/E11000/)) {
+        return 'Response names must be unique';
+    }
+    if (error.message.match(/alidation failed: key: Path `key` is invalid/)) {
+        return 'Response names must start with utter_';
+    }
+    return error.message;
+};
