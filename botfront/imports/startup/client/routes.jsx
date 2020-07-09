@@ -90,69 +90,77 @@ const redirectToPath = pathname => (nextState, replace) => {
 };
 const withErrorCatcher = Component => props => <ErrorCatcher><Component {...props} /></ErrorCatcher>;
 
-Meteor.startup(() => {
-    render(
-        <DocumentTitle title='Botfront.'>
-            <ApolloProvider client={apolloClient}>
-                <ApolloHooksProvider client={apolloClient}>
-                    <Provider store={store}>
-                        <Router history={browserHistory}>
-                            <Route exact path='/setup' component={withErrorCatcher(SetupLayout)} onEnter={validateCanSetup()}>
-                                <Route path='/setup/welcome' component={Welcome} name='Welcome' />
-                                <Route path='/setup/account' component={SetupSteps} name='Account' />
-                            </Route>
-                            <Route exact path='/' component={withErrorCatcher(AccountLayout)}>
-                                <IndexRoute component={Index} />
-                                <Route path='/login' component={Login} name='Login' />
-                                {/* <Route path="/signup" component={ Signup } onEnter={ logout } name='Signup' /> */}
-                                {/* <Route path="/create-project" component={ CreateProjectComponent } onEnter={ authenticate } name='Create Project' /> */}
-                                <Route path='/forgot-password' component={ForgotPassword} name='Forgot Password' />
-                                <Route path='/reset-password/:token' component={ResetPassword} name='Reset Password' />
-                                <Route path='/enroll-account/:token' component={ResetPassword} name='Reset Password' />
-                            </Route>
-                            <Route exact path='/project' component={withErrorCatcher(Project)}>
-                                <Route path='/project/:project_id/nlu/models' component={NLUModelComponent} name='NLU Models' onEnter={authenticateProject} />
-                                <Route path='/project/:project_id/nlu/model/:model_id' component={NLUModelComponent} name='NLU Models' onEnter={authenticateProject} />
-                                <Route path='/project/:project_id/incoming' component={Incoming} name='Incoming' onEnter={authenticateProject} />
-                                <Route
-                                    path='/project/:project_id/incoming/:model_id'
-                                    component={Incoming}
-                                    name='Incoming'
-                                    onEnter={authenticateProject}
-                                />
-                                <Route
-                                    path='/project/:project_id/incoming/:model_id/:tab'
-                                    component={Incoming}
-                                    name='Incoming'
-                                    onEnter={authenticateProject}
-                                />
-                                <Route
-                                    path='/project/:project_id/incoming/:model_id/:tab/:page'
-                                    component={Incoming}
-                                    name='Incoming'
-                                    onEnter={authenticateProject}
-                                />
-                                <Route
-                                    path='/project/:project_id/incoming/:model_id/:tab/:page/:selected_id'
-                                    component={Incoming}
-                                    name='Incoming'
-                                    onEnter={authenticateProject}
-                                />
+// disabled so it is consistent with ee
+// eslint-disable-next-line react/prefer-stateless-function
+class Routes extends React.Component {
+    render() {
+        return (
+            <DocumentTitle title='Botfront.'>
+                <ApolloProvider client={apolloClient}>
+                    <ApolloHooksProvider client={apolloClient}>
+                        <Provider store={store}>
+                            <Router history={browserHistory}>
+                                <Route exact path='/setup' component={withErrorCatcher(SetupLayout)} onEnter={validateCanSetup()}>
+                                    <Route path='/setup/welcome' component={Welcome} name='Welcome' />
+                                    <Route path='/setup/account' component={SetupSteps} name='Account' />
+                                </Route>
+                                <Route exact path='/' component={withErrorCatcher(AccountLayout)}>
+                                    <IndexRoute component={Index} />
+                                    <Route path='/login' component={Login} name='Login' />
+                                    {/* <Route path="/signup" component={ Signup } onEnter={ logout } name='Signup' /> */}
+                                    {/* <Route path="/create-project" component={ CreateProjectComponent } onEnter={ authenticate } name='Create Project' /> */}
+                                    <Route path='/forgot-password' component={ForgotPassword} name='Forgot Password' />
+                                    <Route path='/reset-password/:token' component={ResetPassword} name='Reset Password' />
+                                    <Route path='/enroll-account/:token' component={ResetPassword} name='Reset Password' />
+                                </Route>
+                                <Route exact path='/project' component={withErrorCatcher(Project)}>
+                                    <Route path='/project/:project_id/nlu/models' component={NLUModelComponent} name='NLU Models' onEnter={authenticateProject} />
+                                    <Route path='/project/:project_id/nlu/model/:model_id' component={NLUModelComponent} name='NLU Models' onEnter={authenticateProject} />
+                                    <Route path='/project/:project_id/incoming' component={Incoming} name='Incoming' onEnter={authenticateProject} />
+                                    <Route
+                                        path='/project/:project_id/incoming/:model_id'
+                                        component={Incoming}
+                                        name='Incoming'
+                                        onEnter={authenticateProject}
+                                    />
+                                    <Route
+                                        path='/project/:project_id/incoming/:model_id/:tab'
+                                        component={Incoming}
+                                        name='Incoming'
+                                        onEnter={authenticateProject}
+                                    />
+                                    <Route
+                                        path='/project/:project_id/incoming/:model_id/:tab/:page'
+                                        component={Incoming}
+                                        name='Incoming'
+                                        onEnter={authenticateProject}
+                                    />
+                                    <Route
+                                        path='/project/:project_id/incoming/:model_id/:tab/:page/:selected_id'
+                                        component={Incoming}
+                                        name='Incoming'
+                                        onEnter={authenticateProject}
+                                    />
 
-                                <Route path='/project/:project_id/stories' component={StoriesContainer} name='Stories' onEnter={authenticateProject} />
-                                <Route path='/project/:project_id/dialogue/templates' component={TemplatesContainer} name='Templates' onEnter={authenticateProject} />
-                                <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticateProject} />
-                                <Route path='/project/:project_id/settings/global' component={SettingsContainer} name='More Settings' onEnter={authenticateAdmin} />
-                            </Route>
-                            <Route path='/chat/:project_id' component={ChatDemo} name='Chat Demo' />
-                            <Route path='/404' component={() => <NotFound code={404} />} />
-                            <Route path='/403' component={() => <NotFound code={403} />} />
-                            <Route path='*' exact onEnter={redirectToPath('/404')} />
-                        </Router>
-                    </Provider>
-                </ApolloHooksProvider>
-            </ApolloProvider>
-        </DocumentTitle>,
-        document.getElementById('render-target'),
-    );
+                                    <Route path='/project/:project_id/stories' component={StoriesContainer} name='Stories' onEnter={authenticateProject} />
+                                    <Route path='/project/:project_id/dialogue/templates' component={TemplatesContainer} name='Templates' onEnter={authenticateProject} />
+                                    <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticateProject} />
+                                    <Route path='/project/:project_id/settings/global' component={SettingsContainer} name='More Settings' onEnter={authenticateAdmin} />
+                                </Route>
+                                <Route path='/chat/:project_id' component={ChatDemo} name='Chat Demo' />
+                                <Route path='/404' component={() => <NotFound code={404} />} />
+                                <Route path='/403' component={() => <NotFound code={403} />} />
+                                <Route path='*' exact onEnter={redirectToPath('/404')} />
+                            </Router>
+                        </Provider>
+                    </ApolloHooksProvider>
+                </ApolloProvider>
+            </DocumentTitle>
+        );
+    }
+}
+
+Meteor.startup(() => {
+    render(<Routes />,
+        document.getElementById('render-target'));
 });
