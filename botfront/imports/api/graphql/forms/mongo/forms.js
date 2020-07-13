@@ -98,7 +98,7 @@ export const submitForm = async (args) => {
         results,
         environment,
         projectId,
-        date: new Date(latestEventTime),
+        date: new Date(latestEventTime * 1000),
     });
 
     return { success: true };
@@ -208,7 +208,7 @@ if (Meteor.isServer) {
                     });
                 },
             );
-            rows = rows.map(r => columns.map(c => r[c]).join(','));
+            rows = rows.map(r => columns.map(c => `"${String(r[c]).replace(/"/g, '""')}"`).join(','));
             return [columns, ...rows].join('\n');
         },
     });

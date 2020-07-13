@@ -1,4 +1,4 @@
-/* global cy Cypress:true */
+/* global cy Cypress expect */
 
 const policices = `policies:
 - name: KerasPolicy
@@ -22,6 +22,7 @@ describe('test forms end to end', () => {
 
     it('should create, use, and view the results of a form', () => {
         cy.visit('project/bf/stories');
+        const benchmarkDate = new Date();
         cy.meteorAddSlot('textSlot', 'text');
         cy.setPolicies('bf', policices);
         cy.manuallyCreateForm();
@@ -49,6 +50,12 @@ describe('test forms end to end', () => {
         cy.dataCy('incoming-sidebar-link').click({ force: true });
         cy.dataCy('forms').click();
         cy.get('.ui.header').should('include.text', 'test1_form');
-        cy.get('.ui.button').should('include.text', 'Export 1 submission to CSV format');
+        cy.dataCy('export-form-submissions').should('include.text', 'Export 1 submission to CSV format').click();
+        cy.getWindowMethod('getCsvData').then((getCsvData) => {
+            const csvData = getCsvData().split('\n')[1].split(',');
+            const [date, textSlot] = [csvData[0], csvData[csvData.length - 1]];
+            expect(Math.abs(new Date(date) - benchmarkDate) / 1000).to.be.below(5 * 60);
+            expect(textSlot).to.be.equal('"text slot value"');
+        });
     });
 });

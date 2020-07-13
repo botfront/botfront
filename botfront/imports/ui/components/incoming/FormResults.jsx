@@ -39,6 +39,10 @@ const FormResults = (props) => {
             formName,
         });
         const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
+        if (window.Cypress) {
+            window.getCsvData = () => csvData;
+            return null;
+        }
         return saveAs(blob, `${formName}_submissions_${new Date().toISOString()}.csv`);
     };
 
@@ -69,6 +73,7 @@ const FormResults = (props) => {
                     disabled={disabled}
                     primary
                     content={content}
+                    data-cy='export-form-submissions'
                     onClick={handleDownloadSubmissions(form.name)}
                 />
             </Segment>
