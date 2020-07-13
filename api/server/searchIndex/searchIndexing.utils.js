@@ -160,8 +160,7 @@ const indexStory = (story) => {
         ...actions,
         ...slots,
     ].join(' \n ');
-    const result = {};
-    result.textIndex = { contents: storyContentIndex, info: story.title };
+    const result = { contents: storyContentIndex, info: story.title };
     return result;
 };
 

@@ -1,5 +1,5 @@
 import {
-    Container, Tab, Message, Grid, Menu,
+    Container, Tab, Message, Menu, Button, Header, Confirm, Segment,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -7,7 +7,7 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import 'react-s-alert/dist/s-alert-default.css';
 import {
-    AutoForm, ErrorsField, SubmitField, AutoField,
+    AutoForm, SubmitField, AutoField, ErrorsField,
 } from 'uniforms-semantic';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.collection';
@@ -15,11 +15,12 @@ import { GlobalSettingsSchema } from '../../../../api/globalSettings/globalSetti
 import AceField from '../../utils/AceField';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import { PageMenu } from '../../utils/Utils';
+import MigrationControl from './MigrationControl';
 
 class Settings extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { saving: false };
+        this.state = { saving: false, confirmModalOpen: false };
     }
 
     handleReturnToProjectSettings = () => {
@@ -31,6 +32,13 @@ class Settings extends React.Component {
         this.setState({ saving: true });
         Meteor.call('settings.save', settings, wrapMeteorCallback(() => this.setState({ saving: false }), 'Settings saved'));
     };
+
+    renderSubmitButton = () => (
+        <>
+            <ErrorsField />
+            <SubmitField value='Save' className='primary' data-cy='save-button' />
+        </>
+    )
 
     renderSecurityPane = () => (
         <Tab.Pane>
@@ -49,6 +57,7 @@ class Settings extends React.Component {
             />
             <AutoField name='settings.public.reCatpchaSiteKey' />
             <AutoField name='settings.private.reCatpchaSecretServerKey' />
+            {this.renderSubmitButton()}
         </Tab.Pane>
     );
 
@@ -56,6 +65,7 @@ class Settings extends React.Component {
         <Tab.Pane>
             <Message info icon='question circle' content='Default NLU pipeline for new NLU models' />
             <AceField name='settings.public.defaultNLUConfig' label='' convertYaml />
+            {this.renderSubmitButton()}
         </Tab.Pane>
     );
 
@@ -63,16 +73,48 @@ class Settings extends React.Component {
         <Tab.Pane>
             <Message info icon='question circle' content='Login page background images URLs' />
             <AutoField name='settings.public.backgroundImages' />
+            {this.renderSubmitButton()}
         </Tab.Pane>
     );
 
-    renderMisc = () => (
-        <Tab.Pane>
-            <AutoField name='settings.private.bfApiHost' label='Botfront API host' data-cy='docker-api-host' />
-            <AutoField name='settings.public.chitChatProjectId' label='Chitchat project Id' info='ID of project containing chitchat NLU training data' />
-            <AutoField name='settings.public.docUrl' />
-        </Tab.Pane>
-    );
+    renderMisc = () => {
+        const { confirmModalOpen } = this.state;
+        return (
+            <>
+                <Segment>
+                    <AutoField name='settings.private.bfApiHost' label='Botfront API host' data-cy='docker-api-host' />
+                    <AutoField name='settings.public.chitChatProjectId' label='Chitchat project Id' info='ID of project containing chitchat NLU training data' />
+                    <AutoField name='settings.public.docUrl' />
+                    {this.renderSubmitButton()}
+                </Segment>
+                <Segment>
+                    <MigrationControl />
+                    <Header>Rebuild search indicies</Header>
+                    <Confirm
+                        data-cy='rebuild-indices-confirm'
+                        open={confirmModalOpen}
+                        header='Rebuild search indices for all projects'
+                        content='This is a safe action that runs in the background, but it may take some time.'
+                        onCancel={() => this.setState({ confirmModalOpen: false })}
+                        onConfirm={() => {
+                            Meteor.call('global.rebuildIndexes');
+                            this.setState({ confirmModalOpen: false });
+                        }}
+                    />
+                    <Button
+                        primary
+                        onClick={(e) => {
+                            e.preventDefault();
+                            this.setState({ confirmModalOpen: true });
+                        }}
+                        data-cy='rebuild-button'
+                    >
+                        Rebuild
+                    </Button>
+                </Segment>
+            </>
+        );
+    }
 
     getSettingsPanes = () => {
         const { projectId } = this.props;
@@ -107,16 +149,6 @@ class Settings extends React.Component {
             <Container id='admin-settings' data-cy='admin-settings-menu'>
                 <AutoForm schema={new SimpleSchema2Bridge(GlobalSettingsSchema)} model={settings} onSubmit={this.onSave} disabled={saving}>
                     <Tab menu={{ vertical: true }} grid={{ paneWidth: 13, tabWidth: 3 }} panes={this.getSettingsPanes()} />
-                    <br />
-                    <Grid>
-                        <Grid.Row>
-                            <Grid.Column width={3} />
-                            <Grid.Column width={13}>
-                                <ErrorsField />
-                                <SubmitField value='Save' className='primary' />
-                            </Grid.Column>
-                        </Grid.Row>
-                    </Grid>
                 </AutoForm>
             </Container>
         </>
