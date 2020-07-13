@@ -129,7 +129,7 @@ function AnalyticsCard(props) {
     const linkToConversations = (selectedData, fullDataSet) => {
         const selectedIndex = fullDataSet.findIndex(({ bucket }) => bucket === selectedData.bucket);
         const prevData = fullDataSet[selectedIndex - 1];
-        const filters = { startDate, endDate };
+        const filters = { startDate, endDate, env: queryParams.envs[0] };
         const intentsActionsFilters = [];
         const {
             includeIntents = [],

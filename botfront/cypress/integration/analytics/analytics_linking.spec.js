@@ -13,6 +13,7 @@ describe('link from analytics to conversations and apply filters', () => {
         cy.logout();
         cy.deleteProject('bf');
     });
+ 
     
     it('should link from the conversations card', () => {
         cy.addConversationFromTemplate('bf', 'intent_test', 'intenttest');
@@ -52,6 +53,45 @@ describe('link from analytics to conversations and apply filters', () => {
             .find('button')
             .contains(`${moment().format('DD/MM/YYYY')} - ${moment().format('DD/MM/YYYY')}`); // the date range should only include the current day
     });
+
+    it('should link from the conversations card in production', () => {
+        cy.visit('/project/bf/settings');
+        cy.contains('Project Info').click();
+        cy.dataCy('deployment-environments')
+            .children()
+            .contains('production')
+            .click();
+        cy.dataCy('save-changes').click();
+        cy.addConversationFromTemplate('bf', 'intent_test', 'intenttest', { env: 'production' });
+        cy.addConversationFromTemplate('bf', 'action_test', 'actiontest', { env: 'production' });
+        cy.visit('/project/bf/analytics');
+        cy.changeEnv('production');
+        // add an included intent
+        cy.dataCy('analytics-card')
+            .first()
+            .find('[data-cy=edit-includeIntents]')
+            .click({ force: true });
+        cy.dataCy('settings-portal-dropdown')
+            .click();
+        cy.dataCy('settings-portal-dropdown')
+            .find('input')
+            .type('intent_test{enter}{esc}');
+       
+        // click on the most recent data in the graph
+        cy.dataCy('analytics-card')
+            .first()
+            .find('[data-cy=bar-chart-button]')
+            .click();
+        cy.dataCy('analytics-card').first().find('rect').last()
+            .click();
+        // check that the correct filters were set on the conversation page
+        cy.dataCy('intents-actions-filter').find('.label').should('have.length', 2); // wait for page to load
+        cy.get('.label').contains('intent_test').should('exist');
+        cy.get('.label').contains('get_started').should('exist').should('have.class', 'red');
+        cy.dataCy('conversation-item').should('have.length', 2);
+        cy.dataCy('env-selector').find('div.text').should('exist').should('have.text', 'production');
+    });
+
     it('should link from the actions card', () => {
         cy.addConversationFromTemplate('bf', 'action_test', 'actiontest');
         cy.visit('/project/bf/analytics');

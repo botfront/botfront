@@ -29,10 +29,12 @@ const ConversationsBrowserContainer = (props) => {
         router,
         setFiltersInRedux,
         filtersFromRedux,
+        changeWorkingEnv,
     } = props;
     if (!router) {
         return <></>;
     }
+   
 
     const projectId = router.params.project_id;
     let activeConversationId = router.params.selected_id;
@@ -50,6 +52,7 @@ const ConversationsBrowserContainer = (props) => {
         }),
         intentsActionsOperator: 'or',
         userId: null,
+        env: 'development',
     };
 
     const getQueryParam = (key) => {
@@ -78,6 +81,7 @@ const ConversationsBrowserContainer = (props) => {
 
     const getFilterFromQuery = (key) => {
         const filter = getQueryParam(key);
+       
         return filter || defaults[key];
     };
 
@@ -90,8 +94,8 @@ const ConversationsBrowserContainer = (props) => {
         endDate: getFilterFromQuery('endDate'),
         intentsActionsOperator: getFilterFromQuery('intentsActionsOperator'),
         userId: getFilterFromQuery('userId'),
+        env: getFilterFromQuery('env'),
     });
-
     const [activeFilters, setActiveFiltersHidden] = useState(getInitialFilters());
     const [intentsActionsOptions, setIntentsActionsOptions] = useState([]);
     const [projectTimezoneOffset, setProjectTimezoneOffset] = useState(0);
@@ -100,7 +104,6 @@ const ConversationsBrowserContainer = (props) => {
         projectId,
         page,
         pageSize: 20,
-        env,
         ...activeFilters,
         lengthFilter: activeFilters.lengthFilter.compare,
         durationFilterLowerBound: activeFilters.durationFilter.compareLowerBound,
@@ -108,7 +111,7 @@ const ConversationsBrowserContainer = (props) => {
         xThanLength: activeFilters.lengthFilter.xThan,
         confidenceFilter: activeFilters.confidenceFilter.compare,
         xThanConfidence: activeFilters.confidenceFilter.xThan,
-    }), [activeFilters, env, page]);
+    }), [activeFilters, page]);
     
     const {
         loading, error, data, refetch,
@@ -145,7 +148,6 @@ const ConversationsBrowserContainer = (props) => {
             projectId,
             page,
             pageSize: 20,
-            env,
             ...newActiveFilters,
             lengthFilter: newActiveFilters.lengthFilter.compare,
             durationFilterLowerBound: newActiveFilters.durationFilter.compareLowerBound,
@@ -169,10 +171,28 @@ const ConversationsBrowserContainer = (props) => {
     }, [projectId]);
 
     useEffect(() => {
+        const { timezoneOffset } = Projects.findOne(
+            { _id: projectId },
+            { fields: { timezoneOffset: 1 } },
+        );
+        setProjectTimezoneOffset(
+            timezoneOffset || 0,
+        );
+    }, [projectId]);
+
+    useEffect(() => {
+        changeFilters({ ...activeFilters, env: getFilterFromQuery('env') });
+    }, [env]);
+
+    useEffect(() => {
+        changeWorkingEnv(getFilterFromQuery('env') || 'development', true);
+    }, []);
+
+    useEffect(() => {
         changeFilters(activeFilters);
     }, [projectTimezoneOffset]);
-
-
+  
+  
     useQuery(GET_INTENTS_IN_CONVERSATIONS, {
         variables: { projectId },
         fetchPolicy: 'no-cache',
@@ -304,6 +324,7 @@ ConversationsBrowserContainer.propTypes = {
     conversationFilters: PropTypes.string.isRequired,
     setFiltersInRedux: PropTypes.func.isRequired,
     filtersFromRedux: PropTypes.object,
+    changeWorkingEnv: PropTypes.func.isRequired,
 };
 
 ConversationsBrowserContainer.defaultProps = {

@@ -728,3 +728,12 @@ Cypress.Commands.add('fill', {
 Cypress.Commands.add('setPolicies', (projectId, policies) => {
     cy.MeteorCall('policies.save', [{ projectId, policies }]);
 });
+
+
+Cypress.Commands.add('changeEnv', (env) => {
+    cy.dataCy('env-selector').click();
+    cy.dataCy('env-selector')
+        .find('div.menu')
+        .contains(env)
+        .click();
+});

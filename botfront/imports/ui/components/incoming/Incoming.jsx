@@ -45,8 +45,14 @@ class Incoming extends React.Component {
         }
     }
 
-    handleEnvChange = (value) => {
-        const { changeWorkingEnv } = this.props;
+    handleEnvChange = (value, visual = false) => {
+        const { changeWorkingEnv, router } = this.props;
+
+        const { location: { pathname } } = router;
+        if (pathname.includes('conversation') && !visual) {
+            const queryObject = router.getCurrentLocation().query;
+            router.push({ pathname, query: { ...queryObject, env: value } });
+        }
         changeWorkingEnv(value);
     }
 
@@ -83,7 +89,7 @@ class Incoming extends React.Component {
             );
         case 'conversations':
             return (
-                <ConversationsBrowserContainer projectId={project._id} />
+                <ConversationsBrowserContainer changeWorkingEnv={env => this.handleEnvChange(env)} projectId={project._id} />
             );
         case 'forms':
             return (
