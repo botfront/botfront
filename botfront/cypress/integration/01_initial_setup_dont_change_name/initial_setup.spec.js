@@ -3,9 +3,9 @@
 describe('intial setup', function () {
     before(function() {
         if (!Cypress.env('MODE') || Cypress.env('MODE') !== 'CI_RUN') {
-            cy.exec('mongo bf --host localhost:27017 --eval "db.dropDatabase();"');
+            cy.exec('mongo bf-os --host localhost:27017 --eval "db.dropDatabase();"');
             // wipping the db also wipe the indexes we need to recreate thoses
-            cy.exec('mongo bf --host localhost:27017 --eval "db.botResponses.createIndex({key:1, projectId:1}, {unique: true});"');
+            cy.exec('mongo bf-os --host localhost:27017 --eval "db.botResponses.createIndex({key:1, projectId:1}, {unique: true});"');
             cy.wait(1000);
         }
         cy.waitForResolve(Cypress.env('baseUrl'));

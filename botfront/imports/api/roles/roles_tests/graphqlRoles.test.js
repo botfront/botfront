@@ -90,20 +90,14 @@ if (Meteor.isServer) {
             acceptedRoles: writers.responses,
         },
         {
-            name: 'updateResponse',
-            query: BotResponseResolver.Mutation.updateResponse,
+            name: 'upsertFullResponse',
+            query: BotResponseResolver.Mutation.upsertFullResponse,
             args: { projectId },
             acceptedRoles: writers.responses,
         },
         {
             name: 'upsertResponse',
             query: BotResponseResolver.Mutation.upsertResponse,
-            args: { projectId },
-            acceptedRoles: writers.responses,
-        },
-        {
-            name: 'createResponse',
-            query: BotResponseResolver.Mutation.createResponse,
             args: { projectId },
             acceptedRoles: writers.responses,
         },

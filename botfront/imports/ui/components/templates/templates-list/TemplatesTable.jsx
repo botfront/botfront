@@ -221,7 +221,7 @@ class TemplatesTable extends React.Component {
 
     renderBotResponseEditor() {
         const {
-            activeEditor, setActiveEditor, events, templates,
+            activeEditor, setActiveEditor, templates,
         } = this.props;
         const botResponse = templates.find(({ _id }) => _id === activeEditor) || {};
         return (
@@ -232,10 +232,7 @@ class TemplatesTable extends React.Component {
                 open={activeEditor !== null}
                 botResponse={botResponse || null}
                 closeModal={() => setActiveEditor(null)}
-                renameable={!events.find((storyEvents) => {
-                    if (!storyEvents) return false;
-                    return storyEvents.find(responseName => responseName === botResponse.key);
-                })}
+                renameable
             />
         );
     }

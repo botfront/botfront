@@ -190,6 +190,7 @@ const ValidationTab = (props) => {
                             }
                             enableEditPopup
                             enableChangeType
+                            renameable={false}
                         />
                         <ChangeResponseType
                             name={
@@ -223,6 +224,7 @@ const ValidationTab = (props) => {
                             }
                             enableEditPopup
                             enableChangeType
+                            renameable={false}
                         />
                         <ChangeResponseType
                             name={

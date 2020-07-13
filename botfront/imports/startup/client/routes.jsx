@@ -12,7 +12,6 @@ import { ApolloProvider as ApolloHooksProvider } from '@apollo/react-hooks';
 import apolloClient from './apollo';
 
 import TemplatesContainer from '../../ui/components/templates/templates-list/Templates';
-import TemplateContainer from '../../ui/components/templates/template-upsert/Template';
 import SettingsContainer from '../../ui/components/admin/settings/Settings';
 import ForgotPassword from '../../ui/components/account/ForgotPassword.jsx';
 import StoriesContainer from '../../ui/components/stories/StoriesContainer';
@@ -167,8 +166,6 @@ Meteor.startup(() => {
                                 />
                                 <Route path='/project/:project_id/stories' component={StoriesContainer} name='Stories' onEnter={authenticate('stories:r')} />
                                 <Route path='/project/:project_id/dialogue/templates' component={TemplatesContainer} name='Templates' onEnter={authenticate('responses:r')} />
-                                <Route path='/project/:project_id/dialogue/templates/add' component={TemplateContainer} name='Template' onEnter={authenticate('responses:w')} />
-                                <Route path='/project/:project_id/dialogue/template/:template_id' component={TemplateContainer} name='Template' onEnter={authenticate('responses:w')} />
                                 <Route path='/project/:project_id/analytics' component={AnalyticsContainer} name='Analytics' onEnter={authenticate('analytics:r')} />
                                 <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticate('projects:r')} />
                                 <Route path='/project/:project_id/settings/global' component={SettingsContainer} name='More Settings' onEnter={authenticate('global-settings:r')} />

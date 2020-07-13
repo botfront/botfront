@@ -13,7 +13,7 @@ const ChangeResponseType = (props) => {
 
     const { upsertResponse } = useContext(ProjectContext);
     const handleChangeResponseType = () => {
-        upsertResponse(name, defaultTemplate(selectedType), 0);
+        upsertResponse(name, { payload: defaultTemplate(selectedType) }, 0);
         setSelectedType(null);
     };
 

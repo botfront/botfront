@@ -14,9 +14,10 @@ describe('test forms end to end', () => {
     });
 
     afterEach(() => {
-        cy.request('DELETE', `${Cypress.env('RASA_URL')}/model`);
-        cy.logout();
-        cy.deleteProject('bf');
+        // cy.request('DELETE', `${Cypress.env('RASA_URL')}/model`);
+        // cy.logout();
+        // cy.deleteProject('bf');
+        Cypress.runner.stop();
     });
 
     it('should create, use, and view the results of a form', () => {
@@ -25,6 +26,7 @@ describe('test forms end to end', () => {
         cy.setPolicies('bf', policices);
         cy.manuallyCreateForm();
         cy.createStoryGroup();
+        cy.dataCy('story-group-menu-item').should('include.text', 'Groupo');
         cy.createStoryInGroup({ storyName: 'testStory ' });
         cy.addUtteranceLine({ intent: 'trigger_form' });
         cy.dataCy('add-form-line').click({ force: true });

@@ -135,6 +135,7 @@ if (Meteor.isServer) {
                     uploadImageWebhook: { name: 'UploadImage', method: 'POST' },
                     deleteImageWebhook: { name: 'DeleteImage', method: 'DELETE' },
                     deploymentWebhook: { name: 'DeployProject', method: 'POST' },
+                    reportCrashWebhook: { name: 'ReportCrash', method: 'POST' },
                 },
             },
         },

@@ -29,6 +29,7 @@ const QuestionTab = (props) => {
                 onChange={handleResponseChange}
                 enableEditPopup
                 enableChangeType
+                renameable={false}
             />
             <ChangeResponseType name={(response && response.name) || `utter_ask_${slotName}`} currentType={response && response.__typename} />
         </div>

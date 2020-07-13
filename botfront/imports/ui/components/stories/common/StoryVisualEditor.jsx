@@ -84,7 +84,7 @@ export default class StoryVisualEditor extends React.Component {
         const { upsertResponse } = this.context;
         const key = suppliedKey || `utter_${shortid.generate()}`;
         const newTemplate = defaultTemplate(templateType);
-        upsertResponse(key, { ...newTemplate, isNew: true }, variationIndex).then((full) => {
+        upsertResponse(key, { payload: { ...newTemplate }, isNew: true }, variationIndex).then((full) => {
             if (full) story.insertLine(index, { type: 'bot', data: { name: key } });
         });
     };
@@ -254,9 +254,11 @@ export default class StoryVisualEditor extends React.Component {
     };
 
     handleBotResponseChange = async (name, newResponse) => {
+        const { key: newName, payload } = newResponse;
         const { upsertResponse, responses } = this.context;
-        if (isEqual(responses[name], newResponse)) return;
-        upsertResponse(name, newResponse, variationIndex);
+        if (isEqual(responses[name], payload) && newName === name) return new Promise(resolve => resolve());
+        const result = upsertResponse(name, newResponse, variationIndex);
+        return result;
     }
 
     static contextType = ProjectContext;
@@ -316,7 +318,6 @@ export default class StoryVisualEditor extends React.Component {
             }
             return this.renderBadLine(index, line, exceptions);
         });
-
         return (
             <div
                 className='story-visual-editor'

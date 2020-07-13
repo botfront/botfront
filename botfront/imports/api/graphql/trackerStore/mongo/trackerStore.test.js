@@ -32,8 +32,9 @@ if (Meteor.isServer) {
         done();
     };
 
-    describe.only('trackerStore', () => {
+    describe('trackerStore', () => {
         before(async (done) => {
+            await Project.deleteMany({ _id: 'bf' });
             await Project.create({ _id: projectId, defaultLanguage: 'en' });
             done();
         });

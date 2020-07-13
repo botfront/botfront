@@ -2,9 +2,8 @@
 import {
     getBotResponses,
     getBotResponse,
-    updateResponse,
+    upsertFullResponse,
     createAndOverwriteResponses,
-    createResponse,
     createResponses,
     deleteResponse,
     deleteVariation,
@@ -14,6 +13,7 @@ import {
 } from '../mongo/botResponses';
 import { checkIfCan } from '../../../../lib/scopes';
 import { auditLog } from '../../../../../server/logger';
+import BotResponses from '../botResponses.model';
 
 const { PubSub, withFilter } = require('apollo-server-express');
 
@@ -78,15 +78,16 @@ export default {
             });
             return { success: !!botResponseDeleted };
         },
-        async updateResponse(_, args, auth) {
+        async upsertFullResponse(_, args, auth) {
             checkIfCan('responses:w', args.projectId, auth.user._id);
-            const responseBefore = await getBotResponse(args.projectId, args.response.key);
-            const response = await updateResponse(
+            const responseIdentifier = args._id ? { _id: args._id } : { key: args.key ? args.key : args.response.key };
+            const responseBefore = await BotResponses.findOne({ projectId: args.projectId, ...responseIdentifier }).lean();
+            const response = await upsertFullResponse(
                 args.projectId,
                 args._id,
+                args.key,
                 args.response,
             );
-
             auditLog('Updated response', {
                 user: auth.user,
                 type: 'updated',
@@ -97,9 +98,10 @@ export default {
                 after: { response: args.response },
                 resType: 'response',
             });
+            const { _id } = response;
             pubsub.publish(RESPONSES_MODIFIED, {
                 projectId: args.projectId,
-                botResponsesModified: args.response,
+                botResponsesModified: { ...args.response, _id },
             });
             return { success: response.ok === 1 };
         },
@@ -138,26 +140,6 @@ export default {
                 });
             }
             return response;
-        },
-        async createResponse(_, args, auth) {
-            checkIfCan('responses:w', args.projectId, auth.user._id);
-            const response = await createResponse(args.projectId, args.response);
-            pubsub.publish(RESPONSES_MODIFIED, {
-                projectId: args.projectId,
-                botResponsesModified: response,
-            });
-            auditLog('Created response', {
-                user: auth.user,
-                type: 'created',
-                projectId: args.projectId,
-                operation: 'response-created',
-                resId: args.response.key,
-                // eslint-disable-next-line no-underscore-dangle
-                after: { response: response._doc },
-                resType: 'response',
-            });
-            
-            return { success: !!response._id };
         },
         async createResponses(_, args, auth) {
             checkIfCan('responses:w', args.projectId, auth.user._id);
