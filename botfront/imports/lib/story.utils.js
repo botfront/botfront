@@ -119,7 +119,7 @@ ${n1LevelStory.story || ''}`,
 
 export const flattenStory = story => (story.branches || []).reduce(
     (acc, val) => [...acc, ...flattenStory(val)],
-    [{ story: story.story || '', title: story.title }],
+    [{ story: story.story || '', title: story.title, rules: story.rules || [] }],
 );
 
 export const findBranchById = (branchesN0, branchId) => {
