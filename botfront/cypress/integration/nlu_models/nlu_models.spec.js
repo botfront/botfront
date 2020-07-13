@@ -43,7 +43,7 @@ describe('NLU Models ', function() {
         cy.get('[data-cy=default-langauge-selection] input').type('English');
         cy.get('[data-cy=default-langauge-selection]')
             .contains('English')
-            .click();
+            .click({ force: true });
         cy.dataCy('project-settings-menu-info').click();
         cy.get('[data-cy=default-langauge-selection]').click();
 

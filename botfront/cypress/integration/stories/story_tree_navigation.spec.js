@@ -31,9 +31,13 @@ describe('story tree navigation', function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
         cy.visit('/project/bf/stories');
         cy.createStoryGroup({ groupName: 'Groupi' });
+        cy.dataCy('story-group-menu-item').should('have.length', 5);
         cy.createStoryInGroup({ groupName: 'Groupi' });
+        cy.dataCy('story-group-menu-item').should('have.length', 6);
         cy.createStoryGroup();
+        cy.dataCy('story-group-menu-item').should('have.length', 7);
         cy.createStoryInGroup();
+        cy.dataCy('story-group-menu-item').should('have.length', 8);
         cy.createStoryInGroup();
     });
     

@@ -37,7 +37,7 @@ describe('Project Settings', function() {
             cy.get('.project-default-language input').type('English');
             cy.get('.project-default-language')
                 .contains('English')
-                .click();
+                .click({ force: true });
             cy.get('.save-project-info-button').click();
             cy.get('.project-default-language > .ui > div.text').should(($div) => {
                 expect($div.first()).to.contain('English');
