@@ -46,14 +46,14 @@ describe('global settings read permissions', () => {
         simpleDisabledCheck.forEach((menu) => {
             cy.visit('/admin/settings');
             cy.contains(menu).click();
-            cy.get('div.column div.tab .field').each(field => cy.wrap(field).should('have.class', 'disabled'));
+            cy.get('div.column div.segment .field').each(field => cy.wrap(field).should('have.class', 'disabled'));
         });
 
         // check the more panes where not eveything is disabled (eg: label)
         cy.visit('/admin/settings');
         cy.contains('Appearance').click();
-        cy.get('div.column div.tab > .field').each(field => cy.wrap(field).should('have.class', 'disabled'));
-        cy.get('div.column div.tab > .fields').each(field => cy.wrap(field).should('have.class', 'disabled'));
+        cy.get('div.column div.segment > .field').each(field => cy.wrap(field).should('have.class', 'disabled'));
+        cy.get('div.column div.segment > .fields').each(field => cy.wrap(field).should('have.class', 'disabled'));
     });
 
     it('should not be able to access project settings from global settings and vice versa', () => {
