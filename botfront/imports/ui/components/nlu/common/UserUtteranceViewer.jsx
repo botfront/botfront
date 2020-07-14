@@ -82,9 +82,11 @@ function UserUtteranceViewer(props) {
     }
 
     const onChangeWrapped = (data) => {
-        (data.entities || []).forEach((e) => {
-            if (!contextEntities.includes(e.entity)) addEntity(e.entity);
-        });
+        if (data && data.entities) {
+            data.entities.forEach((e) => {
+                if (!contextEntities.includes(e.entity)) addEntity(e.entity);
+            });
+        }
         onChange(data);
     };
 

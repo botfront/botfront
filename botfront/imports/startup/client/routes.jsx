@@ -116,82 +116,90 @@ const redirectToPath = pathname => (nextState, replace) => {
 };
 const withErrorCatcher = Component => props => <ErrorCatcher><Component {...props} /></ErrorCatcher>;
 
+// disabled so it is consistent with ee
+// eslint-disable-next-line react/prefer-stateless-function
+class Routes extends React.Component {
+    render() {
+        return (
+            <DocumentTitle title='Botfront.'>
+                <ApolloProvider client={apolloClient}>
+                    <ApolloHooksProvider client={apolloClient}>
+                        <Provider store={store}>
+                            <Router history={browserHistory}>
+                                <Route exact path='/setup' component={withErrorCatcher(SetupLayout)} onEnter={validateCanSetup()}>
+                                    <Route path='/setup/welcome' component={Welcome} name='Welcome' />
+                                    <Route path='/setup/account' component={SetupSteps} name='Account' />
+                                </Route>
+                                <Route exact path='/' component={withErrorCatcher(AccountLayout)}>
+                                    <IndexRoute component={Index} />
+                                    <Route path='/login' component={Login} name='Login' />
+                                    {/* <Route path="/signup" component={ Signup } onEnter={ logout } name='Signup' /> */}
+                                    {/* <Route path="/create-project" component={ CreateProjectComponent } onEnter={ authenticate } name='Create Project' /> */}
+                                    <Route path='/forgot-password' component={ForgotPassword} name='Forgot Password' />
+                                    <Route path='/reset-password/:token' component={ResetPassword} name='Reset Password' />
+                                    <Route path='/enroll-account/:token' component={ResetPassword} name='Reset Password' />
+                                </Route>
+                                <Route exact path='/project' component={withErrorCatcher(Project)}>
+                                    <Route path='/project/:project_id/nlu/models' component={NLUModelComponent} name='NLU Models' onEnter={authenticate('nlu-data:r')} />
+                                    <Route path='/project/:project_id/nlu/model/:model_id' component={NLUModelComponent} name='NLU Models' onEnter={authenticate('nlu-data:r')} />
+                                    <Route path='/project/:project_id/incoming' component={Incoming} name='Incoming' onEnter={authenticate('incoming:r')} />
+                                    <Route
+                                        path='/project/:project_id/incoming/:model_id'
+                                        component={Incoming}
+                                        name='Incoming'
+                                        onEnter={authenticate('incoming:r')}
+                                    />
+                                    <Route
+                                        path='/project/:project_id/incoming/:model_id/:tab'
+                                        component={Incoming}
+                                        name='Incoming'
+                                        onEnter={authenticate('incoming:r')}
+                                    />
+                                    <Route
+                                        path='/project/:project_id/incoming/:model_id/:tab/:page'
+                                        component={Incoming}
+                                        name='Incoming'
+                                        onEnter={authenticate('incoming:r')}
+                                    />
+                                    <Route
+                                        path='/project/:project_id/incoming/:model_id/:tab/:page/:selected_id'
+                                        component={Incoming}
+                                        name='Incoming'
+                                        onEnter={authenticate('incoming:r')}
+                                    />
+                                    <Route path='/project/:project_id/stories' component={StoriesContainer} name='Stories' onEnter={authenticate('stories:r')} />
+                                    <Route path='/project/:project_id/dialogue/templates' component={TemplatesContainer} name='Templates' onEnter={authenticate('responses:r')} />
+                                    <Route path='/project/:project_id/analytics' component={AnalyticsContainer} name='Analytics' onEnter={authenticate('analytics:r')} />
+                                    <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticate('projects:r')} />
+                                    <Route path='/project/:project_id/settings/global' component={SettingsContainer} name='More Settings' onEnter={authenticate('global-settings:r')} />
+                                    <Route path='*' component={NotFound} />
+                                </Route>
+                                <Route exact path='/admin' component={AdminLayout} onEnter={authenticateAdminPage()}>
+                                    <Route path='/admin/projects' component={ProjectsListContainer} name='Projects' onEnter={authenticate('projects:r', { scope: 'anyScope' })} />
+                                    <Route path='/admin/project/:project_id' component={ProjectContainer} name='Project' onEnter={authenticate('projects:w', { scope: 'GLOBAL' })} />
+                                    <Route path='/admin/project/add' component={ProjectContainer} name='Project' onEnter={authenticate('projects:w', { scope: 'GLOBAL' })} />
+                                    <Route path='/admin/users' component={UsersListContainer} name='Users' onEnter={authenticate('users:r', { scope: 'anyScope' })} />
+                                    <Route path='/admin/user/:user_id' component={UserContainer} name='Edit User' onEnter={authenticate('users:r', { scope: 'anyScope' })} />
+                                    <Route path='/admin/settings' component={SettingsContainer} name='Settings' onEnter={authenticate('global-settings:r', { scope: 'anyScope' })} />
+                                    <Route path='/admin/roles' component={RolesList} name='Roles' onEnter={authenticate('roles:r', { scope: 'anyScope' })} />
+                                    <Route path='/admin/role/:role_name' component={RoleContainer} name='Edit Role' onEnter={authenticate('roles:r', { scope: 'anyScope' })} />
+                                    <Route path='/admin/role/' component={RoleContainer} name='Create Role' onEnter={authenticate('roles:w', { scope: 'anyScope' })} />
+                                    <Route path='/admin/user/add' component={UserContainer} name='Add User' onEnter={authenticate('users:w', { scope: 'anyScope' })} />
+                                </Route>
+                                <Route path='/chat/:project_id' component={ChatDemo} name='Chat Demo' />
+                                <Route path='/404' component={() => <NotFound code={404} />} />
+                                <Route path='/403' component={() => <NotFound code={403} />} />
+                                <Route path='*' exact onEnter={redirectToPath('/404')} />
+                            </Router>
+                        </Provider>
+                    </ApolloHooksProvider>
+                </ApolloProvider>
+            </DocumentTitle>
+        );
+    }
+}
+
 Meteor.startup(() => {
-    render(
-        <DocumentTitle title='Botfront.'>
-            <ApolloProvider client={apolloClient}>
-                <ApolloHooksProvider client={apolloClient}>
-                    <Provider store={store}>
-                        <Router history={browserHistory}>
-                            <Route exact path='/setup' component={withErrorCatcher(SetupLayout)} onEnter={validateCanSetup()}>
-                                <Route path='/setup/welcome' component={Welcome} name='Welcome' />
-                                <Route path='/setup/account' component={SetupSteps} name='Account' />
-                            </Route>
-                            <Route exact path='/' component={withErrorCatcher(AccountLayout)}>
-                                <IndexRoute component={Index} />
-                                <Route path='/login' component={Login} name='Login' />
-                                {/* <Route path="/signup" component={ Signup } onEnter={ logout } name='Signup' /> */}
-                                {/* <Route path="/create-project" component={ CreateProjectComponent } onEnter={ authenticate } name='Create Project' /> */}
-                                <Route path='/forgot-password' component={ForgotPassword} name='Forgot Password' />
-                                <Route path='/reset-password/:token' component={ResetPassword} name='Reset Password' />
-                                <Route path='/enroll-account/:token' component={ResetPassword} name='Reset Password' />
-                            </Route>
-                            <Route exact path='/project' component={withErrorCatcher(Project)}>
-                                <Route path='/project/:project_id/nlu/models' component={NLUModelComponent} name='NLU Models' onEnter={authenticate('nlu-data:r')} />
-                                <Route path='/project/:project_id/nlu/model/:model_id' component={NLUModelComponent} name='NLU Models' onEnter={authenticate('nlu-data:r')} />
-                                <Route path='/project/:project_id/incoming' component={Incoming} name='Incoming' onEnter={authenticate('incoming:r')} />
-                                <Route
-                                    path='/project/:project_id/incoming/:model_id'
-                                    component={Incoming}
-                                    name='Incoming'
-                                    onEnter={authenticate('incoming:r')}
-                                />
-                                <Route
-                                    path='/project/:project_id/incoming/:model_id/:tab'
-                                    component={Incoming}
-                                    name='Incoming'
-                                    onEnter={authenticate('incoming:r')}
-                                />
-                                <Route
-                                    path='/project/:project_id/incoming/:model_id/:tab/:page'
-                                    component={Incoming}
-                                    name='Incoming'
-                                    onEnter={authenticate('incoming:r')}
-                                />
-                                <Route
-                                    path='/project/:project_id/incoming/:model_id/:tab/:page/:selected_id'
-                                    component={Incoming}
-                                    name='Incoming'
-                                    onEnter={authenticate('incoming:r')}
-                                />
-                                <Route path='/project/:project_id/stories' component={StoriesContainer} name='Stories' onEnter={authenticate('stories:r')} />
-                                <Route path='/project/:project_id/dialogue/templates' component={TemplatesContainer} name='Templates' onEnter={authenticate('responses:r')} />
-                                <Route path='/project/:project_id/analytics' component={AnalyticsContainer} name='Analytics' onEnter={authenticate('analytics:r')} />
-                                <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticate('projects:r')} />
-                                <Route path='/project/:project_id/settings/global' component={SettingsContainer} name='More Settings' onEnter={authenticate('global-settings:r')} />
-                                <Route path='*' component={NotFound} />
-                            </Route>
-                            <Route exact path='/admin' component={AdminLayout} onEnter={authenticateAdminPage()}>
-                                <Route path='/admin/projects' component={ProjectsListContainer} name='Projects' onEnter={authenticate('projects:r', { scope: 'anyScope' })} />
-                                <Route path='/admin/project/:project_id' component={ProjectContainer} name='Project' onEnter={authenticate('projects:w', { scope: 'GLOBAL' })} />
-                                <Route path='/admin/project/add' component={ProjectContainer} name='Project' onEnter={authenticate('projects:w', { scope: 'GLOBAL' })} />
-                                <Route path='/admin/users' component={UsersListContainer} name='Users' onEnter={authenticate('users:r', { scope: 'anyScope' })} />
-                                <Route path='/admin/user/:user_id' component={UserContainer} name='Edit User' onEnter={authenticate('users:r', { scope: 'anyScope' })} />
-                                <Route path='/admin/settings' component={SettingsContainer} name='Settings' onEnter={authenticate('global-settings:r', { scope: 'anyScope' })} />
-                                <Route path='/admin/roles' component={RolesList} name='Roles' onEnter={authenticate('roles:r', { scope: 'anyScope' })} />
-                                <Route path='/admin/role/:role_name' component={RoleContainer} name='Edit Role' onEnter={authenticate('roles:r', { scope: 'anyScope' })} />
-                                <Route path='/admin/role/' component={RoleContainer} name='Create Role' onEnter={authenticate('roles:w', { scope: 'anyScope' })} />
-                                <Route path='/admin/user/add' component={UserContainer} name='Add User' onEnter={authenticate('users:w', { scope: 'anyScope' })} />
-                            </Route>
-                            <Route path='/chat/:project_id' component={ChatDemo} name='Chat Demo' />
-                            <Route path='/404' component={() => <NotFound code={404} />} />
-                            <Route path='/403' component={() => <NotFound code={403} />} />
-                            <Route path='*' exact onEnter={redirectToPath('/404')} />
-                        </Router>
-                    </Provider>
-                </ApolloHooksProvider>
-            </ApolloProvider>
-        </DocumentTitle>,
-        document.getElementById('render-target'),
-    );
+    render(<Routes />,
+        document.getElementById('render-target'));
 });
