@@ -193,7 +193,8 @@ const BotResponseEditor = (props) => {
                 setResponseInCache(responseKey, getRefreshData()).then(() => {
                     if (name !== responseKey) {
                         reloadStories();
-                    } else closeModal();
+                    }
+                    closeModal();
                 });
             });
         }
