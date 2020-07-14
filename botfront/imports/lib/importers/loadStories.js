@@ -13,10 +13,10 @@ const splitBody = (lines) => {
         } else if (footer.length) {
             throw new Error('a checkpoint sandwiched between other content: bad form');
         } else if (!line.trim() && idx === 0) {
-            // ignore first line if empty
+            body.push(null); // empty first line means body is empty
         } else body.push(line);
     });
-    return { header, body: body.join('\n'), footer };
+    return { header, body: body.filter(l => l !== null).join('\n'), footer };
 };
 
 const checkHeader = (header, fullTitle) => {
