@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.25.2](https://github.com/botfront/botfront/compare/v0.25.1...v0.25.2) (2020-07-14)
+
+
+### Bug Fixes
+
+* add trigger intents to domain ([#652](https://github.com/botfront/botfront/issues/652)) ([e999ac6](https://github.com/botfront/botfront/commit/e999ac6))
+
+
+### Features
+
+* rename responses ([1f7c7d4](https://github.com/botfront/botfront/commit/1f7c7d4))
+
+
+
 ### [0.25.1](https://github.com/botfront/botfront/compare/v0.25.0...v0.25.1) (2020-07-01)
 
 
