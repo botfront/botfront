@@ -1,5 +1,5 @@
 import {
-    Container, Tab, Message, Button, Header, Confirm, Segment, Grid,
+    Container, Tab, Message, Button, Header, Confirm, Segment,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -267,7 +267,7 @@ class Settings extends React.Component {
         return panes;
     };
 
-    renderSettings = (saving, settings, activePane) => (
+    renderSettings = (saving, settings) => (
         <>
             <PageMenu icon='setting' title='Global Settings' />
             <Container id='admin-settings' data-cy='admin-settings-menu'>
@@ -280,16 +280,6 @@ class Settings extends React.Component {
                             activePane: this.getSettingsPanes()[activeIndex].menuItem,
                         })}
                     />
-                    <br />
-                    <Grid>
-                        <Grid.Row>
-                            <Grid.Column width={3} />
-                            <Grid.Column width={13}>
-                                <ErrorsField />
-                                {activePane !== 'Webhooks' && activePane !== 'License Information' && can('global-settings:w', { anyScope: true }) && <SubmitField data-cy='save-global-settings' value='Save' className='primary' />}
-                            </Grid.Column>
-                        </Grid.Row>
-                    </Grid>
                 </AutoForm>
             </Container>
         </>
