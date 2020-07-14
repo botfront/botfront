@@ -390,6 +390,7 @@ describe('filters', function () {
         cy.dataCy('conversation-item').should('have.text', 'uidaaa');
         cy.dataCy('conversation-item').should('not.have.text', 'uidbbb');
     });
+    
     it('should filter by duration', function () {
         cy.addConversationFromTemplate('bf', 'default', 'duration10', { duration: 10 });
         cy.addConversationFromTemplate('bf', 'default', 'duration20', { duration: 20 });
@@ -425,9 +426,6 @@ describe('filters', function () {
             .clear()
             .type('15');
         cy.dataCy('apply-filters').click();
-        cy.reload();
-        cy.dataCy('conversation-item').should('have.text', 'duration20');
-        cy.dataCy('conversation-item').should('have.length', 1);
     });
     
     it('should filter be possible to filter with multiple constraints at once', function () {

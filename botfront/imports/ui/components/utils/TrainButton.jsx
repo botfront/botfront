@@ -67,7 +67,7 @@ class TrainButton extends React.Component {
     renderDeployDropDown = (trainingInProgress) => {
         const { environments } = this.props;
         const { webhook } = this.state;
-        
+
         const deployOptions = [];
         const { modalOpen } = this.state;
         // there is no webhooks or environments so we don't render the deployment menu
@@ -130,7 +130,7 @@ class TrainButton extends React.Component {
     deploy = (target) => {
         const { projectId } = this.props;
         const { webhook } = this.state;
-         
+
         try {
             if (!webhook.url || !webhook.method) throw new Error('Deployment failed: the webhook parameters are missing');
             if (!target) throw new Error('Deployment failed: the deployment target is missing');
@@ -172,33 +172,33 @@ class TrainButton extends React.Component {
             });
         }
     }
-   
 
-renderButton = (instance, popupContent, status, partialTrainning) => (
-    <Popup
-        content={popupContent}
-        trigger={
-            (
-                <Button.Group color={partialTrainning ? 'yellow' : 'blue'}>
-                    <Button
-                        icon={partialTrainning ? 'eye' : 'grid layout'}
-                        content={partialTrainning ? 'Partial training' : 'Train everything'}
-                        labelPosition='left'
-                        disabled={status === 'training' || status === 'notReachable' || !instance}
-                        loading={status === 'training'}
-                        onClick={() => { this.train(); }}
-                        data-cy='train-button'
-                    />
-                    {this.renderDeployDropDown(status === 'training' || status === 'notReachable' || !instance)}
-                </Button.Group>
-            )
-        }
-        // Popup is disabled while training
-        disabled={status === 'training' || popupContent === ''}
-        inverted
-        size='tiny'
-    />
-);
+
+    renderButton = (instance, popupContent, status, partialTrainning) => (
+        <Popup
+            content={popupContent}
+            trigger={
+                (
+                    <Button.Group color={partialTrainning ? 'yellow' : 'blue'}>
+                        <Button
+                            icon={partialTrainning ? 'eye' : 'grid layout'}
+                            content={partialTrainning ? 'Partial training' : 'Train everything'}
+                            labelPosition='left'
+                            disabled={status === 'training' || status === 'notReachable' || !instance}
+                            loading={status === 'training'}
+                            onClick={() => { this.train(); }}
+                            data-cy='train-button'
+                        />
+                        {this.renderDeployDropDown(status === 'training' || status === 'notReachable' || !instance)}
+                    </Button.Group>
+                )
+            }
+            // Popup is disabled while training
+            disabled={status === 'training' || popupContent === ''}
+            inverted
+            size='tiny'
+        />
+    );
 
     renderShareLink = () => {
         const {

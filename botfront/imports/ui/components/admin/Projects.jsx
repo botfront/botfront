@@ -1,6 +1,6 @@
 import { withTracker } from 'meteor/react-meteor-data';
 import {
-    Container, Menu, Button, Icon,
+    Container, Menu, Button, Icon, Popup,
 } from 'semantic-ui-react';
 import { Link, browserHistory } from 'react-router';
 import matchSorter from 'match-sorter';
@@ -12,8 +12,22 @@ import React from 'react';
 import { Projects } from '../../../api/project/project.collection';
 import { PageMenu } from '../utils/Utils';
 import { can } from '../../../lib/scopes';
+import { wrapMeteorCallback } from '../utils/Errors';
 
 class ProjectsList extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            projectsLeft: 0,
+        };
+    }
+
+    componentDidMount() {
+        Meteor.call('checkLicenseProjectLeft', wrapMeteorCallback((err, left) => {
+            if (typeof left === 'number') this.setState({ projectsLeft: left });
+        }));
+    }
+
     filterItem = (filter, rows, filterKey) => {
         if (matchSorter([rows], filter.value, { keys: [filterKey] }).length > 0) return true;
         return false;
@@ -56,22 +70,33 @@ class ProjectsList extends React.Component {
 
     render() {
         const { loading, projects } = this.props;
+        const { projectsLeft } = this.state;
         return (
             <div>
                 <PageMenu icon='sitemap' title='Projects'>
                     <Menu.Menu position='right'>
                         {can('projects:w') && (
                             <Menu.Item>
-                                <Button
-                                    data-cy='new-project'
-                                    onClick={() => {
-                                        browserHistory.push('/admin/project/add');
-                                    }}
-                                    primary
-                                    disabled={loading}
-                                    icon='add'
-                                    content='Add project'
-                                    labelPosition='left'
+                                <Popup
+                                    trigger={(
+                                        <div data-cy='new-project-trigger'>
+                                            <Button
+                                                data-cy='new-project'
+                                                onClick={() => {
+                                                    browserHistory.push('/admin/project/add');
+                                                }}
+                                                primary
+                                                disabled={loading || projectsLeft <= 0}
+                                                icon='add'
+                                                content='Add project'
+                                                labelPosition='left'
+                                            />
+                                        </div>
+                                    )}
+                                    content='You have reached the maximum number of projects granted by your license'
+                                    disabled={projectsLeft > 0}
+                                    inverted
+                                    data-cy='project-license-limit'
                                 />
                             </Menu.Item>
                         )

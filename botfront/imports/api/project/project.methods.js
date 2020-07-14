@@ -92,6 +92,8 @@ if (Meteor.isServer) {
             check(item, Object);
             check(bypassWithCI, Match.Optional(Boolean));
             let _id;
+            const left = Meteor.call('checkLicenseProjectLeft');
+            if (left === 0) throw new Meteor.Error(500, 'Projects quota exceeded.');
             try {
                 _id = createProject(item);
                 AnalyticsDashboards.create(defaultDashboard({ _id, ...item }));
@@ -345,7 +347,7 @@ if (Meteor.isServer) {
             }
         },
 
-        async 'project.setAllowContextualQuestions' (projectId, allowContextualQuestions) {
+        async 'project.setAllowContextualQuestions'(projectId, allowContextualQuestions) {
             checkIfCan(['stories:w'], projectId);
             check(projectId, String);
             check(allowContextualQuestions, Boolean);
@@ -369,7 +371,7 @@ if (Meteor.isServer) {
             }
         },
 
-        async 'project.getContextualSlot' (projectId) {
+        async 'project.getContextualSlot'(projectId) {
             check(projectId, String);
             if (!can(['stories:r'], projectId)) return null;
             checkIfCan(['stories:r'], projectId);
@@ -447,6 +449,14 @@ if (Meteor.isServer) {
                 defaultLanguage,
                 initPayload,
             };
+        },
+
+        async 'project.getCount'() {
+            try {
+                return Projects.find().count();
+            } catch (error) {
+                throw error;
+            }
         },
     });
 }

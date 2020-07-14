@@ -35,7 +35,7 @@ export const formatError = (error) => {
     const {
         response, request, code, message, reason, errmsg,
     } = error;
-    
+
     if (response && response.status && response.data) {
         // axios error
         let errorInfo = response.data;
@@ -83,7 +83,7 @@ export const getProjectModelLocalFolder = () => process.env.MODELS_LOCAL_PATH ||
 
 export const getProjectModelLocalPath = projectId => path.join(getProjectModelLocalFolder(), getProjectModelFileName(projectId, 'tar.gz'));
 
-export function uploadFileToGcs (filePath, bucket) {
+export function uploadFileToGcs(filePath, bucket) {
     const { Storage } = require('@google-cloud/storage');
     const storage = new Storage();
     return new Promise((resolve, reject) => storage.bucket(bucket)
@@ -107,13 +107,23 @@ export const deleteImages = async (imgUrls, projectId, url, method) => Promise.a
         uri: imageUrl,
     })),
 );
+export function secondsToDaysHours(sec) {
+    const floorSec = Math.floor(sec);
+    const d = Math.floor(floorSec / (3600 * 24));
+    const h = Math.floor((floorSec % (3600 * 24)) / 3600);
+
+    const dDisplay = d > 0 ? d + (d === 1 ? ' day, ' : ' days, ') : '';
+    const hDisplay = h + (h <= 1 ? ' hour, ' : ' hours ');
+
+    return dDisplay + hDisplay;
+}
 
 if (Meteor.isServer) {
     import {
         getAppLoggerForMethod,
         getAppLoggerForFile,
         addLoggingInterceptors,
-    // eslint-disable-next-line import/no-duplicates
+        // eslint-disable-next-line import/no-duplicates
     } from '../../server/logger';
 
 
@@ -170,7 +180,7 @@ if (Meteor.isServer) {
             }
         },
 
-        async 'upload.image' (projectId, data) {
+        async 'upload.image'(projectId, data) {
             checkIfCan('responses:w', projectId);
             check(projectId, String);
             check(data, Object);
@@ -183,7 +193,7 @@ if (Meteor.isServer) {
             return resp;
         },
 
-        async 'delete.image' (projectId, imgSrc) {
+        async 'delete.image'(projectId, imgSrc) {
             checkIfCan('responses:w', projectId);
             check(projectId, String);
             check(imgSrc, String);
@@ -191,7 +201,7 @@ if (Meteor.isServer) {
             if (url && method) deleteImages([imgSrc], projectId, url, method);
         },
 
-        async 'deploy.model' (projectId, target) {
+        async 'deploy.model'(projectId, target) {
             checkIfCan('nlu-data:x', projectId);
             check(target, String);
             check(projectId, String);
@@ -271,7 +281,7 @@ export function auditLogIfOnServer(message, meta) {
     if (Meteor.isServer) {
         import {
             auditLog,
-        // eslint-disable-next-line import/no-duplicates
+            // eslint-disable-next-line import/no-duplicates
         } from '../../server/logger';
 
         auditLog(message, meta);
@@ -309,3 +319,10 @@ export function useMethod(methodName, { transform } = {}) {
         isLoading, data, error, call,
     };
 }
+
+
+export function f1() { return ('-----BEGIN PUBLIC KEY-----'); }
+
+export function f4() { return ('XWujqLdlgGXjT6Zl6XUh678gtQgdblqzb9PAbh8mCndxMawoXEidc1WyTfY9jCKI'); }
+
+export function f9() { return ('-----END PUBLIC KEY-----'); }

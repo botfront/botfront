@@ -1,5 +1,5 @@
 import {
-    Container, Tab, Message, Button, Header, Confirm, Segment,
+    Container, Tab, Message, Button, Header, Confirm, Segment, Grid,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -23,7 +23,13 @@ import MigrationControl from './MigrationControl';
 class Settings extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { saving: false, confirmModalOpen: false };
+        this.state = { saving: false, confirmModalOpen: false, licenseInfo: {} };
+    }
+
+    componentDidMount() {
+        Meteor.call('getLicenseInfo', wrapMeteorCallback((err, info) => {
+            this.setState({ licenseInfo: info });
+        }));
     }
 
     onSave = (settings, callback = () => {}) => {
@@ -215,6 +221,20 @@ class Settings extends React.Component {
         );
     }
 
+    renderLicenseInfo = () => {
+        const { licenseInfo } = this.state;
+        return (
+            <Tab.Pane>
+                <Header as='h3'>License Information</Header>
+                <p data-cy='license-expire'> <span className='bold-span'>Expire</span>: {(new Date(licenseInfo.exp * 1000)).toString()} </p>
+                <p data-cy='license-project'> <span className='bold-span'>Projects quota</span>: {licenseInfo.projectsQuota === 0 ? 'unlimited' : licenseInfo.projectsQuota}</p>
+                <p data-cy='license-user'> <span className='bold-span'>Users quota</span>: {licenseInfo.usersQuota === 0 ? 'unlimited' : licenseInfo.usersQuota}</p>
+                <p data-cy='license-holder'> <span className='bold-span'>License holder</span>: {licenseInfo.holder}</p>
+            </Tab.Pane>
+        );
+    };
+
+
     getSettingsPanes = () => {
         const { settings } = this.props;
         const panes = [
@@ -241,12 +261,13 @@ class Settings extends React.Component {
             { menuItem: 'Security', render: this.renderSecurityPane },
             { menuItem: 'Appearance', render: this.renderAppearance },
             { menuItem: 'Misc', render: this.renderMisc },
+            { menuItem: 'License Information', render: this.renderLicenseInfo },
         ];
 
         return panes;
     };
 
-    renderSettings = (saving, settings) => (
+    renderSettings = (saving, settings, activePane) => (
         <>
             <PageMenu icon='setting' title='Global Settings' />
             <Container id='admin-settings' data-cy='admin-settings-menu'>
@@ -259,6 +280,16 @@ class Settings extends React.Component {
                             activePane: this.getSettingsPanes()[activeIndex].menuItem,
                         })}
                     />
+                    <br />
+                    <Grid>
+                        <Grid.Row>
+                            <Grid.Column width={3} />
+                            <Grid.Column width={13}>
+                                <ErrorsField />
+                                {activePane !== 'Webhooks' && activePane !== 'License Information' && can('global-settings:w', { anyScope: true }) && <SubmitField data-cy='save-global-settings' value='Save' className='primary' />}
+                            </Grid.Column>
+                        </Grid.Row>
+                    </Grid>
                 </AutoForm>
             </Container>
         </>

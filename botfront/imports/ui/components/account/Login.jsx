@@ -30,11 +30,20 @@ class LoginComponent extends React.Component {
 
     constructor(props) {
         super(props);
-        Meteor.call('users.checkEmpty', wrapMeteorCallback((err, res) => {
-            if (res) {
-                browserHistory.push('/setup/welcome');
+        Meteor.call('checkLicense', wrapMeteorCallback((err, res) => {
+            if (res === 'noLicense') {
+                browserHistory.push('/license/error');
+            } else if (res === 'expired') {
+                browserHistory.push('/license/expired');
+            } else {
+                Meteor.call('users.checkEmpty', wrapMeteorCallback((err, res) => {
+                    if (res) {
+                        browserHistory.push('/setup/welcome');
+                    }
+                }));
             }
         }));
+       
         this.state = {
             loggingIn: false,
             loggedOut: !Meteor.userId,

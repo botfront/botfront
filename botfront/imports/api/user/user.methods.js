@@ -59,6 +59,8 @@ if (Meteor.isServer) {
             }
             check(user, Object);
             check(sendInviteEmail, Boolean);
+            const left = Meteor.call('checkLicenseUserLeft');
+            if (left === 0) throw new Meteor.Error(500, 'Users quota exceeded.');
             try {
                 const userId = Accounts.createUser({
                     email: user.email.trim(),
@@ -206,6 +208,14 @@ if (Meteor.isServer) {
             try {
                 // don't count EXTERNAL_CONSUMER for Welcome screen check
                 return Meteor.users.find({ username: { $ne: 'EXTERNAL_CONSUMER' } }).count() === 0;
+            } catch (e) {
+                throw e;
+            }
+        },
+
+        'users.getCount'() {
+            try {
+                return Meteor.users.find({ username: { $ne: 'EXTERNAL_CONSUMER' } }).count();
             } catch (e) {
                 throw e;
             }

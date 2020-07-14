@@ -1,18 +1,20 @@
 /* eslint-disable no-undef */
-describe('project creation', function() {
-    beforeEach(function() {
+describe('project creation', function () {
+    beforeEach(function () {
         cy.createProject('bf', 'Duedix', 'fr');
         cy.visit('/login');
         cy.login();
     });
 
-    afterEach(function() {
+    afterEach(function () {
         cy.deleteProject('bf');
         cy.deleteProject('test');
+        cy.deleteProject('test1');
     });
 
-    it('should be possible to create and delete project', function() {
+    it('should be possible to create and delete project', function () {
         cy.visit('/admin/projects');
+        cy.wait(1000);
         cy.dataCy('new-project').click();
         cy.get('#uniforms-0000-0001').type('test');
         cy.get('#uniforms-0000-0003').type('bf-test');
@@ -40,5 +42,13 @@ describe('project creation', function() {
         cy.get(':nth-child(3) > .rt-tr > :nth-child(1)').should('have.text', '\u00a0'); // \u00a0 is nbsp, the 'empty' value in the table
         cy.get(':nth-child(2) > .rt-tr > :nth-child(1)').should('have.text', 'Duedix');
         cy.get(':nth-child(1) > .rt-tr > :nth-child(1)').eq(1).should('have.text', 'Chitchat');
+    });
+
+    it('should not be possible to create more than 3 project', function () {
+        cy.createProject('test1', 'test1', 'fr');
+        cy.visit('/admin/projects');
+        cy.dataCy('new-project-trigger').trigger('mouseover');
+        cy.dataCy('project-license-limit').should('exist');
+        cy.dataCy('new-project').should('have.class', 'disabled');
     });
 });

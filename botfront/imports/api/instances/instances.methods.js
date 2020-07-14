@@ -286,6 +286,7 @@ if (Meteor.isServer) {
             checkIfCan('nlu-data:x', projectId);
             check(projectId, String);
             check(instance, Object);
+         
             auditLog('Trained project', {
                 user: Meteor.user(),
                 projectId,
@@ -304,6 +305,10 @@ if (Meteor.isServer) {
             appMethodLogger.debug(`Training project ${projectId}...`);
             const t0 = performance.now();
             try {
+                const licenseStatus = await Meteor.call('checkLicense');
+                if (licenseStatus === 'expired') {
+                    throw new Meteor.Error(500, 'License expired');
+                }
                 const client = axios.create({
                     baseURL: instance.host,
                     timeout: 3 * 60 * 1000,

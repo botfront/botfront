@@ -12,7 +12,8 @@ describe('Project Creation', function() {
     it('When creating a new project, a default model should be added to the project', function() {
         cy.visit('/admin/projects');
         // Creating a project
-        cy.dataCy('new-project').click();
+        cy.wait(1000);
+        cy.get('[data-cy=\'new-project\']').click();
         cy.dataCy('project-name').find('input').type('Test Project');
         cy.dataCy('project-namespace').find('input').type('bf-testproject');
         cy.contains('Select the default language of your project').click();
