@@ -1,5 +1,5 @@
 import {
-    Container, Tab, Message, Grid,
+    Container, Tab, Message, Button, Header, Confirm, Segment,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -7,7 +7,7 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import 'react-s-alert/dist/s-alert-default.css';
 import {
-    AutoForm, ErrorsField, SubmitField, AutoField,
+    AutoForm, SubmitField, AutoField, ErrorsField,
 } from 'uniforms-semantic';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import { get } from 'lodash';
@@ -18,11 +18,12 @@ import { wrapMeteorCallback } from '../../utils/Errors';
 import { PageMenu } from '../../utils/Utils';
 import HttpRequestsForm from '../../common/HttpRequestsForm';
 import { can } from '../../../../lib/scopes';
+import MigrationControl from './MigrationControl';
 
 class Settings extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { saving: false };
+        this.state = { saving: false, confirmModalOpen: false };
     }
 
     onSave = (settings, callback = () => {}) => {
@@ -36,6 +37,15 @@ class Settings extends React.Component {
             }, 'Settings saved'),
         );
     };
+
+    renderSubmitButton = () => (
+        <>
+            <ErrorsField />
+            {can('global-settings:w', { anyScope: true }) && (
+                <SubmitField value='Save' className='primary' data-cy='save-button' />
+            )}
+        </>
+    )
 
     renderSecurityPane = () => (
         <Tab.Pane>
@@ -58,6 +68,7 @@ class Settings extends React.Component {
             />
             <AutoField name='settings.public.reCatpchaSiteKey' />
             <AutoField name='settings.private.reCatpchaSecretServerKey' />
+            {this.renderSubmitButton()}
         </Tab.Pane>
     );
 
@@ -69,6 +80,7 @@ class Settings extends React.Component {
                 content='Default NLU pipeline for new NLU models'
             />
             <AceField name='settings.public.defaultNLUConfig' label='' convertYaml />
+            {this.renderSubmitButton()}
         </Tab.Pane>
     );
 
@@ -157,14 +169,45 @@ class Settings extends React.Component {
         </Tab.Pane>
     );
 
-    renderMisc = () => (
-        <Tab.Pane>
-            <AutoField name='settings.private.bfApiHost' label='Botfront API host' data-cy='docker-api-host' />
-            <AutoField name='settings.public.chitChatProjectId' label='Chitchat project Id' info='ID of project containing chitchat NLU training data' />
-            <AutoField name='settings.public.docUrl' />
-            <AutoField name='settings.public.intercomAppId' />
-        </Tab.Pane>
-    );
+    renderMisc = () => {
+        const { confirmModalOpen } = this.state;
+        return (
+            <>
+                <Segment>
+                    <AutoField name='settings.private.bfApiHost' label='Botfront API host' data-cy='docker-api-host' />
+                    <AutoField name='settings.public.chitChatProjectId' label='Chitchat project Id' info='ID of project containing chitchat NLU training data' />
+                    <AutoField name='settings.public.docUrl' />
+                    <AutoField name='settings.public.intercomAppId' />
+                    {this.renderSubmitButton()}
+                </Segment>
+                <Segment>
+                    <MigrationControl />
+                    <Header>Rebuild search indicies</Header>
+                    <Confirm
+                        data-cy='rebuild-indices-confirm'
+                        open={confirmModalOpen}
+                        header='Rebuild search indices for all projects'
+                        content='This is a safe action that runs in the background, but it may take some time.'
+                        onCancel={() => this.setState({ confirmModalOpen: false })}
+                        onConfirm={() => {
+                            Meteor.call('global.rebuildIndexes');
+                            this.setState({ confirmModalOpen: false });
+                        }}
+                    />
+                    <Button
+                        primary
+                        onClick={(e) => {
+                            e.preventDefault();
+                            this.setState({ confirmModalOpen: true });
+                        }}
+                        data-cy='rebuild-button'
+                    >
+                        Rebuild
+                    </Button>
+                </Segment>
+            </>
+        );
+    }
 
     getSettingsPanes = () => {
         const { settings } = this.props;
@@ -197,7 +240,7 @@ class Settings extends React.Component {
         return panes;
     };
 
-    renderSettings = (saving, settings, activePane) => (
+    renderSettings = (saving, settings) => (
         <>
             <PageMenu icon='setting' title='Global Settings' />
             <Container id='admin-settings' data-cy='admin-settings-menu'>
@@ -210,16 +253,6 @@ class Settings extends React.Component {
                             activePane: this.getSettingsPanes()[activeIndex].menuItem,
                         })}
                     />
-                    <br />
-                    <Grid>
-                        <Grid.Row>
-                            <Grid.Column width={3} />
-                            <Grid.Column width={13}>
-                                <ErrorsField />
-                                { activePane !== 'Webhooks' && can('global-settings:w', { anyScope: true }) && <SubmitField data-cy='save-global-settings' value='Save' className='primary' />}
-                            </Grid.Column>
-                        </Grid.Row>
-                    </Grid>
                 </AutoForm>
             </Container>
         </>

@@ -786,7 +786,7 @@ describe('proper addition of checkpoints to linked stories', function() {
 
 describe('proper flattening of stories', function() {
     it('should output something matching the gold', function() {
-        expect(flattenStory(checkpointedStory)).to.be.deep.equal(flattenedStory);
+        expect(flattenStory(checkpointedStory).map(({ title, story }) => ({ title, story }))).to.be.deep.equal(flattenedStory);
     });
 });
 

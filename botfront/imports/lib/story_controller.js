@@ -23,7 +23,7 @@ const RASA_BUILT_IN_ACTIONS = [
 
 export class StoryController {
     constructor({
-        story, isASmartStory, slots, onUpdate = () => {}, onMdType = () => {}, isABranch = false, forms = [], requestedSlotActive = false,
+        story, isASmartStory, slots, onUpdate = () => {}, onMdType = () => {}, isABranch = false, forms = [], requestedSlotActive = false, triggerRules = [],
     }) {
         this.domain = {
             slots: this.getSlots(slots),
@@ -35,6 +35,7 @@ export class StoryController {
         this.onMdType = onMdType; // onMdType what happens when we need to notify update without saving
         this.saveUpdate = options => onUpdate(this.md, options);
         this.requestedSlotActive = requestedSlotActive;
+        this.triggerRules = triggerRules;
 
         this.validateStory(false);
     }
@@ -368,7 +369,9 @@ export class StoryController {
         if (errors.length > 0) {
             throw new Error(`Error at line ${errors[0].line}: ${errors[0].message}`);
         }
-        return this.domain;
+        const intentsWithSmartTriggers = this.domain.intents;
+        this.triggerRules.forEach(t => intentsWithSmartTriggers.add(t.payload.substring(1)));
+        return { ...this.domain, intents: intentsWithSmartTriggers };
     };
 
     setIsSmart = (isSmartStory) => {
