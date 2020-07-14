@@ -109,6 +109,7 @@ class Settings extends React.Component {
                 fontSize={12}
                 convertYaml
             />
+            {this.renderSubmitButton()}
         </Tab.Pane>
     );
 
@@ -137,6 +138,7 @@ class Settings extends React.Component {
                 fontSize={12}
                 convertYaml
             />
+            {this.renderSubmitButton()}
         </Tab.Pane>
     );
 
@@ -153,6 +155,7 @@ class Settings extends React.Component {
                 fontSize={12}
                 convertYaml
             />
+            {this.renderSubmitButton()}
         </Tab.Pane>
     );
 
@@ -166,6 +169,7 @@ class Settings extends React.Component {
             <AutoField name='settings.public.backgroundImages' />
             <AutoField name='settings.public.logoUrl' />
             <AutoField name='settings.public.smallLogoUrl' />
+            {this.renderSubmitButton()}
         </Tab.Pane>
     );
 
@@ -180,31 +184,33 @@ class Settings extends React.Component {
                     <AutoField name='settings.public.intercomAppId' />
                     {this.renderSubmitButton()}
                 </Segment>
-                <Segment>
-                    <MigrationControl />
-                    <Header>Rebuild search indicies</Header>
-                    <Confirm
-                        data-cy='rebuild-indices-confirm'
-                        open={confirmModalOpen}
-                        header='Rebuild search indices for all projects'
-                        content='This is a safe action that runs in the background, but it may take some time.'
-                        onCancel={() => this.setState({ confirmModalOpen: false })}
-                        onConfirm={() => {
-                            Meteor.call('global.rebuildIndexes');
-                            this.setState({ confirmModalOpen: false });
-                        }}
-                    />
-                    <Button
-                        primary
-                        onClick={(e) => {
-                            e.preventDefault();
-                            this.setState({ confirmModalOpen: true });
-                        }}
-                        data-cy='rebuild-button'
-                    >
+                {can('global-admin') && (
+                    <Segment>
+                        <MigrationControl />
+                        <Header>Rebuild search indicies</Header>
+                        <Confirm
+                            data-cy='rebuild-indices-confirm'
+                            open={confirmModalOpen}
+                            header='Rebuild search indices for all projects'
+                            content='This is a safe action that runs in the background, but it may take some time.'
+                            onCancel={() => this.setState({ confirmModalOpen: false })}
+                            onConfirm={() => {
+                                Meteor.call('global.rebuildIndexes');
+                                this.setState({ confirmModalOpen: false });
+                            }}
+                        />
+                        <Button
+                            primary
+                            onClick={(e) => {
+                                e.preventDefault();
+                                this.setState({ confirmModalOpen: true });
+                            }}
+                            data-cy='rebuild-button'
+                        >
                         Rebuild
-                    </Button>
-                </Segment>
+                        </Button>
+                    </Segment>
+                )}
             </>
         );
     }

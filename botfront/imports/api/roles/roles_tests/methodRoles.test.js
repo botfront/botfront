@@ -472,6 +472,21 @@ if (Meteor.isServer) {
             roles: writers.projects,
             args: [projectId],
         },
+        {
+            name: 'global.rebuildIndexes',
+            roles: ['global-admin'],
+            rejectProjectScope: true,
+        },
+        {
+            name: 'settings.getMigrationStatus',
+            roles: ['global-admin'],
+            rejectProjectScope: true,
+        },
+        {
+            name: 'settings.unlockMigration',
+            roles: ['global-admin'],
+            rejectProjectScope: true,
+        },
     ];
 
 

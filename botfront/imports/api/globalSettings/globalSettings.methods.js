@@ -49,6 +49,7 @@ if (Meteor.isServer) {
             });
         },
         'settings.getMigrationStatus'() {
+            checkIfCan('global-admin');
             // eslint-disable-next-line no-underscore-dangle
             const { locked, version } = Migrations._getControl();
             // eslint-disable-next-line no-underscore-dangle
@@ -56,6 +57,7 @@ if (Meteor.isServer) {
             return { locked, version, latest };
         },
         'settings.unlockMigration' () {
+            checkIfCan('global-admin');
             Migrations.unlock();
         },
     });

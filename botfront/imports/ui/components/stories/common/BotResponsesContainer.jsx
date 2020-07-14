@@ -104,8 +104,6 @@ const BotResponsesContainer = (props) => {
     };
 
     const handleChangeResponse = (newContent, index, enter) => {
-        console.log(newContent);
-        console.log('-------');
         setFocus(null);
         const sequence = [...getSequence()];
         const oldContent = sequence[index];
