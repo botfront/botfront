@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.25.3-ee.1](https://github.com/botfront/botfront/compare/v0.25.1-ee.2...v0.25.3-ee.1) (2020-07-14)
+
+
+### Features
+
+* licensing ([34c77ec](https://github.com/botfront/botfront/commit/34c77ec73beab2b0219cc064c91a0fc30113ab09))
+* rename responses ([1f7c7d4](https://github.com/botfront/botfront/commit/1f7c7d426cbb5424b177c40726eb1462a95c6834))
+
+
+### Bug Fixes
+
+* add trigger intents to domain ([#652](https://github.com/botfront/botfront/issues/652)) ([e999ac6](https://github.com/botfront/botfront/commit/e999ac6894dbf6e8c0d448da276700b08c23cfab))
+* always display create intent in intent label ([5cb4729](https://github.com/botfront/botfront/commit/5cb47290139284ae46431f1712c902b6aa4f1631))
+* conversation linking with environments ([5f48845](https://github.com/botfront/botfront/commit/5f488457a931a133dcf7561f7fe92fe5cd163d2f))
+* form submission date, add missing quotes around csv cells in export ([061607d](https://github.com/botfront/botfront/commit/061607dd93c566d5f0a39bd3d8f19f6ccd62d4dc))
+* metadata typing ([a8adb86](https://github.com/botfront/botfront/commit/a8adb86c6b56b7778b6316c62a18f61803c4ca8b))
+
 ### [0.25.1-ee.2](https://github.com/botfront/botfront/compare/v0.25.1-ee.1...v0.25.1-ee.2) (2020-07-05)
 
 
