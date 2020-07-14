@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.25.3](https://github.com/botfront/botfront/compare/v0.25.2...v0.25.3) (2020-07-14)
+
+
+### Bug Fixes
+
+* always display create intent in intent label ([5cb4729](https://github.com/botfront/botfront/commit/5cb4729))
+
+
+
 ### [0.25.2](https://github.com/botfront/botfront/compare/v0.25.1...v0.25.2) (2020-07-14)
 
 
