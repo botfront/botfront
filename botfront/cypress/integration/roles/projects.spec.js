@@ -118,6 +118,8 @@ describe('projects:r can access but not edit settings', () => {
         cy.visit('/admin');
         // check authorized users can view projects
         cy.dataCy('projects-link').click();
+        cy.dataCy('projects-page-header').should('exist');
+        cy.dataCy('edit-projects').should('have.length', 2);
         cy.get('.rt-td').contains('Chitchat').should('exist');
         cy.dataCy('new-project').should('exist');
         cy.dataCy('edit-projects').first().click();

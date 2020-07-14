@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { GraphQLBridge } from 'uniforms-bridge-graphql';
@@ -406,17 +406,21 @@ function ResponseMetadataForm({
         return newModel;
     };
 
+    const [localModel, setLocalModel] = useState(preprocessModel(responseMetadata || defaultModelAdvanced));
 
-    const displayModel = responseMetadata ? preprocessModel(responseMetadata) : preprocessModel(defaultModelAdvanced);
+    const handleOnChange = (model) => {
+        setLocalModel(model);
+        onChange(postProcess(model));
+    };
 
     return (
         <div className='response-metadata-form'>
             <AutoFormMetadata
                 autosave
                 autosaveDelay={250}
-                model={displayModel}
+                model={localModel}
                 schema={new GraphQLBridge(schema, validator, schemaDataAdvanced)}
-                onSubmit={model => onChange(postProcess(model))}
+                onSubmit={handleOnChange}
                 disabled={!can('responses:w', projectId)}
             >
                 <Tab menu={{ secondary: true, pointing: true }} panes={panesAdvanced} />

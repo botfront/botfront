@@ -73,7 +73,7 @@ class ProjectsList extends React.Component {
         const { projectsLeft } = this.state;
         return (
             <div>
-                <PageMenu icon='sitemap' title='Projects'>
+                <PageMenu icon='sitemap' title='Projects' headerDataCy='projects-page-header'>
                     <Menu.Menu position='right'>
                         {can('projects:w') && (
                             <Menu.Item>

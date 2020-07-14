@@ -14,14 +14,14 @@ Loading.propTypes = {
 
 export function PageMenu(props) {
     const {
-        title, icon, children, className,
+        title, icon, children, className, headerDataCy,
     } = props;
     return (
         <Menu borderless className={`top-menu ${className}`}>
             <Menu.Menu className='page-name'>
                 <Menu.Item>
                     <Menu.Header as='h3'>
-                        <Icon name={icon} />
+                        <Icon name={icon} {...(headerDataCy ? { 'data-cy': headerDataCy } : {})} />
                         {` ${title}`}
                     </Menu.Header>
                 </Menu.Item>
@@ -34,6 +34,7 @@ export function PageMenu(props) {
 PageMenu.defaultProps = {
     children: null,
     className: '',
+    headerDataCy: null,
 };
 
 PageMenu.propTypes = {
@@ -41,4 +42,5 @@ PageMenu.propTypes = {
     icon: PropTypes.string.isRequired,
     children: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
     className: PropTypes.string,
+    headerDataCy: PropTypes.string,
 };
