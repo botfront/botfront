@@ -11,10 +11,14 @@ const combineSearches = (search, responseKeys, intents) => {
     return searchRegex.join('|');
 };
 
+// eslint-disable-next-line no-useless-escape
+const escape = string => string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+
 export const searchStories = async (projectId, language, search) => {
     const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
     const nluModels = project.nlu_models;
-    const searchRegex = new RegExp(search, 'i');
+    const escapedSearch = escape(search);
+    const searchRegex = new RegExp(escape(search), 'i');
     const model = NLUModels.findOne(
         { _id: { $in: nluModels }, language },
     );
@@ -26,14 +30,14 @@ export const searchStories = async (projectId, language, search) => {
         return filtered;
     }, []);
     const matchedResponses = await BotResponses.find(
-        { textIndex: { $regex: search, $options: 'i' } },
+        { textIndex: { $regex: escapedSearch, $options: 'i' } },
     ).lean();
     const responseKeys = matchedResponses.map(({ key }) => key);
-    const fullSearch = combineSearches(search, responseKeys, intents);
+    const fullSearch = combineSearches(escapedSearch, responseKeys, intents);
     const matched = Stories.find(
         {
             projectId,
-            $or: [{ 'textIndex.info': { $regex: search, $options: 'i' } }, { 'textIndex.contents': { $regex: fullSearch, $options: 'i' } }],
+            $or: [{ 'textIndex.info': { $regex: escapedSearch, $options: 'i' } }, { 'textIndex.contents': { $regex: fullSearch, $options: 'i' } }],
         },
         {
             fields: {
