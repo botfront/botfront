@@ -4,15 +4,15 @@ import {
     Icon,
 } from 'semantic-ui-react';
 import { debounce } from 'lodash';
-import { withTracker } from 'meteor/react-meteor-data';
-import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-import { StoryGroups } from '../../../../api/storyGroups/storyGroups.collection';
+import React, { useState, useCallback } from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
+import { wrapMeteorCallback } from '../../utils/Errors';
 import apolloClient from '../../../../startup/client/apollo';
 import { setStoriesCurrent } from '../../../store/actions/actions';
-import { wrapMeteorCallback } from '../../utils/Errors';
+import { StoryGroups } from '../../../../api/storyGroups/storyGroups.collection';
 
 
 import { SEARCH_STORIES } from './queries';
@@ -33,7 +33,7 @@ const SearchBar = (props) => {
     const [results, setResults] = useState([]);
     const [searching, setSearching] = useState(false);
 
-    const searchStories = debounce(async (searchInputValue) => {
+    const searchStories = useCallback(debounce(async (searchInputValue) => {
         const { data } = await apolloClient.query({
             query: SEARCH_STORIES,
             variables: {
@@ -46,7 +46,7 @@ const SearchBar = (props) => {
         setResults(data.stories.map(story => ({
             title: story.title, _id: story._id, description: story.storyGroupId,
         })));
-    }, 500);
+    }, 500), [language, projectId]);
 
     // close the search results dropdown on outside clicks
     document.addEventListener('click', () => {

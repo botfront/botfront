@@ -89,7 +89,10 @@ class Settings extends React.Component {
                 </Segment>
                 <Segment>
                     <MigrationControl />
-                    <Header>Rebuild search indicies</Header>
+                    <Header>Rebuild search indices</Header>
+                    <span>Only use this option if you&apos;re having issues with stories search.</span>
+                    <br />
+                    <br />
                     <Confirm
                         data-cy='rebuild-indices-confirm'
                         open={confirmModalOpen}
