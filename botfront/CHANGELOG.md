@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.25.4](https://github.com/botfront/botfront/compare/v0.25.3...v0.25.4) (2020-07-16)
+
+
+### Bug Fixes
+
+* check response names for wrong characters ([091c3fd](https://github.com/botfront/botfront/commit/091c3fd))
+* search bar event listener leak ([3368c7f](https://github.com/botfront/botfront/commit/3368c7f))
+* story search debouncing ([d06783b](https://github.com/botfront/botfront/commit/d06783b))
+
+
+
 ### [0.25.3](https://github.com/botfront/botfront/compare/v0.25.2...v0.25.3) (2020-07-14)
 
 
