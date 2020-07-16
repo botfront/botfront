@@ -95,6 +95,10 @@ describe('Bot responses', function() {
         cy.dataCy('response-name-input').find('input').clear().type('utter_test_A. ..');
         cy.escapeModal(true);
         cy.dataCy('response-name-error').should('exist');
+        cy.dataCy('response-name-input').click();
+        cy.dataCy('response-name-input').find('input').clear().type('utter_test_A/');
+        cy.escapeModal(true);
+        cy.dataCy('response-name-error').should('exist');
         cy.dataCy('response-name-input').find('input').clear().type('utter_test_A');
         cy.escapeModal();
     });
