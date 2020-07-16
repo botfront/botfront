@@ -284,7 +284,7 @@ export const generateRenamingErrorMessage = (error) => {
         return 'Response names must be unique';
     }
     if (error.message.match(/alidation failed: key: Path `key` is invalid/)) {
-        return 'Response names must start with utter_';
+        return 'Response names must start with utter_ and not contain spaces or /';
     }
     return error.message;
 };

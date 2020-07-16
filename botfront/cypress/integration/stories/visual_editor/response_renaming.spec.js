@@ -48,6 +48,14 @@ describe('rename responses in the visual editor', () => {
             .type('changed')
             .blur();
         cy.dataCy('bot-response-name-input').first().should('have.class', 'error');
+        cy.dataCy('bot-response-name-input').first().find('input').clear()
+            .type('utter_changed.. .')
+            .blur();
+        cy.dataCy('bot-response-name-input').first().should('have.class', 'error');
+        cy.dataCy('bot-response-name-input').first().find('input').clear()
+            .type('utter_changed/')
+            .blur();
+        cy.dataCy('bot-response-name-input').first().should('have.class', 'error');
         cy.browseToStory('Groupo (2)');
         cy.dataCy('single-story-editor').trigger('mouseover');
         cy.get('.response-name.locations-link').should('exist');
