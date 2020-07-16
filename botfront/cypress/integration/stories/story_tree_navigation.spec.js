@@ -209,6 +209,7 @@ describe('story tree navigation', function() {
         cy.browseToStory('Groupo (1)');
         cy.dataCy('incoming-sidebar-link').click({ force: true });
         cy.dataCy('stories-sidebar-link').click({ force: true });
+        cy.wait(200);
         cy.dataCy('story-title').should('have.value', 'Groupo (1)');
     });
 });

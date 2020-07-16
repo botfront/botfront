@@ -127,13 +127,24 @@ const ValidationTab = (props) => {
                 'shorter_or_equal',
             ].includes(operator)
         ) {
-            const parsedComparatum = parseInt(comparatum, 10);
+            let parsedComparatum = NaN;
+            const keepComparatum = comparatum === '-' || comparatum === ''; // we want to those two so we can erase the value and put - alone
+            if (!keepComparatum) parsedComparatum = parseInt(comparatum, 10); // handle negative number when they not complety typed
             return (
                 <Input
-                    value={Number.isNaN(parsedComparatum) ? '' : parsedComparatum}
+                    value={Number.isNaN(parsedComparatum) ? (keepComparatum ? comparatum : '') : parsedComparatum}
                     disabled={!canEdit}
-                    type='number'
-                    onChange={(_, { value }) => {
+                    type={Number.isNaN(parsedComparatum) ? 'text' : 'number'}
+                    
+                    onChange={(_, data) => {
+                        const { value } = data;
+                        if (value === '-' || value === '') {
+                            setValidationState({
+                                ...validationState,
+                                comparatum: value,
+                            });
+                            return;
+                        }
                         const parsedValue = parseInt(value, 10);
                         handleChange({
                             ...validationState,
