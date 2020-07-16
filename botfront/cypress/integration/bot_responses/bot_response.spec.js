@@ -87,9 +87,16 @@ describe('Bot responses', function() {
         cy.dataCy('response-text').contains('response content').should('exist');
         cy.dataCy('template-intent').contains('test_B').should('exist');
     });
-    it('should require response names to start with utter_', function() {
+    it('should require response names to start with utter_ and not contain spaces', function() {
         addTextResponse('{backspace}test_A', 'response content', true);
+        cy.escapeModal(true);
         cy.dataCy('response-name-error').should('exist');
+        cy.dataCy('response-name-input').click();
+        cy.dataCy('response-name-input').find('input').clear().type('utter_test_A. ..');
+        cy.escapeModal(true);
+        cy.dataCy('response-name-error').should('exist');
+        cy.dataCy('response-name-input').find('input').clear().type('utter_test_A');
+        cy.escapeModal();
     });
     
     it('should create a response using the response editor', function() {
