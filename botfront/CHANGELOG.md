@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.25.4-ee.1](https://github.com/botfront/botfront/compare/v0.25.3-ee.1...v0.25.4-ee.1) (2020-07-16)
+
+
+### Bug Fixes
+
+* allow empty and negative number in validation ([9d009ab](https://github.com/botfront/botfront/commit/9d009ab3f0de258336a240597eecd764d8aca0e4))
+* check response names for wrong characters ([091c3fd](https://github.com/botfront/botfront/commit/091c3fd4178756c80a6c50545e15d59982286e25))
+* search bar event listener leak ([3368c7f](https://github.com/botfront/botfront/commit/3368c7f629e1b731cfb62913a7a2cf66764fe144))
+* story search debouncing ([d06783b](https://github.com/botfront/botfront/commit/d06783b7dc5c163750e13b76fc6a4d43e0e98f3b))
+
 ### [0.25.3-ee.1](https://github.com/botfront/botfront/compare/v0.25.1-ee.2...v0.25.3-ee.1) (2020-07-14)
 
 
