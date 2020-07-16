@@ -50,7 +50,7 @@ export const searchStories = async (projectId, language, search) => {
 
 const replaceLine = (story, lineToReplace, newLine) => {
     // regexp: [ ] = space; + = any number of the characters in the []; $ = end of string
-    const regex = new RegExp(`- ${lineToReplace}([ ]+\n|\n|[ ]+$|$)`, 'g');
+    const regex = new RegExp(`- *${lineToReplace}([ ]+\n|\n|[ ]+$|$)`, 'g');
     return story.replace(regex, `- ${newLine}\n`);
 };
 
