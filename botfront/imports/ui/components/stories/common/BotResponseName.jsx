@@ -28,7 +28,7 @@ const BotResponseName = (props) => {
         const newName = e.target.value;
         if (!/^utter_/.test(newName)) {
             e.preventDefault();
-            setRenameError('Response names must start with utter_');
+            setRenameError('Response names must start with utter_ and not contain spaces or /');
             setSaving(false);
             return;
         }

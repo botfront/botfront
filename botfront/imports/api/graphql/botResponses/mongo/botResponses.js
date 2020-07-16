@@ -194,7 +194,7 @@ export const upsertResponse = async ({
     const updatedResponse = await BotResponses.findOneAndUpdate(
         { projectId, key, 'values.lang': language },
         update,
-        { new: true, lean: true },
+        { runValidators: true, new: true, lean: true },
     ).exec().then(result => (
         result
     || BotResponses.findOneAndUpdate(
@@ -208,7 +208,9 @@ export const upsertResponse = async ({
                 textIndex,
             },
         },
-        { new: true, lean: true, upsert: true },
+        {
+            runValidators: true, new: true, lean: true, upsert: true,
+        },
     )
     ));
     if (!newNameIsTaken && updatedResponse && newKey === updatedResponse.key) {

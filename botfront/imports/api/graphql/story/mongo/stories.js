@@ -50,7 +50,7 @@ export const searchStories = async (projectId, language, search) => {
 
 const replaceLine = (story, lineToReplace, newLine) => {
     // regexp: [ ] = space; + = any number of the characters in the []; $ = end of string
-    const regex = new RegExp(`- ${lineToReplace}([ ]+\n|\n|[ ]+$|$)`, 'g');
+    const regex = new RegExp(`- *${escape(lineToReplace)}([ ]+\n|\n|[ ]+$|$)`, 'g');
     return story.replace(regex, `- ${newLine}\n`);
 };
 
@@ -69,7 +69,7 @@ export const replaceStoryLines = (projectId, lineToReplace, newLine) => {
     const matchingStories = Stories.find(
         {
             projectId,
-            $or: [{ 'textIndex.contents': { $regex: lineToReplace } }],
+            $or: [{ 'textIndex.contents': { $regex: escape(lineToReplace) } }],
 
         },
         { fields: { _id: 1 } },

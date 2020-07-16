@@ -7,8 +7,9 @@ import { debounce } from 'lodash';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-import React, { useState, useCallback } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import React, { useState, useCallback, useEffect } from 'react';
+
 import { wrapMeteorCallback } from '../../utils/Errors';
 import apolloClient from '../../../../startup/client/apollo';
 import { setStoriesCurrent } from '../../../store/actions/actions';
@@ -48,10 +49,12 @@ const SearchBar = (props) => {
         })));
     }, 500), [language, projectId]);
 
-    // close the search results dropdown on outside clicks
-    document.addEventListener('click', () => {
-        setOpen(false);
-    });
+    useEffect(() => {
+        // close the search results dropdown on outside clicks
+        const close = () => setOpen(false);
+        document.addEventListener('click', close);
+        return () => document.removeEventListener('click', close);
+    }, []);
 
     const findPos = (originalElement) => {
         let element = originalElement;
