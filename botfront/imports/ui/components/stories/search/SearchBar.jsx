@@ -50,15 +50,11 @@ const SearchBar = (props) => {
     }, 500), [language, projectId]);
 
     useEffect(() => {
+        // close the search results dropdown on outside clicks
         const close = () => setOpen(false);
         document.addEventListener('click', close);
         return () => document.removeEventListener('click', close);
     }, []);
-
-    // close the search results dropdown on outside clicks
-    document.addEventListener('click', () => {
-        setOpen(false);
-    });
 
     const findPos = (originalElement) => {
         let element = originalElement;
