@@ -39,7 +39,7 @@ if (Meteor.isServer) {
         key: {
             type: String,
             label: 'Template Key',
-            match: /^(utter_[\S]*$)/, // match utter_ and does not include white spaces
+            match: /^utter_[^\s/]*$/, // match utter_ and does not include white spaces
         },
         projectId: {
             type: String,
