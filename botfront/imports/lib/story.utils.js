@@ -392,6 +392,7 @@ export const getStoriesAndDomain = async (projectId, language) => {
     return {
         stories,
         domain,
+        wasPartial: selectedStoryGroups.length !== 0,
     };
 };
 

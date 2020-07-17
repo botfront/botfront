@@ -216,12 +216,17 @@ if (Meteor.isServer) {
                     timeout: 3 * 60 * 1000,
                 });
                 addLoggingInterceptors(client, appMethodLogger);
+                const { stories, domain, wasPartial } = await getStoriesAndDomain(projectId, language);
+                let selectedIntents = [];
+                if (wasPartial) {
+                    selectedIntents = yaml.safeLoad(domain).intents;
+                }
                 // eslint-disable-next-line no-plusplus
                 for (let i = 0; i < nluModels.length; ++i) {
                     const currentLang = nluModels[i].language;
                     // eslint-disable-next-line no-await-in-loop
                     const { data } = await client.post('/data/convert/', {
-                        data: getTrainingDataInRasaFormat(nluModels[i]),
+                        data: getTrainingDataInRasaFormat(nluModels[i], true, selectedIntents && selectedIntents.length > 0 ? selectedIntents : undefined),
                         output_format: 'md',
                         language: currentLang,
                     });
@@ -232,7 +237,6 @@ if (Meteor.isServer) {
                     nlu[currentLang] = { data: `# lang:${currentLang}${canonicalText}\n\n${data.data}` };
                     config[currentLang] = `${getConfig(nluModels[i])}\n\n${corePolicies}`;
                 }
-                const { stories, domain } = await getStoriesAndDomain(projectId, language);
                 const payload = {
                     domain,
                     stories: joinStoryFiles ? stories.join('\n') : stories,
@@ -309,7 +313,7 @@ if (Meteor.isServer) {
             check(projectId, String);
             check(modelId, String);
             check(testData, Match.Maybe(Object));
-            
+
             const appMethodLogger = getAppLoggerForMethod(
                 trainingAppLogger,
                 'rasa.evaluate.nlu',
