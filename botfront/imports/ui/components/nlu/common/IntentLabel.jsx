@@ -38,7 +38,7 @@ const Intent = React.forwardRef((props, ref) => {
         isPopupOpen: () => popupOpen,
         openPopup: () => setPopupOpen(true),
     }));
-    
+
     const handleClose = (e = {}) => {
         if (labelRef.current && labelRef.current.contains(e.target)) return; // prevent duplicate handling
         setTypeInput('');
@@ -128,7 +128,6 @@ const Intent = React.forwardRef((props, ref) => {
             value={typeInput}
         />
     );
-
     const columns = [{
         key: 'intent', selectionKey: true, style: { width: '200px' }, render: renderIntent,
     }];
@@ -136,11 +135,6 @@ const Intent = React.forwardRef((props, ref) => {
     const renderContent = () => (
         <div
             style={{
-                height: dataToDisplay.length
-                    ? allowAdditions
-                        ? '300px'
-                        : '250px'
-                    : '50px',
                 width: '300px',
             }}
             className='intent-dropdown'
@@ -148,19 +142,12 @@ const Intent = React.forwardRef((props, ref) => {
         >
             {allowAdditions && renderInsertNewIntent()}
             {showReset && renderResetIntent()}
-            {allowAdditions && (
-                <Button
-                    fluid
-                    color='purple'
-                    content='Create new intent'
-                    onClick={() => handleChange(typeInput)}
-                />
-            )}
-            {dataToDisplay.length && (
-            
+
+            {!!dataToDisplay.length && (
+
                 <DataTable
                     ref={tableRef}
-                    height={200}
+                    height={dataToDisplay.length * 40 >= 200 ? 200 : dataToDisplay.length * 40}
                     width={300}
                     columns={columns}
                     data={dataToDisplay}
@@ -168,6 +155,14 @@ const Intent = React.forwardRef((props, ref) => {
                     selection={selection}
                     onChangeSelection={setSelection}
                     externallyControlledSelection
+                />
+            )}
+            {allowAdditions && (
+                <Button
+                    fluid
+                    color='purple'
+                    content='Create new intent'
+                    onClick={() => handleChange(typeInput)}
                 />
             )}
         </div>
@@ -249,7 +244,7 @@ Intent.defaultProps = {
     value: null,
     allowEditing: false,
     allowAdditions: false,
-    onChange: () => {},
+    onChange: () => { },
     disabled: false,
     enableReset: false,
     detachedModal: false,
