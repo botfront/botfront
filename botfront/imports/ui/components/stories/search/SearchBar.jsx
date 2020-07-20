@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import { withTracker } from 'meteor/react-meteor-data';
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 
 import { wrapMeteorCallback } from '../../utils/Errors';
 import apolloClient from '../../../../startup/client/apollo';
@@ -48,13 +48,6 @@ const SearchBar = (props) => {
             title: story.title, _id: story._id, description: story.storyGroupId,
         })));
     }, 500), [language, projectId]);
-
-    useEffect(() => {
-        // close the search results dropdown on outside clicks
-        const close = () => setOpen(false);
-        document.addEventListener('click', close);
-        return () => document.removeEventListener('click', close);
-    }, []);
 
     const findPos = (originalElement) => {
         let element = originalElement;
@@ -156,6 +149,19 @@ const SearchBar = (props) => {
         );
     };
 
+    const updateSearch = (value) => {
+        if (value.length > 0) {
+            setOpen(true);
+            setSearching(true);
+            searchStories(value);
+        }
+        if (value.length === 0) {
+            setResults([]);
+            setOpen(false);
+        }
+        setQueryString(value);
+    };
+
     return (
         <>
             <Search
@@ -166,18 +172,22 @@ const SearchBar = (props) => {
                 icon={{ name: 'search', 'data-cy': 'stories-search-icon' }}
                 onSearchChange={(e, a) => {
                     const { value } = a;
-                    if (value.length > 0) setOpen(true);
-                    if (value.length === 0) {
-                        setResults([]);
-                        setOpen(false);
-                    }
-                    setQueryString(value);
-                    setSearching(true);
-                    searchStories(value);
+                    updateSearch(value);
                 }}
                 onResultSelect={linkToStory}
                 onKeyDown={(e) => {
                     if (e.key === 'Escape') setOpen(false);
+                }}
+                onFocus={() => {
+                    if (queryString.length > 0) {
+                        setOpen(true);
+                    }
+                }}
+                onBlur={() => {
+                    setOpen(false);
+                }}
+                onClick={() => {
+                    if (queryString.length > 0) setOpen(true);
                 }}
                 loading={!ready || searching}
                 showNoResults={!searching}
