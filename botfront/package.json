@@ -93,7 +93,7 @@
     "shortid": "^2.2.8",
     "simpl-schema": "^1.5.5",
     "slugify": "^1.3.4",
-    "standard-version": "^6.0.1",
+    "standard-version": "^8.0.1",
     "styled-components": "^3.4.10",
     "uniforms": "^2.6.2",
     "uniforms-bridge-graphql": "^2.6.2",
