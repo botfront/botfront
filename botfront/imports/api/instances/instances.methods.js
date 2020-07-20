@@ -67,6 +67,15 @@ export const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents 
     if (intents.length > 0) {
         // filter by intent if specified
         common_examples = common_examples.filter(e => intents.indexOf(e.intent) >= 0);
+        if (intents.length === 1) {
+            // there is only one intent so we add a dummy in order for the nlu to train
+            common_examples.push({
+                text: 'dummyazerty12345', // this is just a weird example, to  avoid user input containing "dummy " to be interpreted as dummy intent
+                intent: 'dummy',
+                canonical: false,
+                entities: [],
+            });
+        }
     }
     common_examples = common_examples
         .sort((a, b) => b.canonical || false - a.canonical || false);
