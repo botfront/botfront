@@ -23,7 +23,7 @@
     "joi": "^14.3.1",
     "js-yaml": "^3.13.1",
     "jszip": "^3.2.2",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.19",
     "mongoose": "^5.9.3",
     "monk": "^6.0.6",
     "rimraf": "^3.0.2",
@@ -53,7 +53,7 @@
     "mongodb": "^3.1.13",
     "mongodb-memory-server": "^6.0.1",
     "should": "^13.2.3",
-    "standard-version": "^6.0.1",
+    "standard-version": "^8.0.1",
     "supertest": "^3.4.2",
     "supertest-as-promised": "^4.0.2",
     "uuid": "^3.3.3"
