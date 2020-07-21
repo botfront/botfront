@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.25.5](https://github.com/botfront/botfront/compare/v0.25.4...v0.25.5) (2020-07-21)
+
+
+### Bug Fixes
+
+* crash when openning incoming ([5aeb4c3](https://github.com/botfront/botfront/commit/5aeb4c3bbed8069f986e859b6609e9409ce37a45))
+
+### [0.25.5](https://github.com/botfront/botfront/compare/v0.25.4...v0.25.5) (2020-07-21)
+
+
+### Bug Fixes
+
+* crash when openning incoming ([5aeb4c3](https://github.com/botfront/botfront/commit/5aeb4c3bbed8069f986e859b6609e9409ce37a45))
+
+### [0.25.5](https://github.com/botfront/botfront/compare/v0.25.4...v0.25.5) (2020-07-21)
+
+
+### Bug Fixes
+
+* crash when openning incoming ([5aeb4c3](https://github.com/botfront/botfront/commit/5aeb4c3bbed8069f986e859b6609e9409ce37a45))
+
+### [0.25.5](https://github.com/botfront/botfront/compare/v0.25.4...v0.25.5) (2020-07-21)
+
+
+### Bug Fixes
+
+* crash when openning incoming ([5aeb4c3](https://github.com/botfront/botfront/commit/5aeb4c3bbed8069f986e859b6609e9409ce37a45))
+
 ### [0.25.4](https://github.com/botfront/botfront/compare/v0.25.3...v0.25.4) (2020-07-16)
 
 
