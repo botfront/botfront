@@ -16,7 +16,7 @@ es5-shim@4.8.0                # ECMAScript 5 compatibility for older browsers
 ecmascript@0.14.2              # Enable ECMAScript2015+ syntax in app code
 shell-server@0.5.0            # Server-side component of the `meteor shell` command
 
-react-meteor-data
+react-meteor-data@2.1.1
 accounts-password@1.6.0
 meteortesting:mocha
 less
