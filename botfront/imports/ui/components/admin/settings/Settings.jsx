@@ -23,6 +23,20 @@ class Settings extends React.Component {
         this.state = { saving: false, confirmModalOpen: false };
     }
 
+    componentDidMount() {
+        const { params: { setting } = {}, router } = this.props;
+        const { location: { pathname } } = router;
+        if (setting && this.getSettingsPanes().findIndex(p => p.name === setting) < 0) {
+            router.replace({ pathname: `${pathname.split('/global')[0]}/global` });
+        }
+    }
+
+    setActiveTab = (index) => {
+        const { router } = this.props;
+        const { location: { pathname } } = router;
+        router.push({ pathname: `${pathname.split('/global')[0]}/global/${this.getSettingsPanes()[index].name}` });
+    };
+
     handleReturnToProjectSettings = () => {
         const { router, projectId } = this.props;
         router.push(`/project/${projectId}/settings`);
@@ -122,10 +136,10 @@ class Settings extends React.Component {
     getSettingsPanes = () => {
         const { projectId } = this.props;
         let panes = [
-            { menuItem: 'Default NLU Pipeline', render: this.renderDefaultNLUPipeline },
-            { menuItem: 'Security', render: this.renderSecurityPane },
-            { menuItem: 'Appearance', render: this.renderAppearance },
-            { menuItem: 'Misc', render: this.renderMisc },
+            { name: 'default-nlu-pipeline', menuItem: 'Default NLU Pipeline', render: this.renderDefaultNLUPipeline },
+            { name: 'security', menuItem: 'Security', render: this.renderSecurityPane },
+            { name: 'appearance', menuItem: 'Appearance', render: this.renderAppearance },
+            { name: 'misc', menuItem: 'Misc', render: this.renderMisc },
         ];
 
         if (projectId) {
@@ -146,16 +160,27 @@ class Settings extends React.Component {
         return panes;
     };
 
-    renderSettings = (saving, settings) => (
-        <>
-            <PageMenu icon='setting' title='Global Settings' />
-            <Container id='admin-settings' data-cy='admin-settings-menu'>
-                <AutoForm schema={new SimpleSchema2Bridge(GlobalSettingsSchema)} model={settings} onSubmit={this.onSave} disabled={saving}>
-                    <Tab menu={{ vertical: true }} grid={{ paneWidth: 13, tabWidth: 3 }} panes={this.getSettingsPanes()} />
-                </AutoForm>
-            </Container>
-        </>
-    );
+    renderSettings = (saving, settings) => {
+        const { params: { setting } = {} } = this.props;
+        return (
+            <>
+                <PageMenu icon='setting' title='Global Settings' />
+                <Container id='admin-settings' data-cy='admin-settings-menu'>
+                    <AutoForm schema={new SimpleSchema2Bridge(GlobalSettingsSchema)} model={settings} onSubmit={this.onSave} disabled={saving}>
+                        <Tab
+                            menu={{ vertical: true }}
+                            grid={{ paneWidth: 13, tabWidth: 3 }}
+                            panes={this.getSettingsPanes()}
+                            activeIndex={setting ? this.getSettingsPanes().findIndex(p => p.name === setting) : 0}
+                            onTabChange={(_, data) => {
+                                if (this.getSettingsPanes()[data.activeIndex].name) this.setActiveTab(data.activeIndex);
+                            }}
+                        />
+                    </AutoForm>
+                </Container>
+            </>
+        );
+    };
 
     renderLoading = () => <div />;
 
@@ -171,6 +196,7 @@ Settings.propTypes = {
     settings: PropTypes.object,
     projectId: PropTypes.string.isRequired,
     router: PropTypes.object.isRequired,
+    params: PropTypes.object.isRequired,
     ready: PropTypes.bool.isRequired,
 };
 
