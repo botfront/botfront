@@ -2467,7 +2467,7 @@ export const selectedExampleAndDummy = {
         }, {
             text: 'good morning too', intent: 'chitchat.greet', canonical: false, entities: [],
         }, {
-            text: 'dummy', intent: 'dummy', canonical: false, entities: [],
+            text: 'dummyazerty12345', intent: 'dummy', canonical: false, entities: [],
         }],
         entity_synonyms: [{ value: 'NYC', synonyms: ['New-York', 'the big apple'] }],
         gazette: [],
