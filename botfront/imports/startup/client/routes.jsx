@@ -143,7 +143,7 @@ class Routes extends React.Component {
                                     />
 
                                     <Route path='/project/:project_id/stories' component={StoriesContainer} name='Stories' onEnter={authenticateProject} />
-                                    <Route path='/project/:project_id/dialogue/templates' component={TemplatesContainer} name='Templates' onEnter={authenticateProject} />
+                                    <Route path='/project/:project_id/responses' component={TemplatesContainer} name='Templates' onEnter={authenticateProject} />
                                     <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticateProject} />
                                     <Route path='/project/:project_id/settings/global' component={SettingsContainer} name='More Settings' onEnter={authenticateAdmin} />
                                     <Route path='/project/:project_id/settings/:setting' component={ConfigurationContainer} name='Settings' onEnter={authenticateProject} />
