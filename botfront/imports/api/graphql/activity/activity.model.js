@@ -28,5 +28,10 @@ const model = new Schema({
     env: { type: String, required: false },
 });
 model.index({ text: 1, modelId: 1, env: 1 }, { unique: true });
-
+model.index({
+    modelId: 1, ooS: 1, env: 1, createdAt: -1,
+});
+model.index({
+    modelId: 1, ooS: 1, env: 1, intent: 1, createdAt: -1,
+});
 module.exports = mongoose.model('Activity', model, 'activity');
