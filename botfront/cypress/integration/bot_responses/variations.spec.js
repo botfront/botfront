@@ -78,7 +78,9 @@ describe('Bot responses', function() {
         cy.dataCy('edit-responses').click({ force: true });
         cy.dataCy('bot-response-input').should('include.text', 'hi');
         cy.dataCy('add-variation').click();
-        cy.dataCy('bot-response-input').last().click()
+        cy.dataCy('bot-response-input').should('have.length', 3);
+        cy.dataCy('bot-response-input').last().click();
+        cy.dataCy('bot-response-input').last()
             .find('textarea')
             .clear()
             .type('bye');

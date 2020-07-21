@@ -223,7 +223,7 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
                         >
                             {({ onItemsRendered, ref }) => (
                                 <List
-                                    height={providedHeight || h}
+                                    height={providedHeight && providedHeight !== 'auto' ? providedHeight : h}
                                     itemCount={dataCount}
                                     onItemsRendered={(items) => {
                                         if (onScroll) onScroll(items);

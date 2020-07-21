@@ -14,7 +14,7 @@
     "start:gke.ci": "MODE=test CI=true BF_PROJECT_ID=bf MONGO_URL=mongodb://localhost:27017/bf ORCHESTRATOR=gke meteor run",
     "test-once": "METEOR_PORT=3100 TEST_BROWSER_DRIVER=chrome meteor test --once --driver-package meteortesting:mocha --port 3100",
     "debug": "meteor run --inspect-brk=9229",
-    "test:e2e": "CYPRESS_RETRIES=2 npx cypress run",
+    "test:e2e": "CYPRESS_RETRIES=5 npx cypress run",
     "ci": "CI=true start-server-and-test start http://localhost:3000 test:e2e",
     "licenses:summary": "license-checker --summary",
     "licenses:csv": "license-checker --csv --out botfront-licenses.csv",
@@ -116,6 +116,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.5.4",
+    "@babel/plugin-proposal-optional-chaining": "^7.10.4",
     "@commitlint/cli": "^8.2.0",
     "@commitlint/config-conventional": "^8.2.0",
     "@meteorjs/eslint-config-meteor": "^1.0.5",

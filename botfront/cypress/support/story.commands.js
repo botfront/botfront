@@ -56,6 +56,7 @@ Cypress.Commands.add('createStoryInGroup', ({ groupName = 'Groupo', storyName = 
         .findCy('add-story-in-story-group')
         .click({ force: true });
     cy.get('@stories').then((stories) => {
+        cy.dataCy('story-group-menu-item').contains(`${groupName} (${stories.length + 1})`);
         findStoryAndSelect(`${groupName} (${stories.length + 1})`, 'new-story');
     });
     if (storyName) renameStoryOrGroup('new-story', storyName);

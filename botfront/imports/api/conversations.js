@@ -51,6 +51,9 @@ if (Meteor.isServer) {
 Meteor.startup(() => {
     if (Meteor.isServer) {
         Conversations._ensureIndex({ projectId: 1, status: 1, updatedAt: -1 });
+        Conversations._ensureIndex({ projectId: 1, env: 1, length: 1 });
+        Conversations._ensureIndex({ projectId: 1, env: 1, bucket: 1 });
+        Conversations._ensureIndex({ env: 1, 'tracker.latest_event_time': -1 });
     }
 });
 
