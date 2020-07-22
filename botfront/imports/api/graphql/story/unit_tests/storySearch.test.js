@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { Stories } from '../../../story/stories.collection';
 // test imports
 import {
-    projectFixture, storyFixture, enModelFixture, frModelFixture, storyId, enModelId, frModelId, projectId, botResponseFixture, botResponsesFixture,
+    projectFixture, storyFixture, enModelFixture, frModelFixture, storyId, enModelId, frModelId, projectId, botResponseFixture, botResponsesFixture, botResponsesFixtureWithCustomCss, botResponsesFixtureWithHighlight, botResponseFixtureWithObserve,
 } from './indexTestData';
 import { indexStory } from '../../../story/stories.index';
 import { Projects } from '../../../project/project.collection';
@@ -21,13 +21,16 @@ if (Meteor.isServer) {
 
     const userId = 'storiesSearchTest';
 
-    const insertDataAndIndex = async (done) => {
+    const cleanup = async () => {
         await createTestUser(userId);
+        await Stories.remove({});
         await BotResponses.deleteMany(({ projectId }));
         await Projects.remove({ _id: projectId });
         await NLUModels.remove({ _id: enModelId });
         await NLUModels.remove({ _id: frModelId });
-        await Stories.remove({ _id: storyId });
+    };
+
+    const addData = async () => {
         await createResponses(projectId, [botResponseFixture]);
         await createResponses(projectId, botResponsesFixture);
         await NLUModels.insert({ ...enModelFixture });
@@ -36,10 +39,23 @@ if (Meteor.isServer) {
         await Stories.insert(storyFixture);
         const { textIndex } = await indexStory(storyId);
         Stories.update({ _id: storyId }, { $set: { textIndex } });
+    };
+
+    const insertDataAndIndex = async (done) => {
+        await cleanup();
+        await addData();
+        done();
+    };
+
+    const insertDataAndIndexForSmartSearch = async (done) => {
+        await cleanup();
+        await createResponses(projectId, [botResponsesFixtureWithCustomCss, botResponsesFixtureWithHighlight, botResponseFixtureWithObserve]);
+        await addData();
         done();
     };
 
     const removeTestData = async (done) => {
+        await cleanup();
         await removeTestUser(userId);
         done();
     };
@@ -80,6 +96,27 @@ if (Meteor.isServer) {
             done(e);
         }
     };
+
+    const testSmartStorySearch = async (done) => {
+        try {
+            await searchStories('en', 'status:published second');
+            await searchStories('en', 'status:unpublished', true);
+            await searchStories('en', 'with:highlights');
+            await searchStories('en', 'with:highlights second');
+            await searchStories('en', 'with:custom_style');
+            await searchStories('en', 'with:custom_style story fixture');
+            await searchStories('en', 'with:triggers');
+            await searchStories('en', 'with:triggers Canada');
+            await searchStories('en', 'with:custom_style story fixture with:highlights with:triggers');
+            await searchStories('en', 'with:observe_events');
+            await searchStories('en', 'with:observe_events string not in the story', true);
+            await searchStories('en', 'with:some_non_existing_search', true);
+            done();
+        } catch (e) {
+            done(e);
+        }
+    };
+
     // ------ test suite -------
     describe('test searching stories by their index', () => {
         before((done) => {
@@ -90,6 +127,20 @@ if (Meteor.isServer) {
         });
         it('should get the expected results from a search string', (done) => {
             testStorySearch(done);
+        });
+    });
+
+
+    describe('test searching with smart searches', () => {
+        before((done) => {
+            insertDataAndIndexForSmartSearch(done);
+        });
+
+        after((done) => {
+            removeTestData(done);
+        });
+        it('should get the expected results from a smart search', (done) => {
+            testSmartStorySearch(done);
         });
     });
 }

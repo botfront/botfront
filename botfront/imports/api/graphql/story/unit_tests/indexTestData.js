@@ -5,12 +5,20 @@ export const frModelId = 'TEST_MODEL_FR';
 
 export const storyFixture = {
     _id: storyId,
-    story: '* get_started\n    - utter_get_started\n  - slot{"test_slot":true}\n  - action_testAction\n* get_started{"timeOfDay": "morning"}\n    - utter_TEST\n    - utter_image\n    - utter_quick\n    - utter_custom',
+    story: '* get_started\n    - utter_get_started\n  - slot{"test_slot":true}\n  - action_testAction\n* get_started{"timeOfDay": "morning"}\n    - utter_TEST\n    - utter_image\n    - utter_quick\n    - utter_custom\n    - utter_highlight\n    - utter_css\n    - utter_observe',
     title: 'story fixture',
     storyGroupId: 'TEST_STORY_GROUP',
     projectId: 'bf',
     events: ['utter_get_started', 'utter_h_0GF2S1'],
     branches: [],
+    rules: [{
+        payload: '/trigger_5viQv2qaf6kHaHfca',
+        trigger: {
+            when: 'always',
+            timeOnPage: 2,
+        },
+    }],
+    status: 'published',
 };
 
 export const frModelFixture = {
@@ -192,6 +200,33 @@ export const botResponseFixture = {
             ],
         },
     ],
+};
+
+export const botResponsesFixtureWithHighlight = {
+    ...botResponseFixture,
+    _id: 'E0TEcQTw',
+    key: 'utter_highlight',
+    metadata: {
+        domHighlight: { style: 'default', selector: '.my-button' },
+    },
+};
+
+export const botResponsesFixtureWithCustomCss = {
+    ...botResponseFixture,
+    _id: 'E0TEcQGw',
+    key: 'utter_css',
+    metadata: {
+        customCss: { style: 'class', css: '.my-button' },
+    },
+};
+
+export const botResponseFixtureWithObserve = {
+    ...botResponseFixture,
+    _id: 'E0TEcQdw',
+    key: 'utter_observe',
+    metadata: {
+        pageEventCallbacks: { pageEvents: [{ event: 'change', selector: '.my-button', payload: 'chitchat.bye' }] },
+    },
 };
 
 export const botResponsesFixture = [

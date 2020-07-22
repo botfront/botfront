@@ -7,8 +7,8 @@ import { debounce } from 'lodash';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
+import React, { useState, useCallback } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import React, { useState, useCallback, useEffect } from 'react';
 
 import { wrapMeteorCallback } from '../../utils/Errors';
 import apolloClient from '../../../../startup/client/apollo';
@@ -33,6 +33,7 @@ const SearchBar = (props) => {
     const [open, setOpen] = useState(false);
     const [results, setResults] = useState([]);
     const [searching, setSearching] = useState(false);
+    const [displayShortcuts, setDisplayShortcuts] = useState(false);
 
     const searchStories = useCallback(debounce(async (searchInputValue) => {
         const { data } = await apolloClient.query({
@@ -42,19 +43,13 @@ const SearchBar = (props) => {
                 language,
                 queryString: searchInputValue,
             },
+            fetchPolicy: 'no-cache',
         });
         setSearching(false);
         setResults(data.stories.map(story => ({
             title: story.title, _id: story._id, description: story.storyGroupId,
         })));
     }, 500), [language, projectId]);
-
-    useEffect(() => {
-        // close the search results dropdown on outside clicks
-        const close = () => setOpen(false);
-        document.addEventListener('click', close);
-        return () => document.removeEventListener('click', close);
-    }, []);
 
     const findPos = (originalElement) => {
         let element = originalElement;
@@ -156,8 +151,58 @@ const SearchBar = (props) => {
         );
     };
 
+    const updateSearch = (value) => {
+        if (value.length > 0) {
+            setOpen(true);
+            setDisplayShortcuts(false);
+            setSearching(true);
+            searchStories(value);
+        }
+        if (value.length === 0) {
+            setResults([]);
+            setOpen(false);
+            setDisplayShortcuts(true);
+        }
+        setQueryString(value);
+    };
+
+    const Shortcut = shortcutProps => (
+        <span
+            onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                updateSearch(shortcutProps.value);
+            }
+            }
+            onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            }}
+            onKeyDown={(event) => {
+                if (event.keycode === 13) updateSearch(shortcutProps.value);
+            }}
+            role='button'
+            tabIndex='0'
+        >
+            <Icon name='magic' />
+            {shortcutProps.text}
+        </span>
+    );
+
+    const renderShortcuts = () => (
+        <div className='search-shortcuts'>
+            <Shortcut value='with:highlights' text='Stories with onscreen guidance' />
+            <Shortcut value='with:triggers' text='Stories with triggers' />
+            <Shortcut value='with:custom_style' text='Stories with custom styles' />
+            <Shortcut value='with:observe_events' text='Stories with user interactions callback' />
+            <Shortcut value='status:unpublished' text='Unpublished stories' />
+            <Shortcut value='status:published' text='Published stories' />
+        </div>
+    );
+
     return (
         <>
+            {displayShortcuts && renderShortcuts()}
             <Search
                 className={`story-search-bar ${queryString.length > 0 && 'has-text'}`}
                 results={results}
@@ -166,18 +211,25 @@ const SearchBar = (props) => {
                 icon={{ name: 'search', 'data-cy': 'stories-search-icon' }}
                 onSearchChange={(e, a) => {
                     const { value } = a;
-                    if (value.length > 0) setOpen(true);
-                    if (value.length === 0) {
-                        setResults([]);
-                        setOpen(false);
-                    }
-                    setQueryString(value);
-                    setSearching(true);
-                    searchStories(value);
+                    updateSearch(value);
                 }}
                 onResultSelect={linkToStory}
                 onKeyDown={(e) => {
                     if (e.key === 'Escape') setOpen(false);
+                }}
+                onFocus={() => {
+                    if (queryString.length === 0) {
+                        setDisplayShortcuts(true);
+                    } else {
+                        setOpen(true);
+                    }
+                }}
+                onBlur={() => {
+                    setDisplayShortcuts(false);
+                    setOpen(false);
+                }}
+                onClick={() => {
+                    if (queryString.length > 0) setOpen(true);
                 }}
                 loading={!ready || searching}
                 showNoResults={!searching}
