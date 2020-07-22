@@ -38,6 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-api]
     steps:
+      - uses: actions/checkout@v1
       - name: 'Get Previous tag'
         id: previoustag
         uses: "WyriHaximus/github-action-get-previous-tag@master"
@@ -71,6 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-bf]
     steps:
+      - uses: actions/checkout@v1
       - name: 'Get Previous tag'
         id: previoustag
         uses: "WyriHaximus/github-action-get-previous-tag@master"
@@ -105,6 +107,7 @@ jobs:
     if: contains(github.ref, 'tags')
     needs: [push-bf]
     steps:
+      - uses: actions/checkout@v1
       - name: 'Get Previous tag'
         id: previoustag
         uses: "WyriHaximus/github-action-get-previous-tag@master"
