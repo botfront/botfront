@@ -49,8 +49,9 @@ jobs:
       - name: cypress tests
         working-directory: ./botfront/cypress
         run: |
-          docker-compose up \
+          docker-compose \
           -f docker-compose-prober.yml \
+          up \
           --abort-on-container-exit \
           --exit-code-from e2e
         env:
