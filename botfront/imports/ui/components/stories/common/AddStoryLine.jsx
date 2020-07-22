@@ -15,6 +15,7 @@ const AddStoryLine = React.forwardRef((props, ref) => {
         onSelectResponse,
         onCreateResponse,
         onCreateGenericLine,
+        onCreateEllipsisLine,
         onCreateUtteranceFromInput,
         onCreateUtteranceFromPayload,
         size,
@@ -83,6 +84,13 @@ const AddStoryLine = React.forwardRef((props, ref) => {
                     trackOpenMenu={trackOpenMenu}
                 />
             )}
+           
+           
+            <DashedButton onClick={() => onCreateEllipsisLine()} color='purple' size={size} data-cy='add-slot-line'>
+                            Ellipsis
+            </DashedButton>
+                
+            
         </div>
     );
 });

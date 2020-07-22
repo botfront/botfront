@@ -100,12 +100,14 @@ export class StoryController {
         }
     };
 
+    validateEllipsis = () => {
+        this.form = null;
+        this.lines[this.idx].gui = { type: 'ellipsis', data: { name: '- ...' } };
+    };
+
     validateAction = () => {
         this.form = null;
-        if (!this.hasInvalidChars(this.response)) {
-            if (!RASA_BUILT_IN_ACTIONS.includes(this.response)) this.domain.actions.add(this.response);
-            this.lines[this.idx].gui = { type: 'action', data: { name: this.response } };
-        }
+        this.lines[this.idx].gui = { type: 'action', data: { name: this.response } };
     };
 
     validateFormDecl = () => {
@@ -236,6 +238,8 @@ export class StoryController {
             this.validateSlot();
         } else if (this.response.match(/^form *{/)) {
             this.validateForm();
+        } else if (this.response.match(/^\.\.\./)) {
+            this.validateEllipsis();
         } else {
             this.raiseStoryException('action_name');
         }
@@ -288,7 +292,7 @@ export class StoryController {
 
     toMd = (line) => {
         try {
-            if (['action', 'bot', 'form_decl'].includes(line.type)) return `  - ${line.data.name}`;
+            if (['action', 'bot', 'form_decl', 'ellipsis'].includes(line.type)) return `  - ${line.data.name}`;
             if (line.type === 'form') {
                 let { name } = line.data;
                 name = name === null ? name : `"${name}"`;

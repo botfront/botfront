@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import shortid from 'shortid';
 import { isEqual } from 'lodash';
 
-import { Icon } from 'semantic-ui-react';
+import { Icon, Label } from 'semantic-ui-react';
 import { OOS_LABEL } from '../../constants.json';
 import { StoryController, NEW_INTENT } from '../../../../lib/story_controller';
 import IconButton from '../../common/IconButton';
@@ -77,6 +77,12 @@ export default class StoryVisualEditor extends React.Component {
         story.insertLine(index, data);
     };
 
+    handleCreateEllipsis = (index) => {
+        this.setState({ lineInsertIndex: null });
+        const { story } = this.props;
+        story.insertLine(index, { type: 'ellipsis', data: { name: '...' } });
+    };
+
     handleCreateSequence = (index, templateType, suppliedKey) => {
         this.setState({ lineInsertIndex: null });
         const { story } = this.props;
@@ -125,6 +131,7 @@ export default class StoryVisualEditor extends React.Component {
                     onCreateUtteranceFromPayload={payload => this.handleCreateUserUtterance(index, payload)}
                     onCreateResponse={templateType => this.handleCreateSequence(index, templateType)}
                     onCreateGenericLine={data => this.handleCreateSlotOrAction(index, data)}
+                    onCreateEllipsisLine={() => this.handleCreateEllipsis(index)}
                     onBlur={({ relatedTarget }) => {
                         const modals = Array.from(document.querySelectorAll('.modal'));
                         const popups = Array.from(document.querySelectorAll('.popup'));
@@ -144,7 +151,7 @@ export default class StoryVisualEditor extends React.Component {
         }
         return (
             <Icon
-                name='ellipsis horizontal'
+                name='plus'
                 onClick={() => this.setState({ lineInsertIndex: index })}
             />
         );
@@ -173,6 +180,18 @@ export default class StoryVisualEditor extends React.Component {
                         value={l.data}
                         onChange={v => this.handleChangeActionOrSlot('slot', i, v)}
                     />
+                    <IconButton onClick={() => this.handleDeleteLine(i)} icon='trash' />
+                </div>
+            </ExceptionWrapper>
+            {this.renderAddLine(i)}
+        </React.Fragment>
+    );
+
+    renderEllipsis = (i, l, exceptions) => (
+        <React.Fragment key={`ellipsis${i + l.data.name}`}>
+            <ExceptionWrapper exceptions={exceptions}>
+                <div className='story-line'>
+                    <Label size='medium'> <Icon name='ellipsis horizontal' /> </Label>
                     <IconButton onClick={() => this.handleDeleteLine(i)} icon='trash' />
                 </div>
             </ExceptionWrapper>
@@ -274,6 +293,7 @@ export default class StoryVisualEditor extends React.Component {
             }
             if (line.gui.type === 'action') return this.renderActionLine(index, line.gui, exceptions);
             if (line.gui.type === 'slot') return this.renderSlotLine(index, line.gui, exceptions);
+            if (line.gui.type === 'ellipsis') return this.renderEllipsis(index, line.gui, exceptions);
             if (line.gui.type === 'bot') {
                 const { name } = line.gui.data;
                 return (

@@ -294,13 +294,16 @@
     }
 }
 
-.ellipsis.horizontal {
-    width: 200px;
+.plus.icon {
+    text-align: left;
     height: 10px;
+    width: 250px;
     margin: 0 0 1px;
     opacity: 0;
     cursor: pointer;
     transition: opacity, height 0.05s ease-in-out;
+    position: relative;
+    right: 15px;
     i {
         opacity: 0;
         outline: none;
@@ -315,6 +318,16 @@
     &:hover {
         opacity: 1;
         height: 16px;
+    }
+}
+
+div.ui.label {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.04);
+    font-size: 1.1rem;
+    i.ellipsis.horizontal {
+        display: block;
+        margin: auto;
     }
 }
 
