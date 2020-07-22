@@ -40,6 +40,11 @@ export const searchStories = async (projectId, language, search) => {
     };
     const matched = Stories.find(
         storiesFilter,
+        {
+            fields: {
+                _id: 1, title: 1, storyGroupId: 1,
+            },
+        },
     ).fetch();
     return matched;
 };
