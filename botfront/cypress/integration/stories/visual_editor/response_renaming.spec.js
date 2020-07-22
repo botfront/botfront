@@ -5,7 +5,7 @@ describe('rename responses in the visual editor', () => {
         cy.createProject('bf', 'trial', 'en').then(() => {
             cy.login();
         });
-        cy.visit('project/bf/stories');
+        cy.visit('project/bf/dialogs');
         cy.createStoryGroup();
         cy.createStoryInGroup();
         cy.createStoryInGroup();
@@ -15,7 +15,7 @@ describe('rename responses in the visual editor', () => {
         cy.dataCy('single-story-editor').find('textarea').type('- utter_test_response', { force: true });
         cy.dataCy('single-story-editor').find('textarea').blur({ force: true });
         cy.dataCy('toggle-visual').click({ force: true });
-        cy.visit('project/bf/stories');
+        cy.visit('project/bf/dialogs');
         cy.browseToStory();
         cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('single-story-editor').find('textarea').focus({ force: true });
@@ -23,7 +23,7 @@ describe('rename responses in the visual editor', () => {
         cy.dataCy('single-story-editor').find('textarea').blur({ force: true });
         cy.dataCy('toggle-visual').click({ force: true });
         // check add responses
-        cy.visit('project/bf/stories');
+        cy.visit('project/bf/dialogs');
         cy.browseToStory();
         cy.dataCy('bot-response-input').should('have.length', 2);
         cy.dataCy('bot-response-input').first().find('textarea').click();
@@ -39,7 +39,7 @@ describe('rename responses in the visual editor', () => {
     });
 
     it('should rename a bot response from the visual editor and update all stories', () => {
-        cy.visit('project/bf/stories');
+        cy.visit('project/bf/dialogs');
         cy.browseToStory();
         cy.dataCy('single-story-editor').trigger('mouseover');
         cy.get('.response-name.locations-link').should('exist');
@@ -69,7 +69,7 @@ describe('rename responses in the visual editor', () => {
         cy.dataCy('bot-response-name-input').should('have.class', 'error');
     });
     it('should rename a bot response from the bot response editor', () => {
-        cy.visit('project/bf/stories');
+        cy.visit('project/bf/dialogs');
         cy.browseToStory();
         cy.dataCy('edit-responses').first().click({ force: true });
         cy.dataCy('response-name-input').click();

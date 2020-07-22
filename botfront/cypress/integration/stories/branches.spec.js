@@ -3,7 +3,7 @@
 describe('branches', function() {
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogs');
         cy.createStoryGroup();
         cy.createStoryInGroup();
     });
@@ -39,7 +39,7 @@ describe('branches', function() {
             .type('xxx', { force: true })
             .wait(100)
             .blur();
-        cy.visit('/project/bf/stories'); // reload page
+        cy.visit('/project/bf/dialogs'); // reload page
         cy.browseToStory();
         cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('branch-label').should('have.lengthOf', 2);

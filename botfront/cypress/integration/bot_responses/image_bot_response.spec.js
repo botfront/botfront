@@ -45,7 +45,7 @@ describe('Bot responses', function() {
     });
     it('should provide the correct response template in a new language', () => {
         cy.createNLUModelProgramatically('bf', '', 'fr');
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogs');
         cy.createStoryGroup();
         cy.createStoryInGroup();
         cy.dataCy('single-story-editor').trigger('mouseover');

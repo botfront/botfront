@@ -29,7 +29,7 @@ describe('story tree navigation', function() {
 
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogs');
         cy.createStoryGroup({ groupName: 'Groupi' });
         cy.dataCy('story-group-menu-item').should('have.length', 5);
         cy.createStoryInGroup({ groupName: 'Groupi' });
@@ -203,10 +203,10 @@ describe('story tree navigation', function() {
     });
 
     it('should remember selected story', () => {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogs');
         cy.browseToStory('Groupo (1)');
         cy.dataCy('incoming-sidebar-link').click({ force: true });
-        cy.dataCy('stories-sidebar-link').click({ force: true });
+        cy.dataCy('dialogs-sidebar-link').click({ force: true });
         cy.dataCy('story-title').should('have.value', 'Groupo (1)');
     });
 });

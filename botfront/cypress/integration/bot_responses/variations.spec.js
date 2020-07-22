@@ -65,7 +65,7 @@ describe('Bot responses', function() {
         cy.dataCy('response-text').find('div').contains('edited deleted').should('not.exist');
     });
     it('should show the first variation in the visual editor', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogs');
         cy.createStoryGroup();
         cy.createStoryInGroup();
 

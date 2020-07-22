@@ -19,7 +19,7 @@ const createResponse = () => {
 describe('Bot responses', function() {
     beforeEach(function() {
         cy.createProject('bf').then(() => cy.login());
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogs');
         cy.browseToStory('Greetings', 'Default stories');
         cy.dataCy('story-title').should('have.value', 'Greetings');
         cy.dataCy('bot-response-input')
@@ -68,7 +68,7 @@ describe('Bot responses', function() {
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('response-text').should('contain.text', RESPONSE_TEXT);
 
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogs');
         cy.deleteStoryOrGroup(STORY_NAME, 'story');
         cy.wait(500);
         checkResponsesDeleted();
@@ -78,7 +78,7 @@ describe('Bot responses', function() {
         createResponse();
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('response-text').should('contain.text', RESPONSE_TEXT);
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogs');
         cy.deleteStoryOrGroup(STORY_NAME, 'story');
         cy.wait(500);
         cy.visit('/project/bf/dialogue/templates');
@@ -155,14 +155,14 @@ describe('Bot responses', function() {
         cy.dataCy('template-intent').should('have.length', 2);
     });
     it('should ignore stories from other projects when deleting responses', () => {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogs');
         cy.browseToStory('Farewells', 'Default stories');
         cy.dataCy('story-title').should('have.value', 'Farewells');
         cy.dataCy('bot-response-input').find('textarea').click().type('a')
             .blur();
         cy.visit('/project/bf/dialogue/templates');
         cy.dataCy('template-intent').contains('utter_bye').should('exist');
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogs');
         cy.browseToStory('Farewells', 'Default stories');
         cy.deleteStoryOrGroup('Farewells');
         checkResponsesDeleted();

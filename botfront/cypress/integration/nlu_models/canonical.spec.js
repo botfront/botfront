@@ -146,7 +146,7 @@ describe('NLU canonical examples', function () {
     });
     
     it('should tag the first example for an intent created in the visual editor as canonical', function () {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogs');
         cy.browseToStory('Farewells');
 
         cy.dataCy('add-user-line').click({ force: true });

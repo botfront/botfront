@@ -300,7 +300,7 @@ Cypress.Commands.add('importNluData', (projectId = 'bf', fixture, lang = 'en', o
 });
 
 Cypress.Commands.add('train', (waitTime = 300000) => {
-    cy.visit('/project/bf/stories');
+    cy.visit('/project/bf/dialogs');
     cy.dataCy('train-button').should('exist').should('not.have.class', 'disabled');
     cy.wait(1500);
     cy.dataCy('train-button').click({ force: true });

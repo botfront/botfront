@@ -47,7 +47,7 @@ describe('redux working language', function() {
             .type('newintent{enter}');
         cy.get('[data-cy=save-button]').click();
         // the active language in NLU should match the active language in stories
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogs');
         selectLanguage('French');
         checkLanguage('French');
         cy.dataCy('incoming-sidebar-link')
@@ -64,7 +64,7 @@ describe('redux working language', function() {
         cy.dataCy('intent-label')
             .should('exist');
         // the language in stories should be english
-        cy.dataCy('stories-sidebar-link')
+        cy.dataCy('dialogs-sidebar-link')
             .click({ force: true });
         checkLanguage('English');
     });
