@@ -53,7 +53,6 @@ if (Meteor.isServer) {
                 queryString,
             });
             if (!reject) {
-                console.log(searchResult[0]);
                 expect(searchResult[0]).to.be.deep.equal({ _id: 'TEST_STORY', title: 'story fixture', storyGroupId: 'TEST_STORY_GROUP' });
             } else {
                 expect(searchResult[0]).to.be.equal(undefined);
