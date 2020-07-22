@@ -1,0 +1,92 @@
+###########################################
+# This docker-compose file is only for CI #
+###########################################
+
+version: '3.7'
+services:
+  e2e:
+    ipc: host # https://github.com/cypress-io/cypress/issues/350
+    image: cypress/included:4.0.2
+    container_name: e2e
+    volumes:
+      - ../cypress.json:/app/cypress.json
+      - ../cypress:/app/cypress
+      - ../imports/lib:/app/imports/lib
+      - ../imports/api:/app/imports/api
+      - ./mounted/models/:/app/models
+      - ../package.json:/app/package.json
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - "npm install -C cypress && npm install lodash && npm install moment && sh ./cypress/prober.sh"
+    working_dir: /app
+    depends_on:
+      - botfront
+    environment:
+      - CYPRESS_MODE=CI_RUN
+      - CYPRESS_baseUrl=http://botfront:3000
+      - CYPRESS_RASA_URL=http://rasa:5005
+      - CYPRESS_API_URL=http://botfront-api:8080
+      - CYPRESS_RETRIES=2
+      - CYPRESS_VIDEO=true # video
+      - CYPRESS_SCREENSHOTS=true
+      - CYPRESS_abort_strategy=spec
+      - SPEC=${SPEC} # spec to run
+
+  botfront:
+    image: botfront-local
+    container_name: botfront-test-app
+    restart: always
+    volumes:
+      - './mounted/models/:/app/models'
+    # ports:
+    #   - '8888:3000'
+    depends_on:
+      - mongo
+    environment:
+      - PORT=3000
+      - BF_PROJECT_ID=bf
+      - MODE=test
+      - MONGO_URL=mongodb://mongo:27017/bf
+      - ROOT_URL=http://botfront:3000
+      - LICENSE_KEY=eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJwcm9qZWN0c1F1b3RhIjozLCJ1c2Vyc1F1b3RhIjozLCJob2xkZXIiOiJ0ZXN0IiwidHJpYWwiOmZhbHNlLCJpYXQiOjE1OTM2MTg5OTMsImV4cCI6MjQ1NzYxODk5M30.ZCEtIjVJNhAzui5vk_nVuZs9vfRSaj4q4nO570H4Uqz5n1RE4LLBJzfdR0mJTeTZuEtBYxC0L7nh74v0k_7Lg5taejshCZaNBlkOMtKTTMiu6bl2gxCsSe4LcyDMcFXGg99S_aNbF8cr95pemaYdh-k1VboedAXLlk-WxMLUb2nkuf7FMh62ID-s9cTwE5MVpu31euAo9-tOskpv2UL3A-_bcZwZ_V_9xFfSAkMro62c7xv4nMRckIsa4TodxaW4_6UlXG9vs01dNSw4o_K7_2EUeDeVpko55WUvBf0Bur1iWgc_9ysvnhhRdgVPG9gjD4SuYgldzP_Mq7sLKpquYQ
+
+  botfront-api:
+    image: botfront-api-local
+    container_name: botfront-test-api
+    restart: always
+    depends_on:
+      - mongo
+    # ports:
+    #   - '8080:8080'
+    environment:
+      # MODE must not be set to test because it would use the mongo mem server which we don't want here
+      - MONGO_URL=mongodb://mongo:27017/bf
+      - CORS=*
+
+  rasa:
+    image: botfront/rasa-for-botfront:${RASA_TAG}
+    container_name: botfront-test-rasa
+    restart: always
+    command:
+      - run
+      - --enable-api
+      - --debug
+    # ports:
+    #   - '5005:5005'
+    depends_on:
+      - botfront
+    volumes:
+      - './mounted/models/:/app/models'
+    environment:
+      - BF_URL=http://botfront:3000/graphql
+      - BF_PROJECT_ID=bf
+
+  mongo:
+    image: 'mongo:latest'
+    container_name: botfront-test-mongo
+    restart: always
+    # ports:
+    #   - '27017:27017'
+    environment:
+      - MONGO_INITDB_DATABASE=bf

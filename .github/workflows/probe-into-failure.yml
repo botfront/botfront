@@ -1,0 +1,63 @@
+name: probe-into-failure
+
+on:
+  push:
+    branches:
+      - test/probe-into-failure
+  workflow_dispatch:
+    inputs:
+      spec:
+        description: 'Single spec'
+        required: true
+        default: 'nlu_models/nlu_models.spec.js'
+      commit:
+        description: 'SHA of commit that triggered failed run'
+        required: true
+        default: 'ebd6ac783ee02b551fd89420b7d4c07fc583403d'  
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          ref: ${{github.event.inputs.commit}}
+      - name: download api artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: main.yml
+          commit: ${{github.event.inputs.commit}}
+          name: botfront-api-local
+          path: .
+      - name: download bf artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: main.yml
+          commit: ${{github.event.inputs.commit}}
+          name: botfront-local
+          path: .
+      - run: docker load < botfront-api-local.tar
+      - run: docker load < botfront-local.tar
+      - name: get versions
+        id: versions
+        run: |
+          config=cli/project-template/.botfront/botfront.yml
+          rasa=$(sed -n 's/\S*rasa: \(.*\)$/\1/p' $config | sed 's/.*://')
+          echo ::set-output name=rasa::$rasa
+      - name: cypress tests
+        working-directory: ./botfront/cypress
+        run: |
+          docker-compose up \
+          -f docker-compose-prober.yml \
+          --abort-on-container-exit \
+          --exit-code-from e2e
+        env:
+          RASA_TAG: ${{ steps.versions.outputs.rasa }}
+          SPEC: ${{github.event.inputs.spec}}
+      - name: save screenshots and videos
+        uses: actions/upload-artifact@v1
+        with:
+          name: output
+          path: ./cypress/output
