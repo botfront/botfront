@@ -81,6 +81,8 @@ describe('Exporting a Project', function() {
             cy.contains('Endpoints').click();
             cy.dataCy('endpoints-environment-menu').should('exist');
             cy.dataCy('project-settings-menu-import-export').click();
+            cy.wait(2000);
+            cy.dataCy('project-settings-menu-import-export').click();
             cy.dataCy('project-settings-menu-import-export').should('have.class', 'active');
             cy.dataCy('port-project-menu')
                 .find('.item')
