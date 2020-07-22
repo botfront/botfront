@@ -151,6 +151,7 @@ export default class StoryVisualEditor extends React.Component {
         }
         return (
             <Icon
+                className='insert-line'
                 name='plus'
                 onClick={() => this.setState({ lineInsertIndex: index })}
             />
@@ -191,7 +192,7 @@ export default class StoryVisualEditor extends React.Component {
         <React.Fragment key={`ellipsis${i + l.data.name}`}>
             <ExceptionWrapper exceptions={exceptions}>
                 <div className='story-line'>
-                    <Label size='medium'> <Icon name='ellipsis horizontal' /> </Label>
+                    <Label className='rules-ellipsis' size='medium'> <Icon name='ellipsis horizontal' /> </Label>
                     <IconButton onClick={() => this.handleDeleteLine(i)} icon='trash' />
                 </div>
             </ExceptionWrapper>
