@@ -59,8 +59,8 @@ jobs:
       - name: push image
         run: |
           echo VERSION=${{ steps.previoustag.outputs.tag }}
-          docker tag botfront-api-local gcr.io/botfront-project/botfront-api:$VERSION
-          docker push gcr.io/botfront-project/botfront-api:$VERSION
+          docker tag botfront-api-local gcr.io/botfront-project/botfront-api:${{ steps.previoustag.outputs.tag }}
+          docker push gcr.io/botfront-project/botfront-api:${{ steps.previoustag.outputs.tag }}
       - run: touch empty
       - name: overwrite api artifact with empty file
         uses: actions/upload-artifact@v1
@@ -93,8 +93,8 @@ jobs:
       - name: push image
         run: |
           echo VERSION=${{ steps.previoustag.outputs.tag }}
-          docker tag botfront-local gcr.io/botfront-project/botfront:$VERSION
-          docker push gcr.io/botfront-project/botfront:$VERSION
+          docker tag botfront-local gcr.io/botfront-project/botfront:${{ steps.previoustag.outputs.tag }}
+          docker push gcr.io/botfront-project/botfront:${{ steps.previoustag.outputs.tag }}
       - run: touch empty
       - name: overwrite bf artifact with empty file
         uses: actions/upload-artifact@v1
