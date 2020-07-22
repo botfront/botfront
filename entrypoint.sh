@@ -2,7 +2,7 @@
 
 set -o errexit
 
-cd $SCRIPTS_FOLDER
+cd /docker
 
 # Poll until we can successfully connect to MongoDB
 echo 'Connecting to MongoDB...'
@@ -28,7 +28,7 @@ require('p-wait-for')(function() {
 EOJS
 
 echo 'Starting app...'
-cd $APP_BUNDLE_FOLDER/bundle
+cd /opt/bundle/bundle
 
 exec "$@"
 
