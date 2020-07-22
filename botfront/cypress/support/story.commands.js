@@ -48,18 +48,21 @@ Cypress.Commands.add('createStoryGroup', ({ groupName = 'Groupo' } = {}) => {
 
 Cypress.Commands.add('createStoryInGroup', ({ groupName = 'Groupo', storyName = null } = {}) => {
     findGroupAndOpenIfClosed(groupName);
-    cy.dataCy('story-group-menu-item', groupName).then((n) => {
-        if (n.next().attr('type') === 'story-group') cy.wrap([]).as('stories');
-        else cy.wrap(n.nextUntil('[type="story-group"]')).as('stories');
-    });
+   
     cy.dataCy('story-group-menu-item', groupName)
         .findCy('add-story-in-story-group')
         .click({ force: true });
-    cy.get('@stories').then((stories) => {
-        cy.dataCy('story-group-menu-item').contains(`${groupName} (${stories.length + 1})`);
-        findStoryAndSelect(`${groupName} (${stories.length + 1})`, 'new-story');
+
+    cy.dataCy('story-group-menu-item', groupName).then((n) => {
+        if (n.next().attr('type') === 'story-group') cy.wrap([]).as('stories');
+        else cy.wrap(n.nextUntil('[type="story-group"]')).as('stories');
+        cy.get('@stories').then((stories) => {
+            cy.dataCy('story-group-menu-item').contains(`${groupName} (${stories.length})`);
+            findStoryAndSelect(`${groupName} (${stories.length})`, 'new-story');
+        });
+
+        if (storyName) renameStoryOrGroup('new-story', storyName);
     });
-    if (storyName) renameStoryOrGroup('new-story', storyName);
 });
 
 Cypress.Commands.add('deleteStoryOrGroup', (name = 'Groupo', type = null, confirm = true) => {

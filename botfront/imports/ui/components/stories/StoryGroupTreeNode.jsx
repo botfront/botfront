@@ -25,7 +25,7 @@ const StoryGroupTreeNode = (props) => {
         disabled,
         showPublish,
     } = props;
-    const { type } = item;
+    const { type = 'story' } = item;
     const [newTitle, setNewTitle] = useState('');
     const [renamingModalPosition, setRenamingModalPosition] = useState(null);
     const renamerRef = useRef();
