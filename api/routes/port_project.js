@@ -14,7 +14,7 @@ const {
     Credentials,
     Projects,
     Responses,
-    AnalyticsDashboads,
+    AnalyticsDashboards,
 } = require('../models/models');
 const { getVerifiedProject, aggregateEvents } = require('../server/utils');
 const uuidv4 = require('uuid/v4');
@@ -39,7 +39,7 @@ const collectionsWithProjectId = {
     conversations: Conversations,
     formResults: FormResults,
     botResponses: Responses,
-    analyticsDashboards: AnalyticsDashboads,
+    analyticsDashboards: AnalyticsDashboards,
 };
 
 const collections = { ...collectionsWithModelId, ...collectionsWithProjectId };
