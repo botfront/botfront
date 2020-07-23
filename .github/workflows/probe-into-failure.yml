@@ -7,13 +7,17 @@ on:
   workflow_dispatch:
     inputs:
       spec:
-        description: 'Single spec'
+        description: 'single spec'
         required: true
-        default: 'nlu_models/nlu_models.spec.js'
+        default: 'stories/story_tree_navigation.spec.js'
       commit:
         description: 'SHA of commit that triggered failed run'
         required: true
-        default: 'ebd6ac783ee02b551fd89420b7d4c07fc583403d'  
+        default: '9a09afc1257eeeb0627709b2f10528193b008797'
+      n_repeats:
+        description: 'number of spec runs'
+        required: true
+        default: '3'
 
 jobs:
   integration:
@@ -57,8 +61,9 @@ jobs:
         env:
           RASA_TAG: ${{ steps.versions.outputs.rasa }}
           SPEC: ${{github.event.inputs.spec}}
+          N_REPEATS: ${{github.event.inputs.n_repeats}}
       - name: save screenshots and videos
         uses: actions/upload-artifact@v1
         with:
           name: output
-          path: ./cypress/output
+          path: ./botfront/cypress/output

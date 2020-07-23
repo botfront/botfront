@@ -18,7 +18,7 @@ services:
     entrypoint: /bin/bash
     command:
       - -c
-      - "npm install -C cypress && npm install lodash && npm install moment && sh ./cypress/prober.sh"
+      - "npm install -C cypress && npm install lodash && npm install moment && bash ./cypress/prober.sh"
     working_dir: /app
     depends_on:
       - botfront
@@ -32,6 +32,7 @@ services:
       - CYPRESS_SCREENSHOTS=true
       - CYPRESS_abort_strategy=spec
       - SPEC=${SPEC} # spec to run
+      - N_REPEATS=${N_REPEATS}
 
   botfront:
     image: botfront-local
