@@ -1,20 +1,14 @@
 /* global cy:true */
 
 describe('Project Credentials', function() {
-    before(function() {
-        cy.createProject('bf', 'My Project', 'fr');
-    });
-
-    after(function() {
-        cy.deleteProject('bf');
-    });
-
     beforeEach(function() {
+        cy.createProject('bf', 'My Project', 'fr');
         cy.login();
     });
 
     afterEach(function() {
         cy.logout();
+        cy.deleteProject('bf');
     });
 
     describe('Widget settings', function() {
