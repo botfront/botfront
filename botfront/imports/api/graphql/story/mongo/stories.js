@@ -34,11 +34,12 @@ export const searchStories = async (projectId, language, search) => {
     ).lean();
     const responseKeys = matchedResponses.map(({ key }) => key);
     const fullSearch = combineSearches(escapedSearch, responseKeys, intents);
+    const storiesFilter = {
+        projectId,
+        $or: [{ 'textIndex.info': { $regex: escapedSearch, $options: 'i' } }, { 'textIndex.contents': { $regex: fullSearch, $options: 'i' } }],
+    };
     const matched = Stories.find(
-        {
-            projectId,
-            $or: [{ 'textIndex.info': { $regex: escapedSearch, $options: 'i' } }, { 'textIndex.contents': { $regex: fullSearch, $options: 'i' } }],
-        },
+        storiesFilter,
         {
             fields: {
                 _id: 1, title: 1, storyGroupId: 1,

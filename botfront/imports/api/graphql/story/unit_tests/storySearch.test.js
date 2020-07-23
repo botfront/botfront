@@ -14,13 +14,17 @@ import BotResponses from '../../botResponses/botResponses.model';
 import StoryResolver from '../resolvers/storiesResolver';
 
 if (Meteor.isServer) {
-    const insertDataAndIndex = async (done) => {
+    const cleanup = async () => {
         await deleteResponse(projectId, botResponseFixture.key);
+        await Stories.remove({});
+
         await BotResponses.deleteMany(({ projectId }));
         await Projects.remove({ _id: projectId });
         await NLUModels.remove({ _id: enModelId });
         await NLUModels.remove({ _id: frModelId });
-        await Stories.remove({ _id: storyId });
+    };
+
+    const addData = async () => {
         await createResponses(projectId, [botResponseFixture]);
         await createResponses(projectId, botResponsesFixture);
         await NLUModels.insert({ ...enModelFixture });
@@ -29,6 +33,16 @@ if (Meteor.isServer) {
         await Stories.insert(storyFixture);
         const { textIndex } = await indexStory(storyId);
         Stories.update({ _id: storyId }, { $set: { textIndex } });
+    };
+
+    const insertDataAndIndex = async (done) => {
+        await cleanup();
+        await addData();
+        done();
+    };
+
+    const removeTestData = async (done) => {
+        await cleanup();
         done();
     };
     const searchStories = async (language, queryString, reject) => {
@@ -71,6 +85,9 @@ if (Meteor.isServer) {
     describe('test searching stories by their index', () => {
         before((done) => {
             insertDataAndIndex(done);
+        });
+        after((done) => {
+            removeTestData(done);
         });
         it('should get the expected results from a search string', (done) => {
             testStorySearch(done);
