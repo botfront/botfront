@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.25.5-ee.3](https://github.com/botfront/botfront/compare/v0.25.5-ee.2...v0.25.5-ee.3) (2020-07-23)
+
+
+### Features
+
+* smart stories search ([2e25d43](https://github.com/botfront/botfront/commit/2e25d4394f8599a839693a8ef20400a3ac9a6331))
+* xlsx export ([994dea5](https://github.com/botfront/botfront/commit/994dea5dca0fb52660554304b4c9256d18796ad8))
+
+
+### Bug Fixes
+
+* dashboards are now exported/imported ([73165d5](https://github.com/botfront/botfront/commit/73165d508395e6f437b0417a46237340b949d950))
+* fix slots not deleted because of missing projectId ([5c0c428](https://github.com/botfront/botfront/commit/5c0c4286770a096117356b115a6f69f806910180))
+* stories with null body not importing ([b2d20e9](https://github.com/botfront/botfront/commit/b2d20e923b154ef2787fc173221c273652fae281))
+
 ### [0.25.5-ee.2](https://github.com/botfront/botfront/compare/v0.25.5-ee.1...v0.25.5-ee.2) (2020-07-22)
 
 ### [0.25.5-ee.1](https://github.com/botfront/botfront/compare/v0.25.4-ee.1...v0.25.5-ee.1) (2020-07-21)
