@@ -8,7 +8,7 @@ const splitBody = (lines) => {
     lines.forEach((line, idx) => {
         if (line.startsWith('>')) {
             const cleanLine = line.replace(/^> */, '').trim();
-            if (!body.length) header.push(cleanLine);
+            if (!body.filter(l => l !== null).length) header.push(cleanLine);
             else footer.push(cleanLine);
         } else if (footer.length) {
             throw new Error('a checkpoint sandwiched between other content: bad form');
