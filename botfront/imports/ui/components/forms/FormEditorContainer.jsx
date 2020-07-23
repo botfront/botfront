@@ -39,15 +39,15 @@ const FormEditorContainer = (props) => {
         addResponses([`utter_invalid_${slotName}`]);
     }, [language]);
 
-    const getOrAddResponse = (responseName) => {
+
+    const getResponse = (responseName) => {
         const response = responses[responseName];
-        if (!response) addResponses([responseName]);
         return response;
     };
 
-    const response = getOrAddResponse(`utter_ask_${slotName}`);
-    const validResponse = getOrAddResponse(`utter_valid_${slotName}`);
-    const invalidResponse = getOrAddResponse(`utter_invalid_${slotName}`);
+    const response = getResponse(`utter_ask_${slotName}`);
+    const validResponse = getResponse(`utter_valid_${slotName}`);
+    const invalidResponse = getResponse(`utter_invalid_${slotName}`);
 
     useEffect(() => {
         setSlotToFill({ ...slotToFill, name: slotName });
