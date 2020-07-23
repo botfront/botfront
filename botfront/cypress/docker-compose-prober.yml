@@ -1,0 +1,92 @@
+###########################################
+# This docker-compose file is only for CI #
+###########################################
+
+version: '3.7'
+services:
+  e2e:
+    ipc: host # https://github.com/cypress-io/cypress/issues/350
+    image: cypress/included:4.0.2
+    container_name: e2e
+    volumes:
+      - ../cypress.json:/app/cypress.json
+      - ../cypress:/app/cypress
+      - ../imports/lib:/app/imports/lib
+      - ../imports/api:/app/imports/api
+      - ./mounted/models/:/app/models
+      - ../package.json:/app/package.json
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - "npm install -C cypress && npm install lodash && npm install moment && bash ./cypress/prober.sh"
+    working_dir: /app
+    depends_on:
+      - botfront
+    environment:
+      - CYPRESS_MODE=CI_RUN
+      - CYPRESS_baseUrl=http://botfront:3000
+      - CYPRESS_RASA_URL=http://rasa:5005
+      - CYPRESS_API_URL=http://botfront-api:8080
+      - CYPRESS_RETRIES=2
+      - CYPRESS_VIDEO=true # video
+      - CYPRESS_SCREENSHOTS=true
+      - CYPRESS_abort_strategy=spec
+      - SPEC=${SPEC} # spec to run
+      - N_REPEATS=${N_REPEATS}
+
+  botfront:
+    image: botfront-local
+    container_name: botfront-test-app
+    restart: always
+    volumes:
+      - './mounted/models/:/app/models'
+    # ports:
+    #   - '8888:3000'
+    depends_on:
+      - mongo
+    environment:
+      - PORT=3000
+      - BF_PROJECT_ID=bf
+      - MODE=test
+      - MONGO_URL=mongodb://mongo:27017/bf
+      - ROOT_URL=http://botfront:3000
+
+  botfront-api:
+    image: botfront-api-local
+    container_name: botfront-test-api
+    restart: always
+    depends_on:
+      - mongo
+    # ports:
+    #   - '8080:8080'
+    environment:
+      # MODE must not be set to test because it would use the mongo mem server which we don't want here
+      - MONGO_URL=mongodb://mongo:27017/bf
+      - CORS=*
+
+  rasa:
+    image: botfront/rasa-for-botfront:${RASA_TAG}
+    container_name: botfront-test-rasa
+    restart: always
+    command:
+      - run
+      - --enable-api
+      - --debug
+    # ports:
+    #   - '5005:5005'
+    depends_on:
+      - botfront
+    volumes:
+      - './mounted/models/:/app/models'
+    environment:
+      - BF_URL=http://botfront:3000/graphql
+      - BF_PROJECT_ID=bf
+
+  mongo:
+    image: 'mongo:latest'
+    container_name: botfront-test-mongo
+    restart: always
+    # ports:
+    #   - '27017:27017'
+    environment:
+      - MONGO_INITDB_DATABASE=bf
