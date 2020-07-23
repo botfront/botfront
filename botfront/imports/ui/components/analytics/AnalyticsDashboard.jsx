@@ -3,6 +3,7 @@ import { Container } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { useDrop } from 'react-dnd-cjs';
+import { useApolloClient } from '@apollo/react-hooks';
 import AnalyticsCard from './AnalyticsCard';
 import conversationLengths from '../../../api/graphql/conversations/queries/conversationLengths.graphql';
 import conversationDurations from '../../../api/graphql/conversations/queries/conversationDurations.graphql';
@@ -12,6 +13,11 @@ import conversationCounts from '../../../api/graphql/conversations/queries/conve
 import conversationsFunnel from '../../../api/graphql/conversations/queries/conversationsFunnel.graphql';
 import { ProjectContext } from '../../layouts/context';
 import { setsAreIdentical, findName } from '../../../lib/utils';
+import {
+    calculateTemporalBuckets, applyTimezoneOffset, generateXLSX, downloadXLSX,
+} from '../../../lib/graphs';
+import { clearTypenameField } from '../../../lib/client.safe.utils';
+
 
 function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
     const {
@@ -21,7 +27,13 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
     } = dashboard;
 
     const { projectLanguages } = useContext(ProjectContext);
+    const apolloClient = useApolloClient();
 
+    const {
+        project: {
+            _id: projectId, timezoneOffset: projectTimezoneOffset = 0,
+        },
+    } = useContext(ProjectContext);
     const langs = useMemo(() => (setsAreIdentical(languages, projectLanguages.map(l => l.value))
         ? [] : languages), [languages]); // empty array if all languages are selected
 
@@ -206,6 +218,49 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
         onUpdateDashboard({ cards: updatedCards });
     };
 
+    const downloadAll = async () => {
+        const dataToExport = [];
+        const promises = [];
+        const allQueryParams = [];
+        const allGraphParams = [];
+        const allBuckets = [];
+        const allNames = [];
+        cards.forEach(({
+            startDate, endDate, name, type, ...settings
+        }) => {
+            const { query, queryParams, graphParams } = cardTypes[type];
+            const { nBuckets: nBucketsExport } = calculateTemporalBuckets(moment(startDate), moment(endDate), 'table');
+            const { bucketSize } = calculateTemporalBuckets(moment(startDate), moment(endDate), type);
+
+            const variables = {
+                projectId,
+                envs: [...queryParams.envs, ...(queryParams.envs.includes('development') ? [null] : [])],
+                langs: queryParams.langs,
+                from: applyTimezoneOffset(startDate, projectTimezoneOffset).valueOf() / 1000,
+                to: applyTimezoneOffset(endDate, projectTimezoneOffset).valueOf() / 1000,
+                ...clearTypenameField(settings),
+                nBuckets: nBucketsExport,
+                limit: 100000,
+            };
+            promises.push(apolloClient.query({ query, variables }).then((response) => {
+                const data = response && response.data;
+                dataToExport.push(data);
+                allQueryParams.push(queryParams);
+                allGraphParams.push(graphParams);
+                allBuckets.push(bucketSize);
+                allNames.push(name);
+            }));
+        });
+        
+        await Promise.all(promises);
+        const workbook = generateXLSX(dataToExport, allQueryParams, allGraphParams, allBuckets, allNames, projectTimezoneOffset);
+        if (window.Cypress) {
+            window.getXLSXData = () => workbook;
+            return null;
+        }
+        return downloadXLSX(workbook);
+    };
+
     return (
         <div style={{ overflowY: 'auto', height: 'calc(100% - 49px', marginTop: '0' }}>
             <Container>
@@ -222,6 +277,7 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
                             settings={{ ...settings, startDate: moment(startDate), endDate: moment(endDate) }}
                             onChangeSettings={handleChangeCardSettings(index)}
                             onReorder={handleSwapCards(index)}
+                            downloadAll={() => downloadAll()}
                         />
                     ))}
                 </div>

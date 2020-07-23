@@ -1,7 +1,7 @@
 /* global cy Cypress:true */
 
 describe('intial setup', function () {
-    before(function() {
+    before(function () {
         if (!Cypress.env('MODE') || Cypress.env('MODE') !== 'CI_RUN') {
             cy.exec('mongo bf-os --host localhost:27017 --eval "db.dropDatabase();"');
             // wipping the db also wipe the indexes we need to recreate thoses
@@ -18,7 +18,6 @@ describe('intial setup', function () {
 
     it('Should create projects when completing the initial setup', () => {
         cy.visit('/');
-        
         cy.url().should('be', '/setup/welcome');
         cy.get('[data-cy=start-setup]').click();
 

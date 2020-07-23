@@ -1,4 +1,6 @@
 import moment from 'moment';
+import XLSX from 'xlsx';
+import Workbook from 'workbook';
 
 export const applyTimezoneOffset = (date, offset) => moment(date).utcOffset(offset, true);
 
@@ -21,9 +23,7 @@ const dateFormatDictionary = {
     hour: date => moment(date).format('HH:mm'),
     day: date => moment(date).format('DD/MM'),
     week: date => moment(date).format('DD/MM'),
-    // hour: '%H:%M',
-    // day: '%d/%m',
-    // week: '%d/%m',
+    
 };
 
 const formatAxisTitles = ({ axisTitleX, axisTitleY }, valueType, bucketSize) => {
@@ -154,17 +154,17 @@ export const getDataToDisplayAndParamsToUse = ({
     return { dataToDisplay, paramsToUse };
 };
 
-export const generateCSV = (data, queryParams, { columns }, bucketSize, projectTimezoneOffset) => {
-    const exportColumns = columns.map(c => ({
-        ...c,
-        header: c.accessor === 'bucket' ? (bucketSize === 'hour' ? 'Time' : 'Date') : c.header,
-    }));
-    let formattedData = formatData(data, queryParams, bucketSize, projectTimezoneOffset);
-    formattedData = formattedData.map(((elem) => {
+
+const cleanupDataAndFormatDates = (data, queryParams, bucketSize, exportColumns, convertDateToString = true) => {
+    const newData = data.map(((elem) => {
         const { __typename, bucket, ...rest } = elem; // __typename is not exported
         const formattedElem = rest;
         if (queryParams.temporal) { // bucket is a date
-            formattedElem.bucket = moment(bucket).format('DD/MM/YYYY');
+            if (convertDateToString) {
+                formattedElem.bucket = moment(bucket).format('DD/MM/YYYY');
+            } else {
+                formattedElem.bucket = new Date(new Date(bucket).setHours(0));
+            }
             if (bucketSize === 'hour') {
                 formattedElem.bucket = `${moment(bucket).format('HH:mm')} - ${moment(bucket).add(1, 'hour').subtract(1, 'millisecond').format('HH:mm')}`;
             }
@@ -175,9 +175,46 @@ export const generateCSV = (data, queryParams, { columns }, bucketSize, projectT
         });
         return list;
     }));
+    return newData;
+};
+
+export const generateCSV = (data, queryParams, { columns }, bucketSize, projectTimezoneOffset) => {
+    const exportColumns = columns.map(c => ({
+        ...c,
+        header: c.accessor === 'bucket' ? (bucketSize === 'hour' ? 'Time' : 'Date') : c.header,
+    }));
+    let formattedData = formatData(data, queryParams, bucketSize, projectTimezoneOffset);
+    formattedData = cleanupDataAndFormatDates(formattedData, queryParams, bucketSize, exportColumns);
+    
+   
     formattedData.map(elem => elem.join()).join('\n');
     const csvKeys = exportColumns.map(({ header }) => header).join();
     const csvValues = formattedData
         .map(elem => elem.map(({ value }) => value).join()).join('\n');
     return `${csvKeys}\n${csvValues}`;
 };
+
+
+export const generateXLSX = (data, allQueryParams, allGraphParams, allBuckets, allNames, projectTimezoneOffset) => {
+    const workbook = new Workbook();
+    data.forEach((datum, idx) => {
+        const graphParam = allGraphParams[idx];
+        const bucket = allBuckets[idx];
+        const queryParams = allQueryParams[idx];
+
+        const exportColumns = graphParam.columns.map(c => ({
+            ...c,
+            header: c.accessor === 'bucket' ? (bucket === 'hour' ? 'Time' : 'Date') : c.header,
+        }));
+        const formated = formatData(datum, queryParams, bucket, projectTimezoneOffset);
+        const clean = cleanupDataAndFormatDates(formated, queryParams, bucket, exportColumns, false);
+      
+       
+        const dataForWorkbook = clean.map(row => row.map(({ value }) => ({ v: value })));
+        const firstLine = exportColumns.map(({ header }) => ({ v: header }));
+        if (dataForWorkbook.length !== 0) { workbook.addRowsToSheet(allNames[idx], [firstLine, ...dataForWorkbook]).finalize(); }
+    });
+    return workbook;
+};
+
+export const downloadXLSX = workbook => XLSX.writeFile(workbook, `export-${moment().format('DD-MM-YYYY-h_mm_ss')}.xlsx`, { defaultCellStyle: { font: { name: 'Arial', sz: '12' } } });

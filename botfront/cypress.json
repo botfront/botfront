@@ -9,7 +9,7 @@
     "baseUrl": "http://localhost:3000",
     "defaultCommandTimeout": 10000,
     "watchForFileChanges": false,
-    "numTestsKeptInMemory": 2 ,
+    "numTestsKeptInMemory": 1 ,
     "viewportHeight": 900,
     "viewportWidth": 1800,
     "ignoreTestFiles":["**/docker-compose/*.js", "**/story_exceptions.spec.js/*.js", "**/export-project.spec.js", "**/import-project.spec.js", "**/roles-example.spec.js"],

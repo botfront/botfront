@@ -1,4 +1,4 @@
-/* global cy */
+/* global cy expect:true */
 const ExpectedCellData = {
     conversationLength: [
         {
@@ -300,5 +300,21 @@ describe('analytics tables', function() {
         // export and check that the page does not crash
         cy.dataCy('analytics-export-button').click();
         cy.dataCy('analytics-chart').should('exist');
+    });
+
+    it('should export a xlsx file with all the widgets data', function() {
+        cy.visit('/project/bf/analytics');
+        cy.pickDateRange(0, '5/11/2019', '4/11/2019', true);
+        cy.dataCy('analytics-export-button').first().trigger('mouseover');
+
+        cy.dataCy('analytics-export-all-button').click({ force: true });
+        cy.wait(1000); // wait for the generation of the xlsx file
+        cy.getWindowMethod('getXLSXData').then((getXLSXData) => {
+            const excelData = getXLSXData();
+            cy.fixture('excel-export.json', 'utf8').then((content) => {
+                expect(excelData.SheetNames.sort()).to.deep.equal(content.SheetNames);
+                expect(excelData.Sheets).to.deep.equal(content.Sheets);
+            });
+        });
     });
 });

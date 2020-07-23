@@ -42,6 +42,7 @@ function AnalyticsCard(props) {
         },
         onChangeSettings,
         onReorder,
+        downloadAll,
     } = props;
 
     const {
@@ -275,14 +276,33 @@ function AnalyticsCard(props) {
             )}
             <span className='top-right-buttons'>
                 {!error && !loading && data && data[queryParams.queryName].length > 0 && (
-                    <Button
-                        className='export-card-button'
-                        data-cy='analytics-export-button'
-                        basic
-                        size='medium'
-                        icon='download'
-                        onClick={handleExportClick}
-                    />
+                   
+
+                    <Popup
+                        trigger={(
+                            <Button
+                                className='export-card-button'
+                                data-cy='analytics-export-button'
+                                basic
+                                size='medium'
+                                icon='download'
+                                onClick={handleExportClick}
+                            />
+                        )}
+                        hoverable
+                        on='hover'
+                        className='export-all-popup'
+                        disabled={!downloadAll}
+                    >
+                        <Button
+                            data-cy='analytics-export-all-button'
+                            className='export-all-button'
+                            basic
+                            content='Export all widgets (.xslx)'
+                            onClick={() => downloadAll()}
+                        />
+                    </Popup>
+                      
                 )}
                 {uniqueChartOptions.length > 1 && (
                     <Button.Group basic size='medium' className='chart-type-selector'>
@@ -396,6 +416,7 @@ AnalyticsCard.propTypes = {
     onChangeSettings: PropTypes.func.isRequired,
     onReorder: PropTypes.func,
     type: PropTypes.string,
+    downloadAll: PropTypes.func.isRequired,
 };
 
 AnalyticsCard.defaultProps = {
