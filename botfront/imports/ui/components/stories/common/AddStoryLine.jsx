@@ -11,6 +11,7 @@ const AddStoryLine = React.forwardRef((props, ref) => {
         availableActions: {
             userUtterance, botUtterance, action, slot,
         },
+        type,
         noButtonResponse,
         onSelectResponse,
         onCreateResponse,
@@ -22,7 +23,6 @@ const AddStoryLine = React.forwardRef((props, ref) => {
         onBlur,
         trackOpenMenu,
     } = props;
-
     return (
         <div
             className='add-story-line'
@@ -86,9 +86,11 @@ const AddStoryLine = React.forwardRef((props, ref) => {
             )}
            
            
-            <DashedButton onClick={() => onCreateEllipsisLine()} color='purple' size={size} data-cy='add-slot-line'>
+            {type === 'fragment' && (
+                <DashedButton onClick={() => onCreateEllipsisLine()} color='purple' size={size} data-cy='add-slot-line'>
                             Ellipsis
-            </DashedButton>
+                </DashedButton>
+            )}
                 
             
         </div>
@@ -102,10 +104,12 @@ AddStoryLine.propTypes = {
     onSelectResponse: PropTypes.func,
     onCreateResponse: PropTypes.func,
     onCreateGenericLine: PropTypes.func,
+    onCreateEllipsisLine: PropTypes.func,
     noButtonResponse: PropTypes.bool,
     size: PropTypes.string,
     onBlur: PropTypes.func,
     trackOpenMenu: PropTypes.func,
+    type: PropTypes.string,
 };
 
 AddStoryLine.defaultProps = {
@@ -114,10 +118,12 @@ AddStoryLine.defaultProps = {
     onSelectResponse: () => {},
     onCreateResponse: () => {},
     onCreateGenericLine: () => {},
+    onCreateEllipsisLine: () => {},
     noButtonResponse: false,
     size: 'mini',
     onBlur: () => {},
     trackOpenMenu: () => {},
+    type: 'story',
 };
 
 export default AddStoryLine;

@@ -23,7 +23,7 @@ const RASA_BUILT_IN_ACTIONS = [
 
 export class StoryController {
     constructor({
-        story, isASmartStory, slots, onUpdate = () => {}, onMdType = () => {}, isABranch = false, forms = [], requestedSlotActive = false, triggerRules = [],
+        story, isASmartStory, slots, onUpdate = () => {}, onMdType = () => {}, isABranch = false, forms = [], requestedSlotActive = false, triggerRules = [], type = 'story',
     }) {
         this.domain = {
             slots: this.getSlots(slots),
@@ -36,6 +36,7 @@ export class StoryController {
         this.saveUpdate = options => onUpdate(this.md, options);
         this.requestedSlotActive = requestedSlotActive;
         this.triggerRules = triggerRules;
+        this.type = type;
 
         this.validateStory(false);
     }

@@ -80,6 +80,7 @@ const StoryEditorContainer = ({
             onUpdate: (content, options) => saveStory(story._id, { story: content }, options),
             onMdType: setLastMdType,
             isABranch: hasCheckpoints(),
+            type: story.type,
         }),
     });
 
@@ -163,6 +164,7 @@ const StoryEditorContainer = ({
 
     const renderTopMenu = () => (
         <StoryTopMenu
+            type={story.type}
             title={story.title}
             storyId={story._id}
             disabled={disabled}

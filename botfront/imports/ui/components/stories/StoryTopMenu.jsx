@@ -23,6 +23,7 @@ const StoryTopMenu = ({
     originStories,
     initPayload,
     collapseAllStories,
+    type,
 }) => {
     const errors = errorDetails.length;
     const warnings = warningDetails.length;
@@ -103,7 +104,7 @@ const StoryTopMenu = ({
             <Menu
                 attached='top'
                 data-cy='story-top-menu'
-                className={`${collapsed ? 'collapsed' : ''}`}
+                className={`${collapsed ? 'collapsed' : ''}  ${type === 'story' ? '' : 'fragment'}`}
             >
                 <Menu.Item header>
                     <Icon
@@ -116,9 +117,13 @@ const StoryTopMenu = ({
                     />
                     {isDestinationStory ? (
                         <Icon name='arrow alternate circle right' color='green' fitted />
-                    ) : (
-                        <span className='story-title-prefix'>##</span>
-                    )}
+                    )
+                        : type === 'story' ? (
+                            <span className='story-title-prefix'>##</span>
+                        ) : (
+                            <span className='story-title-prefix'> &gt;&gt; </span>
+                        )
+                    }
                     <input
                         data-cy='story-title'
                         value={newTitle}
@@ -175,6 +180,8 @@ StoryTopMenu.propTypes = {
     originStories: PropTypes.array,
     initPayload: PropTypes.string,
     collapseAllStories: PropTypes.func.isRequired,
+    type: PropTypes.string.isRequired,
+
 };
 StoryTopMenu.defaultProps = {
     isDestinationStory: false,

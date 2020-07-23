@@ -124,6 +124,7 @@ export default class StoryVisualEditor extends React.Component {
         ) {
             return (
                 <AddStoryLine
+                    type={story.type}
                     ref={this.addStoryCursor}
                     trackOpenMenu={this.trackOpenMenu}
                     availableActions={options}
