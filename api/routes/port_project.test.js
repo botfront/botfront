@@ -129,36 +129,39 @@ describe('## Import', () => {
             expect(checkpoints).to.not.be.deep.equal(exportFileCheckpoints);
 
             for (let col in allCollections) {
-                const {
-                    projectId: docProjectId,
-                    modelId: docModelId,
-                    storyGroupId: docStoryGroupId,
-                    checkpoints: docCheckpoints,
-                    children: docChildren,
-                    ...doc
-                } = await allCollections[col]
+                const fetched = await allCollections[col]
                     .findOne({ $or: [{ projectId }, { modelId }, { _id: modelId }, { checkpoints }] })
                     .lean();
-                const {
-                    projectId: exportFileProjectId,
-                    modelId: exportFileModelId,
-                    storyGroupId: exportFileStoryGroupId,
-                    checkpoints: exportFileCheckpoints,
-                    children: exportFileChildren,
-                    ...exportFileDoc
-                } = { ...exportPayloads[1][col][0] };
-
-                expect(doc).to.exist; // able to find collection
-
-                if (col === 'models') expect(doc._id).to.be.equal(modelId); // modelId is as remembered
-                if (docModelId) expect(docModelId).to.be.equal(modelId); // modelId is as remembered
-                if (docProjectId) expect(docProjectId).to.be.equal(projectId); // projectId didn't change
-                if (docStoryGroupId) expect(docStoryGroupId).to.be.equal(storyGroupId); // storyGroupId is as remembered
-                if (docCheckpoints) expect(docCheckpoints).to.be.deep.equal(checkpoints);
-
-                delete doc._id;
-                delete exportFileDoc._id;
-                expect(JSON.parse(JSON.stringify(doc))).to.be.deep.equal(exportFileDoc); // everything else is as in backup
+                if (fetched) {
+                    const {
+                        projectId: docProjectId,
+                        modelId: docModelId,
+                        storyGroupId: docStoryGroupId,
+                        checkpoints: docCheckpoints,
+                        children: docChildren,
+                        ...doc
+                    } = fetched;
+                    const {
+                        projectId: exportFileProjectId,
+                        modelId: exportFileModelId,
+                        storyGroupId: exportFileStoryGroupId,
+                        checkpoints: exportFileCheckpoints,
+                        children: exportFileChildren,
+                        ...exportFileDoc
+                    } = { ...exportPayloads[1][col][0] };
+    
+                    expect(doc).to.exist; // able to find collection
+    
+                    if (col === 'models') expect(doc._id).to.be.equal(modelId); // modelId is as remembered
+                    if (docModelId) expect(docModelId).to.be.equal(modelId); // modelId is as remembered
+                    if (docProjectId) expect(docProjectId).to.be.equal(projectId); // projectId didn't change
+                    if (docStoryGroupId) expect(docStoryGroupId).to.be.equal(storyGroupId); // storyGroupId is as remembered
+                    if (docCheckpoints) expect(docCheckpoints).to.be.deep.equal(checkpoints);
+    
+                    delete doc._id;
+                    delete exportFileDoc._id;
+                    expect(JSON.parse(JSON.stringify(doc))).to.be.deep.equal(exportFileDoc); // everything else is as in backup
+                }
             }
         });
     });

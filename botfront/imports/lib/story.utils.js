@@ -502,6 +502,7 @@ export const getStoriesAndDomain = async (projectId, language, env = 'developmen
     return {
         stories,
         domain,
+        wasPartial: selectedStoryGroups.length !== 0,
     };
 };
 

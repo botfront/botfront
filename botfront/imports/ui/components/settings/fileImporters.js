@@ -86,7 +86,7 @@ const wipeDomain = async (projectId, existingSlots) => {
         variables: { projectId, key: r.key },
     })));
     if (deletedResponses.some(p => !p.data.deleteResponse.success)) throw new Error();
-    const deletedSlots = await Promise.all(existingSlots.map(slot => Meteor.callWithPromise('slots.delete', slot)));
+    const deletedSlots = await Promise.all(existingSlots.map(slot => Meteor.callWithPromise('slots.delete', slot, projectId)));
     if (deletedSlots.some(p => !p)) throw new Error();
     return true;
 };

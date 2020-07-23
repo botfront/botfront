@@ -116,6 +116,7 @@ describe('auto-assingment of canonical in the nlu editor', () => {
         cy.createStoryInGroup();
         cy.browseToStory();
         cy.addUtteranceLine({ intent: 'shopping' });
+        cy.importNluData('bf', 'nlu_sample_en.json', 'en');
         cy.train();
     });
     afterEach(() => {

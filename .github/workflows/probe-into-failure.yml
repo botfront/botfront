@@ -1,9 +1,6 @@
 name: probe-into-failure
 
 on:
-  push:
-    branches:
-      - test/probe-into-failure
   workflow_dispatch:
     inputs:
       spec:
@@ -20,7 +17,7 @@ on:
         default: '3'
 
 jobs:
-  integration:
+  cypress:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
