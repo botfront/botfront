@@ -88,6 +88,26 @@ class User extends React.Component {
         );
     };
 
+    renderPreferredLanguage = () => (
+        <SelectField
+            name='profile.preferredLanguage'
+            placeholder='Select a prefered language'
+            data-cy='preferred-language'
+            options={[
+                {
+                    text: 'English',
+                    value: 'en',
+                    key: 'en',
+                },
+                {
+                    text: 'French',
+                    value: 'fr',
+                    key: 'fr',
+                },
+            ]}
+        />
+    )
+
     getPanes = () => {
         const { confirmOpen } = this.state;
         const { user } = this.props;
@@ -96,7 +116,7 @@ class User extends React.Component {
             {
                 menuItem: 'General information',
                 render: () => (
-                    <Segment className={hasWritePermission}>
+                    <Segment>
                         <AutoForm
                             schema={UserEditSchema}
                             onSubmit={usr => this.saveUser(usr)}
@@ -114,6 +134,7 @@ class User extends React.Component {
                             <AutoField name='emails.0.verified' />
                             <AutoField name='profile.firstName' />
                             <AutoField name='profile.lastName' />
+                            {this.renderPreferredLanguage()}
                             {this.renderRoles()}
                             <ErrorsField />
                             {hasWritePermission && <SubmitField data-cy='save-user' />}
@@ -185,6 +206,7 @@ class User extends React.Component {
                                 <AutoForm schema={UserCreateSchema} onSubmit={this.saveUser}>
                                     <AutoField name='profile.firstName' />
                                     <AutoField name='profile.lastName' />
+                                    {this.renderPreferredLanguage()}
                                     <AutoField name='email' />
                                     {this.renderRoles()}
                                     <AutoField name='sendEmail' />

@@ -67,6 +67,7 @@ if (Meteor.isServer) {
                     profile: {
                         firstName: user.profile.firstName,
                         lastName: user.profile.lastName,
+                        preferredLanguage: user.profile.preferredLanguage,
                     },
                 });
                 this.unblock();
