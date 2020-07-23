@@ -35,6 +35,7 @@ export const StorySchema = new SimpleSchema({
         type: String,
         trim: true,
     },
+    type: String,
     events: { type: Array, optional: true },
     'events.$': { type: String },
     branches: { type: Array, defaultValue: [] },

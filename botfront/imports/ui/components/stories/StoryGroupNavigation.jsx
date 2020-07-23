@@ -89,7 +89,7 @@ class StoryGroupNavigation extends React.Component {
                             content={<Icon name='add' />}
                             style={{ width: 0 }}
                         />,
-                        'New story group',
+                        'New group',
                     )}
                     {this.tooltipWrapper(
                         <Button

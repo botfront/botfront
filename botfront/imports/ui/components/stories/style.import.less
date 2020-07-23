@@ -157,12 +157,28 @@
                 width: 100%;
             }
             .item-actions {
+                opacity:0;
                 white-space: nowrap;
                 margin-left: auto !important;
-                max-width: 0;
             }
             &:hover {
-                .item-actions { max-width: max-content; }
+                
+                .item-actions {  opacity:1; max-width: max-content; }
+            }
+
+            .item-actions {
+                opacity:0;
+                white-space: nowrap;
+                margin-left: auto !important;
+            }
+
+            .button.dropdown {
+                padding:0;
+                background:0;
+                i{
+                    color: #000;
+                    opacity: 0.3;                
+                }
             }
         }
 
@@ -170,7 +186,7 @@
             .icon.ellipsis,
             .icon.eye,
             .drag-handle,
-            .plus.icon,
+            .add.icon,
             .trash.icon {
                 visibility: hidden;
             }

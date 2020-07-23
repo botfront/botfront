@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-    Icon, Menu, Input, Popup,
+    Icon, Menu, Input, Popup, Dropdown,
 } from 'semantic-ui-react';
 import { formNameIsValid } from '../../../lib/client.safe.utils';
 
@@ -17,7 +17,7 @@ const StoryGroupTreeNode = (props) => {
         setDeletionModalVisible,
         handleToggleExpansion,
         handleCollapse,
-        handleAddStory,
+        handleAddDialog,
         handleToggleFocus,
         handleRenameItem,
         handleTogglePublish,
@@ -100,6 +100,14 @@ const StoryGroupTreeNode = (props) => {
         <Popup size='mini' inverted content={tooltip} trigger={trigger} />
     );
 
+    const addDialog = (dialogType) => {
+        handleAddDialog(item.id,
+            `${item.title} (${
+                item.children.length + 1
+            })`,
+            showPublish ? 'unpublished' : 'published', dialogType);
+    };
+
     const cleanStoryId = id => id.replace(/^.*_SMART_/, '');
 
     const renderItemActions = () => (
@@ -127,28 +135,52 @@ const StoryGroupTreeNode = (props) => {
                                 />,
                                 'Focus story group',
                             )}
+                            
                             {tooltipWrapper(
-                                <Icon
-                                    className='cursor pointer'
-                                    data-cy='add-story-in-story-group'
-                                    name='plus'
-                                    {...(!somethingIsMutating
-                                        ? {
-                                            onClick: () => handleAddStory(
-                                                item.id,
-                                                `${item.title} (${
-                                                    item.children.length + 1
-                                                })`,
-                                                showPublish ? 'unpublished' : 'published',
-                                            ),
-                                            onMouseDown: (e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                            },
-                                        }
-                                        : {})}
-                                />,
-                                'Add new story to group',
+                                <Dropdown
+                                    className='icon cursor pointer'
+                                    data-cy='add-dialog-in-group'
+                                    icon='add'
+                                    button
+                                    style={{ textAlign: 'center' }}
+                                    direction='left'
+                                >
+                                    <Dropdown.Menu>
+                                        <Dropdown.Item
+                                            // icon='book'
+                                            content='Story'
+                                            data-cy='add-story'
+                                            onClick={() => addDialog('story')}
+                                        />
+                                        <Dropdown.Item
+                                            // icon='wpforms'
+                                            content='Fragment'
+                                            data-cy='add-fragment'
+                                            onClick={() => addDialog('fragment')}
+                                        />
+                                    </Dropdown.Menu>
+                                </Dropdown>, // <Icon
+                                //     className='cursor pointer'
+                                //     data-cy='add-story-in-story-group'
+                                //     name='plus'
+                                //     {...(!somethingIsMutating
+                                //         ? {
+                                //             onClick: () => handleAddStory(
+                                //                 item.id,
+                                //                 `${item.title} (${
+                                //                     item.children.length + 1
+                                //                 })`,
+                                //                 showPublish ? 'unpublished' : 'published',
+                                //             ),
+                                //             onMouseDown: (e) => {
+                                //                 e.preventDefault();
+                                //                 e.stopPropagation();
+                                //             },
+                                //         }
+                                //         : {})}
+                                // />
+                                
+                                'Add new dialog to group',
                             )}
                         </>
                     )}
@@ -282,7 +314,7 @@ StoryGroupTreeNode.propTypes = {
     setDeletionModalVisible: PropTypes.func.isRequired,
     handleToggleExpansion: PropTypes.func.isRequired,
     handleCollapse: PropTypes.func.isRequired,
-    handleAddStory: PropTypes.func.isRequired,
+    handleAddDialog: PropTypes.func.isRequired,
     handleToggleFocus: PropTypes.func.isRequired,
     handleRenameItem: PropTypes.func.isRequired,
     handleTogglePublish: PropTypes.func.isRequired,

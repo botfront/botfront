@@ -43,7 +43,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         remove,
         rename,
         toggleFocus,
-        newStory,
+        newDialog,
         activeStories,
         replace,
         togglePublish,
@@ -58,7 +58,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         setExpansionOnGroup = fallbackFunction,
         deleteGroup = fallbackFunction,
         updateStory = fallbackFunction,
-        addStory = fallbackFunction,
+        addDialog = fallbackFunction,
         deleteStory = fallbackFunction,
         upsertForm = fallbackFunction,
         deleteForm = fallbackFunction,
@@ -131,9 +131,9 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         );
         return { ...tree, items };
     }
-    if (newStory) {
+    if (newDialog) {
         const { items } = tree;
-        const [parentId, title, status] = newStory;
+        const [parentId, title, status, type] = newDialog;
         const id = uuidv4();
         if (items[parentId].smartGroup) return tree;
         items[parentId].children = [id, ...items[parentId].children];
@@ -143,8 +143,8 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
             parentId,
         };
         setSomethingIsMutating(true);
-        addStory(convertId({
-            id, parentId, title, status,
+        addDialog(convertId({
+            id, parentId, title, status, type,
         }, 'story'), () => setSomethingIsMutating(false));
         return mutateTree({ ...tree, items }, parentId, { isExpanded: true }); // make sure destination is open
     }
@@ -333,6 +333,6 @@ export const useStoryGroupTree = (treeFromProps, activeStories) => {
         handleDragStart: () => setSomethingIsDragging(true),
         handleRemoveItem: remove => setTree({ remove }),
         handleRenameItem: (...rename) => setTree({ rename }),
-        handleAddStory: (...newStory) => setTree({ newStory }),
+        handleAddDialog: (...newDialog) => setTree({ newDialog }),
     };
 };
