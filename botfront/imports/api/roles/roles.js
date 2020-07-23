@@ -35,7 +35,7 @@ export const getUserScopes = (userId, rolesFilter) => {
     let activeScopes = [];
     if (rolesFilter) {
         activeScopes = userRoles
-            .filter(scopeRoles => scopeRoles.inheritedRoles.some(({ _id: roleId }) => rolesFilter === roleId || rolesFilter.includes(roleId)))
+            .filter(scopeRoles => scopeRoles.inheritedRoles && scopeRoles.inheritedRoles.some(({ _id: roleId }) => rolesFilter === roleId || rolesFilter.includes(roleId)))
             .map(({ scope }) => scope);
     } else {
         activeScopes = userRoles.map(({ scope }) => scope);
