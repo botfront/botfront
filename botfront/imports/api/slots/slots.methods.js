@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check, Match } from 'meteor/check';
 
 import { Slots } from './slots.collection';
+import { checkIfCan } from '../../lib/scopes';
 import { slotSchemas } from './slots.schema';
 
 function validateSchema(slot) {
@@ -54,8 +55,10 @@ Meteor.methods({
         }
     },
 
-    'slots.delete'(slot) {
+    'slots.delete'(slot, projectId) {
+        checkIfCan('stories:w', projectId);
         check(slot, Object);
+        check(projectId, String);
         validateSchema(slot);
         return Slots.remove(slot);
     },

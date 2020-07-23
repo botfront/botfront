@@ -53,7 +53,8 @@ class Slots extends React.Component {
     };
 
     handleDeleteSlot = (slot) => {
-        Meteor.call('slots.delete', slot, wrapMeteorCallback());
+        const { projectId } = this.props;
+        Meteor.call('slots.delete', slot, projectId, wrapMeteorCallback());
     };
 
     // TODO: Add sorting on slot types

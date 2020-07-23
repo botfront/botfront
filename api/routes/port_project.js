@@ -14,8 +14,8 @@ const {
     Credentials,
     Projects,
     Responses,
+    AnalyticsDashboards,
 } = require('../models/models');
-const { validationResult } = require('express-validator/check');
 const { getVerifiedProject, aggregateEvents } = require('../server/utils');
 const uuidv4 = require('uuid/v4');
 const JSZip = require('jszip');
@@ -39,6 +39,7 @@ const collectionsWithProjectId = {
     conversations: Conversations,
     formResults: FormResults,
     botResponses: Responses,
+    analyticsDashboards: AnalyticsDashboards,
 };
 
 const collections = { ...collectionsWithModelId, ...collectionsWithProjectId };
