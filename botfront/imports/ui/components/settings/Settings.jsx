@@ -36,38 +36,37 @@ class Settings extends React.Component {
         const panes = [
             {
                 name: 'info',
-                menuItem: <Menu.Item data-cy='project-settings-menu-info' icon='info' content='Project Info' key='Project Info' />,
+                menuItem: <Menu.Item icon='info' content='Project Info' key='Project Info' />,
                 render: () => <Tab.Pane><ProjectInfo /></Tab.Pane>,
             },
             {
                 name: 'credentials',
-                menuItem: <Menu.Item data-cy='project-settings-menu-credentials' icon='key' content='Credentials' key='Credentials' />,
+                menuItem: <Menu.Item icon='key' content='Credentials' key='Credentials' />,
                 render: () => <Tab.Pane><Credentials /></Tab.Pane>,
             },
             {
                 name: 'endpoints',
-                menuItem: <Menu.Item data-cy='project-settings-menu-endpoints' icon='code' content='Endpoints' key='Endpoints' />,
+                menuItem: <Menu.Item icon='code' content='Endpoints' key='Endpoints' />,
                 render: () => <Tab.Pane><Endpoints /></Tab.Pane>,
             },
             {
                 name: 'instance',
-                menuItem: <Menu.Item data-cy='project-settings-menu-instances' icon='server' content='Instance' key='Instances' />,
+                menuItem: <Menu.Item icon='server' content='Instance' key='Instances' />,
                 render: () => <Tab.Pane><Instances /></Tab.Pane>,
             },
             {
                 name: 'default-domain',
-                menuItem: <Menu.Item data-cy='project-settings-menu-default-domain' icon='globe' content='Default Domain' key='Default Domain' />,
+                menuItem: <Menu.Item icon='globe' content='Default Domain' key='Default Domain' />,
                 render: () => <Tab.Pane><DefaultDomain /></Tab.Pane>,
             },
             {
                 name: 'import-export',
-                menuItem: <Menu.Item data-cy='project-settings-menu-import-export' icon='download' content='Import/Export' key='Import/Export' />,
+                menuItem: <Menu.Item icon='download' content='Import/Export' key='Import/Export' />,
                 render: () => <Tab.Pane><ImportExportProject /></Tab.Pane>,
             },
             {
                 menuItem: (
                     <Menu.Item
-                        data-cy='project-settings-more'
                         icon='ellipsis horizontal'
                         content='More Settings'
                         key='More Settings'
@@ -87,7 +86,7 @@ class Settings extends React.Component {
                 <PageMenu title='Settings' icon='setting' />
                 <Container>
                     <Tab
-                        menu={{ vertical: true }}
+                        menu={{ vertical: true, 'data-cy': 'settings-menu' }}
                         grid={{ paneWidth: 12, tabWidth: 4 }}
                         panes={this.getSettingsPanes()}
                         activeIndex={setting ? this.getSettingsPanes().findIndex(p => p.name === setting) : 0}

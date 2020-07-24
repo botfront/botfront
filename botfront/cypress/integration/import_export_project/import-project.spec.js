@@ -15,13 +15,7 @@ const entityName = 'open';
 const entityValue = 'check';
 
 const changeAPIUrl = (url) => {
-    cy.visit('/project/test_project/settings');
-    cy.dataCy('project-settings-more')
-        .click();
-    cy.dataCy('admin-settings-menu')
-        .find('a')
-        .contains('Misc')
-        .click();
+    cy.visit('/project/test_project/settings/global/misc');
     cy.dataCy('docker-api-host')
         .click();
     cy.dataCy('docker-api-host')

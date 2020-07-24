@@ -168,7 +168,7 @@ class Settings extends React.Component {
                 <Container id='admin-settings' data-cy='admin-settings-menu'>
                     <AutoForm schema={new SimpleSchema2Bridge(GlobalSettingsSchema)} model={settings} onSubmit={this.onSave} disabled={saving}>
                         <Tab
-                            menu={{ vertical: true }}
+                            menu={{ vertical: true, 'data-cy': 'settings-menu' }}
                             grid={{ paneWidth: 13, tabWidth: 3 }}
                             panes={this.getSettingsPanes()}
                             activeIndex={setting ? this.getSettingsPanes().findIndex(p => p.name === setting) : 0}

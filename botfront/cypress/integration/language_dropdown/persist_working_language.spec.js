@@ -35,7 +35,7 @@ describe('redux working language', function() {
         cy.visit('/project/bf/settings');
         cy.get('[data-cy=language-selector]').click();
         cy.get('[data-cy=language-selector] input').type('French{enter}');
-        cy.dataCy('project-settings-menu-info').click();
+        cy.dataCy('settings-menu').find('.active.item').click();
         cy.get('[data-cy=save-changes]').click();
         // add an English example
         cy.visit('/project/bf/nlu/models');
