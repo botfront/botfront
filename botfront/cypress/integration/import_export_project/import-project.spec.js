@@ -87,7 +87,7 @@ describe('Importing a project', function() {
 
         it('should import the right number and names of story groups', function() {
             cy.visit('/project/test_project/dialogs');
-            cy.deleteStoryOrGroup('Default stories', 'story-group');
+            cy.deleteStoryOrGroup('Default Fragments', 'story-group');
             importProject();
             cy.visit('/project/test_project/dialogs');
             cy.dataCy('story-group-menu-item', storyGroupName).should('exist');

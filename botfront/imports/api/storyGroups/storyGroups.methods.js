@@ -12,7 +12,7 @@ export const createDefaultStoryGroup = (projectId) => {
     Meteor.call(
         'storyGroups.insert',
         {
-            name: 'Default stories',
+            name: 'Default Fragments',
             projectId,
         },
         (err, storyGroupId) => {

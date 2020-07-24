@@ -68,7 +68,7 @@ describe('slots', function() {
     it('should not show an error when we add a slot in stories that is in the db', function() {
         cy.visit('/project/bf/dialogs');
         cy.dataCy('toggle-md').click({ force: true });
-        cy.browseToStory('Greetings', 'Default stories');
+        cy.browseToStory('Greetings', 'Default Fragments');
         cy.get('.ace_content').click({ force: true });
         cy.dataCy('story-editor')
             .find('textarea')

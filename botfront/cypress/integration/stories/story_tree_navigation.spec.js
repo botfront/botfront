@@ -1,5 +1,5 @@
 /* global cy */
-const storyGroupOne = 'Default stories';
+const storyGroupOne = 'Default Fragments';
 
 const insertPinnedGroup = n => cy.MeteorCall('storyGroups.insert', [
     {
@@ -75,12 +75,11 @@ describe('story tree navigation', function() {
 
     it('should be able to add and delete stories', function() {
         cy.dataCy('story-group-menu-item', null, '[type="story"]').should('have.length', 6);
-        cy.createStoryInGroup({ groupName: 'Default stories' });
+        cy.createStoryInGroup({ groupName: 'Default Fragments' });
         cy.dataCy('story-group-menu-item', null, '[type="story"]').should('have.length', 7);
-        cy.deleteStoryOrGroup('Default stories (4)');
+        cy.deleteStoryOrGroup('Default Fragments (4)');
         cy.dataCy('story-group-menu-item', null, '[type="story"]').should('have.length', 6);
     });
-
     it('should be able to select multiple stories and show them in the right order', function() {
         cy.createStoryInGroup();
         cy.selectStories('Groupo (3)', 2);

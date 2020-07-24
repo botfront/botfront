@@ -179,7 +179,7 @@ describe('story visual editor', function () {
 
     it('should add user utterance payload disjuncts, delete them, and Md representation should match', function () {
         cy.visit('/project/bf/dialogs');
-        cy.browseToStory('Greetings', 'Default stories');
+        cy.browseToStory('Greetings', 'Default Fragments');
         cy.dataCy('icon-add').click({ force: true });
         cy.dataCy('user-line-from-input').first().click({ force: true });
         cy.addUserUtterance('Bye', 'chitchat.bye', 1);
@@ -197,7 +197,7 @@ describe('story visual editor', function () {
 
     it('should not utterance payload disjunct if some disjunct already has identical payload', function () {
         cy.visit('/project/bf/dialogs');
-        cy.browseToStory('Greetings', 'Default stories');
+        cy.browseToStory('Greetings', 'Default Fragments');
         cy.dataCy('intent-label').should('have.length', 1);
         cy.dataCy('icon-add').click({ force: true });
         cy.dataCy('user-line-from-input').first().click({ force: true });
