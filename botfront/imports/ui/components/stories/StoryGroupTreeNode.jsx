@@ -139,7 +139,7 @@ const StoryGroupTreeNode = (props) => {
                             {tooltipWrapper(
                                 <Dropdown
                                     className='icon cursor pointer'
-                                    data-cy='add-dialog-in-group'
+                                    data-cy='add-fragment-in-group'
                                     icon='add'
                                     button
                                     style={{ textAlign: 'center' }}
@@ -156,31 +156,11 @@ const StoryGroupTreeNode = (props) => {
                                             // icon='wpforms'
                                             content='Rule'
                                             data-cy='add-rule'
-                                            onClick={() => addFragment('fragment')}
+                                            onClick={() => addFragment('rule')}
                                         />
                                     </Dropdown.Menu>
-                                </Dropdown>, // <Icon
-                                //     className='cursor pointer'
-                                //     data-cy='add-story-in-story-group'
-                                //     name='plus'
-                                //     {...(!somethingIsMutating
-                                //         ? {
-                                //             onClick: () => handleAddStory(
-                                //                 item.id,
-                                //                 `${item.title} (${
-                                //                     item.children.length + 1
-                                //                 })`,
-                                //                 showPublish ? 'unpublished' : 'published',
-                                //             ),
-                                //             onMouseDown: (e) => {
-                                //                 e.preventDefault();
-                                //                 e.stopPropagation();
-                                //             },
-                                //         }
-                                //         : {})}
-                                // />
-                                
-                                'Add new dialog to group',
+                                </Dropdown>,
+                                'Add new fragment to group',
                             )}
                         </>
                     )}
