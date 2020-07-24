@@ -23,7 +23,7 @@ const RASA_BUILT_IN_ACTIONS = [
 
 export class StoryController {
     constructor({
-        story, isASmartStory, slots, onUpdate = () => {}, onMdType = () => {}, isABranch = false, forms = [], requestedSlotActive = false, triggerRules = [], type = 'story',
+        story, isASmartStory, slots, onUpdate = () => { }, onMdType = () => { }, isABranch = false, forms = [], requestedSlotActive = false, triggerRules = [], type = 'story',
     }) {
         this.domain = {
             slots: this.getSlots(slots),
@@ -33,7 +33,7 @@ export class StoryController {
         this.isSmartStory = isASmartStory;
         this.isABranch = isABranch;
         this.onMdType = onMdType; // onMdType what happens when we need to notify update without saving
-        this.saveUpdate = options => onUpdate(this.md, options);
+        this.saveUpdate = options => onUpdate({ story: this.md, type: this.type }, options);
         this.requestedSlotActive = requestedSlotActive;
         this.triggerRules = triggerRules;
         this.type = type;
@@ -184,6 +184,7 @@ export class StoryController {
         action_name: ['error', 'Bot actions should look like this: `- action_...`, `- utter_...`, `- slot{...}` or `- form{...}`.'],
         have_intent: ['warning', 'Bot actions should usually be found in a user utterance block.'],
         empty_intent: ['warning', 'User utterance block closed without defining any bot action.'],
+        multiple_ellipsis: ['error', 'Ellipsis can not be adjacent to each other.'],
         declare_form: ['warning', 'Form calls (`- form{"name": "myform_form"}`) should be preceded by matching `- myform_form`.'],
         smart_story_payload: ['error', 'Smart stories are triggered automatically and must not start with a user utterance'],
     };
@@ -252,7 +253,29 @@ export class StoryController {
         if (save) this.saveUpdate();
     };
 
+    convertToFragment = () => {
+        this.type = 'fragment';
+        this.validateStory();
+    }
+
+    convertToStory = () => {
+        const storyLines = this.lines.filter(line => !/-\s\.\.\./.test(line.md));// keep the lines if they do not match - ...
+        this.lines = storyLines;
+        this.type = 'story';
+        this.linesToMd();
+        this.validateStory();
+    }
+
+    switchType = () => {
+        if (this.type === 'story') {
+            this.convertToFragment();
+        } else {
+            this.convertToStory();
+        }
+    }
+
     validateLines = () => {
+        let isPreviousLineEllipsis = false; // we cannot have two ellipsis next to each other, this variable track the previous line
         for (this.idx; this.idx < this.lines.length; this.idx += 1) {
             const line = this.lines[this.idx].md.replace(/ *<!--.*--> */g, ' ');
             if (line.trim().length !== 0) {
@@ -261,8 +284,15 @@ export class StoryController {
                     this.prefix = this.prefix.trim();
                     if (this.prefix === '*') {
                         // new intent
+                        isPreviousLineEllipsis = false;
                         this.validateIntent();
                     } else if (this.prefix === '-') {
+                        const isLineEllipsis = this.content === '...';
+                        if (isLineEllipsis && isPreviousLineEllipsis) {
+                            this.raiseStoryException('multiple_ellipsis');
+                        }
+                        isPreviousLineEllipsis = isLineEllipsis;
+
                         // new response
                         this.validateResponse();
                     }
@@ -325,14 +355,14 @@ export class StoryController {
 
     deleteLine = (i) => {
         this.lines = [...this.lines.slice(0, i), ...this.lines.slice(i + 1)];
-        this.md = this.lines.map(l => l.md).join('\n');
+        this.linesToMd();
         this.validateStory();
     };
 
     insertLine = (i, content) => {
         const newMdLine = this.generateMdLine(content);
         this.lines = [...this.lines.slice(0, i + 1), newMdLine, ...this.lines.slice(i + 1)];
-        this.md = this.lines.map(l => l.md).join('\n');
+        this.linesToMd();
         this.validateStory();
     };
 
@@ -340,9 +370,13 @@ export class StoryController {
         const newMdLine = this.generateMdLine(content);
         if (!newMdLine) return;
         this.lines = [...this.lines.slice(0, i), newMdLine, ...this.lines.slice(i + 1)];
-        this.md = this.lines.map(l => l.md).join('\n');
+        this.linesToMd();
         this.validateStory();
     };
+
+    linesToMd = () => {
+        this.md = this.lines.map(l => l.md).join('\n');
+    }
 
     setMd = (content) => {
         this.md = content;
@@ -361,10 +395,14 @@ export class StoryController {
             action: true,
             slot: true,
             form: true,
+            ellipsis: true,
         };
         const [prev, next] = [this.lines[i], this.lines[i + 1]];
         if ((prev && prev.gui.type === 'user') || (next && next.gui.type === 'user')) {
             return { ...possibleInsertions, userUtterance: false };
+        }
+        if ((prev && prev.gui.type === 'ellipsis') || (next && next.gui.type === 'ellipsis')) {
+            return { ...possibleInsertions, ellipsis: false };
         }
         return possibleInsertions;
     }
@@ -385,7 +423,7 @@ export class StoryController {
     }
 }
 
-export const stringPayloadToObject = function(stringPayload = '') {
+export const stringPayloadToObject = function (stringPayload = '') {
     const payloadRegex = /([^{]*) *({.*}|)/;
     const matches = payloadRegex.exec(stringPayload.substring(1));
     const intent = matches[1];
@@ -404,7 +442,7 @@ export const stringPayloadToObject = function(stringPayload = '') {
     return objectPayload;
 };
 
-export const objectPayloadToString = function({ intent, entities }) {
+export const objectPayloadToString = function ({ intent, entities }) {
     const entitiesMap = entities ? entities.reduce((map, obj) => (map[obj.entity] = obj.value, map), {}) : {};
     const entitiesString = Object.keys(entitiesMap).length > 0 ? JSON.stringify(entitiesMap) : '';
     return `/${intent}${entitiesString}`;

@@ -24,6 +24,7 @@ const StoryTopMenu = ({
     initPayload,
     collapseAllStories,
     type,
+    switchType,
 }) => {
     const errors = errorDetails.length;
     const warnings = warningDetails.length;
@@ -117,12 +118,16 @@ const StoryTopMenu = ({
                     />
                     {isDestinationStory ? (
                         <Icon name='arrow alternate circle right' color='green' fitted />
+                    ) : (
+                        <Popup
+                            size='mini'
+                            inverted
+                            content={`Convert to ${type === 'story' ? 'rule' : 'story'}`}
+                            trigger={
+                                <span role='switch' onClick={() => { switchType(); }} className='story-title-prefix'>{type === 'story' ? '##' : '>>'}</span>}
+                        />
+                      
                     )
-                        : type === 'story' ? (
-                            <span className='story-title-prefix'>##</span>
-                        ) : (
-                            <span className='story-title-prefix'> &gt;&gt; </span>
-                        )
                     }
                     <input
                         data-cy='story-title'
@@ -181,12 +186,14 @@ StoryTopMenu.propTypes = {
     initPayload: PropTypes.string,
     collapseAllStories: PropTypes.func.isRequired,
     type: PropTypes.string.isRequired,
+    switchType: PropTypes.func,
 
 };
 StoryTopMenu.defaultProps = {
     isDestinationStory: false,
     originStories: [],
     initPayload: null,
+    switchType: () => {},
 };
 
 const mapStateToProps = (state, ownProps) => ({

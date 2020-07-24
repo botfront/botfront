@@ -9,7 +9,7 @@ import UserUtterancePopupContent from './UserUtterancePopupContent';
 const AddStoryLine = React.forwardRef((props, ref) => {
     const {
         availableActions: {
-            userUtterance, botUtterance, action, slot,
+            userUtterance, botUtterance, action, slot, ellipsis,
         },
         type,
         noButtonResponse,
@@ -86,7 +86,7 @@ const AddStoryLine = React.forwardRef((props, ref) => {
             )}
            
            
-            {type === 'fragment' && (
+            {type === 'fragment' && ellipsis && (
                 <DashedButton onClick={() => onCreateEllipsisLine()} color='purple' size={size} data-cy='add-slot-line'>
                             Ellipsis
                 </DashedButton>

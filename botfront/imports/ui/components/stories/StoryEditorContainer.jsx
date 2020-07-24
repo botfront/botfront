@@ -77,7 +77,7 @@ const StoryEditorContainer = ({
         [story._id]: new StoryController({ // the root story
             story: story.story || '',
             slots,
-            onUpdate: (content, options) => saveStory(story._id, { story: content }, options),
+            onUpdate: (storyUpdated, options) => saveStory(story._id, storyUpdated, options),
             onMdType: setLastMdType,
             isABranch: hasCheckpoints(),
             type: story.type,
@@ -133,7 +133,7 @@ const StoryEditorContainer = ({
                 newStoryControllers[currentPath.join()] = new StoryController({
                     story: newStory.story || '',
                     slots,
-                    onUpdate: (content, options) => saveStory(currentPath, { story: content }, options),
+                    onUpdate: (storyUpdated, options) => saveStory(currentPath, storyUpdated, options),
                     onMdType: setLastMdType,
                     isABranch: currentPath.length > 1,
                 });
@@ -164,6 +164,7 @@ const StoryEditorContainer = ({
 
     const renderTopMenu = () => (
         <StoryTopMenu
+            switchType={() => { storyControllers[story._id].switchType(); }}
             type={story.type}
             title={story.title}
             storyId={story._id}
@@ -271,7 +272,7 @@ const StoryEditorContainer = ({
                 [pathAsString]: new StoryController({
                     story: storyContent || '',
                     slots,
-                    onUpdate: (content, options) => saveStory(path, { story: content }, options),
+                    onUpdate: (storyUpdated, options) => saveStory(path, storyUpdated, options),
                     onMdType: setLastMdType,
                     isABranch: path.length > 1,
                 }),
