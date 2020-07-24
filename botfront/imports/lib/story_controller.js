@@ -229,7 +229,7 @@ export class StoryController {
 
     validateResponse = () => {
         this.response = this.content.trim();
-        if (!this.intent && !this.isABranch && !this.isSmartStory) this.raiseStoryException('have_intent');
+        if (!this.intent && !this.isABranch && !this.isSmartStory && !this.response.match(/^\.\.\./)) this.raiseStoryException('have_intent');
         if (this.response.match(/^utter_/)) {
             this.validateUtter();
         } else if (this.response.match(/^action_/)) {
