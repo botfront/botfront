@@ -1,5 +1,5 @@
 const data = {
-    _id: 'BzGJeeyvJm527n6rf',
+    _id: 'test_model',
     name: 'chitchat-en',
     language: 'en',
     config: 'pipeline:\n  - name: WhitespaceTokenizer\n  - name: LexicalSyntacticFeaturizer\n  - name: CountVectorsFeaturizer\n  - name: CountVectorsFeaturizer\n    analyzer: char_wb\n    min_ngram: 1\n    max_ngram: 4\n  - name: DIETClassifier\n    epochs: 100\n  - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: >-\n      rasa_addons.nlu.components.intent_ranking_canonical_example_injector.IntentRankingCanonicalExampleInjector\n  - name: EntitySynonymMapper',
