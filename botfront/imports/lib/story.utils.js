@@ -384,8 +384,12 @@ export const getStoriesAndDomain = async (projectId, language) => {
         const storiesForThisSG = (storiesBySG[_id] || [])
             .map(story => appendBranchCheckpoints(story))
             .reduce((acc, story) => [...acc, ...flattenStory(story)], [])
-            .map(story => `## ${story.title}\n${story.story}`)
-            .join('\n');
+            .map((story) => {
+                if (story.type === 'story') {
+                    return `## ${story.title}\n${story.story}`;
+                }
+                return `>> ${story.title}\n${story.story}`;
+            }).join('\n');
         stories.push(`# ${name}\n\n${storiesForThisSG}`);
     });
 
