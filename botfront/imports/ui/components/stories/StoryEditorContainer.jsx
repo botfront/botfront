@@ -49,7 +49,7 @@ const StoryEditorContainer = ({
 }) => {
     const { stories, getResponseLocations, reloadStories } = useContext(ConversationOptionsContext);
     const { slots } = useContext(ProjectContext);
-    
+
     // Used to store ace editors instance to dynamically set annotations
     // the ace edtior react component has a bug where it does not set properly
     // so we have to use this workaround
@@ -69,7 +69,7 @@ const StoryEditorContainer = ({
                 projectId: story.projectId,
             },
             options,
-            wrapMeteorCallback(options.callback || (() => {})),
+            wrapMeteorCallback(options.callback || (() => { })),
         );
     };
 
@@ -87,7 +87,7 @@ const StoryEditorContainer = ({
     useEffect(() => {
         Object.values(storyControllers).forEach(sc => sc.updateSlots(slots));
     }, [slots]);
-    
+
     useEffect(() => {
         const change = storyControllers[story._id].isABranch !== hasCheckpoints();
         if (change) storyControllers[story._id].setIsBranch(hasCheckpoints());
@@ -404,7 +404,7 @@ const StoryEditorContainer = ({
                     </Menu>
                 )}
                 {branches.length > 0
-                && branchPath.length > pathToRender.length // render branch content
+                    && branchPath.length > pathToRender.length // render branch content
                     && renderBranches(depth + 1)}
             </Segment>
         );
@@ -433,7 +433,7 @@ const StoryEditorContainer = ({
             {!collapsed && (
                 <StoryFooter
                     onBranch={() => handleCreateBranch(branchPath, [], 2)}
-                    onContinue={() => {}}
+                    onContinue={() => { }}
                     canContinue={false}
                     onDestinationStorySelection={onDestinationStorySelection}
                     destinationStory={destinationStory}

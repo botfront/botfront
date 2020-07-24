@@ -140,7 +140,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
         handleDragStart,
         handleRemoveItem,
         handleRenameItem,
-        handleAddDialog,
+        handleAddFragment,
     } = useStoryGroupTree(treeFromProps, storyMenuSelection);
     const menuRef = useRef();
     const lastFocusedItem = useRef(tree.items[storyMenuSelection[0]] || null);
@@ -299,7 +299,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
             setDeletionModalVisible={setDeletionModalVisible}
             handleToggleExpansion={handleToggleExpansion}
             handleCollapse={handleCollapse}
-            handleAddDialog={handleAddDialog}
+            handleAddFragment={handleAddFragment}
             handleToggleFocus={handleToggleFocus}
             handleRenameItem={handleRenameItem}
             selectionIsNonContiguous={selectionIsNonContiguous}

@@ -160,7 +160,7 @@ function Stories(props) {
         [projectId],
     );
 
-    const handleNewDialog = useCallback(
+    const handlenewFragment = useCallback(
         (story, f) => Meteor.call(
             'stories.insert',
             {
@@ -223,7 +223,7 @@ function Stories(props) {
                     deleteGroup: handleDeleteGroup,
                     updateGroup: handleStoryGroupUpdate,
                     setExpansionOnGroup: handleStoryGroupSetExpansion,
-                    addDialog: handleNewDialog,
+                    addFragment: handlenewFragment,
                     deleteStory: handleStoryDeletion,
                     updateStory: handleStoryUpdate,
                     reloadStories: handleReloadStories,

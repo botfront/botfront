@@ -17,7 +17,7 @@ const StoryGroupTreeNode = (props) => {
         setDeletionModalVisible,
         handleToggleExpansion,
         handleCollapse,
-        handleAddDialog,
+        handleAddFragment,
         handleToggleFocus,
         handleRenameItem,
         handleTogglePublish,
@@ -100,8 +100,8 @@ const StoryGroupTreeNode = (props) => {
         <Popup size='mini' inverted content={tooltip} trigger={trigger} />
     );
 
-    const addDialog = (dialogType) => {
-        handleAddDialog(item.id,
+    const addFragment = (dialogType) => {
+        handleAddFragment(item.id,
             `${item.title} (${
                 item.children.length + 1
             })`,
@@ -150,13 +150,13 @@ const StoryGroupTreeNode = (props) => {
                                             // icon='book'
                                             content='Story'
                                             data-cy='add-story'
-                                            onClick={() => addDialog('story')}
+                                            onClick={() => addFragment('story')}
                                         />
                                         <Dropdown.Item
                                             // icon='wpforms'
-                                            content='Fragment'
-                                            data-cy='add-fragment'
-                                            onClick={() => addDialog('fragment')}
+                                            content='Rule'
+                                            data-cy='add-rule'
+                                            onClick={() => addFragment('fragment')}
                                         />
                                     </Dropdown.Menu>
                                 </Dropdown>, // <Icon
@@ -314,7 +314,7 @@ StoryGroupTreeNode.propTypes = {
     setDeletionModalVisible: PropTypes.func.isRequired,
     handleToggleExpansion: PropTypes.func.isRequired,
     handleCollapse: PropTypes.func.isRequired,
-    handleAddDialog: PropTypes.func.isRequired,
+    handleAddFragment: PropTypes.func.isRequired,
     handleToggleFocus: PropTypes.func.isRequired,
     handleRenameItem: PropTypes.func.isRequired,
     handleTogglePublish: PropTypes.func.isRequired,
