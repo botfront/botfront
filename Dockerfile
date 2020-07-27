@@ -45,6 +45,7 @@ RUN bash $SCRIPTS_FOLDER/build-meteor-npm-dependencies.sh \
 
 # Those dependencies are needed by the entrypoint.sh script
 RUN npm install -C $SCRIPTS_FOLDER p-wait-for mongodb
+RUN chgrp -R 0 $SCRIPTS_FOLDER && chmod -R g=u $SCRIPTS_FOLDER
 
 VOLUME [ "/app/models"]
 # Start app
