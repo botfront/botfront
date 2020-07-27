@@ -6,7 +6,7 @@ const splitBody = (lines) => {
     const body = [];
     const footer = [];
     lines.forEach((line, idx) => {
-        if (line.startsWith('>')) {
+        if (line.startsWith('> ')) {
             const cleanLine = line.replace(/^> */, '').trim();
             if (!body.filter(l => l !== null).length) header.push(cleanLine);
             else footer.push(cleanLine);
@@ -59,7 +59,7 @@ const checkFooter = (footer, fullTitle) => {
     return { hasDescendents, linkTo };
 };
 
-const parseStory = (storyGroupId, fullTitle, lines) => {
+const parseStory = (storyGroupId, fullTitle, lines, type) => {
     const title = (fullTitle.match(/.*__(.*)/) || [null, fullTitle])[1];
     try {
         const { header, body, footer } = splitBody(lines);
@@ -74,10 +74,12 @@ const parseStory = (storyGroupId, fullTitle, lines) => {
             hasDescendents,
             linkTo,
             body,
+            type,
         };
     } catch (error) {
         return {
             storyGroupId,
+            type,
             title,
             fullTitle,
             rawText: lines.join('\n'),
@@ -87,13 +89,32 @@ const parseStory = (storyGroupId, fullTitle, lines) => {
 };
 
 export const parseStoryGroup = (storyGroupId, rawText) => {
-    const blocks = `\n${rawText}`.split('\n## ');
+    const types = [];
+    const blocks = `\n${rawText}`
+        .replace(/ *<!--([\s\S]*?)-->/, '')
+        .trim()
+        .split(/(##|>>)\s/)
+        .filter((block) => {
+            if (block === '') {
+                return false;
+            }
+            if (/^##$/.test(block)) {
+                types.push('story');
+                return false;
+            }
+            if (/^>>$/.test(block)) {
+                types.push('rule');
+                return false;
+            }
+            return true;
+        });
+
     if (blocks.length < 2) return [];
     return blocks
         .filter(s => s.trim())
-        .map((s) => {
-            const [fullTitle, ...lines] = s.replace(/ *<!--([\s\S]*?)-->/, '').split('\n');
-            return parseStory(storyGroupId, fullTitle, lines);
+        .map((s, index) => {
+            const [fullTitle, ...lines] = s.split('\n');
+            return parseStory(storyGroupId, fullTitle, lines, types[index]);
         });
 };
 
@@ -142,6 +163,7 @@ export const generateStories = (parsedStories) => {
                 ancestorOf,
                 linkTo,
                 linkFrom,
+                type,
             } = parsedStory;
             const ancestorPath = ancestorOf.join('__');
             const currentPath = `${ancestorPath && `${ancestorPath}__`}${title.replace(
@@ -164,6 +186,7 @@ export const generateStories = (parsedStories) => {
                 _id,
                 story: body,
                 title,
+                type,
                 ...(!ancestorOf.length ? { storyGroupId } : {}),
                 branches: hasDescendents && output[currentPath] ? output[currentPath] : [],
                 ...(linkFrom.length ? { checkpoints: linkFrom } : {}),
