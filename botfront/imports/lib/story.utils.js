@@ -119,7 +119,9 @@ ${n1LevelStory.story || ''}`,
 
 export const flattenStory = story => (story.branches || []).reduce(
     (acc, val) => [...acc, ...flattenStory(val)],
-    [{ story: story.story || '', title: story.title, rules: story.rules || [] }],
+    [{
+        story: story.story || '', title: story.title, rules: story.rules || [], type: story.type || 'story',
+    }],
 );
 
 export const findBranchById = (branchesN0, branchId) => {
@@ -356,6 +358,7 @@ export const getStoriesAndDomain = async (projectId, language) => {
                 errors: 1,
                 checkpoints: 1,
                 storyGroupId: 1,
+                type: 1,
             },
         },
     ).fetch();
