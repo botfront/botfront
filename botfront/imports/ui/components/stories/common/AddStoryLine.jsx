@@ -86,7 +86,7 @@ const AddStoryLine = React.forwardRef((props, ref) => {
             )}
            
            
-            {type === 'fragment' && ellipsis && (
+            {type === 'rule' && ellipsis && (
                 <DashedButton onClick={() => onCreateEllipsisLine()} color='purple' size={size} data-cy='add-slot-line'>
                             Ellipsis
                 </DashedButton>

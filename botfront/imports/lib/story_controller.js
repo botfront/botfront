@@ -254,7 +254,7 @@ export class StoryController {
     };
 
     convertToFragment = () => {
-        this.type = 'fragment';
+        this.type = 'rule';
         this.validateStory();
     }
 
