@@ -185,7 +185,7 @@ StoryTopMenu.propTypes = {
     originStories: PropTypes.array,
     initPayload: PropTypes.string,
     collapseAllStories: PropTypes.func.isRequired,
-    type: PropTypes.string.isRequired,
+    type: PropTypes.string,
     switchType: PropTypes.func,
 
 };
@@ -193,6 +193,7 @@ StoryTopMenu.defaultProps = {
     isDestinationStory: false,
     originStories: [],
     initPayload: null,
+    type: 'story',
     switchType: () => {},
 };
 
