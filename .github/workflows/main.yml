@@ -135,6 +135,7 @@ jobs:
       - name: cypress tests
         working-directory: ./botfront/cypress
         run: |
+          mkdir -p mounted/models
           docker-compose up \
           --abort-on-container-exit \
           --exit-code-from e2e

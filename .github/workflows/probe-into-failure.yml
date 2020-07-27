@@ -50,6 +50,7 @@ jobs:
       - name: cypress tests
         working-directory: ./botfront/cypress
         run: |
+          mkdir -p mounted/models
           docker-compose \
           -f docker-compose-prober.yml \
           up \
