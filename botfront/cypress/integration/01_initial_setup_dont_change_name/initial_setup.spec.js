@@ -53,7 +53,7 @@ describe('intial setup', function () {
         cy.get('[data-cy=email-consent]').click();
 
         cy.wait(5000);
-        cy.url({ timeout: 30000 }).should('include', '/stories');
+        cy.url({ timeout: 30000 }).should('include', '/dialogs');
 
         // cy.url().then((url) => {
         // This gets the project id

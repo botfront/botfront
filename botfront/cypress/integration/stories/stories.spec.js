@@ -32,7 +32,7 @@ describe('stories', function() {
         cy.dataCy('collapse-story-button').click({ force: true });
         cy.dataCy('single-story-editor').should('not.exist');
         cy.contains('NLU').click({ force: true });
-        cy.contains('Stories').click({ force: true });
+        cy.contains('Dialogs').click({ force: true });
         cy.dataCy('single-story-editor').should('not.exist');
     });
 

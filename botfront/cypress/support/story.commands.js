@@ -49,8 +49,9 @@ Cypress.Commands.add('createStoryInGroup', ({ groupName = 'Groupo', storyName = 
     findGroupAndOpenIfClosed(groupName);
    
     cy.dataCy('story-group-menu-item', groupName)
-        .findCy('add-story-in-story-group')
+        .findCy('add-fragment-in-group')
         .click({ force: true });
+    cy.dataCy('story-group-menu-item', groupName).findCy('add-story').click({ force: true });
 
     cy.dataCy('story-group-menu-item', groupName).then((n) => {
         if (n.next().attr('type') === 'story-group') cy.wrap([]).as('stories');
