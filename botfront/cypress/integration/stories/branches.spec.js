@@ -108,7 +108,7 @@ describe('branches', function() {
         cy.dataCy('add-branch').click({ force: true });
         cy.dataCy('branch-label').should('have.lengthOf', 3);
         cy.contains('NLU').click({ force: true });
-        cy.contains('Stories').click({ force: true });
+        cy.contains('Dialogs').click({ force: true });
         cy.browseToStory();
         cy.dataCy('branch-label').should('have.lengthOf', 3);
         cy.dataCy('branch-label')

@@ -421,7 +421,7 @@ export const accumulateExceptions = (
             newStoryControllers[currentPathAsString] = new StoryController({
                 story: currentStory.story || '',
                 slots,
-                onUpdate: content => saveStoryMethod(currentPath, { story: content }),
+                onUpdate: storyUpdated => saveStoryMethod(currentPath, storyUpdated),
                 onMdType: setLastMdTypeMethod,
                 isABranch,
             });

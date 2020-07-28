@@ -1,3 +1,5 @@
+import { undefinedFieldMessage } from 'graphql/validation/rules/FieldsOnCorrectType';
+
 export const NEW_INTENT = 'new_intent_inserted_by_visual_story_editor';
 
 class StoryException {
@@ -33,7 +35,7 @@ export class StoryController {
         this.isSmartStory = isASmartStory;
         this.isABranch = isABranch;
         this.onMdType = onMdType; // onMdType what happens when we need to notify update without saving
-        this.saveUpdate = options => onUpdate({ story: this.md, type: this.type }, options);
+        this.saveUpdate = options => onUpdate({ story: this.md, type: this.isABranch ? undefined : this.type }, options);
         this.requestedSlotActive = requestedSlotActive;
         this.triggerRules = triggerRules;
         this.type = type;
