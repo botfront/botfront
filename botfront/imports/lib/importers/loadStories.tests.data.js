@@ -69,6 +69,7 @@ export const storyGroupOneParsed = [
         hasDescendents: false,
         linkTo: 'checkpoint_2',
         body: '',
+        type: 'story',
     },
     {
         storyGroupId: '123',
@@ -79,6 +80,7 @@ export const storyGroupOneParsed = [
         hasDescendents: true,
         linkTo: null,
         body: '* get_started\n  - utter_get_started',
+        type: 'story',
     },
     {
         storyGroupId: '123',
@@ -132,6 +134,7 @@ export const storyGroupTwoParsed = [
         hasDescendents: false,
         linkTo: null,
         body: '* chitchat.greet\n  - utter_hi',
+        type: 'story',
     },
 ];
 
@@ -141,10 +144,12 @@ export const storiesGenerated = [
         title: 'Farewells',
         storyGroupId: '123',
         branches: [],
+        type: 'story',
     },
     {
         story: '* get_started\n  - utter_get_started',
         title: 'Get started',
+        type: 'story',
         storyGroupId: '123',
         branches: [
             { story: '', title: 'New Branch 1', branches: [] },
@@ -163,5 +168,6 @@ export const storiesGenerated = [
         title: 'Greetings',
         storyGroupId: '456',
         branches: [],
+        type: 'story',
     },
 ];

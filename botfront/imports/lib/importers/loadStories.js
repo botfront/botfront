@@ -65,7 +65,11 @@ const parseStory = (storyGroupId, fullTitle, lines, type) => {
         const { header, body, footer } = splitBody(lines);
         const { ancestorOf, linkFrom } = checkHeader(header, fullTitle);
         const { hasDescendents, linkTo } = checkFooter(footer, fullTitle);
-        return {
+        let properType = {};
+        if (ancestorOf.length === 0) {
+            properType = { type };
+        }
+        const story = {
             storyGroupId,
             title,
             fullTitle,
@@ -74,8 +78,10 @@ const parseStory = (storyGroupId, fullTitle, lines, type) => {
             hasDescendents,
             linkTo,
             body,
-            type,
+            ...properType,
         };
+
+        return story;
     } catch (error) {
         return {
             storyGroupId,
@@ -92,28 +98,26 @@ export const parseStoryGroup = (storyGroupId, rawText) => {
     const types = [];
     const blocks = `\n${rawText}`
         .replace(/ *<!--([\s\S]*?)-->/, '')
-        .trim()
-        .split(/(##|>>)\s/)
+        .split(/(\n##|\n>>)\s/)
         .filter((block) => {
             if (block === '') {
                 return false;
             }
-            if (/^##$/.test(block)) {
+            if (/^\n##$/.test(block)) {
                 types.push('story');
                 return false;
             }
-            if (/^>>$/.test(block)) {
+            if (/^\n>>$/.test(block)) {
                 types.push('rule');
                 return false;
             }
             return true;
         });
-
-    if (blocks.length < 2) return [];
+    if (types.length < 1) return [];
     return blocks
         .filter(s => s.trim())
         .map((s, index) => {
-            const [fullTitle, ...lines] = s.split('\n');
+            const [fullTitle, ...lines] = s.replace(/ *<!--([\s\S]*?)-->/, '').split('\n');
             return parseStory(storyGroupId, fullTitle, lines, types[index]);
         });
 };
@@ -152,6 +156,7 @@ export const generateStories = (parsedStories) => {
     let output = { '': [] };
     const warnings = [];
     let links = [];
+    // console.log(parsedStories);
     parsedStories
         .sort((a, b) => b.ancestorOf.length - a.ancestorOf.length) // sort deepest first
         .forEach((parsedStory) => {
@@ -186,7 +191,7 @@ export const generateStories = (parsedStories) => {
                 _id,
                 story: body,
                 title,
-                type,
+                ...(type ? { type } : {}),
                 ...(!ancestorOf.length ? { storyGroupId } : {}),
                 branches: hasDescendents && output[currentPath] ? output[currentPath] : [],
                 ...(linkFrom.length ? { checkpoints: linkFrom } : {}),

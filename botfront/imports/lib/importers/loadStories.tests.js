@@ -76,6 +76,7 @@ if (Meteor.isServer) {
                 title: 'Farewells',
                 storyGroupId: '123',
                 branches: [],
+                type: 'story',
             });
         });
         it('Should drop broken checkpoints, and log warning', () => { // to do: log opposite: missing destinations
