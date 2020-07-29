@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.25.7-ee.2](https://github.com/botfront/botfront/compare/v0.25.7-ee.1...v0.25.7-ee.2) (2020-07-29)
+
+
+### Features
+
+* top triggers in analytics ([4e2de3d](https://github.com/botfront/botfront/commit/4e2de3d394f2eb670977a0a2923f6139cc75c36e))
+
 ### [0.25.7-ee.1](https://github.com/botfront/botfront/compare/v0.25.6-ee.1...v0.25.7-ee.1) (2020-07-29)
 
 
