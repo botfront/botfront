@@ -155,6 +155,25 @@ Well done! Once a PR gets merged, here are the things happened next:
 - all Docker images tagged with `branch-master` will be automatically updated in an hour. You may check the status on the [Actions](https://github.com/botfront/botfront/actions) tab.
 - your contribution and commits will be included in [our release note](https://github.com/botfront/botfront/blob/master/CHANGELOG.md).
 
+### Testing
+
+End to end tests are using the Cypress testing framework.
+
+To manually run the Cypress tests, you need to have Botfront running in development mode. Some tests also require Rasa to be available.
+
+Once you are at the root of the repo, you can enter the following.
+
+```bash
+cd botfront
+# if you want to open Cypress' graphical interface
+npx cypress open
+# If you want to run the whole suite in headless mode
+# This could take up to an hour depending on your computer
+npx cypress run
+# If you want to run a specific test
+npx cypress run --spec "cypress/integration/02_training/training.spec.js"
+```
+
 ### Commit messages naming convention
 
 To help everyone with understanding the commit history of Botfront, we employ [`commitlint`](https://commitlint.js.org/#/) to enforce the commit styles:

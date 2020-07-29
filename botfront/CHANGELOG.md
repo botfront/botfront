@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.25.7](https://github.com/botfront/botfront/compare/v0.25.6...v0.25.7) (2020-07-29)
+
+
+### Features
+
+* resize observer polyfill ([89bc547](https://github.com/botfront/botfront/commit/89bc54721bb7f179dd05aaf23a6409a7c53d9461))
+
 ### [0.25.6](https://github.com/botfront/botfront/compare/v0.25.5...v0.25.6) (2020-07-24)
 
 
