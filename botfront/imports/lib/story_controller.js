@@ -1,5 +1,3 @@
-import { undefinedFieldMessage } from 'graphql/validation/rules/FieldsOnCorrectType';
-
 export const NEW_INTENT = 'new_intent_inserted_by_visual_story_editor';
 
 class StoryException {
@@ -110,7 +108,10 @@ export class StoryController {
 
     validateAction = () => {
         this.form = null;
-        this.lines[this.idx].gui = { type: 'action', data: { name: this.response } };
+        if (!this.hasInvalidChars(this.response)) {
+            if (!RASA_BUILT_IN_ACTIONS.includes(this.response)) this.domain.actions.add(this.response);
+            this.lines[this.idx].gui = { type: 'action', data: { name: this.response } };
+        }
     };
 
     validateFormDecl = () => {
