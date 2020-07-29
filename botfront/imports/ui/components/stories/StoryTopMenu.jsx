@@ -1,5 +1,5 @@
 import {
-    Popup, Icon, Menu, Label, Message,
+    Popup, Icon, Menu, Label, Message, Modal, Button,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import React, { useState, useContext, useEffect } from 'react';
@@ -28,7 +28,7 @@ const StoryTopMenu = ({
 }) => {
     const errors = errorDetails.length;
     const warnings = warningDetails.length;
-
+    const [modalOpen, setModalOpen] = useState(false);
     const [newTitle, setNewTitle] = useState(title);
     useEffect(() => setNewTitle(title), [title]);
 
@@ -53,6 +53,14 @@ const StoryTopMenu = ({
             event.target.blur();
             updateStory({ _id: storyId, title });
         }
+    };
+
+    const changeTypeConfirm = () => {
+        setModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setModalOpen(false);
     };
 
     const handleCollapseAllStories = () => {
@@ -123,8 +131,22 @@ const StoryTopMenu = ({
                             size='mini'
                             inverted
                             content={`Convert to ${type === 'story' ? 'rule' : 'story'}`}
-                            trigger={
-                                <span role='switch' onClick={() => { switchType(); }} className='story-title-prefix'>{type === 'story' ? '##' : '>>'}</span>}
+                            trigger={(
+                                <span
+                                    className='story-title-prefix'
+                                    role='switch'
+                                    onClick={() => {
+                                        if (type === 'rule') {
+                                            changeTypeConfirm();
+                                        } else {
+                                            switchType();
+                                        }
+                                    }
+                                    }
+                                >
+                                    {type === 'story' ? '##' : '>>'}
+                                </span>
+                            )}
                         />
                       
                     )
@@ -170,6 +192,29 @@ const StoryTopMenu = ({
                     {renderConnectedStories()}
                 </Popup>
             )}
+            <Modal
+                open={modalOpen}
+                onClose={() => closeModal()}
+            >
+                <Modal.Header>Confirm</Modal.Header>
+                <Modal.Content>
+                    <p>Converting this rule to a story will erase all the existing ellipsis, are you sure ?</p>
+                </Modal.Content>
+                <Modal.Actions>
+                    <Button
+                        onClick={() => closeModal()}
+                        negative
+                        content='No'
+                    />
+                    <Button
+                        onClick={() => { closeModal(); switchType(); }}
+                        positive
+                        labelPosition='right'
+                        icon='checkmark'
+                        content='Yes'
+                    />
+                </Modal.Actions>
+            </Modal>
         </>
     );
 };
