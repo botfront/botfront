@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.25.8-ee.1](https://github.com/botfront/botfront/compare/v0.25.7-ee.3...v0.25.8-ee.1) (2020-07-29)
+
+
+### Bug Fixes
+
+* fixed training without selected story groups ([e0202a3](https://github.com/botfront/botfront/commit/e0202a3123509ec03b21d5614b40edb51b39921f))
+
 ### [0.25.7-ee.3](https://github.com/botfront/botfront/compare/v0.25.7-ee.2...v0.25.7-ee.3) (2020-07-29)
 
 
