@@ -121,6 +121,8 @@ function AnalyticsContainer(props) {
                 includeIntents: undefined,
                 excludeIntents: ['intentFrequencies'].includes(type) ? ['get_started'] : undefined,
                 selectedSequence: ['conversationsFunnel'].includes(type) ? [{ name: 'get_started', excluded: false }] : undefined,
+                triggerConversations: ['conversationCounts', 'triggerFrequencies'].includes(type),
+                userInitiatedConversations: ['conversationCounts', 'intentFrequencies'].includes(type),
             },
             ...dashboard.cards,
         ],
