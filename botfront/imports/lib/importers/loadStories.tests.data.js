@@ -33,6 +33,27 @@ export const storyGroupTwo = [
   - utter_hi`,
 ];
 
+export const storyGroupThree = [
+    `>> Rule one
+- utter_get_started
+- ...
+  * intent_1
+- utter_get_started`,
+    `>> Rule two
+* get_started
+  - utter_get_started`,
+    `## Story One
+- utter_get_started
+  * intent_1`,
+    `>> Branched_rule
+- ...
+> Branched_rule__branches`,
+    `>> Branched_rule__branch1
+> Branched_rule__branches`,
+    `>> Branched_rule__branch2
+> Branched_rule__branches`,
+];
+
 export const badStories = [
     `## Sandwich
 * intent_1
@@ -124,6 +145,73 @@ export const storyGroupOneParsed = [
     },
 ];
 
+export const storyGroupThreeParsed = [
+    {
+        storyGroupId: '789',
+        title: 'Rule one',
+        fullTitle: 'Rule one',
+        ancestorOf: [],
+        linkFrom: [],
+        hasDescendents: false,
+        linkTo: null,
+        body: '- utter_get_started\n- ...\n  * intent_1\n- utter_get_started',
+        type: 'rule',
+    },
+    {
+        storyGroupId: '789',
+        title: 'Rule two',
+        fullTitle: 'Rule two',
+        ancestorOf: [],
+        linkFrom: [],
+        hasDescendents: false,
+        linkTo: null,
+        body: '* get_started\n  - utter_get_started',
+        type: 'rule',
+    },
+    {
+        storyGroupId: '789',
+        title: 'Story One',
+        fullTitle: 'Story One',
+        ancestorOf: [],
+        linkFrom: [],
+        hasDescendents: false,
+        linkTo: null,
+        body: '- utter_get_started\n  * intent_1',
+        type: 'story',
+    },
+    {
+        storyGroupId: '789',
+        title: 'Branched_rule',
+        fullTitle: 'Branched_rule',
+        ancestorOf: [],
+        linkFrom: [],
+        hasDescendents: true,
+        linkTo: null,
+        body: '- ...',
+        type: 'rule',
+    },
+    {
+        storyGroupId: '789',
+        title: 'branch1',
+        fullTitle: 'Branched_rule__branch1',
+        ancestorOf: ['Branched_rule'],
+        linkFrom: [],
+        hasDescendents: false,
+        linkTo: null,
+        body: '',
+    },
+    {
+        storyGroupId: '789',
+        title: 'branch2',
+        fullTitle: 'Branched_rule__branch2',
+        ancestorOf: ['Branched_rule'],
+        linkFrom: [],
+        hasDescendents: false,
+        linkTo: null,
+        body: '',
+    },
+];
+
 export const storyGroupTwoParsed = [
     {
         storyGroupId: '456',
@@ -137,7 +225,35 @@ export const storyGroupTwoParsed = [
         type: 'story',
     },
 ];
-
+export const storiesGeneratedWithRule = [{
+    story: '- utter_get_started\n- ...\n  * intent_1\n- utter_get_started',
+    title: 'Rule one',
+    type: 'rule',
+    storyGroupId: '789',
+    branches: [],
+}, {
+    story: '* get_started\n  - utter_get_started',
+    title: 'Rule two',
+    type: 'rule',
+    storyGroupId: '789',
+    branches: [],
+}, {
+    story: '- utter_get_started\n  * intent_1',
+    title: 'Story One',
+    type: 'story',
+    storyGroupId: '789',
+    branches: [],
+}, {
+    story: '- ...',
+    title: 'Branched_rule',
+    type: 'rule',
+    storyGroupId: '789',
+    branches: [{
+        story: '', title: 'branch1', branches: [],
+    }, {
+        story: '', title: 'branch2', branches: [],
+    }],
+}];
 export const storiesGenerated = [
     {
         story: '',

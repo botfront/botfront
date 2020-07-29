@@ -4,7 +4,8 @@ import {
     parseStoryGroup, parseStoryGroups, generateStories,
 } from './loadStories';
 import {
-    badStories, storyGroupOne, storyGroupOneParsed, storyGroupTwoParsed, storyGroups, storiesGenerated,
+    badStories, storyGroupOne,
+    storyGroupOneParsed, storyGroupTwoParsed, storyGroups, storyGroupThree, storyGroupThreeParsed, storiesGenerated, storiesGeneratedWithRule,
 } from './loadStories.tests.data';
 
 const stripIds = (any) => {
@@ -36,6 +37,11 @@ if (Meteor.isServer) {
             expect(results[3]).to.include('more than one destination');
             expect(results[4]).to.include('convention not respected');
         });
+        it('should differentiate stories and rules', () => {
+            expect(parseStoryGroup('789', storyGroupThree.join('\n'))).to.be.deep.equal(
+                storyGroupThreeParsed,
+            );
+        });
         it('required temporary features are extracted from raw story md', () => {
             expect(parseStoryGroup('123', storyGroupOne.join('\n'))).to.be.deep.equal(
                 storyGroupOneParsed,
@@ -52,6 +58,12 @@ if (Meteor.isServer) {
                 parseStoryGroups(storyGroups),
             ).stories;
             expect(stripIds(storiesToInsert)).to.be.deep.equal(storiesGenerated);
+        });
+        it('branching structure is reconstructed with rules', () => {
+            const storiesToInsert = generateStories(
+                parseStoryGroups([{ name: 'storyGroupThree', rawText: storyGroupThree.join('\n'), _id: '789' }]),
+            ).stories;
+            expect(stripIds(storiesToInsert)).to.be.deep.equal(storiesGeneratedWithRule);
         });
         it('links are reconstructed from checkpoints', () => {
             const storiesToInsert = generateStories(
