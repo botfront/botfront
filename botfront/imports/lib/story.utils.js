@@ -342,12 +342,12 @@ export const getStoriesAndDomain = async (projectId, language) => {
         { fields: { _id: 1, name: 1, selected: 1 } },
     ).fetch();
 
-    let selectedStoryGroups = storyGroups.filter(sg => sg.selected);
-    selectedStoryGroups = selectedStoryGroups.length ? selectedStoryGroups : storyGroups;
+    const selectedStoryGroups = storyGroups.filter(sg => sg.selected);
+    const storiesTrained = selectedStoryGroups.length ? selectedStoryGroups : storyGroups;
 
     appMethodLogger.debug('Fetching stories');
     const allStories = Stories.find(
-        { projectId, storyGroupId: { $in: selectedStoryGroups.map(({ _id }) => _id) } },
+        { projectId, storyGroupId: { $in: storiesTrained.map(({ _id }) => _id) } },
         {
             fields: {
                 story: 1,
@@ -380,7 +380,7 @@ export const getStoriesAndDomain = async (projectId, language) => {
     );
 
     const stories = [];
-    selectedStoryGroups.forEach(({ _id, name }) => {
+    storiesTrained.forEach(({ _id, name }) => {
         const storiesForThisSG = (storiesBySG[_id] || [])
             .map(story => appendBranchCheckpoints(story))
             .reduce((acc, story) => [...acc, ...flattenStory(story)], [])
