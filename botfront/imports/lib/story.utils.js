@@ -446,19 +446,21 @@ export const getStoriesAndDomain = async (projectId, language, env = 'developmen
     ).fetch();
 
     let selectedStoryGroups;
+    let storiesTrained;
     if (env === 'development') {
         selectedStoryGroups = storyGroups.filter(sg => sg.selected);
-        selectedStoryGroups = selectedStoryGroups.length
+        storiesTrained = selectedStoryGroups.length
             ? selectedStoryGroups
             : storyGroups;
     } else {
-        selectedStoryGroups = storyGroups;
+        selectedStoryGroups = [];
+        storiesTrained = storyGroups;
     }
 
     appMethodLogger.debug('Fetching stories');
     const status = env === 'development' ? {} : { status: 'published' };
     const allStories = Stories.find(
-        { projectId, storyGroupId: { $in: selectedStoryGroups.map(({ _id }) => _id) }, ...status },
+        { projectId, storyGroupId: { $in: storiesTrained.map(({ _id }) => _id) }, ...status },
         {
             fields: {
                 story: 1,
@@ -497,7 +499,7 @@ export const getStoriesAndDomain = async (projectId, language, env = 'developmen
     });
 
     appMethodLogger.debug('Formatting stories');
-    const stories = generateAndFormatStories(allStories, selectedStoryGroups);
+    const stories = generateAndFormatStories(allStories, storiesTrained);
 
     return {
         stories,
