@@ -177,5 +177,15 @@ if (Meteor.isServer) {
             }));
             expect(exceptions).to.be.deep.equal(exceptionsGold);
         });
-    });//
+        // it('should output exceptions matching the gold for rule', function() {
+        //     const rule = fs.readFileSync('./assets/app/fixtures/rule_01.md', 'utf8');
+        //     const val = new StoryController({ story: rule, slots, type: 'rule' });
+        //     const exceptions = val.exceptions.map(exception => ({
+        //         line: exception.line,
+        //         code: exception.code,
+        //     }));
+        //     console.log(exceptions);
+        //     // expect(exceptions).to.be.deep.equal(exceptionsGoldRule);
+        // });
+    });
 }
