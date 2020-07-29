@@ -1,3 +1,4 @@
+import ResizeObserver from 'resize-observer-polyfill';
 import { useRef, useEffect } from 'react';
 
 export function useEventListener(eventName, handler, element = window) {

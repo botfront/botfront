@@ -7,6 +7,7 @@ import { OOS_LABEL } from '../imports/ui/components/constants.json';
 import { DndProvider } from 'react-dnd-cjs';
 import HTML5Backend from 'react-dnd-html5-backend-cjs';
 import style from './style.css';
+import ResizeObserver from 'resize-observer-polyfill';
 
 export const slots = [
     { name: 'textSlot1', type: 'text' }, { name: 'textSlot2', type: 'text' }, { name: 'textSlot3', type: 'text' },

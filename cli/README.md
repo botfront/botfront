@@ -80,3 +80,69 @@ botfront
 Then run `git remote add upstream https://github.com/botfront/botfront` to add the open source repo as another remote source.
 
 Now, everytime you want to integrate the latest changes from the open source repo, just run `git pull upstream stable`
+
+### Contribute
+
+We ❤️ contributions of all size and sorts. If you find a typo, if you want to improve a section of the documentation or if you want to help with a bug or a feature, here are the steps:
+
+1. Fork the repo and create a new branch, say `fix-botfront-typo-1`
+2. Fix/improve the codebase
+3. Commit the changes. **Commit message must follow [the naming convention](#commit-messages-naming-convention)**, say `fix(conversation builder): display story groups in alphabetical order`
+4. Make a pull request. **Pull request name must follow [the naming convention](#commit-messages-naming-convention)**. It can simply be one of your commit messages, just copy paste it, e.g. `fix(readme): improve the readability and move sections`
+5. Submit your pull request and wait for all checks passed (up to an hour)
+6. Request reviews from one of the developers from our core team.
+7. Get a 👍 and PR gets merged.
+
+Well done! Once a PR gets merged, here are the things happened next:
+- all Docker images tagged with `branch-master` will be automatically updated in an hour. You may check the status on the [Actions](https://github.com/botfront/botfront/actions) tab.
+- your contribution and commits will be included in [our release note](https://github.com/botfront/botfront/blob/master/CHANGELOG.md).
+
+### Testing
+
+End to end tests are using the Cypress testing framework.
+
+To manually run the Cypress tests, you need to have Botfront running in development mode. Some tests also require Rasa to be available.
+
+Once you are at the root of the repo, you can enter the following.
+
+```bash
+cd botfront
+# if you want to open Cypress' graphical interface
+npx cypress open
+# If you want to run the whole suite in headless mode
+# This could take up to an hour depending on your computer
+npx cypress run
+# If you want to run a specific test
+npx cypress run --spec "cypress/integration/02_training/training.spec.js"
+```
+
+### Commit messages naming convention
+
+To help everyone with understanding the commit history of Botfront, we employ [`commitlint`](https://commitlint.js.org/#/) to enforce the commit styles:
+
+```text
+type(scope?): subject
+```
+
+where `type` is one of the following:
+
+- build
+- ci
+- chore
+- docs
+- feat
+- fix
+- perf
+- refactor
+- revert
+- style
+- test
+
+`scope` is optional, represents the module your commit working on.
+
+`subject` explains the commit.
+
+As an example, a commit that improved the documentation:
+```text
+docs(conversation builder): update slots manager screenshot.
+```
