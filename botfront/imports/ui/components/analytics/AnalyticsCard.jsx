@@ -1,5 +1,5 @@
 import {
-    Button, Popup, Loader, Message, Icon, Input, Dropdown,
+    Button, Popup, Loader, Message, Icon, Input,
 } from 'semantic-ui-react';
 import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
@@ -15,11 +15,11 @@ import DatePicker from '../common/DatePicker';
 import PieChart from '../charts/PieChart';
 import BarChart from '../charts/BarChart';
 import LineChart from '../charts/LineChart';
-import SettingsPortal from './SettingsPortal';
 import Table from '../charts/Table';
 import { ProjectContext } from '../../layouts/context';
 import { queryifyFilter } from '../../../lib/conversationFilters.utils';
 import { clearTypenameField } from '../../../lib/client.safe.utils';
+import SettingsMenu from './SettingsMenu';
 
 function AnalyticsCard(props) {
     const {
@@ -37,9 +37,8 @@ function AnalyticsCard(props) {
             chartType,
             valueType,
             wide,
-            showDenominator,
-            ...settings
         },
+        settings,
         onChangeSettings,
         onReorder,
         downloadAll,
@@ -50,12 +49,12 @@ function AnalyticsCard(props) {
             _id: projectId, name: projectName = 'Botfront', timezoneOffset: projectTimezoneOffset = 0, nlu_models,
         },
     } = useContext(ProjectContext);
+
     const [nameEdited, setNameEdited] = useState(null);
 
     const { displayAbsoluteRelative } = graphParams;
     const uniqueChartOptions = [...new Set(chartTypeOptions)];
 
-    const [settingsOpen, setSettingsOpen] = useState(false);
     const { nTicks, nBuckets, bucketSize } = calculateTemporalBuckets(startDate, endDate, chartType, wide);
     const [activateDownload, setActivateDownload] = useState(false);
 
@@ -85,6 +84,9 @@ function AnalyticsCard(props) {
         to: applyTimezoneOffset(endDate, projectTimezoneOffset).valueOf() / 1000,
         ...clearTypenameField(settings),
         nBuckets,
+        ...(settings.limit ? { limit: chartType !== 'table' ? Number(settings.limit) : -1 } : { limit: -1 }),
+        ...(settings.conversationLength ? { conversationLength: Number(settings.conversationLength) } : { conversationLength: -1 }),
+        ...(queryParams.intentTypeFilter ? { intentTypeFilter: queryParams.intentTypeFilter } : {}),
     };
     const { loading, error, data } = query
         ? useQuery(query, { variables })
@@ -126,20 +128,60 @@ function AnalyticsCard(props) {
         return [];
     };
 
+    const getTriggerIntentFromStory = async (storyName) => {
+        const intentMapping = await Meteor.callWithPromise(
+            'stories.getTriggerIntents',
+            projectId, { includeFields: { title: 1, triggerIntent: 1 }, key: 'title' },
+        );
+        return intentMapping[storyName].triggerIntent;
+    };
 
-    const linkToConversations = (selectedData, fullDataSet) => {
+    const getDateRangeForLinking = (selectedData, prevData) => {
+        if (bucketSize === 'week') {
+            const bucketStart = prevData ? prevData.bucket : startDate;
+            const bucketEnd = selectedData.bucket;
+            return ({
+                startDate: bucketStart,
+                endDate: bucketEnd,
+            });
+        }
+        return ({
+            startDate: moment(selectedData.bucket).startOf('day'),
+            endDate: moment(selectedData.bucket).endOf('day'),
+        });
+    };
+
+    const linkToConversations = async (selectedData, fullDataSet) => {
         const selectedIndex = fullDataSet.findIndex(({ bucket }) => bucket === selectedData.bucket);
         const prevData = fullDataSet[selectedIndex - 1];
-        const filters = { startDate, endDate, env: queryParams.envs[0] };
+        const filters = {
+            startDate,
+            endDate,
+            // for the "conversationCounts" and "actionCounts" card overwrite the start date and end date
+            ...(['conversationCounts', 'actionCounts'].includes(type)
+                ? getDateRangeForLinking(selectedData, prevData)
+                : {}
+            ),
+            env: queryParams.envs[0],
+            unerInitiatedConversations: true,
+            triggeredConversations: true,
+        };
         const intentsActionsFilters = [];
         const {
-            includeIntents = [],
-            excludeIntents = [],
             includeActions = [],
             excludeActions = [],
+            conversationLength,
+            userInitiatedConversations,
+            triggerConversations,
+            intentsAndActionsFilters,
+            intentsAndActionsOperator,
         } = settings;
         let conversationFunnelIndex;
         switch (type) {
+        case 'triggerFrequencies':
+            intentsActionsFilters.push(...reshapeIntentOrActionArray([await getTriggerIntentFromStory(selectedData.name)], false));
+            filters.intentsActionsFilters = intentsActionsFilters;
+            break;
         case 'intentFrequencies':
             intentsActionsFilters.push(...reshapeIntentOrActionArray([selectedData.name], false));
             filters.intentsActionsFilters = clearTypenameField(intentsActionsFilters);
@@ -153,30 +195,24 @@ function AnalyticsCard(props) {
         case 'conversationsFunnel':
             conversationFunnelIndex = parseInt(selectedData.name.match(/[0-9]+$/)[0], 10);
             filters.intentsActionsFilters = clearTypenameField(settings.selectedSequence.slice(0, conversationFunnelIndex + 1));
-
             filters.intentsActionsOperator = 'inOrder';
             break;
         case 'conversationCounts':
-            intentsActionsFilters.push(...reshapeIntentOrActionArray(includeIntents, false));
-            intentsActionsFilters.push(...reshapeIntentOrActionArray(excludeIntents, true));
-        // eslint-disable-next-line no-fallthrough
+            if (!triggerConversations) {
+                filters.triggeredConversations = false;
+            }
+            if (!userInitiatedConversations) {
+                filters.userInitiatedConversations = false;
+            }
+            filters.lengthFilter = { compare: conversationLength, xThan: 'greaterThan' };
+            filters.intentsActionsFilters = clearTypenameField(intentsAndActionsFilters || []);
+            filters.intentsActionsOperator = intentsAndActionsOperator;
+            break;
         case 'actionCounts':
-        /* conversation counts support intents other wise it uses the same parameters as action counts
-        that's why ere using a adjustDatesAccordingToBucket
-        */
             intentsActionsFilters.push(...reshapeIntentOrActionArray(includeActions, false));
             intentsActionsFilters.push(...reshapeIntentOrActionArray(excludeActions, true));
             filters.intentsActionsFilters = clearTypenameField(intentsActionsFilters);
             filters.intentsActionsOperator = 'or';
-            if (bucketSize === 'week') {
-                const bucketStart = prevData ? prevData.bucket : startDate;
-                const bucketEnd = selectedData.bucket;
-                filters.startDate = bucketStart;
-                filters.endDate = bucketEnd;
-            } else {
-                filters.startDate = moment(selectedData.bucket).startOf('day');
-                filters.endDate = moment(selectedData.bucket).endOf('day');
-            }
             break;
         default:
             break;
@@ -190,7 +226,7 @@ function AnalyticsCard(props) {
 
     const renderChart = () => {
         const { dataToDisplay, paramsToUse } = getDataToDisplayAndParamsToUse({
-            data, queryParams, graphParams, nTicks, valueType, bucketSize, projectTimezoneOffset, wide, showDenominator,
+            data, queryParams, graphParams, nTicks, valueType, bucketSize, projectTimezoneOffset, wide, showDenominator: false,
         });
         
         if (!dataToDisplay.length) return <Message color='yellow'><Icon name='calendar times' data-cy='no-data-message' />No data to show for selected period!</Message>;
@@ -199,32 +235,6 @@ function AnalyticsCard(props) {
         if (chartType === 'line') return <LineChart {...paramsToUse} data={dataToDisplay} linkToConversations={linkToConversations} />;
         if (chartType === 'table') return <Table {...paramsToUse} data={dataToDisplay} bucketSize={bucketSize} />;
         return null;
-    };
-
-    const renderExtraOptionsLink = (setting) => {
-        const values = settings[setting] || [];
-        let text = '';
-        if (setting === 'includeActions') text = 'Included actions';
-        if (setting === 'excludeActions') text = 'Excluded actions';
-        if (setting === 'includeIntents') text = 'Included intents';
-        if (setting === 'excludeIntents') text = 'Excluded intents';
-        if (setting === 'selectedSequence') text = 'Selected Sequence';
-        return (
-            <React.Fragment key={setting}>
-                <SettingsPortal
-                    text={text}
-                    onClose={() => setSettingsOpen(false)}
-                    open={settingsOpen === setting}
-                    values={values}
-                    onChange={newVal => onChangeSettings({ [setting]: newVal })}
-                />
-                <Dropdown.Item
-                    text={`${text} (${values.length})`}
-                    data-cy={`edit-${setting}`}
-                    onClick={() => setSettingsOpen(setting)}
-                />
-            </React.Fragment>
-        );
     };
 
     const getIconName = (chartOption) => {
@@ -238,7 +248,7 @@ function AnalyticsCard(props) {
         const { nBuckets: nBucketsForExport } = calculateTemporalBuckets(startDate, endDate, 'table');
         getExportData({
             variables: {
-                ...variables, limit: 100000, nBuckets: nBucketsForExport,
+                ...variables, nBuckets: nBucketsForExport, limit: -1,
             },
         });
         setActivateDownload(true);
@@ -331,47 +341,12 @@ function AnalyticsCard(props) {
                         />
                     </Button.Group>
                 )}
-                <Dropdown
-                    trigger={(
-                        <Button
-                            className='export-card-button'
-                            icon='ellipsis vertical'
-                            basic
-                            data-cy='card-ellipsis-menu'
-                        />
-                    )}
-                    basic
-                >
-                    <Dropdown.Menu>
-                        <Dropdown.Item
-                            text={wide ? 'Shrink to half width' : 'Expand to full width'}
-                            data-cy='toggle-wide'
-                            onClick={() => onChangeSettings({ wide: !wide })}
-                        />
-                        {graphParams.y2 && (
-                            <Dropdown.Item
-                                text={showDenominator ? 'Hide denominator' : 'Show denominator'}
-                                data-cy='toggle-denominator'
-                                onClick={() => onChangeSettings({ showDenominator: !showDenominator })}
-                            />
-                        )}
-                        <React.Fragment>
-                            <SettingsPortal
-                                text='Edit description'
-                                onClose={() => setSettingsOpen(false)}
-                                open={settingsOpen === 'description'}
-                                values={titleDescription}
-                                onChange={newVal => onChangeSettings({ description: newVal })}
-                            />
-                            <Dropdown.Item
-                                text='Edit description'
-                                data-cy='edit-description'
-                                onClick={() => setSettingsOpen('description')}
-                            />
-                        </React.Fragment>
-                        {(graphParams.displayConfigs || []).map(renderExtraOptionsLink)}
-                    </Dropdown.Menu>
-                </Dropdown>
+                <SettingsMenu
+                    settings={settings}
+                    onChangeSettings={onChangeSettings}
+                    titleDescription={titleDescription}
+                    displayConfigs={graphParams.displayConfigs}
+                />
             </span>
             {nameEdited === null
                 ? (

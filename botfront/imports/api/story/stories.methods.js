@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { check, Match } from 'meteor/check';
 import uuidv4 from 'uuid/v4';
+import shortid from 'shortid';
 import { checkIfCan } from '../../lib/scopes';
 import { traverseStory } from '../../lib/story.utils';
 import { indexStory } from './stories.index';
@@ -9,6 +10,7 @@ import { Stories } from './stories.collection';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo/botResponses';
 import { auditLogIfOnServer } from '../../lib/utils';
+import { getTriggerIntents } from '../graphql/story/mongo/stories';
 
 export const checkStoryNotEmpty = story => story.story && !!story.story.replace(/\s/g, '').length;
 
@@ -214,8 +216,11 @@ Meteor.methods({
         check(story, Object);
         const storyBefore = Stories.findOne({ projectId, _id: storyId });
         const update = {};
+        if (!storyBefore.triggerIntent) {
+            update.triggerIntent = `trigger_${shortid.generate()}`;
+        }
         update.rules = story.rules.map(rule => (
-            { ...rule, payload: `/trigger_${storyId}` }
+            { ...rule, payload: `/${storyBefore.triggerIntent || update.triggerIntent}` }
         ));
         auditLogIfOnServer('Story updated trigger rules', {
             resId: storyId,
@@ -284,5 +289,14 @@ Meteor.methods({
         } catch (e) {
             return {};
         }
+    },
+    async 'stories.getTriggerIntents'(projectId, options = {}) {
+        checkIfCan('stories:r', projectId);
+        check(projectId, String);
+        check(options, Object);
+        if (Object.keys(options)) {
+            return getTriggerIntents(projectId, options);
+        }
+        return getTriggerIntents(projectId);
     },
 });

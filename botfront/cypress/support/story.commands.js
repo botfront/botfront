@@ -163,3 +163,32 @@ Cypress.Commands.add('checkMenuItemAtIndex', (index, string, ignorePinned = true
         expect(filtered[index].innerText).to.be.equal(string);
     });
 });
+
+Cypress.Commands.add('createCustomStoryGroup', (projectId, storyGroupId, name) => {
+    const storyGroup = {
+        projectId,
+        name,
+        _id: storyGroupId,
+        isExpanded: true,
+        pinned: false,
+    };
+    cy.MeteorCall('storyGroups.insert', [storyGroup]);
+});
+
+Cypress.Commands.add('createCustomStory', (projectId, storyGroupId, storyId, options = {}) => {
+    const {
+        title = storyId, story = '', branches = [], triggerIntent, rules,
+    } = options;
+    const storyData = {
+        title,
+        story,
+        _id: storyId,
+        storyGroupId,
+        projectId,
+        status: 'published',
+        branches,
+        ...(triggerIntent ? { triggerIntent } : {}),
+        rules,
+    };
+    cy.MeteorCall('stories.insert', [storyData]);
+});

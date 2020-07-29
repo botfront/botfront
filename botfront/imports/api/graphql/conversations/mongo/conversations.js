@@ -1,6 +1,8 @@
 import moment from 'moment';
 import Conversations from '../conversations.model.js';
-import { addFieldsForDateRange, dateRangeCondition } from './utils';
+import {
+    addFieldsForDateRange, dateRangeCondition, addFirstIntentField, filterByFirstIntentType,
+} from './utils';
 import { reshapeSequence, countMatchesPerConversation } from './conversationsFunnel.js';
 
 const createSortObject = (sort) => {
@@ -194,6 +196,8 @@ export const getConversations = async ({
     userId = null,
     intentsActionsOperator = 'or',
     intentsActionsFilters = null,
+    userInitiatedConversations,
+    triggeredConversations,
 }) => {
     const filtersObject = createFilterObject({
         projectId,
@@ -204,7 +208,6 @@ export const getConversations = async ({
         startDate,
         endDate,
         userId,
-
     });
 
    
@@ -282,14 +285,17 @@ export const getConversations = async ({
     const pages = pageSize > -1 ? pageSize : 1;
     const boundedPageNb = Math.min(pages, page);
     const limit = pageSize > -1 ? [{ $limit: pageSize }] : [];
-
     const aggregation = [
         ...addFieldsForDateRange(),
+        addFirstIntentField([], true),
         {
-            $match: { ...filtersObject },
-        },
-        {
-            $match: { ...intentsActionsStep },
+            $match: {
+                $and: [
+                    { ...filtersObject },
+                    { ...intentsActionsStep },
+                    (await filterByFirstIntentType(projectId, userInitiatedConversations, triggeredConversations)),
+                ],
+            },
         },
         ...lengthFilterStages,
         ...durationFilterSteps,

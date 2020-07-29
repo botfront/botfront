@@ -11,7 +11,6 @@ describe('filters', function () {
 
     afterEach(function () {
         cy.logout();
-        // Cypress.runner.stop();
     });
 
     it('should keep the filter state between hide and reveal', function () {
@@ -45,7 +44,7 @@ describe('filters', function () {
         cy.get('.accordion.ui > .content').should('have.class', 'active');
         cy.dataCy('length-filter').find('input').should('have.value', '5');
         cy.dataCy('confidence-filter').find('input').should('have.value', '75');
-        cy.get('.fourteen').should('have.text', ' test');
+        cy.dataCy('sequence-container').should('include.text', 'test');
     });
 
     it('should be resetable', function () {
@@ -70,7 +69,7 @@ describe('filters', function () {
         cy.dataCy('reset-filter').click();
         cy.dataCy('length-filter').find('input').should('have.value', '');
         cy.dataCy('confidence-filter').find('input').should('have.value', '');
-        cy.get('.fourteen .label').should('not.exist');
+        cy.dataCy('sequence-container').find('.label').should('not.exist');
     });
 
     it('should filter by length', function () {
@@ -198,7 +197,7 @@ describe('filters', function () {
         cy.dataCy('conversation-item').should('have.text', 'autre');
         cy.dataCy('conversation-item').should('not.have.text', 'test');
         cy.reload();
-        cy.dataCy('intents-actions-filter').find('.fourteen').should('have.text', ' action_autreaction_dummy');
+        cy.dataCy('sequence-container').should('have.text', ' action_autreaction_dummy');
         cy.dataCy('conversation-item').should('have.text', 'autre');
         cy.dataCy('conversation-item').should('not.have.text', 'test');
     });
@@ -258,7 +257,7 @@ describe('filters', function () {
         cy.dataCy('conversation-item').should('have.text', 'autre');
         cy.dataCy('conversation-item').should('not.have.text', 'test');
         cy.reload();
-        cy.dataCy('intents-actions-filter').find('.fourteen').should('have.text', ' intent_autreintent_dummy');
+        cy.dataCy('sequence-container').should('have.text', ' intent_autreintent_dummy');
         cy.dataCy('conversation-item').should('have.text', 'autre');
         cy.dataCy('conversation-item').should('not.have.text', 'test');
     });
@@ -295,7 +294,7 @@ describe('filters', function () {
             .click();
         cy.dataCy('apply-filters').click();
         cy.wait(100);
-        cy.dataCy('intents-actions-filter').find('.fourteen').should('have.text', ' intent_testintent_dummy');
+        cy.dataCy('sequence-container').should('have.text', ' intent_testintent_dummy');
         cy.dataCy('conversation-item').should('have.text', 'test');
         cy.dataCy('conversation-item').should('not.have.text', 'autre');
 
@@ -348,7 +347,7 @@ describe('filters', function () {
         cy.dataCy('sequence-step-2').click();
         cy.dataCy('apply-filters').click();
         cy.wait(100);
-        cy.dataCy('intents-actions-filter').find('.fourteen').should('have.text', ' intent_testintent_dummyutter_autre');
+        cy.dataCy('sequence-container').should('have.text', ' intent_testintent_dummyutter_autre');
         cy.dataCy('conversation-item').should('have.text', 'test');
         cy.dataCy('conversation-item').should('not.have.text', 'autretest');
         cy.dataCy('conversation-item').should('not.have.text', 'autre');
@@ -534,8 +533,8 @@ describe('filters', function () {
         cy.dataCy('length-filter').find('input').should('have.value', '2');
         cy.dataCy('length-filter').find('div.text').should('have.text', '≤');
         cy.dataCy('confidence-filter').find('input').should('have.value', '50');
-
-        cy.dataCy('intents-actions-filter').find('.fourteen').should('have.text', ' action_dummyintent_dummy');
+        
+        cy.dataCy('sequence-container').should('include.text', 'action_dummyintent_dummy');
         cy.get('.and-or-order').find('div.text').should('have.text', 'And');
     });
 });

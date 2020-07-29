@@ -13,6 +13,7 @@ import {
 } from 'semantic-ui-react';
 import DatePicker from '../common/DatePicker';
 import IntentAndActionSelector from '../common/IntentAndActionSelector';
+import ToggleButtonGroup from '../common/ToggleButtonGroup';
 
 
 const ConversationFilters = ({
@@ -163,6 +164,17 @@ const ConversationFilters = ({
                             </Dropdown.Menu>
                         </Dropdown>
                     </Button.Group>
+                    {/* conversation type filter */}
+                    <div className='conversation-filter conversation-type-buttons' data-cy='conversation-type-filter'>
+                        <ToggleButtonGroup
+                            onChange={(name, value) => setFilter(name, value)}
+                            options={[
+                                { text: 'User initiated', value: 'userInitiatedConversations' },
+                                { text: 'Triggered', value: 'triggeredConversations' },
+                            ]}
+                            values={newFilters}
+                        />
+                    </div>
                     {/* intents actions filter */}
                     <div className='conversation-filter intents-actions' data-cy='intents-actions-filter'>
                         <IntentAndActionSelector
@@ -173,8 +185,6 @@ const ConversationFilters = ({
                             onChange={value => setFilter('intentsActionsFilters', [...value])}
                         />
                     </div>
-                    
-                 
                     {/* date picker */}
                     <div className='conversation-filter' data-cy='date-filter'>
                         <Segment className='date-filter' data-cy='date-picker-container'>
@@ -210,6 +220,7 @@ const ConversationFilters = ({
                             />
                             <Segment className='number-filter'>
                                 <Input
+                                    data-cy='conversation-length-filter'
                                     value={
                                         newFilters.lengthFilter.compare > 0
                                             ? newFilters.lengthFilter.compare

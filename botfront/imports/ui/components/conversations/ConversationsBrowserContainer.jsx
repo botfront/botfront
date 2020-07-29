@@ -53,6 +53,8 @@ const ConversationsBrowserContainer = (props) => {
         intentsActionsOperator: 'or',
         userId: null,
         env: 'development',
+        userInitiatedConversations: true,
+        triggeredConversations: true,
     };
 
     const getQueryParam = (key) => {
@@ -74,6 +76,9 @@ const ConversationsBrowserContainer = (props) => {
         case 'startDate':
         case 'endDate':
             return value ? moment(value) : undefined;
+        case 'userInitiatedConversations':
+        case 'triggeredConversations':
+            return value ? value === 'true' : undefined;
         default:
             return value;
         }
@@ -81,8 +86,10 @@ const ConversationsBrowserContainer = (props) => {
 
     const getFilterFromQuery = (key) => {
         const filter = getQueryParam(key);
-       
-        return filter || defaults[key];
+        if (!filter && filter !== false) {
+            return defaults[key];
+        }
+        return filter;
     };
 
     const getInitialFilters = () => ({
@@ -95,6 +102,8 @@ const ConversationsBrowserContainer = (props) => {
         intentsActionsOperator: getFilterFromQuery('intentsActionsOperator'),
         userId: getFilterFromQuery('userId'),
         env: getFilterFromQuery('env'),
+        userInitiatedConversations: getFilterFromQuery('userInitiatedConversations'),
+        triggeredConversations: getFilterFromQuery('triggeredConversations'),
     });
     const [activeFilters, setActiveFiltersHidden] = useState(getInitialFilters());
     const [intentsActionsOptions, setIntentsActionsOptions] = useState([]);

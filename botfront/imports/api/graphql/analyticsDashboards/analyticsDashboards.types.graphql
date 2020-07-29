@@ -35,14 +35,32 @@ type AnalyticsCard {
     excludeActions: [String]
     includeIntents: [String]
     excludeIntents: [String]
+    userInitiatedConversations: Boolean,
+    triggerConversations: Boolean,
+    limit: Int
+    conversationLength: Int
     selectedSequence: [Step]
     wide: Boolean
     showDenominator: Boolean
+    intentsAndActionsFilters: [IntentsAndActionsFilterItem]
+    intentsAndActionsOperator: IntentsAndActionsOperator
 }
+
+type IntentsAndActionsFilterItem {
+    name: String
+    excluded: Boolean
+}
+
 
 enum AnalyticsGraphValueType {
     absolute
     relative
+}
+
+enum IntentsAndActionsOperator {
+    or
+    and
+    inOrder
 }
 
 enum AnalyticsGraphChartType {

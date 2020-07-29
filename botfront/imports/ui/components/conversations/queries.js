@@ -17,6 +17,8 @@ query retreiveConversations(
     $userId: String
     $intentsActionsOperator: String
     $intentsActionsFilters: [StepInput]
+    $userInitiatedConversations: Boolean
+    $triggeredConversations: Boolean
     $fetchTrackers: Boolean = false
     ) {
     conversationsPage(
@@ -37,6 +39,8 @@ query retreiveConversations(
         userId: $userId
         intentsActionsOperator: $intentsActionsOperator,
         intentsActionsFilters: $intentsActionsFilters
+        userInitiatedConversations: $userInitiatedConversations,
+        triggeredConversations: $triggeredConversations,
     ) {
         conversations {
             _id

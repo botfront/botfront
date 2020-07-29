@@ -11,7 +11,8 @@ type Query {
         last: Int,
         beg: Int,
         end: Int,
-        limit: Int = 10,
+        limit: Int = -1, # -1 indicates no limit
+        intentTypeFilter: IntentType = any,
     ): [IntentFrequency!]!
 }
 
@@ -19,4 +20,10 @@ type IntentFrequency {
     name: String,
     frequency: Float,
     count: Int,
+}
+
+enum IntentType {
+    trigger
+    utterance
+    any
 }

@@ -1,4 +1,5 @@
 import SimpleSchema from 'simpl-schema';
+import shortid from 'shortid';
 
 const commonStorySchema = {
     story: {
@@ -100,6 +101,11 @@ export const StorySchema = new SimpleSchema({
     textIndex: { type: Object, optional: true },
     'textIndex.info': { type: String, optional: true },
     'textIndex.contents': { type: String, optional: true },
+    triggerIntent: {
+        type: String,
+        unique: true,
+        optional: true,
+    },
     rules: { type: Array, optional: true },
     'rules.$': { type: RulesSchema },
 });

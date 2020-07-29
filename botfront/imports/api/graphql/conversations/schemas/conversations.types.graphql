@@ -34,6 +34,10 @@ type Query {
         intentsActionsFilters: [StepInput],
         """ String (default ‘or’, possible other value ‘and', 'inorder') type of filtering for intents/ actions filters """
         intentsActionsOperator: String,
+        """" include stories that are do NOT start with a trigger intent """
+        userInitiatedConversations: Boolean,
+        """" include stories that are start with a trigger intent """
+        triggeredConversations: Boolean,
        
     ): Pagination
     conversation(projectId: String!, id: String!): ConversationContainer!

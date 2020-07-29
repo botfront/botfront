@@ -1,7 +1,8 @@
-import moment from 'moment';
 import Conversations from '../conversations.model';
 import { generateBuckets, fillInEmptyBuckets } from '../../utils';
 import { trackerDateRangeStage } from './utils';
+import { getTriggerIntents } from '../../story/mongo/stories.js';
+import { createIntentsActionsStep } from './intentAndActionFilter';
 
 const intentInList = intentList => ({ $in: ['$$event.parse_data.intent.name', intentList] });
 const actionInList = actionList => ({ $in: ['$$event.name', actionList] });
@@ -16,10 +17,18 @@ export const getConversationCounts = async ({
     nBuckets,
     includeIntents = [],
     excludeIntents = [],
+    userInitiatedConversations,
+    triggerConversations,
     includeActions = [],
     excludeActions = [],
+    conversationLength,
+    intentsAndActionsFilters,
+    intentsAndActionsOperator,
 }) => {
+    const intentsActionsStep = createIntentsActionsStep({ intentsActionsOperator: intentsAndActionsOperator, intentsActionsFilters: intentsAndActionsFilters });
     const conditions = [];
+    const typeInclusion = [];
+    const triggerIntents = await getTriggerIntents(projectId);
     if (isNonEmpty(includeIntents) || isNonEmpty(excludeIntents)) {
         const intentConditions = [{ $eq: ['$$event.event', 'user'] }];
         if (isNonEmpty(includeIntents)) intentConditions.push(intentInList(includeIntents));
@@ -31,6 +40,20 @@ export const getConversationCounts = async ({
         if (isNonEmpty(includeActions)) conditions.push(actionInList(includeActions));
         if (isNonEmpty(excludeActions)) conditions.push({ $not: actionInList(excludeActions) });
         conditions.push(actionConditions);
+    }
+    if (!userInitiatedConversations) {
+        typeInclusion.push({
+            firstIntent: { $in: triggerIntents },
+        });
+    }
+    if (!triggerConversations) {
+        typeInclusion.push({
+            firstIntent: {
+                $not: {
+                    $in: triggerIntents,
+                },
+            },
+        });
     }
     return fillInEmptyBuckets(await Conversations.aggregate([
         {
@@ -49,27 +72,81 @@ export const getConversationCounts = async ({
                         default: 'bad_timestamp',
                     },
                 },
+                firstIntent: {
+                    $arrayElemAt: [
+                        {
+                            $filter: {
+                                input: '$intents',
+                                as: 'item',
+                                cond: { $not: { $in: ['$$item', excludeIntents || []] } },
+                            },
+                        },
+                        0,
+                    ],
+                },
+                aboveMinLength: {
+                    $gte: [
+                        {
+                            $size: {
+                                $filter: {
+                                    input: '$tracker.events',
+                                    as: 'userEvents',
+                                    cond: {
+                                        $and: [
+                                            { $eq: ['$$userEvents.event', 'user'] },
+                                        ],
+                                    },
+                                },
+                            },
+                        },
+                        conversationLength + 1, // conversation length is counted from the second utterance
+                    ],
+                },
             },
         },
         {
-            $match: { bucket: { $ne: 'bad_timestamp' } },
+            $match: {
+                $and: [
+                    { bucket: { $ne: 'bad_timestamp' } },
+                    ...(typeInclusion && typeInclusion.length ? [{ $and: typeInclusion }] : []),
+                ],
+            },
         },
         {
             $addFields: {
                 hits: {
                     $min: [
                         1,
-                        ...conditions.map(conds => ({
-                            $size: {
-                                $filter: {
-                                    input: '$tracker.events',
-                                    as: 'event',
-                                    cond: {
-                                        $and: conds,
+                        {
+                            $switch: {
+                                default: 0,
+                                branches: [
+                                    {
+                                        case: {
+                                            $and: [
+                                                '$aboveMinLength',
+                                                intentsActionsStep,
+                                                ...conditions.map(conds => ({
+                                                    $gte: [
+                                                        {
+                                                            $size: {
+                                                                $filter: {
+                                                                    input: '$tracker.events',
+                                                                    as: 'event',
+                                                                    cond: { $and: conds },
+                                                                },
+                                                            },
+                                                        },
+                                                        1,
+                                                    ],
+                                                })),
+                                            ],
+                                        },
+                                        then: 1,
                                     },
-                                },
+                                ],
                             },
-                        })),
+                        },
                     ],
                 },
             },

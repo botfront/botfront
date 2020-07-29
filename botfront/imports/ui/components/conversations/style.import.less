@@ -68,10 +68,18 @@ div.bot-response-message {
     }
 
     &.intents-actions {
-      width: 90%;
+      width: calc(100% - 35px);
       margin-left: 0;
     }
 
+    &.conversation-type-buttons {
+      margin-left: 0;
+      .ui.basic.buttons.options-button-group {
+        .ui.button.option-button {
+          line-height: 1.4em;
+        }
+      }
+    }
   
     .segment.multiselect-segment {
       width: 90%;

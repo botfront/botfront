@@ -19,9 +19,11 @@ export const defaultDashboard = (project) => {
                 endDate,
                 chartType: 'line',
                 valueType: 'absolute',
-                excludeIntents: ['get_started'],
                 wide: true,
                 showDenominator: true,
+                conversationLength: 1,
+                userInitiatedConversations: true,
+                triggerConversations: true,
             },
             {
                 name: 'Conversation Length',
@@ -41,6 +43,7 @@ export const defaultDashboard = (project) => {
                 chartType: 'bar',
                 valueType: 'absolute',
                 excludeIntents: ['get_started'],
+                limit: 10,
             },
             {
                 name: 'Conversation Duration',
@@ -61,6 +64,8 @@ export const defaultDashboard = (project) => {
                 chartType: 'line',
                 valueType: 'absolute',
                 includeActions: ['action_botfront_fallback'],
+                userInitiatedConversations: true,
+                triggerConversations: true,
             },
             {
                 name: 'Fallback Rate',
@@ -72,6 +77,16 @@ export const defaultDashboard = (project) => {
                 chartType: 'line',
                 valueType: 'absolute',
                 includeActions: ['action_botfront_fallback'],
+            },
+            {
+                name: 'Top 10 Triggers',
+                type: 'triggerFrequencies',
+                visible: true,
+                startDate,
+                endDate,
+                chartType: 'bar',
+                valueType: 'absolute',
+                limit: 10,
             },
         ],
     });

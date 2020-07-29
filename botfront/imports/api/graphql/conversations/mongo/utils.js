@@ -1,3 +1,5 @@
+import { getTriggerIntents } from '../../story/mongo/stories';
+
 export const dateRangeCondition = (from, to) => ([
     {
         $or: [
@@ -54,3 +56,44 @@ export const trackerDateRangeStage = (from, to) => ([
         },
     },
 ]);
+
+export const addFirstIntentField = (excludeIntents, addFields) => {
+    const aggregation = {
+        firstIntent: {
+            $arrayElemAt: [
+                {
+                    $filter: {
+                        input: '$intents',
+                        as: 'item',
+                        cond: { $not: { $in: ['$$item', excludeIntents || []] } },
+                    },
+                },
+                0,
+            ],
+        },
+    };
+    if (addFields) {
+        return { $addFields: { ...aggregation } };
+    }
+    return aggregation;
+};
+
+export const filterByFirstIntentType = async (projectId, userInitiated, triggered) => {
+    const filters = [];
+    const triggerIntents = await getTriggerIntents(projectId) || [];
+    if (triggered !== true && triggerIntents) {
+        filters.push({
+            firstIntent: {
+                $nin: triggerIntents,
+            },
+        });
+    }
+    if (userInitiated !== true && triggerIntents) {
+        filters.push({
+            firstIntent: {
+                $in: triggerIntents,
+            },
+        });
+    }
+    return filters.length ? { $and: filters } : {};
+};

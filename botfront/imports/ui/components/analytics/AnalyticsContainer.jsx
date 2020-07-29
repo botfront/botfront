@@ -114,7 +114,7 @@ function AnalyticsContainer(props) {
                 visible: true,
                 startDate: moment().subtract(6, 'days').startOf('day').toISOString(),
                 endDate: moment().endOf('day').toISOString(),
-                chartType: ['conversationLengths', 'intentFrequencies', 'conversationDurations', 'conversationsFunnel'].includes(type) ? 'bar' : 'line',
+                chartType: ['conversationLengths', 'intentFrequencies', 'triggerFrequencies', 'conversationDurations', 'conversationsFunnel'].includes(type) ? 'bar' : 'line',
                 valueType: 'absolute',
                 includeActions: undefined,
                 excludeActions: undefined,
@@ -142,7 +142,8 @@ function AnalyticsContainer(props) {
     const cardTypes = [
         ['conversationLengths', 'Conversation Length'],
         ['conversationDurations', 'Conversation Duration'],
-        ['intentFrequencies', 'Top 10 Intents'],
+        ['intentFrequencies', 'Top Intents'],
+        ['triggerFrequencies', 'Top Triggers'],
         ['conversationCounts', 'Conversations over time'],
         ['actionCounts', 'Action occurrences over time'],
         ['conversationsFunnel', 'Conversations Funnel'],

@@ -7,8 +7,13 @@ query ConversationCounts(
     $nBuckets: Int = 7,
     $includeIntents: [String],
     $excludeIntents: [String],
+    $triggerConversations: Boolean,
+    $userInitiatedConversations: Boolean,
     $includeActions: [String],
-    $excludeActions: [String]
+    $excludeActions: [String],
+    $conversationLength: Int,
+    $intentsAndActionsFilters: [StepInput],
+    $intentsAndActionsOperator: IntentsAndActionsOperator,
 ) {
     conversationCounts(
         projectId: $projectId,
@@ -19,8 +24,13 @@ query ConversationCounts(
         nBuckets: $nBuckets,
         includeIntents: $includeIntents,
         excludeIntents: $excludeIntents,
+        userInitiatedConversations: $userInitiatedConversations,
+        triggerConversations: $triggerConversations,
         includeActions: $includeActions,
-        excludeActions: $excludeActions
+        excludeActions: $excludeActions,
+        conversationLength: $conversationLength,
+        intentsAndActionsFilters: $intentsAndActionsFilters,
+        intentsAndActionsOperator: $intentsAndActionsOperator,
     ) {
         bucket, hits, count, proportion
     }

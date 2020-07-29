@@ -8,8 +8,13 @@ type Query {
         nBuckets: Int = 7,
         includeIntents: [String],
         excludeIntents: [String],
+        triggerConversations: Boolean = true,
+        userInitiatedConversations: Boolean = true,
         includeActions: [String],
-        excludeActions: [String]
+        excludeActions: [String],
+        conversationLength: Int,
+        intentsAndActionsFilters: [StepInput]
+        intentsAndActionsOperator: IntentsAndActionsOperator
     ): [ConversationCount!]!
 }
 

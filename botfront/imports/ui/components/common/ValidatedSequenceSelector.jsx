@@ -52,8 +52,6 @@ function ValidatedSequenceSelector({
                 <Message negative>
                     <Message.Header> Error </Message.Header>
                     <List bulleted> {errorMessages.map(error => (<List.Item> {error} </List.Item>))} </List>
-                    
-                    
                 </Message>
             )}
         </div>

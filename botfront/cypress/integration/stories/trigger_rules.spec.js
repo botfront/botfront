@@ -149,6 +149,7 @@ describe('Smart story trigger rules', function() {
         cy.MeteorCall('stories.insert', [
             {
                 _id: 'TESTSTORY',
+                triggerIntent: 'trigger_TESTSTORY',
                 projectId: 'bf',
                 storyGroupId: 'RULES',
                 story: '  - utter_smart_payload',

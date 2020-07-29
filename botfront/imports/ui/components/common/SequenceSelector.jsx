@@ -1,7 +1,7 @@
 import 'react-dates/initialize';
 import React, { useState } from 'react';
 import {
-    Dropdown, Label, Icon, Input, Grid, Form,
+    Dropdown, Label, Icon, Input, Grid,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 
@@ -44,9 +44,8 @@ function SequenceSelector({
     }
     return (
    
-        <Grid>
-            <Grid.Column floated='left' width={14}> {sequence.map((step, index) => (
-           
+        <Grid className='sequence-selector-grid'>
+            <Grid.Column data-cy='sequence-container' floated='left' width={10} className='sequence-item-container'> {sequence.map((step, index) => (
                 <Label
                     className='sequence-step'
                     data-cy={`sequence-step-${index}`}

@@ -1,6 +1,9 @@
 import { Roles } from 'meteor/alanning:roles';
 import { sortBy, isEqual } from 'lodash';
 import { safeDump, safeLoad } from 'js-yaml';
+import assert from 'assert';
+import shortid from 'shortid';
+import moment from 'moment';
 import { Credentials } from '../imports/api/credentials';
 import { Endpoints } from '../imports/api/endpoints/endpoints.collection';
 import { GlobalSettings } from '../imports/api/globalSettings/globalSettings.collection';
@@ -14,6 +17,7 @@ import Activity from '../imports/api/graphql/activity/activity.model';
 import AnalyticsDashboards from '../imports/api/graphql/analyticsDashboards/analyticsDashboards.model';
 import { defaultDashboard } from '../imports/api/graphql/analyticsDashboards/generateDefaults';
 
+import BotResponses from '../imports/api/graphql/botResponses/botResponses.model';
 /* globals Migrations */
 
 Migrations.add({
@@ -75,11 +79,6 @@ Migrations.add({
             });
     },
 });
-
-// eslint-disable-next-line import/first
-import assert from 'assert';
-// eslint-disable-next-line import/first
-import BotResponses from '../imports/api/graphql/botResponses/botResponses.model';
 
 
 const migrateResponses = () => {
@@ -460,6 +459,62 @@ Migrations.add({
                 : process.env.MODE === 'test' ? 'defaults/private.yaml' : 'defaults/private.gke.yaml',
         ));
         GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.private.webhooks.reportCrashWebhook': webhooks.reportCrashWebhook } });
+    },
+});
+
+Migrations.add({
+    version: 20,
+    up: async () => {
+        // update stories to have a trigger intent
+        const stories = await Stories.find().fetch();
+        if (!stories) return;
+        stories.forEach(({ _id, rules }) => {
+            const update = {
+                triggerIntent: `trigger_${shortid.generate()}`,
+            };
+            if (rules && rules[0] && rules[0].payload) {
+                update.triggerIntent = rules[0].payload.replace(/^\//, '');
+                rules.map(rule => ({ ...rule, payload: update.triggerIntent }));
+            }
+            Stories.update({ _id }, { $set: update });
+        });
+        // update the analytics dashboard
+        const dashboards = await AnalyticsDashboards.find();
+        dashboards.forEach(async (dashboard) => {
+            const { cards } = dashboard;
+            if (!cards.some(({ type }) => type === 'triggerFrequencies')) {
+                cards.push({
+                    name: 'Top 10 Triggers',
+                    type: 'triggerFrequencies',
+                    visible: true,
+                    startDate: moment().subtract(6, 'days').startOf('day').toISOString(),
+                    endDate: moment().endOf('day').toISOString(),
+                    chartType: 'bar',
+                    valueType: 'absolute',
+                    limit: '10',
+                });
+            }
+            const newCards = cards.map((card) => {
+                if (card.type === 'conversationCounts') {
+                    const newCard = card;
+                    delete newCard.includeIntents;
+                    delete newCard.excludeIntents;
+                    delete newCard.includeActions;
+                    delete newCard.excludeActions;
+                    return {
+                        ...newCard,
+                        conversationLength: 1,
+                        userInitiatedConversations: true,
+                        triggerConversations: true,
+                    };
+                }
+                if (card.type === 'intentFrequencies') {
+                    return { ...card, limit: '10' };
+                }
+                return card;
+            });
+            await AnalyticsDashboards.updateOne({ _id: dashboard._id }, { $set: { cards: newCards } }, { useFindAndModify: false });
+        });
     },
 });
 

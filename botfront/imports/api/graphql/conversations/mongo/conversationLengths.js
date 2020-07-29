@@ -74,5 +74,5 @@ export const getConversationLengths = async ({
     },
 
     { $sort: { length: 1 } },
-    { $limit: limit },
+    ...(limit && limit !== -1 ? [{ $limit: limit }] : []),
 ]).allowDiskUse(true);

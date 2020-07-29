@@ -76,7 +76,7 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
             chartTypeOptions: ['bar', 'pie', 'table'],
             titleDescription: 'The number of user utterances classified as having a given intent.',
             queryParams: {
-                envs, queryName: 'intentFrequencies', langs,
+                envs, queryName: 'intentFrequencies', langs, intentTypeFilter: 'utterance',
             },
             query: intentFrequencies,
             graphParams: {
@@ -91,7 +91,29 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
                     legendOffset: 36,
                     legendPosition: 'middle',
                 },
-                displayConfigs: ['includeIntents', 'excludeIntents'],
+                displayConfigs: ['includeIntents', 'excludeIntents', 'limit'],
+            },
+        },
+        triggerFrequencies: {
+            chartTypeOptions: ['bar', 'pie', 'table'],
+            titleDescription: 'The number of user utterances classified as having a given intent.',
+            queryParams: {
+                envs, queryName: 'intentFrequencies', langs, intentTypeFilter: 'trigger',
+            },
+            query: intentFrequencies,
+            graphParams: {
+                x: 'name',
+                y: { absolute: 'count', relative: 'frequency' },
+                axisTitleY: 'Occurences',
+                axisTitleX: 'Triggered story',
+                noXLegend: true,
+                axisBottom: {
+                    tickRotation: -25,
+                    format: label => `${label.slice(0, 20)}${label.length > 20 ? '...' : ''}`,
+                    legendOffset: 36,
+                    legendPosition: 'middle',
+                },
+                displayConfigs: ['limit'],
             },
         },
         conversationCounts: {
@@ -113,7 +135,7 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
                 },
                 displayAbsoluteRelative: true,
                 axisTitleY: 'Conversations',
-                displayConfigs: ['includeIntents', 'excludeIntents', 'includeActions', 'excludeActions'],
+                displayConfigs: ['conversationLength', 'userInitiatedConversations', 'triggerConversations', 'intentsAndActionsFilters'],
             },
         },
         actionCounts: {
@@ -184,12 +206,13 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
     Object.keys(cardTypes).forEach((type) => {
         const {
             queryParams: { temporal }, graphParams: {
-                x, y, axisTitleX, axisTitleY,
+                x, y, y2, axisTitleX, axisTitleY,
             },
         } = cardTypes[type];
         cardTypes[type].graphParams.columns = [
             { temporal, accessor: x, header: axisTitleX },
-            { accessor: y.absolute, header: axisTitleY },
+            { accessor: y.absolute, header: y2 ? `Matching ${axisTitleY.toLowerCase()}` : axisTitleY },
+            ...(y2 ? [{ accessor: y2.absolute, header: `Total ${axisTitleY.toLowerCase()}` }] : []),
             { accessor: y.relative, header: '%' },
         ];
     });
@@ -240,7 +263,9 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
                 to: applyTimezoneOffset(endDate, projectTimezoneOffset).valueOf() / 1000,
                 ...clearTypenameField(settings),
                 nBuckets: nBucketsExport,
-                limit: 100000,
+                limit: -1,
+                ...(settings.conversationLength ? { conversationLength: Number(settings.conversationLength) } : { conversationLength: -1 }),
+                ...(queryParams.intentTypeFilter ? { intentTypeFilter: queryParams.intentTypeFilter } : {}),
             };
             promises.push(apolloClient.query({ query, variables }).then((response) => {
                 const data = response && response.data;

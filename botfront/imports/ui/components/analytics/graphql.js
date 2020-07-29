@@ -18,12 +18,21 @@ const dashboardFields = gql`
             excludeIntents
             includeActions
             excludeActions
+            conversationLength
+            userInitiatedConversations
+            triggerConversations
             selectedSequence {
                 name
                 excluded
             }
             wide
             showDenominator
+            limit
+            intentsAndActionsFilters {
+                name
+                excluded
+            }
+            intentsAndActionsOperator
         }
         languages
         envs

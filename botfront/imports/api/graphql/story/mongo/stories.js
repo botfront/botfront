@@ -135,3 +135,24 @@ export const replaceStoryLines = (projectId, lineToReplace, newLine) => {
         return Stories.update({ _id }, { $set: { ...rest, ...indexStory(rest, { includeEventsField: true }) } });
     }));
 };
+
+export const getTriggerIntents = async (projectId, options = {}) => {
+    const { includeFields, key = 'triggerIntent' } = options;
+    const stories = await Stories.find(
+        {
+            projectId,
+            $and: [
+                { rules: { $exists: true } },
+                { rules: { $ne: [] } },
+            ],
+        },
+        { fields: { triggerIntent: 1, ...(includeFields || {}) } },
+    ).fetch();
+    if (includeFields) {
+        return stories.reduce((acc, { [key]: keyValue, ...rest }) => {
+            acc[keyValue] = rest;
+            return acc;
+        }, {});
+    }
+    return stories.map(story => story[key]);
+};

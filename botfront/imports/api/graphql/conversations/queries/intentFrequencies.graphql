@@ -10,7 +10,8 @@ query IntentFrequencies(
     $last: Int,
     $beg: Int = 2,
     $end: Int,
-    $limit: Int = 10,
+    $limit: Int = -1, # -1 is used to indicate no limit
+    $intentTypeFilter: IntentType,
 ) {
     intentFrequencies(
         projectId: $projectId,
@@ -24,7 +25,8 @@ query IntentFrequencies(
         last: $last,
         beg: $beg,
         end: $end,
-        limit: $limit
+        limit: $limit,
+        intentTypeFilter: $intentTypeFilter,
     ) {
         frequency,
         count,
