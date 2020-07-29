@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.25.7-ee.3](https://github.com/botfront/botfront/compare/v0.25.7-ee.2...v0.25.7-ee.3) (2020-07-29)
+
+
+### Bug Fixes
+
+* default filters for conversations over time ([8c0d16d](https://github.com/botfront/botfront/commit/8c0d16dad4f15b1b82c5d9a16b7a5526064ac9f8))
+
 ### [0.25.7-ee.2](https://github.com/botfront/botfront/compare/v0.25.7-ee.1...v0.25.7-ee.2) (2020-07-29)
 
 
