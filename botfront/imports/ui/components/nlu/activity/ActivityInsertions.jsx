@@ -17,7 +17,16 @@ export async function populateActivity(instance, examples, modelId, callback) {
             text: a.text,
             intent: (a.intent && a.intent.name) || null,
             confidence: (a.intent && a.intent.confidence) || null,
-            entities: a.entities.filter(e => e.extractor !== 'ner_duckling_http'),
+            entities: a.entities.reduce((acc, cur) => {
+                if (cur.extractor === 'ner_duckling_http') return acc;
+                return [...acc, {
+                    entity: cur.entity,
+                    value: `${cur.value}`,
+                    start: cur.start,
+                    end: cur.end,
+                    extractor: cur.extractor,
+                }];
+            }, []),
         }));
 
         await apolloClient.mutate({ mutation: upsertActivityMutation, variables: { modelId, data } });
