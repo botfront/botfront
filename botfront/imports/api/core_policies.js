@@ -2,6 +2,7 @@ import SimpleSchema from 'simpl-schema';
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
+import { safeLoad, safeDump } from 'js-yaml';
 
 import { formatError, validateYaml } from '../lib/utils';
 import { GlobalSettings } from './globalSettings/globalSettings.collection';
@@ -81,6 +82,32 @@ if (Meteor.isServer) {
             } catch (e) {
                 throw formatError(e);
             }
+        },
+
+        'policies.connectHandoff'(projectId, service, realm) {
+            checkIfCan('stories:w', projectId);
+            check(projectId, String);
+            check(service, String);
+            check(realm, String);
+            const policies = CorePolicies.findOne({ projectId });
+            if (!policies) throw new Error('Invalid projectId or environment');
+            const loadedPolicies = safeLoad(policies.policies).policies;
+
+            let handoffPolicy = {
+                name: 'rasa_addons.core.policies.BotfrontHandoffPolicy',
+            };
+            let index = loadedPolicies.findIndex(p => p.name === handoffPolicy.name);
+            if (index < 0) index = loadedPolicies.length;
+            else handoffPolicy = loadedPolicies[index];
+
+            handoffPolicy.service = service;
+            handoffPolicy.realm = realm;
+
+            loadedPolicies[index] = handoffPolicy;
+            CorePolicies.update(
+                { projectId },
+                { $set: { policies: safeDump({ policies: loadedPolicies }) } },
+            );
         },
     });
 }

@@ -17,8 +17,7 @@ describe('Exporting a Project', function() {
 
     describe('Export UI', function() {
         it('should navigate the UI for exporting to Rasa/Rasa X', function() {
-            cy.visit('/project/bf/settings');
-            cy.contains('Import/Export').click();
+            cy.visit('/project/bf/settings/import-export');
             cy.dataCy('port-project-menu')
                 .find('.item')
                 .contains('Export')
@@ -41,9 +40,7 @@ describe('Exporting a Project', function() {
         it('should list project languages in the language dropdown', function() {
             // French should be available
             // English should not be available
-            cy.visit('/project/bf/settings');
-            cy.dataCy('project-settings-menu-import-export').click();
-            cy.dataCy('project-settings-menu-import-export').should('have.class', 'active');
+            cy.visit('/project/bf/settings/import-export');
             cy.dataCy('port-project-menu')
                 .find('.item')
                 .contains('Export')
@@ -80,10 +77,7 @@ describe('Exporting a Project', function() {
             // english and french should be available
             cy.contains('Endpoints').click();
             cy.dataCy('endpoints-environment-menu').should('exist');
-            cy.dataCy('project-settings-menu-import-export').click();
-            cy.wait(2000);
-            cy.dataCy('project-settings-menu-import-export').click();
-            cy.dataCy('project-settings-menu-import-export').should('have.class', 'active');
+            cy.visit('/project/bf/settings/import-export');
             cy.dataCy('port-project-menu')
                 .find('.item')
                 .contains('Export')

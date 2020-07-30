@@ -55,6 +55,12 @@ if (Meteor.isServer) {
             }
         },
 
+        'getIntegrationLinks'(projectId) {
+            checkIfCan('projects:w', projectId);
+            check(projectId, String);
+            const doc = GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.integrationSettings': 1 } });
+            return doc.settings.private.integrationSettings;
+        },
         'getRestartRasaWebhook'(projectId) {
             checkIfCan('projects:w', projectId);
             check(projectId, String);

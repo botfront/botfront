@@ -17,11 +17,11 @@ describe('story permissions', function() {
         cy.login({ admin: false });
         cy.visit('/project/bf/settings');
         cy.dataCy('deployment-environments').should('have.class', 'disabled');
-        cy.dataCy('project-settings-menu-endpoints').click();
+        cy.visit('/project/bf/settings/endpoints');
         cy.dataCy('ace-field').should('have.class', 'disabled');
         cy.dataCy('Actions-Server').should('not.exist');
         // instances tab
-        cy.dataCy('project-settings-menu-instances').click();
+        cy.visit('/project/bf/settings/instance');
         cy.get('.field').should('have.class', 'disabled');
         cy.dataCy('save-instance').should('not.exist');
     });
@@ -34,7 +34,7 @@ describe('story permissions', function() {
         cy.login({ admin: false });
         cy.visit('/project/bf/settings');
         cy.dataCy('deployment-environments').should('have.class', 'disabled');
-        cy.dataCy('project-settings-menu-endpoints').click();
+        cy.visit('/project/bf/settings/endpoints');
         cy.dataCy('Actions-Server').find('input').type(' # test editing the action url endpoint{enter}');
         cy.dataCy('ace-field').should('have.class', 'disabled');
         cy.dataCy('save-button').click();
@@ -47,8 +47,7 @@ describe('story permissions', function() {
         cy.createDummyRoleAndUser({ permission: ['resources:w'] });
         cy.wait(2000);
         cy.login({ admin: false });
-        cy.visit('/project/bf/settings');
-        cy.dataCy('project-settings-menu-endpoints').click();
+        cy.visit('/project/bf/settings/endpoints');
         cy.dataCy('ace-field').should('exist');
         cy.dataCy('Actions-Server').should('not.exist');
     });

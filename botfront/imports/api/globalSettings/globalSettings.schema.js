@@ -8,15 +8,6 @@ const webhookSchema = new SimpleSchema({
     method: { type: String },
 });
 
-const webhooksSchema = new SimpleSchema({
-    restartRasaWebhook: { type: webhookSchema },
-    uploadImageWebhook: { type: webhookSchema },
-    deleteImageWebhook: { type: webhookSchema },
-    deploymentWebhook: { type: webhookSchema },
-    reportCrashWebhook: { type: webhookSchema },
-});
-
-
 export const privateSettingsSchema = new SimpleSchema({
     bfApiHost: { type: String, optional: true },
     defaultEndpoints: {
@@ -25,7 +16,14 @@ export const privateSettingsSchema = new SimpleSchema({
     defaultCredentials: { type: String, custom: validateYaml, optional: true },
     defaultPolicies: { type: String, custom: validateYaml, optional: true },
     defaultDefaultDomain: { type: String, optional: true, custom: validateYaml },
-    webhooks: { type: webhooksSchema },
+    integrationSettings: { type: Object, optional: true },
+    'integrationSettings.slackLink': { type: String, optional: true },
+    webhooks: { type: Object },
+    'webhooks.restartRasaWebhook': { type: webhookSchema, optional: true },
+    'webhooks.uploadImageWebhook': { type: webhookSchema, optional: true },
+    'webhooks.deleteImageWebhook': { type: webhookSchema, optional: true },
+    'webhooks.deploymentWebhook': { type: webhookSchema, optional: true },
+    'webhooks.reportCrashWebhook': { type: webhookSchema, optional: true },
     reCatpchaSecretServerKey: { type: String, optional: true },
 });
 

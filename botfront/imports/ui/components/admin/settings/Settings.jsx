@@ -30,7 +30,18 @@ class Settings extends React.Component {
         Meteor.call('getLicenseInfo', wrapMeteorCallback((err, info) => {
             this.setState({ licenseInfo: info });
         }));
+        const { params: { setting } = {}, router } = this.props;
+        const { location: { pathname } } = router;
+        if (setting && this.getSettingsPanes().findIndex(p => p.name === setting) < 0) {
+            router.replace({ pathname: `${pathname.split('/settings')[0]}/settings` });
+        }
     }
+
+    setActiveTab = (index) => {
+        const { router } = this.props;
+        const { location: { pathname } } = router;
+        router.push({ pathname: `${pathname.split('/settings')[0]}/settings/${this.getSettingsPanes()[index].name}` });
+    };
 
     onSave = (settings, callback = () => {}) => {
         this.setState({ saving: true });
@@ -112,7 +123,6 @@ class Settings extends React.Component {
             <AceField
                 name='settings.private.defaultEndpoints'
                 label=''
-                fontSize={12}
                 convertYaml
             />
             {this.renderSubmitButton()}
@@ -141,7 +151,6 @@ class Settings extends React.Component {
             <AceField
                 name='settings.private.defaultCredentials'
                 label=''
-                fontSize={12}
                 convertYaml
             />
             {this.renderSubmitButton()}
@@ -158,11 +167,21 @@ class Settings extends React.Component {
             <AceField
                 name='settings.private.defaultDefaultDomain'
                 label=''
-                fontSize={12}
                 convertYaml
             />
             {this.renderSubmitButton()}
         </Tab.Pane>
+    );
+
+    renderIntegrationSettings = () => (
+        <Tab.Pane>
+            <Header as='h3'>Links for Handoff setup</Header>
+            <AutoField
+                name='settings.private.integrationSettings.slackLink'
+                label='Slack'
+            />
+            {this.renderSubmitButton()}
+        </Tab.Pane>// //
     );
 
     renderAppearance = () => (
@@ -241,14 +260,16 @@ class Settings extends React.Component {
     getSettingsPanes = () => {
         const { settings } = this.props;
         const panes = [
-            { menuItem: 'Default NLU Pipeline', render: this.renderDefaultNLUPipeline },
-            { menuItem: 'Default credentials', render: this.renderDefaultCredentials },
-            { menuItem: 'Default endpoints', render: this.renderDefaultEndpoints },
+            { name: 'default-nlu-pipeline', menuItem: 'Default NLU Pipeline', render: this.renderDefaultNLUPipeline },
+            { name: 'default-credentials', menuItem: 'Default credentials', render: this.renderDefaultCredentials },
+            { name: 'default-endpoints', menuItem: 'Default endpoints', render: this.renderDefaultEndpoints },
             {
+                name: 'default-default-domain',
                 menuItem: 'Default default domain',
                 render: this.renderDefaultDefaultDomain,
             },
             {
+                name: 'webhooks',
                 menuItem: 'Webhooks',
                 render: () => (
                     <Tab.Pane>
@@ -261,32 +282,41 @@ class Settings extends React.Component {
                     </Tab.Pane>
                 ),
             },
-            { menuItem: 'Security', render: this.renderSecurityPane },
-            { menuItem: 'Appearance', render: this.renderAppearance },
-            { menuItem: 'Misc', render: this.renderMisc },
-            { menuItem: 'License Information', render: this.renderLicenseInfo },
+            {
+                name: 'integration',
+                menuItem: 'Integration',
+                render: this.renderIntegrationSettings,
+            },
+            { name: 'security', menuItem: 'Security', render: this.renderSecurityPane },
+            { name: 'appearance', menuItem: 'Appearance', render: this.renderAppearance },
+            { name: 'misc', menuItem: 'Misc', render: this.renderMisc },
+            { name: 'license', menuItem: 'License Information', render: this.renderLicenseInfo },
         ];
 
         return panes;
     };
 
-    renderSettings = (saving, settings) => (
-        <>
-            <PageMenu icon='setting' title='Global Settings' />
-            <Container id='admin-settings' data-cy='admin-settings-menu'>
-                <AutoForm schema={new SimpleSchema2Bridge(GlobalSettingsSchema)} model={settings} onSubmit={this.onSave} disabled={saving || !can('global-settings:w', { anyScope: true })}>
-                    <Tab
-                        menu={{ vertical: true }}
-                        grid={{ paneWidth: 13, tabWidth: 3 }}
-                        panes={this.getSettingsPanes()}
-                        onTabChange={(_e, { activeIndex }) => this.setState({
-                            activePane: this.getSettingsPanes()[activeIndex].menuItem,
-                        })}
-                    />
-                </AutoForm>
-            </Container>
-        </>
-    );
+    renderSettings = (saving, settings) => {
+        const { params: { setting } = {} } = this.props;
+        return (
+            <>
+                <PageMenu icon='setting' title='Global Settings' />
+                <Container id='admin-settings' data-cy='admin-settings-menu'>
+                    <AutoForm schema={new SimpleSchema2Bridge(GlobalSettingsSchema)} model={settings} onSubmit={this.onSave} disabled={saving || !can('global-settings:w', { anyScope: true })}>
+                        <Tab
+                            menu={{ vertical: true, 'data-cy': 'settings-menu' }}
+                            grid={{ paneWidth: 13, tabWidth: 3 }}
+                            panes={this.getSettingsPanes()}
+                            activeIndex={setting ? this.getSettingsPanes().findIndex(p => p.name === setting) : 0}
+                            onTabChange={(_, data) => {
+                                if (this.getSettingsPanes()[data.activeIndex].name) this.setActiveTab(data.activeIndex);
+                            }}
+                        />
+                    </AutoForm>
+                </Container>
+            </>
+        );
+    };
 
     renderLoading = () => <div />;
 
@@ -300,6 +330,9 @@ class Settings extends React.Component {
 
 Settings.propTypes = {
     settings: PropTypes.object,
+    projectId: PropTypes.string.isRequired,
+    router: PropTypes.object.isRequired,
+    params: PropTypes.object.isRequired,
     ready: PropTypes.bool.isRequired,
 };
 

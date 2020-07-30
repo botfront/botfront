@@ -19,24 +19,24 @@ describe('projects:r can access but not edit settings', () => {
         cy.dataCy('deployment-evironments').should('not.exist');
         cy.dataCy('save-button').should('not.exist');
         // credentials tab
-        cy.dataCy('project-settings-menu-credentials').click();
+        cy.visit('/project/bf/settings/credentials');
         cy.dataCy('ace-field').should('have.class', 'disabled');
         cy.dataCy('save-button').should('not.exist');
         // default domain tab
-        cy.dataCy('project-settings-menu-default-domain').click();
+        cy.visit('/project/bf/settings/default-domain');
         cy.dataCy('ace-field').should('have.class', 'disabled');
         cy.dataCy('save-button').should('not.exist');
         // import export tab
-        cy.dataCy('project-settings-menu-import-export').click();
+        cy.visit('/project/bf/settings/import-export');
         cy.dataCy('port-project-menu').children('.item').should('have.length', 1);
         cy.dataCy('port-project-menu').find('.item').first().should('have.text', 'Export');
         // endpoints tab
-        cy.dataCy('project-settings-menu-endpoints').click();
+        cy.visit('/project/bf/settings/endpoints');
         cy.dataCy('ace-field').should('not.exist');
         cy.dataCy('Actions-Server').should('have.class', 'disabled');
         cy.dataCy('save-button').should('not.exist');
         // instances tab
-        cy.dataCy('project-settings-menu-instances').should('not.exist');
+        cy.dataCy('settings-menu').contains('Instance').should('not.exist');
         // remove test user
         cy.removeDummyRoleAndUser();
     });
@@ -52,18 +52,18 @@ describe('projects:r can access but not edit settings', () => {
         cy.dataCy('language-selector').should('not.have.class', 'disabled');
         cy.dataCy('save-changes').should('exist');
         // credentials tab
-        cy.dataCy('project-settings-menu-credentials').click();
+        cy.visit('/project/bf/settings/credentials');
         cy.dataCy('ace-field').should('not.have.class', 'disabled');
         cy.dataCy('save-button').should('exist');
         // default domain tab
-        cy.dataCy('project-settings-menu-default-domain').click();
+        cy.visit('/project/bf/settings/default-domain');
         cy.dataCy('ace-field').should('not.have.class', 'disabled');
         cy.dataCy('save-button').should('exist');
         // import export tab
-        cy.dataCy('project-settings-menu-import-export').click();
+        cy.visit('/project/bf/settings/import-export');
         cy.dataCy('port-project-menu').children('.item').should('have.length', 2);
         // endpoints tab
-        cy.dataCy('project-settings-menu-endpoints').click();
+        cy.visit('/project/bf/settings/endpoints');
         cy.dataCy('Actions-Server').should('exist');
         cy.dataCy('ace-field').should('not.exist');
         cy.dataCy('save-button').should('exist');

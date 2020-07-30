@@ -1,4 +1,4 @@
-/* global cy expect:true */
+/* global cy expect */
 
 describe('Project Settings', function () {
     beforeEach(function () {
@@ -18,9 +18,8 @@ describe('Project Settings', function () {
             cy.get('[data-cy=save-changes]').click();
             cy.get('.project-name input').should('have.value', 'My Project33');
 
-            // change tab and come back to verify info is still correct
-            cy.dataCy('project-settings-menu-credentials').click();
-            cy.dataCy('project-settings-menu-info').click();
+            // reload page to verify info is still correct
+            cy.visit('/project/bf/settings/info');
             cy.get('.project-name input').should('have.value', 'My Project33');
             // Switching back
             cy.get('.project-name input').click();
@@ -42,9 +41,8 @@ describe('Project Settings', function () {
                 expect($div.first()).to.contain('English');
             });
 
-            // change tab and come back to verify info is still correct
-            cy.dataCy('project-settings-menu-credentials').click();
-            cy.dataCy('project-settings-menu-info').click();
+            // reload page to verify info is still correct
+            cy.visit('/project/bf/settings/info');
             cy.get('.project-default-language > .ui > div.text').should(($div) => {
                 expect($div.first()).to.contain('English');
             });
@@ -56,8 +54,7 @@ describe('Project Settings', function () {
             cy.get('[data-cy=save-changes]').click();
             cy.get('[data-cy=change-nlu-threshold] input').should('have.value', '0.56');
 
-            cy.dataCy('project-settings-menu-credentials').click();
-            cy.dataCy('project-settings-menu-info').click();
+            cy.visit('/project/bf/settings/info');
             cy.get('[data-cy=change-nlu-threshold] input').should('have.value', '0.56');
 
             cy.get('[data-cy=change-nlu-threshold] input').click().type('{backspace}{backspace}{backspace}{backspace}0.85');
@@ -71,8 +68,7 @@ describe('Project Settings', function () {
             cy.get('[data-cy=save-changes]').click();
             cy.get('[data-cy=change-timezone-offset] input').should('have.value', '2');
 
-            cy.dataCy('project-settings-menu-credentials').click();
-            cy.dataCy('project-settings-menu-info').click();
+            cy.visit('/project/bf/settings/info');
             cy.get('[data-cy=change-timezone-offset] input').should('have.value', '2');
 
             cy.get('[data-cy=change-timezone-offset] input').click().type('{backspace}{backspace}{backspace}{backspace}-3');

@@ -19,6 +19,7 @@ import StoriesContainer from '../../ui/components/stories/StoriesContainer';
 import ConfigurationContainer from '../../ui/components/settings/Settings';
 import ResetPassword from '../../ui/components/account/ResetPassword.jsx';
 import NLUModelComponent from '../../ui/components/nlu/models/NLUModel';
+import ConnectHandoff from '../../ui/components/project/ConnectHandoff';
 import SetupSteps from '../../ui/components/setup/SetupSteps';
 import Welcome from '../../ui/components/setup/Welcome';
 import Login from '../../ui/components/account/Login';
@@ -206,9 +207,10 @@ class Routes extends React.Component {
                                     />
                                     <Route path='/project/:project_id/stories' component={StoriesContainer} name='Stories' onEnter={authenticate('stories:r')} />
                                     <Route path='/project/:project_id/dialogue/templates' component={TemplatesContainer} name='Templates' onEnter={authenticate('responses:r')} />
+                                    <Route path='/project/:project_id/connect_handoff' component={ConnectHandoff} name='Connect Handoff' onEnter={authenticate('stories:w')} />
                                     <Route path='/project/:project_id/analytics' component={AnalyticsContainer} name='Analytics' onEnter={authenticate('analytics:r')} />
                                     <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticate('projects:r')} />
-                                    <Route path='/project/:project_id/settings/global' component={SettingsContainer} name='More Settings' onEnter={authenticate('global-settings:r')} />
+                                    <Route path='/project/:project_id/settings/:setting' component={ConfigurationContainer} name='Settings' onEnter={authenticate('projects:r')} />
                                     <Route path='*' component={NotFound} />
                                 </Route>
                                 <Route exact path='/admin' component={AdminLayout} onEnter={authenticateAdminPage()}>
@@ -218,6 +220,7 @@ class Routes extends React.Component {
                                     <Route path='/admin/users' component={UsersListContainer} name='Users' onEnter={authenticate('users:r', { scope: 'anyScope' })} />
                                     <Route path='/admin/user/:user_id' component={UserContainer} name='Edit User' onEnter={authenticate('users:r', { scope: 'anyScope' })} />
                                     <Route path='/admin/settings' component={SettingsContainer} name='Settings' onEnter={authenticate('global-settings:r', { scope: 'anyScope' })} />
+                                    <Route path='/admin/settings/:setting' component={SettingsContainer} name='Settings' onEnter={authenticate('global-settings:r', { scope: 'anyScope' })} />
                                     <Route path='/admin/roles' component={RolesList} name='Roles' onEnter={authenticate('roles:r', { scope: 'anyScope' })} />
                                     <Route path='/admin/role/:role_name' component={RoleContainer} name='Edit Role' onEnter={authenticate('roles:r', { scope: 'anyScope' })} />
                                     <Route path='/admin/role/' component={RoleContainer} name='Create Role' onEnter={authenticate('roles:w', { scope: 'anyScope' })} />

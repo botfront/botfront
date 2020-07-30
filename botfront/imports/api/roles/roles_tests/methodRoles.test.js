@@ -79,6 +79,11 @@ if (Meteor.isServer) {
             args: [{ projectId }],
         },
         {
+            name: 'policies.connectHandoff',
+            roles: writers.stories,
+            args: [projectId, '', ''],
+        },
+        {
             name: 'credentials.save',
             roles: writers.projects,
             args: [{ projectId }],
@@ -455,6 +460,11 @@ if (Meteor.isServer) {
         {
             name: 'delete.image',
             roles: writers.responses,
+            args: [projectId],
+        },
+        {
+            name: 'getIntegrationLinks',
+            roles: writers.projects,
             args: [projectId],
         },
         {
