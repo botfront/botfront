@@ -65,6 +65,27 @@ Cypress.Commands.add('createStoryInGroup', ({ groupName = 'Groupo', storyName = 
     });
 });
 
+
+Cypress.Commands.add('createRuleInGroup', ({ groupName = 'Groupo', storyName = null } = {}) => {
+    findGroupAndOpenIfClosed(groupName);
+   
+    cy.dataCy('story-group-menu-item', groupName)
+        .findCy('add-fragment-in-group')
+        .click({ force: true });
+    cy.dataCy('story-group-menu-item', groupName).findCy('add-rule').click({ force: true });
+
+    cy.dataCy('story-group-menu-item', groupName).then((n) => {
+        if (n.next().attr('type') === 'story-group') cy.wrap([]).as('stories');
+        else cy.wrap(n.nextUntil('[type="story-group"]')).as('stories');
+        cy.get('@stories').then((stories) => {
+            cy.dataCy('story-group-menu-item').contains(`${groupName} (${stories.length})`);
+            findStoryAndSelect(`${groupName} (${stories.length})`, 'new-story');
+        });
+
+        if (storyName) renameStoryOrGroup('new-story', storyName);
+    });
+});
+
 Cypress.Commands.add('deleteStoryOrGroup', (name = 'Groupo', type = null, confirm = true) => {
     const filter = type ? `[type="${type}"]` : null;
     cy.dataCy('story-group-menu-item', name, filter).should('exist')
