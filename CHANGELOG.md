@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.25.8-ee.2](https://github.com/botfront/botfront/compare/v0.25.8-ee.1...v0.25.8-ee.2) (2020-07-30)
+
+
+### Features
+
+* one-click handoff integration to third party services ([4054246](https://github.com/botfront/botfront/commit/4054246b24069a519c754f1630235d85d3c45de2))
+
 ### [0.25.8-ee.1](https://github.com/botfront/botfront/compare/v0.25.7-ee.3...v0.25.8-ee.1) (2020-07-29)
 
 
