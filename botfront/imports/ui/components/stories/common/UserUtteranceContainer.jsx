@@ -52,10 +52,10 @@ const UtteranceContainer = (props) => {
             && !!stateValue
             && mode === 'input'
             && !containerBody.current.contains(event.target)
-            && !['.intent-popup', '.entity-popup', '.row'].some(
+            && !['.intent-popup', '.entity-popup', '.row', '.trash', '.navigation', '.project-sidebar'].some(
                 c => event.target.closest(c), // target has ancestor with class
             )
-        ) saveInput();
+        ) { saveInput(); }
     };
 
     useEffect(() => {
