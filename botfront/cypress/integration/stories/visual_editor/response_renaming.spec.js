@@ -10,6 +10,7 @@ describe('rename responses in the visual editor', () => {
         cy.createStoryInGroup();
         cy.createStoryInGroup();
         // setup md
+        cy.browseToStory('Groupo (2)');
         cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('single-story-editor').find('textarea').focus({ force: true });
         cy.dataCy('single-story-editor').find('textarea').type('- utter_test_response', { force: true });
