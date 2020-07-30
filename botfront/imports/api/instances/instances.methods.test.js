@@ -21,7 +21,7 @@ const test_project = {
 };
 
 if (Meteor.isTest) {
-    describe.only('getTrainingDataInRasaFormat', function () {
+    describe('getTrainingDataInRasaFormat', function () {
         if (Meteor.isServer) {
             beforeEach(async (done) => {
                 await Projects.insert(test_project);
