@@ -134,6 +134,7 @@ const StoryTopMenu = ({
                             trigger={(
                                 <span
                                     className='story-title-prefix'
+                                    data-cy='story-title-prefix'
                                     role='switch'
                                     onClick={() => {
                                         if (type === 'rule') {
@@ -193,6 +194,7 @@ const StoryTopMenu = ({
                 </Popup>
             )}
             <Modal
+                data-cy='confirm-modal'
                 open={modalOpen}
                 onClose={() => closeModal()}
             >
@@ -209,6 +211,7 @@ const StoryTopMenu = ({
                     <Button
                         onClick={() => { closeModal(); switchType(); }}
                         positive
+                        data-cy='confirm-convert'
                         labelPosition='right'
                         icon='checkmark'
                         content='Yes'

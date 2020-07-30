@@ -192,7 +192,7 @@ export default class StoryVisualEditor extends React.Component {
     renderEllipsis = (i, l, exceptions) => (
         <React.Fragment key={`ellipsis${i + l.data.name}`}>
             <ExceptionWrapper exceptions={exceptions}>
-                <div className='story-line'>
+                <div data-cy='ellipsis' className='story-line'>
                     <Icon size='large' name='ellipsis horizontal' />
                     <IconButton onClick={() => this.handleDeleteLine(i)} icon='trash' />
                 </div>
