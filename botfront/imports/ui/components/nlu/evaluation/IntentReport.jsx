@@ -19,11 +19,11 @@ export default class IntentReport extends React.Component {
             if (tokens.length === 5) { // the "None" intent row of the report splits in 4 tokens
                 tableRows.push({
                     intent: tokens[0],
-                    f1: tokens[1],
-                    precision: tokens[2],
-                    accuracy: tokens[3],
-                    support: tokens[4]
-                })
+                    f1: tokens[3],
+                    precision: tokens[1],
+                    recall: tokens[2],
+                    support: tokens[4],
+                });
             }
         });
 
@@ -111,10 +111,12 @@ export default class IntentReport extends React.Component {
                 width: 100
             },
             {
-                accessor: 'accuracy',
+                accessor: 'recall',
                 Header: () => (
-                    <div>Accuracy <Popup trigger={<Icon name='question circle' color="grey"/>}
-                                       content="On 100 examples labeled 'greet', how many were actually predicted 'greet'" />
+                    <div>Recall <Popup
+                        trigger={<Icon name='question circle' color='grey' />}
+                        content="On 100 examples labeled 'greet', how many were actually predicted 'greet'"
+                    />
                     </div>
                 ),
                 className: "right",
