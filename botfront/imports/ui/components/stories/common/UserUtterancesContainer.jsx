@@ -51,6 +51,7 @@ const UserUtterancesContainer = (props) => {
                     value={payload}
                     onInput={content => handleUpdateDisjunct(index, content)}
                     onAbort={() => { if (value.length > 1) handleDeleteDisjunct(index); }}
+                    onDelete={() => { handleDeleteDisjunct(index); }}
                 />
                 {payload && index !== value.length - 1 && (
                     <IconButton icon='add' className='or-label' color='other' />

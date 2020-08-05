@@ -12,7 +12,7 @@ import NluModalContent from './nlu_editor/NluModalContent';
 
 const UtteranceContainer = (props) => {
     const {
-        value, onInput, onAbort,
+        value, onInput, onAbort, onDelete,
     } = props;
     const [mode, setMode] = useState(!value ? 'input' : 'view');
     const { parseUtterance, getUtteranceFromPayload } = useContext(ProjectContext);
@@ -43,7 +43,10 @@ const UtteranceContainer = (props) => {
     };
 
     const saveInput = () => {
-        if (stateValue.intent !== OOS_LABEL) onInput(stateValue);
+        if (stateValue.intent !== OOS_LABEL) {
+            containerBody.current.wasSaved = true;
+            onInput(stateValue);
+        }
     };
 
     const handleClickOutside = (event) => {
@@ -52,10 +55,10 @@ const UtteranceContainer = (props) => {
             && !!stateValue
             && mode === 'input'
             && !containerBody.current.contains(event.target)
-            && !['.intent-popup', '.entity-popup', '.row'].some(
+            && !['.intent-popup', '.entity-popup', '.row', '.trash', '.navigation', '.project-sidebar'].some(
                 c => event.target.closest(c), // target has ancestor with class
             )
-        ) saveInput();
+        ) { saveInput(); }
     };
 
     useEffect(() => {
@@ -67,6 +70,14 @@ const UtteranceContainer = (props) => {
             document.removeEventListener('mousedown', handleClickOutside); // will unmount
         };
     }, [stateValue]);
+
+    useEffect(() => () => {
+        // as state update are async we're not sure mode have change already
+        // that why we use  wasSaved to keep track of the save state
+        if (mode === 'input' && !containerBody.current.wasSaved) {
+            onDelete();
+        }
+    }, []);
 
     const render = () => {
         if (mode === 'input') {
@@ -136,10 +147,12 @@ UtteranceContainer.propTypes = {
     value: PropTypes.object,
     onInput: PropTypes.func.isRequired,
     onAbort: PropTypes.func.isRequired,
+    onDelete: PropTypes.func,
 };
 
 UtteranceContainer.defaultProps = {
     value: null,
+    onDelete: () => {},
 };
 
 export default UtteranceContainer;
