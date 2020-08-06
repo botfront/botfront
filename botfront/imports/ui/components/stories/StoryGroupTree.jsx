@@ -39,7 +39,7 @@ const openFirstStoryIfNoneSelected = (
         if (i > tree.items[tree.rootId].children.length - 1) break;
     }
     if (storiesFound.length) {
-        if (tree.items && tree.items[groupId] && tree.items[groupId].isExpanded === false) handleExpand(groupId);
+        if (tree.items && tree.items[groupId] && !tree.items[groupId].isExpanded) handleExpand(groupId);
         if (tree.items && tree.items[groupId]) selectSingleItemAndResetFocus(tree.items[storiesFound[0]]);
     }
 };
