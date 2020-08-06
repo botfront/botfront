@@ -40,7 +40,7 @@ const openFirstStoryIfNoneSelected = (
     }
     if (storiesFound.length) {
         if (tree.items && tree.items[groupId] && tree.items[groupId].isExpanded === false) handleExpand(groupId);
-        selectSingleItemAndResetFocus(tree.items[storiesFound[0]]);
+        if (tree.items && tree.items[groupId]) selectSingleItemAndResetFocus(tree.items[storiesFound[0]]);
     }
 };
 
