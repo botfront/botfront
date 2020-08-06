@@ -39,8 +39,8 @@ const openFirstStoryIfNoneSelected = (
         if (i > tree.items[tree.rootId].children.length - 1) break;
     }
     if (storiesFound.length) {
-        if (!tree.items[groupId].isExpanded) handleExpand(groupId);
-        selectSingleItemAndResetFocus(tree.items[storiesFound[0]]);
+        if (tree.items && tree.items[groupId] && !tree.items[groupId].isExpanded) handleExpand(groupId);
+        if (tree.items && tree.items[groupId]) selectSingleItemAndResetFocus(tree.items[storiesFound[0]]);
     }
 };
 
@@ -125,7 +125,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
             type: 'root',
         };
         return newTree;
-    }, [forms, storyGroups, stories, storyGroupOrder]);
+    }, [forms, storyGroups, projectId, stories, storyGroupOrder]);
 
     const {
         tree,
