@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.25.9](https://github.com/botfront/botfront/compare/v0.25.8...v0.25.9) (2020-08-06)
+
+
+### Bug Fixes
+
+* nlu was saved when clicking on menus when it shouldn't have ([81dbd3e](https://github.com/botfront/botfront/commit/81dbd3e7e7b1c104010133f55ae4b2165dcd51a5))
+* **evaluation:** the value for f1 and recall were inverted ([c8b9a8c](https://github.com/botfront/botfront/commit/c8b9a8c22af823d8c31a9582c30162a702e369d4))
+* activities with duckling entities ([44b86ef](https://github.com/botfront/botfront/commit/44b86ef6974c05737c0aa3df050c1f5d660507ef))
+
 ### [0.25.8](https://github.com/botfront/botfront/compare/v0.25.7...v0.25.8) (2020-07-29)
 
 
