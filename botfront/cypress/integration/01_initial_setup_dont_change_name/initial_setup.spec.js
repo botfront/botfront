@@ -50,7 +50,7 @@ describe('intial setup', function () {
 
         cy.get('[data-cy=project-create-button]').click();
 
-        cy.get('[data-cy=email-consent]').click();
+        cy.get('[data-cy=email-refuse]').click();
 
         cy.wait(5000);
         cy.url({ timeout: 30000 }).should('include', '/stories');
