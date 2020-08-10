@@ -152,11 +152,20 @@
     padding: 9px 0 5px; // 4px extra because of .utterance-container bottom margin
 
     .side-by-side.top-right {
-        max-width: 80px;
+        max-width: 100px;
         position: absolute;
         top: 5px;
         right: 5px;
         visibility: hidden;
+        .import-from-lang {
+            padding-top: 0.2em;
+            padding-bottom: 0.2em;
+            background-color: #eceff1;
+            div.text {
+                font-weight: 500;
+                font-size: 13px;
+            }
+        }
     }
     .response-name-container {
         position: absolute;

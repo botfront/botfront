@@ -1,11 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 import React, {
-    useState, useEffect, useMemo,
+    useState, useEffect, useMemo, useContext,
 } from 'react';
 import PropTypes from 'prop-types';
 import {
-    Placeholder,
+    Placeholder, Dropdown,
 } from 'semantic-ui-react';
+import { useMutation } from '@apollo/react-hooks';
+import { safeLoad } from 'js-yaml';
 
 import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
@@ -14,9 +16,12 @@ import BotResponseEditor from '../../templates/templates-list/BotResponseEditor'
 import ButtonTypeToggle from '../../templates/common/ButtonTypeToggle';
 import BotResponseContainer from './BotResponseContainer';
 import { setStoriesCurrent } from '../../../store/actions/actions';
-
-import { checkMetadataSet, toggleButtonPersistence } from '../../../../lib/botResponse.utils';
+import { ProjectContext } from '../../../layouts/context';
+import {
+    checkMetadataSet, toggleButtonPersistence, parseContentType, checkContentEmpty,
+} from '../../../../lib/botResponse.utils';
 import BotResponseName from './BotResponseName';
+import { RESP_FROM_LANG } from '../graphQL/mutations';
 
 export const ResponseContext = React.createContext();
 
@@ -34,7 +39,20 @@ const BotResponsesContainer = (props) => {
         loadingResponseLocations,
         router,
     } = props;
-
+    const {
+        project: { _id: projectId },
+        projectLanguages,
+        language,
+        setResponseInCache,
+    } = useContext(ProjectContext);
+    const [importRespFromLang] = useMutation(RESP_FROM_LANG, {
+        onCompleted: (data) => {
+            const resp = data.importRespFromLang.values.find(value => value.lang === language);
+            const content = safeLoad(resp.sequence[0].content);
+            const type = parseContentType(content);
+            setResponseInCache(name, { ...content, __typename: type });
+        },
+    });
     const [template, setTemplate] = useState();
     const [editorOpen, setEditorOpen] = useState(false);
     const [toBeCreated, setToBeCreated] = useState(null);
@@ -168,6 +186,25 @@ const BotResponsesContainer = (props) => {
                         onToggleButtonType={handleToggleQuickReply}
                         responseType={typeName}
                     />
+                    {!initialValue.isNew && getSequence().length === 1 && !checkContentEmpty(getSequence()[0])
+                         && (
+                             <Dropdown
+                                 button
+                                 icon={null}
+                                 compact
+                                 className='import-from-lang'
+                                 options={projectLanguages}
+                                 text='Import'
+                                 onChange={(_, selection) => {
+                                     importRespFromLang({
+                                         variables: {
+                                             projectId, key: name, originLang: selection.value, destLang: language,
+                                         },
+                                     });
+                                 }}
+                             />
+                         )
+                    }
                     {enableEditPopup && (
                         <IconButton
                             icon='ellipsis vertical'
