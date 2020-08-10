@@ -194,7 +194,7 @@ const BotResponsesContainer = (props) => {
                                  compact
                                  className='import-from-lang'
                                  options={projectLanguages}
-                                 text='Import'
+                                 text='Copy from'
                                  onChange={(_, selection) => {
                                      importRespFromLang({
                                          variables: {
