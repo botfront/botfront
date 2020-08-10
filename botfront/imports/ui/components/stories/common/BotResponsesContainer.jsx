@@ -192,6 +192,7 @@ const BotResponsesContainer = (props) => {
                                  button
                                  icon={null}
                                  compact
+                                 data-cy='import-from-lang'
                                  className='import-from-lang'
                                  options={otherLanguages}
                                  text='Copy from'
