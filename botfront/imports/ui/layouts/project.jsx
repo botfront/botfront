@@ -374,6 +374,7 @@ class Project extends React.Component {
                                     entities,
                                     slots,
                                     language: workingLanguage,
+                                    otherLanguages: projectLanguages.filter(lang => lang.value !== workingLanguage),
                                     triggerChatPane: this.triggerChatPane,
                                     upsertResponse: this.upsertResponse,
                                     responses,

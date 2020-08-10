@@ -41,7 +41,7 @@ const BotResponsesContainer = (props) => {
     } = props;
     const {
         project: { _id: projectId },
-        projectLanguages,
+        otherLanguages,
         language,
         setResponseInCache,
     } = useContext(ProjectContext);
@@ -193,7 +193,7 @@ const BotResponsesContainer = (props) => {
                                  icon={null}
                                  compact
                                  className='import-from-lang'
-                                 options={projectLanguages}
+                                 options={otherLanguages}
                                  text='Copy from'
                                  onChange={(_, selection) => {
                                      importRespFromLang({
