@@ -168,9 +168,9 @@ class Project extends React.Component {
 
     upsertResponse = async (key, newResponse, index) => {
         const { responses } = this.state;
-        const { isNew, payload, key: newKey } = newResponse;
+        const { isNew: isNewResponse, payload, key: newKey } = newResponse;
         const { projectId, workingLanguage: language } = this.props;
-        const { ...newPayload } = payload; // don't pass isNew to mutation
+        const newPayload = payload; // don't pass isNew to mutation
         let responseTypeVariable = {};
         // if the response type has changed; add newResponseType to the queryVariables
         if (responses[key] && responses[key].__typename !== payload.__typename) {
@@ -183,10 +183,11 @@ class Project extends React.Component {
         const variables = {
             projectId, language, newPayload, key, newKey, index, ...responseTypeVariable,
         };
+
         const result = await apolloClient.mutate({
             mutation: UPSERT_BOT_RESPONSE,
             variables,
-            update: () => this.setResponse(newKey || key, { isNew, ...newPayload }),
+            update: () => this.setResponse(newKey || key, { ...newPayload, isNew: isNewResponse }),
         });
         return result;
     }
