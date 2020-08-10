@@ -55,6 +55,6 @@ export default class EntityUtils {
 
     static filterDuckling(entity) {
         const { extractor = '' } = entity || {};
-        return !extractor.startsWith('duckling') && !extractor.startsWith('ner_duckling');
+        return !extractor.startsWith('duckling') && !extractor.startsWith('ner_duckling') && !extractor.startsWith('DucklingHTTPExtractor');
     }
 }
