@@ -10,13 +10,14 @@ describe('rename responses in the visual editor', () => {
         cy.createStoryInGroup();
         cy.createStoryInGroup();
         // setup md
+        cy.browseToStory('Groupo (2)');
         cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('single-story-editor').find('textarea').focus({ force: true });
         cy.dataCy('single-story-editor').find('textarea').type('- utter_test_response', { force: true });
         cy.dataCy('single-story-editor').find('textarea').blur({ force: true });
         cy.dataCy('toggle-visual').click({ force: true });
         cy.visit('project/bf/stories');
-        cy.browseToStory();
+        cy.browseToStory('Groupo (1)');
         cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('single-story-editor').find('textarea').focus({ force: true });
         cy.dataCy('single-story-editor').find('textarea').type('- utter_test_response{enter}- utter_exists', { force: true });
