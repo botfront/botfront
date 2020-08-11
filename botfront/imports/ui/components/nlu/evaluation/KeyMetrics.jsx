@@ -1,62 +1,51 @@
-import React from "react";
-import PropTypes from "prop-types";
-import {Meteor} from "meteor/meteor";
-import {Button, Form, Icon, Label, Loader, Message, Popup, Statistic, Tab} from "semantic-ui-react";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Icon, Popup, Statistic } from 'semantic-ui-react';
 
-
-export class Metrics extends React.Component {
-
-
+export default class KeyMetrics extends React.PureComponent {
     formatStat = (stat) => {
         const toFloat = parseFloat(stat);
-        return (toFloat * 100).toFixed(2) + '%';
-    };
-
-    renderStatistics = () => {
-        return this.props.data.map((d,index)=> <Statistic key={index}>
-            <Statistic.Label>{d.label} <Popup trigger={<Icon name='question circle' color="grey"/>}content={d.help} /></Statistic.Label>
-            <Statistic.Value>{this.formatStat(d.value)}</Statistic.Value>
-        </Statistic>)
+        return `${(toFloat * 100).toFixed(2)}%`;
     };
 
     render() {
-
-        return (
-            <div>
-                <Statistic.Group widths={this.props.data.length}>{this.renderStatistics()}
-                </Statistic.Group>
-            </div>
-        )
-    }
-}
-
-export default class IntentMetrics extends React.Component {
-    render() {
+        const { f1, precision, accuracy } = this.props;
         const data = [
             {
-                label: "F1-Score",
-                value: this.props.f1,
-                help: "A more general measure of the quality of your model based on precision and accuracy"
+                label: 'F1-Score',
+                value: f1,
+                help: 'A general measure of the quality of your model based on precision and accuracy',
             },
             {
-                label: "Precision",
-                value: this.props.precision,
-                help: "On 100 examples predicted 'greet', how many were actually labeled 'greet'"
+                label: 'Precision',
+                value: precision,
+                help: 'On 100 predictions for label, how many were actually labeled as such in test set',
             },
             {
-                label: "Accuracy",
-                value: this.props.accuracy,
-                help: "On 100 examples labeled 'greet', how many were actually predicted 'greet'"
+                label: 'Accuracy',
+                value: accuracy,
+                help: 'On 100 instances of label in test set, how many were actually predicted',
             },
         ];
 
-        return <Metrics data={data}/>
+        return (
+            <div>
+                <Statistic.Group widths={data.length}>{
+                    data.map((d, index) => (
+                        <Statistic key={index}>
+                            <Statistic.Label>{d.label} <Popup trigger={<Icon name='question circle' color='grey' />} content={d.help} /></Statistic.Label>
+                            <Statistic.Value>{this.formatStat(d.value)}</Statistic.Value>
+                        </Statistic>
+                    ))
+                }
+                </Statistic.Group>
+            </div>
+        );
     }
 }
 
-IntentMetrics.propTypes = {
+KeyMetrics.propTypes = {
     f1: PropTypes.number.isRequired,
     accuracy: PropTypes.number.isRequired,
     precision: PropTypes.number.isRequired,
 };
-

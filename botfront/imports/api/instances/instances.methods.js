@@ -348,14 +348,7 @@ if (Meteor.isServer) {
                 const url = `${instance.host}/model/test/intents?${qs}`;
                 const results = Promise.await(client.post(url, examples));
 
-                if (results.data.entity_evaluation) {
-                    const ee = results.data.entity_evaluation;
-                    Object.keys(ee).forEach((key) => {
-                        const newKeyName = key.replace(/\./g, '_');
-                        ee[newKeyName] = ee[key];
-                        delete ee[key];
-                    });
-                }
+                results.data.entity_evaluation = results.data.entity_evaluation.DIETClassifier || {};
                 const evaluations = Evaluations.find({ modelId }, { field: { _id: 1 } }).fetch();
                 if (evaluations.length > 0) {
                     Evaluations.update({ _id: evaluations[0]._id }, { $set: { results: results.data } });
