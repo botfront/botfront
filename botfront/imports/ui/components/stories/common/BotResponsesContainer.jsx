@@ -186,7 +186,7 @@ const BotResponsesContainer = (props) => {
                         onToggleButtonType={handleToggleQuickReply}
                         responseType={typeName}
                     />
-                    {!initialValue.isNew && getSequence().length === 1 && !checkContentEmpty(getSequence()[0])
+                    {initialValue && !initialValue.isNew && getSequence().length === 1 && !checkContentEmpty(getSequence()[0])
                          && (
                              <Dropdown
                                  button
