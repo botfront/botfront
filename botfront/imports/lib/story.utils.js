@@ -511,6 +511,7 @@ export const getStoriesAndDomain = async (projectId, language, env = 'developmen
 export const accumulateExceptions = (
     story,
     slots,
+    forms,
     storyControllers,
     setStoryControllers,
     saveStoryMethod,
@@ -527,6 +528,7 @@ export const accumulateExceptions = (
             newStoryControllers[currentPathAsString] = new StoryController({
                 story: currentStory.story || '',
                 slots,
+                forms,
                 onUpdate: content => saveStoryMethod(currentPath, { story: content }),
                 onMdType: setLastMdTypeMethod,
                 isABranch,

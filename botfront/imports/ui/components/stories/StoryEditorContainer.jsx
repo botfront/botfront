@@ -346,6 +346,7 @@ const StoryEditorContainer = ({
         const newExceptions = accumulateExceptions(
             story,
             slots,
+            forms,
             storyControllers,
             setStoryControllers,
             saveStory,
