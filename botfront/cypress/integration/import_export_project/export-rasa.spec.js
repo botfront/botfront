@@ -17,6 +17,7 @@ describe('Exporting a Project', function() {
     describe('Export UI', function() {
         it('should navigate the UI for exporting to Rasa/Rasa X', function() {
             cy.visit('/project/bf/settings');
+            cy.get('.ui.vertical.menu').should('exist');
             cy.dataCy('project-settings-menu-import-export').click();
             cy.dataCy('port-project-menu')
                 .find('.item')
@@ -41,6 +42,7 @@ describe('Exporting a Project', function() {
             // French should be available
             // English should not be available
             cy.visit('/project/bf/settings');
+            cy.get('.ui.vertical.menu').should('exist');
             cy.dataCy('project-settings-menu-import-export').click();
             cy.dataCy('port-project-menu')
                 .find('.item')
@@ -73,6 +75,7 @@ describe('Exporting a Project', function() {
                 .click({ force: true });
             
             // english and french should be available
+            cy.get('.ui.vertical.menu').should('exist');
             cy.dataCy('project-settings-menu-import-export').click();
             cy.dataCy('port-project-menu')
                 .find('.item')
