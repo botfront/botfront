@@ -62,7 +62,7 @@ export async function doMinorUpdate() {
     const projectVersion = getProjectVersion();
     const mongoPassword = getMongoPassword();
     if (isMajorUpdateWithVersion(projectVersion, botfrontVersion)){
-        return console.log(boxen(`Project was made with Botfront ${chalk.blueBright(projectVersion)} and the currently installed version is ${chalk.green(botfrontVersion)}, which is a major update.\nPlease follow the instructions in the migration guide: ${chalk.cyan.bold('https://botfront.io/docs/migration')}.`));
+        return console.log(boxen(`Project was made with Botfront ${chalk.blueBright(projectVersion)} and the currently installed version is ${chalk.green(botfrontVersion)}, which is a major update.\nPlease follow the instructions in the migration guide: ${chalk.cyan.bold('https://botfront.io/docs/installation/migration-guide/')}.`));
     }
 
     if (isMinorUpdateWithVersion(projectVersion, botfrontVersion)) {
