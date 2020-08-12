@@ -6,7 +6,7 @@ import { allExamples, selectedExamples, selectedExampleAndDummy } from './testDa
 import { Projects } from '../project/project.collection';
 
 
-const test_project = {
+const testProject = {
     _id: 'test',
     namespace: 'bf-test',
     name: 'My Project',
@@ -24,7 +24,7 @@ if (Meteor.isTest) {
     describe('getTrainingDataInRasaFormat', function () {
         if (Meteor.isServer) {
             beforeEach(async (done) => {
-                await Projects.insert(test_project);
+                await Projects.insert(testProject);
                 done();
             });
             afterEach(async (done) => {
