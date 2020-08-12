@@ -37,6 +37,7 @@ function AnalyticsCard(props) {
             chartType,
             valueType,
             wide,
+            showDenominator,
         },
         settings,
         onChangeSettings,
@@ -226,7 +227,7 @@ function AnalyticsCard(props) {
 
     const renderChart = () => {
         const { dataToDisplay, paramsToUse } = getDataToDisplayAndParamsToUse({
-            data, queryParams, graphParams, nTicks, valueType, bucketSize, projectTimezoneOffset, wide, showDenominator: false,
+            data, queryParams, graphParams, nTicks, valueType, bucketSize, projectTimezoneOffset, wide, showDenominator,
         });
         
         if (!dataToDisplay.length) return <Message color='yellow'><Icon name='calendar times' data-cy='no-data-message' />No data to show for selected period!</Message>;
@@ -346,6 +347,7 @@ function AnalyticsCard(props) {
                     onChangeSettings={onChangeSettings}
                     titleDescription={titleDescription}
                     displayConfigs={graphParams.displayConfigs}
+                    denominatorLine={!!graphParams.y2}
                 />
             </span>
             {nameEdited === null

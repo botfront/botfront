@@ -104,7 +104,7 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
             graphParams: {
                 x: 'name',
                 y: { absolute: 'count', relative: 'frequency' },
-                axisTitleY: 'Occurences',
+                axisTitleY: 'Occurrences',
                 axisTitleX: 'Triggered story',
                 noXLegend: true,
                 axisBottom: {
@@ -129,8 +129,8 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
                 y2: { absolute: 'count' },
                 formats: {
                     bucket: v => v.toLocaleDateString(),
-                    count: v => `${v} visit${v !== 1 ? 's' : ''}`,
-                    hits: v => `${v} conversation${v !== 1 ? 's' : ''}`,
+                    count: v => `${v} total`,
+                    hits: v => `${v} matching`,
                     proportion: v => `${v}%`,
                 },
                 displayAbsoluteRelative: true,

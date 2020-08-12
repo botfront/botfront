@@ -12,6 +12,7 @@ const SettingsMenu = (props) => {
         titleDescription,
         onChangeSettings,
         displayConfigs,
+        denominatorLine,
     } = props;
 
     const displayTypeHeader = useMemo(() => (
@@ -132,13 +133,13 @@ const SettingsMenu = (props) => {
                         onClick={() => setSettingsOpen('description')}
                     />
                 </React.Fragment>
-                {/* {graphParams.y2 && (
+                {denominatorLine && (
                     <Dropdown.Item
-                        text={showDenominator ? 'Hide denominator' : 'Show denominator'}
+                        text={settings.showDenominator ? 'Hide total conversations' : 'Show total conversations'}
                         data-cy='toggle-denominator'
-                        onClick={() => onChangeSettings({ showDenominator: !showDenominator })}
+                        onClick={() => onChangeSettings({ showDenominator: !settings.showDenominator })}
                     />
-                    )} */}
+                )}
                 {displayTypeHeader && <Dropdown.Header content='Types of conversations' onClick={e => e.stopPropagation()} /> }
                 {displayConfigs.includes('userInitiatedConversations') && renderCheckOption('User initiated conversations', 'userInitiatedConversations', settings.userInitiatedConversations)}
                 {displayConfigs.includes('triggerConversations') && renderCheckOption('Triggered conversations', 'triggerConversations', settings.triggerConversations)}
@@ -154,10 +155,12 @@ SettingsMenu.propTypes = {
     titleDescription: PropTypes.string.isRequired,
     onChangeSettings: PropTypes.func.isRequired,
     displayConfigs: PropTypes.array,
+    denominatorLine: PropTypes.bool,
 };
 
 SettingsMenu.defaultProps = {
     displayConfigs: [],
+    denominatorLine: false,
 };
 
 export default SettingsMenu;

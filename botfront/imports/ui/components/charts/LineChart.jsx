@@ -21,7 +21,7 @@ function LineChart(props) {
                 yRel: d[measure.relative],
             })),
         }));
-   
+
     return (
         <>
             <ResponsiveLine

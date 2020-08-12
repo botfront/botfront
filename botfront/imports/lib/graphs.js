@@ -114,7 +114,7 @@ export const getDataToDisplayAndParamsToUse = ({
         axisLeft: { legendOffset: -46, legendPosition: 'middle', ...graphParams.axisLeft }, // default
         axisBottom: { legendOffset: 36, legendPosition: 'middle', ...graphParams.axisBottom }, // default
         ...graphParams,
-        y: [...(showDenominator && graphParams.y2 ? [graphParams.y2] : []), graphParams.y],
+        y: [graphParams.y, ...(showDenominator && graphParams.y2 ? [graphParams.y2] : [])],
     };
     
     if (valueType === 'relative') {
