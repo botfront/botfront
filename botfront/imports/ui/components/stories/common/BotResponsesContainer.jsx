@@ -38,6 +38,7 @@ const BotResponsesContainer = (props) => {
         responseLocations,
         loadingResponseLocations,
         router,
+        isNew,
     } = props;
     const {
         project: { _id: projectId },
@@ -63,7 +64,7 @@ const BotResponsesContainer = (props) => {
         Promise.resolve(initialValue).then((res) => {
             if (!res) return;
             setTemplate(res);
-            if (res.isNew) setFocus(0);
+            if (res.isNew && isNew !== false) setFocus(0);
         });
     }, [initialValue]);
 
@@ -245,11 +246,13 @@ BotResponsesContainer.propTypes = {
     responseLocations: PropTypes.array,
     loadingResponseLocations: PropTypes.bool,
     router: PropTypes.object.isRequired,
+    isNew: PropTypes.bool,
 };
 
 BotResponsesContainer.defaultProps = {
     deletable: true,
     name: null,
+    isNew: false,
     initialValue: null,
     onChange: () => {},
     onDeleteAllResponses: null,
