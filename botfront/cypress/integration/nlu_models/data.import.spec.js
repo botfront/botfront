@@ -13,8 +13,7 @@ describe('training data import', function() {
     });
 
     it('should import training data', function() {
-        cy.visit('/project/bf/settings');
-        cy.dataCy('project-settings-menu-import-export').click();
+        cy.visit('/project/bf/settings/import-export');
         cy.fixture('nlu_import.json', 'utf8').then((content) => {
             cy.dataCy('drop-zone-nlu-data').upload(content, 'data.json');
         });

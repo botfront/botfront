@@ -68,7 +68,7 @@ describe('story visual editor', function () {
         cy.dataCy('story-editor').find('.ace_line')
             .eq(2).invoke('text')
             .then((response) => {
-                cy.visit('/project/bf/dialogue/templates/');
+                cy.visit('/project/bf/responses/');
                 cy.get('.rt-tbody > :nth-child(2)')
                     .find('[role=row]')
                     .contains('[role=row]', response.replace('-', '').trim())

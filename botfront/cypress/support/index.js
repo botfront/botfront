@@ -151,7 +151,7 @@ Cypress.Commands.add('deleteNLUModel', (projectId, name, language) => {
 });
 
 Cypress.Commands.add('createResponse', (projectId, responseName) => {
-    cy.visit(`/project/${projectId}/dialogue/templates/add`);
+    cy.visit(`/project/${projectId}/responses/add`);
     cy.get('[data-cy=response-name] input').type(responseName);
     cy.get('.response-message-next.sequence-add-message').click();
     cy.get('.response-message-next.sequence-add-message')
@@ -162,7 +162,7 @@ Cypress.Commands.add('createResponse', (projectId, responseName) => {
 
 
 Cypress.Commands.add('openResponse', (projectId, responseName) => {
-    cy.visit(`/project/${projectId}/dialogue/templates`);
+    cy.visit(`/project/${projectId}/responses`);
     // Type bot response name in filter
     cy.get('[style="flex: 200 0 auto; width: 200px; max-width: 200px;"] > input').clear();
     cy.get('[style="flex: 200 0 auto; width: 200px; max-width: 200px;"] > input').type(responseName);
@@ -170,7 +170,7 @@ Cypress.Commands.add('openResponse', (projectId, responseName) => {
 });
 
 Cypress.Commands.add('deleteResponse', (projectId, responseName) => {
-    cy.visit(`/project/${projectId}/dialogue/templates`);
+    cy.visit(`/project/${projectId}/responses`);
     // Type bot response name in filter
     cy.get('[style="flex: 200 0 auto; width: 200px; max-width: 200px;"] > input').clear();
     cy.get('[style="flex: 200 0 auto; width: 200px; max-width: 200px;"] > input').type(responseName);

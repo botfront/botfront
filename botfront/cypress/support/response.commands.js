@@ -1,7 +1,7 @@
 /* global cy Cypress expect */
 
 Cypress.Commands.add('createResponseFromResponseMenu', (type = 'text', name = null) => {
-    cy.visit('/project/bf/dialogue/templates');
+    cy.visit('/project/bf/responses');
     cy.dataCy('create-response').click();
     cy.dataCy(`add-${type}-response`).click();
     if (name) {

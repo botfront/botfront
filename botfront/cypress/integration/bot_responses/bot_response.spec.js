@@ -67,7 +67,7 @@ describe('Bot responses', function() {
         addTextResponse('test_A', 'response two', true);
         cy.dataCy('response-name-error').should('exist');
         // verify the second response was not added
-        cy.visit('/project/bf/dialogue/templates');
+        cy.visit('/project/bf/responses');
         cy.dataCy('response-text').contains('response content').should('exist');
         cy.dataCy('response-text').contains('response two').should('not.exist');
     });
@@ -104,7 +104,7 @@ describe('Bot responses', function() {
     });
     
     it('should create a response using the response editor', function() {
-        cy.visit('/project/bf/dialogue/templates');
+        cy.visit('/project/bf/responses');
         addTextResponse('test_A', 'text content A');
         addTextResponse('test_CA', 'text content CA');
         addTextResponse('test_B', 'text content B');
@@ -177,7 +177,7 @@ describe('Bot responses', function() {
         cy.dataCy('toggle-force-open').find('[data-cy=toggled-true]').should('exist');
     });
     it('should be able to open other stories that use a response a story with that response', () => {
-        cy.visit('/project/bf/dialogue/templates');
+        cy.visit('/project/bf/responses');
         addTextResponse('utter_test', 'this is a test');
 
         cy.visit('/project/bf/stories');
