@@ -210,7 +210,7 @@ const IncomingContainer = withTracker((props) => {
         const defaultModelId = models.find(modelMatch => modelMatch.language === project.defaultLanguage)._id;
         if (!modelId || !project.nlu_models.includes(modelId)) {
             handleDefaultRoute(projectId);
-            model = NLUModels.findOne({ _id: defaultModelId });
+            model = NLUModels.findOne({ _id: defaultModelId || project.nlu_models[0] });
         } else {
             model = NLUModels.findOne({ _id: modelId });
         }
