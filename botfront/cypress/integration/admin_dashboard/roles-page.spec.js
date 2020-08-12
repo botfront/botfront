@@ -5,23 +5,11 @@ const roleDesc = 'description of test role';
 const permission = 'nlu-data:w';
 const editedRoleName = 'NewRole';
 
-const createRole = () => {
-    cy.visit('/admin/roles');
-    cy.dataCy('create-role').click();
-    cy.dataCy('role-name-input').click().type(roleName);
-    cy.dataCy('role-description-input').click().type(roleDesc);
-    cy.dataCy('role-children-dropdown').click();
-    cy.dataCy('role-children-dropdown').find('div').contains(permission).click();
-    cy.dataCy('role-children-dropdown').find('input').type('{esc}');
-    cy.dataCy('save-button').click();
-    cy.dataCy('save-button').should('have.text', 'Saved');
-};
-
 describe('can create, edit, and delete a role', () => {
     beforeEach(() => {
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
-            createRole();
+            cy.createRole(roleName, roleDesc, [permission]);
             cy.createUser('roleTestUser', 'roleTestUser@test.test', [roleName], 'bf');
         });
     });
@@ -29,6 +17,8 @@ describe('can create, edit, and delete a role', () => {
         cy.logout();
         cy.deleteUser('roleTestUser@test.test');
         cy.deleteRole(editedRoleName, 'global-admin');
+        // it might fail before renaming the role, so we need to cleanup the original role name
+        cy.deleteRole(roleName, 'global-admin'); 
         cy.deleteProject('bf');
     });
     it('should create, edit and delete a role', () => {

@@ -413,6 +413,7 @@ const StoriesWithTracker = withRouter(withTracker((props) => {
                     ...story,
                     _id: `${sg.smartGroup.prefix}_SMART_${story._id}`,
                     storyGroupId: sg._id,
+                    smart: true
                 }));
             smartStories = smartStories.concat(results);
             return { ...sg, children: results.map(({ _id }) => _id) };
