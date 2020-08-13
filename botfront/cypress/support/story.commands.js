@@ -58,7 +58,7 @@ Cypress.Commands.add('createStoryInGroup', ({ groupName = 'Groupo', storyName = 
         // we check that one node was indeed added
         cy.dataCy('story-group-menu-item').should('have.length', len + 1);
 
-        // this part might execute before the add story complete, that why we are checking the lenght just above
+        // this part might execute before the add story complete, that why we are checking the length just above
         // so we are sure that this will only be executed once the story has been added
         cy.dataCy('story-group-menu-item', groupName).then((n) => {
             if (n.next().attr('type') === 'story-group') cy.wrap([]).as('stories');
