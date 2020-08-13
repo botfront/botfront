@@ -65,7 +65,7 @@ export default function ImageThumbnail(props) {
                     )}
                 </div>
             </div>
-            <Image src={value || ''} size='small' alt='' />
+            <Image src={value || '/images/image-temp.svg'} size='small' alt='' />
             {modalOpen && (
                 <Modal
                     open
