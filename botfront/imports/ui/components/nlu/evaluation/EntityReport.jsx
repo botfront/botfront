@@ -207,7 +207,7 @@ export default class EntityReport extends React.Component {
                         entities={entities}
                     />
                 ),
-                className: 'left',
+                width: '100%',
                 style: { paddingTop: '20px' },
             },
             {
@@ -215,7 +215,7 @@ export default class EntityReport extends React.Component {
                 accessor: 'errorCode',
                 Header: 'Error Type',
                 Cell: errorCode => (
-                    <div className='error_text'>
+                    <div>
                         <p style={{ display: 'inline', color: 'red' }}>
                             {this.errorTypes[errorCode.value]}
                         </p>
@@ -224,7 +224,6 @@ export default class EntityReport extends React.Component {
                     </div>
                 ),
                 width: 200,
-                className: 'left',
                 style: { paddingTop: '20px' },
             },
         ];
@@ -237,7 +236,6 @@ export default class EntityReport extends React.Component {
                 accessor: 'entity',
                 Header: 'Entity',
                 Cell: e => <p>{e.value}</p>,
-                className: 'left',
             },
         ];
 
