@@ -421,7 +421,7 @@ const ImportRasaFiles = (props) => {
                         />
                     </div>
                     <div>
-                        <Button content='Import' primary onClick={handleImport} />
+                        <Button content='Import' data-cy='import-rasa-files' primary onClick={handleImport} />
                     </div>
                 </div>
             </Message>
