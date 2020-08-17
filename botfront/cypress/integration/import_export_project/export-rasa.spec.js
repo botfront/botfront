@@ -16,8 +16,7 @@ describe('Exporting a Project', function() {
 
     describe('Export UI', function() {
         it('should navigate the UI for exporting to Rasa/Rasa X', function() {
-            cy.visit('/project/bf/settings');
-            cy.contains('Import/Export').click();
+            cy.visit('/project/bf/settings/import-export');
             cy.dataCy('port-project-menu')
                 .find('.item')
                 .contains('Export')
@@ -40,8 +39,7 @@ describe('Exporting a Project', function() {
         it('should list project languages in the language dropdown', function() {
             // French should be available
             // English should not be available
-            cy.visit('/project/bf/settings');
-            cy.contains('Import/Export').click();
+            cy.visit('/project/bf/settings/import-export');
             cy.dataCy('port-project-menu')
                 .find('.item')
                 .contains('Export')
@@ -63,8 +61,7 @@ describe('Exporting a Project', function() {
                 .should('not.exist');
                 
             // add english to the project langauges
-            cy.contains('Project Info')
-                .click();
+            cy.visit('/project/bf/settings/info');
             cy.dataCy('language-selector')
                 .click()
                 .find('span')
@@ -74,7 +71,8 @@ describe('Exporting a Project', function() {
                 .click({ force: true });
             
             // english and french should be available
-            cy.contains('Import/Export').click();
+            cy.visit('/project/bf/settings/import-export');
+
             cy.dataCy('port-project-menu')
                 .find('.item')
                 .contains('Export')
