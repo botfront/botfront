@@ -44,8 +44,9 @@ const SearchBar = (props) => {
             },
         });
         setSearching(false);
-        setResults(data.stories.map(story => ({
-            title: story.title, _id: story._id, description: story.storyGroupId,
+        setResults(data.storiesSearch.map(story => ({
+            // fixes a warning in the dev console
+            title: story.title, _id: story._id, 'story-group-id': story.storyGroupId,
         })));
     }, 500), [language, projectId]);
 
@@ -125,7 +126,7 @@ const SearchBar = (props) => {
     };
 
     const renderSearchItem = (resultProps) => {
-        const { title, _id, description: storyGroupId } = resultProps;
+        const { title, _id, 'story-group-id': storyGroupId } = resultProps;
         const storyGroup = storyGroups.find(({ _id: gid }) => gid === storyGroupId);
         const isOpen = activeStories === _id || (Array.isArray(activeStories) && activeStories.includes(_id));
         return (

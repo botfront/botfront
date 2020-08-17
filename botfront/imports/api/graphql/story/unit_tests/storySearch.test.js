@@ -47,7 +47,7 @@ if (Meteor.isServer) {
     };
     const searchStories = async (language, queryString, reject) => {
         try {
-            const searchResult = await StoryResolver.Query.stories(null, {
+            const searchResult = await StoryResolver.Query.storiesSearch(null, {
                 projectId: 'bf',
                 language,
                 queryString,
