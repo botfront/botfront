@@ -26,22 +26,24 @@ ExampleTextComparison.propTypes = {
 
 export default class EntityReport extends React.Component {
     static getErrorCode(entity, prediction) {
+        if (!entity) return 3;
+
         if (_.isNull(prediction)) {
-            return 3;
+            return 2;
         }
 
         const overlap = EntityReport.getOverlap(entity, prediction);
         if (overlap === 0) {
-            return 3;
-        }
-        if (entity.entity !== prediction.entity) {
             return 2;
         }
-        if (entity.start !== prediction.start || entity.end !== prediction.end) {
+        if (entity.entity !== prediction.entity) {
             return 1;
         }
+        if (entity.start !== prediction.start || entity.end !== prediction.end) {
+            return 0;
+        }
 
-        return 0;
+        return null;
     }
 
     static getOverlap(entity1, entity2) {
@@ -62,6 +64,7 @@ export default class EntityReport extends React.Component {
     }
 
     static findClosestEntity(entity, collection) {
+        if (!entity) return null;
         let closest = null;
         let overlap = 0;
 
@@ -86,18 +89,18 @@ export default class EntityReport extends React.Component {
             expanded: {},
         };
 
-        this.errorTypes = ['Correct', 'Overlap', 'Mismatch', 'Not Found'];
+        this.errorTypes = ['Overlap', 'Mismatch', 'Not Found', 'Surprise 🎉'];
         this.errorInfo = [
-            'This field measures the portion of entities that were matched correctly, in both position and classification',
-            'These errors correspond to a correct classification but slightly incorrect token boundary',
-            'These indicate an overlapping token boundary but conflicting classification',
-            'Not found indicates either that the entity was missed entirely or appeared in a non-overlapping position in the text',
+            'Correct classification but slightly incorrect token boundary',
+            'Overlapping token boundary but conflicting classification',
+            'Either the entity was missed entirely or it appeared in a non-overlapping position in the text',
+            'An entity was predicted where there was supposed to be none',
         ];
         this.errorMessages = [
-            '',
-            'Incorrect token boundary for this entity',
-            'Incorrect classification for this entity',
+            'Incorrect token boundary for entity',
+            'Incorrect classification for entity',
             'No corresponding entity in prediction',
+            'Predicted entity not present in test utterance',
         ];
     }
 
@@ -125,57 +128,60 @@ export default class EntityReport extends React.Component {
         const { predictions } = this.props;
 
         predictions.forEach((p) => {
-            if (p.entities) {
-                p.entities.forEach((e) => {
-                    const { entity } = e;
+            const predictedEntities = (p.predicted_entities || []).filter(EntityUtils.filterDuckling);
+            const entitiesGold = p.entities || [];
+            const join = entitiesGold.reduce((acc, curr) => {
+                if (acc.some(a => a.entity === curr.entity)) return acc;
+                return [...acc, curr];
+            }, predictedEntities);
+            join.forEach((e) => {
+                const { entity } = e;
 
-                    if (_.indexOf(entities, entity) < 0) {
-                        entities.push(entity);
-                        this.setState({ entities });
-                    }
+                if (_.indexOf(entities, entity) < 0) {
+                    entities.push(entity);
+                    this.setState({ entities });
+                }
 
-                    // Load entity stat entry for display
-                    if (_.find(statEntities, { entity }) === undefined) {
-                        statEntities.push({
-                            entity,
-                            failed_examples: [],
-                            errorCount: [0, 0, 0, 0], // One for each error code (see getErrorCode)
-                        });
-                    }
+                // Load entity stat entry for display
+                if (_.find(statEntities, { entity }) === undefined) {
+                    statEntities.push({
+                        entity,
+                        failed_examples: [],
+                        errorCount: [0, 0, 0, 0], // One for each error code (see getErrorCode)
+                    });
+                }
 
-                    // The row to modify
-                    const statEntity = _.find(statEntities, { entity });
+                // The row to modify
+                const statEntity = _.find(statEntities, { entity });
 
-                    const prediction = EntityReport.findClosestEntity(
-                        e,
-                        p.predicted_entities.filter(EntityUtils.filterDuckling),
-                    );
-                    const errorCode = EntityReport.getErrorCode(e, prediction);
+                const entityGold = entitiesGold.find(eg => eg.entity === entity);
 
-                    statEntity.errorCount[errorCode] += 1;
-                    if (errorCode > 0) {
-                        // Some error has occurred
-                        const intent = p.intent || 'none';
-                        const predicted = p.predicted || 'none';
-                        const { text } = p;
+                const prediction = EntityReport.findClosestEntity(
+                    entityGold, predictedEntities,
+                );
+                const errorCode = EntityReport.getErrorCode(entityGold, prediction);
 
-                        statEntity.failed_examples.push({
-                            intent,
-                            example: {
-                                text,
-                                intent,
-                                entities: [e],
-                            },
-                            prediction: {
-                                text,
-                                intent: predicted,
-                                entities: prediction ? [prediction] : [],
-                            },
-                            errorCode,
-                        });
-                    }
+                statEntity.errorCount[errorCode] += 1;
+
+                const intent = p.intent || 'none';
+                const predicted = p.predicted || 'none';
+                const { text } = p;
+
+                statEntity.failed_examples.push({
+                    intent,
+                    example: {
+                        text,
+                        intent,
+                        entities: entitiesGold,
+                    },
+                    prediction: {
+                        text,
+                        intent: predicted,
+                        entities: predictedEntities || [],
+                    },
+                    errorCode,
                 });
-            }
+            });
         });
         return statEntities;
     }
@@ -256,7 +262,6 @@ export default class EntityReport extends React.Component {
                     ).toFixed(2)}%`}
                     </p>
                 ),
-                className: 'right',
                 sortMethod: (a, b) => {
                     const aValue = a.errorCount[i] / _.sum(a.errorCount);
                     const bValue = b.errorCount[i] / _.sum(b.errorCount);
@@ -279,7 +284,6 @@ export default class EntityReport extends React.Component {
             accessor: e => e,
             Header: 'Total',
             Cell: e => <p>{_.sum(e.value.errorCount)}</p>,
-            className: 'right',
             sortMethod: (a, b /* , desc */) => {
                 const aValue = _.sum(a.errorCount);
                 const bValue = _.sum(b.errorCount);
