@@ -9,7 +9,7 @@ const IconButton = React.forwardRef((props, ref) => {
 
     return (
         <Button
-            ref={ref}
+            {...(ref ? { ref } : {})}
             size={size}
             onClick={onClick}
             onMouseDown={onMouseDown}

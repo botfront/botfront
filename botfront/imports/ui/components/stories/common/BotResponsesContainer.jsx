@@ -4,7 +4,9 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import {
-    Placeholder, Dropdown,
+    Dropdown,
+    Placeholder,
+    Popup,
 } from 'semantic-ui-react';
 import { useMutation } from '@apollo/react-hooks';
 import { safeLoad } from 'js-yaml';
@@ -22,6 +24,7 @@ import {
 } from '../../../../lib/botResponse.utils';
 import BotResponseName from './BotResponseName';
 import { RESP_FROM_LANG } from '../graphql/mutations';
+import ConfirmPopup from '../../common/ConfirmPopup';
 
 export const ResponseContext = React.createContext();
 
@@ -59,6 +62,7 @@ const BotResponsesContainer = (props) => {
     const [editorOpen, setEditorOpen] = useState(false);
     const [toBeCreated, setToBeCreated] = useState(null);
     const [focus, setFocus] = useState(null);
+    const [deletePopupOpen, setDeletePopupOpen] = useState(false);
     const typeName = useMemo(() => template && template.__typename, [template]);
 
     useEffect(() => {
@@ -225,8 +229,30 @@ const BotResponsesContainer = (props) => {
                             renameable={false}
                         />
                     )}
-                    { deletable && onDeleteAllResponses && (
-                        <IconButton onClick={onDeleteAllResponses} icon='trash' />
+                    {deletable && onDeleteAllResponses && (
+                        <>
+                            <Popup
+                                trigger={<span><IconButton onMouseDown={() => {}} icon='trash' /></span>}
+                                content={(
+                                    <ConfirmPopup
+                                        title='Delete response?'
+                                        description={responseLocations.length > 1
+                                            ? 'Remove this response from the current story'
+                                            : 'Remove this response from the current story and delete it'
+                                        }
+                                        onYes={() => {
+                                            setDeletePopupOpen(false);
+                                            onDeleteAllResponses();
+                                        }}
+                                        onNo={() => setDeletePopupOpen(false)}
+                                    />
+                                )}
+                                on='click'
+                                open={deletePopupOpen}
+                                onOpen={() => setDeletePopupOpen(true)}
+                                onClose={() => setDeletePopupOpen(false)}
+                            />
+                        </>
                     )}
                 </div>
                 {renderDynamicResponseName()}
