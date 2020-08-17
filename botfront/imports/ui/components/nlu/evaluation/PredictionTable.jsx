@@ -71,7 +71,6 @@ export default function PredictionTable(props) {
             accessor: p => Math.round(p.confidence * 100) / 100,
             Header: 'Conf.',
             resizable: false,
-            className: 'right',
             width: 60,
         },
     ];

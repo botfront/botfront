@@ -34,7 +34,6 @@ export default function ReportTable(props) {
                     />
                 </div>
             ),
-            className: 'right',
             filterable: false,
             width: 100,
         },
@@ -49,7 +48,6 @@ export default function ReportTable(props) {
                     />
                 </div>
             ),
-            className: 'right',
             filterable: false,
             width: 100,
         },
@@ -64,7 +62,6 @@ export default function ReportTable(props) {
                     />
                 </div>
             ),
-            className: 'right',
             filterable: false,
             width: 100,
         },
@@ -79,7 +76,6 @@ export default function ReportTable(props) {
                     />
                 </div>
             ),
-            className: 'right',
             filterable: false,
             width: 100,
         },
