@@ -9,7 +9,7 @@ type Query {
         order: order
         sortKey: String
         pageSize: Int
-        cursor: String
+        cursor: Int
     ): ExamplePage
     listIntents(
         projectId: String!
@@ -23,14 +23,14 @@ type Query {
 
 
 type Mutation {
-    updateExample(id: String!, example: ExampleInput!): [Example]
-    insertExamples(examples: [ExampleInput]): [Example]
+    updateExample(id: String!, example: ExampleInput!): updateResponse
+    insertExamples(examples: [ExampleInput]): updateResponse
     deleteExamples(ids: [String]!): updateResponse
 }
 
 type ExamplePage {
     examples:[Example]
-    pages: PageInfo
+    pageInfo: PageInfo
 }
 
 enum order {
@@ -56,7 +56,7 @@ input ExampleInput {
     language: String,
     text: String,
     intent: String,
-    entities: [Entity],
+    entities: [EntityInput],
     metadata: Any
 }
 

@@ -1,7 +1,7 @@
 import shortid from 'shortid';
 import Examples from '../examples.model.js';
 
-const createSortObject = (fieldName, order) => {
+const createSortObject = (fieldName = 'intent', order = 'ASC') => {
     const orderMongo = order === 'ASC' ? 1 : -1;
     const sortObject = { [fieldName]: orderMongo };
     return sortObject;
@@ -41,9 +41,9 @@ export const getExamples = async ({
     entities = [],
     text = '',
     onlyCanonicals = false,
-    order = '',
-    sortKey = '',
-    cursor = '', // a generic name for the current page
+    order = undefined,
+    sortKey = undefined,
+    cursor = 1, // cursor is  a generic name for the current "page"
 }) => {
     const filtersObject = createFilterObject(projectId, language, intents, entities, onlyCanonicals, text);
     const sortObject = createSortObject(sortKey, order);
@@ -55,7 +55,6 @@ export const getExamples = async ({
     const pagesNb = pageSize > -1 ? Math.ceil(numberOfDocuments / pageSize) : 1;
     const boundedPageNb = Math.min(pagesNb, cursor);
     const limit = pageSize > -1 ? { limit: pageSize } : {};
-
     const examples = await Examples.find(
         {
             ...filtersObject,
@@ -70,7 +69,7 @@ export const getExamples = async ({
 
     return {
         examples,
-        pages: {
+        pageInfo: {
             hasNextPage: pagesNb > cursor,
             endCursor: cursor + 1,
         },
@@ -87,7 +86,7 @@ export const listIntents = async ({ projectId, language }) => {
 
 export const listEntities = async ({ projectId, language }) => {
     const examples = await Examples.find({ projectId, language }).select({ entities: 1 }).lean();
-    const entitiesList = examples.map(example => example.entities.map(entity => entity)).flat();
+    const entitiesList = examples.map(example => example.entities.map(entity => entity.entity)).flat();
     const entitiesSet = new Set(entitiesList);
     return Array.from(entitiesSet);
 };
@@ -97,11 +96,13 @@ export const insertExamples = async ({ examples }) => {
         ...example, createdAt: new Date(), updatedAt: new Date(), _id: shortid.generate(),
     }));
     try {
-        await Examples.insertMany(preparedExamples);
-        return preparedExamples;
+        const result = await Examples.insertMany(preparedExamples);
+        if (result.length !== examples.length) {
+            throw new Error('Insert failed');
+        }
+        return { success: true };
     } catch (e) {
-        // TODO error details
-        return new Error('');
+        return { success: false };
     }
 };
 
@@ -109,10 +110,12 @@ export const insertExamples = async ({ examples }) => {
 export const updateExample = async ({ id, example }) => {
     try {
         const result = await Examples.updateOne({ _id: id }, { $set: { ...example, updatedAt: new Date() } }).exec();
-        return result;
+        if (result.nModified === 0 || result.ok === 0) {
+            throw new Error('Update failed');
+        }
+        return { success: true, _id: id };
     } catch (e) {
-        // TODO error details
-        return new Error('');
+        return { success: false, _id: id };
     }
 };
 
@@ -120,9 +123,11 @@ export const updateExample = async ({ id, example }) => {
 export const deleteExamples = async ({ ids }) => {
     try {
         const result = await Examples.deleteMany({ _id: { $in: ids } }).exec();
-        return result;
+        if (result.deletedCount !== ids.length) {
+            throw new Error('Issue during delete');
+        }
+        return { success: true };
     } catch (e) {
-        // TODO error details
-        return new Error('');
+        return { success: false };
     }
 };
