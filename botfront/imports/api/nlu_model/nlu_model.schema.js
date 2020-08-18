@@ -33,7 +33,8 @@ export const TrainingExampleSchema = new SimpleSchema({
 });
 
 export const TrainingDataSchema = new SimpleSchema({
-    common_examples: { type: Array, defaultValue: [] },
+    common_examples: { type: Array, defaultValue: [], optional: true },
+
     'common_examples.$': TrainingExampleSchema,
 
     entity_synonyms: { type: Array, defaultValue: [] },

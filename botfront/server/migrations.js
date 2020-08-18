@@ -1,19 +1,21 @@
 import { sortBy, isEqual } from 'lodash';
 import { safeDump, safeLoad } from 'js-yaml';
+import shortid from 'shortid';
 import { GlobalSettings } from '../imports/api/globalSettings/globalSettings.collection';
 import { Projects } from '../imports/api/project/project.collection';
 import { Stories } from '../imports/api/story/stories.collection';
+import { NLUModels } from '../imports/api/nlu_model/nlu_model.collection';
 import { StoryGroups } from '../imports/api/storyGroups/storyGroups.collection';
 import { aggregateEvents } from '../imports/lib/story.utils';
 import { indexBotResponse } from '../imports/api/graphql/botResponses/mongo/botResponses';
+import Examples from '../imports/api/graphql/examples/examples.model';
 import { indexStory } from '../imports/api/story/stories.index';
 import Activity from '../imports/api/graphql/activity/activity.model';
-
 /* globals Migrations */
 
 Migrations.add({
     version: 1,
-    up: () => {},
+    up: () => { },
 });
 
 Migrations.add({
@@ -54,7 +56,7 @@ const migrateResponses = () => {
                     const newTemplates = [];
                     const duplicates = [];
                     templates.forEach((t, index) => {
-                    // Delete irrelevant fields and set new _id
+                        // Delete irrelevant fields and set new _id
                         delete t.match;
                         delete t.followUp;
                         t.projectId = p._id;
@@ -262,7 +264,7 @@ Migrations.add({
         // start migration
         const responses = await BotResponses.find().lean();
         if (!responses || !responses.length) return;
-        
+
         const updatedResponses = responses.reduce((buttonResponses, response) => {
             try {
                 const values = response.values.map(value => ({
@@ -283,6 +285,37 @@ Migrations.add({
         });
     },
 });
+
+Migrations.add({
+    version: 11,
+    up: async () => {
+        const projects = await Projects.find({}, { fields: { nlu_models: 1, _id: 1 } });
+        projects.forEach((project) => {
+            const NluModels = NLUModels.find({ _id: { $in: project.nlu_models } });
+            NluModels.forEach((nluModel) => {
+                const { language, training_data: { common_examples: examples = [] } } = nluModel;
+                const preparedExamples = examples.map((example) => {
+                    const isCanonical = example.canonical;
+                    // eslint-disable-next-line no-param-reassign
+                    delete example.canonical;
+                    return {
+                        ...example,
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                        projectId: project._id,
+                        language,
+                        metadata: { canonical: isCanonical },
+                        _id: shortid.generate(),
+                    };
+                });
+                Examples.insertMany(preparedExamples);
+            });
+            NLUModels.update({ _id: { $in: project.nlu_models } }, { $unset: { 'training_data.common_examples': '' } }, { multi: true });
+        });
+    },
+});
+
+
 Meteor.startup(() => {
     Migrations.migrateTo('latest');
 });
