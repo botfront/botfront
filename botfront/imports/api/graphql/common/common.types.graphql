@@ -15,6 +15,17 @@ type batchMutationOutput {
     failed: [String]
 }
 
+
+type Entity {
+    entity: String,
+    value: String,
+    start: Int,
+    end: Int,
+    confidence: Float,
+    extractor: String,
+    processors: [String],
+}
+
 type updateResponse {
     success: Boolean!
     _id: String

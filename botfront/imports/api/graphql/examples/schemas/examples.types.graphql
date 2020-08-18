@@ -1,0 +1,62 @@
+type Query {
+    examples(
+        projectId: String!
+        language: String!
+        intents: [String]
+        entities:[String]
+        onlyCanonical: Boolean
+        text: String
+        order: order
+        sortKey: String
+        pageSize: Int
+        cursor: String
+    ): ExamplePage
+    listIntents(
+        projectId: String!
+        language: String!): 
+        [String]
+    listEntities(
+        projectId: String!
+        language: String!):
+        [String]
+}
+
+
+type Mutation {
+    updateExample(id: String!, example: ExampleInput!): [Example]
+    insertExamples(examples: [ExampleInput]): [Example]
+    deleteExamples(ids: [String]!): updateResponse
+}
+
+type ExamplePage {
+    examples:[Example]
+    pages: PageInfo
+}
+
+enum order {
+    ASC
+    DESC
+}
+
+
+type Example {
+    id: String,
+    projectId: String,
+    language: String,
+    text: String,
+    intent: String,
+    entities: [Entity],
+    metadata: Any
+}
+
+
+input ExampleInput {
+    id: String,
+    projectId: String,
+    language: String,
+    text: String,
+    intent: String,
+    entities: [Entity],
+    metadata: Any
+}
+
