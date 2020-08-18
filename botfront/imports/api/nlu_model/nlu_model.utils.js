@@ -4,8 +4,10 @@ import moment from 'moment';
 import {
     uniqBy, differenceBy, sortBy, uniq,
 } from 'lodash';
+import { safeDump } from 'js-yaml';
 import { NLUModels } from './nlu_model.collection';
 import { languages } from '../../lib/languages';
+import { Projects } from '../project/project.collection';
 
 export const isTraining = (project) => {
     const {
@@ -87,4 +89,66 @@ export const canonicalizeExamples = async (items, modelId) => {
     });
 
     return canonicalizedItems;
+};
+
+export const nluExampleSorter = (a, b) => {
+    if ((a.canonical || b.canonical) && a.canonical !== b.canonical) {
+        return (b.canonical || false - a.canonical || false);
+    }
+    if (a.intent < b.intent) return -1;
+    if (a.intent > b.intent) return 1;
+    if (a.text < b.text) return -1;
+    if (a.text > b.text) return 1;
+    return 0;
+};
+
+export const nluSorterIgnoreCanonical = (a, b) => {
+    if (a.intent < b.intent) return -1;
+    if (a.intent > b.intent) return 1;
+    if (a.text < b.text) return -1;
+    if (a.text > b.text) return 1;
+    return 0;
+};
+
+const convertNluToYaml = (examples, language) => {
+    const sortedExamples = examples.sort(nluSorterIgnoreCanonical);
+    // THIS REDUCE FUNCTION IS DEPENDANT ON THE NLU BEING SORTED BY nluSorterIgnoreCanonical!!!!!
+    const nluData = sortedExamples.reduce((acc, current) => {
+        const { intent, text, canonical } = current;
+        if (acc.nlu[acc.currentIndex] && intent !== acc.nlu[acc.currentIndex].intent) {
+            /*  Skip to the next element of the array when the intent changes.
+                Examples for a single intent are all grouped as a result of the
+                sort.
+            */
+            acc.currentIndex += 1;
+        }
+        if (!acc.nlu[acc.currentIndex]) acc.nlu[acc.currentIndex] = { intent, examples: [] };
+        /* canonical examples have their own field so they are not lost
+           when exported in rasa format */
+        if (canonical) acc.canonical.push(text);
+        acc.nlu[acc.currentIndex].examples.push(text);
+        return acc;
+    }, {
+        nlu: [], lang: language, canonical: [], currentIndex: 0,
+    });
+    delete nluData.currentIndex;
+    return safeDump(nluData);
+};
+export const generateNluYaml = (projectId, language) => {
+    const { nlu_models: nluModels } = Projects.findOne({ _id: projectId });
+    const models = NLUModels.find({
+        _id: { $in: nluModels },
+        ...(language === 'all' ? {} : { language }),
+    }).fetch();
+    return models.reduce((acc, model) => (
+        {
+            ...acc,
+            [model.language]: {
+                data: convertNluToYaml(
+                    model.training_data.common_examples,
+                    model.language,
+                ),
+            },
+        }
+    ), {});
 };

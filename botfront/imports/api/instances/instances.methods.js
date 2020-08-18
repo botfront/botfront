@@ -18,6 +18,7 @@ import { CorePolicies } from '../core_policies';
 import { Evaluations } from '../nlu_evaluation';
 import Activity from '../graphql/activity/activity.model';
 import { getStoriesAndDomain } from '../../lib/story.utils';
+import { nluExampleSorter } from '../nlu_model/nlu_model.utils';
 
 
 export const createInstance = async (project) => {
@@ -78,7 +79,7 @@ export const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents 
         }
     }
     common_examples = common_examples
-        .sort((a, b) => b.canonical || false - a.canonical || false);
+        .sort(nluExampleSorter);
 
     const entity_synonyms = withSynonyms && model.training_data.entity_synonyms ? model.training_data.entity_synonyms.map(copyAndFilter) : [];
     const gazette = withGazette && model.training_data.fuzzy_gazette ? model.training_data.fuzzy_gazette.map(copyAndFilter) : [];
@@ -239,7 +240,7 @@ if (Meteor.isServer) {
                         output_format: 'md',
                         language: currentLang,
                     });
-                    const canonical = nluModels[i].training_data.common_examples.filter(e => e.canonical).map(e => e.text);
+                    const canonical = nluModels[i].training_data.common_examples.filter(e => e.canonical).sort(nluExampleSorter).map(e => e.text);
                     const canonicalText = canonical.length
                         ? `\n\n# canonical\n- ${canonical.join('\n- ')}`
                         : '';

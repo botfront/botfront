@@ -8,6 +8,7 @@ import { Credentials } from '../credentials';
 import { Instances } from '../instances/instances.collection';
 
 import { generateErrorText } from './importExport.utils';
+import { generateNluYaml } from '../nlu_model/nlu_model.utils';
 
 if (Meteor.isServer) {
     import {
@@ -43,9 +44,10 @@ if (Meteor.isServer) {
 
             return exportRequest;
         },
-        async exportRasa(projectId, language) {
+        async exportRasa(projectId, language, exportType = 'yaml') {
             check(projectId, String);
             check(language, String);
+
 
             const passedLang = language === 'all' ? {} : { language };
             const instance = await Instances.findOne({ projectId });
@@ -64,6 +66,7 @@ if (Meteor.isServer) {
                 { ...passedLang, joinStoryFiles: false },
             );
 
+            const nlu = exportType === 'yaml' && generateNluYaml(projectId, language);
             const exportData = {
                 config:
                     language === 'all'
@@ -74,8 +77,8 @@ if (Meteor.isServer) {
                 endpoints: endpoints.endpoints,
                 nlu:
                     language === 'all'
-                        ? rasaData.nlu
-                        : { [language]: rasaData.nlu[language] },
+                        ? exportType === 'yaml' ? nlu : rasaData.nlu
+                        : { [language]: exportType === 'yaml' ? nlu[language] : rasaData.nlu[language] },
                 stories: rasaData.stories,
             };
             return exportData;

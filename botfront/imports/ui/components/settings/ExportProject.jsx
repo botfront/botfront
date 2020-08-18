@@ -11,6 +11,7 @@ import {
 import { Projects } from '../../../api/project/project.collection';
 
 import { getNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
+import ToggleButtonGroup from '../common/ToggleButtonGroup';
 
 const ExportProject = ({
     projectId, projectLanguages, setLoading, apiHost, workingLanguage,
@@ -43,6 +44,7 @@ const ExportProject = ({
         endpoints: [...useState(false), 'Export endpoints'],
         instances: [...useState(false), 'Export instances'],
     };
+    const [rasaExportFormat, setRasaExportFormat] = useState('md');
 
     const projectDataCols = [
         'models',
@@ -139,7 +141,7 @@ const ExportProject = ({
 
     const exportForRasa = () => {
         setLoading(true);
-        Meteor.call('exportRasa', projectId, exportLanguage, (err, rasaData) => {
+        Meteor.call('exportRasa', projectId, exportLanguage, rasaExportFormat, (err, rasaData) => {
             if (err) {
                 setErrorMessage({ header: 'Rasa Export Failed!', text: err.message });
                 setExportSuccessful(false);
@@ -165,7 +167,7 @@ const ExportProject = ({
                     Object.keys(rasaData.nlu).forEach(k => rasaZip.addFile(rasaData.nlu[k].data, `data/nlu/${k}.md`));
                 } else {
                     rasaZip.addFile(rasaData.config[exportLanguage], 'config.yml');
-                    rasaZip.addFile(rasaData.nlu[exportLanguage].data, 'data/nlu.md');
+                    rasaZip.addFile(rasaData.nlu[exportLanguage].data, `data/nlu.${rasaExportFormat}`);
                 }
                 rasaZip.addFile(rasaData.endpoints, 'endpoints.yml');
                 rasaZip.addFile(rasaData.credentials, 'credentials.yml');
@@ -294,7 +296,20 @@ const ExportProject = ({
                             setExportLanguage(value);
                         }}
                     />
-                    <br />
+                    <div className='nlu-format-options'>
+                        <span className='nlu-format-label'>NLU file format</span>
+                        <ToggleButtonGroup
+                            inline
+                            options={[
+                                { text: 'yaml', value: 'yaml' },
+                                { text: 'md', value: 'md' },
+                            ]}
+                            onChange={newFormat => setRasaExportFormat(newFormat)}
+                            value={rasaExportFormat}
+                            optionsAreExclusive
+                            compact
+                        />
+                    </div>
                 </>
             )}
             <br />
