@@ -6,7 +6,6 @@ const model = new Schema({
     createdAt: Date,
     updatedAt: Date,
     projectId: String,
-    language: String,
     text: String,
     intent: String,
     entities: [{

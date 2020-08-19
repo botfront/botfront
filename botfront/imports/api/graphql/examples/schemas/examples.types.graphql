@@ -42,7 +42,6 @@ enum order {
 type Example {
     id: String,
     projectId: String,
-    language: String,
     text: String,
     intent: String,
     entities: [Entity],
@@ -53,7 +52,6 @@ type Example {
 input ExampleInput {
     id: String,
     projectId: String,
-    language: String,
     text: String,
     intent: String,
     entities: [EntityInput],

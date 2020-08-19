@@ -303,8 +303,7 @@ Migrations.add({
                         createdAt: new Date(),
                         updatedAt: new Date(),
                         projectId: project._id,
-                        language,
-                        metadata: { canonical: isCanonical },
+                        metadata: { canonical: isCanonical, language },
                         _id: shortid.generate(),
                     };
                 });

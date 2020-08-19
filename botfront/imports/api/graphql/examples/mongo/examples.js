@@ -8,7 +8,8 @@ const createSortObject = (fieldName = 'intent', order = 'ASC') => {
 };
 
 const createFilterObject = (projectId, language, intents, entities, onlyCanonicals, text) => {
-    const filters = { projectId, language };
+    const filters = { projectId };
+    filters['metadata.language'] = language;
 
     if (intents && intents.length > 0) {
         filters.intent = {
@@ -78,14 +79,14 @@ export const getExamples = async ({
 
 
 export const listIntents = async ({ projectId, language }) => {
-    const examples = await Examples.find({ projectId, language }).select({ intent: 1 }).lean();
+    const examples = await Examples.find({ projectId, 'metadata.language': language }).select({ intent: 1 }).lean();
     const intentsList = examples.map(example => example.intent);
     const intentsSet = new Set(intentsList);
     return Array.from(intentsSet);
 };
 
 export const listEntities = async ({ projectId, language }) => {
-    const examples = await Examples.find({ projectId, language }).select({ entities: 1 }).lean();
+    const examples = await Examples.find({ projectId, 'metadata.language': language }).select({ entities: 1 }).lean();
     const entitiesList = examples.map(example => example.entities.map(entity => entity.entity)).flat();
     const entitiesSet = new Set(entitiesList);
     return Array.from(entitiesSet);
