@@ -1,6 +1,6 @@
 {
   "name": "botfront",
-  "version": "0.25.9",
+  "version": "0.26.0-rc.1",
   "repository": "https://github.com/botfront/botfront",
   "license": "AGPL-3.0-only",
   "scripts": {
@@ -94,7 +94,7 @@
     "shortid": "^2.2.8",
     "simpl-schema": "^1.5.5",
     "slugify": "^1.3.4",
-    "standard-version": "^8.0.1",
+    "standard-version": "^9.0.0",
     "styled-components": "^3.4.10",
     "uniforms": "^2.6.2",
     "uniforms-bridge-graphql": "^2.6.2",
