@@ -89,7 +89,7 @@ export default class EntityReport extends React.Component {
             expanded: {},
         };
 
-        this.errorTypes = ['Overlap', 'Mismatch', 'Not Found', 'Surprise 🎉'];
+        this.errorTypes = ['Overlap', 'Mismatch', 'Not Found', 'Surprise'];
         this.errorInfo = [
             'Correct classification but slightly incorrect token boundary',
             'Overlapping token boundary but conflicting classification',
