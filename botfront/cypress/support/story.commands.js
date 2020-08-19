@@ -47,20 +47,29 @@ Cypress.Commands.add('createStoryGroup', ({ groupName = 'Groupo' } = {}) => {
 
 Cypress.Commands.add('createStoryInGroup', ({ groupName = 'Groupo', storyName = null } = {}) => {
     findGroupAndOpenIfClosed(groupName);
+    cy.dataCy('story-group-menu-item').then((storyItems) => {
+        // count of nodes in the tree
+        const len = storyItems.length;
    
-    cy.dataCy('story-group-menu-item', groupName)
-        .findCy('add-story-in-story-group')
-        .click({ force: true });
+        cy.dataCy('story-group-menu-item', groupName)
+            .findCy('add-story-in-story-group')
+            .click({ force: true });
+        
+        // we check that one node was indeed added
+        cy.dataCy('story-group-menu-item').should('have.length', len + 1);
 
-    cy.dataCy('story-group-menu-item', groupName).then((n) => {
-        if (n.next().attr('type') === 'story-group') cy.wrap([]).as('stories');
-        else cy.wrap(n.nextUntil('[type="story-group"]')).as('stories');
-        cy.get('@stories').then((stories) => {
-            cy.dataCy('story-group-menu-item').contains(`${groupName} (${stories.length})`);
-            findStoryAndSelect(`${groupName} (${stories.length})`, 'new-story');
+        // this part might execute before the add story complete, that why we are checking the length just above
+        // so we are sure that this will only be executed once the story has been added
+        cy.dataCy('story-group-menu-item', groupName).then((n) => {
+            if (n.next().attr('type') === 'story-group') cy.wrap([]).as('stories');
+            else cy.wrap(n.nextUntil('[type="story-group"]')).as('stories');
+            cy.get('@stories').then((stories) => {
+                cy.dataCy('story-group-menu-item').contains(`${groupName} (${stories.length})`);
+                findStoryAndSelect(`${groupName} (${stories.length})`, 'new-story');
+            });
+
+            if (storyName) renameStoryOrGroup('new-story', storyName);
         });
-
-        if (storyName) renameStoryOrGroup('new-story', storyName);
     });
 });
 

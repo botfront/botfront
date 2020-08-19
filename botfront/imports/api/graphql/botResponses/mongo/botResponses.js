@@ -4,9 +4,10 @@ import { safeLoad } from 'js-yaml';
 import BotResponses from '../botResponses.model';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { Stories } from '../../../story/stories.collection';
-import { addTemplateLanguage, modifyResponseType } from '../../../../lib/botResponse.utils';
+import { addTemplateLanguage, modifyResponseType, parseContentType } from '../../../../lib/botResponse.utils';
 import { parsePayload } from '../../../../lib/storyMd.utils';
 import { replaceStoryLines } from '../../story/mongo/stories';
+
 
 const indexResponseContent = (input) => {
     if (Array.isArray(input)) return input.reduce((acc, curr) => [...acc, ...indexResponseContent(curr)], []);
@@ -285,4 +286,25 @@ export const deleteResponsesRemovedFromStories = (removedResponses, projectId) =
         });
         deleteResponses.forEach(event => deleteResponse(projectId, event));
     }
+};
+
+
+export const langToLangResp = async ({
+    projectId, key, originLang, destLang,
+}) => {
+    const response = await BotResponses.findOne({ key }).lean();
+    const langsValues = response.values;
+    const originRespIdx = langsValues.findIndex(langValue => langValue.lang === originLang);
+    // copy response content to temp array
+    const newResponseInDestLang = langsValues[originRespIdx].sequence;
+    const destRespIdx = langsValues.findIndex(langValue => langValue.lang === destLang);
+    // if the lang was already defined we replace it
+    if (destRespIdx !== -1) {
+        langsValues[destRespIdx] = ({ lang: destLang, sequence: newResponseInDestLang });
+    } else {
+        langsValues.push({ lang: destLang, sequence: newResponseInDestLang });
+    }
+    response.values = langsValues;
+    await upsertFullResponse(projectId, response._id, key, response);
+    return response;
 };
