@@ -28,10 +28,6 @@ policies:
     excluded_intents:
       - ^chitchat\..*
       - ^basics\..*
-  - name: rasa_addons.core.policies.BotfrontMappingPolicy
-    triggers:
-      - trigger: '^map\..+'
-        action: 'action_botfront_mapping'
 defaultDomain:
   slots:
     disambiguation_message:
