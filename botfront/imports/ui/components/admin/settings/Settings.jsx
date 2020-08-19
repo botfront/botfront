@@ -330,6 +330,8 @@ class Settings extends React.Component {
 
 Settings.propTypes = {
     settings: PropTypes.object,
+    // ⚠️ Don't remove this, it is used on OS
+    // eslint-disable-next-line react/no-unused-prop-types
     projectId: PropTypes.string.isRequired,
     router: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,

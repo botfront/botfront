@@ -44,7 +44,7 @@ class ProjectSidebar extends React.Component {
                         </Link>
                     </Can>
                     <Can I='responses:r' projectId={projectId}>
-                        <Link to={`/project/${projectId}/dialogue/templates`}>
+                        <Link to={`/project/${projectId}/responses`}>
                             <Menu.Item name='Responses' icon='comment' />
                         </Link>
                     </Can>

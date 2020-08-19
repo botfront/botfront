@@ -62,8 +62,7 @@ describe('Exporting a Project', function() {
                 .should('not.exist');
                 
             // add english to the project langauges
-            cy.contains('Project Info')
-                .click();
+            cy.visit('/project/bf/settings/info');
             cy.dataCy('language-selector')
                 .click()
                 .find('span')

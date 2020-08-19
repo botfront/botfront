@@ -120,7 +120,7 @@ const ChatDemo = (props) => {
                     socketPath={widgetProps.socketPath}
                     inputTextFieldHint='Try out your chatbot...'
                     hideWhenNotConnected={false}
-                    customData={{ language }}
+                    customData={{ language, userId: 'BillyBoy' }}
                     embedded
                     customMessageDelay={() => 0}
                     key={updateKey}

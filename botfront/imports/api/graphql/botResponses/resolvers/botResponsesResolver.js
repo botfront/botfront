@@ -10,6 +10,7 @@ import {
     getBotResponseById,
     upsertResponse,
     updateResponseType,
+    langToLangResp,
 } from '../mongo/botResponses';
 import { checkIfCan } from '../../../../lib/scopes';
 import { auditLog } from '../../../../../server/logger';
@@ -174,6 +175,14 @@ export default {
                 botResponsesModified: response,
             });
             return { success: !!response };
+        },
+        async importRespFromLang(_, args, auth) {
+            const response = await langToLangResp(args);
+            pubsub.publish(RESPONSES_MODIFIED, {
+                projectId: args.projectId,
+                botResponsesModified: response,
+            });
+            return response;
         },
     },
     BotResponse: {

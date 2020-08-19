@@ -206,7 +206,7 @@ class Routes extends React.Component {
                                         onEnter={authenticate('incoming:r')}
                                     />
                                     <Route path='/project/:project_id/stories' component={StoriesContainer} name='Stories' onEnter={authenticate('stories:r')} />
-                                    <Route path='/project/:project_id/dialogue/templates' component={TemplatesContainer} name='Templates' onEnter={authenticate('responses:r')} />
+                                    <Route path='/project/:project_id/responses' component={TemplatesContainer} name='Templates' onEnter={authenticate('responses:r')} />
                                     <Route path='/project/:project_id/connect_handoff' component={ConnectHandoff} name='Connect Handoff' onEnter={authenticate('stories:w')} />
                                     <Route path='/project/:project_id/analytics' component={AnalyticsContainer} name='Analytics' onEnter={authenticate('analytics:r')} />
                                     <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticate('projects:r')} />

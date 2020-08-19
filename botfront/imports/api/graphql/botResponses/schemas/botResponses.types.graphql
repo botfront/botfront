@@ -49,6 +49,7 @@ type Mutation {
     createResponses(projectId: String!, responses: String): updateResponse!
 
     deleteVariation(projectId: String!, key: String!, language: String!, index: Int!): updateResponse!
+    importRespFromLang(projectId: String!, key: String!,originLang: String!, destLang: String!): BotResponse
 }
 
 type BotResponse {

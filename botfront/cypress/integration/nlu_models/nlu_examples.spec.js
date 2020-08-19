@@ -45,15 +45,12 @@ describe('NLU Batch Insert', function() {
 describe('NLU Synonyms', function() {
     beforeEach(function() {
         cy.login();
-    });
-
-    before(function() {
         cy.visit('/')
             // .then(() => cy.deleteProject('bf'))
             .then(() => cy.createProject('bf', 'My Project', 'fr'));
     });
 
-    after(function() {
+    afterEach(function() {
         cy.deleteProject('bf');
     });
 

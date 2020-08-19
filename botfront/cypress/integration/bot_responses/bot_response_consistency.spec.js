@@ -48,7 +48,7 @@ describe('Bot responses', function() {
             checking for the permanent response to exist causes the test to wait for the page
             to load before checking if the response from the test was correctly deleted
         */
-        cy.visit('/project/bf/dialogue/templates');
+        cy.visit('/project/bf/responses');
         cy.dataCy('template-intent').contains('utter_hi').should('exist');
         cy.dataCy('template-intent').should('have.length', 1);
     };
@@ -67,7 +67,7 @@ describe('Bot responses', function() {
 
     it('Should delete a response in a story from the project when the story is deleted', function() {
         createResponse();
-        cy.visit('/project/bf/dialogue/templates');
+        cy.visit('/project/bf/responses');
         cy.dataCy('response-text').should('contain.text', RESPONSE_TEXT);
 
         cy.visit('/project/bf/stories');
@@ -78,12 +78,12 @@ describe('Bot responses', function() {
 
     it('Should delete an existing response from the project when the story group is deleted', function() {
         createResponse();
-        cy.visit('/project/bf/dialogue/templates');
+        cy.visit('/project/bf/responses');
         cy.dataCy('response-text').should('contain.text', RESPONSE_TEXT);
         cy.visit('/project/bf/stories');
         cy.deleteStoryOrGroup(STORY_NAME, 'story');
         cy.wait(500);
-        cy.visit('/project/bf/dialogue/templates');
+        cy.visit('/project/bf/responses');
         // to properly retry the visit must be done again
         checkResponsesDeleted();
     });
@@ -149,7 +149,7 @@ describe('Bot responses', function() {
             .click({ force: true });
         cy.wait(500);
         // check the correct bot responses were deleted from the project
-        cy.visit('/project/bf/dialogue/templates');
+        cy.visit('/project/bf/responses');
         cy.dataCy('template-intent').contains('utter_hi').should('exist');
         cy.dataCy('response-text').contains('first response should not exist').should('not.exist');
         cy.dataCy('response-text').contains('second response should not exist').should('not.exist');
@@ -162,7 +162,7 @@ describe('Bot responses', function() {
         cy.dataCy('story-title').should('have.value', 'Farewells');
         cy.dataCy('bot-response-input').find('textarea').click().type('a')
             .blur();
-        cy.visit('/project/bf/dialogue/templates');
+        cy.visit('/project/bf/responses');
         cy.dataCy('template-intent').contains('utter_bye').should('exist');
         cy.visit('/project/bf/stories');
         cy.browseToStory('Farewells', 'Default stories');

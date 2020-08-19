@@ -68,7 +68,6 @@ class GazetteEditor extends React.Component {
                 },
                 width: 100,
                 filterable: false,
-                className: 'right',
             },
         ];
     }

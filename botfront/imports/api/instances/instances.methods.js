@@ -21,16 +21,35 @@ import { Projects } from '../project/project.collection';
 import Activity from '../graphql/activity/activity.model';
 import { getStoriesAndDomain } from '../../lib/story.utils';
 
+const replaceMongoReservedChars = (input) => {
+    if (Array.isArray(input)) return input.map(replaceMongoReservedChars);
+    if (typeof input === 'object') {
+        const corrected = input;
+        Object.keys(input).forEach((key) => {
+            const newKeyName = key.replace(/\./g, '_');
+            corrected[newKeyName] = replaceMongoReservedChars(input[key]);
+            if (newKeyName !== key) delete corrected[key];
+        });
+        return corrected;
+    }
+    return input;
+};
 
 export const createInstance = async (project) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
-    const { instance: host } = yaml.safeLoad(Assets.getText(
-        process.env.MODE === 'development'
-            ? 'defaults/private.dev.yaml'
-            : process.env.MODE === 'test' ? 'defaults/private.yaml' : 'defaults/private.gke.yaml',
-    ));
+
+    const { instance: host } = yaml.safeLoad(
+        Assets.getText(
+            process.env.MODE === 'development'
+                ? 'defaults/private.dev.yaml'
+                : process.env.MODE === 'test' ? 'defaults/private.yaml' : 'defaults/private.gke.yaml',
+        ),
+    );
+
     return Instances.insert({
-        name: 'Default Instance', host: host.replace(/{PROJECT_NAMESPACE}/g, project.namespace), projectId: project._id,
+        name: 'Default Instance',
+        host: host.replace(/{PROJECT_NAMESPACE}/g, project.namespace),
+        projectId: project._id,
     });
 };
 
@@ -43,7 +62,9 @@ const getConfig = (model) => {
         if (item.name.includes('Gazette')) {
             if (model.training_data.fuzzy_gazette) {
                 // eslint-disable-next-line no-param-reassign
-                item.entities = model.training_data.fuzzy_gazette.map(({ value, mode, min_score }) => ({ name: value, mode, min_score }));
+                item.entities = model.training_data.fuzzy_gazette.map(
+                    ({ value, mode, min_score }) => ({ name: value, mode, min_score }),
+                );
             }
         }
     });
@@ -51,7 +72,12 @@ const getConfig = (model) => {
     return yaml.dump(config);
 };
 
-export const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents = [], withGazette = true) => {
+export const getTrainingDataInRasaFormat = (
+    model,
+    withSynonyms = true,
+    intents = [],
+    withGazette = true,
+) => {
     checkIfCan('nlu-data:r', getProjectIdFromModelId(model._id));
     if (!model.training_data) {
         throw Error('Property training_data of model argument is required');
@@ -80,11 +106,16 @@ export const getTrainingDataInRasaFormat = (model, withSynonyms = true, intents 
             });
         }
     }
-    common_examples = common_examples
-        .sort((a, b) => b.canonical || false - a.canonical || false);
+    common_examples = common_examples.sort(
+        (a, b) => b.canonical || false - a.canonical || false,
+    );
 
-    const entity_synonyms = withSynonyms && model.training_data.entity_synonyms ? model.training_data.entity_synonyms.map(copyAndFilter) : [];
-    const gazette = withGazette && model.training_data.fuzzy_gazette ? model.training_data.fuzzy_gazette.map(copyAndFilter) : [];
+    const entity_synonyms = withSynonyms && model.training_data.entity_synonyms
+        ? model.training_data.entity_synonyms.map(copyAndFilter)
+        : [];
+    const gazette = withGazette && model.training_data.fuzzy_gazette
+        ? model.training_data.fuzzy_gazette.map(copyAndFilter)
+        : [];
 
     return { rasa_nlu_data: { common_examples, entity_synonyms, gazette } };
 };
@@ -148,9 +179,14 @@ if (Meteor.isServer) {
                         entities: [],
                     };
                 });
-            if (result.length < 1 && !failSilently) throw new Meteor.Error('Error when parsing NLU');
-            if (Array.from(new Set(result.map(r => r.language))).length > 1 && !failSilently) {
-                throw new Meteor.Error('Tried to parse for more than one language at a time.');
+            if (result.length < 1 && !failSilently) { throw new Meteor.Error('Error when parsing NLU'); }
+            if (
+                Array.from(new Set(result.map(r => r.language))).length > 1
+                && !failSilently
+            ) {
+                throw new Meteor.Error(
+                    'Tried to parse for more than one language at a time.',
+                );
             }
 
             return examples.length < 2 ? result[0] : result;
@@ -208,7 +244,11 @@ if (Meteor.isServer) {
             });
             return data;
         },
-        async 'rasa.getTrainingPayload'(projectId, instance, { env = 'development', language = '', joinStoryFiles = true } = {}) {
+        async 'rasa.getTrainingPayload'(
+            projectId,
+            instance,
+            { env = 'development', language = '', joinStoryFiles = true } = {},
+        ) {
             checkIfCan(['nlu-data:x', 'projects:r'], projectId);
             check(projectId, String);
             check(language, String);
@@ -237,7 +277,8 @@ if (Meteor.isServer) {
                 },
             ).fetch();
 
-            const corePolicies = CorePolicies.findOne({ projectId }, { policies: 1 }).policies;
+            const corePolicies = CorePolicies.findOne({ projectId }, { policies: 1 })
+                .policies;
             const nlu = {};
             const config = {};
 
@@ -247,7 +288,11 @@ if (Meteor.isServer) {
                     timeout: 3 * 60 * 1000,
                 });
                 addLoggingInterceptors(client, appMethodLogger);
-                const { stories, domain, wasPartial } = await getStoriesAndDomain(projectId, language, env);
+                const { stories, domain, wasPartial } = await getStoriesAndDomain(
+                    projectId,
+                    language,
+                    env,
+                );
                 let selectedIntents = [];
                 if (wasPartial) {
                     selectedIntents = yaml.safeLoad(domain).intents;
@@ -257,15 +302,25 @@ if (Meteor.isServer) {
                     const currentLang = nluModels[i].language;
                     // eslint-disable-next-line no-await-in-loop
                     const { data } = await client.post('/data/convert/', {
-                        data: getTrainingDataInRasaFormat(nluModels[i], true, selectedIntents && selectedIntents.length > 0 ? selectedIntents : undefined),
+                        data: getTrainingDataInRasaFormat(
+                            nluModels[i],
+                            true,
+                            selectedIntents && selectedIntents.length > 0
+                                ? selectedIntents
+                                : undefined,
+                        ),
                         output_format: 'md',
                         language: currentLang,
                     });
-                    const canonical = nluModels[i].training_data.common_examples.filter(e => e.canonical).map(e => e.text);
+                    const canonical = nluModels[i].training_data.common_examples
+                        .filter(e => e.canonical)
+                        .map(e => e.text);
                     const canonicalText = canonical.length
                         ? `\n\n# canonical\n- ${canonical.join('\n- ')}`
                         : '';
-                    nlu[currentLang] = { data: `# lang:${currentLang}${canonicalText}\n\n${data.data}` };
+                    nlu[currentLang] = {
+                        data: `# lang:${currentLang}${canonicalText}\n\n${data.data}`,
+                    };
                     config[currentLang] = `${getConfig(nluModels[i])}\n\n${corePolicies}`;
                 }
                 const payload = {
@@ -276,7 +331,9 @@ if (Meteor.isServer) {
                     fixed_model_name: getProjectModelFileName(projectId),
                 };
                 const t1 = performance.now();
-                appMethodLogger.debug(`Building training payload - ${(t1 - t0).toFixed(2)} ms`);
+                appMethodLogger.debug(
+                    `Building training payload - ${(t1 - t0).toFixed(2)} ms`,
+                );
                 auditLog('Retreived training payload for project', {
                     user: Meteor.user(),
                     type: 'execute',
@@ -287,10 +344,20 @@ if (Meteor.isServer) {
                 });
                 return payload;
             } catch (e) {
-                const error = `${e.message || e.reason} ${(e.stack.split('\n')[2] || '').trim()}`;
+                const error = `${e.message || e.reason} ${(
+                    e.stack.split('\n')[2] || ''
+                ).trim()}`;
                 const t1 = performance.now();
-                appMethodLogger.error(`Building training payload failed - ${(t1 - t0).toFixed(2)} ms`, { error });
-                Meteor.call('project.markTrainingStopped', projectId, 'failure', e.reason);
+                appMethodLogger.error(
+                    `Building training payload failed - ${(t1 - t0).toFixed(2)} ms`,
+                    { error },
+                );
+                Meteor.call(
+                    'project.markTrainingStopped',
+                    projectId,
+                    'failure',
+                    e.reason,
+                );
                 throw formatError(e);
             }
         },
@@ -327,25 +394,49 @@ if (Meteor.isServer) {
                     timeout: 3 * 60 * 1000,
                 });
                 addLoggingInterceptors(client, appMethodLogger);
-                const payload = await Meteor.call('rasa.getTrainingPayload', projectId, instance, { env });
+                const payload = await Meteor.call(
+                    'rasa.getTrainingPayload',
+                    projectId,
+                    instance,
+                    { env },
+                );
                 const trainingClient = axios.create({
                     baseURL: instance.host,
                     timeout: 30 * 60 * 1000,
                     responseType: 'arraybuffer',
                 });
                 addLoggingInterceptors(trainingClient, appMethodLogger);
-                const trainingResponse = await trainingClient.post('/model/train', payload);
+                const trainingResponse = await trainingClient.post(
+                    '/model/train',
+                    payload,
+                );
                 if (trainingResponse.status === 200) {
                     const t1 = performance.now();
-                    appMethodLogger.debug(`Training project ${projectId} - ${(t1 - t0).toFixed(2)} ms`);
-                    const { headers: { filename } } = trainingResponse;
-                    const trainedModelPath = path.join(getProjectModelLocalFolder(), filename);
+                    appMethodLogger.debug(
+                        `Training project ${projectId} - ${(t1 - t0).toFixed(2)} ms`,
+                    );
+                    const {
+                        headers: { filename },
+                    } = trainingResponse;
+                    const trainedModelPath = path.join(
+                        getProjectModelLocalFolder(),
+                        filename,
+                    );
                     try {
                         appMethodLogger.debug(`Saving model at ${trainedModelPath}`);
-                        await promisify(fs.writeFile)(trainedModelPath, trainingResponse.data, 'binary');
+                        await promisify(fs.writeFile)(
+                            trainedModelPath,
+                            trainingResponse.data,
+                            'binary',
+                        );
                     } catch (e) {
-                        const error = `${e.message || e.reason} ${(e.stack.split('\n')[2] || '').trim()}`;
-                        appMethodLogger.error(`Could not save trained model to ${trainedModelPath}`, { error });
+                        const error = `${e.message || e.reason} ${(
+                            e.stack.split('\n')[2] || ''
+                        ).trim()}`;
+                        appMethodLogger.error(
+                            `Could not save trained model to ${trainedModelPath}`,
+                            { error },
+                        );
                     }
 
                     if (loadModel) {
@@ -358,15 +449,29 @@ if (Meteor.isServer) {
                         }
                     }
                     const modelIds = getModelIdsFromProjectId(projectId);
-                    Activity.update({ modelId: { $in: modelIds }, validated: true }, { $set: { validated: false } }, { multi: true }).exec();
+                    Activity.update(
+                        { modelId: { $in: modelIds }, validated: true },
+                        { $set: { validated: false } },
+                        { multi: true },
+                    ).exec();
                 }
 
                 Meteor.call('project.markTrainingStopped', projectId, 'success');
             } catch (e) {
-                const error = `${e.message || e.reason} ${(e.stack.split('\n')[2] || '').trim()}`;
+                const error = `${e.message || e.reason} ${(
+                    e.stack.split('\n')[2] || ''
+                ).trim()}`;
                 const t1 = performance.now();
-                appMethodLogger.error(`Training project ${projectId} - ${(t1 - t0).toFixed(2)} ms`, { error });
-                Meteor.call('project.markTrainingStopped', projectId, 'failure', e.reason);
+                appMethodLogger.error(
+                    `Training project ${projectId} - ${(t1 - t0).toFixed(2)} ms`,
+                    { error },
+                );
+                Meteor.call(
+                    'project.markTrainingStopped',
+                    projectId,
+                    'failure',
+                    e.reason,
+                );
                 throw formatError(e);
             }
         },
@@ -406,24 +511,29 @@ if (Meteor.isServer) {
                     timeout: 60 * 60 * 1000,
                 });
                 addLoggingInterceptors(client, appMethodLogger);
-                axiosRetry(client, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
+                axiosRetry(client, {
+                    retries: 3,
+                    retryDelay: axiosRetry.exponentialDelay,
+                });
                 const url = `${instance.host}/model/test/intents?${qs}`;
-                const results = Promise.await(client.post(url, examples));
+                let results = Promise.await(client.post(url, examples));
 
-                if (results.data.entity_evaluation) {
-                    const ee = results.data.entity_evaluation;
-                    Object.keys(ee).forEach((key) => {
-                        const newKeyName = key.replace(/\./g, '_');
-                        ee[newKeyName] = ee[key];
-                        delete ee[key];
-                    });
-                }
-                const evaluations = Evaluations.find({ modelId }, { field: { _id: 1 } }).fetch();
+                results = replaceMongoReservedChars({
+                    intent_evaluation: results.data.intent_evaluation || {},
+                    entity_evaluation:
+                        results.data.entity_evaluation.DIETClassifier || {},
+                });
+
+                const evaluations = Evaluations.find(
+                    { modelId },
+                    { field: { _id: 1 } },
+                ).fetch();
                 if (evaluations.length > 0) {
-                    Evaluations.update({ _id: evaluations[0]._id }, { $set: { results: results.data } });
-                } else {
-                    Evaluations.insert({ results: results.data, modelId });
-                }
+                    Evaluations.update(
+                        { _id: evaluations[0]._id },
+                        { $set: { results } },
+                    );
+                } else Evaluations.insert({ results, modelId });
                 return 'ok';
             } catch (e) {
                 let error = null;
