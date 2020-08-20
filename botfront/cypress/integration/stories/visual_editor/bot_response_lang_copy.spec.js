@@ -47,7 +47,7 @@ describe('Bot responses copy between languages', function() {
         cy.dataCy('language-selector').click();
         cy.contains('German').click();
         cy.dataCy('bot-response-input').find('img').should('have.attr', 'src')
-            .and('equal', '');
+            .and('equal', '/images/image-temp.svg');
         cy.dataCy('import-from-lang').click({ force: true });
         cy.dataCy('import-from-lang').contains('English').click();
 
