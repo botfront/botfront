@@ -18,6 +18,8 @@ import {
 } from 'semantic-ui-react';
 import 'react-select/dist/react-select.css';
 import { connect } from 'react-redux';
+import DataTable from '../../common/DataTable';
+import IntentLabel from '../common/IntentLabel';
 
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
 import { isTraining, getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
@@ -43,6 +45,8 @@ import { Projects } from '../../../../api/project/project.collection';
 import { extractEntities } from './nluModel.utils';
 import { setWorkingLanguage } from '../../../store/actions/actions';
 import { WithRefreshOnLoad } from '../../../layouts/project';
+import { useExamples } from './hooks';
+import IconButton from '../../common/IconButton';
 
 class NLUModel extends React.Component {
     constructor(props) {
@@ -54,6 +58,7 @@ class NLUModel extends React.Component {
             ...NLUModel.getDerivedStateFromProps(props),
             activityLinkRender: (incomingState && incomingState.isActivityLinkRender) || false,
         };
+        this.tableRef = React.createRef();
     }
 
     static getDerivedStateFromProps(props) {
@@ -62,9 +67,11 @@ class NLUModel extends React.Component {
             entities,
             ready,
             instance,
+            examples,
+            model,
         } = props;
         return {
-            examples: ready ? NLUModel.getExamplesWithExtraSynonyms(props) : [],
+            examples: ready ? NLUModel.getExamplesWithExtraSynonyms(examples, model.training_data.entity_synonyms) : [],
             instance,
             intents,
             entities,
@@ -77,8 +84,7 @@ class NLUModel extends React.Component {
         onLoad();
     }
 
-    static getExamplesWithExtraSynonyms = (props) => {
-        const { model: { training_data: { common_examples, entity_synonyms } = {} } = {} } = props;
+    static getExamplesWithExtraSynonyms = (common_examples, entity_synonyms) => {
         if (!common_examples) return [];
         return common_examples.map(e => _appendSynonymsToText(e, entity_synonyms));
     };
@@ -136,6 +142,110 @@ class NLUModel extends React.Component {
         return intentSelection;
     };
 
+    renderIntent = (row) => {
+        const { datum } = row;
+        const { metadata: { canonical }, intent } = datum;
+
+        return (
+            <IntentLabel
+                value={intent}
+                allowEditing={!canonical}
+                allowAdditions
+                onChange={() => console.log('heh')}
+            />
+
+        );
+    }
+
+    renderExample = (row) => {
+        const { datum } = row;
+        return <p>{datum.text}</p>;
+    }
+
+    renderDelete = (row) => {
+        const { datum } = row;
+        const { metadata: { canonical } } = datum;
+        if (canonical) { return null; }
+        return (
+            <IconButton
+                icon='trash'
+                basic
+                onClick={() => console.log('heh')
+                }
+            />
+        );
+    }
+
+    renderCanonical = (row) => {
+        const { datum } = row;
+        const { metadata: { canonical } } = datum;
+        return (
+            <IconButton
+                color={canonical ? 'black' : 'grey'}
+                icon='gem'
+                basic
+                onClick={() => console.log('heh')
+                }
+            />
+        );
+    }
+
+    renderEditExample = (row) => {
+        const { datum } = row;
+        const { metadata: { canonical } } = datum;
+        if (canonical) { return null; }
+        return (
+            <IconButton
+                active={canonical}
+                icon='edit'
+                basic
+                onClick={() => console.log('heh')
+                }
+            />
+        );
+    }
+
+
+    renderDataTable = () => {
+        const { loadMore, hasNextPage } = this.props;
+        const {
+            examples, selection,
+        } = this.state;
+
+        const columns = [
+            { key: 'id', selectionKey: true, hidden: true },
+            {
+                key: 'intent',
+                style: {
+                    paddingLeft: '1rem', width: '200px', minWidth: '200px', overflow: 'hidden',
+                },
+                render: this.renderIntent,
+            },
+            {
+                key: 'text', style: { width: '100%' }, render: this.renderExample,
+            },
+            { key: 'edit', style: { width: '50px' }, render: this.renderEditExample },
+
+            { key: 'delete', style: { width: '50px' }, render: this.renderDelete },
+            { key: 'canonincal', style: { width: '50px' }, render: this.renderCanonical },
+
+        ];
+        return (
+            <DataTable
+                ref={this.tableRef}
+                columns={columns}
+                data={examples}
+                hasNextPage={hasNextPage}
+                loadMore={() => loadMore()}
+                rowClassName='glow-box hoverable'
+                className='examples-table'
+                selection={selection}
+                onChangeSelection={newSelection => this.setState({ selection: newSelection })}
+            />
+        );
+    }
+
+
     getNLUSecondaryPanes = () => {
         const { model, projectId, settings: { settings: { public: { chitChatProjectId = null } = {} } = {} } = {} } = this.props;
         const {
@@ -145,15 +255,16 @@ class NLUModel extends React.Component {
             {
                 menuItem: 'Examples',
                 render: () => (
-                    <NluDataTable
-                        onEditExample={this.onEditExample}
-                        onDeleteExample={this.onDeleteExample}
-                        onSwitchCanonical={this.onSwitchCanonical}
-                        examples={examples}
-                        entities={entities}
-                        intents={intents}
-                        projectId={projectId}
-                    />
+                    this.renderDataTable()
+                    // <NluDataTable
+                    //     onEditExample={this.onEditExample}
+                    //     onDeleteExample={this.onDeleteExample}
+                    //     onSwitchCanonical={this.onSwitchCanonical}
+                    //     examples={examples}
+                    //     entities={entities}
+                    //     intents={intents}
+                    //     projectId={projectId}
+                    // />
                 ),
             },
             { menuItem: 'Synonyms', render: () => <Synonyms model={model} /> },
@@ -390,7 +501,11 @@ const NLUDataLoaderContainer = withTracker((props) => {
             name: 1, nlu_models: 1, defaultLanguage: 1, training: 1, enableSharing: 1,
         },
     });
-    // For handling '/project/:project_id/nlu/models'
+    const {
+        data, loading, hasNextPage, loadMore,
+    } = useExamples({ projectId, language: workingLanguage, cursor: 1 });
+    const = useDeleteExamples()
+
     const models = NLUModels.find({ _id: { $in: nlu_models } }, { sort: { language: 1 } }, { fields: { language: 1, _id: 1 } }).fetch();
     if (!modelId || !nlu_models.includes(modelId)) {
         handleDefaultRoute(projectId, models, workingLanguage);
@@ -412,10 +527,11 @@ const NLUDataLoaderContainer = withTracker((props) => {
     if (!model) {
         return {};
     }
-    const { training_data: { common_examples = [] } = {} } = model;
+
+
     const instance = Instances.findOne({ projectId });
-    const intents = sortBy(uniq(common_examples.map(e => e.intent)));
-    const entities = extractEntities(common_examples);
+    const intents = sortBy(uniq(data.map(e => e.intent)));
+    const entities = extractEntities(data);
     const settings = GlobalSettings.findOne({}, { fields: { 'settings.public.chitChatProjectId': 1 } });
 
     if (!name) return browserHistory.replace({ pathname: '/404' });
@@ -428,8 +544,12 @@ const NLUDataLoaderContainer = withTracker((props) => {
     };
     return {
         ready,
+        loadingExamples: loading,
         models,
         model,
+        examples: data,
+        loadMore,
+        hasNextPage,
         intents,
         entities,
         projectId,

@@ -44,7 +44,7 @@ export const getExamples = async ({
     onlyCanonicals = false,
     order = undefined,
     sortKey = undefined,
-    cursor = 1, // cursor is  a generic name for the current "page"
+    cursor = undefined,
 }) => {
     const filtersObject = createFilterObject(projectId, language, intents, entities, onlyCanonicals, text);
     const sortObject = createSortObject(sortKey, order);
@@ -56,7 +56,7 @@ export const getExamples = async ({
     const pagesNb = pageSize > -1 ? Math.ceil(numberOfDocuments / pageSize) : 1;
     const boundedPageNb = Math.min(pagesNb, cursor);
     const limit = pageSize > -1 ? { limit: pageSize } : {};
-    const examples = await Examples.find(
+    const data = await Examples.find(
         {
             ...filtersObject,
         }, null,
@@ -67,12 +67,19 @@ export const getExamples = async ({
         },
     ).lean();
 
+ 
+    const cursorIndex = !cursor
+        ? 0
+        : data.findIndex(activity => activity._id === cursor) + 1;
+    const examples = pageSize === 0
+        ? data
+        : data.slice(cursorIndex, cursorIndex + pageSize);
 
     return {
         examples,
         pageInfo: {
-            hasNextPage: pagesNb > cursor,
-            endCursor: cursor + 1,
+            endCursor: examples.length ? examples[examples.length - 1]._id : '',
+            hasNextPage: cursorIndex + pageSize < data.length,
         },
     };
 };

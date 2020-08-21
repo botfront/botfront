@@ -40,7 +40,7 @@ enum order {
 
 
 type Example {
-    id: String,
+    _id: String,
     projectId: String,
     text: String,
     intent: String,

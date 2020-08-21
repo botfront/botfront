@@ -45,8 +45,7 @@ export default {
 
     Example: {
         projectId: (parent, _, __) => parent.projectId,
-        id: (parent, _, __) => parent._id,
-        language: (parent, _, __) => parent.language,
+        _id: (parent, _, __) => parent._id,
         text: (parent, _, __) => parent.text,
         intent: (parent, _, __) => parent.intent,
         entities: (parent, _, __) => parent.entities,
