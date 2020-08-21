@@ -13,8 +13,8 @@ type Query {
         includeActions: [String],
         excludeActions: [String],
         conversationLength: Int,
-        intentsAndActionsFilters: [StepInput]
-        intentsAndActionsOperator: IntentsAndActionsOperator
+        eventFilter: [StepInput]
+        eventFilterOperator: IntentsAndActionsOperator
     ): [ConversationCount!]!
 }
 

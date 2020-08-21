@@ -2,11 +2,7 @@ import Conversations from '../conversations.model';
 import { generateBuckets, fillInEmptyBuckets } from '../../utils';
 import { trackerDateRangeStage } from './utils';
 import { getTriggerIntents } from '../../story/mongo/stories.js';
-import { createIntentsActionsStep } from './intentAndActionFilter';
-
-const intentInList = intentList => ({ $in: ['$$event.parse_data.intent.name', intentList] });
-const actionInList = actionList => ({ $in: ['$$event.name', actionList] });
-const isNonEmpty = array => array && array.length;
+import { createEventsStep, categorizeEventFilters } from './eventFilter';
 
 export const getConversationCounts = async ({
     projectId,
@@ -15,32 +11,18 @@ export const getConversationCounts = async ({
     from,
     to,
     nBuckets,
-    includeIntents = [],
-    excludeIntents = [],
     userInitiatedConversations,
     triggerConversations,
-    includeActions = [],
-    excludeActions = [],
     conversationLength,
-    intentsAndActionsFilters,
-    intentsAndActionsOperator,
+    eventFilter,
+    eventFilterOperator,
 }) => {
-    const intentsActionsStep = createIntentsActionsStep({ intentsActionsOperator: intentsAndActionsOperator, intentsActionsFilters: intentsAndActionsFilters });
+    const intentsActionsStep = createEventsStep({ eventFilterOperator, eventFilter }, 'aggregation');
+    const { excludedIntents = [] } = categorizeEventFilters(eventFilter);
     const conditions = [];
     const typeInclusion = [];
     const triggerIntents = await getTriggerIntents(projectId);
-    if (isNonEmpty(includeIntents) || isNonEmpty(excludeIntents)) {
-        const intentConditions = [{ $eq: ['$$event.event', 'user'] }];
-        if (isNonEmpty(includeIntents)) intentConditions.push(intentInList(includeIntents));
-        if (isNonEmpty(excludeIntents)) intentConditions.push({ $not: intentInList(excludeIntents) });
-        conditions.push(intentConditions);
-    }
-    if (isNonEmpty(includeActions) || isNonEmpty(excludeActions)) {
-        const actionConditions = [{ $eq: ['$$event.event', 'action'] }];
-        if (isNonEmpty(includeActions)) conditions.push(actionInList(includeActions));
-        if (isNonEmpty(excludeActions)) conditions.push({ $not: actionInList(excludeActions) });
-        conditions.push(actionConditions);
-    }
+
     if (!userInitiatedConversations) {
         typeInclusion.push({
             firstIntent: { $in: triggerIntents },
@@ -78,7 +60,7 @@ export const getConversationCounts = async ({
                             $filter: {
                                 input: '$intents',
                                 as: 'item',
-                                cond: { $not: { $in: ['$$item', excludeIntents || []] } },
+                                cond: { $not: { $in: ['$$item', excludedIntents || []] } },
                             },
                         },
                         0,
@@ -108,6 +90,8 @@ export const getConversationCounts = async ({
             $match: {
                 $and: [
                     { bucket: { $ne: 'bad_timestamp' } },
+                    { actions: { $type: 'array' } },
+                    { intents: { $type: 'array' } },
                     ...(typeInclusion && typeInclusion.length ? [{ $and: typeInclusion }] : []),
                 ],
             },

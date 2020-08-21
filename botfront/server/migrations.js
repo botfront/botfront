@@ -518,6 +518,39 @@ Migrations.add({
     },
 });
 
+Migrations.add({
+    version: 21,
+    up: async () => {
+        const dashboards = await AnalyticsDashboards.find();
+        dashboards.forEach(async (dashboard) => {
+            const { cards } = dashboard;
+            const newCards = cards.map((card) => {
+                const newCard = card;
+                if (card.type === 'conversationCounts' && Array.isArray(card.intentsAndActionsFilters)) {
+                    newCard.eventFilterOperator = card.intentsAndActionsOperator;
+                    newCard.eventFilter = card.intentsAndActionsFilters.map((event) => {
+                        if (event.name.startsWith('utter_') || event.name.startsWith('action_')) {
+                            return { ...event, type: 'action' };
+                        }
+                        return { ...event, type: 'intent' };
+                    });
+                    delete newCard.intentsAndActionsOperator;
+                    delete newCard.intentsAndActionsFilters;
+                }
+                if (card.type === 'conversationsFunnel') {
+                    newCard.selectedSequence = (card.selectedSequence || []).map((event) => {
+                        if (event.name.startsWith('utter_') || event.name.startsWith('action_')) {
+                            return { ...event, type: 'action' };
+                        }
+                        return { ...event, type: 'intent' };
+                    });
+                }
+                return newCard;
+            });
+            await AnalyticsDashboards.updateOne({ _id: dashboard._id }, { $set: { cards: newCards } }, { useFindAndModify: false });
+        });
+    },
+});
 Meteor.startup(() => {
     Migrations.migrateTo('latest');
 });

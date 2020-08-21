@@ -21,20 +21,11 @@ describe('link from analytics to conversations and apply filters', () => {
         // add an included intent and action
         cy.dataCy('analytics-card')
             .first()
-            .find('[data-cy=edit-intentsAndActionsFilters]')
+            .find('[data-cy=edit-eventFilter]')
             .click({ force: true });
-        cy.dataCy('sequence-selector').click();
-        cy.dataCy('sequence-selector').find('input').should('exist');
-        cy.dataCy('sequence-selector').find('input').click();
-        cy.dataCy('sequence-selector').find('input').type('intent_test{enter}');
-        cy.dataCy('sequence-selector').click();
-        cy.dataCy('sequence-selector').find('input').should('exist');
-        cy.dataCy('sequence-selector').find('input').click();
-        cy.dataCy('sequence-selector').find('input').type('action_test{enter}');
-        cy.dataCy('sequence-selector').click();
-        cy.dataCy('sequence-selector').find('input').should('exist');
-        cy.dataCy('sequence-selector').find('input').click();
-        cy.dataCy('sequence-selector').find('input').type('get_started{enter}');
+        cy.addConversationEventFilter('intent', 'intent_test');
+        cy.addConversationEventFilter('action', 'action_test');
+        cy.addConversationEventFilter('intent', 'get_started');
         cy.dataCy('sequence-step-2').click();
         cy.dataCy('sequence-step-2').should('have.class', 'red');
         cy.escapeModal();
@@ -77,13 +68,9 @@ describe('link from analytics to conversations and apply filters', () => {
         // add an included intent
         cy.dataCy('analytics-card')
             .first()
-            .find('[data-cy=edit-intentsAndActionsFilters]')
+            .find('[data-cy=edit-eventFilter]')
             .click({ force: true });
-        cy.dataCy('sequence-selector').click();
-        cy.dataCy('sequence-selector').find('input').should('exist');
-        cy.dataCy('sequence-selector').find('input').click();
-        cy.dataCy('sequence-selector').find('input').type('intent_test{enter}');
-        cy.dataCy('sequence-selector').click();
+        cy.addConversationEventFilter('intent', 'intent_test');
         cy.escapeModal();
        
         // click on the most recent data in the graph
@@ -210,18 +197,8 @@ describe('link from analytics to conversations and apply filters', () => {
         cy.dataCy('card-ellipsis-menu').first().click();
         cy.dataCy('edit-selectedSequence').click({ force: true });
         cy.dataCy('remove-step-0').click();
-        cy.dataCy('sequence-selector')
-            .click()
-            .find('input')
-            .type('chitchat.greet');
-        cy.dataCy('add-option')
-            .click();
-        cy.dataCy('sequence-selector')
-            .click()
-            .find('input')
-            .type('action_test');
-        cy.dataCy('add-option')
-            .click();
+        cy.addConversationEventFilter('intent', 'chitchat.greet');
+        cy.addConversationEventFilter('action', 'action_test');
         cy.get('.page').click({ force: true });
         cy.dataCy('analytics-card').first().find('rect').last()
             .click();
@@ -250,25 +227,11 @@ describe('link from analytics to conversations and apply filters', () => {
         cy.dataCy('card-ellipsis-menu').first().click();
         cy.dataCy('edit-selectedSequence').click({ force: true });
         cy.dataCy('remove-step-0').click();
-        cy.dataCy('sequence-selector')
-            .click()
-            .find('input')
-            .type('chitchat.greet');
-        cy.dataCy('add-option')
-            .click();
-        cy.dataCy('sequence-selector')
-            .click()
-            .find('input')
-            .type('action_test');
-        cy.dataCy('add-option')
-            .click();
-        cy.dataCy('sequence-selector')
-            .click()
-            .find('input')
-            .type('action_autre');
-        cy.dataCy('add-option')
-            .click();
+        cy.addConversationEventFilter('intent', 'chitchat.greet');
+        cy.addConversationEventFilter('action', 'action_test');
+        cy.addConversationEventFilter('action', 'action_autre');
         cy.dataCy('sequence-step-2').click();
+        cy.dataCy('sequence-step-2').should('have.class', 'red');
 
         cy.get('.page').click({ force: true });
         cy.dataCy('analytics-card').first().find('rect').last()

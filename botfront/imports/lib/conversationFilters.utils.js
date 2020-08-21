@@ -1,6 +1,6 @@
 export const queryifyFilter = (key, value) => {
     switch (key) {
-    case 'intentsActionsFilters':
+    case 'eventFilter':
         return JSON.stringify(value);
     case 'lengthFilter':
     case 'confidenceFilter':

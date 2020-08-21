@@ -1,4 +1,6 @@
-import React, { useContext, useMemo } from 'react';
+import React, {
+    useContext, useMemo, forwardRef, useImperativeHandle,
+} from 'react';
 import { Container } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
@@ -19,7 +21,7 @@ import {
 import { clearTypenameField } from '../../../lib/client.safe.utils';
 
 
-function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
+const AnalyticsDashboard = ({ dashboard, onUpdateDashboard }, ref) => {
     const {
         cards,
         languages,
@@ -135,7 +137,7 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
                 },
                 displayAbsoluteRelative: true,
                 axisTitleY: 'Conversations',
-                displayConfigs: ['conversationLength', 'userInitiatedConversations', 'triggerConversations', 'intentsAndActionsFilters'],
+                displayConfigs: ['conversationLength', 'userInitiatedConversations', 'triggerConversations', 'eventFilter'],
             },
         },
         actionCounts: {
@@ -196,7 +198,6 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
                     }
                     return 'rgb(174, 214, 243)';
                 },
-                
             },
         
         },
@@ -286,6 +287,10 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
         return downloadXLSX(workbook);
     };
 
+    useImperativeHandle(ref, () => ({
+        downloadAll,
+    }));
+
     return (
         <div style={{ overflowY: 'auto', height: 'calc(100% - 49px', marginTop: '0' }}>
             <Container>
@@ -309,7 +314,7 @@ function AnalyticsDashboard({ dashboard, onUpdateDashboard }) {
             </Container>
         </div>
     );
-}
+};
 
 AnalyticsDashboard.propTypes = {
     dashboard: PropTypes.object.isRequired,
@@ -318,4 +323,4 @@ AnalyticsDashboard.propTypes = {
 
 AnalyticsDashboard.defaultProps = {};
 
-export default AnalyticsDashboard;
+export default forwardRef(AnalyticsDashboard);

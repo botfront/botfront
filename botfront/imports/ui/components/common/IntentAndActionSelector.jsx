@@ -11,7 +11,8 @@ import SequenceSelector from './SequenceSelector';
 
 const IntentAndActionSelector = ({
     operatorValue,
-    options,
+    slotOptions,
+    actionOptions,
     onChange,
     operatorChange,
     sequence,
@@ -38,11 +39,10 @@ const IntentAndActionSelector = ({
                     onChange={(value) => {
                         onChange(value);
                     }}
-                    options={options}
+                    actionOptions={actionOptions}
+                    slotOptions={slotOptions}
                     sequence={sequence}
                 />
-              
-                    
             </Segment>
             <Segment compact className='and-or-order-segment'>
                 <Dropdown
@@ -60,7 +60,8 @@ const IntentAndActionSelector = ({
 
 IntentAndActionSelector.propTypes = {
     sequence: PropTypes.array.isRequired,
-    options: PropTypes.array.isRequired,
+    actionOptions: PropTypes.array,
+    slotOptions: PropTypes.array,
     onChange: PropTypes.func.isRequired,
     operatorChange: PropTypes.func.isRequired,
     operatorValue: PropTypes.string,
@@ -70,6 +71,8 @@ IntentAndActionSelector.propTypes = {
 IntentAndActionSelector.defaultProps = {
     operatorValue: 'or',
     allowedOperators: ['and', 'or', 'inOrder'],
+    actionOptions: [],
+    slotOptions: [],
 };
 
 

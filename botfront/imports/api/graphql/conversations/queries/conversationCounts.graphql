@@ -12,8 +12,8 @@ query ConversationCounts(
     $includeActions: [String],
     $excludeActions: [String],
     $conversationLength: Int,
-    $intentsAndActionsFilters: [StepInput],
-    $intentsAndActionsOperator: IntentsAndActionsOperator,
+    $eventFilter: [StepInput],
+    $eventFilterOperator: IntentsAndActionsOperator,
 ) {
     conversationCounts(
         projectId: $projectId,
@@ -29,8 +29,8 @@ query ConversationCounts(
         includeActions: $includeActions,
         excludeActions: $excludeActions,
         conversationLength: $conversationLength,
-        intentsAndActionsFilters: $intentsAndActionsFilters,
-        intentsAndActionsOperator: $intentsAndActionsOperator,
+        eventFilter: $eventFilter,
+        eventFilterOperator: $eventFilterOperator,
     ) {
         bucket, hits, count, proportion
     }

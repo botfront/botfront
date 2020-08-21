@@ -19,9 +19,11 @@ type FunnelResults {
 input StepInput {
   name: String,
   excluded: Boolean
+  type: eventType
 }
 
 type Step {
   name: String,
   excluded: Boolean
+  type: eventType
 }

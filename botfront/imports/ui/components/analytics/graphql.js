@@ -24,15 +24,17 @@ const dashboardFields = gql`
             selectedSequence {
                 name
                 excluded
+                type
             }
             wide
             showDenominator
             limit
-            intentsAndActionsFilters {
+            eventFilter {
                 name
                 excluded
+                type
             }
-            intentsAndActionsOperator
+            eventFilterOperator
         }
         languages
         envs

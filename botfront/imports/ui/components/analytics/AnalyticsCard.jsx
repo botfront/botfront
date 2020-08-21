@@ -42,7 +42,6 @@ function AnalyticsCard(props) {
         settings,
         onChangeSettings,
         onReorder,
-        downloadAll,
     } = props;
 
     const {
@@ -122,9 +121,9 @@ function AnalyticsCard(props) {
         return undefined;
     };
 
-    const reshapeIntentOrActionArray = (array, exclude) => {
+    const reshapeIntentOrActionArray = (array, exclude, type) => {
         if (array) {
-            return array.map(elm => ({ name: elm, excluded: exclude }));
+            return array.map(elm => ({ name: elm, excluded: exclude, type }));
         }
         return [];
     };
@@ -167,25 +166,25 @@ function AnalyticsCard(props) {
             unerInitiatedConversations: true,
             triggeredConversations: true,
         };
-        const intentsActionsFilters = [];
+        const eventsToFilter = [];
         const {
             includeActions = [],
             excludeActions = [],
             conversationLength,
             userInitiatedConversations,
             triggerConversations,
-            intentsAndActionsFilters,
-            intentsAndActionsOperator,
+            eventFilter = [],
+            eventFilterOperator,
         } = settings;
         let conversationFunnelIndex;
         switch (type) {
         case 'triggerFrequencies':
-            intentsActionsFilters.push(...reshapeIntentOrActionArray([await getTriggerIntentFromStory(selectedData.name)], false));
-            filters.intentsActionsFilters = intentsActionsFilters;
+            eventFilter.push(...reshapeIntentOrActionArray([await getTriggerIntentFromStory(selectedData.name)], false));
+            filters.eventFilter = eventFilter;
             break;
         case 'intentFrequencies':
-            intentsActionsFilters.push(...reshapeIntentOrActionArray([selectedData.name], false));
-            filters.intentsActionsFilters = clearTypenameField(intentsActionsFilters);
+            eventsToFilter.push(...reshapeIntentOrActionArray([selectedData.name], false, 'intent'));
+            filters.eventFilter = clearTypenameField(eventsToFilter);
             break;
         case 'conversationLengths':
             filters.lengthFilter = { compare: selectedData.length, xThan: 'equals' };
@@ -195,8 +194,8 @@ function AnalyticsCard(props) {
             break;
         case 'conversationsFunnel':
             conversationFunnelIndex = parseInt(selectedData.name.match(/[0-9]+$/)[0], 10);
-            filters.intentsActionsFilters = clearTypenameField(settings.selectedSequence.slice(0, conversationFunnelIndex + 1));
-            filters.intentsActionsOperator = 'inOrder';
+            filters.eventFilter = clearTypenameField(settings.selectedSequence.slice(0, conversationFunnelIndex + 1));
+            filters.eventFilterOperator = 'inOrder';
             break;
         case 'conversationCounts':
             if (!triggerConversations) {
@@ -206,14 +205,14 @@ function AnalyticsCard(props) {
                 filters.userInitiatedConversations = false;
             }
             filters.lengthFilter = { compare: conversationLength, xThan: 'greaterThan' };
-            filters.intentsActionsFilters = clearTypenameField(intentsAndActionsFilters || []);
-            filters.intentsActionsOperator = intentsAndActionsOperator;
+            filters.eventFilter = clearTypenameField(eventFilter || []);
+            filters.eventFilterOperator = eventFilterOperator;
             break;
         case 'actionCounts':
-            intentsActionsFilters.push(...reshapeIntentOrActionArray(includeActions, false));
-            intentsActionsFilters.push(...reshapeIntentOrActionArray(excludeActions, true));
-            filters.intentsActionsFilters = clearTypenameField(intentsActionsFilters);
-            filters.intentsActionsOperator = 'or';
+            eventsToFilter.push(...reshapeIntentOrActionArray(includeActions, false));
+            eventsToFilter.push(...reshapeIntentOrActionArray(excludeActions, true));
+            filters.eventFilter = clearTypenameField(eventsToFilter);
+            filters.eventFilterOperator = 'or';
             break;
         default:
             break;
@@ -286,35 +285,6 @@ function AnalyticsCard(props) {
                 </div>
             )}
             <span className='top-right-buttons'>
-                {!error && !loading && data && data[queryParams.queryName].length > 0 && (
-                   
-
-                    <Popup
-                        trigger={(
-                            <Button
-                                className='export-card-button'
-                                data-cy='analytics-export-button'
-                                basic
-                                size='medium'
-                                icon='download'
-                                onClick={handleExportClick}
-                            />
-                        )}
-                        hoverable
-                        on='hover'
-                        className='export-all-popup'
-                        disabled={!downloadAll}
-                    >
-                        <Button
-                            data-cy='analytics-export-all-button'
-                            className='export-all-button'
-                            basic
-                            content='Export all widgets (.xslx)'
-                            onClick={() => downloadAll()}
-                        />
-                    </Popup>
-                      
-                )}
                 {uniqueChartOptions.length > 1 && (
                     <Button.Group basic size='medium' className='chart-type-selector'>
                         {uniqueChartOptions.map(chartOption => (
@@ -348,6 +318,8 @@ function AnalyticsCard(props) {
                     titleDescription={titleDescription}
                     displayConfigs={graphParams.displayConfigs}
                     denominatorLine={!!graphParams.y2}
+                    exportData={handleExportClick}
+                    canExport={!error && !loading && data && data[queryParams.queryName].length > 0}
                 />
             </span>
             {nameEdited === null
@@ -376,7 +348,6 @@ function AnalyticsCard(props) {
                     <Loader active size='large'>Loading</Loader>
                 )}
             </div>
-            {/* <Button onClick={() => linkToConversations()}>Conversations</Button> */}
         </div>
     );
 }

@@ -1,11 +1,11 @@
 import React, {
-    useEffect, useState, useContext, useMemo,
+    useEffect, useState, useContext, useMemo, useRef,
 } from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import moment from 'moment';
 import {
-    Menu, Dropdown, Icon, Header,
+    Menu, Dropdown, Icon, Header, Button,
 } from 'semantic-ui-react';
 import { useDrop } from 'react-dnd-cjs';
 import { connect } from 'react-redux';
@@ -30,9 +30,12 @@ function AnalyticsContainer(props) {
         workingLanguage,
         changeWorkingDashboard,
     } = props;
-
+    
+    const dashboardRef = useRef(null);
     const [availableEnvs, setAvailableEnvs] = useState(['development']);
     const [sequenceOptions, setSequenceOptions] = useState([]);
+    const [slotOptions, setSlotOptions] = useState([]);
+    const [actionOptions, setActionOptions] = useState([]);
     const {
         project: { _id: projectId },
         projectLanguages,
@@ -63,10 +66,15 @@ function AnalyticsContainer(props) {
             projectId,
             wrapMeteorCallback((err, availableActions) => {
                 if (!err) {
-                    setSequenceOptions([...sequenceOptions, ...availableActions.map(action => ({ key: action, text: action, value: { name: action, excluded: false } }))]);
+                    setActionOptions([...availableActions.map(action => ({ key: action, text: action, value: { name: action, excluded: false, type: 'action' } }))]);
                 }
             }),
         );
+        Meteor.call('slots.getSlots', projectId, (err, slots) => {
+            if (!err) {
+                setSlotOptions(slots.map(({ name: slotName }) => ({ key: slotName, text: slotName, value: { name: slotName, type: 'slot', excluded: false } })));
+            }
+        });
     }, []);
    
     const {
@@ -120,7 +128,7 @@ function AnalyticsContainer(props) {
                 excludeActions: undefined,
                 includeIntents: undefined,
                 excludeIntents: ['intentFrequencies'].includes(type) ? ['get_started'] : undefined,
-                selectedSequence: ['conversationsFunnel'].includes(type) ? [{ name: 'get_started', excluded: false }] : undefined,
+                selectedSequence: ['conversationsFunnel'].includes(type) ? [{ name: 'get_started', excluded: false, type: 'intent' }] : undefined,
                 triggerConversations: ['conversationCounts', 'triggerFrequencies'].includes(type),
                 userInitiatedConversations: ['conversationCounts', 'intentFrequencies'].includes(type),
             },
@@ -174,7 +182,7 @@ function AnalyticsContainer(props) {
     );
 
     return (
-        <AnalyticsContext.Provider value={{ sequenceOptions }}>
+        <AnalyticsContext.Provider value={{ sequenceOptions, slotOptions, actionOptions }}>
             {canDrop && (
                 <div data-cy='delete-card-dropzone' className={`top-menu-red-dropzone ${isOver ? 'hover' : ''}`} ref={drop}>
                     <Header as='h3' color='red' textAlign='center'><Icon name='trash' />Drop here to delete</Header>
@@ -203,6 +211,17 @@ function AnalyticsContainer(props) {
                     </Menu.Item>
                     <Menu.Menu position='right'>
                         <Menu.Item>
+                            <Button
+                                icon
+                                labelPosition='left'
+                                onClick={() => dashboardRef.current.downloadAll()}
+                                data-cy='export-all'
+                            >
+                                <Icon name='download' />
+                                Export to Excel
+                            </Button>
+                        </Menu.Item>
+                        <Menu.Item>
                             {renderAddCard()}
                         </Menu.Item>
                     </Menu.Menu>
@@ -211,6 +230,7 @@ function AnalyticsContainer(props) {
             <React.Suspense fallback={<div className='analytics-dashboard' />}>
                 <Loading loading={loading}>
                     <Dashboard
+                        ref={dashboardRef}
                         dashboard={dashboard}
                         onUpdateDashboard={handleUpdateDashboard}
                     />

@@ -1,5 +1,5 @@
 import {
-    Modal, Dropdown, TextArea, Input,
+    Modal, Dropdown, TextArea, Input, Message,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React, { useState, useContext } from 'react';
@@ -7,92 +7,142 @@ import { throttle } from 'lodash';
 import ValidatedSequenceSelector from '../common/ValidatedSequenceSelector';
 import { AnalyticsContext } from './AnalyticsContext';
 import IntentAndActionSelector from '../common/IntentAndActionSelector';
+import SequenceSelector from '../common/SequenceSelector';
+import { validateEventFilters } from '../../../lib/eventFilter.utils';
 
-function SettingsPortal(props) {
+const SettingsPortal = (props) => {
     const {
-        onClose, open, text, values, onChange,
+        text,
+        value,
+        onClose,
+        open,
+        setting,
+        onChange,
     } = props;
-    const [newValues, setNewValues] = useState(
-        Array.isArray(values)
-            ? values.map(v => ({ key: v, text: v, value: v }))
-            : values,
-    );
-   
-    const { sequenceOptions } = useContext(AnalyticsContext);
+
+    const { sequenceOptions, slotOptions, actionOptions } = useContext(AnalyticsContext);
     const onChangeThrottled = throttle(onChange, 500);
+    const [newValue, setnewValue] = useState(
+        Array.isArray(value)
+            ? value.map(v => ({ key: v, text: v, value: v }))
+            : value,
+    );
+    const [errors, setErrors] = useState([]);
+    const handleAddItem = (e, { value: val }) => setnewValue([...newValue, { key: val, text: val, value: val }]);
+    const handleModifyText = (e, { value: val }) => { setnewValue(val); onChangeThrottled(val); };
 
-    const handleAddItem = (e, { value }) => setNewValues([...newValues, { key: value, text: value, value }]);
-    const handleModifyText = (e, { value }) => { setNewValues(value); onChangeThrottled(value); };
+    const renderDefaultDropdown = () => (
+        <Dropdown
+            data-cy='settings-portal-dropdown'
+            placeholder={text}
+            options={newValue}
+            search
+            selection
+            fluid
+            multiple
+            allowAdditions
+            value={value}
+            onAddItem={handleAddItem}
+            onChange={(e, { value: val }) => onChange(val)}
+        />
+    );
 
-    function renderModalContent() {
-        if (text === 'Filter intents and actions') {
+    const renderIntentDropdown = () => (
+        <SequenceSelector
+            onChange={(val) => {
+                onChange(val);
+            }}
+            sequence={value}
+            enableExclusions={false}
+            allowedEventTypes={['intent']}
+            bordered
+        />
+    );
+    
+    const renderIntentAndActionSelector = () => (
+        <>
+            {errors && errors.length > 0 && <Message negative header='Errors' list={errors} />}
+            <IntentAndActionSelector
+                data-cy='settings-portal-sequence-selector'
+                sequence={newValue.selection}
+                operatorValue={value.operator}
+                operatorChange={val => onChange({ ...value, operator: val })}
+                onChange={(val) => {
+                    const updatedValue = { ...value, selection: val || [] };
+                    const validationResult = validateEventFilters(val, value.operator);
+                    setnewValue(updatedValue);
+                    if (validationResult.length > 0) {
+                        setErrors(validationResult);
+                        return;
+                    }
+                    setErrors([]);
+                    onChange(updatedValue);
+                }
+                }
+                allowedOperators={['and', 'or']}
+                actionOptions={actionOptions}
+                slotOptions={slotOptions}
+            />
+        </>
+    );
+    
+    const renderSequenceSelector = () => (
+        <ValidatedSequenceSelector
+            data-cy='settings-portal-sequence-selector'
+            options={sequenceOptions}
+            sequence={value}
+            onChange={val => onChange(val)}
+            slotOptions={slotOptions}
+            actionOptions={actionOptions}
+        />
+    );
+
+    const renderNumberInput = () => (
+        <Input
+            data-cy='settings-portal-input'
+            className='analytics-settings-number-input'
+            defaultValue={value}
+            type='number'
+            onChange={(e, { value: val }) => {
+                if (!val || val === '') {
+                    onChange(null);
+                    return;
+                }
+                onChange(val);
+            }}
+            clearable
+        />
+    );
+
+    const renderModalContent = () => {
+        switch (setting) {
+        case 'includeActions':
+        case 'excludeActions':
+            return renderDefaultDropdown();
+        case 'includeIntents':
+        case 'excludeIntents':
+            return renderIntentDropdown();
+        case 'eventFilter':
+            return renderIntentAndActionSelector();
+        case 'conversationLength':
+        case 'limit':
+            return renderNumberInput();
+        case 'selectedSequence':
+            return renderSequenceSelector();
+        default:
             return (
-                <>
-                    <IntentAndActionSelector
-                        data-cy='settings-portal-sequence-selector'
-                        options={sequenceOptions}
-                        sequence={values.selection}
-                        operatorValue={values.operator}
-                        operatorChange={value => onChange({ ...values, operator: value })}
-                        onChange={value => onChange({ ...values, selection: value || [] })}
-                        allowedOperators={['and', 'or']}
-                    />
-                </>
-            );
-        } if (Array.isArray(values) && text === 'Selected sequence') {
-            return (
-                <ValidatedSequenceSelector
-                    data-cy='settings-portal-sequence-selector'
-                    options={sequenceOptions}
-                    sequence={values}
-                    onChange={value => onChange(value)}
-                />
-            );
-        } if (text === 'Display limit' || text === 'Minimum number of utterances') {
-            return (
-                <Input
-                    data-cy='settings-portal-input'
-                    className='analytics-settings-number-input'
-                    defaultValue={values}
-                    type='number'
-                    onChange={(e, { value }) => {
-                        if (!value || value === '') {
-                            onChange(null);
-                            return;
-                        }
-                        onChange(value);
-                    }}
-                    clearable
-                />
-            );
-        } if (Array.isArray(values)) {
-            return (
-                <Dropdown
-                    data-cy='settings-portal-dropdown'
-                    placeholder={text}
-                    options={newValues}
-                    search
-                    selection
-                    fluid
-                    multiple
-                    allowAdditions
-                    value={values}
-                    onAddItem={handleAddItem}
-                    onChange={(e, { value }) => onChange(value)}
+                <TextArea
+                    data-cy='settings-portal-textarea'
+                    value={value}
+                    style={{ width: '100%' }}
+                    onChange={handleModifyText}
+                    rows={7}
+                    autoheight='true'
                 />
             );
         }
-        return (
-            <TextArea
-                data-cy='settings-portal-textarea'
-                value={newValues}
-                style={{ width: '100%' }}
-                onChange={handleModifyText}
-                rows={7}
-                autoheight='true'
-            />
-        );
-    }
+    };
+
     return (
         <Modal
             onClose={onClose}
@@ -101,23 +151,26 @@ function SettingsPortal(props) {
             className='settings-portal-modal'
         >
             <Modal.Header>{text}</Modal.Header>
-            {renderModalContent()}
             <Modal.Content>
-
+                {renderModalContent()}
             </Modal.Content>
         </Modal>
     );
-}
+};
+
 
 SettingsPortal.propTypes = {
     text: PropTypes.string.isRequired,
     open: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
-    values: PropTypes.oneOfType([PropTypes.string, PropTypes.array, PropTypes.number, PropTypes.object]).isRequired,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.array, PropTypes.number, PropTypes.object]),
+    setting: PropTypes.string,
     onChange: PropTypes.func.isRequired,
 };
 
 SettingsPortal.defaultProps = {
+    setting: null,
+    value: null,
 };
 
 export default SettingsPortal;

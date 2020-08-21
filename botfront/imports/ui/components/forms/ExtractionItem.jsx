@@ -5,6 +5,8 @@ import {
 } from 'semantic-ui-react';
 import { can } from '../../../lib/scopes';
 import IconButton from '../common/IconButton';
+import IntentLabel from '../nlu/common/IntentLabel';
+import SequenceSelector from '../common/SequenceSelector';
 
 const ExtractionItem = (props) => {
     const {
@@ -41,12 +43,6 @@ const ExtractionItem = (props) => {
         return missingIntents;
     };
 
-    const intentOptions = useMemo(() => {
-        const missingIntentOptions = getMissingIntents();
-        if (!missingIntentOptions.length) return intents;
-        return [...intents, ...missingIntentOptions];
-    }, [intents, notIntent, intent]);
-
     const canEdit = can('stories:w', projectId);
     const intentCondition = useMemo(() => {
         if (Array.isArray(intent)) return 'include';
@@ -61,7 +57,7 @@ const ExtractionItem = (props) => {
         if (selectedCondition === 'exclude') onChange({ intent: null, not_intent: intent || [] });
     };
 
-    const handleChangeIntent = (e, { value: intentSelection }) => {
+    const handleChangeIntent = (intentSelection) => {
         const update = intentCondition === 'include'
             ? { intent: intentSelection }
             : { not_intent: intentSelection };
@@ -160,9 +156,8 @@ const ExtractionItem = (props) => {
             return renderSlotInput();
         }
     };
-
     const renderIntentSelect = () => (
-        <div className='extraction-line' key={`extraction-condition-${index}`}>
+        <div className='extraction-line extraction-intents-line' key={`extraction-condition-${index}`}>
             <Dropdown
                 disabled={!canEdit}
                 data-cy='intent-condition-dropdown'
@@ -178,19 +173,17 @@ const ExtractionItem = (props) => {
                 onChange={handleIntentConditionChange}
             />
             {intentCondition && (
-                <Dropdown
-                    disabled={!canEdit}
-                    data-cy='intent-condition-multiselect'
-                    clearable
-                    placeholder='select included/excluded intents'
-                    className='extraction-dropdown'
-                    selection
-                    allowAdditions
-                    multiple
-                    search
-                    options={intentOptions}
-                    value={(intentCondition === 'include' ? intent : notIntent) || []}
-                    onChange={handleChangeIntent}
+                <SequenceSelector
+                    sequence={(intentCondition === 'include' ? intent : notIntent) || []}
+                    onChange={(v) => {
+                        handleChangeIntent(v);
+                    }}
+                    actionOptions={[]}
+                    slotOptions={[]}
+                    allowedEventTypes={['intent']}
+                    bordered
+                    width={12}
+                    enableExclusions={false}
                 />
             )}
         </div>

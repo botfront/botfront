@@ -1,9 +1,9 @@
 import React, {
     useContext, useState, useImperativeHandle, useRef,
 } from 'react';
-import PropTypes from 'prop-types';
+import PropTypes, { array } from 'prop-types';
 import {
-    Icon, Popup, Input, Button, Modal,
+    Icon, Popup, Input, Button, Modal, Item, Label, Dropdown,
 } from 'semantic-ui-react';
 import UserUtteranceViewer from './UserUtteranceViewer';
 import { ProjectContext } from '../../../layouts/context';
@@ -20,6 +20,9 @@ const Intent = React.forwardRef((props, ref) => {
         enableReset,
         detachedModal,
         onClose,
+        multiple,
+        width,
+        onlyDataTable,
     } = props;
     const {
         addIntent, getCanonicalExamples,
@@ -30,10 +33,22 @@ const Intent = React.forwardRef((props, ref) => {
     const tableRef = useRef();
     const showReset = allowEditing && enableReset && ((value && value !== OOS_LABEL) || detachedModal);
 
+    const getIntentsFromValue = () => {
+        if (Array.isArray(value)) {
+            return value.map(intentName => ({ intent: intentName }));
+        }
+        return (value ? [{ intent: value }] : []);
+    };
+
     const intents = [
-        ...(value ? [{ intent: value }] : []),
+        ...getIntentsFromValue(),
         ...getCanonicalExamples({})
-            .filter(i => i.intent !== value),
+            .filter((i) => {
+                if (Array.isArray(value)) {
+                    return !value.includes(i.intent);
+                }
+                return i.intent !== value;
+            }),
     ];
 
     useImperativeHandle(ref, () => ({
@@ -47,7 +62,6 @@ const Intent = React.forwardRef((props, ref) => {
         setPopupOpen(false);
         if (onClose) onClose();
     };
-
     const textMatch = (s1, s2) => (s1 || '')
         .replace(/ /g, '')
         .toLowerCase()
@@ -65,7 +79,19 @@ const Intent = React.forwardRef((props, ref) => {
     const handleChange = (intentName) => {
         if (intentName) addIntent(intentName);
         handleClose();
+        if (multiple === true) {
+            if (Array.isArray(value) && value.includes(intentName)) return;
+            onChange([...(value || []), intentName]);
+            return;
+        }
         onChange(intentName);
+    };
+
+    const handleDelete = (intentName) => {
+        if (Array.isArray(value)) {
+            const index = value.indexOf(intentName);
+            onChange([...value.slice(0, index), ...value.slice(index + 1, value.length)]);
+        }
     };
 
     const selectSibling = (key) => {
@@ -162,7 +188,7 @@ const Intent = React.forwardRef((props, ref) => {
     const renderContent = () => (
         <div
             style={{
-                width: '500px',
+                width: `${width}px`,
             }}
             className='intent-dropdown'
             data-cy='intent-dropdown'
@@ -171,11 +197,10 @@ const Intent = React.forwardRef((props, ref) => {
             {showReset && renderResetIntent()}
 
             {!!dataToDisplay.length && (
-
                 <DataTable
                     ref={tableRef}
-                    height={dataToDisplay.length * 40 >= 200 ? 200 : dataToDisplay.length * 40}
-                    width={500}
+                    height={dataToDisplay.length * 50 >= 200 ? 200 : dataToDisplay.length * 50}
+                    width={width}
                     columns={columns}
                     data={dataToDisplay}
                     onClickRow={({ datum: { intent } = {} } = { datum: {} }) => handleChange(intent)}
@@ -190,6 +215,7 @@ const Intent = React.forwardRef((props, ref) => {
                     color='purple'
                     content='Create new intent'
                     onClick={() => handleChange(typeInput)}
+                    className='create-intent-button'
                 />
             )}
         </div>
@@ -215,7 +241,7 @@ const Intent = React.forwardRef((props, ref) => {
     }
 
     const onClickProp = { onClick: () => { if (popupOpen) handleClose(); else setPopupOpen(true); } };
-    return (
+    const renderSingleSelect = () => (
         <div
             className={`intent-label ${extraClass}`}
             data-cy='intent-label'
@@ -254,6 +280,40 @@ const Intent = React.forwardRef((props, ref) => {
             )}
         </div>
     );
+    const renderMultiSelect = () => (
+        <Dropdown
+            className='intent-multiselect'
+            scrolling
+            trigger={(
+                <Item onClick={() => setPopupOpen(true)} className='intent-dropdown-trigger'>
+                    {Array.isArray(value) && value.length ? value.map(intentName => (
+                        <Label onClick={e => e.stopPropagation()} color='purple' className='intent-multiselect-label'>
+                            <Icon name='tag' size='small' />
+                            {intentName}
+                            <Icon
+                                name='delete'
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDelete(intentName);
+                                }}
+                            />
+                        </Label>
+                    )) : <span className='placeholder-text'>Select an intent</span>}
+                </Item>
+            )}
+            open={popupOpen}
+            onClose={handleClose}
+            selection
+        >
+            <Dropdown.Menu><Dropdown.Item>{renderContent()}</Dropdown.Item></Dropdown.Menu>
+        </Dropdown>
+    );
+    if (onlyDataTable) {
+        return renderContent();
+    }
+    return (
+        multiple ? renderMultiSelect() : renderSingleSelect()
+    );
 });
 
 Intent.propTypes = {
@@ -265,6 +325,9 @@ Intent.propTypes = {
     disabled: PropTypes.bool,
     detachedModal: PropTypes.bool,
     onClose: PropTypes.func,
+    multiple: PropTypes.bool,
+    width: PropTypes.number,
+    onlyDataTable: PropTypes.bool,
 };
 
 Intent.defaultProps = {
@@ -276,6 +339,9 @@ Intent.defaultProps = {
     enableReset: false,
     detachedModal: false,
     onClose: null,
+    multiple: false,
+    width: 500,
+    onlyDataTable: false,
 };
 
 export default Intent;

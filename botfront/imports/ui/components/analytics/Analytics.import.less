@@ -154,3 +154,13 @@
         margin-right: 1em;
     }
 }
+
+.ui.dropdown .menu>.item.disabled-popup-item {
+    // required because using the disabled prop on dropdown
+    // menu items stops the popup from being triggered
+    cursor: default;
+    opacity: .45;
+    &:hover{
+        background-color: rgba(0,0,0,0);
+    }
+}

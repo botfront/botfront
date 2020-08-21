@@ -355,6 +355,8 @@
       {
         "_id": "convoA",
         "language":"en",
+        "intents": ["get_started", "test1", "test2"],
+        "actions": [],
         "tracker": {
           "sender_id": "75ff7f5064014d0cab88e59a86713eb8",
           "slots": { "disambiguation_message": null, "test_slot": null },
@@ -448,6 +450,8 @@
       {
         "_id": "convoB",
         "language":"en",
+        "intents": ["get_started", "test1"],
+        "actions": ["action_botfront_fallback", "action_listen"],
         "tracker": {
           "sender_id": "senderB",
           "slots": { "disambiguation_message": null, "test_slot": null },
@@ -512,6 +516,8 @@
       {
         "_id": "convoC",
         "language":"en",
+        "intents": ["get_started", "test1", "test2"],
+        "actions": [],
         "tracker": {
           "sender_id": "senderC",
           "slots": { "disambiguation_message": null, "test_slot": null },
@@ -587,6 +593,8 @@
       {
         "_id": "convoD",
         "language":"en",
+        "intents": ["get_started", "test1"],
+        "actions": [],
         "tracker": {
           "sender_id": "senderD",
           "slots": { "disambiguation_message": null, "test_slot": null },

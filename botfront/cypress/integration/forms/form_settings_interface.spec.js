@@ -134,11 +134,15 @@ describe('use the main form editor interface to', () => {
         cy.dataCy('intent-condition-dropdown').last().click();
         cy.dataCy('intent-condition-dropdown').last().find('span').contains('NOT')
             .click();
-        cy.dataCy('intent-condition-multiselect').last().click();
-        cy.dataCy('intent-condition-multiselect').last().find('span').contains('chitchat.greet')
-            .click();
-        cy.dataCy('intent-condition-multiselect').last().find('span').contains('chitchat.bye')
-            .click();
+        // cy.addConversationEventFilter('intent', 'test');
+        cy.dataCy('sequence-selector').click();
+        cy.dataCy('sequence-selector').find('input').should('exist');
+        cy.dataCy('sequence-selector').find('input').click();
+        cy.dataCy('sequence-selector').find('input').type('chitchat.greet{enter}');
+        cy.dataCy('sequence-selector').click();
+        cy.dataCy('sequence-selector').find('input').should('exist');
+        cy.dataCy('sequence-selector').find('input').click();
+        cy.dataCy('sequence-selector').find('input').type('chitchat.bye{enter}');
         cy.dataCy('category-value-dropdown').last().click();
         cy.dataCy('category-value-dropdown').last().find('span').contains('blue')
             .click();

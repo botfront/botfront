@@ -43,14 +43,14 @@ const ConversationsBrowserContainer = (props) => {
         lengthFilter: { compare: -1, xThan: 'greaterThan' },
         durationFilter: { compareLowerBound: -1, compareUpperBound: -1 },
         confidenceFilter: { compare: -1, xThan: 'lessThan' },
-        intentsActionsFilters: [],
+        eventFilter: [],
         startDate: moment().subtract(7, 'd').set({
             hour: 0, minute: 0, second: 0,
         }),
         endDate: moment().set({
             hour: 23, minute: 59, second: 59,
         }),
-        intentsActionsOperator: 'or',
+        eventFilterOperator: 'or',
         userId: null,
         env: 'development',
         userInitiatedConversations: true,
@@ -62,7 +62,7 @@ const ConversationsBrowserContainer = (props) => {
         let value = query[key];
         switch (key) {
         case 'actionFilters':
-        case 'intentsActionsFilters':
+        case 'eventFilter':
             value = JSON.parse(value || '[]');
             return Array.isArray(value) ? value : [value];
         case 'lengthFilter':
@@ -96,10 +96,10 @@ const ConversationsBrowserContainer = (props) => {
         lengthFilter: getFilterFromQuery('lengthFilter'),
         confidenceFilter: getFilterFromQuery('confidenceFilter'),
         durationFilter: getFilterFromQuery('durationFilter'),
-        intentsActionsFilters: getFilterFromQuery('intentsActionsFilters'),
+        eventFilter: getFilterFromQuery('eventFilter'),
         startDate: getFilterFromQuery('startDate'),
         endDate: getFilterFromQuery('endDate'),
-        intentsActionsOperator: getFilterFromQuery('intentsActionsOperator'),
+        eventFilterOperator: getFilterFromQuery('eventFilterOperator'),
         userId: getFilterFromQuery('userId'),
         env: getFilterFromQuery('env'),
         userInitiatedConversations: getFilterFromQuery('userInitiatedConversations'),
@@ -330,7 +330,7 @@ const ConversationsBrowserContainer = (props) => {
 ConversationsBrowserContainer.propTypes = {
     router: PropTypes.object.isRequired,
     environment: PropTypes.string,
-    conversationFilters: PropTypes.string.isRequired,
+    conversationFilters: PropTypes.string,
     setFiltersInRedux: PropTypes.func.isRequired,
     filtersFromRedux: PropTypes.object,
     changeWorkingEnv: PropTypes.func.isRequired,
@@ -339,6 +339,7 @@ ConversationsBrowserContainer.propTypes = {
 ConversationsBrowserContainer.defaultProps = {
     environment: 'development',
     filtersFromRedux: {},
+    conversationFilters: '',
 };
 
 const mapStateToProps = state => ({

@@ -70,6 +70,19 @@ div.bot-response-message {
     &.intents-actions {
       width: calc(100% - 35px);
       margin-left: 0;
+      .left.floated.wide.column.sequence-item-container {
+        padding-left: 1.8em;
+      }
+      .ui.button.event-selector-dropdown {
+        margin-right: 1.6em;
+        margin-top: 0.6em;
+        .add.icon {
+            font-size: 0.74rem;
+        }
+        i.search.icon {
+          margin-top: 0.6em;
+        }
+      }
     }
 
     &.conversation-type-buttons {
@@ -163,16 +176,15 @@ div.bot-response-message {
       
       .input {
         width: 100%;
-        &.text-input{
+        &.number-input{
           input{
-            text-align: left;
+            text-align: center;
           }
         }
         input{
           margin: 0;
           border-style: none;
           box-shadow: none;
-          text-align: center;
           font-weight: 400;
         }
         margin: 0;
@@ -181,11 +193,17 @@ div.bot-response-message {
       }
       &.number-filter{
         width: 4em;
+        .input{
+          input {
+            text-align: center;
+          }
+        }
       }
       &.duration-number-filter {
         width: 3.5em;
         .ui.input {
           input {
+            text-align: center;
             padding-left: 0.25em;
             padding-right: 0.25em;
           }

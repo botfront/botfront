@@ -200,6 +200,13 @@ describe('analytics tables', function() {
             .eq(cardIndex)
             .click();
     };
+    const exportCard = (index) => {
+        cy.dataCy('card-ellipsis-menu').eq(index).click();
+        cy.dataCy('analytics-card')
+            .first()
+            .find('[data-cy=export-card]')
+            .click({ force: true });
+    };
     it('should display the correct data in the conversation length table', function() {
         cy.visit('/project/bf/analytics');
         cy.pickDateRange(1, '4/11/2019', '5/11/2019');
@@ -208,7 +215,7 @@ describe('analytics tables', function() {
             verifyCellData(cellData);
         });
         // export and check that the page does not crash
-        cy.dataCy('analytics-export-button').click();
+        exportCard(1);
         cy.dataCy('analytics-chart').should('exist');
     });
 
@@ -226,7 +233,7 @@ describe('analytics tables', function() {
                 cy.expect(element[0].childNodes[0].data.length).not.to.be.equal(0);
             });
         // export and check that the page does not crash
-        cy.dataCy('analytics-export-button').click();
+        exportCard(2);
         cy.dataCy('analytics-chart').should('exist');
     });
 
@@ -238,7 +245,7 @@ describe('analytics tables', function() {
             verifyCellData(cellData);
         });
         // export and check that the page does not crash
-        cy.dataCy('analytics-export-button').click();
+        exportCard(3);
         cy.dataCy('analytics-chart').should('exist');
     });
     
@@ -282,7 +289,7 @@ describe('analytics tables', function() {
         });
         cy.log('verified table dat 90 day');
         // export and check that the page does not crash
-        cy.dataCy('analytics-export-button').click();
+        exportCard(4);
         cy.dataCy('analytics-chart').should('exist');
     });
 
@@ -298,16 +305,15 @@ describe('analytics tables', function() {
             verifyCellData(cellData);
         });
         // export and check that the page does not crash
-        cy.dataCy('analytics-export-button').click();
+        exportCard(0);
         cy.dataCy('analytics-chart').should('exist');
     });
 
     it('should export a xlsx file with all the widgets data', function() {
         cy.visit('/project/bf/analytics');
         cy.pickDateRange(0, '5/11/2019', '4/11/2019', true);
-        cy.dataCy('analytics-export-button').first().trigger('mouseover');
 
-        cy.dataCy('analytics-export-all-button').click({ force: true });
+        cy.dataCy('export-all').click({ force: true });
         cy.wait(1000); // wait for the generation of the xlsx file
         cy.getWindowMethod('getXLSXData').then((getXLSXData) => {
             const excelData = getXLSXData();

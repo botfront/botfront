@@ -1,9 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { Dropdown, Icon, Button } from 'semantic-ui-react';
+import {
+    Dropdown, Icon, Button, Popup,
+} from 'semantic-ui-react';
 import SettingsPortal from './SettingsPortal';
 
-export const filters = ['includeActions', 'excludeAction', 'includeActions', 'excludeIntents', 'selectedSequence', 'conversationLength', 'limit', 'intentsAndActionsFilters'];
+export const filters = ['includeActions', 'excludeAction', 'includeActions', 'excludeIntents', 'selectedSequence', 'conversationLength', 'limit', 'eventFilter'];
 export const conversationTypes = ['userInitiatedConversations', 'triggeredConversations'];
 
 const SettingsMenu = (props) => {
@@ -13,6 +15,8 @@ const SettingsMenu = (props) => {
         onChangeSettings,
         displayConfigs,
         denominatorLine,
+        exportData,
+        canExport,
     } = props;
 
     const displayTypeHeader = useMemo(() => (
@@ -61,11 +65,11 @@ const SettingsMenu = (props) => {
                 valueText: settings[setting] ? `: ${settings[setting]}` : '',
                 values: settings[setting],
             };
-        case 'intentsAndActionsFilters':
+        case 'eventFilter':
             return {
-                text: 'Filter intents and actions',
+                text: 'Filter conversation events',
                 valueText,
-                values: { selection: settings[setting] || [], operator: settings.intentsAndActionsOperator || 'or' },
+                values: { selection: settings[setting] || [], operator: settings.eventFilterOperator || 'or' },
             };
         default:
             return {};
@@ -79,12 +83,13 @@ const SettingsMenu = (props) => {
             <React.Fragment key={setting}>
                 <SettingsPortal
                     text={text}
+                    setting={setting}
                     onClose={() => setSettingsOpen(false)}
                     open={settingsOpen === setting}
-                    values={values}
+                    value={values}
                     onChange={(newVal) => {
-                        if (setting === 'intentsAndActionsFilters') {
-                            onChangeSettings({ [setting]: newVal.selection, intentsAndActionsOperator: newVal.operator });
+                        if (setting === 'eventFilter') {
+                            onChangeSettings({ eventFilter: newVal.selection, eventFilterOperator: newVal.operator });
                             return;
                         }
                         onChangeSettings({ [setting]: newVal });
@@ -145,6 +150,21 @@ const SettingsMenu = (props) => {
                 {displayConfigs.includes('triggerConversations') && renderCheckOption('Triggered conversations', 'triggerConversations', settings.triggerConversations)}
                 {displayFiltersHeader && <Dropdown.Header content='Filters' onClick={e => e.stopPropagation()} />}
                 {(displayConfigs || []).map(renderExtraOptionsLink)}
+                <Dropdown.Header content='Extras' onClick={e => e.stopPropagation()} />
+                <Popup
+                    content='There is no data in this card to download'
+                    inverted
+                    disabled={canExport}
+                    trigger={(
+                        <Dropdown.Item
+                            onClick={e => (canExport ? exportData() : e.stopPropagation())}
+                            className={!canExport ? 'disabled-popup-item' : ''}
+                            data-cy='export-card'
+                        >
+                            Export this card (.csv)
+                        </Dropdown.Item>
+                    )}
+                />
             </Dropdown.Menu>
         </Dropdown>
     );
@@ -156,11 +176,14 @@ SettingsMenu.propTypes = {
     onChangeSettings: PropTypes.func.isRequired,
     displayConfigs: PropTypes.array,
     denominatorLine: PropTypes.bool,
+    exportData: PropTypes.func.isRequired,
+    canExport: PropTypes.bool,
 };
 
 SettingsMenu.defaultProps = {
     displayConfigs: [],
     denominatorLine: false,
+    canExport: false,
 };
 
 export default SettingsMenu;

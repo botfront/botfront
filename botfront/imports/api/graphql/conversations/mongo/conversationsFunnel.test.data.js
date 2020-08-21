@@ -126,6 +126,11 @@ export default [
                     message_id: '601ec75fc86e43539b9e615e5277e0df',
                 },
                 {
+                    event: 'slot',
+                    name: 'colour_slot',
+                    value: 'orange',
+                },
+                {
                     event: 'action',
                     timestamp: 1590503456.8556035,
                     name: 'utter_coffee',

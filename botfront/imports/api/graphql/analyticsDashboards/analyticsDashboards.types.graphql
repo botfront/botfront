@@ -42,15 +42,21 @@ type AnalyticsCard {
     selectedSequence: [Step]
     wide: Boolean
     showDenominator: Boolean
-    intentsAndActionsFilters: [IntentsAndActionsFilterItem]
-    intentsAndActionsOperator: IntentsAndActionsOperator
+    eventFilter: [IntentsAndActionsFilterItem]
+    eventFilterOperator: IntentsAndActionsOperator
 }
 
 type IntentsAndActionsFilterItem {
     name: String
     excluded: Boolean
+    type: eventType
 }
 
+enum eventType {
+    action
+    intent
+    slot
+}
 
 enum AnalyticsGraphValueType {
     absolute

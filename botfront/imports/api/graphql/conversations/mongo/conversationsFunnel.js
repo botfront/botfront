@@ -2,11 +2,17 @@ import Conversations from '../conversations.model';
 import { trackerDateRangeStage } from './utils';
 
 
-const convertToEvent = (name) => {
-    if (name.startsWith('action_') || name.startsWith('utter_')) {
-        return { event: 'action', name };
+const convertToEvent = ({ name, type }) => {
+    if (type === 'slot') {
+        return { event: 'slot', name };
     }
-    return { event: 'user', 'parse_data.intent.name': name };
+    if (type === 'event') {
+        return { event: 'action', value: name };
+    }
+    if (type === 'user') {
+        return { event: 'user', 'parse_data.intent.name': name };
+    }
+    throw new Error('convertToEvent encountered an unrecognized type. type must be one of slot, action, intent');
 };
 
 
@@ -80,17 +86,24 @@ export const checkIfVariableIsAMatch = variableToTest => (
             { $ne: ['STOP', { $arrayElemAt: ['$$value', -1] }] }, // If stop is the last element we do not continue to match
             {
                 $or: [
-                    { $eq: ['$$this.name', variableToTest] }, // test for action
-                    { $eq: ['$$this.parse_data.intent.name', variableToTest] }], // test for intent
+                    { $and: [{ $eq: ['$$this.name', variableToTest] }, { $eq: ['$$this.event', '$$eventType'] }] }, // test for action
+                    { $and: [{ $eq: ['$$this.parse_data.intent.name', variableToTest] }, { $eq: ['$$this.event', '$$eventType'] }] }, // test for intent
+                    { $and: [{ $eq: ['$$this.name', variableToTest] }, { $eq: ['$$this.event', '$$eventType'] }] },
+                ],
             }],
     }
 );
 
+const convertType = (type) => {
+    if (type === 'intent') return 'user';
+    return type;
+};
+
 export const reshapeSequence = sequence => sequence.map((step) => {
     if (step.excluded) {
-        return [step.name];
+        return { name: [step.name], type: convertType(step.type) };
     }
-    return step.name;
+    return { name: step.name, type: convertType(step.type) };
 });
 
 
@@ -110,6 +123,7 @@ export const countMatchesPerConversation = inputArray => ({
                             sizeSeq: { $size: '$sequence' },
                             sizeVal: { $size: '$$value' },
                             toMatch: { $arrayElemAt: ['$sequence', { $size: '$$value' }] },
+                            eventType: { $arrayElemAt: ['$eventTypes', { $size: '$$value' }] },
                             nextToMatch: { $arrayElemAt: ['$sequence', { $add: [{ $size: '$$value' }, 1] }] },
                         },
                         in: {
@@ -121,8 +135,9 @@ export const countMatchesPerConversation = inputArray => ({
                                             /* Check if the current value does  match $$toMatch
                                                     */
                                             $or: [
-                                                { $eq: ['$$this.name', { $arrayElemAt: ['$$toMatch', 0] }] }, // test for action
-                                                { $eq: ['$$this.parse_data.intent.name', { $arrayElemAt: ['$$toMatch', 0] }] }, // test for intent
+                                                { $and: [{ $eq: ['$$this.name', { $arrayElemAt: ['$$toMatch', 0] }] }, { $eq: ['$$this.event', '$$eventType'] }] }, // test for action
+                                                { $and: [{ $eq: ['$$this.parse_data.intent.name', { $arrayElemAt: ['$$toMatch', 0] }] }, { $eq: ['$$this.event', '$$eventType'] }] }, // test for intent
+                                                { $and: [{ $eq: ['$$this.value', { $arrayElemAt: ['$$toMatch', 0] }] }, { $eq: ['$$this.event', '$$eventType'] }] }, // test for intent
                                             ],
                                         },
                                         then: { $concatArrays: ['$$value', ['STOP']] }, // we found the value we wanted to avoid so we add STOP to the array
@@ -201,7 +216,8 @@ export const getConversationsFunnel = async ({
         {
             $project: {
                 eventsFiltered: { $concatArrays: ['$tracker.events', ['END']] },
-                sequence: reshapedSequence,
+                sequence: reshapedSequence.map(({ name }) => name),
+                eventTypes: reshapedSequence.map(({ type }) => type),
             },
         },
         // that part check the order of the elements in the sequence, and store then in a dedicated field if they match

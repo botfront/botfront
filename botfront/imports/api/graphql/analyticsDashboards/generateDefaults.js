@@ -24,6 +24,8 @@ export const defaultDashboard = (project) => {
                 conversationLength: 1,
                 userInitiatedConversations: true,
                 triggerConversations: true,
+                eventFilterOperator: 'or',
+                eventFilter: [],
             },
             {
                 name: 'Conversation Length',
@@ -63,7 +65,8 @@ export const defaultDashboard = (project) => {
                 endDate,
                 chartType: 'line',
                 valueType: 'absolute',
-                includeActions: ['action_botfront_fallback'],
+                eventFilter: [{ name: 'action_botfront_fallback', excluded: false, type: 'action' }],
+                eventFilterOperator: 'or',
                 userInitiatedConversations: true,
                 triggerConversations: true,
             },

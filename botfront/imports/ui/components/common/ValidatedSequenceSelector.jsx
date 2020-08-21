@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import SequenceSelector from './SequenceSelector';
 
 function ValidatedSequenceSelector({
-    sequence, onChange, options,
+    sequence, onChange, actionOptions, slotOptions,
 }) {
     const [errorMessages, setErrorMessages] = useState([]);
     const [pendingSequence, setPendingSequence] = useState([]);
@@ -46,7 +46,9 @@ function ValidatedSequenceSelector({
             <SequenceSelector
                 sequence={pendingSequence}
                 onChange={updateSequence}
-                options={options}
+                actionOptions={actionOptions}
+                slotOptions={slotOptions}
+                bordered
             />
             { errorMessages.length > 0 && (
                 <Message negative>
@@ -62,13 +64,15 @@ function ValidatedSequenceSelector({
 ValidatedSequenceSelector.propTypes = {
     sequence: PropTypes.array,
     onChange: PropTypes.func.isRequired,
-    options: PropTypes.array,
+    actionOptions: PropTypes.array,
+    slotOptions: PropTypes.array,
 };
 
 
 ValidatedSequenceSelector.defaultProps = {
     sequence: [],
-    options: [],
+    actionOptions: [],
+    slotOptions: [],
 };
 
 
