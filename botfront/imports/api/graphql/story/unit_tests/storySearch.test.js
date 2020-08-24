@@ -9,16 +9,14 @@ import {
 import { indexStory } from '../../../story/stories.index';
 import { Projects } from '../../../project/project.collection';
 import { NLUModels } from '../../../nlu_model/nlu_model.collection';
-import { deleteResponse, createResponses } from '../../botResponses/mongo/botResponses';
+import { createResponses } from '../../botResponses/mongo/botResponses';
 import BotResponses from '../../botResponses/botResponses.model';
 
 import StoryResolver from '../resolvers/storiesResolver';
 
 if (Meteor.isServer) {
     const cleanup = async () => {
-        await deleteResponse(projectId, botResponseFixture.key);
         await Stories.remove({});
-
         await BotResponses.deleteMany(({ projectId }));
         await Projects.remove({ _id: projectId });
         await NLUModels.remove({ _id: enModelId });
@@ -45,6 +43,7 @@ if (Meteor.isServer) {
         await cleanup();
         done();
     };
+    
     const searchStories = async (language, queryString, reject) => {
         try {
             const searchResult = await StoryResolver.Query.storiesSearch(null, {
@@ -53,9 +52,9 @@ if (Meteor.isServer) {
                 queryString,
             });
             if (!reject) {
-                expect(searchResult[0]).to.be.deep.equal({ _id: 'TEST_STORY', title: 'story fixture', storyGroupId: 'TEST_STORY_GROUP' });
+                expect(searchResult.stories[0]).to.be.deep.equal({ _id: 'TEST_STORY', title: 'story fixture', storyGroupId: 'TEST_STORY_GROUP' });
             } else {
-                expect(searchResult[0]).to.be.equal(undefined);
+                expect(searchResult.stories[0]).to.be.equal(undefined);
             }
         } catch (e) {
             throw new Error(`seaching stories for "${queryString}" did not return the expected results\n${e}`);
@@ -81,8 +80,9 @@ if (Meteor.isServer) {
             done(e);
         }
     };
+
     // ------ test suite -------
-    describe('test searching stories by their index', () => {
+    describe.only('test searching stories by their index', () => {
         before((done) => {
             insertDataAndIndex(done);
         });
