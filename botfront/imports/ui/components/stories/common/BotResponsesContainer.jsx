@@ -21,7 +21,7 @@ import {
     checkMetadataSet, toggleButtonPersistence, parseContentType, checkContentEmpty,
 } from '../../../../lib/botResponse.utils';
 import BotResponseName from './BotResponseName';
-import { RESP_FROM_LANG } from '../graphQL/mutations';
+import { RESP_FROM_LANG } from '../graphql/mutations';
 
 export const ResponseContext = React.createContext();
 
