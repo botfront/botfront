@@ -187,25 +187,25 @@ const BotResponsesContainer = (props) => {
                         onToggleButtonType={handleToggleQuickReply}
                         responseType={typeName}
                     />
-                    {initialValue && !initialValue.isNew && getSequence().length === 1 && !checkContentEmpty(getSequence()[0])
-                         && (
-                             <Dropdown
-                                 button
-                                 icon={null}
-                                 compact
-                                 data-cy='import-from-lang'
-                                 className='import-from-lang'
-                                 options={otherLanguages}
-                                 text='Copy from'
-                                 onChange={(_, selection) => {
-                                     importRespFromLang({
-                                         variables: {
-                                             projectId, key: name, originLang: selection.value, destLang: language,
-                                         },
-                                     });
-                                 }}
-                             />
-                         )
+                    {otherLanguages.length > 0 && initialValue && !initialValue.isNew && getSequence().length === 1 && !checkContentEmpty(getSequence()[0])
+                        && (
+                            <Dropdown
+                                button
+                                icon={null}
+                                compact
+                                data-cy='import-from-lang'
+                                className='import-from-lang'
+                                options={otherLanguages}
+                                text='Copy from'
+                                onChange={(_, selection) => {
+                                    importRespFromLang({
+                                        variables: {
+                                            projectId, key: name, originLang: selection.value, destLang: language,
+                                        },
+                                    });
+                                }}
+                            />
+                        )
                     }
                     {enableEditPopup && (
                         <IconButton
