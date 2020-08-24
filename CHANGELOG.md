@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.26.0-rc.2](https://github.com/botfront/botfront/compare/v0.26.0-rc.1...v0.26.0-rc.2) (2020-08-24)
+
+
+### Bug Fixes
+
+* hide copyFrom in bot responses when there is only one language ([c3845d7](https://github.com/botfront/botfront/commit/c3845d7e0bb184b6c93cc5e4d5e49c58ca9afa2e))
+
 ## [0.26.0-rc.1](https://github.com/botfront/botfront/compare/v0.25.9...v0.26.0-rc.1) (2020-08-19)
 
 
