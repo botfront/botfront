@@ -24,7 +24,11 @@ type Query {
 
 type Mutation {
     updateExample(id: String!, example: ExampleInput!): updateResponse
-    insertExamples(examples: [ExampleInput]): updateResponse
+    insertExamples(
+        examples: [ExampleInput]!
+        language: String!
+        projectId: String!
+    ): updateResponse
     deleteExamples(ids: [String]!): updateResponse
 }
 

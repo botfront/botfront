@@ -7,7 +7,14 @@ const createSortObject = (fieldName = 'intent', order = 'ASC') => {
     return sortObject;
 };
 
-const createFilterObject = (projectId, language, intents, entities, onlyCanonicals, text) => {
+const createFilterObject = (
+    projectId,
+    language,
+    intents,
+    entities,
+    onlyCanonicals,
+    text,
+) => {
     const filters = { projectId };
     filters['metadata.language'] = language;
 
@@ -33,7 +40,6 @@ const createFilterObject = (projectId, language, intents, entities, onlyCanonica
     return filters;
 };
 
-
 export const getExamples = async ({
     projectId = '',
     pageSize = 20,
@@ -46,12 +52,21 @@ export const getExamples = async ({
     sortKey = undefined,
     cursor = undefined,
 }) => {
-    const filtersObject = createFilterObject(projectId, language, intents, entities, onlyCanonicals, text);
+    const filtersObject = createFilterObject(
+        projectId,
+        language,
+        intents,
+        entities,
+        onlyCanonicals,
+        text,
+    );
     const sortObject = createSortObject(sortKey, order);
 
     const numberOfDocuments = await Examples.countDocuments({
         ...filtersObject,
-    }).lean().exec();
+    })
+        .lean()
+        .exec();
 
     const pagesNb = pageSize > -1 ? Math.ceil(numberOfDocuments / pageSize) : 1;
     const boundedPageNb = Math.min(pagesNb, cursor);
@@ -59,7 +74,8 @@ export const getExamples = async ({
     const data = await Examples.find(
         {
             ...filtersObject,
-        }, null,
+        },
+        null,
         {
             skip: (boundedPageNb - 1) * pageSize,
             ...limit,
@@ -67,13 +83,10 @@ export const getExamples = async ({
         },
     ).lean();
 
- 
     const cursorIndex = !cursor
         ? 0
         : data.findIndex(activity => activity._id === cursor) + 1;
-    const examples = pageSize === 0
-        ? data
-        : data.slice(cursorIndex, cursorIndex + pageSize);
+    const examples = pageSize === 0 ? data : data.slice(cursorIndex, cursorIndex + pageSize);
 
     return {
         examples,
@@ -84,24 +97,34 @@ export const getExamples = async ({
     };
 };
 
-
 export const listIntents = async ({ projectId, language }) => {
-    const examples = await Examples.find({ projectId, 'metadata.language': language }).select({ intent: 1 }).lean();
+    const examples = await Examples.find({ projectId, 'metadata.language': language })
+        .select({ intent: 1 })
+        .lean();
     const intentsList = examples.map(example => example.intent);
     const intentsSet = new Set(intentsList);
     return Array.from(intentsSet);
 };
 
 export const listEntities = async ({ projectId, language }) => {
-    const examples = await Examples.find({ projectId, 'metadata.language': language }).select({ entities: 1 }).lean();
-    const entitiesList = examples.map(example => example.entities.map(entity => entity.entity)).flat();
+    const examples = await Examples.find({ projectId, 'metadata.language': language })
+        .select({ entities: 1 })
+        .lean();
+    const entitiesList = examples
+        .map(example => example.entities.map(entity => entity.entity))
+        .flat();
     const entitiesSet = new Set(entitiesList);
     return Array.from(entitiesSet);
 };
 
-export const insertExamples = async ({ examples }) => {
+export const insertExamples = async ({ examples, language, projectId }) => {
     const preparedExamples = examples.map(example => ({
-        ...example, createdAt: new Date(), updatedAt: new Date(), _id: shortid.generate(),
+        ...example,
+        projectId,
+        language,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        _id: shortid.generate(),
     }));
     try {
         const result = await Examples.insertMany(preparedExamples);
@@ -114,10 +137,12 @@ export const insertExamples = async ({ examples }) => {
     }
 };
 
-
 export const updateExample = async ({ id, example }) => {
     try {
-        const result = await Examples.updateOne({ _id: id }, { $set: { ...example, updatedAt: new Date() } }).exec();
+        const result = await Examples.updateOne(
+            { _id: id },
+            { $set: { ...example, updatedAt: new Date() } },
+        ).exec();
         if (result.nModified === 0 || result.ok === 0) {
             throw new Error('Update failed');
         }
@@ -126,7 +151,6 @@ export const updateExample = async ({ id, example }) => {
         return { success: false, _id: id };
     }
 };
-
 
 export const deleteExamples = async ({ ids }) => {
     try {

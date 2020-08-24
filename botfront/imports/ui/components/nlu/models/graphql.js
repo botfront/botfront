@@ -72,8 +72,8 @@ query listEntities($projectId: String!, $language: String!) {
 }`;
 
 export const INSERT_EXAMPLES = gql`
-mutation insertExamples($examples: [ExampleInput]!) {
-    insertExamples(examples: $examples) {  
+mutation insertExamples($projectId: String!, $language: String!, $examples: [ExampleInput]!) {
+    insertExamples(projectId: $projectId, language: $language, examples: $examples) {  
         success
     }
 }`;
