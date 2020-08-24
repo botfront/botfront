@@ -40,7 +40,7 @@ export const searchStories = async (projectId, language, search) => {
             },
         },
     ).fetch();
-    return matched;
+    return { stories: matched };
 };
 
 const replaceLine = (story, lineToReplace, newLine) => {

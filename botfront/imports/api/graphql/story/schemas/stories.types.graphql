@@ -1,5 +1,9 @@
 type Query {
-    storiesSearch(projectId: String! language: String! queryString: String!): [Story]
+    storiesSearch(projectId: String! language: String! queryString: String!): searchResults
+}
+
+type searchResults {
+    stories: [Story]
 }
 
 type Story {
