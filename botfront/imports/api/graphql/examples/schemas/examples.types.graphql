@@ -38,12 +38,6 @@ type ExamplePage {
     pageInfo: PageInfo
 }
 
-enum order {
-    ASC
-    DESC
-}
-
-
 type Example {
     _id: String,
     projectId: String,

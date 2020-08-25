@@ -2,6 +2,11 @@ scalar Date
 
 scalar Any
 
+enum order {
+    ASC
+    DESC
+}
+
 type PageInfo {
     endCursor: String!,
     hasNextPage: Boolean!
