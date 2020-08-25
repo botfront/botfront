@@ -25,6 +25,7 @@ query examples(
     $sortKey: String
     $pageSize: Int
     $cursor: Int
+    $exactMatch: Boolean = false
 ) {
     examples(
         projectId: $projectId
@@ -37,6 +38,7 @@ query examples(
         sortKey: $sortKey
         pageSize: $pageSize
         cursor: $cursor
+        exactMatch: $exactMatch
     ) {
         examples {
             _id 

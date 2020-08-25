@@ -11,8 +11,8 @@ import {
 
 export default {
     Query: {
-        async examples(_, args, __) {
-            return getExamples(args);
+        async examples(_, { exactMatch, ...args }, __) {
+            return getExamples({ ...args, options: { exactMatch } });
         },
         async listIntents(_, args, __) {
             return listIntents(args);

@@ -15,8 +15,10 @@ const createFilterObject = (
     entities,
     onlyCanonicals,
     text,
+    options = {},
 ) => {
     const filters = { projectId };
+    const { exactMatch } = options;
     filters['metadata.language'] = language;
 
     if (intents && intents.length > 0) {
@@ -24,16 +26,19 @@ const createFilterObject = (
             $in: intents,
         };
     }
-    if (entities && entities.length > 0) {
-        filters.entities = typeof entities[0] === 'string'
-            ? { entity: { $in: entities } } // contains one if entities is array of strings
-            : {
-                // perfect match of entity payload if entities is array of { entity, value }
-                $size: entities.length,
-                $and: entities.map(({ entity, value }) => ({
-                    $elemMatch: { entity, value },
-                })),
-            };
+    if (!exactMatch && entities && entities.length > 0) {
+        filters['entities.entity'] = {
+            $in: entities,
+        };
+    }
+    if (exactMatch) {
+        filters.entities = {
+            // perfect match of entity payload if entities is array of { entity, value }
+            $size: entities.length,
+            $and: entities.map(({ entity, value }) => ({
+                $elemMatch: { entity, value },
+            })),
+        };
     }
     if (onlyCanonicals) {
         filters['metadata.canonical'] = true;
@@ -56,6 +61,7 @@ export const getExamples = async ({
     order = undefined,
     sortKey = undefined,
     cursor = undefined,
+    options = {},
 }) => {
     const filtersObject = createFilterObject(
         projectId,
@@ -64,6 +70,7 @@ export const getExamples = async ({
         entities,
         onlyCanonicals,
         text,
+        options,
     );
     const sortObject = createSortObject(sortKey, order);
 
