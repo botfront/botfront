@@ -130,12 +130,11 @@ describe('Smart story trigger rules', function() {
             .type('3');
         cy.dataCy('submit-triggers').click();
         cy.get('.dimmer').should('not.exist');
-        // add a new story
-        cy.createStoryInGroup({ groupName: 'Default stories', storyName: 'like woah' });
+
+        cy.browseToStory('Farewells');
         // try to link the new story to the first story
         cy.dataCy('stories-linker').last().click();
-        cy.dataCy('link-to').last().find('span').contains('Get started')
-            .should('not.exist');
+        cy.dataCy('link-to').last().find('span').should('have.text', 'Greetings')
     });
 
     it('should trigger a story with the rules payload', () => {

@@ -66,7 +66,7 @@ describe('should not get 404s for default routes', () => {
         cy.visit('/');
         cy.get('.ui.top-menu').should('exist');
         cy.get('.header').contains('Bot responses').should('exist');
-        cy.url().should('include', '/project/bf/dialogue');
+        cy.url().should('include', '/project/bf/responses');
     });
     it('nludata:r/w global default', () => {
         cy.createDummyRoleAndUser({ permission: ['nlu-data:r'] });

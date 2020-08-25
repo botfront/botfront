@@ -28,7 +28,7 @@ describe('responses:r restricted permissions', () => {
     });
 
     it('should not show edit features in responses', () => {
-        cy.visit('/project/bf/dialogue/templates');
+        cy.visit('/project/bf/responses');
         cy.dataCy('response-text').should('contain', 'GO GO GO');
         cy.dataCy('remove-response-0').should('not.exist');
         cy.dataCy('create-response').should('not.exist');

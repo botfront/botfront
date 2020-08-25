@@ -197,7 +197,7 @@ const BotResponsesContainer = (props) => {
                         onToggleButtonType={handleToggleQuickReply}
                         responseType={typeName}
                     />
-                    {otherLanguages.length > 0 && initialValue && !initialValue.isNew && getSequence().length === 1 && !checkContentEmpty(getSequence()[0])
+                    {otherLanguages.length > 0 && initialValue && !initialValue.isNew && getSequence().length === 1 && !checkContentEmpty(getSequence()[0]) && can('stories:w', projectId)
                         && (
                             <Dropdown
                                 button

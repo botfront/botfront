@@ -39,7 +39,7 @@ class Index extends React.Component {
             return `/project/${pId}/nlu/models`;
         }
         if (can('responses:r', pId)) {
-            return `/project/${pId}/dialogue/templates`;
+            return `/project/${pId}/responses`;
         }
         return ('/404');
     };
