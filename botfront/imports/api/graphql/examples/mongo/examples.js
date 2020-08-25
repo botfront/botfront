@@ -121,7 +121,7 @@ export const insertExamples = async ({ examples, language, projectId }) => {
     const preparedExamples = examples.map(example => ({
         ...example,
         projectId,
-        language,
+        metadata: { ...(example.metadata || {}), ...(language ? { language } : {}) },
         createdAt: new Date(),
         updatedAt: new Date(),
         _id: shortid.generate(),
