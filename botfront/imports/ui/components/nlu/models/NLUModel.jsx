@@ -45,7 +45,7 @@ import { Projects } from '../../../../api/project/project.collection';
 import { extractEntities } from './nluModel.utils';
 import { setWorkingLanguage } from '../../../store/actions/actions';
 import { WithRefreshOnLoad } from '../../../layouts/project';
-import { useExamples } from './hooks';
+import { useExamples, useDeleteExamples } from './hooks';
 import IconButton from '../../common/IconButton';
 
 class NLUModel extends React.Component {
@@ -163,6 +163,7 @@ class NLUModel extends React.Component {
     }
 
     renderDelete = (row) => {
+        const { deleteExamples } = this.props;
         const { datum } = row;
         const { metadata: { canonical } } = datum;
         if (canonical) { return null; }
@@ -170,8 +171,7 @@ class NLUModel extends React.Component {
             <IconButton
                 icon='trash'
                 basic
-                onClick={() => console.log('heh')
-                }
+                onClick={() => deleteExamples({ variables: { ids: [datum._id] } })}
             />
         );
     }
@@ -503,8 +503,8 @@ const NLUDataLoaderContainer = withTracker((props) => {
     });
     const {
         data, loading, hasNextPage, loadMore,
-    } = useExamples({ projectId, language: workingLanguage, cursor: 1 });
-    const = useDeleteExamples()
+    } = useExamples({ projectId, language: workingLanguage, pageSize: 20 });
+    const [deleteExamples] = useDeleteExamples({ projectId, language: workingLanguage, pageSize: 20 });
 
     const models = NLUModels.find({ _id: { $in: nlu_models } }, { sort: { language: 1 } }, { fields: { language: 1, _id: 1 } }).fetch();
     if (!modelId || !nlu_models.includes(modelId)) {
@@ -558,6 +558,7 @@ const NLUDataLoaderContainer = withTracker((props) => {
         projectDefaultLanguage,
         instance,
         project,
+        deleteExamples,
     };
 })(WithRefreshOnLoad(NLUModel));
 

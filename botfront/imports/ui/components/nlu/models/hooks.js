@@ -11,11 +11,10 @@ import {
 
 
 export function useExamples(variables) {
-    const pageSize = 20;
     const {
         data, loading, error, fetchMore, refetch,
     } = useQuery(GET_EXAMPLES, {
-        notifyOnNetworkStatusChange: true, variables: { ...variables, pageSize },
+        notifyOnNetworkStatusChange: true, variables,
     });
 
     if (!data || !data.examples) return { loading, data: [] };
@@ -24,8 +23,7 @@ export function useExamples(variables) {
         notifyOnNetworkStatusChange: true,
         variables: {
             ...variables,
-            pageSize,
-            cursor: parseInt(data.examples.pageInfo.endCursor, 10),
+            cursor: data.examples.pageInfo.endCursor,
         },
         updateQuery: (previousResult, { fetchMoreResult }) => {
             const { examples, pageInfo } = fetchMoreResult.examples;
@@ -92,16 +90,18 @@ export const useDeleteExamples = variables => useMutation(
     DELETE_EXAMPLES,
     {
         update: (cache) => {
-            const result = cache.readQuery({ query: GET_EXAMPLES });
-            const { getActivity: { activity } } = result;
+            console.log('variables', variables);
+            const result = cache.readQuery({ query: GET_EXAMPLES, variables });
+            console.log(result);
+            const { examples: { examples } } = result;
             cache.writeQuery({
                 query: GET_EXAMPLES,
                 variables,
                 data: {
                     ...result,
-                    getActivity: {
-                        ...result.getActivity,
-                        activity: activity.filter(a => !deleted.map(del => del._id).includes(a._id)),
+                    examples: {
+                        ...result.examples,
+                        examples: examples.filter(a => !variables.ids.includes(a._id)),
                     },
                 },
             });
