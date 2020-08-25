@@ -1,4 +1,5 @@
 import shortid from 'shortid';
+import { escapeRegExp } from 'lodash';
 import Examples from '../examples.model.js';
 
 const createSortObject = (fieldName = 'intent', order = 'ASC') => {
@@ -24,17 +25,21 @@ const createFilterObject = (
         };
     }
     if (entities && entities.length > 0) {
-        filters['entities.entity'] = {
-            $in: entities,
-        };
+        filters.entities = typeof entities[0] === 'string'
+            ? { entity: { $in: entities } } // contains one if entities is array of strings
+            : {
+                // perfect match of entity payload if entities is array of { entity, value }
+                $size: entities.length,
+                $and: entities.map(({ entity, value }) => ({
+                    $elemMatch: { entity, value },
+                })),
+            };
     }
     if (onlyCanonicals) {
         filters['metadata.canonical'] = true;
     }
     if (text && text.length > 0) {
-        filters['entities.entity'] = {
-            $in: entities,
-        };
+        filters.text = { $regex: new RegExp(escapeRegExp(text), 'i') };
     }
 
     return filters;

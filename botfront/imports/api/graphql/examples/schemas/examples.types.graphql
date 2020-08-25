@@ -3,7 +3,7 @@ type Query {
         projectId: String!
         language: String!
         intents: [String]
-        entities:[String]
+        entities: [Any]
         onlyCanonical: Boolean
         text: String
         order: order
@@ -13,12 +13,12 @@ type Query {
     ): ExamplePage
     listIntents(
         projectId: String!
-        language: String!): 
-        [String]
+        language: String!
+    ): [String]
     listEntities(
         projectId: String!
-        language: String!):
-        [String]
+        language: String!
+    ): [String]
 }
 
 
@@ -33,7 +33,7 @@ type Mutation {
 }
 
 type ExamplePage {
-    examples:[Example]
+    examples: [Example]
     pageInfo: PageInfo
 }
 

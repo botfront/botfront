@@ -15,38 +15,43 @@ query getIntentStatistics($projectId: String!, $language: String!) {
 
 export const GET_EXAMPLES = gql`
 query examples(
-        $projectId: String!
-        $language: String!
-        $intents: [String]
-        $entities:[String]
-        $onlyCanonical: Boolean
-        $text: String
-        $order: order
-        $sortKey: String
-        $pageSize: Int
-        $cursor: Int
+    $projectId: String!
+    $language: String!
+    $intents: [String]
+    $entities: [Any]
+    $onlyCanonical: Boolean
+    $text: String
+    $order: order
+    $sortKey: String
+    $pageSize: Int
+    $cursor: Int
 ) {
     examples(
-        projectId:$projectId
-        language:$language
-        intents:$intents
-        entities:$entities
-        onlyCanonical:$onlyCanonical
-        text:$text
-        order:$order
-        sortKey:$sortKey
-        pageSize:$pageSize
-        cursor:$cursor
+        projectId: $projectId
+        language: $language
+        intents: $intents
+        entities: $entities
+        onlyCanonical: $onlyCanonical
+        text: $text
+        order: $order
+        sortKey: $sortKey
+        pageSize: $pageSize
+        cursor: $cursor
     ) {
         examples {
             _id 
             projectId 
             text 
             intent 
-            entities { value}
+            entities {
+                entity
+                value
+                start
+                end
+            }
             metadata
         }
-        pageInfo{
+        pageInfo {
             endCursor
             hasNextPage
         }
@@ -83,7 +88,7 @@ export const DELETE_EXAMPLES = gql`
 mutation deleteExamples($ids: [String]!) {
     deleteExamples(ids: $ids) {  
         success
-  }
+    }
 }`;
 
 export const UPDATE_EXAMPLES = gql`
