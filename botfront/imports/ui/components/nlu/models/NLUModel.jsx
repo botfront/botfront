@@ -207,11 +207,10 @@ class NLUModel extends React.Component {
 
 
     renderDataTable = () => {
-        const { loadMore, hasNextPage } = this.props;
+        const { loadMore, hasNextPage, loadingExamples } = this.props;
         const {
             examples, selection,
         } = this.state;
-
         const columns = [
             { key: 'id', selectionKey: true, hidden: true },
             {
@@ -236,7 +235,7 @@ class NLUModel extends React.Component {
                 columns={columns}
                 data={examples}
                 hasNextPage={hasNextPage}
-                loadMore={() => loadMore()}
+                loadMore={loadingExamples ? () => {} : loadMore}
                 rowClassName='glow-box hoverable'
                 className='examples-table'
                 selection={selection}

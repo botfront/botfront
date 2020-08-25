@@ -88,9 +88,7 @@ mutation insertExamples($projectId: String!, $language: String!, $examples: [Exa
 
 export const DELETE_EXAMPLES = gql`
 mutation deleteExamples($ids: [String]!) {
-    deleteExamples(ids: $ids) {  
-        success
-    }
+    deleteExamples(ids: $ids) 
 }`;
 
 export const UPDATE_EXAMPLES = gql`

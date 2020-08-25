@@ -18,28 +18,29 @@ export function useExamples(variables) {
     });
 
     if (!data || !data.examples) return { loading, data: [] };
-    const loadMore = () => fetchMore({
-        query: GET_EXAMPLES,
-        notifyOnNetworkStatusChange: true,
-        variables: {
-            ...variables,
-            cursor: data.examples.pageInfo.endCursor,
-        },
-        updateQuery: (previousResult, { fetchMoreResult }) => {
-            const { examples, pageInfo } = fetchMoreResult.examples;
-
-            return examples.length
-                ? {
-                    examples: {
+    const loadMore = () => {
+        fetchMore({
+            query: GET_EXAMPLES,
+            notifyOnNetworkStatusChange: true,
+            variables: {
+                ...variables,
+                cursor: data.examples.pageInfo.endCursor,
+            },
+            updateQuery: (previousResult, { fetchMoreResult }) => {
+                const { examples, pageInfo } = fetchMoreResult.examples;
+                return examples.length
+                    ? {
+                        examples: {
                         // eslint-disable-next-line no-underscore-dangle
-                        __typename: previousResult.examples.__typename,
-                        examples: [...previousResult.examples.examples, ...examples],
-                        pageInfo,
-                    },
-                }
-                : previousResult;
-        },
-    });
+                            __typename: previousResult.examples.__typename,
+                            examples: [...previousResult.examples.examples, ...examples],
+                            pageInfo,
+                        },
+                    }
+                    : previousResult;
+            },
+        });
+    };
 
     return {
         data: data.examples.examples,
@@ -89,10 +90,8 @@ export function useEntitiesList(variables) {
 export const useDeleteExamples = variables => useMutation(
     DELETE_EXAMPLES,
     {
-        update: (cache) => {
-            console.log('variables', variables);
+        update: (cache, { data: { deleteExamples: deleted } }) => {
             const result = cache.readQuery({ query: GET_EXAMPLES, variables });
-            console.log(result);
             const { examples: { examples } } = result;
             cache.writeQuery({
                 query: GET_EXAMPLES,
@@ -101,7 +100,7 @@ export const useDeleteExamples = variables => useMutation(
                     ...result,
                     examples: {
                         ...result.examples,
-                        examples: examples.filter(a => !variables.ids.includes(a._id)),
+                        examples: examples.filter(a => !deleted.includes(a._id)),
                     },
                 },
             });

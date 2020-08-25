@@ -73,24 +73,12 @@ export const getExamples = async ({
         options,
     );
     const sortObject = createSortObject(sortKey, order);
-
-    const numberOfDocuments = await Examples.countDocuments({
-        ...filtersObject,
-    })
-        .lean()
-        .exec();
-
-    const pagesNb = pageSize > -1 ? Math.ceil(numberOfDocuments / pageSize) : 1;
-    const boundedPageNb = Math.min(pagesNb, cursor);
-    const limit = pageSize > -1 ? { limit: pageSize } : {};
     const data = await Examples.find(
         {
             ...filtersObject,
         },
         null,
         {
-            skip: (boundedPageNb - 1) * pageSize,
-            ...limit,
             sort: sortObject,
         },
     ).lean();
@@ -98,8 +86,10 @@ export const getExamples = async ({
     const cursorIndex = !cursor
         ? 0
         : data.findIndex(activity => activity._id === cursor) + 1;
-    const examples = pageSize === 0 ? data : data.slice(cursorIndex, cursorIndex + pageSize);
-
+    const examples = pageSize === 0
+        ? data
+        : data.slice(cursorIndex, cursorIndex + pageSize);
+    
     return {
         examples,
         pageInfo: {
@@ -165,13 +155,9 @@ export const updateExample = async ({ id, example }) => {
 };
 
 export const deleteExamples = async ({ ids }) => {
-    try {
-        const result = await Examples.deleteMany({ _id: { $in: ids } }).exec();
-        if (result.deletedCount !== ids.length) {
-            throw new Error('Issue during delete');
-        }
-        return { success: true };
-    } catch (e) {
-        return { success: false };
+    const result = await Examples.deleteMany({ _id: { $in: ids } }).exec();
+    if (result.deletedCount !== ids.length) {
+        throw new Error('Issue during delete');
     }
+    return ids;
 };
