@@ -12,7 +12,7 @@ const createFilterObject = (
     projectId,
     language,
     intents,
-    entities,
+    entities = [],
     onlyCanonicals,
     text,
     options = {},
@@ -35,7 +35,7 @@ const createFilterObject = (
         filters.entities = {
             // perfect match of entity payload if entities is array of { entity, value }
             $size: entities.length,
-            $and: entities.map(({ entity, value }) => ({
+            $all: entities.map(({ entity, value }) => ({
                 $elemMatch: { entity, value },
             })),
         };
