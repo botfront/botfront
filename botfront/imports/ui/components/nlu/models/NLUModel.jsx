@@ -212,7 +212,7 @@ class NLUModel extends React.Component {
             examples, selection,
         } = this.state;
         const columns = [
-            { key: 'id', selectionKey: true, hidden: true },
+            { key: '_id', selectionKey: true, hidden: true },
             {
                 key: 'intent',
                 style: {
