@@ -344,7 +344,7 @@ export default class EntityReport extends React.Component {
     }
 
     render = () => {
-        const { accuracy, precision, f1_score: f1 } = this.props;
+        const { accuracy = 0, precision = 0, f1_score: f1 = 0 } = this.props;
         return (
             <div>
                 <br />
