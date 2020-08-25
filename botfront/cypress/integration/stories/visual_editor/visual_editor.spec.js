@@ -136,42 +136,39 @@ describe('story visual editor', function () {
     });
 
     it('should use the canonical example if one is available', function () {
-        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'en', [
+        cy.insertNluExamples('bf', 'en', [
             {
                 text: 'bonjour canonical',
                 intent: 'chitchat.greet',
                 canonical: true,
             },
-        ]]);
-        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'en', [
             {
                 text: 'bonjour not canonical',
                 intent: 'chitchat.greet',
                 canonical: false,
-
             },
-        ]]);
+        ]);
         cy.visit('/project/bf/stories');
         cy.browseToStory('Greetings');
         cy.get('[role = "application"]').should('have.text', 'bonjour canonical');
     });
 
     it('should use the most recent example if no canonical is available', function () {
-        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'en', [
+        cy.insertNluExamples('bf', 'en', [
             {
                 text: 'bonjour not canonical',
                 intent: 'chitchat.greet',
             },
-        ]]);
+        ]);
         cy.visit('/project/bf/nlu/models');
         cy.dataCy('icon-gem', null, '.active').click({ force: true });
         cy.dataCy('icon-gem', null, '.active').should('not.exist');
-        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'en', [
+        cy.insertNluExamples('bf', 'en', [
             {
                 text: 'bonjour not canonical recent',
                 intent: 'chitchat.greet',
             },
-        ]]);
+        ]);
         cy.visit('/project/bf/stories');
         cy.browseToStory('Greetings');
         cy.get('[role = "application"]').should('have.text', 'bonjour not canonical recent');

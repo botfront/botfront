@@ -1,11 +1,11 @@
-import { check, Match } from 'meteor/check';
+import { check } from 'meteor/check';
 import uuidv4 from 'uuid/v4';
 import shortid from 'shortid';
 import {
     uniq, uniqBy, sortBy, intersectionBy,
 } from 'lodash';
 import {
-    formatError, getModelIdsFromProjectId, getProjectIdFromModelId,
+    formatError, getProjectIdFromModelId,
 } from '../../lib/utils';
 import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
@@ -29,21 +29,6 @@ const gazetteDefaults = {
 };
 
 Meteor.methods({
-    async 'nlu.insertExamplesWithLanguage'(projectId, language, items) {
-        check(projectId, String);
-        check(language, String);
-        check(items, Array);
-        try {
-            const modelIds = getModelIdsFromProjectId(projectId);
-            const modelId = NLUModels.findOne(
-                { _id: { $in: modelIds }, language },
-                { fields: { _id: 1 } },
-            )._id;
-            return await Meteor.callWithPromise('nlu.insertExamples', modelId, items);
-        } catch (e) {
-            throw formatError(e);
-        }
-    },
     async 'nlu.saveExampleChanges'(modelId, examples) {
         checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
         check(modelId, String);
@@ -401,74 +386,6 @@ if (Meteor.isServer) {
                 if (e instanceof Meteor.Error) throw e;
                 throw new Meteor.Error(e);
             }
-        },
-
-        async 'nlu.getUtteranceFromPayload'(projectId, payload, lang = 'en') {
-            check(projectId, String);
-            check(lang, String);
-            check(payload, Object);
-            if (!payload.intent) throw new Meteor.Error('400', 'Intent missing from payload');
-            const { nlu_models: nluModelIds } = Projects.findOne(
-                { _id: projectId },
-                { fields: { nlu_models: 1 } },
-            );
-            
-            const entitiesQuery = [];
-            if (payload.entities && payload.entities.length) {
-                entitiesQuery.push({
-                    $match: {
-                        'training_data.common_examples.entities': {
-                            $size: payload.entities.length,
-                        },
-                    },
-                });
-                payload.entities.forEach((entity) => {
-                    entitiesQuery.push({
-                        $match: {
-                            'training_data.common_examples.entities.entity':
-                                entity && entity.entity,
-                            'training_data.common_examples.entities.value':
-                                entity && entity.value,
-                        },
-                    });
-                });
-            } else {
-                entitiesQuery.push({
-                    $match: { 'training_data.common_examples.entities': { $size: 0 } },
-                });
-            }
-
-            const models = await NLUModels.aggregate([
-                { $match: { language: lang, _id: { $in: nluModelIds } } },
-                {
-                    $project: {
-                        'training_data.common_examples': {
-                            $filter: {
-                                input: '$training_data.common_examples',
-                                as: 'training_data',
-                                cond: { $eq: ['$$training_data.intent', payload.intent] },
-                            },
-                        },
-                    },
-                },
-                { $unwind: '$training_data.common_examples' },
-                ...entitiesQuery,
-                { $sort: { 'training_data.common_examples.canonical': -1, 'training_data.common_examples.updatedAt': -1 } },
-            ]).toArray();
-
-            const model = models[0];
-
-            if (
-                !model
-                || !model.training_data
-                || !model.training_data.common_examples.text
-            ) throw new Meteor.Error('400', 'No correponding utterance');
-            const {
-                text, intent, entities, _id,
-            } = model.training_data.common_examples;
-            return {
-                text, intent, entities, _id,
-            };
         },
 
         async 'nlu.chitChatSetup'() {

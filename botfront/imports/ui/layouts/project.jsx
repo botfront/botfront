@@ -12,7 +12,13 @@ import Alert from 'react-s-alert';
 import yaml from 'js-yaml';
 import React from 'react';
 import {
-    Placeholder, Header, Menu, Container, Button, Loader, Popup,
+    Placeholder,
+    Header,
+    Menu,
+    Container,
+    Button,
+    Loader,
+    Popup,
 } from 'semantic-ui-react';
 import gql from 'graphql-tag';
 import { wrapMeteorCallback } from '../components/utils/Errors';
@@ -27,12 +33,9 @@ import 'semantic-ui-css/semantic.min.css';
 import store from '../store/store';
 import { ProjectContext } from './context';
 import { setsAreIdentical } from '../../lib/utils';
-import {
-    GET_BOT_RESPONSES,
-    UPSERT_BOT_RESPONSE,
-} from './graphql';
+import { GET_BOT_RESPONSES, UPSERT_BOT_RESPONSE } from './graphql';
+import { INSERT_EXAMPLES, GET_EXAMPLES } from '../components/nlu/models/graphql';
 import apolloClient from '../../startup/client/apollo';
-
 
 const ProjectChat = React.lazy(() => import('../components/project/ProjectChat'));
 
@@ -64,26 +67,34 @@ class Project extends React.Component {
                 this.setState({ showIntercom: false });
             });
         }
-        if ((language && prevLanguage !== language)
-            || (projectId && prevProjectId !== projectId)) {
+        if (
+            (language && prevLanguage !== language)
+            || (projectId && prevProjectId !== projectId)
+        ) {
             this.refreshEntitiesAndIntents(true);
         }
-    }
+    };
 
     findExactMatch = (canonicals, entities) => {
         const exactMatch = canonicals.filter(ex => setsAreIdentical(ex.entities, entities))[0];
         return exactMatch ? exactMatch.example : null;
-    }
+    };
 
     getCanonicalExamples = ({ intent, entities = [] }) => {
         // both intent and entities are optional and serve to restrict the result
         const { exampleMap } = this.state;
         const filtered = intent
-            ? intent in exampleMap ? { [intent]: exampleMap[intent] } : {}
+            ? intent in exampleMap
+                ? { [intent]: exampleMap[intent] }
+                : {}
             : exampleMap;
-        return Object.keys(filtered)
-            .map(i => this.findExactMatch(filtered[i], entities.map(e => e.entity)) || { intent: i });
-    }
+        return Object.keys(filtered).map(
+            i => this.findExactMatch(
+                filtered[i],
+                entities.map(e => e.entity),
+            ) || { intent: i },
+        );
+    };
 
     refreshEntitiesAndIntents = (init = false) => {
         const { projectId, workingLanguage: language } = this.props;
@@ -103,7 +114,7 @@ class Project extends React.Component {
                 }
             }),
         );
-    }
+    };
 
     getIntercomUser = () => {
         const { _id, emails, profile } = Meteor.user();
@@ -114,17 +125,34 @@ class Project extends React.Component {
         };
     };
 
-    getUtteranceFromPayload = (payload, callback = () => { }) => {
-        const { projectId, workingLanguage } = this.props;
-        Meteor.call(
-            'nlu.getUtteranceFromPayload',
-            projectId,
-            payload,
-            workingLanguage,
-            (err, res) => callback(err, res),
-        );
-    }
-
+    getUtteranceFromPayload = (payload, callback = () => {}) => {
+        const { projectId, workingLanguage: language } = this.props;
+        const { intent, entities = [] } = payload;
+        if (!intent) throw new Meteor.Error('400', 'Intent missing from payload');
+        apolloClient
+            .query({
+                query: GET_EXAMPLES,
+                variables: {
+                    projectId,
+                    language,
+                    pageSize: -1,
+                    intents: [intent],
+                    entities,
+                    exactMatch: true,
+                    sortKey: 'canonical',
+                    order: 'DESC',
+                },
+            })
+            .then((res) => {
+                const { examples } = res.data.examples;
+                if (!examples || !examples.length) {
+                    return wrapMeteorCallback(callback)(
+                        new Error('No example found for payload'),
+                    );
+                }
+                return wrapMeteorCallback(callback)(null, examples[0]);
+            }, wrapMeteorCallback(callback));
+    };
 
     handleTriggerIntercom = (id) => {
         this.setState({
@@ -146,12 +174,10 @@ class Project extends React.Component {
 
     parseUtterance = (utterance) => {
         const { instance, workingLanguage } = this.props;
-        return Meteor.callWithPromise(
-            'rasa.parse',
-            instance,
-            [{ text: utterance, lang: workingLanguage }],
-        );
-    }
+        return Meteor.callWithPromise('rasa.parse', instance, [
+            { text: utterance, lang: workingLanguage },
+        ]);
+    };
 
     addIntent = (newIntent) => {
         const { intents, exampleMap } = this.state;
@@ -159,12 +185,12 @@ class Project extends React.Component {
         if (!Object.keys(exampleMap).includes(newIntent)) {
             this.setState({ exampleMap: { ...exampleMap, [newIntent]: [] } });
         }
-    }
+    };
 
     addEntity = (newEntity) => {
         const { entities } = this.state;
         this.setState({ entities: [...new Set([...entities, newEntity])] });
-    }
+    };
 
     upsertResponse = async (key, newResponse, index) => {
         const { responses } = this.state;
@@ -181,7 +207,13 @@ class Project extends React.Component {
             this.resetResponseInCache(newKey);
         }
         const variables = {
-            projectId, language, newPayload, key, newKey, index, ...responseTypeVariable,
+            projectId,
+            language,
+            newPayload,
+            key,
+            newKey,
+            index,
+            ...responseTypeVariable,
         };
         const result = await apolloClient.mutate({
             mutation: UPSERT_BOT_RESPONSE,
@@ -189,7 +221,7 @@ class Project extends React.Component {
             update: () => this.setResponse(newKey || key, { isNew, ...newPayload }),
         });
         return result;
-    }
+    };
 
     responsesFrag = () => {
         const { projectId, workingLanguage } = this.props;
@@ -201,24 +233,26 @@ class Project extends React.Component {
                 }
             `,
         };
-    }
+    };
 
     getMultiLangResponsesFrag = async () => {
         const { projectId, projectLanguages } = this.props;
         return projectLanguages.map(({ value }) => ({
             id: `${projectId}-${value}`,
             fragment: gql`
-                    fragment C on Cached {
-                        responses
-                    }
-                `,
+                fragment C on Cached {
+                    responses
+                }
+            `,
         }));
     };
 
     resetResponseInCache = async (responseName) => {
         const frags = await this.getMultiLangResponsesFrag();
         const fragKeys = Object.keys(frags);
-        const readFrags = fragKeys.map(key => apolloClient.readFragment(frags[key]) || { responses: {} });
+        const readFrags = fragKeys.map(
+            key => apolloClient.readFragment(frags[key]) || { responses: {} },
+        );
         readFrags.forEach((frag, i) => {
             const fragResponses = { ...frag.responses };
             delete fragResponses[responseName];
@@ -231,7 +265,7 @@ class Project extends React.Component {
             };
             apolloClient.writeFragment(newFrag);
         });
-    }
+    };
 
     readResponsesFrag = () => apolloClient.readFragment(this.responsesFrag()) || { responses: {} };
 
@@ -245,22 +279,22 @@ class Project extends React.Component {
         };
         apolloClient.writeFragment(newResponses);
         this.setState({ responses });
-    }
+    };
 
     setResponse = async (template, content) => {
         const { responses } = await this.readResponsesFrag();
         return this.writeResponsesFrag({ ...responses, [template]: content });
-    }
+    };
 
     setResponses = async (data = {}) => {
         const { responses } = await this.readResponsesFrag();
         return this.writeResponsesFrag({ ...responses, ...data });
-    }
+    };
 
     addResponses = async (templates) => {
         const { projectId, workingLanguage } = this.props;
         const { responses } = await this.readResponsesFrag();
-        const newTemplates = templates.filter(r => !(Object.keys(responses).includes(r)));
+        const newTemplates = templates.filter(r => !Object.keys(responses).includes(r));
         if (!newTemplates.length) return this.setState({ responses });
         const result = await apolloClient.query({
             query: GET_BOT_RESPONSES,
@@ -272,23 +306,34 @@ class Project extends React.Component {
         });
         if (!result.data) return this.setState({ responses });
         await this.setResponses(
-            result.data.getResponses.reduce( // turns [{ k: k1, v1, v2 }, { k: k2, v1, v2 }] into { k1: { v1, v2 }, k2: { v1, v2 } }
-                (acc, { key, ...rest }) => ({ ...acc, ...(key in acc ? {} : { [key]: rest }) }), {},
+            result.data.getResponses.reduce(
+                // turns [{ k: k1, v1, v2 }, { k: k2, v1, v2 }] into { k1: { v1, v2 }, k2: { v1, v2 } }
+                (acc, { key, ...rest }) => ({
+                    ...acc,
+                    ...(key in acc ? {} : { [key]: rest }),
+                }),
+                {},
             ),
         );
         return Date.now();
-    }
+    };
 
-    addUtterancesToTrainingData = (utterances, callback = () => { }) => {
-        const { projectId, workingLanguage } = this.props;
-        Meteor.call(
-            'nlu.insertExamplesWithLanguage',
-            projectId,
-            workingLanguage,
-            utterances.filter(u => u.text),
-            wrapMeteorCallback((err, res) => callback(err, res)),
-        );
-    }
+    addUtterancesToTrainingData = (utterances, callback = () => {}) => {
+        const { projectId, workingLanguage: language } = this.props;
+        apolloClient
+            .mutate({
+                mutation: INSERT_EXAMPLES,
+                variables: {
+                    examples: utterances.filter(u => u.text),
+                    projectId,
+                    language,
+                },
+            })
+            .then(
+                res => wrapMeteorCallback(callback)(null, res),
+                wrapMeteorCallback(callback),
+            );
+    };
 
     renderPlaceholder = (inverted, fluid) => (
         <Placeholder fluid={fluid} inverted={inverted} className='sidebar-placeholder'>
@@ -324,12 +369,19 @@ class Project extends React.Component {
             changeShowChat,
         } = this.props;
         const {
-            showIntercom, intercomId, resizingChatPane, intents, entities, responses,
+            showIntercom,
+            intercomId,
+            resizingChatPane,
+            intents,
+            entities,
+            responses,
         } = this.state;
 
         return (
             <div style={{ height: '100vh' }}>
-                {showIntercom && !loading && <Intercom appID={intercomId} {...this.getIntercomUser()} />}
+                {showIntercom && !loading && (
+                    <Intercom appID={intercomId} {...this.getIntercomUser()} />
+                )}
                 <div className='project-sidebar'>
                     <Header as='h1' className='logo'>
                         Botfront.
@@ -361,7 +413,9 @@ class Project extends React.Component {
                         {loading && (
                             <div>
                                 <Menu pointing secondary style={{ background: '#fff' }} />
-                                <Container className='content-placeholder'>{this.renderPlaceholder(false, true)}</Container>
+                                <Container className='content-placeholder'>
+                                    {this.renderPlaceholder(false, true)}
+                                </Container>
                             </div>
                         )}
                         {!loading && (
@@ -384,7 +438,8 @@ class Project extends React.Component {
                                     parseUtterance: this.parseUtterance,
                                     addUtterancesToTrainingData: this.addUtterancesToTrainingData,
                                     getCanonicalExamples: this.getCanonicalExamples,
-                                    refreshEntitiesAndIntents: this.refreshEntitiesAndIntents,
+                                    refreshEntitiesAndIntents: this
+                                        .refreshEntitiesAndIntents,
                                     resetResponseInCache: this.resetResponseInCache,
                                     setResponseInCache: this.setResponse,
                                 }}
@@ -394,9 +449,18 @@ class Project extends React.Component {
                                         {children}
                                         {!showChat && channel && (
                                             <Popup
-                                                trigger={
-                                                    <Button size='big' circular onClick={() => changeShowChat(!showChat)} icon='comment' primary className='open-chat-button' data-cy='open-chat' />
-                                                }
+                                                trigger={(
+                                                    <Button
+                                                        size='big'
+                                                        circular
+                                                        onClick={() => changeShowChat(!showChat)
+                                                        }
+                                                        icon='comment'
+                                                        primary
+                                                        className='open-chat-button'
+                                                        data-cy='open-chat'
+                                                    />
+                                                )}
                                                 content='Try out your chatbot'
                                             />
                                         )}
@@ -406,7 +470,11 @@ class Project extends React.Component {
                         )}
                         {!loading && showChat && (
                             <React.Suspense fallback={<Loader active />}>
-                                <ProjectChat channel={channel} triggerChatPane={() => changeShowChat(!showChat)} projectId={projectId} />
+                                <ProjectChat
+                                    channel={channel}
+                                    triggerChatPane={() => changeShowChat(!showChat)}
+                                    projectId={projectId}
+                                />
                             </React.Suspense>
                         )}
                     </SplitPane>
@@ -414,7 +482,7 @@ class Project extends React.Component {
                 <Alert stack={{ limit: 3 }} />
             </div>
         );
-    }
+    };
 }
 
 Project.propTypes = {
@@ -441,7 +509,10 @@ Project.defaultProps = {
 
 const ProjectContainer = withTracker((props) => {
     const {
-        params: { project_id: projectId }, projectId: storeProjectId, changeWorkingLanguage, changeProjectId,
+        params: { project_id: projectId },
+        projectId: storeProjectId,
+        changeWorkingLanguage,
+        changeProjectId,
     } = props;
     if (!projectId) return browserHistory.replace({ pathname: '/404' });
     const projectHandler = Meteor.subscribe('projects', projectId);
@@ -450,7 +521,7 @@ const ProjectContainer = withTracker((props) => {
     const instanceHandler = Meteor.subscribe('nlu_instances', projectId);
     const slotsHandler = Meteor.subscribe('slots', projectId);
     const instance = Instances.findOne({ projectId });
-    const readyHandler = handler => (handler);
+    const readyHandler = handler => handler;
     const readyHandlerList = [
         Meteor.user(),
         credentialsHandler.ready(),
@@ -469,7 +540,12 @@ const ProjectContainer = withTracker((props) => {
 
     let channel = null;
     if (ready) {
-        let credentials = Credentials.findOne({ $or: [{ projectId, environment: { $exists: false } }, { projectId, environment: 'development' }] });
+        let credentials = Credentials.findOne({
+            $or: [
+                { projectId, environment: { $exists: false } },
+                { projectId, environment: 'development' },
+            ],
+        });
         credentials = credentials ? yaml.safeLoad(credentials.credentials) : {};
         channel = credentials['rasa_addons.core.channels.webchat.WebchatInput'];
     }
@@ -509,15 +585,14 @@ const mapDispatchToProps = {
     changeShowChat: setShowChat,
 };
 
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(ProjectContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectContainer);
 
 export function WithRefreshOnLoad(Component) {
     return props => (
         <ProjectContext.Consumer>
-            {({ refreshEntitiesAndIntents }) => <Component {...props} onLoad={refreshEntitiesAndIntents} />}
+            {({ refreshEntitiesAndIntents }) => (
+                <Component {...props} onLoad={refreshEntitiesAndIntents} />
+            )}
         </ProjectContext.Consumer>
     );
 }
