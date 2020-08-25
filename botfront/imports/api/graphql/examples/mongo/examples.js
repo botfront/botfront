@@ -32,13 +32,13 @@ const createFilterObject = (
         };
     }
     if (exactMatch) {
-        filters.entities = {
-            // perfect match of entity payload if entities is array of { entity, value }
-            $size: entities.length,
-            $all: entities.map(({ entity, value }) => ({
+        // perfect match of entity payload if entities is array of { entity, value }
+        filters.entities = { $size: entities.length };
+        if (entities.length) {
+            filters.entities.$all = entities.map(({ entity, value }) => ({
                 $elemMatch: { entity, value },
-            })),
-        };
+            }));
+        }
     }
     if (onlyCanonicals) {
         filters['metadata.canonical'] = true;
