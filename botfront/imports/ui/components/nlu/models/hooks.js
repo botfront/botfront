@@ -6,7 +6,7 @@ import {
     INTENTS_OR_ENTITIES_CHANGED,
     INSERT_EXAMPLES,
     DELETE_EXAMPLES,
-    UPDATE_EXAMPLES,
+    UPDATE_EXAMPLE,
     SWITCH_CANONICAL,
 } from './graphql.js';
 
@@ -112,6 +112,37 @@ export const useSwitchCannonical = variables => useMutation(
                 if (indexOfUpdated !== -1) {
                     return updatedExamples[indexOfUpdated];
                 }
+                return example;
+            });
+            cache.writeQuery({
+                query: GET_EXAMPLES,
+                variables,
+                data: {
+                    ...result,
+                    examples: {
+                        ...result.examples,
+                        examples: modifiedExamples,
+                    },
+                },
+            });
+        },
+    },
+);
+
+export const useInsertExamples = variables => useMutation(
+    INSERT_EXAMPLES,
+    { variables },
+);
+
+export const useUpdateExample = variables => useMutation(
+    UPDATE_EXAMPLE,
+    {
+        variables,
+        update: (cache, { data: { updateExample: updatedExample } }) => {
+            const result = cache.readQuery({ query: GET_EXAMPLES, variables });
+            const { examples: { examples } } = result;
+            const modifiedExamples = examples.map((example) => {
+                if (example._id === updatedExample._id) return updatedExample;
                 return example;
             });
             cache.writeQuery({

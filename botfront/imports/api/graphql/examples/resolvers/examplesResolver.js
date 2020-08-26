@@ -38,10 +38,8 @@ export default {
     Mutation: {
         async updateExample(_, args, __) {
             const response = await updateExample(args);
-            if (response.success) {
-                const { projectId, language } = args.example;
-                publishIntentsOrEntitiesChanged(projectId, language);
-            }
+            const { projectId, language } = args.example;
+            publishIntentsOrEntitiesChanged(projectId, language);
             return response;
         },
         async insertExamples(_, args, __) {

@@ -38,6 +38,7 @@ const NLUModalContent = (props) => {
         closeModal,
         ready,
         displayedExample,
+        workingLanguage,
     } = props;
 
     const checkPayloadsMatch = example => example.intent === payload.intent
@@ -199,7 +200,8 @@ const NLUModalContent = (props) => {
     const saveAndExit = () => {
         Meteor.call(
             'nlu.saveExampleChanges',
-            model._id,
+            projectId,
+            workingLanguage,
             examples,
             () => {
                 if (shouldForceRefresh) {
@@ -382,6 +384,7 @@ NLUModalContent.propTypes = {
     instance: PropTypes.object.isRequired,
     closeModal: PropTypes.func.isRequired,
     displayedExample: PropTypes.object,
+    workingLanguage: PropTypes.string.isRequired,
 };
 
 NLUModalContent.defaultProps = {
@@ -458,6 +461,7 @@ const NLUDataLoaderContainer = withTracker((props) => {
         instance,
         project,
         examples: common_examples,
+        workingLanguage,
     };
 })(NLUModalContent);
 

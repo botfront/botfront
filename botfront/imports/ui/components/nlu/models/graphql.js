@@ -96,26 +96,28 @@ mutation deleteExamples($ids: [String]!) {
 export const SWITCH_CANONICAL = gql`
 mutation switchCanonical($projectId:String, $language: String, $example: ExampleInput!) {
     switchCanonical(projectId: $projectId, language: $language, example: $example) {
-             _id 
-            projectId 
-            text 
-            intent 
-            entities { value }
-            metadata
+        _id 
+        projectId 
+        text 
+        intent 
+        entities { value }
+        metadata
     }
 }`;
 
 
-export const UPDATE_EXAMPLES = gql`
+export const UPDATE_EXAMPLE = gql`
 mutation updateExample(
-    $id: String!
     $example: ExampleInput!
 ) {
     updateExample(
-        id: $id
         example: $example
     ) {
-        success
-        _id
+        _id 
+        projectId 
+        text 
+        intent 
+        entities { value }
+        metadata
     }
 }`;

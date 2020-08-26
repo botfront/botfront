@@ -35,7 +35,6 @@ import NLUPipeline from './settings/NLUPipeline';
 import TrainButton from '../../utils/TrainButton';
 import Statistics from './Statistics';
 import DeleteModel from './DeleteModel';
-import ExampleUtils from '../../utils/ExampleUtils';
 import LanguageDropdown from '../../common/LanguageDropdown';
 import { _appendSynonymsToText } from '../../../../lib/filterExamples';
 import { wrapMeteorCallback } from '../../utils/Errors';
@@ -44,7 +43,9 @@ import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.co
 import { Projects } from '../../../../api/project/project.collection';
 import { extractEntities } from './nluModel.utils';
 import { setWorkingLanguage } from '../../../store/actions/actions';
-import { useExamples, useDeleteExamples, useSwitchCannonical } from './hooks';
+import {
+    useExamples, useDeleteExamples, useSwitchCannonical, useInsertExamples, useUpdateExample,
+} from './hooks';
 import IconButton from '../../common/IconButton';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
 
@@ -94,13 +95,19 @@ class NLUModel extends React.Component {
     };
 
     onNewExamples = (examples, callback) => {
-        const { model: { _id: modelId } = {} } = this.props;
-        Meteor.call('nlu.insertExamples', modelId, examples.map(ExampleUtils.prepareExample), wrapMeteorCallback(callback));
+        const { insertExamples } = this.props;
+        insertExamples({ variables: { examples } }).then(
+            res => wrapMeteorCallback(callback)(null, res),
+            wrapMeteorCallback(callback),
+        );
     };
 
     onEditExample = (example, callback) => {
-        const { model: { _id: modelId } = {} } = this.props;
-        Meteor.call('nlu.updateExample', modelId, example, wrapMeteorCallback(callback));
+        const { updateExample } = this.props;
+        updateExample({ variables: { example } }).then(
+            res => wrapMeteorCallback(callback)(null, res),
+            wrapMeteorCallback(callback),
+        );
     };
 
     onDeleteModel = () => {
@@ -146,7 +153,7 @@ class NLUModel extends React.Component {
                 value={intent}
                 allowEditing={!canonical}
                 allowAdditions
-                onChange={() => console.log('heh')}
+                onChange={i => this.onEditExample(clearTypenameField({ ...datum, intent: i }))}
             />
 
         );
@@ -496,12 +503,14 @@ const NLUDataLoaderContainer = withTracker((props) => {
             name: 1, nlu_models: 1, defaultLanguage: 1, training: 1, enableSharing: 1,
         },
     });
+    const variables = { projectId, language: workingLanguage, pageSize: 20 };
     const {
         data, loading, hasNextPage, loadMore,
-    } = useExamples({ projectId, language: workingLanguage, pageSize: 20 });
-    const [deleteExamples] = useDeleteExamples({ projectId, language: workingLanguage, pageSize: 20 });
-    const [switchCanonical] = useSwitchCannonical({ projectId, language: workingLanguage, pageSize: 20 });
-    
+    } = useExamples(variables);
+    const [deleteExamples] = useDeleteExamples(variables);
+    const [switchCanonical] = useSwitchCannonical(variables);
+    const [insertExamples] = useInsertExamples(variables);
+    const [updateExample] = useUpdateExample(variables);
 
     const models = NLUModels.find({ _id: { $in: nlu_models } }, { sort: { language: 1 } }, { fields: { language: 1, _id: 1 } }).fetch();
     if (!modelId || !nlu_models.includes(modelId)) {
@@ -557,6 +566,8 @@ const NLUDataLoaderContainer = withTracker((props) => {
         instance,
         project,
         deleteExamples,
+        insertExamples,
+        updateExample,
     };
 })(NLUModel);
 
