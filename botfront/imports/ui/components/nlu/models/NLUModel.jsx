@@ -44,7 +44,6 @@ import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.co
 import { Projects } from '../../../../api/project/project.collection';
 import { extractEntities } from './nluModel.utils';
 import { setWorkingLanguage } from '../../../store/actions/actions';
-import { WithRefreshOnLoad } from '../../../layouts/project';
 import { useExamples, useDeleteExamples, useSwitchCannonical } from './hooks';
 import IconButton from '../../common/IconButton';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
@@ -78,11 +77,6 @@ class NLUModel extends React.Component {
             entities,
             ready,
         };
-    }
-
-    componentDidMount() {
-        const { onLoad } = this.props;
-        onLoad();
     }
 
     static getExamplesWithExtraSynonyms = (common_examples, entity_synonyms) => {
@@ -462,7 +456,6 @@ NLUModel.propTypes = {
     location: PropTypes.object.isRequired,
     workingLanguage: PropTypes.string,
     changeWorkingLanguage: PropTypes.func.isRequired,
-    onLoad: PropTypes.func.isRequired,
 };
 
 NLUModel.defaultProps = {
@@ -565,7 +558,7 @@ const NLUDataLoaderContainer = withTracker((props) => {
         project,
         deleteExamples,
     };
-})(WithRefreshOnLoad(NLUModel));
+})(NLUModel);
 
 const mapStateToProps = state => ({
     workingLanguage: state.settings.get('workingLanguage'),

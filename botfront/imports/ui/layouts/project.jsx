@@ -497,13 +497,3 @@ const mapDispatchToProps = {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProjectContainer);
-
-export function WithRefreshOnLoad(Component) {
-    return props => (
-        <ProjectContext.Consumer>
-            {({ refreshEntitiesAndIntents }) => (
-                <Component {...props} onLoad={refreshEntitiesAndIntents || (() => {})} />
-            )}
-        </ProjectContext.Consumer>
-    );
-}

@@ -1,15 +1,13 @@
 import { Loader } from 'semantic-ui-react';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { WithRefreshOnLoad } from '../../layouts/project';
 
 import StoriesPageMenu from './StoriesPageMenu';
 
 const Stories = React.lazy(() => import('./Stories'));
 
 const StoriesContainer = (props) => {
-    const { params, onLoad } = props;
-    React.useEffect(() => onLoad(), []);
+    const { params } = props;
     return (
         <>
             <StoriesPageMenu projectId={params.project_id} />
@@ -22,7 +20,6 @@ const StoriesContainer = (props) => {
 
 StoriesContainer.propTypes = {
     params: PropTypes.object.isRequired,
-    onLoad: PropTypes.func.isRequired,
 };
 
-export default WithRefreshOnLoad(StoriesContainer);
+export default StoriesContainer;
