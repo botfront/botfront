@@ -1,9 +1,9 @@
-import { useQuery, useMutation } from '@apollo/react-hooks';
+import { useQuery, useMutation, useSubscription } from '@apollo/react-hooks';
 import {
     GET_INTENT_STATISTICS,
     GET_EXAMPLES,
-    LIST_ENTITIES,
-    LIST_INTENTS,
+    LIST_INTENTS_AND_ENTITIES,
+    INTENTS_OR_ENTITIES_CHANGED,
     INSERT_EXAMPLES,
     DELETE_EXAMPLES,
     UPDATE_EXAMPLES,
@@ -53,35 +53,25 @@ export function useExamples(variables) {
     };
 }
 
-export function useIntentsList(variables) {
+export function useIntentAndEntityList(variables) {
     const {
         data, loading, error, refetch,
-    } = useQuery(LIST_INTENTS, {
+    } = useQuery(LIST_INTENTS_AND_ENTITIES, {
         notifyOnNetworkStatusChange: true, variables,
     });
-
-    if (!data || !data.listIntents) return { loading, data: [] };
-
-    return {
-        data: data.listIntents,
-        loading,
-        error,
-        refetch,
-    };
-}
-
-
-export function useEntitiesList(variables) {
-    const {
-        data, loading, error, refetch,
-    } = useQuery(LIST_ENTITIES, {
-        notifyOnNetworkStatusChange: true, variables,
+    useSubscription(INTENTS_OR_ENTITIES_CHANGED, {
+        variables,
+        onSubscriptionData: ({ subscriptionData: { data: subData } }) => {
+            if (subData.intentsOrEntitiesChanged.changed) refetch(); // nothing fancy just recalculate all
+        },
     });
 
-    if (!data || !data.listIntents) return { loading, data: [] };
+    if (!data || !data.listIntentsAndEntities) return { loading };
+    const { intents, entities } = data.listIntentsAndEntities;
 
     return {
-        data: data.listEntities,
+        intents,
+        entities,
         loading,
         error,
         refetch,

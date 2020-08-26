@@ -17,4 +17,6 @@ const model = new Schema({
     metadata: { type: Object, required: false },
 }, { strict: false });
 
+model.index({ text: 1, projectId: 1, 'metadata.language': 1 }, { unique: true });
+
 module.exports = mongoose.model('Examples', model, 'examples');

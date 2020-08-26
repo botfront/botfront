@@ -20,7 +20,6 @@ import ActivityInsertions from '../nlu/activity/ActivityInsertions';
 import ConversationBrowser from '../conversations/ConversationsBrowser';
 import { setWorkingLanguage } from '../../store/actions/actions';
 import { updateIncomingPath } from './incoming.utils';
-import { WithRefreshOnLoad } from '../../layouts/project';
 
 class Incoming extends React.Component {
     state = {
@@ -53,9 +52,8 @@ class Incoming extends React.Component {
     }
 
     componentDidMount = () => {
-        const { router, onLoad } = this.props;
+        const { router } = this.props;
         const { activeTab } = this.state;
-        onLoad();
         if (activeTab === undefined) {
             if (router.params.tab) {
                 this.setState({ activeTab: router.params.tab });
@@ -132,7 +130,6 @@ Incoming.propTypes = {
     router: PropTypes.object,
     workingLanguage: PropTypes.string,
     changeWorkingLanguage: PropTypes.func.isRequired,
-    onLoad: PropTypes.func.isRequired,
 };
 
 Incoming.defaultProps = {
@@ -237,7 +234,7 @@ const IncomingContainer = withTracker((props) => {
         intents,
         entities,
     };
-})(WithRefreshOnLoad(Incoming));
+})(Incoming);
 
 const IncomingContainerRouter = withRouter(IncomingContainer);
 

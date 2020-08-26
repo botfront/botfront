@@ -15,7 +15,7 @@ function UserUtteranceViewer(props) {
     const [textSelection, setSelection] = useState(null);
     const mouseDown = useRef(false);
     const setMouseDown = (v) => { mouseDown.current = v; };
-    const { entities: contextEntities, addEntity } = useContext(ProjectContext);
+    const { entities: contextEntities } = useContext(ProjectContext);
     const utteranceViewerRef = useRef();
     const textContent = []; // an ordered list of the utterance cut down into text and entities.
     // We add the original index to entities for onChange and onDelete methods, then we sort them by order of appearance.
@@ -81,14 +81,7 @@ function UserUtteranceViewer(props) {
         }
     }
 
-    const onChangeWrapped = (data) => {
-        if (data && data.entities) {
-            data.entities.forEach((e) => {
-                if (!contextEntities.includes(e.entity)) addEntity(e.entity);
-            });
-        }
-        onChange(data);
-    };
+    const onChangeWrapped = onChange;
 
     function handleEntityChange(newValue, entityIndex) {
         return onChangeWrapped({

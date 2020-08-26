@@ -6,8 +6,6 @@ import { createInstance } from '../instances/instances.methods';
 import { Instances } from '../instances/instances.collection';
 import Activity from '../graphql/activity/activity.model';
 import {
-    getAllTrainingDataGivenProjectIdAndLanguage,
-    setsAreIdentical,
     formatError,
     getLanguagesFromProjectId,
 } from '../../lib/utils';
@@ -20,59 +18,11 @@ import { createDefaultStoryGroup } from '../storyGroups/storyGroups.methods';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
 import { Slots } from '../slots/slots.collection';
-import { flattenStory, extractDomain } from '../../lib/story.utils';
+import { extractDomain } from '../../lib/story.utils';
 import BotResponses from '../graphql/botResponses/botResponses.model';
 
 if (Meteor.isServer) {
     export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain({ stories, slots, crashOnStoryWithErrors: false }));
-
-    export const getExamplesFromTrainingData = (
-        trainingData,
-        startIntents = [],
-        startEntities = [],
-    ) => {
-        /*  input: training data and optional initial arrays of intents and entities
-            output: {
-                entities: [entityName, ...]
-                intents: {
-                    intentName: [
-                        {
-                            entities: [entityName, ...]
-                            example: <FULL_EXAMPLE>
-                        },
-                        ...
-                    ],
-                    ...
-                }
-            }
-        */
-
-        const entries = startIntents.map(i => [i, []]);
-        const intents = {};
-        entries.forEach((entry) => {
-            const [key, value] = entry;
-            intents[key] = value;
-        });
-
-        let entities = startEntities;
-
-        trainingData
-            .sort((a, b) => b.canonical || false - a.canonical || false)
-            .forEach((ex) => {
-                const exEntities = (ex.entities || []).map(en => en.entity);
-                entities = entities.concat(
-                    exEntities.filter(en => !entities.includes(en)),
-                );
-                if (!Object.keys(intents).includes(ex.intent)) intents[ex.intent] = [];
-                if (
-                    !intents[ex.intent].some(ex2 => setsAreIdentical(ex2.entities, exEntities))
-                ) {
-                    intents[ex.intent].push({ entities: exEntities, example: ex });
-                }
-            });
-
-        return { intents, entities };
-    };
 
     Meteor.methods({
         async 'project.insert'(item) {
@@ -153,42 +103,6 @@ if (Meteor.isServer) {
                 return Projects.update({ _id: projectId }, { $set: set });
             } catch (e) {
                 throw e;
-            }
-        },
-
-        async 'project.getEntitiesAndIntents'(projectId, language) {
-            check(projectId, String);
-            check(language, String);
-
-            try {
-                const stories = Stories.find({ projectId }).fetch();
-                const slots = Slots.find({ projectId }).fetch();
-                const {
-                    intents: intentSetFromDomain = [],
-                    entities: entitiesSetFromDomain = [],
-                } = stories.length !== 0
-                    ? extractDomainFromStories(
-                        stories
-                            .reduce(
-                                (acc, story) => [...acc, ...flattenStory(story)],
-                                [],
-                            )
-                            .map(story => story.story || ''),
-                        slots,
-                    )
-                    : {};
-                const trainingData = getAllTrainingDataGivenProjectIdAndLanguage(
-                    projectId,
-                    language,
-                );
-
-                return getExamplesFromTrainingData(
-                    trainingData,
-                    intentSetFromDomain,
-                    entitiesSetFromDomain,
-                );
-            } catch (error) {
-                throw error;
             }
         },
 

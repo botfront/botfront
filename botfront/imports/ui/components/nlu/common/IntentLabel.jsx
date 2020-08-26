@@ -20,7 +20,7 @@ const Intent = React.forwardRef((props, ref) => {
         detachedModal,
         onClose,
     } = props;
-    const { addIntent, intents: contextIntents } = useContext(ProjectContext);
+    const { intents: contextIntents } = useContext(ProjectContext);
     const [popupOpen, setPopupOpen] = useState(false);
     const [typeInput, setTypeInput] = useState('');
     const labelRef = useRef();
@@ -61,7 +61,6 @@ const Intent = React.forwardRef((props, ref) => {
     };
 
     const handleChange = (intentName) => {
-        if (intentName) addIntent(intentName);
         handleClose();
         onChange(intentName);
     };

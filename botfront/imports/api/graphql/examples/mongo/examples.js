@@ -1,6 +1,7 @@
 import shortid from 'shortid';
 import { escapeRegExp } from 'lodash';
 import Examples from '../examples.model.js';
+import { setsAreIdentical } from '../../../../lib/utils';
 
 const createSortObject = (fieldName = 'intent', order = 'ASC') => {
     const orderMongo = order === 'ASC' ? 1 : -1;
@@ -99,24 +100,28 @@ export const getExamples = async ({
     };
 };
 
-export const listIntents = async ({ projectId, language }) => {
+export const listIntentsAndEntities = async ({ projectId, language }) => {
+    const intents = {};
+    let entities = [];
     const examples = await Examples.find({ projectId, 'metadata.language': language })
-        .select({ intent: 1 })
+        .select({ intent: 1, entities: 1 })
         .lean();
-    const intentsList = examples.map(example => example.intent);
-    const intentsSet = new Set(intentsList);
-    return Array.from(intentsSet);
-};
+    examples
+        .sort((a, b) => b.canonical || false - a.canonical || false)
+        .forEach((ex) => {
+            const exEntities = (ex.entities || []).map(en => en.entity);
+            entities = entities.concat(
+                exEntities.filter(en => !entities.includes(en)),
+            );
+            if (!Object.keys(intents).includes(ex.intent)) intents[ex.intent] = [];
+            if (
+                !intents[ex.intent].some(ex2 => setsAreIdentical(ex2.entities, exEntities))
+            ) {
+                intents[ex.intent].push({ entities: exEntities, example: ex });
+            }
+        });
 
-export const listEntities = async ({ projectId, language }) => {
-    const examples = await Examples.find({ projectId, 'metadata.language': language })
-        .select({ entities: 1 })
-        .lean();
-    const entitiesList = examples
-        .map(example => example.entities.map(entity => entity.entity))
-        .flat();
-    const entitiesSet = new Set(entitiesList);
-    return Array.from(entitiesSet);
+    return { intents, entities };
 };
 
 export const insertExamples = async ({ examples, language, projectId }) => {

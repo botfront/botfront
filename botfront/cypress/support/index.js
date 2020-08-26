@@ -317,6 +317,15 @@ Cypress.Commands.add('graphQlQuery', (query, variables) => cy.get('@loginToken')
     });
 }));
 
+Cypress.Commands.add('insertNluExamples', (projectId, language = 'en', examples) => cy.graphQlQuery(
+    `mutation insertExamples($projectId: String!, $language: String!, $examples: [ExampleInput]!) {
+        insertExamples(projectId: $projectId, language: $language, examples: $examples) {  
+            success
+        }
+    }`,
+    { projectId, language, examples },
+));
+
 Cypress.Commands.add('addConversation', (projectId, id, conversation, env = 'development') => cy.graphQlQuery(
     `mutation ($tracker: Any) {\n  insertTrackerStore(senderId: "${id}", projectId: "${projectId}", tracker: $tracker, env: ${env}){\n  lastIndex\n  }\n}`,
     { tracker: conversation },

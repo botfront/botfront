@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Alert from 'react-s-alert';
-
-import requiredIf from 'react-required-if';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import {
@@ -230,7 +228,7 @@ class Evaluation extends React.Component {
 
 Evaluation.propTypes = {
     model: PropTypes.object.isRequired,
-    evaluation: requiredIf(PropTypes.object, props => !props.loading),
+    evaluation: PropTypes.object,
     projectId: PropTypes.string.isRequired,
     loading: PropTypes.bool.isRequired,
     validationRender: PropTypes.func,

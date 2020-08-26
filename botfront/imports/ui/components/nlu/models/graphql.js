@@ -61,22 +61,23 @@ query examples(
 }`;
 
 
-export const LIST_ENTITIES = gql`
-query listIntents($projectId: String!, $language: String!) {
-    listIntents(
+export const LIST_INTENTS_AND_ENTITIES = gql`
+query listIntentsAndEntities($projectId: String!, $language: String!) {
+    listIntentsAndEntities(
         projectId: $projectId
         language: $language
-    ) 
+    ) { intents, entities }
 }`;
 
 
-export const LIST_INTENTS = gql`
-query listEntities($projectId: String!, $language: String!) {
-    listEntities(
+export const INTENTS_OR_ENTITIES_CHANGED = gql`
+subscription intentsOrEntitiesChanged($projectId: String!, $language: String!) {
+    intentsOrEntitiesChanged(
         projectId: $projectId
         language: $language
-    ) 
+    ) { changed }
 }`;
+
 
 export const INSERT_EXAMPLES = gql`
 mutation insertExamples($projectId: String!, $language: String!, $examples: [ExampleInput]!) {
