@@ -31,7 +31,9 @@ type Mutation {
         projectId: String!
     ): updateResponse
     deleteExamples(ids: [String]!): [String]
+    switchCanonical( projectId:String, language: String, example: ExampleInput!): [Example]
 }
+
 
 type ExamplePage {
     examples: [Example]
@@ -49,7 +51,7 @@ type Example {
 
 
 input ExampleInput {
-    id: String,
+    _id: String,
     projectId: String,
     text: String,
     intent: String,

@@ -45,8 +45,9 @@ import { Projects } from '../../../../api/project/project.collection';
 import { extractEntities } from './nluModel.utils';
 import { setWorkingLanguage } from '../../../store/actions/actions';
 import { WithRefreshOnLoad } from '../../../layouts/project';
-import { useExamples, useDeleteExamples } from './hooks';
+import { useExamples, useDeleteExamples, useSwitchCannonical } from './hooks';
 import IconButton from '../../common/IconButton';
+import { clearTypenameField } from '../../../../lib/client.safe.utils';
 
 class NLUModel extends React.Component {
     constructor(props) {
@@ -177,6 +178,7 @@ class NLUModel extends React.Component {
     }
 
     renderCanonical = (row) => {
+        const { switchCanonical } = this.props;
         const { datum } = row;
         const { metadata: { canonical } } = datum;
         return (
@@ -184,8 +186,7 @@ class NLUModel extends React.Component {
                 color={canonical ? 'black' : 'grey'}
                 icon='gem'
                 basic
-                onClick={() => console.log('heh')
-                }
+                onClick={() => { switchCanonical({ variables: { projectId: datum.projectId, language: datum.metadata.language, example: clearTypenameField(datum) } }); }}
             />
         );
     }
@@ -239,7 +240,9 @@ class NLUModel extends React.Component {
                 rowClassName='glow-box hoverable'
                 className='examples-table'
                 selection={selection}
-                onChangeSelection={newSelection => this.setState({ selection: newSelection })}
+                onChangeSelection={(newSelection) => {
+                    this.setState({ selection: newSelection });
+                }}
             />
         );
     }
@@ -504,6 +507,8 @@ const NLUDataLoaderContainer = withTracker((props) => {
         data, loading, hasNextPage, loadMore,
     } = useExamples({ projectId, language: workingLanguage, pageSize: 20 });
     const [deleteExamples] = useDeleteExamples({ projectId, language: workingLanguage, pageSize: 20 });
+    const [switchCanonical] = useSwitchCannonical({ projectId, language: workingLanguage, pageSize: 20 });
+    
 
     const models = NLUModels.find({ _id: { $in: nlu_models } }, { sort: { language: 1 } }, { fields: { language: 1, _id: 1 } }).fetch();
     if (!modelId || !nlu_models.includes(modelId)) {
@@ -549,6 +554,7 @@ const NLUDataLoaderContainer = withTracker((props) => {
         examples: data,
         loadMore,
         hasNextPage,
+        switchCanonical,
         intents,
         entities,
         projectId,

@@ -7,6 +7,7 @@ import {
     INSERT_EXAMPLES,
     DELETE_EXAMPLES,
     UPDATE_EXAMPLES,
+    SWITCH_CANONICAL,
 } from './graphql.js';
 
 
@@ -101,6 +102,36 @@ export const useDeleteExamples = variables => useMutation(
                     examples: {
                         ...result.examples,
                         examples: examples.filter(a => !deleted.includes(a._id)),
+                    },
+                },
+            });
+        },
+    },
+);
+
+
+export const useSwitchCannonical = variables => useMutation(
+    SWITCH_CANONICAL,
+    {
+        update: (cache, { data: { switchCanonical: updatedExamples } }) => {
+            const updatedIds = updatedExamples.map(example => example._id);
+            const result = cache.readQuery({ query: GET_EXAMPLES, variables });
+            const { examples: { examples } } = result;
+            const modifiedExamples = examples.map((example) => {
+                const indexOfUpdated = updatedIds.indexOf(example._id);
+                if (indexOfUpdated !== -1) {
+                    return updatedExamples[indexOfUpdated];
+                }
+                return example;
+            });
+            cache.writeQuery({
+                query: GET_EXAMPLES,
+                variables,
+                data: {
+                    ...result,
+                    examples: {
+                        ...result.examples,
+                        examples: modifiedExamples,
                     },
                 },
             });
