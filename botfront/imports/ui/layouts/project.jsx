@@ -20,7 +20,6 @@ import {
     Loader,
     Popup,
 } from 'semantic-ui-react';
-import gql from 'graphql-tag';
 import { useIntentAndEntityList } from '../components/nlu/models/hooks';
 import { wrapMeteorCallback } from '../components/utils/Errors';
 import ProjectSidebarComponent from '../components/project/ProjectSidebar';
@@ -34,9 +33,9 @@ import 'semantic-ui-css/semantic.min.css';
 import store from '../store/store';
 import { ProjectContext } from './context';
 import { setsAreIdentical } from '../../lib/utils';
-import { GET_BOT_RESPONSES, UPSERT_BOT_RESPONSE } from './graphql';
 import { INSERT_EXAMPLES, GET_EXAMPLES } from '../components/nlu/models/graphql';
 import apolloClient from '../../startup/client/apollo';
+import { useResponsesContext } from './response.hooks';
 
 const ProjectChat = React.lazy(() => import('../components/project/ProjectChat'));
 
@@ -58,12 +57,18 @@ function Project(props) {
     const [showIntercom, setShowIntercom] = useState(false);
     const [intercomId, setIntercomId] = useState('');
     const [resizingChatPane, setResizingChatPane] = useState(false);
-    const [responses, setResponsesState] = useState({});
     const {
         intents: intentsList,
         entities: entitiesList,
         refetch: refreshEntitiesAndIntents,
     } = useIntentAndEntityList({ projectId, language: workingLanguage });
+    const {
+        responses,
+        addResponses,
+        upsertResponse,
+        resetResponseInCache,
+        setResponseInCache,
+    } = useResponsesContext({ projectId, workingLanguage, projectLanguages });
 
     useEffect(() => {
         if (window.Intercom) {
@@ -137,121 +142,6 @@ function Project(props) {
     const parseUtterance = utterance => Meteor.callWithPromise('rasa.parse', instance, [
         { text: utterance, lang: workingLanguage },
     ]);
-
-    const responsesFrag = () => ({
-        id: `${projectId}-${workingLanguage}`,
-        fragment: gql`
-                fragment C on Cached {
-                    responses
-                }
-            `,
-    });
-
-    const getMultiLangResponsesFrag = async () => projectLanguages.map(({ value }) => ({
-        id: `${projectId}-${value}`,
-        fragment: gql`
-                fragment C on Cached {
-                    responses
-                }
-            `,
-    }));
-
-    const resetResponseInCache = async (responseName) => {
-        const frags = await getMultiLangResponsesFrag();
-        const fragKeys = Object.keys(frags);
-        const readFrags = fragKeys.map(
-            key => apolloClient.readFragment(frags[key]) || { responses: {} },
-        );
-        readFrags.forEach((frag, i) => {
-            const fragResponses = { ...frag.responses };
-            delete fragResponses[responseName];
-            const newFrag = {
-                ...frags[fragKeys[i]],
-                data: {
-                    responses: fragResponses,
-                    __typename: 'Cached',
-                },
-            };
-            apolloClient.writeFragment(newFrag);
-        });
-    };
-
-    const readResponsesFrag = () => apolloClient.readFragment(responsesFrag()) || { responses: {} };
-
-    const writeResponsesFrag = (incomingResponses) => {
-        const newResponses = {
-            ...responsesFrag(),
-            data: {
-                responses: incomingResponses,
-                __typename: 'Cached',
-            },
-        };
-        apolloClient.writeFragment(newResponses);
-        setResponsesState(incomingResponses);
-    };
-
-    const setResponse = async (template, content) => {
-        const { responses: oldResponses } = await readResponsesFrag();
-        return writeResponsesFrag({ ...oldResponses, [template]: content });
-    };
-
-    const setResponses = async (data = {}) => {
-        const { responses: oldResponses } = await readResponsesFrag();
-        return writeResponsesFrag({ ...oldResponses, ...data });
-    };
-
-    const addResponses = async (templates) => {
-        const { responses: oldResponses } = await readResponsesFrag();
-        const newTemplates = templates.filter(r => !Object.keys(responses).includes(r));
-        if (!newTemplates.length) return setResponsesState(oldResponses);
-        const result = await apolloClient.query({
-            query: GET_BOT_RESPONSES,
-            variables: {
-                templates: newTemplates,
-                projectId,
-                language: workingLanguage,
-            },
-        });
-        if (!result.data) return setResponsesState(oldResponses);
-        await setResponses(
-            result.data.getResponses.reduce(
-                // turns [{ k: k1, v1, v2 }, { k: k2, v1, v2 }] into { k1: { v1, v2 }, k2: { v1, v2 } }
-                (acc, { key, ...rest }) => ({
-                    ...acc,
-                    ...(key in acc ? {} : { [key]: rest }),
-                }),
-                {},
-            ),
-        );
-        return Date.now();
-    };
-
-    const upsertResponse = async (key, newResponse, index) => {
-        const { payload, key: newKey } = newResponse;
-        const { isNew, ...newPayload } = payload; // don't pass isNew to mutation
-        let responseTypeVariable = {};
-        // if the response type has changed; add newResponseType to the queryVariables
-        if (responses[key] && responses[key].__typename !== payload.__typename) {
-            responseTypeVariable = { newResponseType: payload.__typename };
-            resetResponseInCache(key);
-        }
-        if (newKey) resetResponseInCache(newKey);
-        const variables = {
-            projectId,
-            language: workingLanguage,
-            newPayload,
-            key,
-            newKey,
-            index,
-            ...responseTypeVariable,
-        };
-        const result = await apolloClient.mutate({
-            mutation: UPSERT_BOT_RESPONSE,
-            variables,
-            update: () => setResponse(newKey || key, { isNew, ...newPayload }),
-        });
-        return result;
-    };
 
     const addUtterancesToTrainingData = (utterances, callback = () => {}) => {
         if (!(utterances || []).filter(u => u.text).length) callback(null, { success: true });
@@ -353,7 +243,7 @@ function Project(props) {
                                 addUtterancesToTrainingData,
                                 getCanonicalExamples,
                                 resetResponseInCache,
-                                setResponseInCache: setResponse,
+                                setResponseInCache,
                             }}
                         >
                             <DndProvider backend={HTML5Backend}>
