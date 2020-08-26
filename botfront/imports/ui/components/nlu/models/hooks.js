@@ -2,8 +2,7 @@ import { useQuery, useMutation } from '@apollo/react-hooks';
 import {
     GET_INTENT_STATISTICS,
     GET_EXAMPLES,
-    LIST_ENTITIES,
-    LIST_INTENTS,
+    LIST_INTENTS_AND_ENTITIES,
     INSERT_EXAMPLES,
     DELETE_EXAMPLES,
     UPDATE_EXAMPLES,
@@ -53,35 +52,19 @@ export function useExamples(variables) {
     };
 }
 
-export function useIntentsList(variables) {
+export function useIntentAndEntityList(variables) {
     const {
         data, loading, error, refetch,
-    } = useQuery(LIST_INTENTS, {
+    } = useQuery(LIST_INTENTS_AND_ENTITIES, {
         notifyOnNetworkStatusChange: true, variables,
     });
 
-    if (!data || !data.listIntents) return { loading, data: [] };
+    if (!data || !data.listIntentsAndEntities) return { loading };
+    const { intents, entities } = data.listIntentsAndEntities;
 
     return {
-        data: data.listIntents,
-        loading,
-        error,
-        refetch,
-    };
-}
-
-
-export function useEntitiesList(variables) {
-    const {
-        data, loading, error, refetch,
-    } = useQuery(LIST_ENTITIES, {
-        notifyOnNetworkStatusChange: true, variables,
-    });
-
-    if (!data || !data.listIntents) return { loading, data: [] };
-
-    return {
-        data: data.listEntities,
+        intents,
+        entities,
         loading,
         error,
         refetch,

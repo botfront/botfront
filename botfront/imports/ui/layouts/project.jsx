@@ -10,7 +10,7 @@ import { DndProvider } from 'react-dnd-cjs';
 import HTML5Backend from 'react-dnd-html5-backend-cjs';
 import Alert from 'react-s-alert';
 import yaml from 'js-yaml';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Placeholder,
     Header,
@@ -21,6 +21,7 @@ import {
     Popup,
 } from 'semantic-ui-react';
 import gql from 'graphql-tag';
+import { useIntentAndEntityList } from '../components/nlu/models/hooks';
 import { wrapMeteorCallback } from '../components/utils/Errors';
 import ProjectSidebarComponent from '../components/project/ProjectSidebar';
 import { Projects } from '../../api/project/project.collection';
@@ -39,94 +40,64 @@ import apolloClient from '../../startup/client/apollo';
 
 const ProjectChat = React.lazy(() => import('../components/project/ProjectChat'));
 
-class Project extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            showIntercom: false,
-            intercomId: '',
-            showChatPane: false,
-            resizingChatPane: false,
-            entities: [],
-            intents: [],
-            exampleMap: {},
-            responses: {},
-        };
-    }
+function Project(props) {
+    const {
+        project,
+        projectId,
+        loading,
+        workingLanguage,
+        projectLanguages,
+        router: { replace, location: { pathname } } = {},
+        showChat,
+        changeShowChat,
+        instance,
+        slots,
+        channel,
+        children,
+    } = props;
+    const [showIntercom, setShowIntercom] = useState(false);
+    const [intercomId, setIntercomId] = useState('');
+    const [resizingChatPane, setResizingChatPane] = useState(false);
+    const [responses, setResponsesState] = useState({});
+    const {
+        intents: intentsList,
+        entities: entitiesList,
+        refetch: refreshEntitiesAndIntents,
+    } = useIntentAndEntityList({ projectId, language: workingLanguage });
 
-    componentDidUpdate = (prevProps) => {
-        const { projectId, workingLanguage: language } = this.props;
-        const { projectId: prevProjectId, workingLanguage: prevLanguage } = prevProps;
-        const { showIntercom } = this.state;
-        if (window.Intercom && showIntercom) {
+    useEffect(() => {
+        if (window.Intercom) {
             window.Intercom('show');
             window.Intercom('update', {
                 hide_default_launcher: true,
             });
             window.Intercom('onHide', () => {
-                this.setState({ showIntercom: false });
+                setShowIntercom(false);
             });
         }
-        if (
-            (language && prevLanguage !== language)
-            || (projectId && prevProjectId !== projectId)
-        ) {
-            this.refreshEntitiesAndIntents(true);
-        }
-    };
+    }, [!!window.Intercom]);
 
-    findExactMatch = (canonicals, entities) => {
+    const findExactMatch = (canonicals, entities) => {
         const exactMatch = canonicals.filter(ex => setsAreIdentical(ex.entities, entities))[0];
         return exactMatch ? exactMatch.example : null;
     };
 
-    getCanonicalExamples = ({ intent, entities = [] }) => {
+    const getCanonicalExamples = ({ intent, entities = [] }) => {
         // both intent and entities are optional and serve to restrict the result
-        const { exampleMap } = this.state;
         const filtered = intent
-            ? intent in exampleMap
-                ? { [intent]: exampleMap[intent] }
+            ? intent in intentsList
+                ? { [intent]: intentsList[intent] }
                 : {}
-            : exampleMap;
+            : intentsList;
         return Object.keys(filtered).map(
-            i => this.findExactMatch(
+            i => findExactMatch(
                 filtered[i],
                 entities.map(e => e.entity),
             ) || { intent: i },
         );
     };
 
-    refreshEntitiesAndIntents = (init = false) => {
-        const { projectId, workingLanguage: language } = this.props;
-        const { exampleMap } = this.state;
-
-        if (!projectId || !language) return; // don't call unless projectId and language are set
-        if (!init && !exampleMap) return; // unless called from this class, call only if already init
-        Meteor.call(
-            'project.getEntitiesAndIntents',
-            projectId,
-            language,
-            wrapMeteorCallback((err, res) => {
-                if (!err) {
-                    this.setState({ entities: res.entities });
-                    this.setState({ intents: Object.keys(res.intents) });
-                    this.setState({ exampleMap: res.intents });
-                }
-            }),
-        );
-    };
-
-    getIntercomUser = () => {
-        const { _id, emails, profile } = Meteor.user();
-        return {
-            user_id: _id,
-            email: emails[0].address,
-            name: profile.firstName,
-        };
-    };
-
-    getUtteranceFromPayload = (payload, callback = () => {}) => {
-        const { projectId, workingLanguage: language } = this.props;
+    const getUtteranceFromPayload = (payload, callback = () => {}) => {
         const { intent, entities = [] } = payload;
         if (!intent) throw new Meteor.Error('400', 'Intent missing from payload');
         apolloClient
@@ -134,7 +105,7 @@ class Project extends React.Component {
                 query: GET_EXAMPLES,
                 variables: {
                     projectId,
-                    language,
+                    language: workingLanguage,
                     pageSize: -1,
                     intents: [intent],
                     entities,
@@ -146,7 +117,7 @@ class Project extends React.Component {
             .then((res) => {
                 const { examples } = res.data.examples;
                 if (!examples || !examples.length) {
-                    return wrapMeteorCallback(callback)(
+                    return callback(
                         new Error('No example found for payload'),
                     );
                 }
@@ -154,101 +125,39 @@ class Project extends React.Component {
             }, wrapMeteorCallback(callback));
     };
 
-    handleTriggerIntercom = (id) => {
-        this.setState({
-            intercomId: id,
-            showIntercom: true,
-        });
-    };
-
-    handleChangeProject = (projectId) => {
-        const { router: { replace, location: { pathname } } = {} } = this.props;
-        replace(pathname.replace(/\/project\/.*?\//, `/project/${projectId}/`));
-    };
-
-    triggerChatPane = (value) => {
-        this.setState(state => ({
-            showChatPane: value === true || value === false ? value : !state.showChatPane,
-        }));
-    };
-
-    parseUtterance = (utterance) => {
-        const { instance, workingLanguage } = this.props;
-        return Meteor.callWithPromise('rasa.parse', instance, [
-            { text: utterance, lang: workingLanguage },
-        ]);
-    };
-
-    addIntent = (newIntent) => {
-        const { intents, exampleMap } = this.state;
-        this.setState({ intents: [...new Set([...intents, newIntent])] });
-        if (!Object.keys(exampleMap).includes(newIntent)) {
-            this.setState({ exampleMap: { ...exampleMap, [newIntent]: [] } });
-        }
-    };
-
-    addEntity = (newEntity) => {
-        const { entities } = this.state;
-        this.setState({ entities: [...new Set([...entities, newEntity])] });
-    };
-
-    upsertResponse = async (key, newResponse, index) => {
-        const { responses } = this.state;
-        const { payload, key: newKey } = newResponse;
-        const { projectId, workingLanguage: language } = this.props;
-        const { isNew, ...newPayload } = payload; // don't pass isNew to mutation
-        let responseTypeVariable = {};
-        // if the response type has changed; add newResponseType to the queryVariables
-        if (responses[key] && responses[key].__typename !== payload.__typename) {
-            responseTypeVariable = { newResponseType: payload.__typename };
-            this.resetResponseInCache(key);
-        }
-        if (newKey) {
-            this.resetResponseInCache(newKey);
-        }
-        const variables = {
-            projectId,
-            language,
-            newPayload,
-            key,
-            newKey,
-            index,
-            ...responseTypeVariable,
-        };
-        const result = await apolloClient.mutate({
-            mutation: UPSERT_BOT_RESPONSE,
-            variables,
-            update: () => this.setResponse(newKey || key, { isNew, ...newPayload }),
-        });
-        return result;
-    };
-
-    responsesFrag = () => {
-        const { projectId, workingLanguage } = this.props;
+    const getIntercomUser = () => {
+        const { _id, emails, profile } = Meteor.user();
         return {
-            id: `${projectId}-${workingLanguage}`,
-            fragment: gql`
-                fragment C on Cached {
-                    responses
-                }
-            `,
+            user_id: _id,
+            email: emails[0].address,
+            name: profile.firstName,
         };
     };
 
-    getMultiLangResponsesFrag = async () => {
-        const { projectId, projectLanguages } = this.props;
-        return projectLanguages.map(({ value }) => ({
-            id: `${projectId}-${value}`,
-            fragment: gql`
+    const parseUtterance = utterance => Meteor.callWithPromise('rasa.parse', instance, [
+        { text: utterance, lang: workingLanguage },
+    ]);
+
+    const responsesFrag = () => ({
+        id: `${projectId}-${workingLanguage}`,
+        fragment: gql`
                 fragment C on Cached {
                     responses
                 }
             `,
-        }));
-    };
+    });
 
-    resetResponseInCache = async (responseName) => {
-        const frags = await this.getMultiLangResponsesFrag();
+    const getMultiLangResponsesFrag = async () => projectLanguages.map(({ value }) => ({
+        id: `${projectId}-${value}`,
+        fragment: gql`
+                fragment C on Cached {
+                    responses
+                }
+            `,
+    }));
+
+    const resetResponseInCache = async (responseName) => {
+        const frags = await getMultiLangResponsesFrag();
         const fragKeys = Object.keys(frags);
         const readFrags = fragKeys.map(
             key => apolloClient.readFragment(frags[key]) || { responses: {} },
@@ -267,35 +176,34 @@ class Project extends React.Component {
         });
     };
 
-    readResponsesFrag = () => apolloClient.readFragment(this.responsesFrag()) || { responses: {} };
+    const readResponsesFrag = () => apolloClient.readFragment(responsesFrag()) || { responses: {} };
 
-    writeResponsesFrag = (responses) => {
+    const writeResponsesFrag = (incomingResponses) => {
         const newResponses = {
-            ...this.responsesFrag(),
+            ...responsesFrag(),
             data: {
-                responses,
+                responses: incomingResponses,
                 __typename: 'Cached',
             },
         };
         apolloClient.writeFragment(newResponses);
-        this.setState({ responses });
+        setResponsesState(incomingResponses);
     };
 
-    setResponse = async (template, content) => {
-        const { responses } = await this.readResponsesFrag();
-        return this.writeResponsesFrag({ ...responses, [template]: content });
+    const setResponse = async (template, content) => {
+        const { responses: oldResponses } = await readResponsesFrag();
+        return writeResponsesFrag({ ...oldResponses, [template]: content });
     };
 
-    setResponses = async (data = {}) => {
-        const { responses } = await this.readResponsesFrag();
-        return this.writeResponsesFrag({ ...responses, ...data });
+    const setResponses = async (data = {}) => {
+        const { responses: oldResponses } = await readResponsesFrag();
+        return writeResponsesFrag({ ...oldResponses, ...data });
     };
 
-    addResponses = async (templates) => {
-        const { projectId, workingLanguage } = this.props;
-        const { responses } = await this.readResponsesFrag();
+    const addResponses = async (templates) => {
+        const { responses: oldResponses } = await readResponsesFrag();
         const newTemplates = templates.filter(r => !Object.keys(responses).includes(r));
-        if (!newTemplates.length) return this.setState({ responses });
+        if (!newTemplates.length) return setResponsesState(oldResponses);
         const result = await apolloClient.query({
             query: GET_BOT_RESPONSES,
             variables: {
@@ -304,8 +212,8 @@ class Project extends React.Component {
                 language: workingLanguage,
             },
         });
-        if (!result.data) return this.setState({ responses });
-        await this.setResponses(
+        if (!result.data) return setResponsesState(oldResponses);
+        await setResponses(
             result.data.getResponses.reduce(
                 // turns [{ k: k1, v1, v2 }, { k: k2, v1, v2 }] into { k1: { v1, v2 }, k2: { v1, v2 } }
                 (acc, { key, ...rest }) => ({
@@ -318,15 +226,41 @@ class Project extends React.Component {
         return Date.now();
     };
 
-    addUtterancesToTrainingData = (utterances, callback = () => {}) => {
-        const { projectId, workingLanguage: language } = this.props;
+    const upsertResponse = async (key, newResponse, index) => {
+        const { payload, key: newKey } = newResponse;
+        const { isNew, ...newPayload } = payload; // don't pass isNew to mutation
+        let responseTypeVariable = {};
+        // if the response type has changed; add newResponseType to the queryVariables
+        if (responses[key] && responses[key].__typename !== payload.__typename) {
+            responseTypeVariable = { newResponseType: payload.__typename };
+            resetResponseInCache(key);
+        }
+        if (newKey) resetResponseInCache(newKey);
+        const variables = {
+            projectId,
+            language: workingLanguage,
+            newPayload,
+            key,
+            newKey,
+            index,
+            ...responseTypeVariable,
+        };
+        const result = await apolloClient.mutate({
+            mutation: UPSERT_BOT_RESPONSE,
+            variables,
+            update: () => setResponse(newKey || key, { isNew, ...newPayload }),
+        });
+        return result;
+    };
+
+    const addUtterancesToTrainingData = (utterances, callback = () => {}) => {
         apolloClient
             .mutate({
                 mutation: INSERT_EXAMPLES,
                 variables: {
                     examples: utterances.filter(u => u.text),
                     projectId,
-                    language,
+                    language: workingLanguage,
                 },
             })
             .then(
@@ -335,7 +269,7 @@ class Project extends React.Component {
             );
     };
 
-    renderPlaceholder = (inverted, fluid) => (
+    const renderPlaceholder = (inverted, fluid) => (
         <Placeholder fluid={fluid} inverted={inverted} className='sidebar-placeholder'>
             <Placeholder.Header>
                 <Placeholder.Line />
@@ -354,135 +288,111 @@ class Project extends React.Component {
         </Placeholder>
     );
 
-    render = () => {
-        const {
-            children,
-            projectId,
-            loading,
-            channel,
-            project,
-            instance,
-            workingLanguage,
-            projectLanguages,
-            slots,
-            showChat,
-            changeShowChat,
-        } = this.props;
-        const {
-            showIntercom,
-            intercomId,
-            resizingChatPane,
-            intents,
-            entities,
-            responses,
-        } = this.state;
 
-        return (
-            <div style={{ height: '100vh' }}>
-                {showIntercom && !loading && (
-                    <Intercom appID={intercomId} {...this.getIntercomUser()} />
+    return (
+        <div style={{ height: '100vh' }}>
+            {showIntercom && !loading && (
+                <Intercom appID={intercomId} {...getIntercomUser()} />
+            )}
+            <div className='project-sidebar'>
+                <Header as='h1' className='logo'>
+                    Botfront.
+                </Header>
+                <Header as='h1' className='simple-logo'>
+                    B.
+                </Header>
+                {loading && renderPlaceholder(true, false)}
+                {!loading && (
+                    <ProjectSidebarComponent
+                        projectId={projectId}
+                        handleChangeProject={pid => replace(pathname.replace(/\/project\/.*?\//, `/project/${pid}/`))}
+                        triggerIntercom={(id) => {
+                            setShowIntercom(true);
+                            setIntercomId(id);
+                        }}
+                    />
                 )}
-                <div className='project-sidebar'>
-                    <Header as='h1' className='logo'>
-                        Botfront.
-                    </Header>
-                    <Header as='h1' className='simple-logo'>
-                        B.
-                    </Header>
-                    {loading && this.renderPlaceholder(true, false)}
-                    {!loading && (
-                        <ProjectSidebarComponent
-                            projectId={projectId}
-                            handleChangeProject={this.handleChangeProject}
-                            triggerIntercom={this.handleTriggerIntercom}
-                        />
-                    )}
-                </div>
-                <div className='project-children'>
-                    <SplitPane
-                        split='vertical'
-                        minSize={showChat ? 300 : 0}
-                        defaultSize={showChat ? 300 : 0}
-                        maxSize={showChat ? 600 : 0}
-                        primary='second'
-                        allowResize={showChat}
-                        className={resizingChatPane ? '' : 'width-transition'}
-                        onDragStarted={() => this.setState({ resizingChatPane: true })}
-                        onDragFinished={() => this.setState({ resizingChatPane: false })}
-                    >
-                        {loading && (
-                            <div>
-                                <Menu pointing secondary style={{ background: '#fff' }} />
-                                <Container className='content-placeholder'>
-                                    {this.renderPlaceholder(false, true)}
-                                </Container>
-                            </div>
-                        )}
-                        {!loading && (
-                            <ProjectContext.Provider
-                                value={{
-                                    project,
-                                    instance,
-                                    projectLanguages,
-                                    intents,
-                                    entities,
-                                    slots,
-                                    language: workingLanguage,
-                                    triggerChatPane: this.triggerChatPane,
-                                    upsertResponse: this.upsertResponse,
-                                    responses,
-                                    addResponses: this.addResponses,
-                                    addEntity: this.addEntity,
-                                    addIntent: this.addIntent,
-                                    getUtteranceFromPayload: this.getUtteranceFromPayload,
-                                    parseUtterance: this.parseUtterance,
-                                    addUtterancesToTrainingData: this.addUtterancesToTrainingData,
-                                    getCanonicalExamples: this.getCanonicalExamples,
-                                    refreshEntitiesAndIntents: this
-                                        .refreshEntitiesAndIntents,
-                                    resetResponseInCache: this.resetResponseInCache,
-                                    setResponseInCache: this.setResponse,
-                                }}
-                            >
-                                <DndProvider backend={HTML5Backend}>
-                                    <div data-cy='left-pane'>
-                                        {children}
-                                        {!showChat && channel && (
-                                            <Popup
-                                                trigger={(
-                                                    <Button
-                                                        size='big'
-                                                        circular
-                                                        onClick={() => changeShowChat(!showChat)
-                                                        }
-                                                        icon='comment'
-                                                        primary
-                                                        className='open-chat-button'
-                                                        data-cy='open-chat'
-                                                    />
-                                                )}
-                                                content='Try out your chatbot'
-                                            />
-                                        )}
-                                    </div>
-                                </DndProvider>
-                            </ProjectContext.Provider>
-                        )}
-                        {!loading && showChat && (
-                            <React.Suspense fallback={<Loader active />}>
-                                <ProjectChat
-                                    channel={channel}
-                                    triggerChatPane={() => changeShowChat(!showChat)}
-                                    projectId={projectId}
-                                />
-                            </React.Suspense>
-                        )}
-                    </SplitPane>
-                </div>
-                <Alert stack={{ limit: 3 }} />
             </div>
-        );
-    };
+            <div className='project-children'>
+                <SplitPane
+                    split='vertical'
+                    minSize={showChat ? 300 : 0}
+                    defaultSize={showChat ? 300 : 0}
+                    maxSize={showChat ? 600 : 0}
+                    primary='second'
+                    allowResize={showChat}
+                    className={resizingChatPane ? '' : 'width-transition'}
+                    onDragStarted={() => setResizingChatPane(true)}
+                    onDragFinished={() => setResizingChatPane(false)}
+                >
+                    {loading && (
+                        <div>
+                            <Menu pointing secondary style={{ background: '#fff' }} />
+                            <Container className='content-placeholder'>
+                                {renderPlaceholder(false, true)}
+                            </Container>
+                        </div>
+                    )}
+                    {!loading && (
+                        <ProjectContext.Provider
+                            value={{
+                                project,
+                                instance,
+                                projectLanguages,
+                                intents: Object.keys(intentsList || {}),
+                                entities: entitiesList || [],
+                                slots,
+                                language: workingLanguage,
+                                upsertResponse,
+                                responses,
+                                addResponses,
+                                refreshEntitiesAndIntents,
+                                getUtteranceFromPayload,
+                                parseUtterance,
+                                addUtterancesToTrainingData,
+                                getCanonicalExamples,
+                                resetResponseInCache,
+                                setResponseInCache: setResponse,
+                            }}
+                        >
+                            <DndProvider backend={HTML5Backend}>
+                                <div data-cy='left-pane'>
+                                    {children}
+                                    {!showChat && channel && (
+                                        <Popup
+                                            trigger={(
+                                                <Button
+                                                    size='big'
+                                                    circular
+                                                    onClick={() => changeShowChat(!showChat)
+                                                    }
+                                                    icon='comment'
+                                                    primary
+                                                    className='open-chat-button'
+                                                    data-cy='open-chat'
+                                                />
+                                            )}
+                                            content='Try out your chatbot'
+                                        />
+                                    )}
+                                </div>
+                            </DndProvider>
+                        </ProjectContext.Provider>
+                    )}
+                    {!loading && showChat && (
+                        <React.Suspense fallback={<Loader active />}>
+                            <ProjectChat
+                                channel={channel}
+                                triggerChatPane={() => changeShowChat(!showChat)}
+                                projectId={projectId}
+                            />
+                        </React.Suspense>
+                    )}
+                </SplitPane>
+            </div>
+            <Alert stack={{ limit: 3 }} />
+        </div>
+    );
 }
 
 Project.propTypes = {
@@ -591,7 +501,7 @@ export function WithRefreshOnLoad(Component) {
     return props => (
         <ProjectContext.Consumer>
             {({ refreshEntitiesAndIntents }) => (
-                <Component {...props} onLoad={refreshEntitiesAndIntents} />
+                <Component {...props} onLoad={refreshEntitiesAndIntents || (() => {})} />
             )}
         </ProjectContext.Consumer>
     );

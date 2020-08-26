@@ -8,10 +8,7 @@ import DashedButton from './DashedButton';
 import { ProjectContext } from '../../../layouts/context';
 
 const PayloadEditor = (props) => {
-    const {
-        entities: availableEntities,
-        addEntity,
-    } = useContext(ProjectContext);
+    const { entities: availableEntities } = useContext(ProjectContext);
     const {
         value: { intent = '', entities: originalEntities = [] },
         onChange,
@@ -74,7 +71,6 @@ const PayloadEditor = (props) => {
                                     handleAddOrChangeEntity(entity, newEntity, i);
                                 }}
                                 onAddItem={(_event, { value: newEntity }) => {
-                                    addEntity(newEntity);
                                     handleAddOrChangeEntity(entity, newEntity, i);
                                 }}
                                 entity={entity}

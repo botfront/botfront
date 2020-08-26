@@ -12,16 +12,11 @@ type Query {
         cursor: String
         exactMatch: Boolean = false
     ): ExamplePage
-    listIntents(
+    listIntentsAndEntities(
         projectId: String!
         language: String!
-    ): [String]
-    listEntities(
-        projectId: String!
-        language: String!
-    ): [String]
+    ): IntentsAndEntitiesList
 }
-
 
 type Mutation {
     updateExample(id: String!, example: ExampleInput!): updateResponse
@@ -34,6 +29,10 @@ type Mutation {
     switchCanonical( projectId:String, language: String, example: ExampleInput!): [Example]
 }
 
+type IntentsAndEntitiesList {
+    intents: Any!
+    entities: [String]!
+}
 
 type ExamplePage {
     examples: [Example]
@@ -48,7 +47,6 @@ type Example {
     entities: [Entity],
     metadata: Any
 }
-
 
 input ExampleInput {
     _id: String,

@@ -115,14 +115,6 @@ export const getModelIdsFromProjectId = projectId => (Projects.findOne({ _id: pr
 
 export const getLanguagesFromProjectId = (projectId, asOptions = false) => getNluModelLanguages(getModelIdsFromProjectId(projectId), asOptions);
 
-export const getAllTrainingDataGivenProjectIdAndLanguage = (projectId, language) => {
-    const nluModelIds = getModelIdsFromProjectId(projectId);
-    const models = NLUModels.find({ _id: { $in: nluModelIds }, language }, { fields: { training_data: 1 } }).fetch();
-    return models.map(model => model.training_data.common_examples)
-        .reduce((acc, x) => acc.concat(x), []);
-};
-
-
 export const validateYaml = function () {
     try {
         yaml.safeLoad(this.value);

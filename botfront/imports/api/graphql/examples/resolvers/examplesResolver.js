@@ -1,8 +1,7 @@
 /* eslint-disable no-unused-vars */
 import {
     getExamples,
-    listIntents,
-    listEntities,
+    listIntentsAndEntities,
     insertExamples,
     updateExample,
     deleteExamples,
@@ -15,11 +14,8 @@ export default {
         async examples(_, { exactMatch, ...args }, __) {
             return getExamples({ ...args, options: { exactMatch } });
         },
-        async listIntents(_, args, __) {
-            return listIntents(args);
-        },
-        async listEntities(_, args, __) {
-            return listEntities(args);
+        async listIntentsAndEntities(_, args, __) {
+            return listIntentsAndEntities(args);
         },
 
     },
@@ -49,7 +45,10 @@ export default {
         examples: (parent, _, __) => parent.examples,
         pageInfo: (parent, _, __) => parent.pageInfo,
     },
-
+    IntentsAndEntitiesList: {
+        intents: ({ intents }) => intents,
+        entities: ({ entities }) => entities,
+    },
     Example: {
         projectId: (parent, _, __) => parent.projectId,
         _id: (parent, _, __) => parent._id,
