@@ -73,24 +73,12 @@ export const getExamples = async ({
         options,
     );
     const sortObject = createSortObject(sortKey, order);
-
-    const numberOfDocuments = await Examples.countDocuments({
-        ...filtersObject,
-    })
-        .lean()
-        .exec();
-
-    const pagesNb = pageSize > -1 ? Math.ceil(numberOfDocuments / pageSize) : 1;
-    const boundedPageNb = Math.min(pagesNb, cursor);
-    const limit = pageSize > -1 ? { limit: pageSize } : {};
     const data = await Examples.find(
         {
             ...filtersObject,
         },
         null,
         {
-            skip: (boundedPageNb - 1) * pageSize,
-            ...limit,
             sort: sortObject,
         },
     ).lean();
@@ -98,8 +86,10 @@ export const getExamples = async ({
     const cursorIndex = !cursor
         ? 0
         : data.findIndex(activity => activity._id === cursor) + 1;
-    const examples = pageSize === 0 ? data : data.slice(cursorIndex, cursorIndex + pageSize);
-
+    const examples = pageSize === 0
+        ? data
+        : data.slice(cursorIndex, cursorIndex + pageSize);
+    
     return {
         examples,
         pageInfo: {
@@ -150,28 +140,62 @@ export const insertExamples = async ({ examples, language, projectId }) => {
 };
 
 export const updateExample = async ({ id, example }) => {
-    try {
-        const result = await Examples.updateOne(
-            { _id: id },
-            { $set: { ...example, updatedAt: new Date() } },
-        ).exec();
-        if (result.nModified === 0 || result.ok === 0) {
-            throw new Error('Update failed');
-        }
-        return { success: true, _id: id };
-    } catch (e) {
-        return { success: false, _id: id };
+    const result = await Examples.updateOne(
+        { _id: id },
+        { $set: { ...example, updatedAt: new Date() } },
+    ).exec();
+    if (result.nModified === 0 || result.ok === 0) {
+        throw new Error('Update failed');
     }
+    return { ...example, updatedAt: new Date() };
 };
 
 export const deleteExamples = async ({ ids }) => {
-    try {
-        const result = await Examples.deleteMany({ _id: { $in: ids } }).exec();
-        if (result.deletedCount !== ids.length) {
-            throw new Error('Issue during delete');
-        }
-        return { success: true };
-    } catch (e) {
-        return { success: false };
+    const result = await Examples.deleteMany({ _id: { $in: ids } }).exec();
+    if (result.deletedCount !== ids.length) {
+        throw new Error('Issue during delete');
     }
+    return ids;
+};
+
+
+export const switchCanonical = async ({ projectId, language, example }) => {
+    if (!example.intent) return { change: null };
+    const updatedExamples = []; // we might update 2 examples one where we remove the canonical status and one where we add it
+    if (example.metadata && !example.metadata.canonical) {
+        /* try to match a canonical item with the same characteristics (intent, entity, entity value)
+        to check if the selected item can be used as canonical
+        */
+        const entities = example.entities ? example.entities : [];
+        let elemMatch = {
+            'metadata.canonical': true, intent: example.intent, entities: { $size: entities.length },
+        };
+
+        if (entities.length > 0) {
+            const entityElemMatchs = entities.map(entity => (
+                {
+                    $elemMatch: { entity: entity.entity, value: entity.value },
+                }));
+            elemMatch = {
+                ...elemMatch,
+                $and: [{ entities: { $size: entities.length } }, { entities: { $all: entityElemMatchs } }],
+            };
+            delete elemMatch.entities; // remove the entities field as the size condition is now in the $and
+        }
+
+        const query = {
+            projectId,
+            'metadata.language': language,
+            ...elemMatch,
+        };
+        const result = await Examples.findOne(query).lean();
+        if (result) {
+            updatedExamples.push(await updateExample({ id: result._id, example: { ...result, metadata: { ...result.metadata, canonical: false } } }));
+        }
+        updatedExamples.push(await updateExample({ id: example._id, example: { ...example, metadata: { ...example.metadata, canonical: true } } }));
+        return updatedExamples;
+    }
+    updatedExamples.push(await updateExample({ id: example._id, example: { ...example, metadata: { ...example.metadata, canonical: false } } }));
+
+    return updatedExamples;
 };

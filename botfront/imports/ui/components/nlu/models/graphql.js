@@ -24,7 +24,7 @@ query examples(
     $order: order
     $sortKey: String
     $pageSize: Int
-    $cursor: Int
+    $cursor: String
     $exactMatch: Boolean = false
 ) {
     examples(
@@ -88,10 +88,22 @@ mutation insertExamples($projectId: String!, $language: String!, $examples: [Exa
 
 export const DELETE_EXAMPLES = gql`
 mutation deleteExamples($ids: [String]!) {
-    deleteExamples(ids: $ids) {  
-        success
+    deleteExamples(ids: $ids) 
+}`;
+
+
+export const SWITCH_CANONICAL = gql`
+mutation switchCanonical($projectId:String, $language: String, $example: ExampleInput!) {
+    switchCanonical(projectId: $projectId, language: $language, example: $example) {
+             _id 
+            projectId 
+            text 
+            intent 
+            entities { value }
+            metadata
     }
 }`;
+
 
 export const UPDATE_EXAMPLES = gql`
 mutation updateExample(

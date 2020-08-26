@@ -7,41 +7,41 @@ import {
     INSERT_EXAMPLES,
     DELETE_EXAMPLES,
     UPDATE_EXAMPLES,
+    SWITCH_CANONICAL,
 } from './graphql.js';
 
 
 export function useExamples(variables) {
-    const pageSize = 20;
     const {
         data, loading, error, fetchMore, refetch,
     } = useQuery(GET_EXAMPLES, {
-        notifyOnNetworkStatusChange: true, variables: { ...variables, pageSize },
+        notifyOnNetworkStatusChange: true, variables,
     });
 
     if (!data || !data.examples) return { loading, data: [] };
-    const loadMore = () => fetchMore({
-        query: GET_EXAMPLES,
-        notifyOnNetworkStatusChange: true,
-        variables: {
-            ...variables,
-            pageSize,
-            cursor: parseInt(data.examples.pageInfo.endCursor, 10),
-        },
-        updateQuery: (previousResult, { fetchMoreResult }) => {
-            const { examples, pageInfo } = fetchMoreResult.examples;
-
-            return examples.length
-                ? {
-                    examples: {
+    const loadMore = () => {
+        fetchMore({
+            query: GET_EXAMPLES,
+            notifyOnNetworkStatusChange: true,
+            variables: {
+                ...variables,
+                cursor: data.examples.pageInfo.endCursor,
+            },
+            updateQuery: (previousResult, { fetchMoreResult }) => {
+                const { examples, pageInfo } = fetchMoreResult.examples;
+                return examples.length
+                    ? {
+                        examples: {
                         // eslint-disable-next-line no-underscore-dangle
-                        __typename: previousResult.examples.__typename,
-                        examples: [...previousResult.examples.examples, ...examples],
-                        pageInfo,
-                    },
-                }
-                : previousResult;
-        },
-    });
+                            __typename: previousResult.examples.__typename,
+                            examples: [...previousResult.examples.examples, ...examples],
+                            pageInfo,
+                        },
+                    }
+                    : previousResult;
+            },
+        });
+    };
 
     return {
         data: data.examples.examples,
@@ -91,17 +91,47 @@ export function useEntitiesList(variables) {
 export const useDeleteExamples = variables => useMutation(
     DELETE_EXAMPLES,
     {
-        update: (cache) => {
-            const result = cache.readQuery({ query: GET_EXAMPLES });
-            const { getActivity: { activity } } = result;
+        update: (cache, { data: { deleteExamples: deleted } }) => {
+            const result = cache.readQuery({ query: GET_EXAMPLES, variables });
+            const { examples: { examples } } = result;
             cache.writeQuery({
                 query: GET_EXAMPLES,
                 variables,
                 data: {
                     ...result,
-                    getActivity: {
-                        ...result.getActivity,
-                        activity: activity.filter(a => !deleted.map(del => del._id).includes(a._id)),
+                    examples: {
+                        ...result.examples,
+                        examples: examples.filter(a => !deleted.includes(a._id)),
+                    },
+                },
+            });
+        },
+    },
+);
+
+
+export const useSwitchCannonical = variables => useMutation(
+    SWITCH_CANONICAL,
+    {
+        update: (cache, { data: { switchCanonical: updatedExamples } }) => {
+            const updatedIds = updatedExamples.map(example => example._id);
+            const result = cache.readQuery({ query: GET_EXAMPLES, variables });
+            const { examples: { examples } } = result;
+            const modifiedExamples = examples.map((example) => {
+                const indexOfUpdated = updatedIds.indexOf(example._id);
+                if (indexOfUpdated !== -1) {
+                    return updatedExamples[indexOfUpdated];
+                }
+                return example;
+            });
+            cache.writeQuery({
+                query: GET_EXAMPLES,
+                variables,
+                data: {
+                    ...result,
+                    examples: {
+                        ...result.examples,
+                        examples: modifiedExamples,
                     },
                 },
             });

@@ -6,6 +6,7 @@ import {
     insertExamples,
     updateExample,
     deleteExamples,
+    switchCanonical,
 } from '../mongo/examples.js';
 
 
@@ -35,6 +36,12 @@ export default {
             const response = await deleteExamples(args);
             return response;
         },
+        async switchCanonical(_, args, __) {
+            const response = await switchCanonical(args);
+            return response;
+        },
+    
+
     },
 
 

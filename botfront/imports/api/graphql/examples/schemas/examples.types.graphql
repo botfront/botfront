@@ -9,7 +9,7 @@ type Query {
         order: order
         sortKey: String
         pageSize: Int
-        cursor: Int
+        cursor: String
         exactMatch: Boolean = false
     ): ExamplePage
     listIntents(
@@ -30,8 +30,10 @@ type Mutation {
         language: String!
         projectId: String!
     ): updateResponse
-    deleteExamples(ids: [String]!): updateResponse
+    deleteExamples(ids: [String]!): [String]
+    switchCanonical( projectId:String, language: String, example: ExampleInput!): [Example]
 }
+
 
 type ExamplePage {
     examples: [Example]
@@ -49,7 +51,7 @@ type Example {
 
 
 input ExampleInput {
-    id: String,
+    _id: String,
     projectId: String,
     text: String,
     intent: String,
