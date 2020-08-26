@@ -38,7 +38,7 @@ export default {
     Mutation: {
         async updateExample(_, args, __) {
             const response = await updateExample(args);
-            const { projectId, language } = args.example;
+            const { projectId, metadata: { language } } = args.example;
             publishIntentsOrEntitiesChanged(projectId, language);
             return response;
         },
