@@ -3,11 +3,15 @@ import { Projects } from '../../../project/project.collection';
 import { NLUModels } from '../../../nlu_model/nlu_model.collection';
 import BotResponses from '../../botResponses/botResponses.model';
 import { indexStory } from '../../../story/stories.index';
+import { searchForms } from '../../forms/mongo/forms';
 
-const combineSearches = (search, responseKeys, intents) => {
+export const combineSearches = (search, ...rest) => {
     const searchRegex = [search];
-    if (responseKeys.length) searchRegex.push(responseKeys.join('|'));
-    if (intents.length) searchRegex.push(intents.join('|'));
+    rest.forEach(((searchArray) => {
+        if (Array.isArray(searchArray) && searchArray.length) {
+            searchRegex.push(searchArray.join('|'));
+        }
+    }));
     return searchRegex.join('|');
 };
 
@@ -100,7 +104,8 @@ export const searchStories = async (projectId, language, search) => {
             },
         },
     ).fetch();
-    return matched;
+    const matchedForms = await searchForms(projectId, search, responseKeys);
+    return { stories: matched, forms: matchedForms };
 };
 
 const replaceLine = (story, lineToReplace, newLine) => {

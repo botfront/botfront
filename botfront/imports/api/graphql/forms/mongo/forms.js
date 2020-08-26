@@ -5,6 +5,7 @@ import { StoryGroups } from '../../../storyGroups/storyGroups.collection';
 import { Slots } from '../../../slots/slots.collection';
 import { Projects } from '../../../project/project.collection';
 import { auditLogIfOnServer } from '../../../../lib/utils';
+import { combineSearches } from '../../story/mongo/stories';
 
 export const getForms = async (projectId, ids = null) => {
     if (!ids) return Forms.find({ projectId }).lean();
@@ -142,6 +143,23 @@ export const importSubmissions = async (args) => {
     return {
         nTotal, nPushed, nInserted, nUpdated, failed,
     };
+};
+
+export const searchForms = (projectId, search, botResponses) => {
+    const slotsFromResponses = botResponses.reduce((acc, responseName) => {
+        if (responseName.startsWith('utter_ask_')) {
+            acc.push(responseName.replace(/^utter_ask_/, ''));
+        }
+        return acc;
+    }, []);
+    const allSlots = combineSearches(search, slotsFromResponses);
+    return Forms.find({
+        projectId,
+        $or: [
+            { 'slots.name': { $regex: allSlots, $options: 'i' } },
+            { name: { $regex: allSlots, $options: 'i' } },
+        ],
+    }).lean();
 };
 
 const generateEnvironmentRestriction = suppliedEnvs => (Array.isArray(suppliedEnvs) && suppliedEnvs.length > 0

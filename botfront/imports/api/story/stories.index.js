@@ -18,7 +18,7 @@ export const indexStory = (storyToIndex, options = {}) => {
         ? Stories.findOne({ _id: storyToIndex })
         : storyToIndex;
     const {
-        userUtterances = [], botResponses = [], actions = [], slots = [],
+        userUtterances = [], botResponses = [], actions = [], slots = [], forms = [],
     } = getStoryContent(story, options);
     const storyContentIndex = [
         ...userUtterances.map(({ name, entities }) => {
@@ -29,6 +29,7 @@ export const indexStory = (storyToIndex, options = {}) => {
         ...botResponses,
         ...actions,
         ...slots,
+        ...forms,
     ].join(' \n ');
     const result = {};
     result.textIndex = { contents: storyContentIndex, info: update.title || story.title };

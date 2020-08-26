@@ -268,7 +268,7 @@ if (Meteor.isServer) {
         },
         {
             name: 'search stories',
-            query: storiesResolver.Query.stories,
+            query: storiesResolver.Query.storiesSearch,
             args: { projectId },
             acceptedRoles: readers.stories,
         },

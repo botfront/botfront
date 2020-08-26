@@ -136,61 +136,65 @@
     max-width: 600px;
 }
 
-.ui.segments.form-editor {
-    border-color: #eeeeee;
-    .ui.segment.form-editor-topbar {
-        padding: 0;
-        background-color: #f9f9f9;
+.ui.form {
+    .ui.segments.form-editor {
         border-color: #eeeeee;
-        height: 2.85714286em;
-        .create-form-field {
-            width: 300px;
-            .ui.input {
-                box-sizing: border-box;
-                margin-left: 1.5em;
-                margin-top: 0.4em;
-                input {
-                    font-size: 16px;
-                    padding: 0.225em;
-                    padding-left: 0.5em;
-                    background-color: rgba(0,0,0,0);
-                    border-color: rgba(0,0,0,0);
-                    &:focus,
-                    &:hover {
-                        border-color: rgb(220, 220, 220);
-                        background-color: rgba(255, 255, 255, 1);
-                    }
-                }
-            }
-            &.error {
+        margin-bottom: 20px;
+        .ui.segment.form-editor-topbar {
+            padding: 0;
+            background-color: #f9f9f9;
+            border-color: #eeeeee;
+            height: 2.85714286em;
+            .create-form-field {
+                width: 300px;
                 .ui.input {
+                    box-sizing: border-box;
+                    margin-left: 1.5em;
+                    margin-top: 0.4em;
                     input {
-                        background-color: #fff6f6;
-                        border-color: #d16e6d;
+                        font-size: 16px;
+                        padding: 0.225em;
+                        padding-left: 0.5em;
+                        background-color: rgba(0,0,0,0);
+                        border-color: rgba(0,0,0,0);
                         &:focus,
                         &:hover {
-                            border-color: #d16e6d;
+                            border-color: rgb(220, 220, 220);
+                            background-color: rgba(255, 255, 255, 1);
+                        }
+                    }
+                }
+                &.error {
+                    .ui.input {
+                        input {
                             background-color: #fff6f6;
+                            border-color: #d16e6d;
+                            &:focus,
+                            &:hover {
+                                border-color: #d16e6d;
+                                background-color: #fff6f6;
+                            }
                         }
                     }
                 }
             }
         }
-    }
-    .ui.segment.form-editor-content {
-        border-color: #eeeeee;
-        padding: 2em;
-        .contextual-side-questions {
-            margin-bottom: 15px;
-        }
-        .grey.question.icon {
-            width: 1.5em !important;
-            height: 1.5em !important;
-            padding: 0.2em 0 !important;
-            margin-left: 10px;
+        .ui.segment.form-editor-content {
+            border-color: #eeeeee;
+            padding: 2em;
+            .contextual-side-questions {
+                margin-bottom: 15px;
+            }
+            .grey.question.icon {
+                width: 1.5em !important;
+                height: 1.5em !important;
+                padding: 0.2em 0 !important;
+                margin-left: 10px;
+            }
         }
     }
 }
+
 
 .extraction-option-buttons {
     position: relative;

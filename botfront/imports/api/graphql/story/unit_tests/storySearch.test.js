@@ -62,15 +62,15 @@ if (Meteor.isServer) {
     
     const searchStories = async (language, queryString, reject) => {
         try {
-            const searchResult = await StoryResolver.Query.stories(null, {
+            const searchResult = await StoryResolver.Query.storiesSearch(null, {
                 projectId: 'bf',
                 language,
                 queryString,
             }, { user: { _id: userId } });
             if (!reject) {
-                expect(searchResult[0]).to.be.deep.equal({ _id: 'TEST_STORY', title: 'story fixture', storyGroupId: 'TEST_STORY_GROUP' });
+                expect(searchResult.stories[0]).to.be.deep.equal({ _id: 'TEST_STORY', title: 'story fixture', storyGroupId: 'TEST_STORY_GROUP' });
             } else {
-                expect(searchResult[0]).to.be.equal(undefined);
+                expect(searchResult.stories[0]).to.be.equal(undefined);
             }
         } catch (e) {
             throw new Error(`seaching stories for "${queryString}" did not return the expected results\n${e}`);
@@ -91,6 +91,7 @@ if (Meteor.isServer) {
             await searchStories('en', 'test_slot');
             await searchStories('en', 'story fixture');
             await searchStories('en', 'term does not exist', true);
+            await searchStories('en', 'test_form');
             done();
         } catch (e) {
             done(e);

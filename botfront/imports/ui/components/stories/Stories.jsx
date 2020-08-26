@@ -361,22 +361,21 @@ function Stories(props) {
                         </Loading>
                     </div>
                     <Container>
-                        {forms.some(({ _id }) => (storyMenuSelection[0] || '').replace(/^.*_slot_for_/, '') === _id)
-                            ? (
-                                <FormEditors
-                                    projectId={projectId}
-                                    formIds={storyMenuSelection.map(id => id.replace(/^.*_slot_for_/, ''))}
-                                    slots={storyMenuSelection.map(id => id.replace(/_slot_for_.*$/, ''))}
-                                />
-                            ) : (
-                                <StoryEditors
-                                    projectId={projectId}
-                                    selectedIds={storyMenuSelection.map(cleanId)}
-                                    key={storyEditorsKey}
-                                />
+                        {forms.some(({ _id }) => (storyMenuSelection.includes(_id) || _id.replace(/^.*_slot_for_/, '') === _id)) && (
+                            <FormEditors
+                                projectId={projectId}
+                                formIds={storyMenuSelection.map(id => id.replace(/^.*_slot_for_/, ''))}
+                                slots={storyMenuSelection.map(id => id.replace(/_slot_for_.*$/, ''))}
+                            />
+                        )}
+                        {stories.some(({ _id }) => storyMenuSelection.includes(_id)) && (
+                            <StoryEditors
+                                projectId={projectId}
+                                selectedIds={storyMenuSelection.map(cleanId)}
+                                key={storyEditorsKey}
+                            />
 
-                            )
-                        }
+                        )}
                     </Container>
                 </SplitPane>
             </ConversationOptionsContext.Provider>

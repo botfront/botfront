@@ -66,4 +66,11 @@ describe('test stories searching ui', () => {
         cy.dataCy('story-title').should('have.length', 1);
         cy.dataCy('story-title').should('have.value', 'title A');
     });
+    it('should link to forms from stories search', () => {
+        cy.visit('project/bf/stories');
+        cy.createForm('bf', 'test_form', { slots: ['color'] });
+        searchStories('test_form', 'test_form');
+        cy.dataCy('form-name-field').should('exist');
+        cy.dataCy('form-name-field').find('input').should('have.value', 'test_form');
+    });
 });

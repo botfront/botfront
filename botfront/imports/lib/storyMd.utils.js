@@ -32,6 +32,8 @@ export const parseLine = (line) => {
             name = content.split('{')[1].split(':')[0].replace(/"/g, '');
         } else if (/^action_/.test(content)) {
             type = 'action';
+        } else if (/_form$/.test(content) || /^form{"/.test(content)) {
+            type = 'form';
         }
         break;
     default:
@@ -46,6 +48,7 @@ export const parseStory = (story) => {
         userUtterances: [],
         slots: [],
         actions: [],
+        forms: [],
     };
     const lines = story ? story.split('\n') : [];
     lines.forEach((line) => {
@@ -64,6 +67,9 @@ export const parseStory = (story) => {
         case 'slot':
             storyContent.slots.push(rest.name);
             break;
+        case 'form':
+            storyContent.forms.push(rest.name);
+            break;
         default: break;
         }
     });
@@ -76,7 +82,7 @@ export const parseStoryTree = (incomingStory, options) => {
         ? { ...incomingStory, ...update }
         : incomingStory;
     let {
-        botResponses, userUtterances, slots, actions,
+        botResponses, userUtterances, slots, actions, forms,
     } = parseStory(story.story);
     let md = story.story;
     if (story.branches && story.branches.length > 0) {
@@ -87,10 +93,11 @@ export const parseStoryTree = (incomingStory, options) => {
             userUtterances = [...userUtterances, ...events.userUtterances];
             slots = [...slots, ...events.slots];
             actions = [...actions, ...events.actions];
+            forms = [...forms, ...events.forms];
         });
     }
     return {
-        botResponses, userUtterances, slots, actions, md,
+        botResponses, userUtterances, slots, actions, forms, md,
     };
 };
 
