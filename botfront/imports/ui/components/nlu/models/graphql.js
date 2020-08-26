@@ -24,7 +24,7 @@ query examples(
     $order: order
     $sortKey: String
     $pageSize: Int
-    $cursor: Int
+    $cursor: String
     $exactMatch: Boolean = false
 ) {
     examples(
