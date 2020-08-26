@@ -1,8 +1,9 @@
-import { useQuery, useMutation } from '@apollo/react-hooks';
+import { useQuery, useMutation, useSubscription } from '@apollo/react-hooks';
 import {
     GET_INTENT_STATISTICS,
     GET_EXAMPLES,
     LIST_INTENTS_AND_ENTITIES,
+    INTENTS_OR_ENTITIES_CHANGED,
     INSERT_EXAMPLES,
     DELETE_EXAMPLES,
     UPDATE_EXAMPLES,
@@ -57,6 +58,12 @@ export function useIntentAndEntityList(variables) {
         data, loading, error, refetch,
     } = useQuery(LIST_INTENTS_AND_ENTITIES, {
         notifyOnNetworkStatusChange: true, variables,
+    });
+    useSubscription(INTENTS_OR_ENTITIES_CHANGED, {
+        variables,
+        onSubscriptionData: ({ subscriptionData: { data: subData } }) => {
+            if (subData.intentsOrEntitiesChanged.changed) refetch(); // nothing fancy just recalculate all
+        },
     });
 
     if (!data || !data.listIntentsAndEntities) return { loading };

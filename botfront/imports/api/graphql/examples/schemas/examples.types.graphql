@@ -18,6 +18,13 @@ type Query {
     ): IntentsAndEntitiesList
 }
 
+type Subscription {
+    intentsOrEntitiesChanged(
+        projectId: String!
+        language: String!
+    ): SubscriptionWarning
+}
+
 type Mutation {
     updateExample(id: String!, example: ExampleInput!): updateResponse
     insertExamples(

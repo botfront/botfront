@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import {
     getExamples,
     listIntentsAndEntities,
@@ -8,6 +7,15 @@ import {
     switchCanonical,
 } from '../mongo/examples.js';
 
+const { PubSub, withFilter } = require('apollo-server-express');
+
+const pubsub = new PubSub();
+const INTENTS_OR_ENTITIES_CHANGED = 'INTENTS_OR_ENTITIES_CHANGED';
+
+const publishIntentsOrEntitiesChanged = (projectId, language) => pubsub.publish(
+    INTENTS_OR_ENTITIES_CHANGED,
+    { projectId, language, intentsOrEntitiesChanged: { changed: true } },
+);
 
 export default {
     Query: {
@@ -17,15 +25,31 @@ export default {
         async listIntentsAndEntities(_, args, __) {
             return listIntentsAndEntities(args);
         },
-
+    },
+    Subscription: {
+        intentsOrEntitiesChanged: {
+            subscribe: withFilter(
+                () => pubsub.asyncIterator([INTENTS_OR_ENTITIES_CHANGED]),
+                (payload, variables) => payload.projectId === variables.projectId
+                    && payload.language === variables.language,
+            ),
+        },
     },
     Mutation: {
         async updateExample(_, args, __) {
             const response = await updateExample(args);
+            if (response.success) {
+                const { projectId, language } = args.example;
+                publishIntentsOrEntitiesChanged(projectId, language);
+            }
             return response;
         },
         async insertExamples(_, args, __) {
             const response = await insertExamples(args);
+            if (response.success) {
+                const { projectId, language } = args;
+                publishIntentsOrEntitiesChanged(projectId, language);
+            }
             return response;
         },
         async deleteExamples(_, args, __) {
@@ -39,7 +63,6 @@ export default {
     
 
     },
-
 
     ExamplePage: {
         examples: (parent, _, __) => parent.examples,

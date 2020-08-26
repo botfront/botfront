@@ -12,6 +12,12 @@ type PageInfo {
     hasNextPage: Boolean!
 }
 
+type SubscriptionWarning {
+    projectId: String
+    language: String
+    changed: Boolean!
+}
+
 type batchMutationOutput {
     nTotal: Int
     nPushed: Int

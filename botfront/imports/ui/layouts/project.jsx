@@ -254,6 +254,7 @@ function Project(props) {
     };
 
     const addUtterancesToTrainingData = (utterances, callback = () => {}) => {
+        if (!(utterances || []).filter(u => u.text).length) callback(null, { success: true });
         apolloClient
             .mutate({
                 mutation: INSERT_EXAMPLES,

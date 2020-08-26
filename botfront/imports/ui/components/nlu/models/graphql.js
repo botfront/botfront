@@ -70,6 +70,15 @@ query listIntentsAndEntities($projectId: String!, $language: String!) {
 }`;
 
 
+export const INTENTS_OR_ENTITIES_CHANGED = gql`
+subscription intentsOrEntitiesChanged($projectId: String!, $language: String!) {
+    intentsOrEntitiesChanged(
+        projectId: $projectId
+        language: $language
+    ) { changed }
+}`;
+
+
 export const INSERT_EXAMPLES = gql`
 mutation insertExamples($projectId: String!, $language: String!, $examples: [ExampleInput]!) {
     insertExamples(projectId: $projectId, language: $language, examples: $examples) {  
