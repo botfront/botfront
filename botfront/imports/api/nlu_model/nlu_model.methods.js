@@ -1,13 +1,8 @@
 import { check } from 'meteor/check';
 import uuidv4 from 'uuid/v4';
 import shortid from 'shortid';
-import {
-    uniq, uniqBy, sortBy, intersectionBy,
-} from 'lodash';
-import {
-    formatError, getProjectIdFromModelId,
-} from '../../lib/utils';
-import ExampleUtils from '../../ui/components/utils/ExampleUtils';
+import { uniq, sortBy } from 'lodash';
+import { formatError } from '../../lib/utils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { NLUModels } from './nlu_model.collection';
 import { getNluModelLanguages } from './nlu_model.utils';
