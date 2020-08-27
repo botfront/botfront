@@ -9,6 +9,7 @@ export default function ReportTable(props) {
 
     const getReportData = () => {
         const { report } = props;
+        if (!report) return [];
         return Object.keys(report).reduce((acc, key) => {
             if (['micro avg', 'macro avg', 'weighted avg', 'accuracy'].includes(key)) return acc;
             return [...acc, { [labelType]: key, ...report[key] }];

@@ -71,7 +71,7 @@ class Evaluation extends React.Component {
                 render: () => <IntentReport {...intentEvaluation} />,
             });
         }
-        if (entityEvaluation) {
+        if (entityEvaluation && Object.keys(entityEvaluation).length > 0) {
             menuItems.push({
                 menuItem: 'Entities',
                 render: () => <EntityReport {...entityEvaluation} />,
