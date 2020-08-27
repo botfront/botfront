@@ -38,7 +38,6 @@ import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.co
 import { Projects } from '../../../../api/project/project.collection';
 import { setWorkingLanguage } from '../../../store/actions/actions';
 import NluTable from './NluTable';
-import { WithRefreshOnLoad } from '../../../layouts/project';
 
 const handleDefaultRoute = (projectId, models, workingLanguage) => {
     try {
@@ -77,7 +76,7 @@ function NLUModel(props) {
 
         const modelsList = NLUModels.find({ _id: { $in: nlu_models } }, { sort: { language: 1 } }, { fields: { language: 1, _id: 1 } }).fetch();
         if (!modelId || !nlu_models.includes(modelId)) {
-            handleDefaultRoute(projectId, models, workingLanguage);
+            handleDefaultRoute(projectId, modelsList, workingLanguage);
         }
         const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
         const settingsHandler = Meteor.subscribe('settings');
@@ -129,11 +128,6 @@ function NLUModel(props) {
     const [activityLinkRender, setActivityLinkRender] = useState((incomingState && incomingState.isActivityLinkRender) || false);
     const [activeItem, setActiveItem] = useState(incomingState && incomingState.isActivityLinkRender === true ? 'evaluation' : 'data');
 
-
-    useEffect(() => {
-        const { onLoad } = props;
-        onLoad();
-    }, []);
 
     const validationRender = () => {
         if (activityLinkRender === true) {
@@ -383,4 +377,4 @@ const mapDispatchToProps = {
 };
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(WithRefreshOnLoad(NLUModel));
+export default connect(mapStateToProps, mapDispatchToProps)(NLUModel);
