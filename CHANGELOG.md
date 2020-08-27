@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.26.0-ee.1](https://github.com/botfront/botfront/compare/v0.25.8-ee.2...v0.26.0-ee.1) (2020-08-27)
+
+
+### Features
+
+* inter language responses ([9953d36](https://github.com/botfront/botfront/commit/9953d36d65a9c7954648001789bdf9170e41a9d9))
+* routes for individual settings pages ([76d69ad](https://github.com/botfront/botfront/commit/76d69ad5bdcdee115f6e0fc120646951ad746aea))
+* search forms in stories ([b3f1f4f](https://github.com/botfront/botfront/commit/b3f1f4ff6480d1c9c1b1c56d9396e714cd37d6ad))
+
+
+### Bug Fixes
+
+* activities with duckling entities ([44b86ef](https://github.com/botfront/botfront/commit/44b86ef6974c05737c0aa3df050c1f5d660507ef))
+* display entity evaluation ([4de12cb](https://github.com/botfront/botfront/commit/4de12cb13f3809c020c26693e0e188df774fdbbb))
+* do not save duckling entities ([03b9207](https://github.com/botfront/botfront/commit/03b9207ad7dae13a590dbe65a885688857dd3eb4))
+* duplicates in stories -> links menu ([5ad961f](https://github.com/botfront/botfront/commit/5ad961f45521c4821c5098f16616ff27639abf7f))
+* hide copyFrom in bot responses when there is only one language ([c3845d7](https://github.com/botfront/botfront/commit/c3845d7e0bb184b6c93cc5e4d5e49c58ca9afa2e))
+* incoming bug when wrong default language in project ([81e6a4c](https://github.com/botfront/botfront/commit/81e6a4c126508e5d8af44aea3349ce5f18d70e31))
+* nlu was saved when clicking on menus when it shouldn't have ([81dbd3e](https://github.com/botfront/botfront/commit/81dbd3e7e7b1c104010133f55ae4b2165dcd51a5))
+* only delete image if it's not used in an other response ([eceefaf](https://github.com/botfront/botfront/commit/eceefaf7a01c0d628927d1518a999f8fa38d519d))
+* pinned stories were not pinned at the top ([39f2b15](https://github.com/botfront/botfront/commit/39f2b15bc217378320d7a5197c0c31032ff6339c))
+* prevent entities report crash when evaluation entities empty ([9ed65a3](https://github.com/botfront/botfront/commit/9ed65a33645fcddcd3793d0bd246d045a607064b))
+* prevent entities report crash when evaluation entities empty ([3e7471c](https://github.com/botfront/botfront/commit/3e7471c32fce01b3535d58ab2b114dd4c4167fdd))
+* **training:** fix wrong language/model association ([5dcc6a7](https://github.com/botfront/botfront/commit/5dcc6a74f6e85bab3d202172cf54d4c839bfb2ce))
+* warning were displayed when using forms in branches  ([f101ad4](https://github.com/botfront/botfront/commit/f101ad4450e13ec324d2ed93d52baaa5ec1d9400))
+* **evaluation:** the value for f1 and recall were inverted ([c8b9a8c](https://github.com/botfront/botfront/commit/c8b9a8c22af823d8c31a9582c30162a702e369d4))
+
 ### [0.25.8-ee.2](https://github.com/botfront/botfront/compare/v0.25.8-ee.1...v0.25.8-ee.2) (2020-07-30)
 
 
