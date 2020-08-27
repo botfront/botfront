@@ -124,16 +124,27 @@ export const getBotResponses = async projectId => BotResponses.find({
     projectId,
 }).lean();
 
-const getImageUrls = response => response.values.reduce(
-    (vacc, vcurr) => [
-        ...vacc,
-        ...vcurr.sequence.reduce((sacc, scurr) => {
-            const { image } = safeLoad(scurr.content);
-            return image ? [...sacc, image] : [sacc];
-        }, []),
-    ],
-    [],
-);
+export const getImageUrls = (response, excludeLang = '') =>
+    response.values.reduce((vacc, vcurr) => {
+        if (vcurr.lang !== excludeLang) {
+            return [
+                ...vacc,
+                ...vcurr.sequence.reduce((sacc, scurr) => {
+                    // image is for image response, image_url is for carousels
+                    const { image, elements } = safeLoad(scurr.content);
+                    if (!image && !elements) return sacc; // neither a image or a carousel
+
+                    let imagesSources = [image]; // let assume the response is an imageResponse
+                    if (elements) {
+                        // if it's a carouselResponse image source will be replaced
+                        imagesSources = elements.map((element) => element.image_url);
+                    }
+                    return [...sacc, ...imagesSources];
+                }, []),
+            ];
+        }
+        return vacc;
+    }, []);
 
 export const deleteResponse = async (projectId, key) => {
     const response = await BotResponses.findOne({ projectId, key }).lean();

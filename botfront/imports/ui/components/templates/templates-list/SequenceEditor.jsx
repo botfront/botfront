@@ -36,6 +36,7 @@ const SequenceEditor = (props) => {
                     {content.__typename !== 'CustomPayload' && (
                         <BotResponsesContainer
                             deleteable
+                            name={name}
                             initialValue={content}
                             onChange={value => onChange(value, index)}
                             isNew={false}

@@ -6,6 +6,8 @@ import yaml from 'js-yaml';
 import path from 'path';
 import React, { useState } from 'react';
 import axios from 'axios';
+import BotResponses from '../api/graphql/botResponses/botResponses.model';
+import { getImageUrls } from '../api/graphql/botResponses/mongo/botResponses';
 
 import { GlobalSettings } from '../api/globalSettings/globalSettings.collection';
 import { checkIfCan } from './scopes';
@@ -193,12 +195,21 @@ if (Meteor.isServer) {
             return resp;
         },
 
-        async 'delete.image'(projectId, imgSrc) {
+        async 'delete.image'(projectId, imgSrc, key, lang) {
             checkIfCan('responses:w', projectId);
             check(projectId, String);
             check(imgSrc, String);
-            const { deleteImageWebhook: { url, method } } = getWebhooks();
-            if (url && method) deleteImages([imgSrc], projectId, url, method);
+            check(key, String);
+            const {
+                deleteImageWebhook: { url, method },
+            } = getWebhooks();
+            if (url && method) {
+                const response = await BotResponses.findOne({ projectId, key }).lean();
+                const imagesUrls = getImageUrls(response, lang); // check if the url is used in any other language
+                if (imagesUrls.filter((x) => x == imgSrc).length < 1) {
+                    deleteImages([imgSrc], projectId, url, method);
+                }
+            }
         },
 
         async 'deploy.model'(projectId, target) {
