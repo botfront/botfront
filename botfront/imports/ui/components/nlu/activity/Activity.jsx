@@ -260,6 +260,7 @@ function Activity(props) {
 
     const renderActions = row => (
         <ActivityActionsColumn
+            outdated={isUtteranceOutdated(row.datum)}
             datum={row.datum}
             handleSetValidated={handleSetValidated}
             onDelete={handleDelete}
