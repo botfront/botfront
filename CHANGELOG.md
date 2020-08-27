@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.26.0-rc.3](https://github.com/botfront/botfront/compare/v0.26.0-rc.2...v0.26.0-rc.3) (2020-08-27)
+
+
+### Bug Fixes
+
+* prevent entities report crash when evaluation entities empty ([3e7471c](https://github.com/botfront/botfront/commit/3e7471c32fce01b3535d58ab2b114dd4c4167fdd))
+
 ## [0.26.0-rc.2](https://github.com/botfront/botfront/compare/v0.26.0-rc.1...v0.26.0-rc.2) (2020-08-24)
 
 
