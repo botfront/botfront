@@ -8,8 +8,9 @@ enum order {
 }
 
 type PageInfo {
-    endCursor: String!,
+    endCursor: String!
     hasNextPage: Boolean!
+    totalLength: Int
 }
 
 type SubscriptionWarning {

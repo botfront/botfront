@@ -101,6 +101,7 @@ export const getExamples = async ({
         pageInfo: {
             endCursor: examples.length ? examples[examples.length - 1]._id : '',
             hasNextPage: cursorIndex + pageSize < data.length,
+            totalLength: data.length,
         },
     };
 };

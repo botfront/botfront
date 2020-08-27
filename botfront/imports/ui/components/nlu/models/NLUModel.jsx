@@ -69,10 +69,12 @@ class NLUModel extends React.Component {
             ready,
             instance,
             examples,
+            totalExamples,
             model,
         } = props;
         return {
             examples: ready ? NLUModel.getExamplesWithExtraSynonyms(examples, model.training_data.entity_synonyms) : [],
+            totalExamples,
             instance,
             intents,
             entities,
@@ -347,7 +349,7 @@ class NLUModel extends React.Component {
             intents,
         } = this.props;
         const {
-            activeItem, instance, entities, subPageInitialState,
+            activeItem, instance, entities, subPageInitialState, totalExamples,
         } = this.state;
         if (!project) return null;
         if (!model) return null;
@@ -442,7 +444,7 @@ class NLUModel extends React.Component {
                     <br />
                     {activeItem === 'data' && <Tab menu={{ pointing: true, secondary: true }} panes={this.getNLUSecondaryPanes()} />}
                     {activeItem === 'evaluation' && <Evaluation model={model} projectId={projectId} validationRender={this.validationRender} initialState={subPageInitialState} />}
-                    {activeItem === 'statistics' && <Statistics model={model} intents={intents} entities={entities} />}
+                    {activeItem === 'statistics' && <Statistics examples={totalExamples} synonyms={model.training_data.entity_synonyms.length} gazettes={model.training_data.fuzzy_gazette.length} intents={intents} entities={entities} />}
                     {activeItem === 'settings' && <Tab menu={{ pointing: true, secondary: true }} panes={this.getSettingsSecondaryPanes()} />}
                 </Container>
             </div>
@@ -505,7 +507,7 @@ const NLUDataLoaderContainer = withTracker((props) => {
     });
     const variables = { projectId, language: workingLanguage, pageSize: 20 };
     const {
-        data, loading, hasNextPage, loadMore,
+        data, loading, hasNextPage, loadMore, totalLength: totalExamples,
     } = useExamples(variables);
     const [deleteExamples] = useDeleteExamples(variables);
     const [switchCanonical] = useSwitchCannonical(variables);
@@ -554,6 +556,7 @@ const NLUDataLoaderContainer = withTracker((props) => {
         models,
         model,
         examples: data,
+        totalExamples,
         loadMore,
         hasNextPage,
         switchCanonical,

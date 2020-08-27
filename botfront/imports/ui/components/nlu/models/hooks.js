@@ -46,6 +46,7 @@ export function useExamples(variables) {
     return {
         data: data.examples.examples,
         hasNextPage: data.examples.pageInfo.hasNextPage,
+        totalLength: data.examples.pageInfo.totalLength,
         loading,
         error,
         loadMore,

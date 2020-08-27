@@ -56,6 +56,7 @@ query examples(
         pageInfo {
             endCursor
             hasNextPage
+            totalLength
         }
     }
 }`;
