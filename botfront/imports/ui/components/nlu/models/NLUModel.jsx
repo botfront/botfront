@@ -1,11 +1,10 @@
 /* eslint-disable camelcase */
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Meteor } from 'meteor/meteor';
 import { browserHistory } from 'react-router';
 import { useTracker } from 'meteor/react-meteor-data';
-import { uniq, sortBy } from 'lodash';
 import {
     Label,
     Container,
@@ -18,9 +17,6 @@ import {
 } from 'semantic-ui-react';
 import 'react-select/dist/react-select.css';
 import { connect } from 'react-redux';
-import DataTable from '../../common/DataTable';
-import IntentLabel from '../common/IntentLabel';
-
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
 import { isTraining, getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
 import { Instances } from '../../../../api/instances/instances.collection';
@@ -36,16 +32,12 @@ import Statistics from './Statistics';
 import DeleteModel from './DeleteModel';
 import ExampleUtils from '../../utils/ExampleUtils';
 import LanguageDropdown from '../../common/LanguageDropdown';
-import { _appendSynonymsToText } from '../../../../lib/filterExamples';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import API from './API';
 import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.collection';
 import { Projects } from '../../../../api/project/project.collection';
-import { extractEntities } from './nluModel.utils';
 import { setWorkingLanguage } from '../../../store/actions/actions';
-import { useExamples, useDeleteExamples, useSwitchCannonical } from './hooks';
-import IconButton from '../../common/IconButton';
-import { clearTypenameField } from '../../../../lib/client.safe.utils';
+import NluTable from './NluTable';
 import { WithRefreshOnLoad } from '../../../layouts/project';
 
 const handleDefaultRoute = (projectId, models, workingLanguage) => {
@@ -57,10 +49,6 @@ const handleDefaultRoute = (projectId, models, workingLanguage) => {
     }
 };
 
-const getExamplesWithExtraSynonyms = (common_examples, entity_synonyms) => {
-    if (!common_examples) return [];
-    return common_examples.map(e => _appendSynonymsToText(e, entity_synonyms));
-};
 function NLUModel(props) {
     const { location: { state: incomingState }, params: { model_id: modelId, project_id: projectId } = {}, workingLanguage } = props;
 
@@ -132,24 +120,15 @@ function NLUModel(props) {
         };
     });
 
+    const intents = [];
+    const entities = [];
 
-    const {
-        data, loading: loadingExamples, hasNextPage, loadMore,
-    } = useExamples({ projectId, language: workingLanguage, pageSize: 20 });
-    const intents = sortBy(uniq(data.map(e => e.intent)));
-    const entities = extractEntities(data);
-    const [deleteExamples] = useDeleteExamples({ projectId, language: workingLanguage, pageSize: 20 });
-    const [switchCanonical] = useSwitchCannonical({ projectId, language: workingLanguage, pageSize: 20 });
-    const tableRef = useRef(null);
-    const [examples, setExamples] = useState([]);
+    // const intents = sortBy(uniq(data.map(e => e.intent)));
+    // const entities = extractEntities(data);
+
     const [activityLinkRender, setActivityLinkRender] = useState((incomingState && incomingState.isActivityLinkRender) || false);
     const [activeItem, setActiveItem] = useState(incomingState && incomingState.isActivityLinkRender === true ? 'evaluation' : 'data');
-    const [selection, setSelection] = useState([]);
 
-
-    useEffect(() => {
-        if (ready) setExamples(getExamplesWithExtraSynonyms(data, model.training_data.entity_synonyms));
-    }, [data]);
 
     useEffect(() => {
         const { onLoad } = props;
@@ -177,68 +156,6 @@ function NLUModel(props) {
 
     const onUpdateModel = (set) => {
         Meteor.call('nlu.update', modelId, set, wrapMeteorCallback(null, 'Information saved'));
-    };
-
-
-    const renderIntent = (row) => {
-        const { datum } = row;
-        const { metadata: { canonical }, intent } = datum;
-
-        return (
-            <IntentLabel
-                value={intent}
-                allowEditing={!canonical}
-                allowAdditions
-            // onChange={() => console.log('heh')}
-            />
-
-        );
-    };
-
-    const renderExample = (row) => {
-        const { datum } = row;
-        return <p>{datum.text}</p>;
-    };
-
-    const renderDelete = (row) => {
-        const { datum } = row;
-        const { metadata: { canonical } } = datum;
-        if (canonical) { return null; }
-        return (
-            <IconButton
-                icon='trash'
-                basic
-                onClick={() => deleteExamples({ variables: { ids: [datum._id] } })}
-            />
-        );
-    };
-
-    const renderCanonical = (row) => {
-        const { datum } = row;
-        const { metadata: { canonical } } = datum;
-        return (
-            <IconButton
-                color={canonical ? 'black' : 'grey'}
-                icon='gem'
-                basic
-                onClick={() => { switchCanonical({ variables: { projectId: datum.projectId, language: datum.metadata.language, example: clearTypenameField(datum) } }); }}
-            />
-        );
-    };
-
-    const renderEditExample = (row) => {
-        const { datum } = row;
-        const { metadata: { canonical } } = datum;
-        if (canonical) { return null; }
-        return (
-            <IconButton
-                active={canonical}
-                icon='edit'
-                basic
-                onClick={() => console.log('heh')
-                }
-            />
-        );
     };
 
 
@@ -290,50 +207,13 @@ function NLUModel(props) {
     };
 
 
-    const renderDataTable = () => {
-        const columns = [
-            { key: '_id', selectionKey: true, hidden: true },
-            {
-                key: 'intent',
-                style: {
-                    paddingLeft: '1rem', width: '200px', minWidth: '200px', overflow: 'hidden',
-                },
-                render: renderIntent,
-            },
-            {
-                key: 'text', style: { width: '100%' }, render: renderExample,
-            },
-            { key: 'edit', style: { width: '50px' }, render: renderEditExample },
-
-            { key: 'delete', style: { width: '50px' }, render: renderDelete },
-            { key: 'canonincal', style: { width: '50px' }, render: renderCanonical },
-
-        ];
-        return (
-            <DataTable
-                ref={tableRef}
-                columns={columns}
-                data={examples}
-                hasNextPage={hasNextPage}
-                loadMore={loadingExamples ? () => { } : loadMore}
-                rowClassName='glow-box hoverable'
-                className='examples-table'
-                selection={selection}
-                onChangeSelection={(newSelection) => {
-                    setSelection(newSelection);
-                }}
-            />
-        );
-    };
-
-
     const getNLUSecondaryPanes = () => {
         const { settings: { public: { chitChatProjectId = null } = {} } = {} } = settings;
         const tabs = [
             {
                 menuItem: 'Examples',
                 render: () => (
-                    renderDataTable()
+                    <NluTable projectId={projectId} workingLanguage={workingLanguage} entitySynonyms={model.training_data.entity_synonyms} />
                 ),
             },
             { menuItem: 'Synonyms', render: () => <Synonyms model={model} /> },
@@ -454,8 +334,8 @@ function NLUModel(props) {
                     <br />
                     {activeItem === 'data' && <Tab menu={{ pointing: true, secondary: true }} panes={getNLUSecondaryPanes()} />}
                     {activeItem === 'evaluation' && <Evaluation model={model} projectId={projectId} validationRender={validationRender} />}
-                    {/* if this comment is visible during the last review, it means I forgot to fix the statistics page, as it relies on having the full list of examples */}
-                    {activeItem === 'statistics' && <Statistics model={model} intents={intents} entities={entities} examples={examples} />}
+                    {/* if this comment is visible during the last review, it means I forgot to fix the statistics page */}
+                    {activeItem === 'statistics' && <Statistics model={model} intents={intents} entities={entities} examples={[]} />}
                     {activeItem === 'settings' && <Tab menu={{ pointing: true, secondary: true }} panes={getSettingsSecondaryPanes()} />}
                 </Container>
             </div>
