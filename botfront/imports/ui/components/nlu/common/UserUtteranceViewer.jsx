@@ -125,118 +125,52 @@ function UserUtteranceViewer(props) {
         });
     }
 
-    // This function recursively removes the first non-word characters of a selection
-    // until it starts with a word character
-    function trimBeginning(completeText, anchor, extent) {
-        if (
-            anchor === extent
-            || (/[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(anchor, anchor + 1))
-                && /[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(anchor - 1, anchor)))
-        ) {
-            return false;
-        }
+    function adjustBeginning(completeText, anchor) {
+        if (/\W/.test(completeText.slice(anchor, anchor + 1))) return adjustBeginning(completeText, anchor + 1);
 
-        if (
-            /[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(anchor, anchor + 1))
-            && /\W/.test(completeText.slice(anchor - 1, anchor))
-        ) {
-            return anchor;
-        }
+        if (/\W[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(anchor - 1, anchor + 1))) return anchor;
 
-        return trimBeginning(completeText, anchor + 1, extent);
+        if (anchor === 0) return anchor;
+
+        return adjustBeginning(completeText, anchor - 1);
     }
 
-    // This function recursively removes the last non-word characters of a selection
-    // until it ends with a word character
-    function trimEnding(completeText, anchor, extent) {
-        if (
-            anchor === extent
-            || (/[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(extent - 1, extent))
-                && /[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(extent, extent + 1)))
-        ) {
-            return false;
-        }
+    function adjustEnd(completeText, extent) {
+        if (/\W/.test(completeText.slice(extent - 1, extent))) return adjustEnd(completeText, extent - 1);
 
-        if (
-            /[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(extent - 1, extent))
-            && /\W/.test(completeText.slice(extent, extent + 1))
-        ) {
-            return extent;
-        }
+        if (/[a-zA-Z\u00C0-\u017F0-9-]\W/.test(completeText.slice(extent - 1, extent + 1))) return extent;
 
-        return trimEnding(completeText, anchor, extent - 1);
+        if (extent === completeText.length) return extent;
+
+        return adjustEnd(completeText, extent + 1);
     }
 
-    function getCorrectSelection(completeText, anchor, extent) {
-        if (anchor === extent) {
-            return false;
-        }
-        return {
-            anchor, extent,
-        };
-
-        // we check that the characters at the edge of the selection are either
-        // next to a non word character or at the edge of the completeText
-        const anchorCorrect = (anchor === 0 || /\W/.test(completeText.slice(anchor - 1, anchor)))
-            && /[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(anchor, anchor + 1));
-        const extentCorrect = (extent === completeText.length
-                || /\W/.test(completeText.slice(extent, extent + 1)))
-            && /[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(extent - 1, extent));
-
-        if (anchorCorrect && extentCorrect) {
-            return {
-                anchor,
-                extent,
-            };
-        }
-
-        let trimmedAnchor = anchor;
-        let trimmedExtent = extent;
-
-        if (!anchorCorrect) {
-            trimmedAnchor = trimBeginning(completeText, anchor, extent);
-        }
-
-        if (!extentCorrect) {
-            trimmedExtent = trimEnding(completeText, anchor, extent);
-        }
-
-        if ((!trimmedAnchor && trimmedAnchor !== 0) || !trimmedExtent) {
-            return false;
-        }
-
-        return {
-            anchor: trimmedAnchor + 1,
-            extent: trimmedExtent,
-        };
-    }
-
-    function handleMouseUp({ shiftKey, ctrlKey, metaKey }, element, exitedLeft) {
+    function handleMouseUp({ shiftKey, ctrlKey, metaKey }, element, exited) {
         const selection = window.getSelection();
-        const extra = exitedLeft === undefined
-            ? []
-            : exitedLeft
-                ? [0]
-                : [element.text.length];
-        const selectionBoundary = getCorrectSelection(
-            text,
-            Math.min(
-                element.start + selection.anchorOffset,
-                element.start + selection.focusOffset,
-                ...extra,
-            ),
-            Math.max(
-                element.start + selection.anchorOffset,
-                element.start + selection.focusOffset,
-                ...extra,
-            ),
+        let extraBound = [];
+        if (exited) extraBound = exited === 'left' ? [0] : [element.text.length];
+        let bad = false;
+        let anchor = Math.min(
+            element.start + selection.anchorOffset,
+            element.start + selection.focusOffset,
+            ...extraBound,
         );
+        let extent = Math.max(
+            element.start + selection.anchorOffset,
+            element.start + selection.focusOffset,
+            ...extraBound,
+        );
+        if (anchor === extent) bad = true;
+        else {
+            anchor = adjustBeginning(text, anchor);
+            extent = adjustEnd(text, extent);
+        }
         if (
-            disableEditing
+            bad
+            || disableEditing
             || selection.type !== 'Range'
             || selection.anchorNode !== selection.focusNode
             || selection.anchorOffset === selection.focusOffset
-            || !selectionBoundary
         ) {
             window.getSelection().removeAllRanges();
             setSelection(null);
@@ -252,9 +186,9 @@ function UserUtteranceViewer(props) {
         }
         setMouseDown(false);
         setSelection({
-            text: text.slice(selectionBoundary.anchor, selectionBoundary.extent),
-            start: selectionBoundary.anchor,
-            end: selectionBoundary.extent,
+            text: text.slice(anchor, extent),
+            start: anchor,
+            end: extent,
         });
     }
 
@@ -273,7 +207,7 @@ function UserUtteranceViewer(props) {
                         const element = e.screenX - mouseDown.current[0] < 0
                             ? textContent[0]
                             : textContent[textContent.length - 1];
-                        handleMouseUp(e, element, e.screenX - mouseDown.current[0] < 0);
+                        handleMouseUp(e, element, e.screenX - mouseDown.current[0] < 0 ? 'left' : 'right');
                         window.getSelection().removeAllRanges();
                         setMouseDown(false);
                         return;
@@ -287,7 +221,7 @@ function UserUtteranceViewer(props) {
             }}
             {...{
                 onMouseUp: (e) => {
-                    const elementStart = e.target.dataset.elementstart;
+                    const elementStart = e.target.dataset['element-start'];
                     if (elementStart) {
                         const element = textContent.find(({ start }) => start === parseInt(elementStart, 10));
                         if (element.type === 'text') handleMouseUp(e, element);
@@ -312,13 +246,13 @@ function UserUtteranceViewer(props) {
                     {element.type === 'text' && (
                         <span
                             role='application'
-                            data-elementStart={element.start}
+                            data-element-start={element.start}
                         >
                             {element.text}
                         </span>
                     )}
                     {element.type === 'entity' && (
-                        <span data-elementStart={element.start}>
+                        <span data-element-start={element.start}>
                             <Entity
                                 value={element}
                                 size='mini'
@@ -336,7 +270,7 @@ function UserUtteranceViewer(props) {
                                 <span
                                     className='selected-text'
                                     role='application'
-                                    data-elementStart={element.start}
+                                    data-element-start={element.start}
                                 >
                                     {element.text}
                                 </span>
