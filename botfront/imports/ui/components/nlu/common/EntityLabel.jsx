@@ -1,23 +1,17 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import EntityPopup from '../../example_editor/EntityPopup';
-import { ProjectContext } from '../../../layouts/context';
 import getColor from '../../../../lib/getColors';
 
 function Entity({
     value, onChange, onDelete, allowEditing, deletable, color,
 }) {
-    const { entities } = useContext(ProjectContext);
     const colorToRender = color || getColor(value.entity, true);
     return (
         <EntityPopup
             entity={value}
             onAddOrChange={onChange}
             onDelete={() => onDelete()}
-            options={[...new Set([...entities, value.entity])].map(e => ({
-                text: e,
-                value: e,
-            }))}
             deletable={deletable}
             length={value.start ? value.end - value.start : 0}
             trigger={(

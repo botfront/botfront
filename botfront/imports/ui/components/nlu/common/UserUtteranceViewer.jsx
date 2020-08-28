@@ -6,8 +6,8 @@ import PropTypes from 'prop-types';
 
 import EntityPopup from '../../example_editor/EntityPopup';
 import { ProjectContext } from '../../../layouts/context';
-import Intent from './IntentLabel';
-import Entity from './EntityLabel';
+import IntentLabel from './IntentLabel';
+import EntityLabel from './EntityLabel';
 
 function UserUtteranceViewer(props) {
     const {
@@ -251,7 +251,7 @@ function UserUtteranceViewer(props) {
                     )}
                     {element.type === 'entity' && (
                         <span data-element-start={element.start}>
-                            <Entity
+                            <EntityLabel
                                 value={element}
                                 size='mini'
                                 {...color}
@@ -274,11 +274,10 @@ function UserUtteranceViewer(props) {
                                 </span>
                             )}
                             onSelectionReset={() => { if (textSelection) setSelection(null); }}
-                            options={contextEntities.map((e => ({ text: e, value: e })))}
                             entity={{ ...element, value: element.text, entity: '' }}
                             length={element.end - element.start}
                             selection
-                            onAddOrChange={(_e, data) => handleAddEntity(data.value, element)}
+                            onAddOrChange={v => handleAddEntity(v, element)}
                             projectId={projectId}
                         />
                     )}
@@ -287,7 +286,7 @@ function UserUtteranceViewer(props) {
             {showIntent && (
                 <div style={{ display: 'inline-block', marginLeft: '10px' }}>
                     {intent && (
-                        <Intent
+                        <IntentLabel
                             value={intent}
                             allowEditing={!disableEditing}
                             allowAdditions

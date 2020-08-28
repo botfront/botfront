@@ -83,7 +83,7 @@ class EntityPopup extends React.Component {
 
     getContent = () => {
         const {
-            deletable, onDelete, entity, options, onAddOrChange,
+            deletable, onDelete, entity, onAddOrChange,
         } = this.props;
         const { showDeleteConfirmation } = this.state;
 
@@ -100,10 +100,6 @@ class EntityPopup extends React.Component {
                             <Grid.Column width='14' style={{ padding: '0' }}>
                                 <EntityDropdown
                                     entity={entity}
-                                    options={[
-                                        ...options,
-                                        { text: entity.entity, value: entity.entity },
-                                    ]}
                                     onAddItem={onAddOrChange}
                                     onChange={onAddOrChange}
                                 />
@@ -121,7 +117,6 @@ class EntityPopup extends React.Component {
                     ) : (
                         <EntityDropdown
                             entity={entity}
-                            options={[...options, { text: entity.entity, value: entity.entity }]}
                             onAddItem={onAddOrChange}
                             onChange={onAddOrChange}
                         />
@@ -182,7 +177,6 @@ EntityPopup.propTypes = {
     deletable: PropTypes.bool,
     onDelete: PropTypes.func,
     entity: PropTypes.shape(entityPropType).isRequired,
-    options: PropTypes.array.isRequired,
     onAddOrChange: PropTypes.func.isRequired,
     trigger: PropTypes.element.isRequired,
     selection: PropTypes.bool,

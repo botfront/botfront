@@ -1,6 +1,7 @@
 import { Dropdown } from 'semantic-ui-react';
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
+import { ProjectContext } from '../../../layouts/context';
 
 import { entityPropType } from '../../utils/EntityUtils';
 
@@ -11,10 +12,14 @@ function EntityDropdown({
     entity,
     onAddItem,
     onChange,
-    options,
     allowAdditions,
 }) {
-    const uniqueOptions = [...new Set(options.map(option => option.value))]
+    const { entities = [] } = useContext(ProjectContext);
+    const options = [...new Set([
+        ...((entity && entity.entity) ? [entity] : []), ...entities,
+    ].map(
+        option => (typeof option === 'string' ? option : option.entity),
+    ))]
         .filter(o => o)
         .map(value => ({
             text: value,
@@ -44,11 +49,11 @@ function EntityDropdown({
             value={entity && entity.entity}
             allowAdditions={allowAdditions}
             additionLabel='Add entity: '
-            onAddItem={onAddItem}
-            onChange={onChange}
+            onAddItem={(_, { value }) => onAddItem(value)}
+            onChange={(_, { value }) => onChange(value)}
             onSearchChange={handleSearchChange}
             searchQuery={searchInputState}
-            options={uniqueOptions}
+            options={options}
             data-cy='entity-dropdown'
         />
     );
@@ -58,7 +63,6 @@ EntityDropdown.propTypes = {
     entity: PropTypes.shape(entityPropType).isRequired,
     onAddItem: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,
-    options: PropTypes.array.isRequired,
     allowAdditions: PropTypes.bool,
 };
 
