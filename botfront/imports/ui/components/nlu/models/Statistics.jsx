@@ -15,7 +15,7 @@ import { GET_INTENT_STATISTICS } from './graphql';
 
 const Statistics = (props) => {
     const {
-        model, intents, entities, storyCount, ready, projectId, workingLanguage,
+        model, intents, entities, storyCount, ready, projectId, workingLanguage, examples,
     } = props;
 
     const { projectLanguages } = useContext(ProjectContext);
@@ -51,7 +51,7 @@ const Statistics = (props) => {
 
     const renderCards = () => {
         const cards = [
-            { label: 'Examples', value: model.training_data.common_examples.length },
+            { label: 'Examples', value: examples.length },
             { label: 'Intents', value: intents.length },
             { label: 'Entities', value: entities.length },
             { label: 'Synonyms', value: model.training_data.entity_synonyms.length },
@@ -134,6 +134,7 @@ Statistics.propTypes = {
     storyCount: PropTypes.number.isRequired,
     projectId: PropTypes.string.isRequired,
     workingLanguage: PropTypes.string.isRequired,
+    examples: PropTypes.array.isRequired,
 };
 
 const StatisticsWithStoryCount = withTracker((props) => {
