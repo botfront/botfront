@@ -171,6 +171,9 @@ function UserUtteranceViewer(props) {
         if (anchor === extent) {
             return false;
         }
+        return {
+            anchor, extent,
+        };
 
         // we check that the characters at the edge of the selection are either
         // next to a non word character or at the edge of the completeText
@@ -208,17 +211,24 @@ function UserUtteranceViewer(props) {
         };
     }
 
-    function handleMouseUp({ shiftKey, ctrlKey, metaKey }, element) {
+    function handleMouseUp({ shiftKey, ctrlKey, metaKey }, element, exitedLeft) {
         const selection = window.getSelection();
+        const extra = exitedLeft === undefined
+            ? []
+            : exitedLeft
+                ? [0]
+                : [element.text.length];
         const selectionBoundary = getCorrectSelection(
             text,
             Math.min(
                 element.start + selection.anchorOffset,
                 element.start + selection.focusOffset,
+                ...extra,
             ),
             Math.max(
                 element.start + selection.anchorOffset,
                 element.start + selection.focusOffset,
+                ...extra,
             ),
         );
         if (
@@ -253,16 +263,46 @@ function UserUtteranceViewer(props) {
     return (
         <div
             className={`utterance-viewer ${onClick ? 'cursor pointer' : ''}`}
+            style={{ border: '2px red solid' }}
             data-cy='utterance-text'
             {...(onClick ? { onClick } : {})}
             {...{
-                onMouseLeave: () => {
+                onMouseLeave: (e) => {
                     if (!mouseDown.current) return;
-                    if (!textSelection) window.getSelection().removeAllRanges();
+                    if (Math.abs(e.screenY - mouseDown.current[1]) < 10) {
+                        const element = e.screenX - mouseDown.current[0] < 0
+                            ? textContent[0]
+                            : textContent[textContent.length - 1];
+                        handleMouseUp(e, element, e.screenX - mouseDown.current[0] < 0);
+                        window.getSelection().removeAllRanges();
+                        setMouseDown(false);
+                        return;
+                    }
+                    window.getSelection().removeAllRanges();
                     setMouseDown(false);
                     // dispatch mousedown when exiting row, meaning selection behavior will kick in
                     // in above components
                     utteranceViewerRef.current.parentNode.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+                },
+            }}
+            {...{
+                onMouseUp: (e) => {
+                    const elementStart = e.target.dataset.elementstart;
+                    if (elementStart) {
+                        const element = textContent.find(({ start }) => start === parseInt(elementStart, 10));
+                        if (element.type === 'text') handleMouseUp(e, element);
+                    } else if (utteranceViewerRef.current.contains(e.target)) {
+                        const element = e.screenX - mouseDown.current[0] < 0
+                            ? textContent[0]
+                            : textContent[textContent.length - 1];
+                        handleMouseUp(e, element, e.screenX - mouseDown.current[0] < 0);
+                    }
+                },
+            }}
+            {...{
+                onMouseDown: (e) => {
+                    setMouseDown([e.screenX, e.screenY]);
+                    if (!disableEditing) e.stopPropagation();
                 },
             }}
             ref={utteranceViewerRef}
@@ -270,28 +310,25 @@ function UserUtteranceViewer(props) {
             {textContent.map(element => (
                 <React.Fragment key={`${element.start}-${element.index}`}>
                     {element.type === 'text' && (
-                        // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
                         <span
-                            onMouseDown={(e) => {
-                                setMouseDown(true);
-                                if (!disableEditing) e.stopPropagation();
-                            }}
-                            onMouseUp={evt => handleMouseUp(evt, element)}
                             role='application'
+                            data-elementStart={element.start}
                         >
                             {element.text}
                         </span>
                     )}
                     {element.type === 'entity' && (
-                        <Entity
-                            value={element}
-                            size='mini'
-                            {...color}
-                            allowEditing={!disableEditing}
-                            deletable={!disableEditing}
-                            onDelete={() => handleEntityDeletion(element.index)}
-                            onChange={(_e, { value: newValue }) => handleEntityChange(newValue, element.index)}
-                        />
+                        <span data-elementStart={element.start}>
+                            <Entity
+                                value={element}
+                                size='mini'
+                                {...color}
+                                allowEditing={!disableEditing}
+                                deletable={!disableEditing}
+                                onDelete={() => handleEntityDeletion(element.index)}
+                                onChange={(_e, { value: newValue }) => handleEntityChange(newValue, element.index)}
+                            />
+                        </span>
                     )}
                     {element.type !== 'text' && element.type !== 'entity' && (
                         <EntityPopup
@@ -299,6 +336,7 @@ function UserUtteranceViewer(props) {
                                 <span
                                     className='selected-text'
                                     role='application'
+                                    data-elementStart={element.start}
                                 >
                                     {element.text}
                                 </span>
@@ -315,7 +353,7 @@ function UserUtteranceViewer(props) {
                 </React.Fragment>
             ))}
             {showIntent && (
-                <> &nbsp;&nbsp;&nbsp;
+                <div style={{ display: 'inline-block', marginLeft: '10px' }}>
                     {intent && (
                         <Intent
                             value={intent}
@@ -325,7 +363,7 @@ function UserUtteranceViewer(props) {
                             disabled={disabled}
                         />
                     )}
-                </>
+                </div>
             )}
 
         </div>
