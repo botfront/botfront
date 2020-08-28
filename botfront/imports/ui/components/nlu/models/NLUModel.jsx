@@ -37,6 +37,9 @@ import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.co
 import { Projects } from '../../../../api/project/project.collection';
 import { setWorkingLanguage } from '../../../store/actions/actions';
 import NluTable from './NluTable';
+import {
+    useExamples, useDeleteExamples, useUpdateExample, useSwitchCannonical,
+} from './hooks';
 
 const handleDefaultRoute = (projectId, models, workingLanguage) => {
     try {
@@ -118,11 +121,16 @@ function NLUModel(props) {
         };
     });
 
+    const variables = { projectId, language: workingLanguage, pageSize: 20 };
+    const {
+        data, loading: loadingExamples, hasNextPage, loadMore,
+    } = useExamples(variables);
+    const [deleteExamples] = useDeleteExamples(variables);
+    const [switchCanonical] = useSwitchCannonical(variables);
+    const [updateExample] = useUpdateExample(variables);
+
     const intents = [];
     const entities = [];
-
-    // const intents = sortBy(uniq(data.map(e => e.intent)));
-    // const entities = extractEntities(data);
 
     const [activityLinkRender, setActivityLinkRender] = useState((incomingState && incomingState.isActivityLinkRender) || false);
     const [activeItem, setActiveItem] = useState(incomingState && incomingState.isActivityLinkRender === true ? 'evaluation' : 'data');
@@ -201,7 +209,19 @@ function NLUModel(props) {
             {
                 menuItem: 'Examples',
                 render: () => (
-                    <NluTable projectId={projectId} workingLanguage={workingLanguage} entitySynonyms={model.training_data.entity_synonyms} />
+                    <NluTable
+                        projectId={projectId}
+                        workingLanguage={workingLanguage}
+                        entitySynonyms={model.training_data.entity_synonyms}
+                        updateExample={updateExample}
+                        switchCanonical={switchCanonical}
+                        deleteExamples={deleteExamples}
+                        data={data}
+                        loadingExamples={loadingExamples}
+                        hasNextPage={hasNextPage}
+                        loadMore={loadMore}
+
+                    />
                 ),
             },
             { menuItem: 'Synonyms', render: () => <Synonyms model={model} /> },
