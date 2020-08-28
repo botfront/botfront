@@ -1,20 +1,14 @@
 import { check } from 'meteor/check';
 import uuidv4 from 'uuid/v4';
 import shortid from 'shortid';
-import {
-    uniq, uniqBy, sortBy, intersectionBy,
-} from 'lodash';
-import {
-    formatError, getProjectIdFromModelId,
-} from '../../lib/utils';
-import ExampleUtils from '../../ui/components/utils/ExampleUtils';
+import { uniq, sortBy } from 'lodash';
+import { formatError } from '../../lib/utils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { NLUModels } from './nlu_model.collection';
+import { getNluModelLanguages } from './nlu_model.utils';
 import {
-    checkNoEmojisInExamples,
-    getNluModelLanguages,
-    canonicalizeExamples,
-} from './nlu_model.utils';
+    getExamples, insertExamples, deleteExamples, switchCanonical, updateExample,
+} from '../graphql/examples/mongo/examples';
 import { Projects } from '../project/project.collection';
 import { checkIfCan } from '../../lib/scopes';
 
@@ -29,9 +23,10 @@ const gazetteDefaults = {
 };
 
 Meteor.methods({
-    async 'nlu.saveExampleChanges'(modelId, examples) {
-        checkIfCan('nlu-data:w', getProjectIdFromModelId(modelId));
-        check(modelId, String);
+    async 'nlu.saveExampleChanges'(projectId, language, examples) {
+        checkIfCan('nlu-data:w', projectId);
+        check(projectId, String);
+        check(language, String);
         check(examples, Array);
         
         const edited = [];
@@ -56,115 +51,12 @@ Meteor.methods({
                 canonicalEdited.push({ ...example, canonical: !example.canonical });
             }
         });
-        
-        await NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { _id: { $in: deleted } } } });
-        await Meteor.callWithPromise('nlu.insertExamples', modelId, newExamples, { autoAssignCanonical: canonicalEdited.length === 0 });
-        await Meteor.callWithPromise('nlu.updateManyExamples', modelId, edited);
-        canonicalEdited.forEach(example => Meteor.call('nlu.switchCanonical', modelId, example));
-    },
-
-    async 'nlu.insertExamples'(modelId, items, options = {}) {
-        check(options, Object);
-        check(modelId, String);
-        check(items, Array);
-        const { autoAssignCanonical = true } = options;
-
-        if (items.length === 0) {
-            return 0;
-        }
-        checkNoEmojisInExamples(JSON.stringify(items));
-
-        try {
-            const normalizedItems = uniqBy(items.map(ExampleUtils.prepareExample).filter(({ intent }) => intent), 'text');
-            const canonicalizedItems = autoAssignCanonical ? await canonicalizeExamples(normalizedItems, modelId) : normalizedItems;
-            const model = NLUModels.findOne({ _id: modelId }, { fields: { 'training_data.common_examples': 1 } });
-            const examples = model && model.training_data && model.training_data.common_examples.map(e => ExampleUtils.stripBare(e));
-            const pullItemsText = intersectionBy(examples, canonicalizedItems, 'text').map(({ text }) => text);
-            NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { text: { $in: pullItemsText } } } });
-            return NLUModels.update({ _id: modelId }, { $push: { 'training_data.common_examples': { $each: canonicalizedItems, $position: 0 } } });
-        } catch (e) {
-            throw formatError(e);
-        }
-    },
-
-    'nlu.updateExample'(modelId, item) {
-        check(modelId, String);
-        check(item, Object);
-
-        const cleanItem = ExampleUtils.stripBare(item);
-        try {
-            if (!cleanItem.intent) throw new Error('Intent must be defined.');
-            return NLUModels.update({ _id: modelId, 'training_data.common_examples._id': cleanItem._id }, { $set: { 'training_data.common_examples.$': cleanItem } });
-        } catch (e) {
-            throw formatError(e);
-        }
-    },
-    async 'nlu.updateManyExamples'(modelId, items) {
-        checkIfCan('nlu:w', getProjectIdFromModelId(modelId));
-        check(modelId, String);
-        check(items, Array);
-        const updatedExamples = uniqBy(items, 'text').filter(({ intent }) => intent);
-        if (items.length === 0) {
-            return 0;
-        }
-
-        const model = NLUModels.findOne({ _id: modelId }, { fields: { 'training_data.common_examples': 1 } });
-        const examples = model && model.training_data && model.training_data.common_examples.map(e => ExampleUtils.stripBare(e));
-        const pullItems = intersectionBy(examples, updatedExamples, 'text').map(({ text }) => text);
-        await NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { text: { $in: pullItems } } } });
-        await NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { _id: { $in: updatedExamples.map(({ _id }) => _id) } } } });
-        return NLUModels.update({ _id: modelId }, { $push: { 'training_data.common_examples': { $each: updatedExamples, $position: 0 } } });
-    },
-
-    async 'nlu.switchCanonical'(modelId, item) {
-        check(modelId, String);
-        check(item, Object);
-        if (!item.intent) return { change: null };
-        if (!item.canonical) {
-            /* try to match a canonical item with the same characteristics (intent, entity, entity value)
-            to check if the selected item can be used as canonical
-            */
-            const entities = item.entities ? item.entities : [];
-            let elemMatch = {
-                canonical: true, intent: item.intent, entities: { $size: entities.length },
-            };
-
-            if (entities.length > 0) {
-                const entityElemMatchs = entities.map(entity => (
-                    {
-                        $elemMatch: { entity: entity.entity, value: entity.value },
-                    }));
-                elemMatch = {
-                    ...elemMatch,
-                    $and: [{ entities: { $size: entities.length } }, { entities: { $all: entityElemMatchs } }],
-                };
-                delete elemMatch.entities; // remove the entities field as the size condition is now in the $and
-            }
-
-            const query = {
-                _id: modelId,
-                'training_data.common_examples': {
-                    $elemMatch: elemMatch,
-                },
-            };
-
-            const results = NLUModels.findOne(query, { fields: { 'training_data.common_examples.$': 1 } });
-
-            if (results !== undefined) {
-                await Meteor.callWithPromise('nlu.updateExample', modelId, { ...results.training_data.common_examples[0], canonical: false });
-            }
-            await Meteor.callWithPromise('nlu.updateExample', modelId, { ...item, canonical: true });
-            return { change: results !== undefined };
-        }
-        await Meteor.callWithPromise('nlu.updateExample', modelId, { ...item, canonical: false });
-        return { change: false };
-    },
-
-    'nlu.deleteExample'(modelId, itemId) {
-        check(modelId, String);
-        check(itemId, String);
-
-        return NLUModels.update({ _id: modelId }, { $pull: { 'training_data.common_examples': { _id: itemId } } });
+        await deleteExamples({ ids: deleted });
+        await insertExamples({
+            examples: newExamples, language, projectId, options: { autoAssignCanonical: !canonicalEdited.length },
+        });
+        await Promise.all(edited.map(example => updateExample({ example })));
+        canonicalEdited.forEach(example => switchCanonical({ projectId, language, example }));
     },
 
     'nlu.upsertEntitySynonym'(modelId, item) {
@@ -292,39 +184,27 @@ if (Meteor.isServer) {
             throw new Meteor.Error('409', 'The default language cannot be deleted');
         },
 
-        'nlu.getChitChatIntents'(language) {
+        async 'nlu.getChitChatIntents'(language) {
             check(language, String);
-            const chitChatProjectId = getChitChatProjectid();
-            if (!chitChatProjectId) {
-                throw ReferenceError('Chitchat project not set in global settings');
-            }
-            const model = getModelWithTrainingData(chitChatProjectId, language);
-
-            return model ? sortBy(uniq(model.training_data.common_examples.map(e => e.intent))) : [];
+            const projectId = getChitChatProjectid();
+            if (!projectId) throw ReferenceError('Chitchat project not set in global settings');
+            const { examples = [] } = await getExamples({ pageSize: -1, projectId, language });
+            return sortBy(uniq(examples.map(e => e.intent)));
         },
 
-        'nlu.addChitChatToTrainingData'(modelId, language, intents) {
-            check(modelId, String);
+        async 'nlu.addChitChatToTrainingData'(projectId, language, intents) {
+            check(projectId, String);
             check(language, String);
             check(intents, [String]);
 
-            const chitChatProjectId = getChitChatProjectid();
-            if (!chitChatProjectId) {
-                throw ReferenceError('Chitchat project not set in global settings');
-            }
+            const chitchatId = getChitChatProjectid();
+            if (!chitchatId) throw ReferenceError('Chitchat project not set in global settings');
 
-            const model = getModelWithTrainingData(chitChatProjectId, language);
-            // eslint-disable-next-line camelcase
-            const { training_data: { common_examples = [] } = {} } = model || {};
+            const { examples = [] } = await getExamples({
+                pageSize: -1, projectId: chitchatId, language, intents,
+            });
 
-            Meteor.call('nlu.insertExamples', modelId, common_examples.filter(({ intent }) => intents.indexOf(intent) >= 0));
-        },
-
-        'nlu.updateChitChatIntents'(modelId, intents) {
-            check(modelId, String);
-            check(intents, Array);
-
-            return NLUModels.update({ _id: modelId }, { $set: { chitchat_intents: intents } });
+            insertExamples({ examples, language, projectId });
         },
 
         'nlu.import'(nluData, projectId, language, overwrite, canonicalExamples = []) {

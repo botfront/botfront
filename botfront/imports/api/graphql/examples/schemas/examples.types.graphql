@@ -16,6 +16,10 @@ type Query {
         projectId: String!
         language: String!
     ): IntentsAndEntitiesList
+    getIntentStatistics(
+        projectId: String!
+        language: String!
+    ): [NluStatistics]
 }
 
 type Subscription {
@@ -26,7 +30,7 @@ type Subscription {
 }
 
 type Mutation {
-    updateExample(id: String!, example: ExampleInput!): updateResponse
+    updateExample(example: ExampleInput!): Example
     insertExamples(
         examples: [ExampleInput]!
         language: String!
@@ -53,6 +57,17 @@ type Example {
     intent: String,
     entities: [Entity],
     metadata: Any
+}
+
+type NluStatistics {
+    intent: String!
+    example: Any
+    counts: [NluStatisticsByLanguage]
+}
+
+type NluStatisticsByLanguage {
+    language: String!
+    count: Int!
 }
 
 input ExampleInput {

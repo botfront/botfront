@@ -1,8 +1,8 @@
 import uuidv4 from 'uuid/v4';
+import mongoose from 'mongoose';
 import Conversations from '../../conversations/conversations.model';
 import Activity from '../../activity/activity.model';
 import Projects from '../../project/project.model';
-import NLUModels from '../../nlu/nlu.model';
 
 export const getTracker = async (senderId, projectId, after, maxEvents = 100) => {
     const aggregation = [
@@ -122,7 +122,9 @@ const logUtterancesFromTracker = async function (projectId, events, env, convId)
             ).lean();
             const { defaultLanguage } = project;
             if (!language && !defaultLanguage) return;
-            const model = await NLUModels.findOne(
+            const model = await mongoose.model(
+                'Model', new mongoose.Schema({ _id: String }, { strict: false }), 'nlu_models',
+            ).findOne(
                 {
                     language: language || defaultLanguage,
                     _id: { $in: project.nlu_models },

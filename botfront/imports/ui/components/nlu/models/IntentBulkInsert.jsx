@@ -1,39 +1,32 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useContext } from 'react';
 import {
     Form, TextArea, Message,
 } from 'semantic-ui-react';
 
 import IntentLabel from '../common/IntentLabel';
 import SaveButton from '../../utils/SaveButton';
+import { useInsertExamples } from './hooks';
+import { wrapMeteorCallback } from '../../utils/Errors';
+import { ProjectContext } from '../../../layouts/context';
 
-class IntentBulkInsert extends React.Component {
-    static getInitialState() {
-        return {
-            text: '',
-            intent: null,
-            saving: false,
-            saved: false,
-        };
-    }
+function IntentBulkInsert() {
+    const [text, setText] = useState('');
+    const [intent, setIntent] = useState(null);
+    const [saving, setSaving] = useState(false);
+    const [saved, setSaved] = useState(false);
+    const { project: { _id: projectId }, language } = useContext(ProjectContext);
+    const [insertExamples] = useInsertExamples({ projectId, language });
 
-    constructor(props) {
-        super(props);
-        this.props = props;
-        this.state = IntentBulkInsert.getInitialState();
+    const onNewExamples = (examples, callback) => {
+        insertExamples({ variables: { examples } }).then(
+            res => wrapMeteorCallback(callback)(null, res),
+            wrapMeteorCallback(callback),
+        );
+    };
 
-        this.onSaveExamples = this.onSaveExamples.bind(this);
-        this.onTextChanged = this.onTextChanged.bind(this);
-    }
-
-    componentWillUnmount() {
-        clearTimeout(this.succesTimeout);
-    }
-
-    onSaveExamples() {
-        const { intent, text } = this.state;
-        const { onNewExamples } = this.props;
-        this.setState({ saving: true, saved: false });
+    function onSaveExamples() {
+        setSaving(true);
+        setSaved(false);
 
         const examples = text
             .split('\n')
@@ -45,64 +38,48 @@ class IntentBulkInsert extends React.Component {
 
         onNewExamples(examples, (err) => {
             if (!err) {
-                this.setState(IntentBulkInsert.getInitialState());
-                this.setState({ saved: true });
+                setSaved(true);
+                setSaving(false);
+                setIntent(null);
+                setText('');
             } else {
-                this.setState({ saving: false });
+                setSaving(false);
             }
-
-            this.succesTimeout = setTimeout(() => {
-                this.setState({ saved: false });
-            }, 2 * 1000);
         });
     }
 
-    onTextChanged(e) {
-        this.setState({
-            text: e.target.value,
-        });
-    }
-
-    render() {
-        const {
-            text, saving, intent, saved,
-        } = this.state;
-
-        return (
-            <div className='glow-box extra-padding no-margin' id='intent-bulk-insert'>
-                <Message info content='One example per line' />
-                <br />
-                <Form>
-                    <TextArea
-                        className='batch-insert-input'
-                        rows={15}
-                        value={text}
-                        autoheight='true'
-                        disabled={saving}
-                        onChange={this.onTextChanged}
+    return (
+        <div className='glow-box extra-padding no-margin' id='intent-bulk-insert'>
+            <Message info content='One example per line' />
+            <br />
+            <Form>
+                <TextArea
+                    className='batch-insert-input'
+                    rows={15}
+                    value={text}
+                    autoheight='true'
+                    disabled={saving}
+                    onChange={e => setText(e.target.value)}
+                />
+                <Message info content='Select an existing intent or type to create a new one' />
+                <div className='side-by-side'>
+                    <IntentLabel
+                        value={intent}
+                        allowEditing
+                        allowAdditions
+                        onChange={i => setIntent(i)}
                     />
-                    <Message info content='Select an existing intent or type to create a new one' />
-                    <div className='side-by-side'>
-                        <IntentLabel
-                            value={intent}
-                            allowEditing
-                            allowAdditions
-                            onChange={i => this.setState({ intent: i })}
-                        />
-                        <SaveButton
-                            onSave={this.onSaveExamples}
-                            disabled={!intent || !text}
-                            saved={saved}
-                        />
-                    </div>
-                </Form>
-            </div>
-        );
-    }
+                    <SaveButton
+                        onSave={onSaveExamples}
+                        disabled={!intent || !text}
+                        saved={saved}
+                    />
+                </div>
+            </Form>
+        </div>
+    );
 }
 
-IntentBulkInsert.propTypes = {
-    onNewExamples: PropTypes.func.isRequired,
-};
+IntentBulkInsert.propTypes = {};
 
 export default IntentBulkInsert;

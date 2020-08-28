@@ -10,12 +10,12 @@ import { Loading } from '../../utils/Utils';
 import IntentLabel from '../common/IntentLabel';
 import DataTable from '../../common/DataTable';
 import { ProjectContext } from '../../../layouts/context';
-import { GET_INTENT_STATISTICS } from './graphql';
+import { GET_INTENT_STATISTICS, GET_EXAMPLE_COUNT } from './graphql';
 
 
 const Statistics = (props) => {
     const {
-        model, intents, entities, storyCount, ready, projectId, workingLanguage, examples,
+        examples, synonyms, gazettes, intents, entities, storyCount, ready, projectId, workingLanguage,
     } = props;
 
     const { projectLanguages } = useContext(ProjectContext);
@@ -51,11 +51,11 @@ const Statistics = (props) => {
 
     const renderCards = () => {
         const cards = [
-            { label: 'Examples', value: examples.length },
+            { label: 'Examples', value: examples },
             { label: 'Intents', value: intents.length },
             { label: 'Entities', value: entities.length },
-            { label: 'Synonyms', value: model.training_data.entity_synonyms.length },
-            { label: 'Gazettes', value: model.training_data.fuzzy_gazette.length },
+            { label: 'Synonyms', value: synonyms },
+            { label: 'Gazettes', value: gazettes },
             { label: 'Stories', value: storyCount },
         ];
 
@@ -127,22 +127,26 @@ const Statistics = (props) => {
 };
 
 Statistics.propTypes = {
-    model: PropTypes.object.isRequired,
+    examples: PropTypes.number.isRequired,
+    synonyms: PropTypes.number.isRequired,
+    gazettes: PropTypes.number.isRequired,
     intents: PropTypes.array.isRequired,
     entities: PropTypes.array.isRequired,
     ready: PropTypes.bool.isRequired,
     storyCount: PropTypes.number.isRequired,
     projectId: PropTypes.string.isRequired,
     workingLanguage: PropTypes.string.isRequired,
-    examples: PropTypes.array.isRequired,
 };
 
 const StatisticsWithStoryCount = withTracker((props) => {
-    const { projectId } = props;
+    const { projectId, workingLanguage: language } = props;
     const storiesHandler = Meteor.subscribe('stories.light', projectId);
+    const { data } = useQuery(GET_EXAMPLE_COUNT, { variables: { projectId, language } });
+    const { totalLength: examples } = data?.examples?.pageInfo || {};
 
     return {
         ready: storiesHandler.ready(),
+        examples,
         storyCount: StoriesCollection.find().count(),
     };
 })(Statistics);

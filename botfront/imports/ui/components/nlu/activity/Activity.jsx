@@ -18,6 +18,7 @@ import ActivityActionsColumn from './ActivityActionsColumn';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { isTraining } from '../../../../api/nlu_model/nlu_model.utils';
 import { useEventListener } from '../../utils/hooks';
+import { useInsertExamples } from '../models/hooks';
 
 import PrefixDropdown from '../../common/PrefixDropdown';
 import ActivityCommandBar from './ActivityCommandBar';
@@ -55,6 +56,7 @@ function Activity(props) {
     const {
         data, hasNextPage, loading, loadMore, refetch,
     } = useActivity({ modelId, ...getSortFunction() });
+    const [insertExamples] = useInsertExamples({ projectId, language: lang });
     const [selection, setSelection] = useState([]);
     let reinterpreting = [];
     const setReinterpreting = (v) => { reinterpreting = v; };
@@ -90,7 +92,10 @@ function Activity(props) {
 
     const handleAddToTraining = async (utterances) => {
         const fallbackUtterance = getFallbackUtterance(utterances.map(u => u._id));
-        await Meteor.call('nlu.insertExamples', modelId, utterances);
+        const examples = clearTypenameField(
+            utterances.map(({ text, intent, entities }) => ({ text, intent, entities })),
+        );
+        insertExamples({ variables: { examples } });
         const result = await deleteActivity({ variables: { modelId, ids: utterances.map(u => u._id) } });
         mutationCallback(fallbackUtterance, 'deleteActivity')(result);
     };

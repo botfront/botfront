@@ -3,7 +3,10 @@ import DataTable from '../../common/DataTable';
 import IntentLabel from '../common/IntentLabel';
 import IconButton from '../../common/IconButton';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
-import { useExamples, useDeleteExamples, useSwitchCannonical } from './hooks';
+import {
+    useExamples, useDeleteExamples, useUpdateExample, useSwitchCannonical,
+} from './hooks';
+import { wrapMeteorCallback } from '../../utils/Errors';
 import { _appendSynonymsToText } from '../../../../lib/filterExamples';
 
 
@@ -11,16 +14,23 @@ function NluTable(props) {
     const { projectId, workingLanguage, entitySynonyms } = props;
 
 
+    const variables = { projectId, language: workingLanguage, pageSize: 20 };
     const {
         data, loading: loadingExamples, hasNextPage, loadMore,
-    } = useExamples({ projectId, language: workingLanguage, pageSize: 20 });
-    
-    const [deleteExamples] = useDeleteExamples({ projectId, language: workingLanguage, pageSize: 20 });
-    const [switchCanonical] = useSwitchCannonical({ projectId, language: workingLanguage, pageSize: 20 });
+    } = useExamples(variables);
+    const [deleteExamples] = useDeleteExamples(variables);
+    const [switchCanonical] = useSwitchCannonical(variables);
+    const [updateExample] = useUpdateExample(variables);
     const tableRef = useRef(null);
     const [examples, setExamples] = useState([]);
     const [selection, setSelection] = useState([]);
 
+    const onEditExample = (example, callback) => {
+        updateExample({ variables: { example } }).then(
+            res => wrapMeteorCallback(callback)(null, res),
+            wrapMeteorCallback(callback),
+        );
+    };
 
     const getExamplesWithExtraSynonyms = (examplesList) => {
         if (!examplesList) return [];
@@ -40,7 +50,7 @@ function NluTable(props) {
                 value={intent}
                 allowEditing={!canonical}
                 allowAdditions
-                onChange={() => console.log('heh')}
+                onChange={i => onEditExample(clearTypenameField({ ...datum, intent: i }))}
             />
 
         );

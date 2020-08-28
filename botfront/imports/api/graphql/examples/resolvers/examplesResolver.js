@@ -6,6 +6,7 @@ import {
     deleteExamples,
     switchCanonical,
 } from '../mongo/examples.js';
+import { getIntentStatistics } from '../mongo/statistics';
 
 const { PubSub, withFilter } = require('apollo-server-express');
 
@@ -19,11 +20,20 @@ const publishIntentsOrEntitiesChanged = (projectId, language) => pubsub.publish(
 
 export default {
     Query: {
-        async examples(_, { exactMatch, ...args }, __) {
-            return getExamples({ ...args, options: { exactMatch } });
+        async examples(_, { exactMatch, countOnly, ...args }, __) {
+            return getExamples({ ...args, options: { exactMatch, countOnly } });
         },
         async listIntentsAndEntities(_, args, __) {
             return listIntentsAndEntities(args);
+        },
+        getIntentStatistics: async (_root, args) => {
+            const { projectId, language } = args;
+            const stats = await getIntentStatistics({ projectId });
+            return stats.map(({ intent, languages }) => ({
+                intent,
+                example: (languages.filter(l => l.language === language)[0] || {}).example || null,
+                counts: languages.map(({ example, ...rest }) => rest),
+            }));
         },
     },
     Subscription: {
@@ -38,10 +48,8 @@ export default {
     Mutation: {
         async updateExample(_, args, __) {
             const response = await updateExample(args);
-            if (response.success) {
-                const { projectId, language } = args.example;
-                publishIntentsOrEntitiesChanged(projectId, language);
-            }
+            const { projectId, metadata: { language } } = args.example;
+            publishIntentsOrEntitiesChanged(projectId, language);
             return response;
         },
         async insertExamples(_, args, __) {
@@ -79,6 +87,16 @@ export default {
         intent: (parent, _, __) => parent.intent,
         entities: (parent, _, __) => parent.entities,
         metadata: (parent, _, __) => parent.metadata,
+    },
+    NluStatistics: {
+        intent: ({ intent }) => intent,
+        example: ({ example }) => example,
+        counts: ({ counts }) => counts,
+    },
+
+    NluStatisticsByLanguage: {
+        language: ({ language }) => language,
+        count: ({ count }) => count,
     },
     PageInfo: {
         endCursor: (parent, _, __) => parent.endCursor,

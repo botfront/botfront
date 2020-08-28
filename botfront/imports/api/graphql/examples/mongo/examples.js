@@ -1,7 +1,12 @@
 import shortid from 'shortid';
-import { escapeRegExp } from 'lodash';
+import { escapeRegExp, intersectionBy } from 'lodash';
 import Examples from '../examples.model.js';
 import { setsAreIdentical } from '../../../../lib/utils';
+import {
+    checkNoEmojisInExamples,
+    canonicalizeExamples,
+} from '../../../nlu_model/nlu_model.utils';
+import ExampleUtils from '../../../../ui/components/utils/ExampleUtils';
 
 const createSortObject = (fieldName = 'intent', order = 'ASC') => {
     const orderMongo = order === 'ASC' ? 1 : -1;
@@ -96,6 +101,7 @@ export const getExamples = async ({
         pageInfo: {
             endCursor: examples.length ? examples[examples.length - 1]._id : '',
             hasNextPage: cursorIndex + pageSize < data.length,
+            totalLength: data.length,
         },
     };
 };
@@ -110,9 +116,7 @@ export const listIntentsAndEntities = async ({ projectId, language }) => {
         .sort((a, b) => b.canonical || false - a.canonical || false)
         .forEach((ex) => {
             const exEntities = (ex.entities || []).map(en => en.entity);
-            entities = entities.concat(
-                exEntities.filter(en => !entities.includes(en)),
-            );
+            entities = entities.concat(exEntities.filter(en => !entities.includes(en)));
             if (!Object.keys(intents).includes(ex.intent)) intents[ex.intent] = [];
             if (
                 !intents[ex.intent].some(ex2 => setsAreIdentical(ex2.entities, exEntities))
@@ -124,18 +128,41 @@ export const listIntentsAndEntities = async ({ projectId, language }) => {
     return { intents, entities };
 };
 
-export const insertExamples = async ({ examples, language, projectId }) => {
-    const preparedExamples = examples.map(example => ({
-        ...example,
-        projectId,
-        metadata: { ...(example.metadata || {}), ...(language ? { language } : {}) },
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        _id: shortid.generate(),
-    }));
+export const insertExamples = async ({
+    examples, language, projectId, options = {},
+}) => {
+    if (!examples.length) return { success: true };
+    const { autoAssignCanonical = true, overwriteOnSameText = true } = options;
+    checkNoEmojisInExamples(examples);
+    let preparedExamples = examples
+        .map(ExampleUtils.prepareExample)
+        .filter(({ intent }) => intent)
+        .map(example => ({
+            ...example,
+            projectId,
+            metadata: { ...(example.metadata || {}), ...(language ? { language } : {}) },
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            _id: shortid.generate(),
+        }));
+    let itemsToOverwrite = [];
+    if (autoAssignCanonical || overwriteOnSameText) {
+        const { examples: existingExamples } = await getExamples({ projectId, pageSize: -1, language });
+        if (overwriteOnSameText) {
+            itemsToOverwrite = intersectionBy(
+                existingExamples,
+                preparedExamples,
+                'text',
+            ).map(({ _id }) => _id);
+        }
+        if (autoAssignCanonical) {
+            preparedExamples = canonicalizeExamples(preparedExamples, existingExamples);
+        }
+    }
     try {
+        if (itemsToOverwrite.length) { await Examples.deleteMany({ _id: { $in: itemsToOverwrite } }).exec(); }
         const result = await Examples.insertMany(preparedExamples);
-        if (result.length !== examples.length) {
+        if (result.length !== preparedExamples.length) {
             throw new Error('Insert failed');
         }
         return { success: true };
@@ -144,9 +171,10 @@ export const insertExamples = async ({ examples, language, projectId }) => {
     }
 };
 
-export const updateExample = async ({ id, example }) => {
+export const updateExample = async ({ example }) => {
+    checkNoEmojisInExamples([example]);
     const result = await Examples.updateOne(
-        { _id: id },
+        { _id: example._id },
         { $set: { ...example, updatedAt: new Date() } },
     ).exec();
     if (result.nModified === 0 || result.ok === 0) {
@@ -195,12 +223,12 @@ export const switchCanonical = async ({ projectId, language, example }) => {
         };
         const result = await Examples.findOne(query).lean();
         if (result) {
-            updatedExamples.push(await updateExample({ id: result._id, example: { ...result, metadata: { ...result.metadata, canonical: false } } }));
+            updatedExamples.push(await updateExample({ example: { ...result, metadata: { ...result.metadata, canonical: false } } }));
         }
-        updatedExamples.push(await updateExample({ id: example._id, example: { ...example, metadata: { ...example.metadata, canonical: true } } }));
+        updatedExamples.push(await updateExample({ example: { ...example, metadata: { ...example.metadata, canonical: true } } }));
         return updatedExamples;
     }
-    updatedExamples.push(await updateExample({ id: example._id, example: { ...example, metadata: { ...example.metadata, canonical: false } } }));
+    updatedExamples.push(await updateExample({ example: { ...example, metadata: { ...example.metadata, canonical: false } } }));
 
     return updatedExamples;
 };

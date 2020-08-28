@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Meteor } from 'meteor/meteor';
@@ -30,7 +30,6 @@ import NLUPipeline from './settings/NLUPipeline';
 import TrainButton from '../../utils/TrainButton';
 import Statistics from './Statistics';
 import DeleteModel from './DeleteModel';
-import ExampleUtils from '../../utils/ExampleUtils';
 import LanguageDropdown from '../../common/LanguageDropdown';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import API from './API';
@@ -137,11 +136,6 @@ function NLUModel(props) {
         return false;
     };
 
-    const onNewExamples = (newExamples, callback) => {
-        Meteor.call('nlu.insertExamples', modelId, newExamples.map(ExampleUtils.prepareExample), wrapMeteorCallback(callback));
-    };
-
-
     const onDeleteModel = () => {
         browserHistory.push({ pathname: `/project/${projectId}/nlu/models` });
         Meteor.call('nlu.remove', modelId, projectId, wrapMeteorCallback(null, 'Model deleted!'));
@@ -213,7 +207,7 @@ function NLUModel(props) {
             { menuItem: 'Synonyms', render: () => <Synonyms model={model} /> },
             { menuItem: 'Gazette', render: () => <Gazette model={model} /> },
             { menuItem: 'API', render: () => (<API model={model} instance={instance} />) },
-            { menuItem: 'Insert many', render: () => <IntentBulkInsert onNewExamples={this.onNewExamples} data-cy='insert-many' /> },
+            { menuItem: 'Insert many', render: () => <IntentBulkInsert data-cy='insert-many' /> },
         ];
         if (chitChatProjectId) tabs.splice(4, 0, { menuItem: 'Chit Chat', render: () => <ChitChat model={model} /> });
         return tabs;
@@ -318,7 +312,7 @@ function NLUModel(props) {
                                         floated='right'
                                         entities={entities}
                                         intents={getIntentForDropdown(false)}
-                                        onSave={example => onNewExamples([example])}
+                                        onSave={() => {}} // oops
                                         postSaveAction='clear'
                                     />
                                 </div>
@@ -328,8 +322,7 @@ function NLUModel(props) {
                     <br />
                     {activeItem === 'data' && <Tab menu={{ pointing: true, secondary: true }} panes={getNLUSecondaryPanes()} />}
                     {activeItem === 'evaluation' && <Evaluation model={model} projectId={projectId} validationRender={validationRender} />}
-                    {/* if this comment is visible during the last review, it means I forgot to fix the statistics page */}
-                    {activeItem === 'statistics' && <Statistics model={model} intents={intents} entities={entities} examples={[]} />}
+                    {activeItem === 'statistics' && <Statistics synonyms={model.training_data.entity_synonyms.length} gazettes={model.training_data.fuzzy_gazette.length} intents={intents} entities={entities} />}
                     {activeItem === 'settings' && <Tab menu={{ pointing: true, secondary: true }} panes={getSettingsSecondaryPanes()} />}
                 </Container>
             </div>
@@ -366,7 +359,6 @@ NLUModel.defaultProps = {
     project: {},
     workingLanguage: null,
 };
-
 
 const mapStateToProps = state => ({
     workingLanguage: state.settings.get('workingLanguage'),

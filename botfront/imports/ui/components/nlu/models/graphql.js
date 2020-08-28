@@ -12,6 +12,21 @@ query getIntentStatistics($projectId: String!, $language: String!) {
     }
 }`;
 
+export const GET_EXAMPLE_COUNT = gql`
+query examples(
+    $projectId: String!
+    $language: String!
+) {
+    examples(
+        projectId: $projectId
+        language: $language
+    ) {
+        pageInfo {
+            totalLength
+        }
+    }
+}`;
+
 
 export const GET_EXAMPLES = gql`
 query examples(
@@ -56,6 +71,7 @@ query examples(
         pageInfo {
             endCursor
             hasNextPage
+            totalLength
         }
     }
 }`;
@@ -96,26 +112,28 @@ mutation deleteExamples($ids: [String]!) {
 export const SWITCH_CANONICAL = gql`
 mutation switchCanonical($projectId:String, $language: String, $example: ExampleInput!) {
     switchCanonical(projectId: $projectId, language: $language, example: $example) {
-             _id 
-            projectId 
-            text 
-            intent 
-            entities { value }
-            metadata
+        _id 
+        projectId 
+        text 
+        intent 
+        entities { value }
+        metadata
     }
 }`;
 
 
-export const UPDATE_EXAMPLES = gql`
+export const UPDATE_EXAMPLE = gql`
 mutation updateExample(
-    $id: String!
     $example: ExampleInput!
 ) {
     updateExample(
-        id: $id
         example: $example
     ) {
-        success
-        _id
+        _id 
+        projectId 
+        text 
+        intent 
+        entities { value }
+        metadata
     }
 }`;
