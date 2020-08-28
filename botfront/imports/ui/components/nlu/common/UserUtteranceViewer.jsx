@@ -1,4 +1,6 @@
-import React, { useState, useContext, useRef } from 'react';
+import React, {
+    useState, useContext, useRef, useMemo,
+} from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
@@ -17,69 +19,70 @@ function UserUtteranceViewer(props) {
     const setMouseDown = (v) => { mouseDown.current = v; };
     const { entities: contextEntities, addEntity } = useContext(ProjectContext);
     const utteranceViewerRef = useRef();
-    const textContent = []; // an ordered list of the utterance cut down into text and entities.
-    // We add the original index to entities for onChange and onDelete methods, then we sort them by order of appearance.
-    const sortedEntities = entities
-        ? entities
-            .map((entity, index) => ({ ...entity, index }))
-            .sort((a, b) => {
-                if (a.start !== undefined && b.start !== undefined) return a.start - b.start;
-                return 0;
-            })
-        : [];
 
-    // if there is no text we can just get the sorted entities.
-    if (!text) {
-        sortedEntities.forEach((entity) => {
-            textContent.push({
-                ...entity,
-                type: 'entity',
-            });
-        });
-        // If there is a text, we get text elements and entities, sorted in order of appearance.
-    } else {
-        const currentText = {
-            type: 'text',
-        };
-
-        const addChar = (index) => {
-            const tempText = currentText.text;
-            currentText.text = tempText
-                ? tempText.concat(text.charAt(index))
-                : text.charAt(index);
-            if (!tempText) {
-                currentText.start = index;
-            }
-        };
-
-        for (let i = 0; i < text.length; i += 1) {
-            if (i === text.length - 1) {
-                addChar(i);
-                if (currentText.text) textContent.push({ ...currentText });
-                break;
-            }
-            if (textSelection && i === textSelection.start) {
-                i = textSelection.end;
-                if (currentText.text) textContent.push({ ...currentText });
-                delete currentText.text;
-                textContent.push({ ...textSelection, type: 'selection' });
-            }
-            if (sortedEntities[0] && sortedEntities[0].start === i) {
-                i = sortedEntities[0].end - 1;
-                if (currentText.text) {
-                    textContent.push({ ...currentText });
-                    delete currentText.text;
-                }
-                textContent.push({
-                    ...sortedEntities[0],
+    const textContent = useMemo(() => {
+        // We add the original index to entities for onChange and onDelete methods, then we sort them by order of appearance.
+        const sortedEntities = entities
+            ? entities
+                .map((entity, index) => ({ ...entity, index }))
+                .sort((a, b) => {
+                    if (a.start !== undefined && b.start !== undefined) return a.start - b.start;
+                    return 0;
+                })
+            : [];
+        const newTextContent = []; // an ordered list of the utterance cut down into text and entities.
+        // if there is no text we can just get the sorted entities.
+        if (!text) {
+            sortedEntities.forEach((entity) => {
+                newTextContent.push({
+                    ...entity,
                     type: 'entity',
                 });
-                sortedEntities.shift();
-            } else {
-                addChar(i);
+            });
+            // If there is a text, we get text elements and entities, sorted in order of appearance.
+        } else {
+            const currentText = {
+                type: 'text',
+            };
+
+            const addChar = (index) => {
+                const tempText = currentText.text;
+                currentText.text = tempText
+                    ? tempText.concat(text.charAt(index))
+                    : text.charAt(index);
+                if (!tempText) {
+                    currentText.start = index;
+                }
+            };
+
+            for (let i = 0; i < text.length; i += 1) {
+                if (textSelection && i === textSelection.start) {
+                    i = textSelection.end;
+                    if (currentText.text) newTextContent.push({ ...currentText });
+                    delete currentText.text;
+                    newTextContent.push({ ...textSelection, type: 'selection' });
+                }
+                if (sortedEntities[0] && sortedEntities[0].start === i) {
+                    i = sortedEntities[0].end - 1;
+                    if (currentText.text) {
+                        newTextContent.push({ ...currentText });
+                        delete currentText.text;
+                    }
+                    newTextContent.push({
+                        ...sortedEntities[0],
+                        type: 'entity',
+                    });
+                    sortedEntities.shift();
+                } else {
+                    addChar(i);
+                }
+                if (i === text.length - 1) {
+                    if (currentText.text) newTextContent.push({ ...currentText });
+                }
             }
         }
-    }
+        return newTextContent;
+    }, [textSelection, entities]);
 
     const onChangeWrapped = (data) => {
         if (data && data.entities) {
@@ -113,7 +116,7 @@ function UserUtteranceViewer(props) {
     }
 
     function handleAddEntity(entity, element) {
-        setSelection(null);
+        if (textSelection) setSelection(null);
         if (!entity || !entity.trim()) return null;
         const newEntity = { ...element };
         delete newEntity.type;
@@ -169,7 +172,7 @@ function UserUtteranceViewer(props) {
             || selection.anchorOffset === selection.focusOffset
         ) {
             window.getSelection().removeAllRanges();
-            setSelection(null);
+            if (textSelection) setSelection(null);
             if (mouseDown.current) {
                 // if coming from another row, mouseDown has already been turned to false,
                 // so a new mousedown won't be dispatched
@@ -270,7 +273,7 @@ function UserUtteranceViewer(props) {
                                     {element.text}
                                 </span>
                             )}
-                            onSelectionReset={() => setSelection(null)}
+                            onSelectionReset={() => { if (textSelection) setSelection(null); }}
                             options={contextEntities.map((e => ({ text: e, value: e })))}
                             entity={{ ...element, value: element.text, entity: '' }}
                             length={element.end - element.start}
