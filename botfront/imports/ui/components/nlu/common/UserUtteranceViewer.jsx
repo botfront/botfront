@@ -197,7 +197,6 @@ function UserUtteranceViewer(props) {
     return (
         <div
             className={`utterance-viewer ${onClick ? 'cursor pointer' : ''}`}
-            style={{ border: '2px red solid' }}
             data-cy='utterance-text'
             {...(onClick ? { onClick } : {})}
             {...{
