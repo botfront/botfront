@@ -129,17 +129,17 @@ function UserUtteranceViewer(props) {
     }
 
     function adjustBeginning(completeText, anchor) {
+        if (/[\W.,?!;:]/.test(completeText.slice(anchor, anchor + 1))) return adjustBeginning(completeText, anchor + 1);
         if (anchor === 0) return anchor;
-        if (/\W/.test(completeText.slice(anchor, anchor + 1))) return adjustBeginning(completeText, anchor + 1);
-        if (/\W[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(anchor - 1, anchor + 1))) return anchor;
+        if (/[\W.,?!;:][a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(anchor - 1, anchor + 1))) return anchor;
 
         return adjustBeginning(completeText, anchor - 1);
     }
 
     function adjustEnd(completeText, extent) {
+        if (/[\W.,?!;:]/.test(completeText.slice(extent - 1, extent))) return adjustEnd(completeText, extent - 1);
         if (extent === completeText.length) return extent;
-        if (/\W/.test(completeText.slice(extent - 1, extent))) return adjustEnd(completeText, extent - 1);
-        if (/[a-zA-Z\u00C0-\u017F0-9-]\W/.test(completeText.slice(extent - 1, extent + 1))) return extent;
+        if (/[a-zA-Z\u00C0-\u017F0-9-][\W.,?!;:]/.test(completeText.slice(extent - 1, extent + 1))) return extent;
 
         return adjustEnd(completeText, extent + 1);
     }
