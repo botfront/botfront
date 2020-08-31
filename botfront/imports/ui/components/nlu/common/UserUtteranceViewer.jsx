@@ -219,7 +219,7 @@ function UserUtteranceViewer(props) {
             }}
             {...{
                 onMouseUp: (e) => {
-                    const elementStart = e.target.dataset['element-start'];
+                    const { elementStart } = e.target.dataset;
                     if (elementStart) {
                         const element = textContent.find(({ start }) => start === parseInt(elementStart, 10));
                         if (element.type === 'text') handleMouseUp(e, element);
