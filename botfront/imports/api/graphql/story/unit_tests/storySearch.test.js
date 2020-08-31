@@ -82,7 +82,7 @@ if (Meteor.isServer) {
     };
 
     // ------ test suite -------
-    describe.only('test searching stories by their index', () => {
+    describe('test searching stories by their index', () => {
         before((done) => {
             insertDataAndIndex(done);
         });
