@@ -34,7 +34,7 @@ query examples(
     $language: String!
     $intents: [String]
     $entities: [Any]
-    $onlyCanonical: Boolean
+    $onlyCanonicals: Boolean
     $text: String
     $order: order
     $sortKey: String
@@ -47,7 +47,7 @@ query examples(
         language: $language
         intents: $intents
         entities: $entities
-        onlyCanonical: $onlyCanonical
+        onlyCanonicals: $onlyCanonicals
         text: $text
         order: $order
         sortKey: $sortKey

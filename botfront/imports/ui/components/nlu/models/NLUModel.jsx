@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Meteor } from 'meteor/meteor';
@@ -17,6 +17,7 @@ import {
 } from 'semantic-ui-react';
 import 'react-select/dist/react-select.css';
 import { connect } from 'react-redux';
+import { debounce } from 'lodash';
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
 import { isTraining, getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
 import { Instances } from '../../../../api/instances/instances.collection';
@@ -120,8 +121,9 @@ function NLUModel(props) {
             project: currentProject,
         };
     });
+    const [variables, setVariables] = useState({ projectId, language: workingLanguage, pageSize: 20 });
+    const [filters, setFilters] = useState({});
 
-    const variables = { projectId, language: workingLanguage, pageSize: 20 };
     const {
         data, loading: loadingExamples, hasNextPage, loadMore,
     } = useExamples(variables);
@@ -142,6 +144,23 @@ function NLUModel(props) {
             return true;
         }
         return false;
+    };
+    // if we do not useCallback the debounce is re-created on every render
+    const setVariablesDebounced = useCallback(debounce((newFilters) => {
+        const newVariables = {
+            ...variables,
+            intents: newFilters.intents,
+            entities: newFilters.entities,
+            onlyCanonicals: newFilters.onlyCanonicals,
+            text: newFilters.query,
+        };
+        setVariables(newVariables);
+    }, 500), []);
+
+
+    const updateFilters = (newFilters) => {
+        setFilters(newFilters);
+        setVariablesDebounced(newFilters);
     };
 
     const onDeleteModel = () => {
@@ -220,7 +239,8 @@ function NLUModel(props) {
                         loadingExamples={loadingExamples}
                         hasNextPage={hasNextPage}
                         loadMore={loadMore}
-
+                        updateFilters={updateFilters}
+                        filters={filters}
                     />
                 ),
             },

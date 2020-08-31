@@ -4,7 +4,7 @@ type Query {
         language: String!
         intents: [String]
         entities: [Any]
-        onlyCanonical: Boolean
+        onlyCanonicals: Boolean
         text: String
         order: order
         sortKey: String

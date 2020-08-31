@@ -52,7 +52,6 @@ const createFilterObject = (
     if (text && text.length > 0) {
         filters.text = { $regex: new RegExp(escapeRegExp(text), 'i') };
     }
-
     return filters;
 };
 

@@ -1,6 +1,8 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, {
+    useEffect, useState, useRef, useContext,
+} from 'react';
 import {
-    Form, Popup,
+    Form, Popup, Grid, Checkbox, Icon,
 } from 'semantic-ui-react';
 import Alert from 'react-s-alert';
 import DataTable from '../../common/DataTable';
@@ -13,6 +15,9 @@ import { wrapMeteorCallback } from '../../utils/Errors';
 import { _appendSynonymsToText } from '../../../../lib/filterExamples';
 import 'react-s-alert/dist/s-alert-default.css';
 import getColor from '../../../../lib/getColors';
+import Filters from './Filters';
+import { ProjectContext } from '../../../layouts/context';
+
 
 function NluTable(props) {
     const {
@@ -24,7 +29,11 @@ function NluTable(props) {
         switchCanonical,
         loadMore,
         hasNextPage,
+        hideHeader,
+        updateFilters,
+        filters,
     } = props;
+    const { intents, entities } = useContext(ProjectContext);
 
     const tableRef = useRef(null);
     const [examples, setExamples] = useState([]);
@@ -223,19 +232,55 @@ function NluTable(props) {
 
         ];
         return (
-            <DataTable
-                ref={tableRef}
-                columns={columns}
-                data={examples}
-                hasNextPage={hasNextPage}
-                loadMore={loadingExamples ? () => { } : loadMore}
-                rowClassName='glow-box hoverable'
-                className='examples-table'
-                selection={selection}
-                onChangeSelection={(newSelection) => {
-                    setSelection(newSelection);
-                }}
-            />
+            <>
+                {!hideHeader && (
+                    <Grid style={{ paddingBottom: '12px' }}>
+                        <Grid.Row>
+                            <Grid.Column width={13} textAlign='left' verticalAlign='middle'>
+                                <Filters
+                                    intents={intents}
+                                    entities={entities}
+                                    filter={filters}
+                                    onChange={newFilters => updateFilters(newFilters)}
+                                />
+                            </Grid.Column>
+                            <Grid.Column width={3} textAlign='right' verticalAlign='middle'>
+                                <Checkbox
+                                    onChange={() => updateFilters({ ...filters, onlyCanonicals: !filters.onlyCanonicals })
+                                    }
+                                    hidden={false}
+                                    slider
+                                    data-cy='only-canonical'
+                                    readOnly={false}
+                                    className='only-canonical'
+                                />
+                                <Popup
+                                    trigger={
+                                        <Icon name='gem' color={filters.onlyCanonicals ? 'black' : 'grey'} />
+                                    }
+                                    content='Only show canonicals examples'
+                                    position='top center'
+                                    inverted
+                                />
+                            
+                            </Grid.Column>
+                        </Grid.Row>
+                    </Grid>
+                )}
+                <DataTable
+                    ref={tableRef}
+                    columns={columns}
+                    data={examples}
+                    hasNextPage={hasNextPage}
+                    loadMore={loadingExamples ? () => { } : loadMore}
+                    rowClassName='glow-box hoverable'
+                    className='examples-table'
+                    selection={selection}
+                    onChangeSelection={(newSelection) => {
+                        setSelection(newSelection);
+                    }}
+                />
+            </>
         );
     };
     return renderDataTable();
