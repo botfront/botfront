@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import {
     Form, Popup,
 } from 'semantic-ui-react';
+import Alert from 'react-s-alert';
 import DataTable from '../../common/DataTable';
 import IntentLabel from '../common/IntentLabel';
 import IconButton from '../../common/IconButton';
@@ -10,6 +11,8 @@ import UserUtteranceViewer from '../common/UserUtteranceViewer';
 import { ExampleTextEditor } from '../../example_editor/ExampleTextEditor';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import { _appendSynonymsToText } from '../../../../lib/filterExamples';
+import 'react-s-alert/dist/s-alert-default.css';
+import getColor from '../../../../lib/getColors';
 
 function NluTable(props) {
     const {
@@ -56,15 +59,14 @@ function NluTable(props) {
     const renderIntent = (row) => {
         const { datum } = row;
         const { metadata: { canonical }, intent } = datum;
-
-        return (
+        return canonicalTooltip(
             <IntentLabel
                 value={intent}
                 allowEditing={!canonical}
                 allowAdditions
                 onChange={i => onEditExample(clearTypenameField({ ...datum, intent: i }))}
-            />
-
+            />,
+            canonical,
         );
     };
 
@@ -122,16 +124,68 @@ function NluTable(props) {
 
     const renderCanonical = (row) => {
         const { datum } = row;
-        const { metadata: { canonical } } = datum;
+        const { metadata: { canonical = false } } = datum;
+   
+        let toolTip = (<div>Mark as canonical</div>);
+        if (canonical) {
+            toolTip = (
+                <>
+                    <Popup.Header>Canonical Example</Popup.Header>
+                    <Popup.Content className='popup-canonical'>
+                        This example is canonical for the intent
+                        <span className='intent-name'> {datum.intent}</span>
+
+                        {datum.entities && datum.entities.length > 0
+                            ? (
+                                <>
+                                    &nbsp; and for the following entity - entity value combinations: <br />
+                                    {datum.entities.map(entity => (
+                                        <span><strong style={{ color: getColor(entity.entity).backgroundColor }}>{entity.entity}</strong>: {entity.value}</span>
+                                    ))}
+                                </>
+                            )
+                            : ''}
+                    </Popup.Content>
+                </>
+            );
+        }
+        
+
         return (
-            <IconButton
-                color={canonical ? 'black' : 'grey'}
-                icon='gem'
-                basic
-                onClick={() => { switchCanonical({ variables: { projectId: datum.projectId, language: datum.metadata.language, example: clearTypenameField(datum) } }); }}
+            <Popup
+                position='top center'
+                disabled={toolTip === null}
+                trigger={(
+                    <div>
+                        <IconButton
+                            color={canonical ? 'black' : 'grey'}
+                            active={canonical}
+                            icon='gem'
+                            basic
+                            disabled={toolTip === null}
+                            onClick={async () => {
+                                const result = await switchCanonical({ variables: { projectId: datum.projectId, language: datum.metadata.language, example: clearTypenameField(datum) } });
+                                /* length === 2 mean that there is 2 examples that have changed,
+                                so one took the place of another as a cannonical */
+                                if (result?.data?.switchCanonical?.length === 2) {
+                                    Alert.warning(`The previous canonical example with the same intent 
+                                and entity - entity value combination 
+                                (if applicable) with this example has been unmarked canonical`, {
+                                        position: 'top-right',
+                                        timeout: 5000,
+                                    });
+                                }
+                            }}
+                            data-cy='icon-gem'
+                        />
+                    </div>
+                )}
+                inverted={!canonical}
+                content={toolTip}
             />
         );
     };
+    
 
     const renderEditExample = (row) => {
         const { datum } = row;
