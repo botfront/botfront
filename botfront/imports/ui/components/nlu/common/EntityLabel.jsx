@@ -31,7 +31,7 @@ function Entity({
         <Grid columns='1'>
             <Grid.Row centered style={{ padding: '0.9em 0 0.4em 0' }}>
                 <Header as='h4' style={{ fontWeight: '300' }}>
-                    {deletable ? 'Change' : 'Add'} entity
+                    {!openInitially ? 'Change' : 'Add'} entity
                 </Header>
             </Grid.Row>
             <Grid.Row style={{ padding: '0 0.7em' }}>
