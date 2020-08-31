@@ -4,14 +4,13 @@ import React, {
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import EntityPopup from '../../example_editor/EntityPopup';
 import { ProjectContext } from '../../../layouts/context';
 import IntentLabel from './IntentLabel';
 import EntityLabel from './EntityLabel';
 
 function UserUtteranceViewer(props) {
     const {
-        value, onChange, disableEditing, projectId, showIntent, disabled, onClick,
+        value, onChange, disableEditing, showIntent, disabled, onClick,
     } = props;
     const { text, intent, entities } = value;
     const [textSelection, setSelection] = useState(null);
@@ -253,7 +252,6 @@ function UserUtteranceViewer(props) {
                         <span data-element-start={element.start}>
                             <EntityLabel
                                 value={element}
-                                size='mini'
                                 {...color}
                                 allowEditing={!disableEditing}
                                 deletable={!disableEditing}
@@ -263,8 +261,9 @@ function UserUtteranceViewer(props) {
                         </span>
                     )}
                     {element.type !== 'text' && element.type !== 'entity' && (
-                        <EntityPopup
-                            trigger={(
+                        <EntityLabel
+                            value={{ ...element, value: element.text, entity: '' }}
+                            customTrigger={(
                                 <span
                                     className='selected-text'
                                     role='application'
@@ -273,12 +272,12 @@ function UserUtteranceViewer(props) {
                                     {element.text}
                                 </span>
                             )}
-                            onSelectionReset={() => { if (textSelection) setSelection(null); }}
-                            entity={{ ...element, value: element.text, entity: '' }}
-                            length={element.end - element.start}
-                            selection
-                            onAddOrChange={v => handleAddEntity(v, element)}
-                            projectId={projectId}
+                            openInitially
+                            allowEditing={!disableEditing}
+                            deletable={!disableEditing}
+                            onClose={() => { if (textSelection) setSelection(null); }}
+                            onDelete={() => handleEntityDeletion(element.index)}
+                            onChange={v => handleAddEntity(v, element)}
                         />
                     )}
                 </React.Fragment>
@@ -307,7 +306,6 @@ UserUtteranceViewer.propTypes = {
     disabled: PropTypes.bool,
     showIntent: PropTypes.bool,
     onChange: PropTypes.func,
-    projectId: PropTypes.string.isRequired,
     onClick: PropTypes.func,
 };
 
