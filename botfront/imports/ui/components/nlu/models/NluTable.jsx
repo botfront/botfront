@@ -1,12 +1,15 @@
 import React, { useEffect, useState, useRef } from 'react';
+import {
+    Form, Popup,
+} from 'semantic-ui-react';
 import DataTable from '../../common/DataTable';
 import IntentLabel from '../common/IntentLabel';
 import IconButton from '../../common/IconButton';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
-
+import UserUtteranceViewer from '../common/UserUtteranceViewer';
+import { ExampleTextEditor } from '../../example_editor/ExampleTextEditor';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import { _appendSynonymsToText } from '../../../../lib/filterExamples';
-
 
 function NluTable(props) {
     const {
@@ -23,7 +26,7 @@ function NluTable(props) {
     const tableRef = useRef(null);
     const [examples, setExamples] = useState([]);
     const [selection, setSelection] = useState([]);
-
+    const [editExampleId, setEditExampleId] = useState([]);
     const onEditExample = (example, callback) => {
         updateExample({ variables: { example } }).then(
             res => wrapMeteorCallback(callback)(null, res),
@@ -31,6 +34,16 @@ function NluTable(props) {
         );
     };
 
+    const canonicalTooltip = (jsx, canonical) => {
+        if (!canonical) return jsx;
+        return (
+            <Popup
+                trigger={<div>{jsx}</div>}
+                inverted
+                content='Cannot edit a canonical example'
+            />
+        );
+    };
     const getExamplesWithExtraSynonyms = (examplesList) => {
         if (!examplesList) return [];
         return examplesList.map(e => _appendSynonymsToText(e, entitySynonyms));
@@ -55,9 +68,43 @@ function NluTable(props) {
         );
     };
 
+
+    const handleExampleTextareaBlur = (example) => {
+        setEditExampleId(null);
+        onEditExample(clearTypenameField(example));
+    };
+
     const renderExample = (row) => {
         const { datum } = row;
-        return <p>{datum.text}</p>;
+        const { metadata: { canonical }, _id } = datum;
+        if (editExampleId === _id) {
+            return (
+                <Form className='example-editor-form' data-cy='example-editor-form'>
+                    <ExampleTextEditor
+                        inline
+                        autofocus
+                        example={datum}
+                        onBlur={handleExampleTextareaBlur}
+                        onEnter={handleExampleTextareaBlur}
+                        disableNewEntities
+                    />
+                </Form>
+            );
+        }
+        return canonicalTooltip(
+            <div className='example-table-row'>
+                <UserUtteranceViewer
+                    value={datum}
+                    onChange={(example) => {
+                        onEditExample(clearTypenameField(example));
+                    }}
+                    projectId=''
+                    disableEditing={canonical}
+                    showIntent={false}
+                />
+            </div>,
+            canonical,
+        );
     };
 
     const renderDelete = (row) => {
@@ -88,14 +135,14 @@ function NluTable(props) {
 
     const renderEditExample = (row) => {
         const { datum } = row;
-        const { metadata: { canonical } } = datum;
+        const { metadata: { canonical }, _id } = datum;
         if (canonical) { return null; }
         return (
             <IconButton
                 active={canonical}
                 icon='edit'
                 basic
-                onClick={() => console.log('heh')
+                onClick={() => setEditExampleId(_id)
                 }
             />
         );

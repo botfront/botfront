@@ -116,7 +116,12 @@ mutation switchCanonical($projectId:String, $language: String, $example: Example
         projectId 
         text 
         intent 
-        entities { value }
+        entities {
+                entity
+                value
+                start
+                end
+        }
         metadata
     }
 }`;
@@ -133,7 +138,12 @@ mutation updateExample(
         projectId 
         text 
         intent 
-        entities { value }
+        entities {
+                entity
+                value
+                start
+                end
+        }
         metadata
     }
 }`;
