@@ -94,7 +94,7 @@ function UserUtteranceViewer(props) {
     };
 
     function handleEntityChange(newValue, entityIndex) {
-        return onChangeWrapped({
+        onChangeWrapped({
             ...value,
             entities: entities.map((e, index) => {
                 if (entityIndex === index) {
@@ -258,7 +258,7 @@ function UserUtteranceViewer(props) {
                                 allowEditing={!disableEditing}
                                 deletable={!disableEditing}
                                 onDelete={() => handleEntityDeletion(element.index)}
-                                onChange={(_e, { value: newValue }) => handleEntityChange(newValue, element.index)}
+                                onChange={v => handleEntityChange(v, element.index)}
                             />
                         </span>
                     )}

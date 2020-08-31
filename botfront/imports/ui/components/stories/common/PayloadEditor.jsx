@@ -3,13 +3,12 @@ import PropTypes from 'prop-types';
 import { Grid, Icon } from 'semantic-ui-react';
 import IntentLabel from '../../nlu/common/IntentLabel';
 import EntityDropdown from '../../nlu/common/EntityDropdown';
-import IconButton from '../../common/IconButton';
 import DashedButton from './DashedButton';
 import EntityValueEditor from './EntityValueEditor';
 import { ProjectContext } from '../../../layouts/context';
 
 const PayloadEditor = (props) => {
-    const { entities: availableEntities, addEntity } = useContext(ProjectContext);
+    const { addEntity } = useContext(ProjectContext);
     const {
         value: { intent = '', entities = [] },
         onChange,
@@ -51,22 +50,19 @@ const PayloadEditor = (props) => {
                                     );
                                 }}
                                 entity={entity}
-                            />
-                        </Grid.Column>
-                        <Grid.Column>
-                            <EntityValueEditor
-                                entity={entity}
-                                onChange={v => handleChangeEntityAtIndex(v, i)}
-                            />
-                            <IconButton
-                                icon='trash'
-                                onClick={() => onChange({
+                                onClear={() => onChange({
                                     intent,
                                     entities: [
                                         ...entities.slice(0, i),
                                         ...entities.slice(i + 1),
                                     ],
                                 })}
+                            />
+                        </Grid.Column>
+                        <Grid.Column>
+                            <EntityValueEditor
+                                entity={entity}
+                                onChange={v => handleChangeEntityAtIndex(v, i)}
                             />
                         </Grid.Column>
                     </Grid.Row>

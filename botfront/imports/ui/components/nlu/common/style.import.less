@@ -1,10 +1,13 @@
 .entity-dropdown.ui.selection.dropdown {
     border-color: fade(@teal, 50%);
-    border-top: none;
-    border-right: none;
-    border-left: none;
     border-radius: 0;
     min-width: 12em;
+
+    &:not(.active) {
+        border-top: none;
+        border-right: none;
+        border-left: none;
+    }
 
     & > input.search {
         padding-left: 3em !important;

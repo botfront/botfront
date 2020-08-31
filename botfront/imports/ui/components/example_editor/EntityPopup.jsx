@@ -95,32 +95,16 @@ class EntityPopup extends React.Component {
                     </Header>
                 </Grid.Row>
                 <Grid.Row style={{ padding: '0 0.7em' }}>
-                    {(deletable && !showDeleteConfirmation) ? (
-                        <>
-                            <Grid.Column width='14' style={{ padding: '0' }}>
-                                <EntityDropdown
-                                    entity={entity}
-                                    onAddItem={onAddOrChange}
-                                    onChange={onAddOrChange}
-                                />
-                            </Grid.Column>
-                            <Grid.Column width='2' style={{ padding: '0' }}>
-                                <Icon
-                                    link
-                                    name='trash'
-                                    color='grey'
-                                    onClick={this.handleDeleteClick}
-                                    style={{ padding: '15px 0 0 8px' }}
-                                />
-                            </Grid.Column>
-                        </>
-                    ) : (
-                        <EntityDropdown
-                            entity={entity}
-                            onAddItem={onAddOrChange}
-                            onChange={onAddOrChange}
-                        />
-                    )}
+                    <EntityDropdown
+                        entity={entity}
+                        onAddItem={onAddOrChange}
+                        onChange={onAddOrChange}
+                        onClear={
+                            deletable && !showDeleteConfirmation
+                                ? this.handleDeleteClick
+                                : null
+                        }
+                    />
                 </Grid.Row>
                 {showDeleteConfirmation ? (
                     <Grid.Row centered>
