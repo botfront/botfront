@@ -118,6 +118,7 @@ function Entity({
                     basic
                     wide
                     content={renderContent()}
+                    position='bottom right'
                     on='click'
                     context={labelRef.current}
                     onClose={handleClose}
