@@ -230,7 +230,7 @@ export const switchCanonical = async ({ projectId, language, example }) => {
             examplesToUpdate.push({ ...result, metadata: { ...result.metadata, canonical: false } });
         }
         examplesToUpdate.push({ ...example, metadata: { ...example.metadata, canonical: true } });
-        return updateExamples(examplesToUpdate);
+        return updateExamples({ examples: examplesToUpdate });
     }
-    return updateExamples([{ ...example, metadata: { ...example.metadata, canonical: false } }]);
+    return updateExamples({ examples: [{ ...example, metadata: { ...example.metadata, canonical: false } }] });
 };
