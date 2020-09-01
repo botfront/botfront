@@ -75,6 +75,9 @@ function NluTable(props) {
             if (key.toLowerCase() === 'y' || key === 'Enter') { confirm.action(); setConfirm(null); }
             return;
         }
+        if (selection.length === 0 && key.toLowerCase() === 'c') {
+            updateFilters({ ...filters, onlyCanonicals: !filters.onlyCanonicals });
+        }
         if (e.target !== tableRef.current.tableRef().current) return;
         if (key === 'Escape') setSelection([]);
         if (key.toLowerCase() === 'd') multipleDelete(selection);
@@ -311,6 +314,7 @@ function NluTable(props) {
                                     }
                                     hidden={false}
                                     slider
+                                    checked={filters.onlyCanonicals}
                                     data-cy='only-canonical'
                                     readOnly={false}
                                     className='only-canonical'
