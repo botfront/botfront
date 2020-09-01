@@ -5,7 +5,7 @@ import { withBackground } from '../../.storybook/decorators';
 import EntityLabel from '../../imports/ui/components/nlu/common/EntityLabel';
 
 function EntityLabelWrapped(props) {
-    const [entity, setEntity] = useState({ entity: 'color', value: 'red' });
+    const [entity, setEntity] = useState({ text: 'red', entity: 'color', value: 'red' });
     if (!entity) return <Icon color='red' name='american sign language interpreting' size='huge' />;
     return (
         <EntityLabel
