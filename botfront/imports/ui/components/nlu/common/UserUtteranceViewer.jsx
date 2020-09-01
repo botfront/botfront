@@ -285,7 +285,9 @@ function UserUtteranceViewer(props) {
                             <EntityLabel
                                 value={{
                                     ...element,
-                                    text: text.slice(element.start, element.end),
+                                    text: text
+                                        ? text.slice(element.start, element.end)
+                                        : element.value,
                                 }}
                                 {...color}
                                 allowEditing={!disableEditing}
