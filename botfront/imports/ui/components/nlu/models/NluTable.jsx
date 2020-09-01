@@ -2,7 +2,7 @@ import React, {
     useEffect, useState, useRef, useContext,
 } from 'react';
 import {
-    Form, Popup, Grid, Checkbox, Icon,
+    Form, Popup, Grid, Checkbox, Icon, Confirm,
 } from 'semantic-ui-react';
 import Alert from 'react-s-alert';
 import DataTable from '../../common/DataTable';
@@ -17,14 +17,15 @@ import 'react-s-alert/dist/s-alert-default.css';
 import getColor from '../../../../lib/getColors';
 import Filters from './Filters';
 import { ProjectContext } from '../../../layouts/context';
-
+import NluCommandBar from './NluCommandBar';
+import { useEventListener } from '../../utils/hooks';
 
 function NluTable(props) {
     const {
         entitySynonyms,
         loadingExamples,
         data,
-        updateExample,
+        updateExamples,
         deleteExamples,
         switchCanonical,
         loadMore,
@@ -34,13 +35,58 @@ function NluTable(props) {
         filters,
     } = props;
     const { intents, entities } = useContext(ProjectContext);
+    const { project: { _id: projectId }, language } = useContext(ProjectContext);
 
     const tableRef = useRef(null);
+    const nluCommandBarRef = useRef(null);
+    const [confirm, setConfirm] = useState(null);
+    const singleSelectedIntentLabelRef = useRef(null);
+    
+    
     const [examples, setExamples] = useState([]);
     const [selection, setSelection] = useState([]);
     const [editExampleId, setEditExampleId] = useState([]);
+
+    function multipleDelete(ids) {
+        const message = `Delete ${ids.length} NLU examples?`;
+        const action = () => deleteExamples({ variables: { ids } });
+        setConfirm({ message, action });
+    }
+
+    function multipleSetIntent(ids, intent) {
+        const message = `Change intent to ${intent} for ${ids.length} NLU examples?`;
+        const examplesToUpdate = ids.map(_id => ({ _id, intent }));
+        const action = () => updateExamples({ variables: { examples: examplesToUpdate, projectId, language } });
+        setConfirm({ message, action });
+    }
+
+    const handleOpenIntentSetterDialogue = () => {
+        if (!selection.length) return null;
+        if (selection.length === 1) return singleSelectedIntentLabelRef.current.openPopup();
+        return nluCommandBarRef.current.openIntentPopup();
+    };
+    useEventListener('keydown', (e) => {
+        const {
+            key, shiftKey, metaKey, ctrlKey, altKey,
+        } = e;
+        if (shiftKey || metaKey || ctrlKey || altKey) return;
+        if (!!confirm) {
+            if (key.toLowerCase() === 'n') setConfirm(null);
+            if (key.toLowerCase() === 'y' || key === 'Enter') { confirm.action(); setConfirm(null); }
+            return;
+        }
+        if (e.target !== tableRef.current.tableRef().current) return;
+        if (key === 'Escape') setSelection([]);
+        if (key.toLowerCase() === 'd') multipleDelete(selection);
+        
+        if (key.toLowerCase() === 'i') {
+            e.stopPropagation();
+            e.preventDefault();
+            handleOpenIntentSetterDialogue(e);
+        }
+    });
     const onEditExample = (example, callback) => {
-        updateExample({ variables: { example } }).then(
+        updateExamples({ variables: { examples: [example], projectId, language } }).then(
             res => wrapMeteorCallback(callback)(null, res),
             wrapMeteorCallback(callback),
         );
@@ -70,6 +116,7 @@ function NluTable(props) {
         const { metadata: { canonical }, intent } = datum;
         return canonicalTooltip(
             <IntentLabel
+                {...(selection.length === 1 && datum._id === selection[0] ? { ref: singleSelectedIntentLabelRef } : {})}
                 value={intent}
                 allowEditing={!canonical}
                 allowAdditions
@@ -233,6 +280,20 @@ function NluTable(props) {
         ];
         return (
             <>
+                {!!confirm && (
+                    <Confirm
+                        open
+                        className='with-shortcuts'
+                        cancelButton='No'
+                        confirmButton='Yes'
+                        content={confirm.message}
+                        onCancel={() => {
+                            setConfirm(null);
+                            tableRef.current.tableRef().current.focus();
+                        }}
+                        onConfirm={() => { confirm.action(); setConfirm(null); tableRef.current.tableRef().current.focus(); }}
+                    />
+                )}
                 {!hideHeader && (
                     <Grid style={{ paddingBottom: '12px' }}>
                         <Grid.Row>
@@ -280,6 +341,15 @@ function NluTable(props) {
                         setSelection(newSelection);
                     }}
                 />
+                {selection.length > 1 && (
+                    <NluCommandBar
+                        ref={nluCommandBarRef}
+                        selection={selection}
+                        onDelete={multipleDelete}
+                        onSetIntent={multipleSetIntent}
+                        onCloseIntentPopup={() => tableRef.current.tableRef().current.focus()}
+                    />
+                )}
             </>
         );
     };
