@@ -6,6 +6,7 @@ import {
 import EntityDropdown from './EntityDropdown';
 import EntityValueEditor from '../../stories/common/EntityValueEditor';
 import getColor from '../../../../lib/getColors';
+import { useEventListener } from '../../utils/hooks';
 
 function Entity({
     value,
@@ -52,6 +53,10 @@ function Entity({
     };
 
     useEffect(() => { if (toBeDeleted) onDelete(); }, [toBeDeleted]);
+
+    useEventListener('keydown', ({ key }) => {
+        if (popupOpen && key === 'Enter') setPopupOpen(false);
+    });
 
     const renderAdvancedEditing = () => (
         <>
