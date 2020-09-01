@@ -10,7 +10,7 @@ function EntityLabelWrapped(props) {
     return (
         <EntityLabel
             value={entity}
-            onChange={value => setEntity({ ...entity, entity: value })}
+            onChange={setEntity}
             onDelete={() => setEntity(null)}
             {...props}
         />

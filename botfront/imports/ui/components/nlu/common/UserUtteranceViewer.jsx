@@ -15,7 +15,9 @@ function UserUtteranceViewer(props) {
     const { text, intent, entities } = value;
     const [textSelection, setSelection] = useState(null);
     const mouseDown = useRef(false);
-    const setMouseDown = (v) => { mouseDown.current = v; };
+    const setMouseDown = (v) => {
+        mouseDown.current = v;
+    };
     const { entities: contextEntities, addEntity } = useContext(ProjectContext);
     const utteranceViewerRef = useRef();
 
@@ -25,7 +27,7 @@ function UserUtteranceViewer(props) {
             ? entities
                 .map((entity, index) => ({ ...entity, index }))
                 .sort((a, b) => {
-                    if (a.start !== undefined && b.start !== undefined) return a.start - b.start;
+                    if (a.start !== undefined && b.start !== undefined) { return a.start - b.start; }
                     return 0;
                 })
             : [];
@@ -97,7 +99,7 @@ function UserUtteranceViewer(props) {
             ...value,
             entities: entities.map((e, index) => {
                 if (entityIndex === index) {
-                    return { ...e, entity: newValue };
+                    return { ...e, ...newValue };
                 }
                 return e;
             }),
@@ -116,29 +118,36 @@ function UserUtteranceViewer(props) {
 
     function handleAddEntity(entity, element) {
         if (textSelection) setSelection(null);
-        if (!entity || !entity.trim()) return null;
-        const newEntity = { ...element };
-        delete newEntity.type;
-        delete newEntity.text;
-        const entityToAdd = { ...newEntity, entity, value: element.text };
+        if (!entity || !entity.entity || !entity.entity.trim()) return null;
+        const {
+            type: _, text: __, index: ___, ...newEntity
+        } = { ...element, ...entity };
         return onChangeWrapped({
             ...value,
-            entities: entities instanceof Array ? [entityToAdd, ...entities] : [entityToAdd],
+            entities: entities instanceof Array ? [newEntity, ...entities] : [newEntity],
         });
     }
 
     function adjustBeginning(completeText, anchor) {
-        if (/[\W.,?!;:]/.test(completeText.slice(anchor, anchor + 1))) return adjustBeginning(completeText, anchor + 1);
+        if (/[\W.,?!;:]/.test(completeText.slice(anchor, anchor + 1))) { return adjustBeginning(completeText, anchor + 1); }
         if (anchor === 0) return anchor;
-        if (/[\W.,?!;:][a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(anchor - 1, anchor + 1))) return anchor;
+        if (
+            /[\W.,?!;:][a-zA-Z\u00C0-\u017F0-9-]/.test(
+                completeText.slice(anchor - 1, anchor + 1),
+            )
+        ) { return anchor; }
 
         return adjustBeginning(completeText, anchor - 1);
     }
 
     function adjustEnd(completeText, extent) {
-        if (/[\W.,?!;:]/.test(completeText.slice(extent - 1, extent))) return adjustEnd(completeText, extent - 1);
+        if (/[\W.,?!;:]/.test(completeText.slice(extent - 1, extent))) { return adjustEnd(completeText, extent - 1); }
         if (extent === completeText.length) return extent;
-        if (/[a-zA-Z\u00C0-\u017F0-9-][\W.,?!;:]/.test(completeText.slice(extent - 1, extent + 1))) return extent;
+        if (
+            /[a-zA-Z\u00C0-\u017F0-9-][\W.,?!;:]/.test(
+                completeText.slice(extent - 1, extent + 1),
+            )
+        ) { return extent; }
 
         return adjustEnd(completeText, extent + 1);
     }
@@ -175,9 +184,14 @@ function UserUtteranceViewer(props) {
             if (mouseDown.current) {
                 // if coming from another row, mouseDown has already been turned to false,
                 // so a new mousedown won't be dispatched
-                utteranceViewerRef.current.parentNode.dispatchEvent(new MouseEvent('mousedown', {
-                    bubbles: true, shiftKey, ctrlKey, metaKey,
-                }));
+                utteranceViewerRef.current.parentNode.dispatchEvent(
+                    new MouseEvent('mousedown', {
+                        bubbles: true,
+                        shiftKey,
+                        ctrlKey,
+                        metaKey,
+                    }),
+                );
             }
             setMouseDown(false);
             return;
@@ -199,12 +213,19 @@ function UserUtteranceViewer(props) {
             {...(onClick ? { onClick } : {})}
             {...{
                 onMouseLeave: (e) => {
+                    if (
+                        Array.from(document.querySelectorAll('.popup')).some(p => p.contains(e.target))
+                    ) { return; }
                     if (!mouseDown.current) return;
                     if (Math.abs(e.screenY - mouseDown.current[1]) < 10) {
                         const element = e.screenX - mouseDown.current[0] < 0
                             ? textContent[0]
                             : textContent[textContent.length - 1];
-                        handleMouseUp(e, element, e.screenX - mouseDown.current[0] < 0 ? 'left' : 'right');
+                        handleMouseUp(
+                            e,
+                            element,
+                            e.screenX - mouseDown.current[0] < 0 ? 'left' : 'right',
+                        );
                         window.getSelection().removeAllRanges();
                         setMouseDown(false);
                         return;
@@ -213,14 +234,18 @@ function UserUtteranceViewer(props) {
                     setMouseDown(false);
                     // dispatch mousedown when exiting row, meaning selection behavior will kick in
                     // in above components
-                    utteranceViewerRef.current.parentNode.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+                    utteranceViewerRef.current.parentNode.dispatchEvent(
+                        new MouseEvent('mousedown', { bubbles: true }),
+                    );
                 },
             }}
             {...{
                 onMouseUp: (e) => {
                     const { elementStart } = e.target.dataset;
                     if (elementStart) {
-                        const element = textContent.find(({ start }) => start === parseInt(elementStart, 10));
+                        const element = textContent.find(
+                            ({ start }) => start === parseInt(elementStart, 10),
+                        );
                         if (element.type === 'text') handleMouseUp(e, element);
                     } else if (utteranceViewerRef.current.contains(e.target)) {
                         const element = e.screenX - mouseDown.current[0] < 0
@@ -241,17 +266,17 @@ function UserUtteranceViewer(props) {
             {textContent.map(element => (
                 <React.Fragment key={`${element.start}-${element.index}`}>
                     {element.type === 'text' && (
-                        <span
-                            role='application'
-                            data-element-start={element.start}
-                        >
+                        <span role='application' data-element-start={element.start}>
                             {element.text}
                         </span>
                     )}
                     {element.type === 'entity' && (
                         <span data-element-start={element.start}>
                             <EntityLabel
-                                value={element}
+                                value={{
+                                    ...element,
+                                    text: text.slice(element.start, element.end),
+                                }}
                                 {...color}
                                 allowEditing={!disableEditing}
                                 deletable={!disableEditing}
@@ -275,7 +300,9 @@ function UserUtteranceViewer(props) {
                             openInitially
                             allowEditing={!disableEditing}
                             deletable={!disableEditing}
-                            onClose={() => { if (textSelection) setSelection(null); }}
+                            onClose={() => {
+                                if (textSelection) setSelection(null);
+                            }}
                             onDelete={() => handleEntityDeletion(element.index)}
                             onChange={v => handleAddEntity(v, element)}
                         />
@@ -295,7 +322,6 @@ function UserUtteranceViewer(props) {
                     )}
                 </div>
             )}
-
         </div>
     );
 }
@@ -316,7 +342,6 @@ UserUtteranceViewer.defaultProps = {
     onChange: () => {},
     onClick: null,
 };
-
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
