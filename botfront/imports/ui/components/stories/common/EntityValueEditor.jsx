@@ -6,6 +6,7 @@ import IconButton from '../../common/IconButton';
 function EntityValueEditor({
     entity,
     onChange,
+    disallowAdvancedEditing,
 }) {
     const renderField = key => (
         <div className='side-by-side middle' style={{ marginBottom: '5px' }}>
@@ -18,15 +19,18 @@ function EntityValueEditor({
                 size='small'
                 labelPosition='left'
             >
-                <Label>{key}</Label>
+                <Label>{(key === 'value' && 'text' in entity) ? <>synonym<br />value</> : key}</Label>
                 <input />
             </Input>
-            {key !== 'value' && (
+            {(key !== 'value' || 'text' in entity) && (
                 <div>
                     <IconButton
                         color='grey'
                         icon='trash'
-                        onClick={() => { const { [key]: _, ...rest } = entity; onChange(rest); }}
+                        onClick={key === 'value'
+                            ? () => onChange({ ...entity, value: entity.text })
+                            : () => { const { [key]: _, ...rest } = entity; onChange(rest); }
+                        }
                     />
                 </div>
             )}
@@ -36,27 +40,33 @@ function EntityValueEditor({
     const renderAddButton = key => (
         <Button
             onClick={() => onChange({ ...entity, [key]: '' })}
-            content={`Add ${key}`}
+            content={key === 'value' ? <>synonym<br />value</> : key}
             icon='add'
-            size='tiny'
         />
     );
 
+    const showValue = (!('text' in entity) || entity.text !== entity.value);
+    const showRole = 'role' in entity;
+    const showGroup = 'group' in entity;
+
     const renderAddButtons = () => {
-        if ('role' in entity && 'group' in entity) return null;
+        if (showValue && showRole && showGroup) return null;
         return (
-            <div>
-                {!('role' in entity) && renderAddButton('role')}
-                {!('group' in entity) && renderAddButton('group')}
-            </div>
+            <Button.Group size='tiny'>
+                {!showValue && renderAddButton('value')}
+                {!showRole && renderAddButton('role')}
+                {!showGroup && renderAddButton('group')}
+            </Button.Group>
         );
     };
+
+
     return (
         <div style={{ display: 'inline' }}>
-            {renderField('value')}
-            {'role' in entity && renderField('role')}
-            {'group' in entity && renderField('group')}
-            {renderAddButtons()}
+            {showValue && renderField('value')}
+            {!disallowAdvancedEditing && showRole && renderField('role')}
+            {!disallowAdvancedEditing && showGroup && renderField('group')}
+            {!disallowAdvancedEditing && renderAddButtons()}
         </div>
     );
 }
@@ -64,9 +74,11 @@ function EntityValueEditor({
 EntityValueEditor.propTypes = {
     entity: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired,
+    disallowAdvancedEditing: PropTypes.bool,
 };
 
 EntityValueEditor.defaultProps = {
+    disallowAdvancedEditing: false,
 };
 
 export default EntityValueEditor;

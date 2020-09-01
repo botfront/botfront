@@ -12,6 +12,7 @@ const PayloadEditor = (props) => {
     const {
         value: { intent = '', entities = [] },
         onChange,
+        disallowAdvancedEditing,
     } = props;
 
     const handleChangeIntent = value => onChange({ intent: value, entities });
@@ -63,12 +64,13 @@ const PayloadEditor = (props) => {
                             <EntityValueEditor
                                 entity={entity}
                                 onChange={v => handleChangeEntityAtIndex(v, i)}
+                                disallowAdvancedEditing={disallowAdvancedEditing}
                             />
                         </Grid.Column>
                     </Grid.Row>
                 ))}
             </Grid>
-            {entities.every(e => e.entityValue && e.entityValue.trim() !== '') ? (
+            {entities.every(e => (e.entity || '').trim()) ? (
                 <div className='add-entity-wrap'>
                     <DashedButton
                         data-cy='add-entity'
@@ -96,11 +98,13 @@ const PayloadEditor = (props) => {
 PayloadEditor.propTypes = {
     onChange: PropTypes.func,
     value: PropTypes.object,
+    disallowAdvancedEditing: PropTypes.bool,
 };
 
 PayloadEditor.defaultProps = {
     onChange: () => {},
     value: null,
+    disallowAdvancedEditing: false,
 };
 
 export default PayloadEditor;

@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
-    Popup, Grid, Button, Header, Accordion,
+    Popup, Grid, Button, Header,
 } from 'semantic-ui-react';
 import EntityDropdown from './EntityDropdown';
 import EntityValueEditor from '../../stories/common/EntityValueEditor';
@@ -41,6 +41,7 @@ function Entity({
             if (!newValue[curr]) return acc;
             return { ...acc, [curr]: newValue[curr] };
         }, {});
+        if (!entityNoEmpties.value) entityNoEmpties.value = entityNoEmpties.text;
         onChange(entityNoEmpties);
     };
 
@@ -51,27 +52,13 @@ function Entity({
         if (onClose) onClose();
     };
 
-    const renderAdvancedEditing = () => {
-        if (disallowAdvancedEditing) return <div style={{ height: '10px' }} />;
-        const content = <EntityValueEditor entity={newValue} onChange={handleChange} />;
-        return (
-            <>
-                <Accordion
-                    defaultActiveIndex={
-                        newValue.role || newValue.group || newValue.text !== newValue.value ? 0 : -1
-                    }
-                    panels={[
-                        {
-                            key: 'advanced',
-                            title: 'Avanced settings',
-                            content: { content },
-                        },
-                    ]}
-                />
-                <div style={{ height: '10px' }} />
-            </>
-        );
-    };
+    const renderAdvancedEditing = () => (
+        <>
+            {!disallowAdvancedEditing && newValue.entity && (
+                <EntityValueEditor entity={newValue} onChange={handleChange} />
+            )}
+        </>
+    );
 
     const renderContent = () => (
         <Grid columns='1'>
@@ -92,15 +79,16 @@ function Entity({
                     }
                 />
             </Grid.Row>
-            {showDeleteConfirmation ? (
-                <Grid.Row centered>
-                    <Button negative size='mini' onClick={onDelete}>
+            <Grid.Row centered>
+                {showDeleteConfirmation
+                    ? (
+                        <Button negative size='mini' onClick={onDelete}>
                         Confirm deletion
-                    </Button>
-                </Grid.Row>
-            ) : (
-                renderAdvancedEditing()
-            )}
+                        </Button>
+                    )
+                    : renderAdvancedEditing()
+                }
+            </Grid.Row>
         </Grid>
     );
 
@@ -128,6 +116,7 @@ function Entity({
                 <Popup
                     open
                     basic
+                    wide
                     content={renderContent()}
                     on='click'
                     context={labelRef.current}
@@ -144,7 +133,10 @@ function Entity({
                     data-cy='entity-label'
                     className={`entity-container ${colorToRender}`}
                 >
-                    <span className='float'>{value.entity}</span>
+                    <span className='float'>
+                        {(value.group || value.role || value.text !== value.value) && <>&#9733;</>}
+                        {value.entity}
+                    </span>
                     <div ref={labelRef} {...onClickProp}>
                         {renderText()}
                     </div>

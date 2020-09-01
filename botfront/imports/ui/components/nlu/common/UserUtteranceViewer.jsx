@@ -27,7 +27,9 @@ function UserUtteranceViewer(props) {
             ? entities
                 .map((entity, index) => ({ ...entity, index }))
                 .sort((a, b) => {
-                    if (a.start !== undefined && b.start !== undefined) { return a.start - b.start; }
+                    if (a.start !== undefined && b.start !== undefined) {
+                        return a.start - b.start;
+                    }
                     return 0;
                 })
             : [];
@@ -97,12 +99,7 @@ function UserUtteranceViewer(props) {
     function handleEntityChange(newValue, entityIndex) {
         onChangeWrapped({
             ...value,
-            entities: entities.map((e, index) => {
-                if (entityIndex === index) {
-                    return { ...e, ...newValue };
-                }
-                return e;
-            }),
+            entities: entities.map((e, index) => (entityIndex === index ? newValue : e)),
         });
     }
 
@@ -116,38 +113,49 @@ function UserUtteranceViewer(props) {
         });
     }
 
-    function handleAddEntity(entity, element) {
+    function handleAddEntity(entity) {
         if (textSelection) setSelection(null);
         if (!entity || !entity.entity || !entity.entity.trim()) return null;
         const {
-            type: _, text: __, index: ___, ...newEntity
-        } = { ...element, ...entity };
+            type: _, text: __, index: ___, ...entityCleaned
+        } = entity;
         return onChangeWrapped({
             ...value,
-            entities: entities instanceof Array ? [newEntity, ...entities] : [newEntity],
+            entities:
+                entities instanceof Array
+                    ? [entityCleaned, ...entities]
+                    : [entityCleaned],
         });
     }
 
     function adjustBeginning(completeText, anchor) {
-        if (/[\W.,?!;:]/.test(completeText.slice(anchor, anchor + 1))) { return adjustBeginning(completeText, anchor + 1); }
+        if (/[\W.,?!;:]/.test(completeText.slice(anchor, anchor + 1))) {
+            return adjustBeginning(completeText, anchor + 1);
+        }
         if (anchor === 0) return anchor;
         if (
             /[\W.,?!;:][a-zA-Z\u00C0-\u017F0-9-]/.test(
                 completeText.slice(anchor - 1, anchor + 1),
             )
-        ) { return anchor; }
+        ) {
+            return anchor;
+        }
 
         return adjustBeginning(completeText, anchor - 1);
     }
 
     function adjustEnd(completeText, extent) {
-        if (/[\W.,?!;:]/.test(completeText.slice(extent - 1, extent))) { return adjustEnd(completeText, extent - 1); }
+        if (/[\W.,?!;:]/.test(completeText.slice(extent - 1, extent))) {
+            return adjustEnd(completeText, extent - 1);
+        }
         if (extent === completeText.length) return extent;
         if (
             /[a-zA-Z\u00C0-\u017F0-9-][\W.,?!;:]/.test(
                 completeText.slice(extent - 1, extent + 1),
             )
-        ) { return extent; }
+        ) {
+            return extent;
+        }
 
         return adjustEnd(completeText, extent + 1);
     }
@@ -215,7 +223,9 @@ function UserUtteranceViewer(props) {
                 onMouseLeave: (e) => {
                     if (
                         Array.from(document.querySelectorAll('.popup')).some(p => p.contains(e.target))
-                    ) { return; }
+                    ) {
+                        return;
+                    }
                     if (!mouseDown.current) return;
                     if (Math.abs(e.screenY - mouseDown.current[1]) < 10) {
                         const element = e.screenX - mouseDown.current[0] < 0
@@ -304,7 +314,7 @@ function UserUtteranceViewer(props) {
                                 if (textSelection) setSelection(null);
                             }}
                             onDelete={() => handleEntityDeletion(element.index)}
-                            onChange={v => handleAddEntity(v, element)}
+                            onChange={v => handleAddEntity(v)}
                         />
                     )}
                 </React.Fragment>

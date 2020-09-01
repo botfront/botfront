@@ -63,7 +63,7 @@ function ResponseButtonEditor({
                     </Grid.Column>
                 </Grid.Row>
                 <Grid.Row columns={16}>
-                    <Grid.Column width={16}>
+                    <Grid.Column width={15}>
                         {type === 'web_url' && (
                             <Form.Input
                                 label='URL'
@@ -78,14 +78,13 @@ function ResponseButtonEditor({
                             <>
                                 <PayloadEditor
                                     value={stringPayloadToObject(payload)}
-                                    // onChange={pl => onChange({ title, type, payload: objectPayloadToString(pl) })}
                                     autofocusOnIntent={false}
                                     onChange={pl => onChange({
                                         title,
                                         type,
                                         payload: objectPayloadToString(pl),
-                                    })
-                                    }
+                                    })}
+                                    disallowAdvancedEditing
                                 />
                             </>
                         )}
