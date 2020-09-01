@@ -24,12 +24,12 @@ function Entity({
     const [popupOpen, setPopupOpen] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [newValue, setNewValue] = useState(value);
+    const [toBeDeleted, setToBeDeleted] = useState(false);
+    const [createdAt] = useState(new Event('click').timeStamp);
 
     useEffect(() => {
         if (openInitially) setPopupOpen(true);
-    }, [openInitially]);
-
-    useEffect(() => setNewValue(value), [value]);
+    }, []);
 
     const handleChange = (entity) => {
         setShowDeleteConfirmation(false);
@@ -38,7 +38,7 @@ function Entity({
 
     const commitChanges = () => {
         const entityNoEmpties = Object.keys(newValue).reduce((acc, curr) => {
-            if (!newValue[curr]) return acc;
+            if (!newValue[curr] && newValue[curr] !== 0) return acc;
             return { ...acc, [curr]: newValue[curr] };
         }, {});
         if (!entityNoEmpties.value) entityNoEmpties.value = entityNoEmpties.text;
@@ -46,11 +46,12 @@ function Entity({
     };
 
     const handleClose = () => {
-        setPopupOpen(false);
-        commitChanges();
+        if (!toBeDeleted) commitChanges();
         setShowDeleteConfirmation(false);
         if (onClose) onClose();
     };
+
+    useEffect(() => { if (toBeDeleted) onDelete(); }, [toBeDeleted]);
 
     const renderAdvancedEditing = () => (
         <>
@@ -82,7 +83,7 @@ function Entity({
             <Grid.Row centered>
                 {showDeleteConfirmation
                     ? (
-                        <Button negative size='mini' onClick={onDelete}>
+                        <Button negative size='mini' onClick={() => setToBeDeleted(true)}>
                         Confirm deletion
                         </Button>
                     )
@@ -121,7 +122,11 @@ function Entity({
                     position='bottom right'
                     on='click'
                     context={labelRef.current}
-                    onClose={handleClose}
+                    onUnmount={handleClose}
+                    onClose={(e) => {
+                        if (Math.abs(createdAt - e.timeStamp) < 200) return; // likely same event
+                        setPopupOpen(false);
+                    }}
                     className='entity-popup'
                 />
             )}

@@ -12,7 +12,7 @@ function UserUtteranceViewer(props) {
     const {
         value, onChange, disableEditing, showIntent, disabled, onClick,
     } = props;
-    const { text, intent, entities } = value;
+    const { text = '', intent = '', entities = [] } = value;
     const [textSelection, setSelection] = useState(null);
     const mouseDown = useRef(false);
     const setMouseDown = (v) => {
@@ -114,8 +114,8 @@ function UserUtteranceViewer(props) {
     }
 
     function handleAddEntity(entity) {
-        if (textSelection) setSelection(null);
         if (!entity || !entity.entity || !entity.entity.trim()) return null;
+        if (textSelection) setSelection(null);
         const {
             type: _, text: __, index: ___, ...entityCleaned
         } = entity;
