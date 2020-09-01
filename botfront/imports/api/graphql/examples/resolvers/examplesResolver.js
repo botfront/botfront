@@ -2,7 +2,7 @@ import {
     getExamples,
     listIntentsAndEntities,
     insertExamples,
-    updateExample,
+    updateExamples,
     deleteExamples,
     switchCanonical,
 } from '../mongo/examples.js';
@@ -46,9 +46,9 @@ export default {
         },
     },
     Mutation: {
-        async updateExample(_, args, __) {
-            const response = await updateExample(args);
-            const { projectId, metadata: { language } } = args.example;
+        async updateExamples(_, args, __) {
+            const response = await updateExamples(args);
+            const { projectId, language } = args;
             publishIntentsOrEntitiesChanged(projectId, language);
             return response;
         },

@@ -30,7 +30,11 @@ type Subscription {
 }
 
 type Mutation {
-    updateExample(example: ExampleInput!): Example
+    updateExamples(
+        examples: [ExampleInput]!, 
+        language: String!
+        projectId: String!
+        ): [Example]
     insertExamples(
         examples: [ExampleInput]!
         language: String!

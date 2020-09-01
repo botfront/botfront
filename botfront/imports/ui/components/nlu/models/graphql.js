@@ -127,13 +127,9 @@ mutation switchCanonical($projectId:String, $language: String, $example: Example
 }`;
 
 
-export const UPDATE_EXAMPLE = gql`
-mutation updateExample(
-    $example: ExampleInput!
-) {
-    updateExample(
-        example: $example
-    ) {
+export const UPDATE_EXAMPLES = gql`
+mutation updateExamples($projectId: String!, $language: String!, $examples: [ExampleInput]!) {
+    updateExamples(projectId: $projectId, language: $language, examples: $examples) {  
         _id 
         projectId 
         text 

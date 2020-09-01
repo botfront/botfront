@@ -39,7 +39,7 @@ import { Projects } from '../../../../api/project/project.collection';
 import { setWorkingLanguage } from '../../../store/actions/actions';
 import NluTable from './NluTable';
 import {
-    useExamples, useDeleteExamples, useUpdateExample, useSwitchCannonical,
+    useExamples, useDeleteExamples, useUpdateExamples, useSwitchCannonical,
 } from './hooks';
 
 const handleDefaultRoute = (projectId, models, workingLanguage) => {
@@ -129,7 +129,7 @@ function NLUModel(props) {
     } = useExamples(variables);
     const [deleteExamples] = useDeleteExamples(variables);
     const [switchCanonical] = useSwitchCannonical(variables);
-    const [updateExample] = useUpdateExample(variables);
+    const [updateExamples] = useUpdateExamples(variables);
 
     const intents = [];
     const entities = [];
@@ -232,7 +232,7 @@ function NLUModel(props) {
                         projectId={projectId}
                         workingLanguage={workingLanguage}
                         entitySynonyms={model.training_data.entity_synonyms}
-                        updateExample={updateExample}
+                        updateExamples={updateExamples}
                         switchCanonical={switchCanonical}
                         deleteExamples={deleteExamples}
                         data={data}

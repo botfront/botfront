@@ -1,12 +1,11 @@
 import { useQuery, useMutation, useSubscription } from '@apollo/react-hooks';
 import {
-    GET_INTENT_STATISTICS,
     GET_EXAMPLES,
     LIST_INTENTS_AND_ENTITIES,
     INTENTS_OR_ENTITIES_CHANGED,
     INSERT_EXAMPLES,
     DELETE_EXAMPLES,
-    UPDATE_EXAMPLE,
+    UPDATE_EXAMPLES,
     SWITCH_CANONICAL,
 } from './graphql.js';
 
@@ -135,15 +134,19 @@ export const useInsertExamples = variables => useMutation(
     { variables },
 );
 
-export const useUpdateExample = variables => useMutation(
-    UPDATE_EXAMPLE,
+export const useUpdateExamples = variables => useMutation(
+    UPDATE_EXAMPLES,
     {
         variables,
-        update: (cache, { data: { updateExample: updatedExample } }) => {
+        update: (cache, { data: { updateExamples: updatedExamples } }) => {
+            const updatedIds = updatedExamples.map(ex => ex._id);
             const result = cache.readQuery({ query: GET_EXAMPLES, variables });
             const { examples: { examples } } = result;
             const modifiedExamples = examples.map((example) => {
-                if (example._id === updatedExample._id) return updatedExample;
+                const indexOfUpdated = updatedIds.indexOf(example._id);
+                if (indexOfUpdated !== -1) {
+                    return updatedExamples[indexOfUpdated];
+                }
                 return example;
             });
             cache.writeQuery({
