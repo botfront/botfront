@@ -27,10 +27,18 @@ export default class EntityUtils {
         return hasAllProperties && needsAndHasId;
     }
 
-    static stripBare(entity, withId = true, customValue = '') {
+    static stripBare(ENTITY, withId = true, customValue = '') {
+        const {
+            _id, start, end, value, entity, group, role,
+        } = ENTITY;
         const obj = {
-            ...entity,
-            value: customValue || entity.value,
+            _id,
+            start,
+            end,
+            ...(group ? { group } : {}),
+            ...(role ? { role } : {}),
+            value: customValue || value,
+            entity,
         };
 
         if (!withId || obj._id === undefined) {
