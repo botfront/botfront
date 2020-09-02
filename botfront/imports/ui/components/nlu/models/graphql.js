@@ -98,7 +98,18 @@ subscription intentsOrEntitiesChanged($projectId: String!, $language: String!) {
 export const INSERT_EXAMPLES = gql`
 mutation insertExamples($projectId: String!, $language: String!, $examples: [ExampleInput]!) {
     insertExamples(projectId: $projectId, language: $language, examples: $examples) {  
-        success
+        _id 
+        projectId 
+        text 
+        intent 
+        draft
+        entities {
+                entity
+                value
+                start
+                end
+        }
+        metadata
     }
 }`;
 

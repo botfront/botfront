@@ -131,7 +131,25 @@ export const useSwitchCannonical = variables => useMutation(
 
 export const useInsertExamples = variables => useMutation(
     INSERT_EXAMPLES,
-    { variables },
+    {
+        variables,
+        update: (cache, { data: { insertExamples: insertedExamples } }) => {
+            const result = cache.readQuery({ query: GET_EXAMPLES, variables });
+            const { examples: { examples } } = result;
+            const newExamples = [...insertedExamples, ...examples];
+            cache.writeQuery({
+                query: GET_EXAMPLES,
+                variables,
+                data: {
+                    ...result,
+                    examples: {
+                        ...result.examples,
+                        examples: newExamples,
+                    },
+                },
+            });
+        },
+    },
 );
 
 export const useUpdateExamples = variables => useMutation(
