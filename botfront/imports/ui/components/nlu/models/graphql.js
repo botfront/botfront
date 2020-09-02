@@ -34,7 +34,7 @@ query examples(
     $language: String!
     $intents: [String]
     $entities: [Any]
-    $onlyCanonical: Boolean
+    $onlyCanonicals: Boolean
     $text: String
     $order: order
     $sortKey: String
@@ -47,7 +47,7 @@ query examples(
         language: $language
         intents: $intents
         entities: $entities
-        onlyCanonical: $onlyCanonical
+        onlyCanonicals: $onlyCanonicals
         text: $text
         order: $order
         sortKey: $sortKey
@@ -98,7 +98,18 @@ subscription intentsOrEntitiesChanged($projectId: String!, $language: String!) {
 export const INSERT_EXAMPLES = gql`
 mutation insertExamples($projectId: String!, $language: String!, $examples: [ExampleInput]!) {
     insertExamples(projectId: $projectId, language: $language, examples: $examples) {  
-        success
+        _id 
+        projectId 
+        text 
+        intent 
+        draft
+        entities {
+                entity
+                value
+                start
+                end
+        }
+        metadata
     }
 }`;
 
@@ -116,24 +127,30 @@ mutation switchCanonical($projectId:String, $language: String, $example: Example
         projectId 
         text 
         intent 
-        entities { value }
+        entities {
+                entity
+                value
+                start
+                end
+        }
         metadata
     }
 }`;
 
 
-export const UPDATE_EXAMPLE = gql`
-mutation updateExample(
-    $example: ExampleInput!
-) {
-    updateExample(
-        example: $example
-    ) {
+export const UPDATE_EXAMPLES = gql`
+mutation updateExamples($projectId: String!, $language: String!, $examples: [ExampleInput]!) {
+    updateExamples(projectId: $projectId, language: $language, examples: $examples) {  
         _id 
         projectId 
         text 
         intent 
-        entities { value }
+        entities {
+                entity
+                value
+                start
+                end
+        }
         metadata
     }
 }`;

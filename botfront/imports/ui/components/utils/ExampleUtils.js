@@ -29,20 +29,19 @@ export default class ExampleUtils {
 
     static stripBare(example, withId = true, withSubstringAsEntityValue = false) {
         const {
-            _id, text, intent, entities = [], canonical,
+            _id, text, intent, entities = [], draft,
         } = example;
         const obj = {
             _id,
             text,
             intent,
-            canonical,
             entities: entities.map(entity => EntityUtils.stripBare(entity, withId, withSubstringAsEntityValue ? text.substring(entity.start, entity.end) : undefined)),
+            draft,
         };
 
         if (!withId || obj._id === undefined) {
             delete obj._id;
         }
-
         return obj;
     }
 
@@ -75,6 +74,11 @@ export default class ExampleUtils {
             entities: newEntities,
             ...exampleFields,
         });
+
+        if (!newExample.intent) {
+            newExample.draft = true;
+            newExample.intent = ' ';
+        }
 
         return newExample;
     }

@@ -2,7 +2,7 @@ import {
     getExamples,
     listIntentsAndEntities,
     insertExamples,
-    updateExample,
+    updateExamples,
     deleteExamples,
     switchCanonical,
 } from '../mongo/examples.js';
@@ -46,15 +46,15 @@ export default {
         },
     },
     Mutation: {
-        async updateExample(_, args, __) {
-            const response = await updateExample(args);
-            const { projectId, metadata: { language } } = args.example;
+        async updateExamples(_, args, __) {
+            const response = await updateExamples(args);
+            const { projectId, language } = args;
             publishIntentsOrEntitiesChanged(projectId, language);
             return response;
         },
         async insertExamples(_, args, __) {
             const response = await insertExamples(args);
-            if (response.success) {
+            if (response.length > 0) {
                 const { projectId, language } = args;
                 publishIntentsOrEntitiesChanged(projectId, language);
             }
@@ -87,6 +87,8 @@ export default {
         intent: (parent, _, __) => parent.intent,
         entities: (parent, _, __) => parent.entities,
         metadata: (parent, _, __) => parent.metadata,
+        draft: (parent, _, __) => parent.draft,
+
     },
     NluStatistics: {
         intent: ({ intent }) => intent,

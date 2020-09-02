@@ -7,7 +7,7 @@ import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { NLUModels } from './nlu_model.collection';
 import { getNluModelLanguages } from './nlu_model.utils';
 import {
-    getExamples, insertExamples, deleteExamples, switchCanonical, updateExample,
+    getExamples, insertExamples, deleteExamples, switchCanonical, updateExamples,
 } from '../graphql/examples/mongo/examples';
 import { Projects } from '../project/project.collection';
 import { checkIfCan } from '../../lib/scopes';
@@ -55,7 +55,7 @@ Meteor.methods({
         await insertExamples({
             examples: newExamples, language, projectId, options: { autoAssignCanonical: !canonicalEdited.length },
         });
-        await Promise.all(edited.map(example => updateExample({ example })));
+        await updateExamples({ examples: edited });
         canonicalEdited.forEach(example => switchCanonical({ projectId, language, example }));
     },
 

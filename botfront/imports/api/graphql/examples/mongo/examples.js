@@ -52,7 +52,6 @@ const createFilterObject = (
     if (text && text.length > 0) {
         filters.text = { $regex: new RegExp(escapeRegExp(text), 'i') };
     }
-
     return filters;
 };
 
@@ -131,7 +130,7 @@ export const listIntentsAndEntities = async ({ projectId, language }) => {
 export const insertExamples = async ({
     examples, language, projectId, options = {},
 }) => {
-    if (!examples.length) return { success: true };
+    if (!examples.length) return [];
     const { autoAssignCanonical = true, overwriteOnSameText = true } = options;
     checkNoEmojisInExamples(examples);
     let preparedExamples = examples
@@ -145,6 +144,7 @@ export const insertExamples = async ({
             updatedAt: new Date(),
             _id: shortid.generate(),
         }));
+
     let itemsToOverwrite = [];
     if (autoAssignCanonical || overwriteOnSameText) {
         const { examples: existingExamples } = await getExamples({ projectId, pageSize: -1, language });
@@ -165,22 +165,27 @@ export const insertExamples = async ({
         if (result.length !== preparedExamples.length) {
             throw new Error('Insert failed');
         }
-        return { success: true };
+        return preparedExamples;
     } catch (e) {
-        return { success: false };
+        return [];
     }
 };
 
-export const updateExample = async ({ example }) => {
-    checkNoEmojisInExamples([example]);
-    const result = await Examples.updateOne(
-        { _id: example._id },
-        { $set: { ...example, updatedAt: new Date() } },
-    ).exec();
-    if (result.nModified === 0 || result.ok === 0) {
-        throw new Error('Update failed');
-    }
-    return { ...example, updatedAt: new Date() };
+export const updateExamples = async ({ examples }) => {
+    checkNoEmojisInExamples(examples);
+    const updatesPromises = examples.map(async (example) => {
+        const result = await Examples.findOneAndUpdate(
+            { _id: example._id },
+            { $set: { ...example, updatedAt: new Date() } },
+            { new: true }, // return the document after the update
+        ).lean();
+        if (!result) {
+            throw new Error('Update failed');
+        }
+        return result;
+    });
+    const newExamples = await Promise.all(updatesPromises);
+    return newExamples;
 };
 
 export const deleteExamples = async ({ ids }) => {
@@ -194,7 +199,6 @@ export const deleteExamples = async ({ ids }) => {
 
 export const switchCanonical = async ({ projectId, language, example }) => {
     if (!example.intent) return { change: null };
-    const updatedExamples = []; // we might update 2 examples one where we remove the canonical status and one where we add it
     if (example.metadata && !example.metadata.canonical) {
         /* try to match a canonical item with the same characteristics (intent, entity, entity value)
         to check if the selected item can be used as canonical
@@ -222,13 +226,12 @@ export const switchCanonical = async ({ projectId, language, example }) => {
             ...elemMatch,
         };
         const result = await Examples.findOne(query).lean();
+        const examplesToUpdate = [];
         if (result) {
-            updatedExamples.push(await updateExample({ example: { ...result, metadata: { ...result.metadata, canonical: false } } }));
+            examplesToUpdate.push({ ...result, metadata: { ...result.metadata, canonical: false } });
         }
-        updatedExamples.push(await updateExample({ example: { ...example, metadata: { ...example.metadata, canonical: true } } }));
-        return updatedExamples;
+        examplesToUpdate.push({ ...example, metadata: { ...example.metadata, canonical: true } });
+        return updateExamples({ examples: examplesToUpdate });
     }
-    updatedExamples.push(await updateExample({ example: { ...example, metadata: { ...example.metadata, canonical: false } } }));
-
-    return updatedExamples;
+    return updateExamples({ examples: [{ ...example, metadata: { ...example.metadata, canonical: false } }] });
 };

@@ -15,6 +15,7 @@ const model = new Schema({
         entity: String,
     }],
     metadata: { type: Object, required: false },
+    draft: Boolean,
 }, { strict: false });
 
 model.index({ text: 1, projectId: 1, 'metadata.language': 1 }, { unique: true });

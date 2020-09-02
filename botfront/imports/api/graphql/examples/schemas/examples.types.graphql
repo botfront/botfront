@@ -4,7 +4,7 @@ type Query {
         language: String!
         intents: [String]
         entities: [Any]
-        onlyCanonical: Boolean
+        onlyCanonicals: Boolean
         text: String
         order: order
         sortKey: String
@@ -30,12 +30,16 @@ type Subscription {
 }
 
 type Mutation {
-    updateExample(example: ExampleInput!): Example
+    updateExamples(
+        examples: [ExampleInput]!, 
+        language: String!
+        projectId: String!
+        ): [Example]
     insertExamples(
         examples: [ExampleInput]!
         language: String!
         projectId: String!
-    ): updateResponse
+    ):  [Example]
     deleteExamples(ids: [String]!): [String]
     switchCanonical( projectId:String, language: String, example: ExampleInput!): [Example]
 }
@@ -56,7 +60,9 @@ type Example {
     text: String,
     intent: String,
     entities: [Entity],
-    metadata: Any
+    metadata: Any,
+    draft: Boolean
+
 }
 
 type NluStatistics {
@@ -77,5 +83,6 @@ input ExampleInput {
     intent: String,
     entities: [EntityInput],
     metadata: Any
+    draft: Boolean
 }
 

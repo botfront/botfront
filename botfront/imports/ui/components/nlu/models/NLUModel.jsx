@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Meteor } from 'meteor/meteor';
@@ -17,9 +17,11 @@ import {
 } from 'semantic-ui-react';
 import 'react-select/dist/react-select.css';
 import { connect } from 'react-redux';
+import { debounce } from 'lodash';
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
 import { isTraining, getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
 import { Instances } from '../../../../api/instances/instances.collection';
+import InsertNlu from '../../example_editor/InsertNLU';
 import NLUPlayground from '../../example_editor/NLUPlayground';
 import Evaluation from '../evaluation/Evaluation';
 import ChitChat from './ChitChat';
@@ -37,6 +39,9 @@ import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.co
 import { Projects } from '../../../../api/project/project.collection';
 import { setWorkingLanguage } from '../../../store/actions/actions';
 import NluTable from './NluTable';
+import {
+    useExamples, useDeleteExamples, useUpdateExamples, useSwitchCannonical, useInsertExamples,
+} from './hooks';
 
 const handleDefaultRoute = (projectId, models, workingLanguage) => {
     try {
@@ -117,12 +122,20 @@ function NLUModel(props) {
             project: currentProject,
         };
     });
+    const [variables, setVariables] = useState({ projectId, language: workingLanguage, pageSize: 20 });
+    const [filters, setFilters] = useState({});
+
+    const {
+        data, loading: loadingExamples, hasNextPage, loadMore,
+    } = useExamples(variables);
+    const [deleteExamples] = useDeleteExamples(variables);
+    const [switchCanonical] = useSwitchCannonical(variables);
+    const [updateExamples] = useUpdateExamples(variables);
+    const [insertExamples] = useInsertExamples(variables);
+
 
     const intents = [];
     const entities = [];
-
-    // const intents = sortBy(uniq(data.map(e => e.intent)));
-    // const entities = extractEntities(data);
 
     const [activityLinkRender, setActivityLinkRender] = useState((incomingState && incomingState.isActivityLinkRender) || false);
     const [activeItem, setActiveItem] = useState(incomingState && incomingState.isActivityLinkRender === true ? 'evaluation' : 'data');
@@ -134,6 +147,23 @@ function NLUModel(props) {
             return true;
         }
         return false;
+    };
+    // if we do not useCallback the debounce is re-created on every render
+    const setVariablesDebounced = useCallback(debounce((newFilters) => {
+        const newVariables = {
+            ...variables,
+            intents: newFilters.intents,
+            entities: newFilters.entities,
+            onlyCanonicals: newFilters.onlyCanonicals,
+            text: newFilters.query,
+        };
+        setVariables(newVariables);
+    }, 500), []);
+
+
+    const updateFilters = (newFilters) => {
+        setFilters(newFilters);
+        setVariablesDebounced(newFilters);
     };
 
     const onDeleteModel = () => {
@@ -201,7 +231,20 @@ function NLUModel(props) {
             {
                 menuItem: 'Examples',
                 render: () => (
-                    <NluTable projectId={projectId} workingLanguage={workingLanguage} entitySynonyms={model.training_data.entity_synonyms} />
+                    <NluTable
+                        projectId={projectId}
+                        workingLanguage={workingLanguage}
+                        entitySynonyms={model.training_data.entity_synonyms}
+                        updateExamples={updateExamples}
+                        switchCanonical={switchCanonical}
+                        deleteExamples={deleteExamples}
+                        data={data}
+                        loadingExamples={loadingExamples}
+                        hasNextPage={hasNextPage}
+                        loadMore={loadMore}
+                        updateFilters={updateFilters}
+                        filters={filters}
+                    />
                 ),
             },
             { menuItem: 'Synonyms', render: () => <Synonyms model={model} /> },
@@ -304,7 +347,7 @@ function NLUModel(props) {
                             <br />
                             {instance && (
                                 <div id='playground'>
-                                    <NLUPlayground
+                                    <InsertNlu
                                         testMode
                                         model={model}
                                         projectId={projectId}
@@ -312,7 +355,28 @@ function NLUModel(props) {
                                         floated='right'
                                         entities={entities}
                                         intents={getIntentForDropdown(false)}
-                                        onSave={() => {}} // oops
+                                        onSave={async(examples) => {
+                                            const parsedExamples = [];
+                                            const promiseParsing = examples.map(example => new Promise((resolve, reject) => {
+                                                Meteor.call(
+                                                    'rasa.parse',
+                                                    instance,
+                                                    [{ text: example, lang: workingLanguage }],
+                                                    { failSilently: true },
+                                                    (err, exampleMatch) => {
+                                                        if (err || !exampleMatch || !exampleMatch.intent) {
+                                                            resolve({ text: example, draft: true, intent: 'draft.intent' });
+                                                        }
+                                                        const { intent: { name }, entities } = exampleMatch;
+                                                        resolve({
+                                                            text: example, draft: true, intent: name, entities,
+                                                        });
+                                                    },
+                                                );
+                                            }));
+                                            const examplesParsed = await Promise.all(promiseParsing);
+                                            insertExamples({ variables: { examples: examplesParsed, language: workingLanguage, projectId } });
+                                        }}
                                         postSaveAction='clear'
                                     />
                                 </div>
