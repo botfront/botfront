@@ -9,6 +9,7 @@ function EntityValueEditor({
     disallowAdvancedEditing,
 }) {
     const exists = field => field in entity && entity[field] !== null;
+    const capitalize = key => key.charAt(0).toUpperCase() + key.slice(1);
 
     const renderField = key => (
         <div className='side-by-side middle' style={{ marginBottom: '5px' }}>
@@ -20,8 +21,9 @@ function EntityValueEditor({
                 )}
                 size='small'
                 labelPosition='left'
+                className='entity-value-input'
             >
-                <Label>{(key === 'value' && exists('text')) ? <>synonym<br />value</> : key}</Label>
+                <Label>{capitalize(key)}</Label>
                 <input />
             </Input>
             {(key !== 'value' || exists('text')) && (
@@ -42,7 +44,7 @@ function EntityValueEditor({
     const renderAddButton = key => (
         <Button
             onClick={() => onChange({ ...entity, [key]: '' })}
-            content={key === 'value' ? <>synonym<br />value</> : key}
+            content={capitalize(key)}
             icon='add'
         />
     );
