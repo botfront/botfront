@@ -106,7 +106,9 @@ Meteor.methods({
         check(modelId, String);
         check(item, Object);
 
+        console.log(item);
         const cleanItem = ExampleUtils.stripBare(item);
+        console.log(cleanItem);
         try {
             if (!cleanItem.intent) throw new Error('Intent must be defined.');
             return NLUModels.update({ _id: modelId, 'training_data.common_examples._id': cleanItem._id }, { $set: { 'training_data.common_examples.$': cleanItem } });
