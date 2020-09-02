@@ -281,20 +281,19 @@ if (Meteor.isServer) {
                     defaultLanguage: 'en',
                 });
 
-                // eslint-disable-next-line no-restricted-syntax
-                for (const lang of Object.keys(data)) {
-                    // eslint-disable-next-line no-await-in-loop
+                await Promise.all(Object.keys(data).map(lang => new Promise(async (resolve) => {
                     await Meteor.callWithPromise(
                         'nlu.insert',
-                        {
-                            name: `chitchat-${lang}`,
-                            language: lang,
-                        },
+                        { name: `chitchat-${lang}`, language: lang },
                         projectId,
                     );
-                    // eslint-disable-next-line no-await-in-loop
-                    await Meteor.callWithPromise('nlu.import', data[lang].rasa_nlu_data, projectId, lang, true);
-                }
+                    await insertExamples({
+                        examples: data[lang],
+                        language: lang,
+                        projectId,
+                    });
+                    resolve();
+                })));
 
                 GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.public.chitChatProjectId': projectId } });
             } catch (e) {
