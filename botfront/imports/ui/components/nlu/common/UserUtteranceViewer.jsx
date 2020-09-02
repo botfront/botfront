@@ -96,10 +96,13 @@ function UserUtteranceViewer(props) {
         onChange(data);
     };
 
-    function handleEntityChange(newValue, entityIndex) {
+    function handleEntityChange(entity, entityIndex) {
+        const {
+            type: _, text: __, index: ___, ...entityCleaned
+        } = entity;
         onChangeWrapped({
             ...value,
-            entities: entities.map((e, index) => (entityIndex === index ? newValue : e)),
+            entities: entities.map((e, index) => (entityIndex === index ? entityCleaned : e)),
         });
     }
 
@@ -163,7 +166,7 @@ function UserUtteranceViewer(props) {
     function handleMouseUp({ shiftKey, ctrlKey, metaKey }, element, exited) {
         const selection = window.getSelection();
         let extraBound = [];
-        if (exited) extraBound = exited === 'left' ? [0] : [element.text.length];
+        if (exited) extraBound = exited === 'left' ? [0] : [(element.text || '').length];
         let bad = false;
         let anchor = Math.min(
             element.start + selection.anchorOffset,
@@ -180,6 +183,7 @@ function UserUtteranceViewer(props) {
             anchor = adjustBeginning(text, anchor);
             extent = adjustEnd(text, extent);
         }
+        if (entities.some(e => anchor <= e.end && extent >= e.start)) bad = true;
         if (
             bad
             || disableEditing
@@ -251,12 +255,27 @@ function UserUtteranceViewer(props) {
             }}
             {...{
                 onMouseUp: (e) => {
-                    const { elementStart } = e.target.dataset;
+                    if (
+                        e.screenX === mouseDown.current[0] // it's a click!
+                        && e.screenY === mouseDown.current[1]
+                        && Array.from(document.querySelectorAll('.entity-container')).some(p => p.contains(e.target))
+                    ) {
+                        setMouseDown(false);
+                        return;
+                    }
+                    // get element in array from html data property
+                    let node = e.target;
+                    let elementStart = null;
+                    while (!elementStart && utteranceViewerRef.current.contains(node)) {
+                        // eslint-disable-next-line prefer-destructuring
+                        elementStart = node.dataset.elementStart;
+                        node = node.parentNode;
+                    }
                     if (elementStart) {
                         const element = textContent.find(
                             ({ start }) => start === parseInt(elementStart, 10),
                         );
-                        if (element.type === 'text') handleMouseUp(e, element);
+                        handleMouseUp(e, element);
                     } else if (utteranceViewerRef.current.contains(e.target)) {
                         const element = e.screenX - mouseDown.current[0] < 0
                             ? textContent[0]

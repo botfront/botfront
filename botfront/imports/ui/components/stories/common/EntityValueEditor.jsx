@@ -8,6 +8,8 @@ function EntityValueEditor({
     onChange,
     disallowAdvancedEditing,
 }) {
+    const exists = field => field in entity && entity[field] !== null;
+
     const renderField = key => (
         <div className='side-by-side middle' style={{ marginBottom: '5px' }}>
             <Input
@@ -19,10 +21,10 @@ function EntityValueEditor({
                 size='small'
                 labelPosition='left'
             >
-                <Label>{(key === 'value' && 'text' in entity) ? <>synonym<br />value</> : key}</Label>
+                <Label>{(key === 'value' && exists('text')) ? <>synonym<br />value</> : key}</Label>
                 <input />
             </Input>
-            {(key !== 'value' || 'text' in entity) && (
+            {(key !== 'value' || exists('text')) && (
                 <div>
                     <IconButton
                         color='grey'
@@ -45,9 +47,9 @@ function EntityValueEditor({
         />
     );
 
-    const showValue = (!('text' in entity) || entity.text !== entity.value);
-    const showRole = 'role' in entity;
-    const showGroup = 'group' in entity;
+    const showValue = (!exists('text') || entity.text !== entity.value);
+    const showRole = exists('role');
+    const showGroup = exists('group');
 
     const renderAddButtons = () => {
         if (showValue && showRole && showGroup) return null;

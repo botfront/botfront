@@ -10,6 +10,8 @@ const model = new Schema({
         start: Number,
         end: Number,
         value: String,
+        group: { type: String, required: false },
+        role: { type: String, required: false },
         entity: String,
         confidence: { type: Number, required: false },
         extractor: { type: String, required: false },

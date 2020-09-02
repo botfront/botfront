@@ -48,23 +48,27 @@ type ConversationContainer {
 }
 
 type Entity {
-    entity: String,
-    value: String,
-    start: Int,
-    end: Int,
-    confidence: Float,
-    extractor: String,
-    processors: [String],
+    entity: String
+    value: String
+    group: String
+    role: String
+    start: Int
+    end: Int
+    confidence: Float
+    extractor: String
+    processors: [String]
 }
 
 input EntityInput {
-    entity: String,
-    value: String,
-    start: Int,
-    end: Int,
-    confidence: Float,
-    extractor: String,
-    processors: [String],
+    entity: String
+    value: String
+    group: String
+    role: String
+    start: Int
+    end: Int
+    confidence: Float
+    extractor: String
+    processors: [String]
 }
 
 input ConversationContainerInput {
