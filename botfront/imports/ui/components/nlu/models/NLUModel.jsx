@@ -21,6 +21,7 @@ import { debounce } from 'lodash';
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
 import { isTraining, getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
 import { Instances } from '../../../../api/instances/instances.collection';
+import InsertNlu from '../../example_editor/InsertNLU';
 import NLUPlayground from '../../example_editor/NLUPlayground';
 import Evaluation from '../evaluation/Evaluation';
 import ChitChat from './ChitChat';
@@ -39,7 +40,7 @@ import { Projects } from '../../../../api/project/project.collection';
 import { setWorkingLanguage } from '../../../store/actions/actions';
 import NluTable from './NluTable';
 import {
-    useExamples, useDeleteExamples, useUpdateExamples, useSwitchCannonical,
+    useExamples, useDeleteExamples, useUpdateExamples, useSwitchCannonical, useInsertExamples,
 } from './hooks';
 
 const handleDefaultRoute = (projectId, models, workingLanguage) => {
@@ -130,6 +131,8 @@ function NLUModel(props) {
     const [deleteExamples] = useDeleteExamples(variables);
     const [switchCanonical] = useSwitchCannonical(variables);
     const [updateExamples] = useUpdateExamples(variables);
+    const [insertExamples] = useInsertExamples(variables);
+
 
     const intents = [];
     const entities = [];
@@ -344,7 +347,7 @@ function NLUModel(props) {
                             <br />
                             {instance && (
                                 <div id='playground'>
-                                    <NLUPlayground
+                                    <InsertNlu
                                         testMode
                                         model={model}
                                         projectId={projectId}
@@ -352,7 +355,28 @@ function NLUModel(props) {
                                         floated='right'
                                         entities={entities}
                                         intents={getIntentForDropdown(false)}
-                                        onSave={() => {}} // oops
+                                        onSave={async(examples) => {
+                                            const parsedExamples = [];
+                                            const promiseParsing = examples.map(example => new Promise((resolve, reject) => {
+                                                Meteor.call(
+                                                    'rasa.parse',
+                                                    instance,
+                                                    [{ text: example, lang: workingLanguage }],
+                                                    { failSilently: true },
+                                                    (err, exampleMatch) => {
+                                                        if (err || !exampleMatch || !exampleMatch.intent) {
+                                                            resolve({ text: example, draft: true, intent: 'draft.intent' });
+                                                        }
+                                                        const { intent: { name }, entities } = exampleMatch;
+                                                        resolve({
+                                                            text: example, draft: true, intent: name, entities,
+                                                        });
+                                                    },
+                                                );
+                                            }));
+                                            const examplesParsed = await Promise.all(promiseParsing);
+                                            insertExamples({ variables: { examples: examplesParsed, language: workingLanguage, projectId } });
+                                        }}
                                         postSaveAction='clear'
                                     />
                                 </div>
