@@ -100,7 +100,7 @@ export const useDeleteExamples = variables => useMutation(
 );
 
 
-export const useSwitchCannonical = variables => useMutation(
+export const useSwitchCanonical = variables => useMutation(
     SWITCH_CANONICAL,
     {
         update: (cache, { data: { switchCanonical: updatedExamples } }) => {

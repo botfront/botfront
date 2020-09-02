@@ -225,7 +225,7 @@ function NluTable(props) {
                             onClick={async () => {
                                 const result = await switchCanonical({ variables: { projectId: datum.projectId, language: datum.metadata.language, example: clearTypenameField(datum) } });
                                 /* length === 2 mean that there is 2 examples that have changed,
-                                so one took the place of another as a cannonical */
+                                so one took the place of another as a canonical */
                                 if (result?.data?.switchCanonical?.length === 2) {
                                     Alert.warning(`The previous canonical example with the same intent 
                                 and entity - entity value combination 
@@ -278,7 +278,7 @@ function NluTable(props) {
             { key: 'edit', style: { width: '50px' }, render: renderEditExample },
 
             { key: 'delete', style: { width: '50px' }, render: renderDelete },
-            { key: 'canonincal', style: { width: '50px' }, render: renderCanonical },
+            { key: 'canonical', style: { width: '50px' }, render: renderCanonical },
 
         ];
         return (
@@ -339,7 +339,7 @@ function NluTable(props) {
                     hasNextPage={hasNextPage}
                     loadMore={loadingExamples ? () => { } : loadMore}
                     rowClassName='glow-box hoverable'
-                    className='examples-table'
+                    className='new-utterances-table'
                     selection={selection}
                     onChangeSelection={(newSelection) => {
                         setSelection(newSelection);

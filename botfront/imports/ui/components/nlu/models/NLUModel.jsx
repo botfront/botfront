@@ -40,7 +40,7 @@ import { Projects } from '../../../../api/project/project.collection';
 import { setWorkingLanguage } from '../../../store/actions/actions';
 import NluTable from './NluTable';
 import {
-    useExamples, useDeleteExamples, useUpdateExamples, useSwitchCannonical, useInsertExamples,
+    useExamples, useDeleteExamples, useUpdateExamples, useSwitchCanonical, useInsertExamples,
 } from './hooks';
 
 const handleDefaultRoute = (projectId, models, workingLanguage) => {
@@ -129,7 +129,7 @@ function NLUModel(props) {
         data, loading: loadingExamples, hasNextPage, loadMore,
     } = useExamples(variables);
     const [deleteExamples] = useDeleteExamples(variables);
-    const [switchCanonical] = useSwitchCannonical(variables);
+    const [switchCanonical] = useSwitchCanonical(variables);
     const [updateExamples] = useUpdateExamples(variables);
     const [insertExamples] = useInsertExamples(variables);
 

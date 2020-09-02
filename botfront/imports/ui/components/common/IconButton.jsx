@@ -43,7 +43,7 @@ IconButton.defaultProps = {
     onClick: () => {},
     onMouseDown: (e) => { e.preventDefault(); e.stopPropagation(); },
     size: 'mini',
-    color: 'grey',
+    color: '',
     'data-cy': null,
     disabled: false,
     basic: false,
