@@ -6,7 +6,7 @@ import IntentLabel from '../common/IntentLabel';
 
 const NluCommandBar = React.forwardRef((props, ref) => {
     const {
-        selection, onSetIntent, onDelete, onCloseIntentPopup,
+        selection, onSetIntent, onDelete, onCloseIntentPopup, onUndraft,
     } = props;
     
     const intentLabelRef = useRef();
@@ -53,6 +53,24 @@ const NluCommandBar = React.forwardRef((props, ref) => {
                     color='grey'
                     icon='trash'
                     data-cy='trash icon-trash'
+                />
+                <span className='shortcut'>U</span>
+                <Popup
+                    size='mini'
+                    inverted
+                    content='Change intent'
+                    trigger={(
+                        <div>
+                            <IconButton
+                                basic
+                                size='small'
+                                onClick={() => onUndraft(selection)}
+                                color='green'
+                                icon='check'
+                                data-cy='remove-draft'
+                            />
+                        </div>
+                    )}
                 />
             </div>
         </div>

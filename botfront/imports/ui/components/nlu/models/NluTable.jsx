@@ -2,7 +2,7 @@ import React, {
     useEffect, useState, useRef, useContext,
 } from 'react';
 import {
-    Form, Popup, Grid, Checkbox, Icon, Confirm,
+    Form, Popup, Grid, Checkbox, Icon, Confirm, Button,
 } from 'semantic-ui-react';
 import Alert from 'react-s-alert';
 import DataTable from '../../common/DataTable';
@@ -53,6 +53,13 @@ function NluTable(props) {
         setConfirm({ message, action });
     }
 
+    function multipleUndraft(ids) {
+        const message = `Remove draft status of  ${ids.length} NLU examples`;
+        const examplesToUpdate = ids.map(_id => ({ _id, draft: false }));
+        const action = () => updateExamples({ variables: { examples: examplesToUpdate, projectId, language } });
+        setConfirm({ message, action });
+    }
+
     function multipleSetIntent(ids, intent) {
         const message = `Change intent to ${intent} for ${ids.length} NLU examples?`;
         const examplesToUpdate = ids.map(_id => ({ _id, intent }));
@@ -75,12 +82,14 @@ function NluTable(props) {
             if (key.toLowerCase() === 'y' || key === 'Enter') { confirm.action(); setConfirm(null); }
             return;
         }
+        
+        if (e.target !== tableRef.current.tableRef().current) return;
         if (selection.length === 0 && key.toLowerCase() === 'c') {
             updateFilters({ ...filters, onlyCanonicals: !filters.onlyCanonicals });
         }
-        if (e.target !== tableRef.current.tableRef().current) return;
         if (key === 'Escape') setSelection([]);
         if (key.toLowerCase() === 'd') multipleDelete(selection);
+        if (key.toLowerCase() === 'u') multipleUndraft(selection);
         
         if (key.toLowerCase() === 'i') {
             e.stopPropagation();
@@ -261,6 +270,23 @@ function NluTable(props) {
         );
     };
 
+    const renderDraft = (row) => {
+        const { datum } = row;
+        const { draft } = datum;
+        if (draft) {
+            return (
+                <Button
+                    size='mini'
+                    compact
+                    content='draft'
+                    onClick={() => { onEditExample(clearTypenameField({ ...datum, draft: false })); }}
+                    onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                />
+            );
+        }
+        return <></>;
+    };
+
 
     const renderDataTable = () => {
         const columns = [
@@ -275,11 +301,12 @@ function NluTable(props) {
             {
                 key: 'text', style: { width: '100%' }, render: renderExample,
             },
+            {
+                key: 'draft', style: { width: '70px' }, render: renderDraft,
+            },
             { key: 'edit', style: { width: '50px' }, render: renderEditExample },
-
             { key: 'delete', style: { width: '50px' }, render: renderDelete },
             { key: 'canonical', style: { width: '50px' }, render: renderCanonical },
-
         ];
         return (
             <>
@@ -349,8 +376,9 @@ function NluTable(props) {
                     <NluCommandBar
                         ref={nluCommandBarRef}
                         selection={selection}
-                        onDelete={multipleDelete}
                         onSetIntent={multipleSetIntent}
+                        onDelete={multipleDelete}
+                        onUndraft={multipleUndraft}
                         onCloseIntentPopup={() => tableRef.current.tableRef().current.focus()}
                     />
                 )}

@@ -60,6 +60,7 @@ query examples(
             projectId 
             text 
             intent 
+            draft
             entities {
                 entity
                 value
@@ -127,6 +128,7 @@ mutation switchCanonical($projectId:String, $language: String, $example: Example
         projectId 
         text 
         intent 
+        draft
         entities {
                 entity
                 value
@@ -145,6 +147,7 @@ mutation updateExamples($projectId: String!, $language: String!, $examples: [Exa
         projectId 
         text 
         intent 
+        draft
         entities {
                 entity
                 value
