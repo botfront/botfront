@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Meteor } from 'meteor/meteor';
@@ -22,7 +22,6 @@ import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
 import { isTraining, getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
 import { Instances } from '../../../../api/instances/instances.collection';
 import InsertNlu from '../../example_editor/InsertNLU';
-import NLUPlayground from '../../example_editor/NLUPlayground';
 import Evaluation from '../evaluation/Evaluation';
 import ChitChat from './ChitChat';
 import IntentBulkInsert from './IntentBulkInsert';
@@ -122,11 +121,13 @@ function NLUModel(props) {
             project: currentProject,
         };
     });
-    const [variables, setVariables] = useState({ projectId, language: workingLanguage, pageSize: 20 });
-    const [filters, setFilters] = useState({});
+    const [variables, setVariables] = useState({
+        projectId, language: workingLanguage, pageSize: 20, sortKey: 'intent', order: 'ASC',
+    });
+    const [filters, setFilters] = useState({ sortKey: 'intent', sortOrder: 'ASC' });
 
     const {
-        data, loading: loadingExamples, hasNextPage, loadMore,
+        data, loading: loadingExamples, hasNextPage, loadMore, refetch,
     } = useExamples(variables);
     const [deleteExamples] = useDeleteExamples(variables);
     const [switchCanonical] = useSwitchCanonical(variables);
@@ -156,15 +157,20 @@ function NLUModel(props) {
             entities: newFilters.entities,
             onlyCanonicals: newFilters.onlyCanonicals,
             text: newFilters.query,
+            order: newFilters.sortOrder,
+            sortKey: newFilters.sortKey,
         };
         setVariables(newVariables);
     }, 500), []);
+
+    useEffect(() => { if (!loadingExamples) refetch(); }, [variables]);
 
 
     const updateFilters = (newFilters) => {
         setFilters(newFilters);
         setVariablesDebounced(newFilters);
     };
+    
 
     const onDeleteModel = () => {
         browserHistory.push({ pathname: `/project/${projectId}/nlu/models` });

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Input, Dropdown } from 'semantic-ui-react';
+import { Input, Dropdown, Button } from 'semantic-ui-react';
 import getColor from '../../../../lib/getColors';
 
 export default class Filters extends React.Component {
@@ -15,23 +15,66 @@ export default class Filters extends React.Component {
     }
 
     handleIntentSelectorChange = (e, { value }) => {
-        const { onChange, filter: { entities: entitiesFilter, query } } = this.props;
-        onChange({ intents: value, entities: entitiesFilter, query });
+        const {
+            onChange, filter: {
+                entities: entitiesFilter, query, sortKey, sortOrder,
+            },
+        } = this.props;
+        onChange({
+            intents: value, entities: entitiesFilter, query, sortKey, sortOrder,
+        });
     };
 
     handleEntitiesSelectorChange = (e, { value }) => {
-        const { onChange, filter: { intents: intentsFilter, query } } = this.props;
-        onChange({ intents: intentsFilter, entities: value, query });
+        const {
+            onChange, filter: {
+                intents: intentsFilter, query, sortKey, sortOrder,
+            },
+        } = this.props;
+        onChange({
+            intents: intentsFilter, entities: value, query, sortKey, sortOrder,
+        });
     };
 
     handleTextChange = (e, { value: query }) => {
-        const { filter: { intents: intentsFilter, entities: entitiesFilter }, onChange } = this.props;
-        onChange({ query, intents: intentsFilter, entities: entitiesFilter });
+        const {
+            filter: {
+                intents: intentsFilter, entities: entitiesFilter, sortKey, sortOrder,
+            }, onChange,
+        } = this.props;
+        onChange({
+            query, intents: intentsFilter, entities: entitiesFilter, sortKey, sortOrder,
+        });
     };
+
+    handleSortKeyChange = (e, { value: sortKey }) => {
+        const {
+            filter: {
+                intents: intentsFilter, entities: entitiesFilter, query, sortOrder,
+            }, onChange,
+        } = this.props;
+        onChange({
+            query, intents: intentsFilter, entities: entitiesFilter, sortKey, sortOrder,
+        });
+    };
+
+    handleSortOrderChange = (sortOrder) => {
+        const {
+            filter: {
+                intents: intentsFilter, entities: entitiesFilter, query, sortKey,
+            }, onChange,
+        } = this.props;
+        onChange({
+            query, intents: intentsFilter, entities: entitiesFilter, sortOrder, sortKey,
+        });
+    };
+
 
     render() {
         const {
-            filter: { intents: intentsFilter = [], entities: entitiesFilter = [], query }, intents, entities, className,
+            filter: {
+                intents: intentsFilter = [], entities: entitiesFilter = [], query, sortKey, sortOrder,
+            }, intents, entities, className,
         } = this.props;
         const renderIntentLabel = label => ({ color: 'purple', content: `${label.text}` });
         const renderEntityLabel = label => ({ color: getColor(label.text, true), content: `${label.text}` });
@@ -68,6 +111,19 @@ export default class Filters extends React.Component {
                 )}
 
                 <Input icon='search' placeholder='Search...' onChange={this.handleTextChange} value={query} />
+
+                <Dropdown
+                    style={{ marginRight: '10px' }}
+                    placeholder='Choose sort'
+                    size='tiny'
+                    onChange={this.handleSortKeyChange}
+                    value={sortKey}
+                    selection
+                    options={[{ text: 'Date', value: 'updatedAt' }, { text: 'Intent', value: 'intent' }, { text: 'Draft', value: 'metadata.draft' }]}
+                />
+
+                <Button content={sortOrder} onClick={() => this.handleSortOrderChange(sortOrder === 'ASC' ? 'DESC' : 'ASC')} />
+                
             </div>
         );
     }
