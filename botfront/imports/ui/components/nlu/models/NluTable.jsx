@@ -55,7 +55,7 @@ function NluTable(props) {
 
     function multipleUndraft(ids) {
         const message = `Remove draft status of  ${ids.length} NLU examples`;
-        const examplesToUpdate = ids.map(_id => ({ _id, draft: false }));
+        const examplesToUpdate = ids.map(_id => ({ _id, metadata: { draft: false } }));
         const action = () => updateExamples({ variables: { examples: examplesToUpdate, projectId, language } });
         setConfirm({ message, action });
     }
@@ -272,14 +272,14 @@ function NluTable(props) {
 
     const renderDraft = (row) => {
         const { datum } = row;
-        const { draft } = datum;
+        const { metadata: { draft } } = datum;
         if (draft) {
             return (
                 <Button
                     size='mini'
                     compact
                     content='draft'
-                    onClick={() => { onEditExample(clearTypenameField({ ...datum, draft: false })); }}
+                    onClick={() => { onEditExample(clearTypenameField({ ...datum, metadata: { ...datum.metadata, draft: false } })); }}
                     onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
                 />
             );
@@ -334,7 +334,10 @@ function NluTable(props) {
                                     filter={filters}
                                     onChange={newFilters => updateFilters(newFilters)}
                                 />
+                                
                             </Grid.Column>
+
+                          
                             <Grid.Column width={3} textAlign='right' verticalAlign='middle'>
                                 <Checkbox
                                     onChange={() => updateFilters({ ...filters, onlyCanonicals: !filters.onlyCanonicals })

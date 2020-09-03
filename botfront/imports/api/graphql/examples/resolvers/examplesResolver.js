@@ -87,8 +87,6 @@ export default {
         intent: (parent, _, __) => parent.intent,
         entities: (parent, _, __) => parent.entities,
         metadata: (parent, _, __) => parent.metadata,
-        draft: (parent, _, __) => parent.draft,
-
     },
     NluStatistics: {
         intent: ({ intent }) => intent,

@@ -92,7 +92,7 @@ export const canonicalizeExamples = (newExamples, currentExamples) => {
         }
         seen[item.intent] = [...(seen[item.intent] || []), itemEntities];
         const match = currentExamples.find(example => findExampleMatch(example, item, itemEntities));
-        return { ...item, metadata: { ...(item.metadata || {}), canonical: !match && !item.draft } }; // if theres is no matching example, the example is canonical
+        return { ...item, metadata: { ...(item.metadata || {}), canonical: !match && !item.metadata.draft } }; // if theres is no matching example, the example is canonical
     });
 
     return canonicalizedItems;

@@ -29,14 +29,14 @@ export default class ExampleUtils {
 
     static stripBare(example, withId = true, withSubstringAsEntityValue = false) {
         const {
-            _id, text, intent, entities = [], draft,
+            _id, text, intent, entities = [], metadata,
         } = example;
         const obj = {
             _id,
             text,
             intent,
             entities: entities.map(entity => EntityUtils.stripBare(entity, withId, withSubstringAsEntityValue ? text.substring(entity.start, entity.end) : undefined)),
-            draft,
+            metadata,
         };
 
         if (!withId || obj._id === undefined) {
@@ -76,7 +76,7 @@ export default class ExampleUtils {
         });
 
         if (!newExample.intent) {
-            newExample.draft = true;
+            newExample.metadata = { draft: true };
             newExample.intent = ' ';
         }
 

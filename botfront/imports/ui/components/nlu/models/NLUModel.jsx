@@ -356,7 +356,6 @@ function NLUModel(props) {
                                         entities={entities}
                                         intents={getIntentForDropdown(false)}
                                         onSave={async(examples) => {
-                                            const parsedExamples = [];
                                             const promiseParsing = examples.map(example => new Promise((resolve, reject) => {
                                                 Meteor.call(
                                                     'rasa.parse',
@@ -365,16 +364,17 @@ function NLUModel(props) {
                                                     { failSilently: true },
                                                     (err, exampleMatch) => {
                                                         if (err || !exampleMatch || !exampleMatch.intent) {
-                                                            resolve({ text: example, draft: true, intent: 'draft.intent' });
+                                                            resolve({ text: example, metadata: { draft: true }, intent: 'draft.intent' });
                                                         }
                                                         const { intent: { name }, entities } = exampleMatch;
                                                         resolve({
-                                                            text: example, draft: true, intent: name, entities,
+                                                            text: example, metadata: { draft: true }, intent: name, entities,
                                                         });
                                                     },
                                                 );
                                             }));
                                             const examplesParsed = await Promise.all(promiseParsing);
+                                            updateFilters({ ...filters, sortKey: 'metadata.draft', sortOrder: 'DESC' });
                                             insertExamples({ variables: { examples: examplesParsed, language: workingLanguage, projectId } });
                                         }}
                                         postSaveAction='clear'

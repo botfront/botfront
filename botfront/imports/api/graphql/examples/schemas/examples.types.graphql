@@ -61,7 +61,6 @@ type Example {
     intent: String,
     entities: [Entity],
     metadata: Any,
-    draft: Boolean
 
 }
 
@@ -83,6 +82,5 @@ input ExampleInput {
     intent: String,
     entities: [EntityInput],
     metadata: Any
-    draft: Boolean
 }
 
