@@ -104,7 +104,7 @@ PayloadEditor.propTypes = {
 PayloadEditor.defaultProps = {
     onChange: () => {},
     value: null,
-    disallowAdvancedEditing: false,
+    disallowAdvancedEditing: true,
 };
 
 export default PayloadEditor;
