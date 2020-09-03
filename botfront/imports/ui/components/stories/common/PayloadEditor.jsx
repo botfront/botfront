@@ -60,7 +60,7 @@ const PayloadEditor = (props) => {
                                 })}
                             />
                         </Grid.Column>
-                        <Grid.Column>
+                        <Grid.Column className='entity-value-column'>
                             <EntityValueEditor
                                 entity={entity}
                                 onChange={v => handleChangeEntityAtIndex(v, i)}
