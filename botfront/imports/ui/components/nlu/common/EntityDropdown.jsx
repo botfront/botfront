@@ -1,5 +1,5 @@
 import { Dropdown } from 'semantic-ui-react';
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import IconButton from '../../common/IconButton';
 import { ProjectContext } from '../../../layouts/context';
@@ -10,23 +10,25 @@ import { entityPropType } from '../../utils/EntityUtils';
 const asciiChar = /^[\x21-\x7E]+$/;
 
 function EntityDropdown({
-    entity,
-    onAddItem,
-    onChange,
-    onClear,
-    allowAdditions,
+    entity, onAddItem, onChange, onClear, allowAdditions,
 }) {
     const { entities = [] } = useContext(ProjectContext);
-    const options = [...new Set([
-        ...((entity && entity.entity) ? [entity] : []), ...entities,
-    ].map(
-        option => (typeof option === 'string' ? option : option.entity),
-    ))]
-        .filter(o => o)
-        .map(value => ({
-            text: value,
-            value,
-        }));
+    const options = useMemo(
+        () => [
+            ...new Set(
+                [
+                    ...(entity && entity.entity ? [entity] : []),
+                    ...entities,
+                ].map(option => (typeof option === 'string' ? option : option.entity)),
+            ),
+        ]
+            .filter(o => o)
+            .map(value => ({
+                text: value,
+                value,
+            })),
+        [entities, entity],
+    );
 
     const [searchInputState, setSearchInputState] = useState('');
 
@@ -61,11 +63,7 @@ function EntityDropdown({
             />
             {onClear && (
                 <div>
-                    <IconButton
-                        onClick={onClear}
-                        color='grey'
-                        icon='trash'
-                    />
+                    <IconButton onClick={onClear} color='grey' icon='trash' />
                 </div>
             )}
         </div>

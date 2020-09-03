@@ -12,7 +12,7 @@ function EntityValueEditor({
     const capitalize = key => key.charAt(0).toUpperCase() + key.slice(1);
 
     const renderField = key => (
-        <div className='side-by-side middle' style={{ marginBottom: '5px' }}>
+        <div className='side-by-side middle entity-value-input-container'>
             <Input
                 data-cy={`entity-${key}-input`}
                 value={entity[key]}
