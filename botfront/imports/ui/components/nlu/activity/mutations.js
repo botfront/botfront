@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { activityFields } from './queries';
 
 export const upsertActivity = gql`
 mutation (
@@ -11,24 +12,11 @@ mutation (
         data: $data,
         isOoS: $isOoS,
     ) {
-        __typename,
-        _id,
-        text,
-        intent,
-        entities {
-            value,
-            entity,
-            start,
-            end,
-            confidence
-        },
-        confidence,
-        validated,
-        createdAt,
-        updatedAt,
-        ooS
+        __typename
+        ...ActivityFields
     }
 }
+${activityFields}
 `;
 
 export const deleteActivity = gql`
@@ -42,7 +30,7 @@ mutation (
         ids: $ids,
         isOoS: $isOoS,
     ) {
-        _id,
+        _id
         __typename
     }
 }

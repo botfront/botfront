@@ -1,13 +1,15 @@
 import gql from 'graphql-tag';
 
-const activityFields = gql`
+export const activityFields = gql`
     fragment ActivityFields on Activity {
         _id,
         text,
         intent,
         entities {
-            value,
             entity,
+            value,
+            group,
+            role,
             start,
             end,
             confidence
@@ -15,9 +17,10 @@ const activityFields = gql`
         confidence,
         validated,
         createdAt,
-        updatedAt
-        message_id
-        conversation_id
+        updatedAt,
+        message_id,
+        conversation_id,
+        ooS
     }
 `;
 
