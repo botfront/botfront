@@ -9,6 +9,8 @@ export const entityPropType = {
     start: PropTypes.number,
     end: PropTypes.number,
     value: PropTypes.string.isRequired,
+    group: PropTypes.string,
+    role: PropTypes.string,
     entity: PropTypes.string.isRequired,
     confidence: PropTypes.number,
     extractor: PropTypes.string,
@@ -27,12 +29,14 @@ export default class EntityUtils {
 
     static stripBare(ENTITY, withId = true, customValue = '') {
         const {
-            _id, start, end, value, entity,
+            _id, start, end, value, entity, group, role,
         } = ENTITY;
         const obj = {
             _id,
             start,
             end,
+            ...(group ? { group } : {}),
+            ...(role ? { role } : {}),
             value: customValue || value,
             entity,
         };

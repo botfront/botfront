@@ -32,65 +32,22 @@
   }
 }
 
-.intent-text {
-  display: inline;
-}
-
-.intent-text.empty {
-  text-align: center;
-}
-
-@heightSmall: 11px;
-@paddingSmall: 7px;
-
-@heightMini: 9px;
-@paddingMini: 5.25px;
-
-.ui.label.small-entity {
-  .detail {
-    height: @heightSmall + @paddingSmall * 2;
-  }
-
-  .input-container {
-    height: @heightSmall;
-
-    .ui.input {
-      height: @heightSmall;
-    }
-  }
-
-  .entity-text {
-    height: @heightSmall;
-  }
-}
-
-.ui.label.mini-entity {
-  .detail {
-    height: @heightMini + @paddingMini * 2;
-  }
-
-  .ui.input {
-    height: @heightMini;
-  }
-
-  .entity-text {
-    height: @heightMini;
-  }
-}
-
-.ui.label.entity {
-  display: inline-flex;
-}
-
-.entity-text {
-  display: inline;
-}
-
 .entities-viewer {
   float: left;
   margin: 0 10px 10px 0;
 }
 
+.entity-value-input {
+  width: 100%;
+  height: 2.5em;
+  .label {
+    min-width: 60px;
+  }
+}
+
+.entity-value-input-container {
+  margin-bottom: 5px;
+}
 
 .conversation-user-utterance.text {
   display: flex;
