@@ -130,7 +130,6 @@ export const listIntentsAndEntities = async ({ projectId, language }) => {
 export const insertExamples = async ({
     examples, language, projectId, options = {},
 }) => {
-    console.log(examples);
     if (!examples.length) return [];
     const { autoAssignCanonical = true, overwriteOnSameText = true } = options;
     checkNoEmojisInExamples(examples);
@@ -145,7 +144,6 @@ export const insertExamples = async ({
             updatedAt: new Date(),
             _id: shortid.generate(),
         }));
-    console.log(preparedExamples);
     let itemsToOverwrite = [];
     if (autoAssignCanonical || overwriteOnSameText) {
         const { examples: existingExamples } = await getExamples({ projectId, pageSize: -1, language });
@@ -166,7 +164,6 @@ export const insertExamples = async ({
         if (result.length !== preparedExamples.length) {
             throw new Error('Insert failed');
         }
-        console.log(preparedExamples);
         return preparedExamples;
     } catch (e) {
         return [];
