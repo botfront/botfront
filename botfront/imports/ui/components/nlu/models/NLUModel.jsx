@@ -1,5 +1,7 @@
 /* eslint-disable camelcase */
-import React, { useState, useCallback, useEffect } from 'react';
+import React, {
+    useState, useCallback, useEffect, useRef,
+} from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Meteor } from 'meteor/meteor';
@@ -15,6 +17,7 @@ import {
     Popup,
     Placeholder,
 } from 'semantic-ui-react';
+import Alert from 'react-s-alert';
 import 'react-select/dist/react-select.css';
 import { connect } from 'react-redux';
 import { debounce } from 'lodash';
@@ -31,6 +34,7 @@ import NLUPipeline from './settings/NLUPipeline';
 import TrainButton from '../../utils/TrainButton';
 import Statistics from './Statistics';
 import DeleteModel from './DeleteModel';
+import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import LanguageDropdown from '../../common/LanguageDropdown';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import API from './API';
@@ -41,6 +45,15 @@ import NluTable from './NluTable';
 import {
     useExamples, useDeleteExamples, useUpdateExamples, useSwitchCanonical, useInsertExamples,
 } from './hooks';
+import {
+    createRenderExample,
+    createRenderDelete,
+    createRenderCanonical,
+    createRenderEditExample,
+    createRenderDraft,
+    createRenderIntent,
+} from './NluTableColumns';
+
 
 const handleDefaultRoute = (projectId, models, workingLanguage) => {
     try {
@@ -133,13 +146,29 @@ function NLUModel(props) {
     const [switchCanonical] = useSwitchCanonical(variables);
     const [updateExamples] = useUpdateExamples(variables);
     const [insertExamples] = useInsertExamples(variables);
-
+    const singleSelectedIntentLabelRef = useRef(null);
+    const [editExampleId, setEditExampleId] = useState([]);
+    const [selection, setSelection] = useState([]);
 
     const intents = [];
     const entities = [];
 
     const [activityLinkRender, setActivityLinkRender] = useState((incomingState && incomingState.isActivityLinkRender) || false);
     const [activeItem, setActiveItem] = useState(incomingState && incomingState.isActivityLinkRender === true ? 'evaluation' : 'data');
+
+    // wrap grap graphql call that are using  variables, so they appear as an usual update function
+    const deleteExample = (id) => {
+        deleteExamples({ variables: { ids: [id] } });
+    };
+
+
+    const deleteMultipleExamples = (ids) => {
+        deleteExamples({ variables: { ids } });
+    };
+
+    const updateMultipleExamples = (examples) => {
+        updateExamples({ variables: { examples, projectId, language: workingLanguage } });
+    };
 
 
     const validationRender = () => {
@@ -229,10 +258,54 @@ function NLUModel(props) {
         }
         return <></>;
     };
+    const onEditExample = (example, callback) => {
+        updateExamples({ variables: { examples: [example], projectId, language: workingLanguage } }).then(
+            res => wrapMeteorCallback(callback)(null, res),
+            wrapMeteorCallback(callback),
+        );
+    };
+    const handleExampleTextareaBlur = (example) => {
+        setEditExampleId(null);
+        onEditExample(clearTypenameField(example));
+    };
+
+    const onSwitchCanonical = async (example) => {
+        const result = await switchCanonical({ variables: { projectId, language: workingLanguage, example: clearTypenameField(example) } });
+        /* length === 2 mean that there is 2 examples that have changed,
+            so one took the place of another as a canonical */
+        if (result?.data?.switchCanonical?.length === 2) {
+            Alert.warning(`The previous canonical example with the same intent 
+            and entity - entity value combination 
+            (if applicable) with this example has been unmarked canonical`, {
+                position: 'top-right',
+                timeout: 5000,
+            });
+        }
+    };
 
 
     const getNLUSecondaryPanes = () => {
         const { settings: { public: { chitChatProjectId = null } = {} } = {} } = settings;
+
+        const columns = [
+            { key: '_id', selectionKey: true, hidden: true },
+            {
+                key: 'intent',
+                style: {
+                    paddingLeft: '1rem', width: '200px', minWidth: '200px', overflow: 'hidden',
+                },
+                render: createRenderIntent(selection, onEditExample, singleSelectedIntentLabelRef),
+            },
+            {
+                key: 'text', style: { width: '100%' }, render: createRenderExample(editExampleId, handleExampleTextareaBlur, onEditExample),
+            },
+            {
+                key: 'draft', style: { width: '70px' }, render: createRenderDraft(onEditExample),
+            },
+            { key: 'edit', style: { width: '50px' }, render: createRenderEditExample(setEditExampleId) },
+            { key: 'delete', style: { width: '50px' }, render: createRenderDelete(deleteExample) },
+            { key: 'canonical', style: { width: '50px' }, render: createRenderCanonical(onSwitchCanonical) },
+        ];
         const tabs = [
             {
                 menuItem: 'Examples',
@@ -241,15 +314,20 @@ function NLUModel(props) {
                         projectId={projectId}
                         workingLanguage={workingLanguage}
                         entitySynonyms={model.training_data.entity_synonyms}
-                        updateExamples={updateExamples}
+                        updateExamples={updateMultipleExamples}
+                        deleteExamples={deleteMultipleExamples}
                         switchCanonical={switchCanonical}
-                        deleteExamples={deleteExamples}
                         data={data}
                         loadingExamples={loadingExamples}
                         hasNextPage={hasNextPage}
                         loadMore={loadMore}
                         updateFilters={updateFilters}
                         filters={filters}
+                        columns={columns}
+                        setSelection={setSelection}
+                        selection={selection}
+                        singleSelectedIntentLabelRef={singleSelectedIntentLabelRef}
+                        useShortCuts
                     />
                 ),
             },

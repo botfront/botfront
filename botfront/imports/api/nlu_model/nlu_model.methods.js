@@ -48,7 +48,7 @@ Meteor.methods({
                     value to the current value we nee to toggle it before
                     calling the nlu.switchCanonical method
                 */
-                canonicalEdited.push({ ...example, canonical: !example.canonical });
+                canonicalEdited.push({ ...example, metadata: { ...example.metadata, canonical: !example?.metadata?.canonical } });
             }
         });
         await deleteExamples({ ids: deleted });

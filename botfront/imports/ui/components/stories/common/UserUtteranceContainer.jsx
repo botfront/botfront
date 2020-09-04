@@ -130,7 +130,7 @@ const UtteranceContainer = (props) => {
             {render()}
             {modalOpen && (
                 <>
-                    <Modal open>
+                    <Modal open className='nlu-editor-stories'>
                         <Segment className='nlu-editor-modal' data-cy='nlu-editor-modal'>
                             <div className='nlu-editor-top-content'>
                                 <UserUtteranceViewer value={value} disableEditing />

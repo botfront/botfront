@@ -19,59 +19,71 @@ const NluCommandBar = React.forwardRef((props, ref) => {
         <div className='activity-command-bar' data-cy='activity-command-bar'>
             <span>{selection.length} selected</span>
             <div className='side-by-side narrow right'>
-                <span className='shortcut'>I</span>
-                <IntentLabel
-                    ref={intentLabelRef}
-                    detachedModal
-                    allowAdditions
-                    allowEditing
-                    onChange={intent => onSetIntent(selection, intent)}
-                    onClose={onCloseIntentPopup}
-                    enableReset
-                />
-                <Popup
-                    size='mini'
-                    inverted
-                    content='Change intent'
-                    trigger={(
-                        <div>
-                            <IconButton
-                                basic
-                                size='small'
-                                onClick={() => intentLabelRef.current.openPopup()}
-                                color='purple'
-                                icon='tag'
-                                data-cy='edit-intent'
-                            />
-                        </div>
-                    )}
-                />
-                <span className='shortcut'>D</span>
-                <IconButton
-                    size='small'
-                    onClick={() => onDelete(selection)}
-                    color='grey'
-                    icon='trash'
-                    data-cy='trash icon-trash'
-                />
-                <span className='shortcut'>U</span>
-                <Popup
-                    size='mini'
-                    inverted
-                    content='Change intent'
-                    trigger={(
-                        <div>
-                            <IconButton
-                                basic
-                                size='small'
-                                onClick={() => onUndraft(selection)}
-                                color='green'
-                                icon='check'
-                                data-cy='remove-draft'
-                            />
-                        </div>
-                    )}
-                />
+                {onSetIntent !== null && onCloseIntentPopup !== null && (
+                    <>
+                        <span className='shortcut'>I</span>
+                        <IntentLabel
+                            ref={intentLabelRef}
+                            detachedModal
+                            allowAdditions
+                            allowEditing
+                            onChange={intent => onSetIntent(selection, intent)}
+                            onClose={onCloseIntentPopup}
+                            enableReset
+                        />
+                        <Popup
+                            size='mini'
+                            inverted
+                            content='Change intent'
+                            trigger={(
+                                <div>
+                                    <IconButton
+                                        basic
+                                        size='small'
+                                        onClick={() => intentLabelRef.current.openPopup()}
+                                        color='purple'
+                                        icon='tag'
+                                        data-cy='edit-intent'
+                                    />
+                                </div>
+                            )}
+                        />
+                    </>
+                )}
+                {onDelete !== null && (
+                <>
+                    <span className='shortcut'>D</span>
+                    <IconButton
+                        size='small'
+                        onClick={() => onDelete(selection)}
+                        color='grey'
+                        icon='trash'
+                        data-cy='trash icon-trash'
+                    />
+                </>
+                )}
+                {onUndraft !== null && (
+                    <>
+                        <span className='shortcut'>U</span>
+                        <Popup
+                            size='mini'
+                            inverted
+                            content='Undraft'
+                            trigger={(
+                                <div>
+                                    <IconButton
+                                        basic
+                                        size='small'
+                                        onClick={() => onUndraft(selection)}
+                                        color='green'
+                                        icon='check'
+                                        data-cy='remove-draft'
+                                    />
+                                </div>
+                            )}
+                        />
+                    </>
+                )}
             </div>
         </div>
     );
@@ -79,13 +91,19 @@ const NluCommandBar = React.forwardRef((props, ref) => {
 
 NluCommandBar.propTypes = {
     selection: PropTypes.array,
-    onDelete: PropTypes.func.isRequired,
-    onSetIntent: PropTypes.func.isRequired,
-    onCloseIntentPopup: PropTypes.func.isRequired,
+    onDelete: PropTypes.func,
+    onSetIntent: PropTypes.func,
+    onCloseIntentPopup: PropTypes.func,
+    onUndraft: PropTypes.func,
 };
 
 NluCommandBar.defaultProps = {
     selection: [],
+    onUndraft: null,
+    onDelete: null,
+    onSetIntent: null,
+    onCloseIntentPopup: null,
+
 };
 
 export default NluCommandBar;
