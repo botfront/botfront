@@ -7,7 +7,7 @@ import UserUtteranceViewer from '../nlu/common/UserUtteranceViewer';
 
 function InsertNlu(props) {
     const {
-        model: { language }, instance, silenceRasaErrors, onSave,
+        model: { language }, instance, silenceRasaErrors, onSave, defaultIntent,
     } = props;
     const [examples, setExamples] = useState('');
     const [parsedExample, setParsedExample] = useState(null);
@@ -21,7 +21,7 @@ function InsertNlu(props) {
             { failSilently: silenceRasaErrors },
             (err, exampleMatch) => {
                 if (err || !exampleMatch || !exampleMatch.intent) {
-                    return;
+                    setParsedExample({ text: example, intent: defaultIntent });
                 }
                 const { intent: { name }, entities } = exampleMatch;
                 setParsedExample({ text: example, intent: name, entities });

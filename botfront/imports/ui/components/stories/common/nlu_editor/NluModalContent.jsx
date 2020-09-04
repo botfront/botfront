@@ -17,7 +17,7 @@ import { getNluModelLanguages } from '../../../../../api/nlu_model/nlu_model.uti
 import { Instances } from '../../../../../api/instances/instances.collection';
 import { GlobalSettings } from '../../../../../api/globalSettings/globalSettings.collection';
 import NluTable from '../../../nlu/models/NluTable';
-import NLUPlayground from '../../../example_editor/NLUPlayground';
+import InsertNlu from '../../../example_editor/InsertNLU';
 import ConfirmPopup from '../../../common/ConfirmPopup';
 import { Projects } from '../../../../../api/project/project.collection';
 import { extractEntities } from '../../../nlu/models/nluModel.utils';
@@ -414,7 +414,7 @@ const NLUModalContent = (props) => {
                         <br />
                         {instance && (
                             <div id='playground'>
-                                <NLUPlayground
+                                <InsertNlu
                                     testMode
                                     model={model}
                                     projectId={projectId}
@@ -422,7 +422,29 @@ const NLUModalContent = (props) => {
                                     floated='right'
                                     entities={entities}
                                     intents={getIntentForDropdown(false)}
-                                    onSave={example => onNewExamples([example])}
+                                    onSave={async (examples) => {
+                                        const promiseParsing = examples.map(example => new Promise((resolve, reject) => {
+                                            Meteor.call(
+                                                'rasa.parse',
+                                                instance,
+                                                [{ text: example, lang: workingLanguage }],
+                                                { failSilently: true },
+                                                (err, exampleMatch) => {
+                                                    if (err || !exampleMatch || !exampleMatch.intent) {
+                                                        resolve({ text: example, intent: 'draft.intent' });
+                                                    }
+                                                    const { intent: { name }, entities } = exampleMatch;
+                                                    resolve({
+                                                        text: example, intent: name, entities,
+                                                    });
+                                                },
+                                            );
+                                        }));
+                                
+                                        const examplesParsed = await Promise.all(promiseParsing);
+                                        onNewExamples(examplesParsed);
+                                    }}
+                                   
                                     postSaveAction='clear'
                                     defaultIntent={payload.intent}
                                     saveOnEnter
