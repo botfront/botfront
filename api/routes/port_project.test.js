@@ -153,7 +153,7 @@ describe('## Import', () => {
                     expect(doc).to.exist; // able to find collection
     
                     if (col === 'models') expect(doc._id).to.be.equal(modelId); // modelId is as remembered
-                    if (docModelId) expect(docModelId).to.be.equal(modelId); // modelId is as remembered
+                    if (docModelId) expect(docModelId).to.be.undefined; // modelId is as remembered
                     if (docProjectId) expect(docProjectId).to.be.equal(projectId); // projectId didn't change
                     if (docStoryGroupId) expect(docStoryGroupId).to.be.equal(storyGroupId); // storyGroupId is as remembered
                     if (docCheckpoints) expect(docCheckpoints).to.be.deep.equal(checkpoints);
