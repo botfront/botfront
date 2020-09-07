@@ -49,19 +49,6 @@ export const checkNoEmojisInExamples = (examples) => {
     });
 };
 
-export const getNluModelLanguages = (modelIds, asOptions = false) => {
-    check(modelIds, Array);
-    const models = NLUModels.find(
-        { _id: { $in: modelIds } },
-        { fields: { language: 1 } },
-    ).fetch();
-    const languageCodes = sortBy(uniq(models.map(m => m.language)));
-    if (asOptions) {
-        return languageCodes.map(value => ({ text: languages[value].name, value }));
-    }
-    return languageCodes;
-};
-
 export const getEntityCountDictionary = (entities) => {
     const entitiesCount = {}; // total occurances of each entity
     entities.forEach(({ entity }) => {

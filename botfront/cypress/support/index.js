@@ -115,13 +115,12 @@ Cypress.Commands.add('createNLUModel', (projectId, name, language, description, 
     cy.get('[data-cy=model-save-button]').click();
 });
 
-Cypress.Commands.add('createNLUModelProgramatically', (projectId, name, language, description) => cy.window()
+Cypress.Commands.add('createNLUModelProgramatically', (projectId, name, language) => cy.window()
     .then(({ Meteor }) => cy.fixture('lite-pipeline.yaml').then(config => Meteor.callWithPromise(
         'nlu.insert',
-        {
-            name, language, description, config,
-        },
         projectId,
+        language,
+        config,
     ))));
 
 Cypress.Commands.add('MeteorCall', (method, args) => {
@@ -187,6 +186,7 @@ Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', de
         _id: projectId,
         name,
         defaultLanguage,
+        languages: [defaultLanguage],
     };
     cy.deleteProject(projectId);
     return cy.visit('/')

@@ -19,6 +19,8 @@ export const ProjectsSchema = new SimpleSchema({
         },
     },
     enableSharing: { type: Boolean, defaultValue: false },
+    languages: { type: Array },
+    'languages.$': { type: String, allowedValues: Object.keys(languages) }, //
     defaultLanguage: { type: String, allowedValues: Object.keys(languages) },
     createdAt: { type: Date, optional: true },
     disabled: { type: Boolean, defaultValue: false, index: 1 },

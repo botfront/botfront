@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import React, {
-    useState, useCallback, useEffect, useRef,
+    useState, useCallback, useEffect, useRef, useContext,
 } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
@@ -21,9 +21,8 @@ import Alert from 'react-s-alert';
 import 'react-select/dist/react-select.css';
 import { connect } from 'react-redux';
 import { debounce } from 'lodash';
+import { isTraining } from '../../../../api/nlu_model/nlu_model.utils';
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
-import { isTraining, getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
-import { Instances } from '../../../../api/instances/instances.collection';
 import InsertNlu from '../../example_editor/InsertNLU';
 import Evaluation from '../evaluation/Evaluation';
 import ChitChat from './ChitChat';
@@ -38,12 +37,15 @@ import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import LanguageDropdown from '../../common/LanguageDropdown';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import API from './API';
-import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.collection';
-import { Projects } from '../../../../api/project/project.collection';
 import { setWorkingLanguage } from '../../../store/actions/actions';
 import NluTable from './NluTable';
+import { ProjectContext } from '../../../layouts/context';
 import {
-    useExamples, useDeleteExamples, useUpdateExamples, useSwitchCanonical, useInsertExamples,
+    useExamples,
+    useDeleteExamples,
+    useUpdateExamples,
+    useSwitchCanonical,
+    useInsertExamples,
 } from './hooks';
 import {
     createRenderExample,
@@ -54,94 +56,46 @@ import {
     createRenderIntent,
 } from './NluTableColumns';
 
-
-const handleDefaultRoute = (projectId, models, workingLanguage) => {
-    try {
-        const reduxModel = models.find(model => model.language === workingLanguage);
-        browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${reduxModel._id}` });
-    } catch (e) {
-        browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${models[0]._id}` });
-    }
-};
-
 function NLUModel(props) {
-    const { location: { state: incomingState }, params: { model_id: modelId, project_id: projectId } = {}, workingLanguage } = props;
-
+    const { changeWorkingLanguage } = props;
     const {
-        ready,
-        models,
-        model,
-        settings,
-        nluModelLanguages,
-        projectDefaultLanguage,
-        instance,
-        project,
-    } = useTracker(() => {
-        const {
-            name,
-            nlu_models,
-            defaultLanguage,
-            training,
-            enableSharing,
-        } = Projects.findOne({ _id: projectId }, {
-            fields: {
-                name: 1, nlu_models: 1, defaultLanguage: 1, training: 1, enableSharing: 1,
-            },
+        project, instance, projectLanguages, intents, entities,
+    } = useContext(
+        ProjectContext,
+    );
+    const { defaultLanguage: projectDefaultLanguage } = project;
+    const {
+        location: { state: incomingState },
+        params: { language: langFromParams, project_id: projectId } = {},
+        workingLanguage,
+    } = props;
+    if (workingLanguage !== langFromParams) {
+        browserHistory.push({
+            pathname: `/project/${projectId}/nlu/model/${workingLanguage}`,
         });
-
-
-        const modelsList = NLUModels.find({ _id: { $in: nlu_models } }, { sort: { language: 1 } }, { fields: { language: 1, _id: 1 } }).fetch();
-        if (!modelId || !nlu_models.includes(modelId)) {
-            handleDefaultRoute(projectId, modelsList, workingLanguage);
-        }
-        const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
-        const settingsHandler = Meteor.subscribe('settings');
-        let modelHandler = {
-            ready() {
-                return false;
-            },
-        };
-        if (modelId) {
-            modelHandler = Meteor.subscribe('nlu_models', modelId);
-        }
-        const projectsHandler = Meteor.subscribe('projects', projectId);
-        const meteorSubscribtionReady = instancesHandler.ready() && settingsHandler.ready() && modelHandler.ready() && projectsHandler.ready();
-        const currentModel = NLUModels.findOne({ _id: modelId });
-        if (!currentModel) {
-            return {};
-        }
-
-
-        const projectInstance = Instances.findOne({ projectId });
-
-        const settingsChitChatId = GlobalSettings.findOne({}, { fields: { 'settings.public.chitChatProjectId': 1 } });
-
-        if (!name) return browserHistory.replace({ pathname: '/404' });
-        const availableLanguages = getNluModelLanguages(nlu_models, true);
-        const currentProject = {
-            _id: projectId,
-            training,
-            enableSharing,
-        };
-        return {
-            ready: meteorSubscribtionReady,
-            models: modelsList,
-            model: currentModel,
-            settings: settingsChitChatId,
-            nluModelLanguages: availableLanguages,
-            projectDefaultLanguage: defaultLanguage,
-            instance: projectInstance,
-            project: currentProject,
-        };
+    }
+    const { model } = useTracker(() => {
+        Meteor.subscribe('nlu_models', projectId);
+        return { model: NLUModels.findOne({ projectId, language: workingLanguage }) };
     });
+
     const [variables, setVariables] = useState({
-        projectId, language: workingLanguage, pageSize: 20, sortKey: 'intent', order: 'ASC',
+        projectId,
+        language: workingLanguage,
+        pageSize: 20,
+        sortKey: 'intent',
+        order: 'ASC',
     });
     const [filters, setFilters] = useState({ sortKey: 'intent', sortOrder: 'ASC' });
 
     const {
-        data, loading: loadingExamples, hasNextPage, loadMore, refetch,
+        data,
+        loading: loadingExamples,
+        hasNextPage,
+        loadMore,
+        refetch,
     } = useExamples(variables);
+
     const [deleteExamples] = useDeleteExamples(variables);
     const [switchCanonical] = useSwitchCanonical(variables);
     const [updateExamples] = useUpdateExamples(variables);
@@ -150,17 +104,19 @@ function NLUModel(props) {
     const [editExampleId, setEditExampleId] = useState([]);
     const [selection, setSelection] = useState([]);
 
-    const intents = [];
-    const entities = [];
-
-    const [activityLinkRender, setActivityLinkRender] = useState((incomingState && incomingState.isActivityLinkRender) || false);
-    const [activeItem, setActiveItem] = useState(incomingState && incomingState.isActivityLinkRender === true ? 'evaluation' : 'data');
+    const [activityLinkRender, setActivityLinkRender] = useState(
+        (incomingState && incomingState.isActivityLinkRender) || false,
+    );
+    const [activeItem, setActiveItem] = useState(
+        incomingState && incomingState.isActivityLinkRender === true
+            ? 'evaluation'
+            : 'data',
+    );
 
     // wrap grap graphql call that are using  variables, so they appear as an usual update function
     const deleteExample = (id) => {
         deleteExamples({ variables: { ids: [id] } });
     };
-
 
     const deleteMultipleExamples = (ids) => {
         deleteExamples({ variables: { ids } });
@@ -170,7 +126,6 @@ function NLUModel(props) {
         updateExamples({ variables: { examples, projectId, language: workingLanguage } });
     };
 
-
     const validationRender = () => {
         if (activityLinkRender === true) {
             setActivityLinkRender(false);
@@ -179,38 +134,40 @@ function NLUModel(props) {
         return false;
     };
     // if we do not useCallback the debounce is re-created on every render
-    const setVariablesDebounced = useCallback(debounce((newFilters) => {
-        const newVariables = {
-            ...variables,
-            intents: newFilters.intents,
-            entities: newFilters.entities,
-            onlyCanonicals: newFilters.onlyCanonicals,
-            text: newFilters.query,
-            order: newFilters.sortOrder,
-            sortKey: newFilters.sortKey,
-        };
-        setVariables(newVariables);
-    }, 500), []);
+    const setVariablesDebounced = useCallback(
+        debounce((newFilters) => {
+            const newVariables = {
+                ...variables,
+                intents: newFilters.intents,
+                entities: newFilters.entities,
+                onlyCanonicals: newFilters.onlyCanonicals,
+                text: newFilters.query,
+                order: newFilters.sortOrder,
+                sortKey: newFilters.sortKey,
+            };
+            setVariables(newVariables);
+        }, 500),
+        [],
+    );
 
-    useEffect(() => { if (!loadingExamples) refetch(); }, [variables]);
-
+    useEffect(() => {
+        if (!loadingExamples) refetch();
+    }, [variables]);
 
     const updateFilters = (newFilters) => {
         setFilters(newFilters);
         setVariablesDebounced(newFilters);
     };
-    
 
     const onDeleteModel = () => {
         browserHistory.push({ pathname: `/project/${projectId}/nlu/models` });
-        Meteor.call('nlu.remove', modelId, projectId, wrapMeteorCallback(null, 'Model deleted!'));
+        Meteor.call(
+            'nlu.remove',
+            projectId,
+            workingLanguage,
+            wrapMeteorCallback(null, 'Model deleted!'),
+        );
     };
-
-
-    const onUpdateModel = (set) => {
-        Meteor.call('nlu.update', modelId, set, wrapMeteorCallback(null, 'Information saved'));
-    };
-
 
     const getIntentForDropdown = (all) => {
         const intentSelection = all ? [{ text: 'ALL', value: null }] : [];
@@ -224,20 +181,13 @@ function NLUModel(props) {
         return intentSelection;
     };
 
-
     const handleLanguageChange = (value) => {
-        const { changeWorkingLanguage } = props;
-        const modelMatch = models.find(({ language }) => language === value);
         changeWorkingLanguage(value);
-        browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${modelMatch._id}` });
+        browserHistory.push({ pathname: `/project/${projectId}/nlu/model/${value}` });
     };
 
     const getHeader = () => (
-        <LanguageDropdown
-            languageOptions={nluModelLanguages}
-            selectedLanguage={workingLanguage}
-            handleLanguageChange={handleLanguageChange}
-        />
+        <LanguageDropdown handleLanguageChange={handleLanguageChange} />
     );
 
     const handleMenuItemClick = (e, { name }) => setActiveItem(name);
@@ -248,7 +198,8 @@ function NLUModel(props) {
                 <Message
                     size='tiny'
                     content={(
-                        <div><Icon name='warning' />
+                        <div>
+                            <Icon name='warning' />
                             You need at least two distinct intents to train NLU
                         </div>
                     )}
@@ -259,7 +210,9 @@ function NLUModel(props) {
         return <></>;
     };
     const onEditExample = (example, callback) => {
-        updateExamples({ variables: { examples: [example], projectId, language: workingLanguage } }).then(
+        updateExamples({
+            variables: { examples: [example], projectId, language: workingLanguage },
+        }).then(
             res => wrapMeteorCallback(callback)(null, res),
             wrapMeteorCallback(callback),
         );
@@ -270,41 +223,74 @@ function NLUModel(props) {
     };
 
     const onSwitchCanonical = async (example) => {
-        const result = await switchCanonical({ variables: { projectId, language: workingLanguage, example: clearTypenameField(example) } });
+        const result = await switchCanonical({
+            variables: {
+                projectId,
+                language: workingLanguage,
+                example: clearTypenameField(example),
+            },
+        });
         /* length === 2 mean that there is 2 examples that have changed,
             so one took the place of another as a canonical */
         if (result?.data?.switchCanonical?.length === 2) {
-            Alert.warning(`The previous canonical example with the same intent 
+            Alert.warning(
+                `The previous canonical example with the same intent 
             and entity - entity value combination 
-            (if applicable) with this example has been unmarked canonical`, {
-                position: 'top-right',
-                timeout: 5000,
-            });
+            (if applicable) with this example has been unmarked canonical`,
+                {
+                    position: 'top-right',
+                    timeout: 5000,
+                },
+            );
         }
     };
 
-
     const getNLUSecondaryPanes = () => {
-        const { settings: { public: { chitChatProjectId = null } = {} } = {} } = settings;
-
         const columns = [
             { key: '_id', selectionKey: true, hidden: true },
             {
                 key: 'intent',
                 style: {
-                    paddingLeft: '1rem', width: '200px', minWidth: '200px', overflow: 'hidden',
+                    paddingLeft: '1rem',
+                    width: '200px',
+                    minWidth: '200px',
+                    overflow: 'hidden',
                 },
-                render: createRenderIntent(selection, onEditExample, singleSelectedIntentLabelRef),
+                render: createRenderIntent(
+                    selection,
+                    onEditExample,
+                    singleSelectedIntentLabelRef,
+                ),
             },
             {
-                key: 'text', style: { width: '100%' }, render: createRenderExample(editExampleId, handleExampleTextareaBlur, onEditExample),
+                key: 'text',
+                style: { width: '100%' },
+                render: createRenderExample(
+                    editExampleId,
+                    handleExampleTextareaBlur,
+                    onEditExample,
+                ),
             },
             {
-                key: 'draft', style: { width: '70px' }, render: createRenderDraft(onEditExample),
+                key: 'draft',
+                style: { width: '70px' },
+                render: createRenderDraft(onEditExample),
             },
-            { key: 'edit', style: { width: '50px' }, render: createRenderEditExample(setEditExampleId) },
-            { key: 'delete', style: { width: '50px' }, render: createRenderDelete(deleteExample) },
-            { key: 'canonical', style: { width: '50px' }, render: createRenderCanonical(onSwitchCanonical) },
+            {
+                key: 'edit',
+                style: { width: '50px' },
+                render: createRenderEditExample(setEditExampleId),
+            },
+            {
+                key: 'delete',
+                style: { width: '50px' },
+                render: createRenderDelete(deleteExample),
+            },
+            {
+                key: 'canonical',
+                style: { width: '50px' },
+                render: createRenderCanonical(onSwitchCanonical),
+            },
         ];
         const tabs = [
             {
@@ -333,32 +319,48 @@ function NLUModel(props) {
             },
             { menuItem: 'Synonyms', render: () => <Synonyms model={model} /> },
             { menuItem: 'Gazette', render: () => <Gazette model={model} /> },
-            { menuItem: 'API', render: () => (<API model={model} instance={instance} />) },
-            { menuItem: 'Insert many', render: () => <IntentBulkInsert data-cy='insert-many' /> },
+            { menuItem: 'API', render: () => <API model={model} instance={instance} /> },
+            {
+                menuItem: 'Insert many',
+                render: () => <IntentBulkInsert data-cy='insert-many' />,
+            },
         ];
-        if (chitChatProjectId) tabs.splice(4, 0, { menuItem: 'Chit Chat', render: () => <ChitChat model={model} /> });
+        tabs.splice(4, 0, {
+            menuItem: 'Chit Chat',
+            render: () => <ChitChat model={model} />,
+        });
         return tabs;
     };
 
     const getSettingsSecondaryPanes = () => {
-        const languageName = nluModelLanguages.find(language => (language.value === model.language));
+        const languageName = projectLanguages.find(
+            language => language.value === model.language,
+        );
         const cannotDelete = model.language !== projectDefaultLanguage;
         return [
-            { menuItem: 'Pipeline', render: () => <NLUPipeline model={model} onSave={onUpdateModel} projectId={projectId} /> },
-            { menuItem: 'Delete', render: () => <DeleteModel model={model} onDeleteModel={onDeleteModel} cannotDelete={cannotDelete} language={languageName.text} /> },
+            {
+                menuItem: 'Pipeline',
+                render: () => <NLUPipeline model={model} projectId={projectId} />,
+            },
+            {
+                menuItem: 'Delete',
+                render: () => (
+                    <DeleteModel
+                        model={model}
+                        onDeleteModel={onDeleteModel}
+                        cannotDelete={cannotDelete}
+                        language={languageName.text}
+                    />
+                ),
+            },
         ];
     };
 
     const renderNluScreens = () => {
         if (!project) return null;
         if (!model) return null;
-        const {
-            training: {
-                status,
-                endTime,
-            } = {},
-        } = project;
-        if (!ready || !model.training_data) {
+        const { training: { status, endTime } = {} } = project;
+        if (!model.training_data) {
             return (
                 <Container text style={{ paddingTop: '6em' }}>
                     <Placeholder fluid>
@@ -384,19 +386,39 @@ function NLUModel(props) {
             <div id='nlu-model'>
                 <Menu borderless className='top-menu'>
                     <Menu.Item header>{getHeader()}</Menu.Item>
-                    <Menu.Item name='data' active={activeItem === 'data'} onClick={handleMenuItemClick} data-cy='nlu-menu-training-data'>
+                    <Menu.Item
+                        name='data'
+                        active={activeItem === 'data'}
+                        onClick={handleMenuItemClick}
+                        data-cy='nlu-menu-training-data'
+                    >
                         <Icon size='small' name='database' />
                         Training Data
                     </Menu.Item>
-                    <Menu.Item name='evaluation' active={activeItem === 'evaluation'} onClick={handleMenuItemClick} data-cy='nlu-menu-evaluation'>
+                    <Menu.Item
+                        name='evaluation'
+                        active={activeItem === 'evaluation'}
+                        onClick={handleMenuItemClick}
+                        data-cy='nlu-menu-evaluation'
+                    >
                         <Icon size='small' name='percent' />
                         Evaluation
                     </Menu.Item>
-                    <Menu.Item name='statistics' active={activeItem === 'statistics'} onClick={handleMenuItemClick} data-cy='nlu-menu-statistics'>
+                    <Menu.Item
+                        name='statistics'
+                        active={activeItem === 'statistics'}
+                        onClick={handleMenuItemClick}
+                        data-cy='nlu-menu-statistics'
+                    >
                         <Icon size='small' name='pie graph' />
                         Statistics
                     </Menu.Item>
-                    <Menu.Item name='settings' active={activeItem === 'settings'} onClick={handleMenuItemClick} data-cy='nlu-menu-settings'>
+                    <Menu.Item
+                        name='settings'
+                        active={activeItem === 'settings'}
+                        onClick={handleMenuItemClick}
+                        data-cy='nlu-menu-settings'
+                    >
                         <Icon size='small' name='setting' />
                         Settings
                     </Menu.Item>
@@ -405,22 +427,65 @@ function NLUModel(props) {
                             {!isTraining(project) && status === 'success' && (
                                 <Popup
                                     trigger={(
-                                        <Icon size='small' name='check' fitted circular style={{ color: '#2c662d' }} />
+                                        <Icon
+                                            size='small'
+                                            name='check'
+                                            fitted
+                                            circular
+                                            style={{ color: '#2c662d' }}
+                                        />
                                     )}
-                                    content={<Label basic content={<div>{`Trained ${moment(endTime).fromNow()}`}</div>} style={{ borderColor: '#2c662d', color: '#2c662d' }} />}
+                                    content={(
+                                        <Label
+                                            basic
+                                            content={(
+                                                <div>
+                                                    {`Trained ${moment(
+                                                        endTime,
+                                                    ).fromNow()}`}
+                                                </div>
+                                            )}
+                                            style={{
+                                                borderColor: '#2c662d',
+                                                color: '#2c662d',
+                                            }}
+                                        />
+                                    )}
                                 />
                             )}
                             {!isTraining(project) && status === 'failure' && (
                                 <Popup
                                     trigger={(
-                                        <Icon size='small' name='warning' color='red' fitted circular />
+                                        <Icon
+                                            size='small'
+                                            name='warning'
+                                            color='red'
+                                            fitted
+                                            circular
+                                        />
                                     )}
-                                    content={<Label basic color='red' content={<div>{`Training failed ${moment(endTime).fromNow()}`}</div>} />}
+                                    content={(
+                                        <Label
+                                            basic
+                                            color='red'
+                                            content={(
+                                                <div>
+                                                    {`Training failed ${moment(
+                                                        endTime,
+                                                    ).fromNow()}`}
+                                                </div>
+                                            )}
+                                        />
+                                    )}
                                 />
                             )}
                         </Menu.Item>
                         <Menu.Item>
-                            <TrainButton project={project} instance={instance} projectId={projectId} />
+                            <TrainButton
+                                project={project}
+                                instance={instance}
+                                projectId={projectId}
+                            />
                         </Menu.Item>
                     </Menu.Menu>
                 </Menu>
@@ -439,27 +504,65 @@ function NLUModel(props) {
                                         floated='right'
                                         entities={entities}
                                         intents={getIntentForDropdown(false)}
-                                        onSave={async(examples) => {
-                                            const promiseParsing = examples.map(example => new Promise((resolve, reject) => {
-                                                Meteor.call(
-                                                    'rasa.parse',
-                                                    instance,
-                                                    [{ text: example, lang: workingLanguage }],
-                                                    { failSilently: true },
-                                                    (err, exampleMatch) => {
-                                                        if (err || !exampleMatch || !exampleMatch.intent) {
-                                                            resolve({ text: example, metadata: { draft: true }, intent: 'draft.intent' });
-                                                        }
-                                                        const { intent: { name }, entities } = exampleMatch;
-                                                        resolve({
-                                                            text: example, metadata: { draft: true }, intent: name, entities,
-                                                        });
-                                                    },
-                                                );
-                                            }));
-                                            const examplesParsed = await Promise.all(promiseParsing);
-                                            updateFilters({ ...filters, sortKey: 'metadata.draft', sortOrder: 'DESC' });
-                                            insertExamples({ variables: { examples: examplesParsed, language: workingLanguage, projectId } });
+                                        onSave={async (examples) => {
+                                            const promiseParsing = examples.map(
+                                                example => new Promise((resolve) => {
+                                                    Meteor.call(
+                                                        'rasa.parse',
+                                                        instance,
+                                                        [
+                                                            {
+                                                                text: example,
+                                                                lang: workingLanguage,
+                                                            },
+                                                        ],
+                                                        { failSilently: true },
+                                                        (err, exampleMatch) => {
+                                                            if (
+                                                                err
+                                                                    || !exampleMatch
+                                                                    || !exampleMatch.intent
+                                                            ) {
+                                                                resolve({
+                                                                    text: example,
+                                                                    metadata: {
+                                                                        draft: true,
+                                                                    },
+                                                                    intent:
+                                                                            'draft.intent',
+                                                                });
+                                                            }
+                                                            const {
+                                                                intent: { name },
+                                                                entities: ents,
+                                                            } = exampleMatch;
+                                                            resolve({
+                                                                text: example,
+                                                                metadata: {
+                                                                    draft: true,
+                                                                },
+                                                                intent: name,
+                                                                entities: ents,
+                                                            });
+                                                        },
+                                                    );
+                                                }),
+                                            );
+                                            const examplesParsed = await Promise.all(
+                                                promiseParsing,
+                                            );
+                                            updateFilters({
+                                                ...filters,
+                                                sortKey: 'metadata.draft',
+                                                sortOrder: 'DESC',
+                                            });
+                                            insertExamples({
+                                                variables: {
+                                                    examples: examplesParsed,
+                                                    language: workingLanguage,
+                                                    projectId,
+                                                },
+                                            });
                                         }}
                                         postSaveAction='clear'
                                     />
@@ -468,10 +571,29 @@ function NLUModel(props) {
                         </>
                     )}
                     <br />
-                    {activeItem === 'data' && <Tab menu={{ pointing: true, secondary: true }} panes={getNLUSecondaryPanes()} />}
-                    {activeItem === 'evaluation' && <Evaluation model={model} projectId={projectId} validationRender={validationRender} />}
-                    {activeItem === 'statistics' && <Statistics synonyms={model.training_data.entity_synonyms.length} gazettes={model.training_data.fuzzy_gazette.length} intents={intents} entities={entities} />}
-                    {activeItem === 'settings' && <Tab menu={{ pointing: true, secondary: true }} panes={getSettingsSecondaryPanes()} />}
+                    {activeItem === 'data' && (
+                        <Tab
+                            menu={{ pointing: true, secondary: true }}
+                            panes={getNLUSecondaryPanes()}
+                        />
+                    )}
+                    {activeItem === 'evaluation' && (
+                        <Evaluation validationRender={validationRender} />
+                    )}
+                    {activeItem === 'statistics' && (
+                        <Statistics
+                            synonyms={model.training_data.entity_synonyms.length}
+                            gazettes={model.training_data.fuzzy_gazette.length}
+                            intents={intents}
+                            entities={entities}
+                        />
+                    )}
+                    {activeItem === 'settings' && (
+                        <Tab
+                            menu={{ pointing: true, secondary: true }}
+                            panes={getSettingsSecondaryPanes()}
+                        />
+                    )}
                 </Container>
             </div>
         );
@@ -481,30 +603,12 @@ function NLUModel(props) {
 }
 
 NLUModel.propTypes = {
-    model: PropTypes.object,
-    projectId: PropTypes.string,
-    intents: PropTypes.array,
-    settings: PropTypes.object,
-    ready: PropTypes.bool,
-    nluModelLanguages: PropTypes.array,
-    models: PropTypes.array,
-    projectDefaultLanguage: PropTypes.string,
-    project: PropTypes.object,
     location: PropTypes.object.isRequired,
     workingLanguage: PropTypes.string,
     changeWorkingLanguage: PropTypes.func.isRequired,
 };
 
 NLUModel.defaultProps = {
-    intents: [],
-    ready: false,
-    nluModelLanguages: [],
-    models: [],
-    settings: {},
-    projectDefaultLanguage: '',
-    projectId: '',
-    model: {},
-    project: {},
     workingLanguage: null,
 };
 
@@ -515,6 +619,5 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = {
     changeWorkingLanguage: setWorkingLanguage,
 };
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(NLUModel);

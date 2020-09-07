@@ -24,7 +24,7 @@ import { useIntentAndEntityList } from '../components/nlu/models/hooks';
 import { wrapMeteorCallback } from '../components/utils/Errors';
 import ProjectSidebarComponent from '../components/project/ProjectSidebar';
 import { Projects } from '../../api/project/project.collection';
-import { getNluModelLanguages } from '../../api/nlu_model/nlu_model.utils';
+import { languages as languageOptions } from '../../lib/languages';
 import { setProjectId, setWorkingLanguage, setShowChat } from '../store/actions/actions';
 import { Credentials } from '../../api/credentials';
 import { Instances } from '../../api/instances/instances.collection';
@@ -61,7 +61,7 @@ function Project(props) {
         intents: intentsList,
         entities: entitiesList,
         refetch: refreshEntitiesAndIntents,
-    } = useIntentAndEntityList({ projectId, language: workingLanguage });
+    } = useIntentAndEntityList({ projectId, language: workingLanguage || '' });
     const {
         responses,
         addResponses,
@@ -275,7 +275,7 @@ function Project(props) {
                             <ProjectChat
                                 channel={channel}
                                 triggerChatPane={() => changeShowChat(!showChat)}
-                                projectId={projectId}
+                                project={project}
                             />
                         </React.Suspense>
                     )}
@@ -317,7 +317,6 @@ const ProjectContainer = withTracker((props) => {
     } = props;
     if (!projectId) return browserHistory.replace({ pathname: '/404' });
     const projectHandler = Meteor.subscribe('projects', projectId);
-    const nluModelsHandler = Meteor.subscribe('nlu_models.lite');
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
     const instanceHandler = Meteor.subscribe('nlu_instances', projectId);
     const slotsHandler = Meteor.subscribe('slots', projectId);
@@ -327,7 +326,6 @@ const ProjectContainer = withTracker((props) => {
         Meteor.user(),
         credentialsHandler.ready(),
         projectHandler.ready(),
-        nluModelsHandler.ready(),
         instanceHandler.ready(),
         slotsHandler.ready(),
     ];
@@ -356,7 +354,7 @@ const ProjectContainer = withTracker((props) => {
         changeProjectId(projectId);
     }
 
-    const projectLanguages = ready ? getNluModelLanguages(project.nlu_models, true) : [];
+    const projectLanguages = ready ? project.languages.map(value => ({ text: languageOptions[value].name, value })) : [];
 
     // update working language
     if (!store.getState().settings.get('workingLanguage') && defaultLanguage) {

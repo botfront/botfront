@@ -4,23 +4,17 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
-import { browserHistory } from 'react-router';
 import { useTracker } from 'meteor/react-meteor-data';
-import { uniq, sortBy, isEqual } from 'lodash';
+import { isEqual } from 'lodash';
 import {
     Container, Button, Popup, Label,
 } from 'semantic-ui-react';
 import 'react-select/dist/react-select.css';
 import { connect } from 'react-redux';
 import { NLUModels } from '../../../../../api/nlu_model/nlu_model.collection';
-import { getNluModelLanguages } from '../../../../../api/nlu_model/nlu_model.utils';
-import { Instances } from '../../../../../api/instances/instances.collection';
-import { GlobalSettings } from '../../../../../api/globalSettings/globalSettings.collection';
 import NluTable from '../../../nlu/models/NluTable';
 import InsertNlu from '../../../example_editor/InsertNLU';
 import ConfirmPopup from '../../../common/ConfirmPopup';
-import { Projects } from '../../../../../api/project/project.collection';
-import { extractEntities } from '../../../nlu/models/nluModel.utils';
 import { setWorkingLanguage } from '../../../../store/actions/actions';
 import ExampleUtils from '../../../utils/ExampleUtils';
 import { ConversationOptionsContext } from '../../Context';
@@ -28,6 +22,7 @@ import { clearTypenameField } from '../../../../../lib/client.safe.utils';
 import {
     useExamples,
 } from '../../../nlu/models/hooks';
+import { ProjectContext } from '../../../../layouts/context';
 import {
     createRenderExample,
     createRenderDelete,
@@ -42,73 +37,13 @@ const NLUModalContent = (props) => {
         projectId, workingLanguage, closeModal, payload, displayedExample,
     } = props;
     const {
-        model,
-        intents,
-        instance,
-        entities,
-        ready,
-    } = useTracker(() => {
-        const { name, nlu_models, training } = Projects.findOne(
-            { _id: projectId },
-            {
-                fields: {
-                    name: 1,
-                    nlu_models: 1,
-                    defaultLanguage: 1,
-                    training: 1,
-                },
-            },
-        );
-        let modelHandler = {
-            ready() {
-                return false;
-            },
-        };
-        Meteor.subscribe('nlu_models.lite', projectId);
-        const modelMatch = NLUModels.findOne({ _id: { $in: nlu_models }, language: workingLanguage }) || {};
-        const modelId = modelMatch._id;
-        modelHandler = Meteor.subscribe('nlu_models', modelId);
-        // For handling '/project/:project_id/nlu/models'
-        // for handling '/project/:project_id/nlu/model/:model_id'
-        const instancesHandler = Meteor.subscribe('nlu_instances', projectId);
-    
-        const settingsHandler = Meteor.subscribe('settings');
-    
-        const projectsHandler = Meteor.subscribe('projects', projectId);
-        const ready = instancesHandler.ready()
-            && settingsHandler.ready()
-            && modelHandler.ready()
-            && projectsHandler.ready();
-        const model = NLUModels.findOne({ _id: modelId });
-        if (!model) {
-            return {};
-        }
-        const { training_data: { common_examples = [] } = {} } = model;
-        const instance = Instances.findOne({ projectId });
-        const intents = sortBy(uniq(common_examples.map(e => e.intent)));
-        const entities = extractEntities(common_examples);
-        const settings = GlobalSettings.findOne(
-            {},
-            { fields: { 'settings.public.chitChatProjectId': 1 } },
-        );
-    
-       
-        if (!name) return browserHistory.replace({ pathname: '/404' });
-        const nluModelLanguages = getNluModelLanguages(nlu_models, true);
-        const project = {
-            _id: projectId,
-            training,
-        };
-        return {
-            ready,
-            model,
-            intents,
-            entities,
-            settings,
-            nluModelLanguages,
-            instance,
-            project,
-        };
+        instance, intents, entities,
+    } = useContext(
+        ProjectContext,
+    );
+    const { model } = useTracker(() => {
+        Meteor.subscribe('nlu_models', projectId);
+        return { model: NLUModels.findOne({ projectId, language: workingLanguage }) };
     });
 
     const {
@@ -198,7 +133,6 @@ const NLUModalContent = (props) => {
         );
         setExamples([...examples, ...incomingExamples]);
     }, [existingExamples]);
-   
 
     const getIntentForDropdown = (all) => {
         const intentSelection = all ? [{ text: 'ALL', value: null }] : [];
@@ -222,7 +156,6 @@ const NLUModalContent = (props) => {
             ...examples,
         ]);
     };
-   
 
     const onDeleteExamples = (ids) => {
         const updatedExamples = [...examples];
@@ -332,7 +265,6 @@ const NLUModalContent = (props) => {
         onEditExample(clearTypenameField(example));
     };
 
-
     const renderLabelColumn = (row) => {
         const {
             datum: {
@@ -404,7 +336,7 @@ const NLUModalContent = (props) => {
     
     
     return (
-        !ready && loadingExamples
+        loadingExamples
             ? (
                 <div>loading</div>
             )
@@ -422,8 +354,8 @@ const NLUModalContent = (props) => {
                                     floated='right'
                                     entities={entities}
                                     intents={getIntentForDropdown(false)}
-                                    onSave={async (examples) => {
-                                        const promiseParsing = examples.map(example => new Promise((resolve, reject) => {
+                                    onSave={async (ex) => {
+                                        const promiseParsing = ex.map(example => new Promise((resolve) => {
                                             Meteor.call(
                                                 'rasa.parse',
                                                 instance,
@@ -433,9 +365,9 @@ const NLUModalContent = (props) => {
                                                     if (err || !exampleMatch || !exampleMatch.intent) {
                                                         resolve({ text: example, intent: 'draft.intent' });
                                                     }
-                                                    const { intent: { name }, entities } = exampleMatch;
+                                                    const { intent: { name }, entities: ents } = exampleMatch;
                                                     resolve({
-                                                        text: example, intent: name, entities,
+                                                        text: example, intent: name, entities: ents,
                                                     });
                                                 },
                                             );
@@ -444,12 +376,10 @@ const NLUModalContent = (props) => {
                                         const examplesParsed = await Promise.all(promiseParsing);
                                         onNewExamples(examplesParsed);
                                     }}
-                                   
                                     postSaveAction='clear'
                                     defaultIntent={payload.intent}
                                     saveOnEnter
                                     silenceRasaErrors
-                                  
                                 />
                             </div>
                         )}
@@ -512,30 +442,19 @@ const NLUModalContent = (props) => {
 };
 
 NLUModalContent.propTypes = {
-    model: PropTypes.object,
     projectId: PropTypes.string,
-    intents: PropTypes.array,
-    ready: PropTypes.bool,
     payload: PropTypes.object.isRequired,
-    examples: PropTypes.array,
     entities: PropTypes.array,
-    instance: PropTypes.object.isRequired,
     closeModal: PropTypes.func.isRequired,
     displayedExample: PropTypes.object,
     workingLanguage: PropTypes.string.isRequired,
 };
 
 NLUModalContent.defaultProps = {
-    intents: [],
-    ready: false,
     projectId: '',
-    model: {},
-    examples: [],
     entities: [],
     displayedExample: {},
 };
-
-// const NLUDataLoaderContainer = withTracker()(NLUModalContent);
 
 const mapStateToProps = state => ({
     workingLanguage: state.settings.get('workingLanguage'),

@@ -10,6 +10,7 @@ import {
     Message,
     Tab,
 } from 'semantic-ui-react';
+import { connect } from 'react-redux';
 import { activityQuery } from '../activity/queries';
 import apolloClient from '../../../../startup/client/apollo';
 
@@ -81,16 +82,11 @@ class Evaluation extends React.Component {
 
     evaluate() {
         this.setState({ evaluating: true });
-        const {
-            projectId,
-            model: {
-                _id: modelId,
-            } = {},
-        } = this.props;
+        const { projectId, workingLanguage } = this.props;
 
         const { data } = this.state;
 
-        Meteor.call('rasa.evaluate.nlu', modelId, projectId, data, (err) => {
+        Meteor.call('rasa.evaluate.nlu', projectId, workingLanguage, data, (err) => {
             this.setState({ evaluating: false });
             if (err) {
                 Alert.error(`Error: ${JSON.stringify(err.reason)}`, {
@@ -111,10 +107,11 @@ class Evaluation extends React.Component {
 
     async useValidatedSet() {
         this.changeExampleSet('validation', true);
-        const { model: { _id: modelId } = {} } = this.props;
         const { data: { getActivity: { activity: examples } } } = await apolloClient.query({
             query: activityQuery,
-            variables: { modelId, validated: true, pageSize: 0 },
+            variables: {
+                projectId, language, validated: true, pageSize: 0,
+            },
         });
         const validExamples = examples.filter(({ validated }) => validated)
             .map(example => ExampleUtils.stripBare(example, false));
@@ -215,9 +212,9 @@ class Evaluation extends React.Component {
 }
 
 Evaluation.propTypes = {
-    model: PropTypes.object.isRequired,
     evaluation: PropTypes.object,
     projectId: PropTypes.string.isRequired,
+    workingLanguage: PropTypes.string.isRequired,
     loading: PropTypes.bool.isRequired,
     validationRender: PropTypes.func,
     initialState: PropTypes.object,
@@ -231,24 +228,24 @@ Evaluation.defaultProps = {
 
 const EvaluationContainer = withTracker((props) => {
     const {
-        model,
-        model: {
-            _id: modelId,
-        } = {},
         projectId,
+        workingLanguage,
         validationRender,
     } = props;
 
-    const evalsHandler = Meteor.subscribe('nlu_evaluations', props.model._id);
-    const loading = !evalsHandler.ready();
-    const evaluation = Evaluations.findOne({ modelId });
+    const evalsHandler = Meteor.subscribe('nlu_evaluations', projectId, workingLanguage);
     return {
-        model,
         projectId,
+        workingLanguage,
         validationRender,
-        evaluation,
-        loading,
+        evaluation: Evaluations.findOne(),
+        loading: !evalsHandler.ready(),
     };
 })(Evaluation);
 
-export default EvaluationContainer;
+const mapStateToProps = state => ({
+    workingLanguage: state.settings.get('workingLanguage'),
+    projectId: state.settings.get('projectId'),
+});
+
+export default connect(mapStateToProps)(EvaluationContainer);

@@ -1,20 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { withTracker } from 'meteor/react-meteor-data';
 import { Meteor } from 'meteor/meteor';
 import { saveAs } from 'file-saver';
 import {
     Dropdown, Button, Message, Icon, Checkbox,
 } from 'semantic-ui-react';
-
-import { Projects } from '../../../api/project/project.collection';
-
-import { getNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
+import { ProjectContext } from '../../layouts/context';
 
 const ExportProject = ({
-    projectId, projectLanguages, setLoading, apiHost, workingLanguage,
+    setLoading, apiHost,
 }) => {
+    const { projectLanguages, language, project: { _id: projectId } } = useContext(ProjectContext);
+
     const getExportTypeOptions = () => [
         {
             key: 'botfront',
@@ -30,7 +27,7 @@ const ExportProject = ({
         },
     ];
     const [exportType, setExportType] = useState(getExportTypeOptions()[1]);
-    const [exportLanguage, setExportLanguage] = useState(projectLanguages.length > 1 ? 'all' : workingLanguage);
+    const [exportLanguage, setExportLanguage] = useState(projectLanguages.length > 1 ? 'all' : language);
     const [ExportSuccessful, setExportSuccessful] = useState(undefined);
     const [errorMessage, setErrorMessage] = useState({
         header: 'Export Failed',
@@ -323,25 +320,8 @@ const ExportProject = ({
 };
 
 ExportProject.propTypes = {
-    projectId: PropTypes.string.isRequired,
-    projectLanguages: PropTypes.array.isRequired,
     setLoading: PropTypes.func.isRequired,
     apiHost: PropTypes.string.isRequired,
-    workingLanguage: PropTypes.string.isRequired,
 };
 
-const ExportProjectContainer = withTracker(({ projectId }) => {
-    const project = Projects.findOne({ _id: projectId });
-    const projectLanguages = getNluModelLanguages(
-        project.nlu_models,
-        true,
-    ).map(({ value, text }) => ({ key: value, text, value }));
-    return { projectLanguages };
-})(ExportProject);
-
-const mapStateToProps = state => ({
-    projectId: state.settings.get('projectId'),
-    workingLanguage: state.settings.get('workingLanguage'),
-});
-
-export default connect(mapStateToProps)(ExportProjectContainer);
+export default ExportProject;

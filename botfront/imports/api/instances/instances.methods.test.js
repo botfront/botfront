@@ -11,6 +11,7 @@ const testProject = {
     namespace: 'bf-test',
     name: 'My Project',
     defaultLanguage: 'en',
+    languages: ['en'],
     defaultDomain: { content: 'slots:\n  disambiguation_message:\n    type: unfeaturized\nactions:\n  - action_botfront_disambiguation\n  - action_botfront_disambiguation_followup\n  - action_botfront_fallback\n  - action_botfront_mapping' },
     enableSharing: false,
     disabled: false,

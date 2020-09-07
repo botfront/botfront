@@ -74,7 +74,7 @@ const extractMetadataFromTracker = (tracker) => {
     return {};
 };
 
-async function logUtterance(utterance, modelId, convId, env, callback) {
+async function logUtterance(utterance, projectId, language, convId, env, callback) {
     const { parse_data: parseData, message_id: mid } = utterance;
     const { text } = parseData;
     const newData = {
@@ -97,7 +97,9 @@ async function logUtterance(utterance, modelId, convId, env, callback) {
     }
 
     Activity.updateOne(
-        { modelId, text, env },
+        {
+            projectId, language, text, env,
+        },
         {
             $set: newUtterance,
             $setOnInsert: { _id: uuidv4() },
@@ -134,7 +136,8 @@ const logUtterancesFromTracker = async function (projectId, events, env, convId)
             if (!model) return;
             userUtterances.forEach(utterance => logUtterance(
                 utterance,
-                model._id,
+                projectId,
+                language,
                 convId,
                 env,
                 (_, e) => e && console.log('Logging failed: ', e, utterance),

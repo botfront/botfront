@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const { Schema } = mongoose;
 const model = new Schema({
     _id: String,
-    modelId: String,
+    modelId: { type: String, required: false },
     text: String,
     intent: { type: String, required: false },
     entities: [{
@@ -28,8 +28,15 @@ const model = new Schema({
         default: Date.now,
     },
     env: { type: String, required: false },
+    language: String,
+    projectId: String,
 });
-model.index({ text: 1, modelId: 1, env: 1 }, { unique: true });
+model.index({
+    text: 1, modelId: 1, env: 1, language: 1, projectId: 1,
+}, { unique: true });
+model.index({
+    text: 1, env: 1, language: 1, projectId: 1,
+}, { unique: true });
 model.index({
     modelId: 1, ooS: 1, env: 1, createdAt: -1,
 });

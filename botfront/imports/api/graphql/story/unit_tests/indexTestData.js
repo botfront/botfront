@@ -161,6 +161,7 @@ export const projectFixture = {
     _id: projectId,
     name: 'My Project',
     defaultLanguage: 'en',
+    languages: ['en', 'fr'],
     defaultDomain: {
         content:
             'slots:\n  disambiguation_message:\n    type: unfeaturized\nactions:\n  - action_botfront_disambiguation\n  - action_botfront_disambiguation_followup\n  - action_botfront_fallback\n  - action_botfront_mapping',

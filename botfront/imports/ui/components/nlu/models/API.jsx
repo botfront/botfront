@@ -2,16 +2,15 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import React from 'react';
 import moment from 'moment-timezone';
-import PropTypes from 'prop-types';
 import {
     TextArea, Form, Dropdown, Input, Checkbox,
 } from 'semantic-ui-react';
 import ReactJson from 'react-json-view';
-import { connect } from 'react-redux';
 import { debounce } from 'lodash';
 import queryString from 'query-string';
+import { ProjectContext } from '../../../layouts/context';
 
-class API extends React.Component {
+export default class API extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -30,10 +29,7 @@ class API extends React.Component {
     }
 
     getCodeString() {
-        const {
-            instance: { host, token },
-            model: { language: lang },
-        } = this.props;
+        const { instance: { host, token }, language: lang } = this.context;
         const { query, reftime, tz } = this.state;
 
         const url = `${host}/model/parse`;
@@ -65,10 +61,7 @@ class API extends React.Component {
     };
 
     parseNlu = () => {
-        const {
-            model: { language },
-            instance,
-        } = this.props;
+        const { language, instance } = this.context;
         const { query, tz, reftime } = this.state;
 
         if (query == null || query.length === 0) {
@@ -80,6 +73,8 @@ class API extends React.Component {
 
         return Meteor.call('rasa.parse', instance, [{ text: query, lang: language }], (err, output) => this.setState({ output }));
     };
+    
+    static contextType = ProjectContext;
 
     render() {
         const {
@@ -124,14 +119,3 @@ class API extends React.Component {
         );
     }
 }
-
-API.propTypes = {
-    model: PropTypes.object.isRequired,
-    instance: PropTypes.object.isRequired,
-};
-
-const mapStateToProps = state => ({
-    projectId: state.settings.get('projectId'),
-});
-
-export default connect(mapStateToProps)(API);

@@ -80,6 +80,7 @@ export const TrainingDataSchema = new SimpleSchema({
 });
 export const NLUModelSchema = new SimpleSchema({
     name: { type: String, optional: true },
+    projectId: String,
     language: {
         type: String,
         // TODO: make a lighter languages document

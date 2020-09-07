@@ -11,27 +11,39 @@ import { indexBotResponse } from '../imports/api/graphql/botResponses/mongo/botR
 import Examples from '../imports/api/graphql/examples/examples.model';
 import { indexStory } from '../imports/api/story/stories.index';
 import Activity from '../imports/api/graphql/activity/activity.model';
+import { Evaluations } from '../imports/api/nlu_evaluation';
 /* globals Migrations */
 
 Migrations.add({
     version: 1,
-    up: () => { },
+    up: () => {},
 });
 
 Migrations.add({
     version: 2,
     // add default default domain to global settings, and update projects to have this default domain
     up: () => {
-        const privateSettings = safeLoad(Assets.getText(
-            process.env.MODE === 'development' ? 'defaults/private.dev.yaml' : 'defaults/private.yaml',
-        ));
+        const privateSettings = safeLoad(
+            Assets.getText(
+                process.env.MODE === 'development'
+                    ? 'defaults/private.dev.yaml'
+                    : 'defaults/private.yaml',
+            ),
+        );
         const defaultDefaultDomain = safeDump(privateSettings.defaultDomain);
 
-        GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.private.defaultDefaultDomain': defaultDefaultDomain } });
+        GlobalSettings.update(
+            { _id: 'SETTINGS' },
+            { $set: { 'settings.private.defaultDefaultDomain': defaultDefaultDomain } },
+        );
 
-        Projects.find().fetch()
+        Projects.find()
+            .fetch()
             .forEach((i) => {
-                Projects.update({ _id: i._id }, { $set: { defaultDomain: { content: defaultDefaultDomain } } });
+                Projects.update(
+                    { _id: i._id },
+                    { $set: { defaultDomain: { content: defaultDefaultDomain } } },
+                );
             });
     },
 });
@@ -40,7 +52,6 @@ Migrations.add({
 import assert from 'assert';
 // eslint-disable-next-line import/first
 import BotResponses from '../imports/api/graphql/botResponses/botResponses.model';
-
 
 const migrateResponses = () => {
     const countUtterMatches = (templateValues) => {
@@ -61,7 +72,11 @@ const migrateResponses = () => {
                         delete t.followUp;
                         t.projectId = p._id;
                         // Put duplicates in a separate list
-                        if ((index < templates.length - 1 && t.key === templates[index + 1].key) || (index > 0 && t.key === templates[index - 1].key)) {
+                        if (
+                            (index < templates.length - 1
+                                && t.key === templates[index + 1].key)
+                            || (index > 0 && t.key === templates[index - 1].key)
+                        ) {
                             duplicates.push(t);
                         } else {
                             newTemplates.push(t);
@@ -70,11 +85,20 @@ const migrateResponses = () => {
                     let i = 0;
                     while (i < duplicates.length) {
                         let numberOfOccurence = 1;
-                        while (i + numberOfOccurence < duplicates.length && duplicates[i].key === duplicates[i + numberOfOccurence].key) {
+                        while (
+                            i + numberOfOccurence < duplicates.length
+                            && duplicates[i].key === duplicates[i + numberOfOccurence].key
+                        ) {
                             numberOfOccurence += 1;
                         }
-                        const duplicateValues = duplicates.slice(i, i + numberOfOccurence);
-                        assert(Array.from(new Set(duplicateValues.map(t => t.key))).length === 1); // Make sure duplicates are real
+                        const duplicateValues = duplicates.slice(
+                            i,
+                            i + numberOfOccurence,
+                        );
+                        assert(
+                            Array.from(new Set(duplicateValues.map(t => t.key)))
+                                .length === 1,
+                        ); // Make sure duplicates are real
                         // Count times /utter_/ is a match
                         const utters = duplicateValues.map(t => countUtterMatches(t.values));
                         // Find the index of the template with less /utter_/ in it. This is the value we'll keep
@@ -85,13 +109,24 @@ const migrateResponses = () => {
                     }
 
                     // Integrity check
-                    const distinctInDuplicates = [...new Set(duplicates.map(d => d.key))].length;
+                    const distinctInDuplicates = [
+                        ...new Set(duplicates.map(d => d.key)),
+                    ].length;
                     // duplicates.length - distinctInDuplicates: give back the number of occurence of a value minus one
-                    assert(newTemplates.length === templates.length - (duplicates.length - distinctInDuplicates));
-                    assert(Array.from(new Set(newTemplates)).length === newTemplates.length);
+                    assert(
+                        newTemplates.length
+                            === templates.length - (duplicates.length - distinctInDuplicates),
+                    );
+                    assert(
+                        Array.from(new Set(newTemplates)).length === newTemplates.length,
+                    );
                     // Insert bot responses in new collection
                     newTemplates.forEach((response) => {
-                        BotResponses.updateOne({ key: response.key, projectId: response.projectId }, response, { upsert: true, setDefaultsOnInsert: true }).exec();
+                        BotResponses.updateOne(
+                            { key: response.key, projectId: response.projectId },
+                            response,
+                            { upsert: true, setDefaultsOnInsert: true },
+                        ).exec();
                     });
                     // Remote bot responses from project
                     Projects.update({ _id: p._id }, { $unset: { templates: '' } });
@@ -125,7 +160,7 @@ const processSequence = sequence => sequence
         const newSequent = {};
         if (curr.text && !acc.text) newSequent.text = curr.text;
         if (curr.text && acc.text) newSequent.text = `${acc.text}\n\n${curr.text}`;
-        if (curr.buttons) newSequent.buttons = [...(acc.buttons || []), ...curr.buttons];
+        if (curr.buttons) { newSequent.buttons = [...(acc.buttons || []), ...curr.buttons]; }
         return newSequent;
     }, {});
 
@@ -133,20 +168,27 @@ Migrations.add({
     version: 5,
     // join sequences of text in responsesa
     up: () => {
-        BotResponses.find().lean().then(responses => responses.forEach((response) => {
-            const updatedResponse = {
-                ...response,
-                values: response.values.map(value => ({
-                    ...value,
-                    sequence: [{ content: safeDump(processSequence(value.sequence)) }], //
-                })),
-            };
-            delete updatedResponse._id;
-            if (!isEqual(response, updatedResponse)) {
-                const { projectId, key } = response;
-                BotResponses.updateOne({ projectId, key }, updatedResponse).exec();
-            }
-        }));
+        BotResponses.find()
+            .lean()
+            .then(responses => responses.forEach((response) => {
+                const updatedResponse = {
+                    ...response,
+                    values: response.values.map(value => ({
+                        ...value,
+                        sequence: [
+                            { content: safeDump(processSequence(value.sequence)) },
+                        ], //
+                    })),
+                };
+                delete updatedResponse._id;
+                if (!isEqual(response, updatedResponse)) {
+                    const { projectId, key } = response;
+                    BotResponses.updateOne(
+                        { projectId, key },
+                        updatedResponse,
+                    ).exec();
+                }
+            }));
     },
 });
 Migrations.add({
@@ -207,11 +249,13 @@ Migrations.add({
             const storyGroupsForProject = storyGroups
                 .filter(sg => sg.projectId === projectId)
                 .map(sg => sg._id);
-            Projects.update({ _id: projectId }, { $set: { storyGroups: storyGroupsForProject } });
+            Projects.update(
+                { _id: projectId },
+                { $set: { storyGroups: storyGroupsForProject } },
+            );
         });
     },
 });
-
 
 Migrations.add({
     version: 8,
@@ -221,7 +265,10 @@ Migrations.add({
             .then((botResponses) => {
                 botResponses.forEach((botResponse) => {
                     const textIndex = indexBotResponse(botResponse);
-                    BotResponses.updateOne({ _id: botResponse._id }, { textIndex }).exec();
+                    BotResponses.updateOne(
+                        { _id: botResponse._id },
+                        { textIndex },
+                    ).exec();
                 });
             });
         const allStories = Stories.find().fetch();
@@ -246,8 +293,14 @@ Migrations.add({
     up: async () => {
         const checkIsTypeButtons = (content) => {
             // the only type defining key in the response content should be buttons
-            const included = ['image', 'buttons', 'elements', 'custom', 'attachment', 'quick_replies']
-                .filter(k => Object.keys(content).includes(k));
+            const included = [
+                'image',
+                'buttons',
+                'elements',
+                'custom',
+                'attachment',
+                'quick_replies',
+            ].filter(k => Object.keys(content).includes(k));
             return included.length === 1 && included[0] === 'buttons';
         };
 
@@ -268,7 +321,8 @@ Migrations.add({
         const updatedResponses = responses.reduce((buttonResponses, response) => {
             try {
                 const values = response.values.map(value => ({
-                    ...value, sequence: value.sequence.map(updateContent),
+                    ...value,
+                    sequence: value.sequence.map(updateContent),
                 }));
                 return [...buttonResponses, { ...response, values }];
             } catch (err) {
@@ -291,9 +345,15 @@ Migrations.add({
     up: async () => {
         const projects = await Projects.find({}, { fields: { nlu_models: 1, _id: 1 } });
         projects.forEach((project) => {
+            const projectId = project._id;
             const NluModels = NLUModels.find({ _id: { $in: project.nlu_models } });
+            const languages = {};
             NluModels.forEach((nluModel) => {
-                const { language, training_data: { common_examples: examples = [] } } = nluModel;
+                const {
+                    language,
+                    training_data: { common_examples: examples = [] },
+                } = nluModel;
+                languages[language] = nluModel._id;
                 const preparedExamples = examples.map((example) => {
                     const isCanonical = example.canonical;
                     // eslint-disable-next-line no-param-reassign
@@ -309,11 +369,31 @@ Migrations.add({
                 });
                 Examples.insertMany(preparedExamples);
             });
-            NLUModels.update({ _id: { $in: project.nlu_models } }, { $unset: { 'training_data.common_examples': '' } }, { multi: true });
+            // add 'languages' key to projects
+            Projects.update(
+                { _id: projectId },
+                { $set: { languages: Object.keys(languages) } },
+            );
+            // add 'projectId' and 'language' keys to activity and evaluation docs
+            Object.keys(languages).forEach(async (language) => {
+                await Activity.updateMany(
+                    { modelId: languages[language] },
+                    { $set: { language, projectId } },
+                ).exec();
+                Evaluations.update(
+                    { modelId: languages[language] },
+                    { $set: { language, projectId } },
+                );
+            });
+            // pull common examples and add 'projectId' key to models
+            NLUModels.update(
+                { _id: { $in: project.nlu_models } },
+                { $unset: { 'training_data.common_examples': '' }, $set: { projectId } },
+                { multi: true },
+            );
         });
     },
 });
-
 
 Meteor.startup(() => {
     Migrations.migrateTo('latest');

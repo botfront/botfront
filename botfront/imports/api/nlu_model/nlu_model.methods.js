@@ -1,22 +1,15 @@
-import { check } from 'meteor/check';
+import { check, Match } from 'meteor/check';
 import uuidv4 from 'uuid/v4';
 import shortid from 'shortid';
 import { uniq, sortBy } from 'lodash';
 import { formatError } from '../../lib/utils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { NLUModels } from './nlu_model.collection';
-import { getNluModelLanguages } from './nlu_model.utils';
 import {
     getExamples, insertExamples, deleteExamples, switchCanonical, updateExamples,
 } from '../graphql/examples/mongo/examples';
 import { Projects } from '../project/project.collection';
 import { checkIfCan } from '../../lib/scopes';
-
-const getModelWithTrainingData = (projectId, language) => {
-    const modelIds = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }).nlu_models;
-    const model = modelIds && NLUModels.findOne({ _id: { $in: modelIds }, language }, { fields: { training_data: 1 } });
-    return model;
-};
 
 const gazetteDefaults = {
     mode: 'ratio', minScoreDefault: 80,
@@ -118,18 +111,18 @@ if (Meteor.isServer) {
     };
 
     Meteor.methods({
-        'nlu.insert'(item, projectId) {
-            check(item, Object);
+        'nlu.insert'(projectId, language, incomingConfig = null) {
             check(projectId, String);
-            // Check if the model with the langauge already exists in project
-            // eslint-disable-next-line no-param-reassign
-            const { nlu_models: nluModels } = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
-            const nluModelLanguages = getNluModelLanguages(nluModels, true);
-            if (nluModelLanguages.some(lang => (lang.value === item.language))) {
-                throw new Meteor.Error('409', `Model with langauge ${item.language} already exists`);
+            check(language, String);
+            check(incomingConfig, Match.Maybe(Object));
+            
+            const { languages } = Projects.findOne({ _id: projectId }, { fields: { languages: 1 } });
+            if (languages.includes(language)) {
+                throw new Meteor.Error('409', `Model with language '${language}' already exists`);
             }
-            let { config } = item;
-            if (!config) {
+
+            let config = incomingConfig;
+            if (!incomingConfig) {
                 const {
                     settings: {
                         public: { defaultNLUConfig },
@@ -137,17 +130,8 @@ if (Meteor.isServer) {
                 } = GlobalSettings.findOne({}, { fields: { 'settings.public.defaultNLUConfig': 1 } });
                 config = defaultNLUConfig;
             }
-            const defaultModel = { ...item, config };
-            const modelId = NLUModels.insert(defaultModel);
-            Projects.update({ _id: projectId }, { $addToSet: { nlu_models: modelId } });
-            return modelId;
-        },
-
-        'nlu.update'(modelId, item) {
-            check(item, Object);
-            check(modelId, String);
-
-            NLUModels.update({ _id: modelId }, { $set: item });
+            const modelId = NLUModels.insert({ projectId, language, config });
+            Projects.update({ _id: projectId }, { $addToSet: { nlu_models: modelId, languages: language } });
             return modelId;
         },
 
@@ -167,16 +151,16 @@ if (Meteor.isServer) {
             return modelId;
         },
 
-        'nlu.remove'(modelId, projectId) {
-            check(modelId, String);
+        'nlu.remove'(projectId, language) {
+            check(language, String);
             check(projectId, String);
             // check the default language of project and the language of model
-            const modelLanguage = NLUModels.findOne({ _id: modelId });
             const projectDefaultLanguage = Projects.findOne({ _id: projectId });
-            if (modelLanguage.language !== projectDefaultLanguage.defaultLanguage) {
+            if (language !== projectDefaultLanguage.defaultLanguage) {
+                const { _id } = NLUModels.findOne({ projectId, language });
                 try {
-                    NLUModels.remove({ _id: modelId });
-                    return Projects.update({ _id: projectId }, { $pull: { nlu_models: modelId } });
+                    NLUModels.remove({ projectId, language });
+                    return Projects.update({ _id: projectId }, { $pull: { nlu_models: _id } });
                 } catch (e) {
                     throw e;
                 }
@@ -207,7 +191,7 @@ if (Meteor.isServer) {
             insertExamples({ examples, language, projectId });
         },
 
-        'nlu.import'(nluData, projectId, language, overwrite, canonicalExamples = []) {
+        async 'nlu.import'(nluData, projectId, language, overwrite, canonicalExamples = []) {
             check(nluData, Object);
             check(projectId, String);
             check(language, String);
@@ -220,7 +204,8 @@ if (Meteor.isServer) {
             */
 
             try {
-                const currentModel = getModelWithTrainingData(projectId, language);
+                const currentModel = NLUModels.findOne({ projectId, language }, { fields: { training_data: 1 } });
+                const { examples: currentExamples = [] } = await getExamples({ pageSize: -1, projectId, language });
                 let commonExamples; let entitySynonyms; let fuzzyGazette;
 
                 if (nluData.common_examples && nluData.common_examples.length > 0) {
@@ -229,11 +214,10 @@ if (Meteor.isServer) {
                         _id: uuidv4(),
                         canonical: canonicalExamples.includes(e.text),
                     }));
-                    commonExamples = {
-                        'training_data.common_examples': overwrite
-                            ? commonExamples
-                            : { $each: filterExistent(currentModel.training_data.common_examples, commonExamples, 'text'), $position: 0 },
-                    };
+                    if (overwrite) await deleteExamples(currentExamples.map(({ _id }) => _id));
+                    commonExamples = overwrite
+                        ? commonExamples
+                        : filterExistent(currentExamples, commonExamples, 'text');
                 }
 
                 if (nluData.entity_synonyms && nluData.entity_synonyms.length > 0) {
@@ -259,8 +243,9 @@ if (Meteor.isServer) {
                 }
 
                 const op = overwrite
-                    ? { $set: { ...commonExamples, ...entitySynonyms, ...fuzzyGazette } }
-                    : { $push: { ...commonExamples, ...entitySynonyms, ...fuzzyGazette } };
+                    ? { $set: { ...entitySynonyms, ...fuzzyGazette } }
+                    : { $push: { ...entitySynonyms, ...fuzzyGazette } };
+                await insertExamples({ language, projectId, examples: commonExamples });
                 return NLUModels.update({ _id: currentModel._id }, op);
             } catch (e) {
                 if (e instanceof Meteor.Error) throw e;
@@ -279,6 +264,7 @@ if (Meteor.isServer) {
                     _id: `chitchat-${shortid.generate()}`,
                     namespace: 'chitchat',
                     defaultLanguage: 'en',
+                    languages: ['en', 'fr'],
                 });
 
                 await Promise.all(Object.keys(data).map(lang => new Promise(async (resolve) => {

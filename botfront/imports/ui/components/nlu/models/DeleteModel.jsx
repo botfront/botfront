@@ -1,5 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useQuery } from '@apollo/react-hooks';
+import { withTracker } from 'meteor/react-meteor-data';
+import { connect } from 'react-redux';
 import {
     Button, Confirm, Icon, Message, Tab,
 } from 'semantic-ui-react';
@@ -7,9 +10,11 @@ import 'brace/mode/json';
 import 'brace/theme/github';
 import { saveAs } from 'file-saver';
 import moment from 'moment';
-import { getTrainingDataInRasaFormat } from '../../../../api/instances/instances.methods';
+import { ProjectContext } from '../../../layouts/context';
+import { wrapMeteorCallback } from '../../utils/Errors';
+import { GET_EXAMPLE_COUNT } from './graphql';
 
-export default class DeleteModel extends React.Component {
+class DeleteModel extends React.Component {
     constructor(props) {
         super(props);
         this.state = this.getInitialState();
@@ -37,11 +42,19 @@ export default class DeleteModel extends React.Component {
             return;
         }
         const { model } = this.props;
-        const data = JSON.stringify(getTrainingDataInRasaFormat(model, true, []), null, 2);
-        const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
-        const filename = `${model.name.toLowerCase()}-${moment().toISOString()}.json`;
-        saveAs(blob, filename);
-        this.setState({ backupDownloaded: true });
+        const { project: { _id: projectId } } = this.context;
+        Meteor.call(
+            'rasa.getTrainingPayload',
+            projectId,
+            { language: model.language },
+            wrapMeteorCallback((_, res) => {
+                const { data } = res.nlu;
+                const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
+                const filename = `${model.name.toLowerCase()}-${moment().toISOString()}.md`;
+                saveAs(blob, filename);
+                this.setState({ backupDownloaded: true });
+            }),
+        );
     };
 
     renderCannotDeleteMessage = (cannotDelete) => {
@@ -65,16 +78,19 @@ export default class DeleteModel extends React.Component {
             />
         );
     }
-    
+
+    static contextType = ProjectContext;
 
     render() {
         const { backupDownloaded, confirmOpen } = this.state;
-        const { model, cannotDelete, language } = this.props;
+        const {
+            model, cannotDelete, language, examples,
+        } = this.props;
         return (
             <Tab.Pane>
                 <Confirm
                     open={confirmOpen}
-                    header={`Delete ${language} data from your model? (${model.training_data.common_examples.length} examples)`}
+                    header={`Delete ${language} data from your model? (${examples} examples)`}
                     content='This cannot be undone!'
                     onCancel={this.onCancel}
                     onConfirm={this.onConfirm}
@@ -111,7 +127,22 @@ export default class DeleteModel extends React.Component {
 
 DeleteModel.propTypes = {
     model: PropTypes.object.isRequired,
+    examples: PropTypes.number.isRequired,
     onDeleteModel: PropTypes.func.isRequired,
     cannotDelete: PropTypes.bool.isRequired,
     language: PropTypes.string.isRequired,
 };
+
+const DeleteModelWithTracker = withTracker((props) => {
+    const { projectId, workingLanguage: language } = props;
+    const { data } = useQuery(GET_EXAMPLE_COUNT, { variables: { projectId, language } });
+    const { totalLength: examples } = data?.examples?.pageInfo || {};
+    return { examples };
+})(DeleteModel);
+
+const mapStateToProps = state => ({
+    projectId: state.settings.get('projectId'),
+    workingLanguage: state.settings.get('workingLanguage'),
+});
+
+export default connect(mapStateToProps)(DeleteModelWithTracker);

@@ -23,20 +23,22 @@ export const activityFields = gql`
 
 export const activityQuery = gql`
     query (
-        $modelId: String!,
-        $sortKey: String = "updatedAt",
-        $sortDesc: Boolean = true,
-        $pageSize: Int = 10,
-        $cursor: String,
-        $validated: Boolean = false,
+        $projectId: String!
+        $language: String!
+        $sortKey: String = "updatedAt"
+        $sortDesc: Boolean = true
+        $pageSize: Int = 10
+        $cursor: String
+        $validated: Boolean = false
     ) {
         getActivity(
-            modelId: $modelId,
-            sortKey: $sortKey,
-            sortDesc: $sortDesc,
-            pageSize: $pageSize,
-            cursor: $cursor,
-            validated: $validated,
+            projectId: $projectId
+            language: $language
+            sortKey: $sortKey
+            sortDesc: $sortDesc
+            pageSize: $pageSize
+            cursor: $cursor
+            validated: $validated
         ) {
             activity {
                 ...ActivityFields

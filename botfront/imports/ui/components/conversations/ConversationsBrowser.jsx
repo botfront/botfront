@@ -59,7 +59,6 @@ function ConversationsBrowser(props) {
     }
     
     const goToConversation = (newPage, conversationId, replace = false) => {
-        // let url = `/project/${projectId}/incoming/${modelId}/conversations/${page || 1}`;
         const url = updateIncomingPath({ ...router.params, page: newPage || 1, selected_id: conversationId });
         if (replace) return browserHistory.replace({ pathname: url });
         return browserHistory.push({ pathname: url });
@@ -213,7 +212,6 @@ const ConversationsBrowserContainer = (props) => {
         Object.assign(componentProps, {
             projectId,
             page,
-            modelId: router.params.model_id,
         });
     }
     return (

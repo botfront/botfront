@@ -33,7 +33,8 @@ export default {
 
     Activity: {
         _id: ({ _id }) => _id,
-        modelId: ({ modelId }) => modelId,
+        projectId: ({ projectId }) => projectId,
+        language: ({ language }) => language,
         text: ({ text }) => text,
         intent: ({ intent }) => intent,
         entities: ({ entities }) => entities,

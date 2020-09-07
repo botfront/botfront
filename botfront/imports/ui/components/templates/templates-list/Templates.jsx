@@ -9,7 +9,6 @@ import { connect } from 'react-redux';
 import { useQuery, useSubscription, useMutation } from '@apollo/react-hooks';
 import { Projects } from '../../../../api/project/project.collection';
 import TemplatesTable from './TemplatesTable';
-import { getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
 import { GET_BOT_RESPONSES } from '../queries';
 import { RESPONSES_MODIFIED, RESPONSES_DELETED } from './subscriptions';
 import { Loading } from '../../utils/Utils';
@@ -124,13 +123,10 @@ const TemplatesContainer = ({ params, events, ready }) => {
 
     const { insertResponse } = useContext(ProjectContext);
 
-    const project = Projects.find(
+    const { languages = [] } = Projects.findOne(
         { _id: params.project_id },
-        { fields: { nlu_models: 1 } },
-    ).fetch();
-    if (project.length === 0) {
-        console.log('Project not found');
-    }
+        { fields: { languages: 1 } },
+    ) || {};
 
     const {
         loading, error, data, refetch,
@@ -197,7 +193,7 @@ const TemplatesContainer = ({ params, events, ready }) => {
             templates={templates}
             deleteBotResponse={deleteBotResponse}
             projectId={params.project_id}
-            nluLanguages={getNluModelLanguages(project[0].nlu_models)}
+            nluLanguages={languages}
             insertResponse={insertResponse}
         />
     );

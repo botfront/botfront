@@ -5,10 +5,7 @@ import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { createInstance } from '../instances/instances.methods';
 import { Instances } from '../instances/instances.collection';
 import Activity from '../graphql/activity/activity.model';
-import {
-    formatError,
-    getLanguagesFromProjectId,
-} from '../../lib/utils';
+import { formatError } from '../../lib/utils';
 import { CorePolicies, createPolicies } from '../core_policies';
 import { createEndpoints } from '../endpoints/endpoints.methods';
 import { Endpoints } from '../endpoints/endpoints.collection';
@@ -19,6 +16,7 @@ import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
 import { Slots } from '../slots/slots.collection';
 import { extractDomain } from '../../lib/story.utils';
+import { languages as languageOptions } from '../../lib/languages';
 import BotResponses from '../graphql/botResponses/botResponses.model';
 
 if (Meteor.isServer) {
@@ -64,7 +62,7 @@ if (Meteor.isServer) {
             try {
                 if (!project) throw new Meteor.Error('Project not found');
                 NLUModels.remove({ _id: { $in: project.nlu_models } }); // Delete NLU models
-                Activity.remove({ modelId: { $in: project.nlu_models } }).exec(); // Delete Logs
+                Activity.remove({ projectId, language: { $in: project.languages } }).exec(); // Delete Logs
                 Instances.remove({ projectId: project._id }); // Delete instances
                 CorePolicies.remove({ projectId: project._id }); // Delete Core Policies
                 Credentials.remove({ projectId: project._id }); // Delete credentials
@@ -135,11 +133,12 @@ if (Meteor.isServer) {
                 chatWidgetSettings: { initPayload = '/get_started' } = {},
                 enableSharing,
                 name: projectName,
+                languages: langs,
                 defaultLanguage,
             } = Projects.findOne(
                 { _id: projectId },
                 {
-                    chatWidgetSettings: 1, enableSharing: 1, name: 1, defaultLanguage: 1,
+                    chatWidgetSettings: 1, enableSharing: 1, name: 1, defaultLanguage: 1, languages: 1,
                 },
             ) || {};
 
@@ -158,7 +157,7 @@ if (Meteor.isServer) {
             if (!channel) { throw new Meteor.Error(404, `No credentials found for project '${projectName}'.`); }
             const { base_url: socketUrl, socket_path: socketPath } = credentials[channel];
 
-            const languages = (await getLanguagesFromProjectId(projectId, true)) || [];
+            const languages = langs.map(value => ({ text: languageOptions[value].name, value }));
 
             if (!languages.length) { throw new Meteor.Error(404, `No languages found for project '${projectName}'.`); }
 
