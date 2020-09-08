@@ -1,46 +1,221 @@
 import React, {
-    useEffect, useState, useRef, useContext,
+    useState, useRef, useContext,
 } from 'react';
 import {
-    Popup, Grid, Checkbox, Icon, Confirm,
+    Popup, Grid, Checkbox, Icon, Confirm, Form, Button,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import DataTable from '../../common/DataTable';
-import { _appendSynonymsToText } from '../../../../lib/filterExamples';
 import 'react-s-alert/dist/s-alert-default.css';
 import Filters from './Filters';
 import { ProjectContext } from '../../../layouts/context';
 import NluCommandBar from './NluCommandBar';
+import IconButton from '../../common/IconButton';
+import UserUtteranceViewer from '../common/UserUtteranceViewer';
+import { ExampleTextEditor } from '../../example_editor/ExampleTextEditor';
+import IntentLabel from '../common/IntentLabel';
 import { useEventListener } from '../../utils/hooks';
+import getColor from '../../../../lib/getColors';
+import { clearTypenameField } from '../../../../lib/client.safe.utils';
 
 function NluTable(props) {
     const {
-        entitySynonyms,
         loadingExamples,
         data,
         updateExamples,
         deleteExamples,
         loadMore,
         hasNextPage,
-        hideFilters,
         updateFilters,
         filters,
-        columns,
-        singleSelectedIntentLabelRef,
         selection,
         setSelection,
-        useShortCuts,
+        useShortcuts,
         noDrafts,
+        renderLabelColumn: renderExternalLabelColumn,
         height,
+        switchCanonical,
     } = props;
     const { intents, entities } = useContext(ProjectContext);
+    const [editExampleId, setEditExampleId] = useState([]);
 
     const tableRef = useRef(null);
     const nluCommandBarRef = useRef(null);
     const [confirm, setConfirm] = useState(null);
+    const singleSelectedIntentLabelRef = useRef(null);
+
+    const handleEditExample = example => updateExamples([clearTypenameField(example)]);
+
+    const handleExampleTextareaBlur = (example) => {
+        setEditExampleId(null);
+        handleEditExample(example);
+    };
+
+    const canonicalTooltip = (jsx, canonical) => {
+        if (!canonical) return jsx;
+        return (
+            <Popup
+                trigger={<div>{jsx}</div>}
+                inverted
+                postion='left'
+                content='Cannot edit a canonical example'
+            />
+        );
+    };
+
+    const renderIntentLabel = (row) => {
+        const { datum } = row;
+        const { metadata: { canonical = false } = {}, intent } = datum;
+        return canonicalTooltip(
+            <IntentLabel
+                {...(selection.length === 1 && datum._id === selection[0] ? { ref: singleSelectedIntentLabelRef } : {})}
+                value={intent}
+                allowEditing={!canonical}
+                allowAdditions
+                onChange={i => handleEditExample({ ...datum, intent: i })}
+            />,
+            canonical,
+        );
+    };
+
+    const renderExample = (row) => {
+        const { datum } = row;
+        const { metadata: { canonical = false } = {}, _id } = datum;
     
+        if (editExampleId === _id) {
+            return (
+                <Form className='example-editor-form' data-cy='example-editor-form'>
+                    <ExampleTextEditor
+                        inline
+                        autofocus
+                        example={datum}
+                        onBlur={handleExampleTextareaBlur}
+                        onEnter={handleExampleTextareaBlur}
+                        disableNewEntities
+                    />
+                </Form>
+            );
+        }
+        return canonicalTooltip(
+            <div className='example-table-row'>
+                <UserUtteranceViewer
+                    value={datum}
+                    onChange={handleEditExample}
+                    projectId=''
+                    disableEditing={canonical}
+                    showIntent={false}
+                />
+            </div>,
+            canonical,
+        );
+    };
     
-    const [examples, setExamples] = useState([]);
+    const renderLabelColumn = (row, ...args) => {
+        if (renderExternalLabelColumn) return renderExternalLabelColumn(row, ...args);
+        const { datum } = row;
+        const { metadata: { draft = false } = {} } = datum;
+        if (!draft) return null;
+        return (
+            <Button
+                size='mini'
+                compact
+                content='draft'
+                onClick={() => handleEditExample({ ...datum, metadata: { ...datum.metadata, draft: false } })}
+                onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            />
+        );
+    };
+
+    const renderActionsColumn = (row) => {
+        const { datum } = row;
+        const { metadata: { canonical = false } = {}, _id } = datum;
+        let tooltip = (<div>Mark as canonical</div>);
+        if (canonical) {
+            tooltip = (
+                <>
+                    <Popup.Header>Canonical Example</Popup.Header>
+                    <Popup.Content className='popup-canonical'>
+                        This example is canonical for the intent
+                        <span className='intent-name'> {datum.intent}</span>
+    
+                        {datum.entities && datum.entities.length > 0
+                            ? (
+                                <>
+                                    &nbsp; and for the following entity - entity value combinations: <br />
+                                    {datum.entities.map(entity => (
+                                        <span><strong style={{ color: getColor(entity.entity).backgroundColor }}>{entity.entity}</strong>: {entity.value}</span>
+                                    ))}
+                                </>
+                            )
+                            : ''}
+                    </Popup.Content>
+                </>
+            );
+        }
+        return (
+            <div className='side-by-side narrow right'>
+                {!canonical && (
+                    <IconButton
+                        active={canonical}
+                        icon='edit'
+                        size='small'
+                        onClick={() => setEditExampleId(_id)}
+                    />
+                )}
+                {!canonical && (
+                    <IconButton
+                        icon='trash'
+                        size='small'
+                        onClick={() => deleteExamples([datum._id])}
+                    />
+                )}
+                <Popup
+                    position='top center'
+                    disabled={tooltip === null}
+                    trigger={(
+                        <div>
+                            <IconButton
+                                color={canonical ? 'black' : 'grey'}
+                                basic={canonical}
+                                icon='gem'
+                                size='small'
+                                disabled={tooltip === null}
+                                onClick={() => switchCanonical(datum)}
+                                data-cy='icon-gem'
+                            />
+                        </div>
+                    )}
+                    inverted={!canonical}
+                    content={tooltip}
+                />
+            </div>
+        );
+    };
+
+    const columns = [
+        { key: '_id', selectionKey: true, hidden: true },
+        {
+            key: 'intent',
+            style: {
+                paddingLeft: '1rem',
+                width: '200px',
+                minWidth: '200px',
+                overflow: 'hidden',
+            },
+            render: renderIntentLabel,
+        },
+        {
+            key: 'text',
+            style: { width: '100%' },
+            render: renderExample,
+        },
+        { key: 'labelColumn', style: { width: '50px' }, render: renderLabelColumn },
+        {
+            key: 'actions',
+            style: { width: '200px' },
+            render: renderActionsColumn,
+        },
+    ];
 
     function multipleDelete(ids) {
         const message = `Delete ${ids.length} NLU examples?`;
@@ -67,8 +242,9 @@ function NluTable(props) {
         if (selection.length === 1) return singleSelectedIntentLabelRef.current.openPopup();
         return nluCommandBarRef.current.openIntentPopup();
     };
+
     useEventListener('keydown', (e) => {
-        if (!useShortCuts) return;
+        if (!useShortcuts) return;
         const {
             key, shiftKey, metaKey, ctrlKey, altKey,
         } = e;
@@ -93,16 +269,6 @@ function NluTable(props) {
             handleOpenIntentSetterDialogue(e);
         }
     });
-   
-
-    const getExamplesWithExtraSynonyms = (examplesList) => {
-        if (!examplesList) return [];
-        return examplesList.map(e => _appendSynonymsToText(e, entitySynonyms));
-    };
-    useEffect(() => {
-        if (!loadingExamples) setExamples(getExamplesWithExtraSynonyms(data));
-    }, [data]);
-    
 
     const renderDataTable = () => (
         <>
@@ -120,7 +286,7 @@ function NluTable(props) {
                     onConfirm={() => { confirm.action(); setConfirm(null); tableRef.current.tableRef().current.focus(); }}
                 />
             )}
-            {!hideFilters && (
+            {filters && (
                 <Grid style={{ paddingBottom: '12px' }}>
                     <Grid.Row>
                         <Grid.Column width={13} textAlign='left' verticalAlign='middle'>
@@ -130,14 +296,10 @@ function NluTable(props) {
                                 filter={filters}
                                 onChange={newFilters => updateFilters(newFilters)}
                             />
-                                
                         </Grid.Column>
-
-                          
                         <Grid.Column width={3} textAlign='right' verticalAlign='middle'>
                             <Checkbox
-                                onChange={() => updateFilters({ ...filters, onlyCanonicals: !filters.onlyCanonicals })
-                                }
+                                onChange={() => updateFilters({ ...filters, onlyCanonicals: !filters.onlyCanonicals })}
                                 hidden={false}
                                 slider
                                 checked={filters.onlyCanonicals}
@@ -161,18 +323,16 @@ function NluTable(props) {
             <DataTable
                 ref={tableRef}
                 columns={columns}
-                data={examples}
+                data={data}
                 hasNextPage={hasNextPage}
                 loadMore={loadingExamples ? () => { } : loadMore}
                 rowClassName='glow-box hoverable'
                 className='new-utterances-table'
                 selection={selection}
                 height={height}
-                onChangeSelection={(newSelection) => {
-                    setSelection(newSelection);
-                }}
+                onChangeSelection={newSelection => setSelection(newSelection)}
             />
-            {selection.length > 1 && useShortCuts && (
+            {selection.length > 1 && useShortcuts && (
                 <NluCommandBar
                     ref={nluCommandBarRef}
                     selection={selection}
@@ -180,7 +340,6 @@ function NluTable(props) {
                     onDelete={multipleDelete}
                     onUndraft={noDrafts ? undefined : multipleUndraft}
                     onCloseIntentPopup={() => tableRef.current.tableRef().current.focus()}
-                    
                 />
             )}
         </>
@@ -190,35 +349,33 @@ function NluTable(props) {
 
 
 NluTable.propTypes = {
-    entitySynonyms: PropTypes.array,
     loadingExamples: PropTypes.bool,
     data: PropTypes.array.isRequired,
     updateExamples: PropTypes.func,
     deleteExamples: PropTypes.func,
+    switchCanonical: PropTypes.func,
     loadMore: PropTypes.func,
     hasNextPage: PropTypes.bool,
-    hideFilters: PropTypes.bool,
     updateFilters: PropTypes.func,
     filters: PropTypes.object,
-    columns: PropTypes.array.isRequired,
-    singleSelectedIntentLabelRef: PropTypes.object,
     selection: PropTypes.array.isRequired,
     setSelection: PropTypes.func.isRequired,
-    useShortCuts: PropTypes.bool,
-    hideDraft: PropTypes.bool,
+    useShortcuts: PropTypes.bool,
+    noDrafts: PropTypes.bool,
+    renderLabelColumn: PropTypes.func,
 };
 
 NluTable.defaultProps = {
-    entitySynonyms: [],
     loadingExamples: false,
     updateExamples: () => {},
     deleteExamples: () => {},
+    switchCanonical: () => {},
     loadMore: () => {},
     hasNextPage: false,
-    hideFilters: false,
     updateFilters: () => {},
-    filters: {},
-    singleSelectedIntentLabelRef: {},
-    useShortCuts: false,
+    filters: null,
+    useShortcuts: true,
+    noDrafts: false,
+    renderLabelColumn: null,
 };
 export default NluTable;

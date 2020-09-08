@@ -10,6 +10,7 @@ import 'brace/mode/json';
 import 'brace/theme/github';
 import { saveAs } from 'file-saver';
 import moment from 'moment';
+import { browserHistory } from 'react-router';
 import { ProjectContext } from '../../../layouts/context';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import { GET_EXAMPLE_COUNT } from './graphql';
@@ -32,34 +33,44 @@ class DeleteModel extends React.Component {
     };
 
     onConfirm = () => {
-        const { onDeleteModel } = this.props;
-        onDeleteModel();
+        const { projectId, language } = this.props;
+        browserHistory.push({ pathname: `/project/${projectId}/nlu/models` });
+        Meteor.call(
+            'nlu.remove',
+            projectId,
+            language,
+            wrapMeteorCallback(null, 'Model deleted!'),
+        );
     };
+
+    cannotDelete = () => {
+        const { project: { defaultLanguage }, language } = this.context;
+        return language === defaultLanguage;
+    }
 
     downloadModelData = () => {
         if (window.Cypress) {
             this.setState({ backupDownloaded: true });
             return;
         }
-        const { model } = this.props;
-        const { project: { _id: projectId } } = this.context;
+        const { language, projectId } = this.props;
         Meteor.call(
             'rasa.getTrainingPayload',
             projectId,
-            { language: model.language },
+            { language },
             wrapMeteorCallback((_, res) => {
                 const { data } = res.nlu;
                 const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
-                const filename = `${model.name.toLowerCase()}-${moment().toISOString()}.md`;
+                const filename = `${projectId.toLowerCase()}-${language}-${moment().toISOString()}.md`;
                 saveAs(blob, filename);
                 this.setState({ backupDownloaded: true });
             }),
         );
     };
 
-    renderCannotDeleteMessage = (cannotDelete) => {
+    renderCannotDeleteMessage = () => {
         const { language } = this.props;
-        if (!cannotDelete) {
+        if (!this.cannotDelete()) {
             return (
                 <Message
                     header='Default language cannot be deleted'
@@ -83,9 +94,11 @@ class DeleteModel extends React.Component {
 
     render() {
         const { backupDownloaded, confirmOpen } = this.state;
-        const {
-            model, cannotDelete, language, examples,
-        } = this.props;
+        const { language, examples } = this.props;
+        const { projectLanguages } = this.context;
+        const languageName = projectLanguages.find(
+            lang => lang.value === language,
+        );
         return (
             <Tab.Pane>
                 <Confirm
@@ -97,7 +110,7 @@ class DeleteModel extends React.Component {
                 />
                 {!backupDownloaded && (
                     <div>
-                        {this.renderCannotDeleteMessage(cannotDelete)}
+                        {this.renderCannotDeleteMessage()}
                         <br />
                         <Button positive onClick={this.downloadModelData} className='dowload-model-backup-button' data-cy='download-backup'>
                             <Icon name='download' />
@@ -108,16 +121,16 @@ class DeleteModel extends React.Component {
                 {backupDownloaded && <Message success icon='check circle' content='Backup downloaded' />}
                 <br />
                 <br />
-                {cannotDelete && (
+                {this.cannotDelete() && (
                     <Button
                         className='delete-model-button'
                         type='submit'
                         onClick={() => this.setState({ confirmOpen: true })}
                         negative
-                        disabled={!backupDownloaded || !cannotDelete}
+                        disabled={!backupDownloaded || !this.cannotDelete()}
                     >
                         <Icon name='trash' />
-                        Delete <strong>{language}</strong> data from your model
+                        Delete <strong>{languageName}</strong> data from your model
                     </Button>
                 )}
             </Tab.Pane>
@@ -126,11 +139,9 @@ class DeleteModel extends React.Component {
 }
 
 DeleteModel.propTypes = {
-    model: PropTypes.object.isRequired,
     examples: PropTypes.number.isRequired,
-    onDeleteModel: PropTypes.func.isRequired,
-    cannotDelete: PropTypes.bool.isRequired,
     language: PropTypes.string.isRequired,
+    projectId: PropTypes.string.isRequired,
 };
 
 const DeleteModelWithTracker = withTracker((props) => {

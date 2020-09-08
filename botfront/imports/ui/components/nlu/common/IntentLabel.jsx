@@ -90,7 +90,7 @@ const Intent = React.forwardRef((props, ref) => {
             handleChange(
                 (dataToDisplay || []).length ? selection[0] : typeInput,
             );
-        } else setSelection([dataToDisplay[0].intent]);
+        } else setSelection((dataToDisplay || []).length ? [dataToDisplay[0].intent] : []);
     };
 
     const renderResetIntent = () => (
@@ -141,9 +141,7 @@ const Intent = React.forwardRef((props, ref) => {
         >
             {allowAdditions && renderInsertNewIntent()}
             {showReset && renderResetIntent()}
-
             {!!dataToDisplay.length && (
-
                 <DataTable
                     ref={tableRef}
                     height={dataToDisplay.length * 40 >= 200 ? 200 : dataToDisplay.length * 40}

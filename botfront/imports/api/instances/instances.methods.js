@@ -161,22 +161,31 @@ if (Meteor.isServer) {
                     .filter(r => r.status === 200)
                     .map(r => r.data)
                     .map((r) => {
-                        if (!r.text || !r.text.startsWith('/')) return r;
-                        return {
-                            text: r.text.replace(/^\//, ''),
-                            intent: null,
-                            intent_ranking: [],
-                            entities: [],
-                        };
+                        if (!r.text || r.text.startsWith('/')) {
+                            return {
+                                text: (r.text || '').replace(/^\//, ''),
+                                intent: null,
+                                intent_ranking: [],
+                                entities: [],
+                            };
+                        }
+                        return r;
                     });
                 if (result.length < 1 && !failSilently) throw new Meteor.Error('Error when parsing NLU');
                 if (Array.from(new Set(result.map(r => r.language))).length > 1 && !failSilently) {
                     throw new Meteor.Error('Tried to parse for more than one language at a time.');
                 }
-    
                 return examples.length < 2 ? result[0] : result;
             } catch (e) {
-                if (failSilently) return {};
+                if (failSilently) {
+                    const result = examples.map(({ text }) => ({
+                        text: (text || '').replace(/^\//, ''),
+                        intent: null,
+                        intent_ranking: [],
+                        entities: [],
+                    }));
+                    return examples.length < 2 ? result[0] : result;
+                }
                 throw formatError(e);
             }
         },

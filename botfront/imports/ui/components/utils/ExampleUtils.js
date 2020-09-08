@@ -75,11 +75,6 @@ export default class ExampleUtils {
             ...exampleFields,
         });
 
-        if (!newExample.intent) {
-            newExample.metadata = { draft: true };
-            newExample.intent = ' ';
-        }
-
         return newExample;
     }
 
@@ -111,8 +106,8 @@ export default class ExampleUtils {
     static sameCanonicalGroup(example, payload) {
         // check if these examples are in the same canonical group
         return (example.intent === payload.intent
-        && example.entities.length === payload.entities.length
-        && example.entities.every(entity => payload.entities.find(
+        && (example.entities || []).length === (payload.entities || []).length
+        && (example.entities || []).every(entity => (payload.entities || []).find(
             payloadEntity => (
                 payloadEntity.entity === entity.entity
                     && payloadEntity.value === entity.value

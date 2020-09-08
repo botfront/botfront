@@ -1,17 +1,21 @@
 import shortid from 'shortid';
 import { escapeRegExp, intersectionBy } from 'lodash';
+import emojiTree from 'emoji-tree';
 import Examples from '../examples.model.js';
 import { setsAreIdentical } from '../../../../lib/utils';
-import {
-    checkNoEmojisInExamples,
-    canonicalizeExamples,
-} from '../../../nlu_model/nlu_model.utils';
+import { canonicalizeExamples } from '../../../nlu_model/nlu_model.utils';
 import ExampleUtils from '../../../../ui/components/utils/ExampleUtils';
+
+const checkNoEmojisInExamples = (example) => {
+    if (emojiTree(example.text).some(c => c.type === 'emoji')) {
+        throw new Meteor.Error('400', 'Emojis not allowed.');
+    }
+};
 
 const createSortObject = (fieldName = 'intent', order = 'ASC') => {
     const orderMongo = order === 'ASC' ? 1 : -1;
     const sortObject = { [fieldName]: orderMongo };
-    return sortObject;
+    return { sort: sortObject };
 };
 
 const createFilterObject = (
@@ -79,13 +83,7 @@ export const getExamples = async ({
     );
     const sortObject = createSortObject(sortKey, order);
     const data = await Examples.find(
-        {
-            ...filtersObject,
-        },
-        null,
-        {
-            sort: sortObject,
-        },
+        filtersObject, null, sortObject,
     ).lean();
 
     const cursorIndex = !cursor
@@ -132,18 +130,21 @@ export const insertExamples = async ({
 }) => {
     if (!examples.length) return [];
     const { autoAssignCanonical = true, overwriteOnSameText = true } = options;
-    checkNoEmojisInExamples(examples);
-    let preparedExamples = examples
-        .map(ExampleUtils.prepareExample)
-        .filter(({ intent }) => intent)
-        .map(example => ({
-            ...example,
-            projectId,
-            metadata: { ...(example.metadata || {}), ...(language ? { language } : {}) },
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            _id: shortid.generate(),
-        }));
+    let preparedExamples = examples.reduce((acc, curr) => {
+        checkNoEmojisInExamples(curr);
+        if (acc.some(ex => ex.text === curr.text)) return acc; // no duplicates
+        return [
+            ...acc,
+            ExampleUtils.prepareExample({
+                ...curr,
+                projectId,
+                metadata: { ...(curr.metadata || {}), ...(language ? { language } : {}) },
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                _id: shortid.generate(),
+            }),
+        ];
+    }, []);
     let itemsToOverwrite = [];
     if (autoAssignCanonical || overwriteOnSameText) {
         const { examples: existingExamples } = await getExamples({ projectId, pageSize: -1, language });
@@ -171,8 +172,8 @@ export const insertExamples = async ({
 };
 
 export const updateExamples = async ({ examples }) => {
-    checkNoEmojisInExamples(examples);
     const updatesPromises = examples.map(async (example) => {
+        checkNoEmojisInExamples(example);
         const result = await Examples.findOneAndUpdate(
             { _id: example._id },
             { $set: { ...example, updatedAt: new Date() } },

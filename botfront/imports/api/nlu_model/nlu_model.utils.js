@@ -1,11 +1,5 @@
-import { check } from 'meteor/check';
-import emojiTree from 'emoji-tree';
 import moment from 'moment';
-import {
-    uniqBy, differenceBy, sortBy, uniq, isEqual,
-} from 'lodash';
-import { NLUModels } from './nlu_model.collection';
-import { languages } from '../../lib/languages';
+import { isEqual } from 'lodash';
 
 export const isTraining = (project) => {
     const {
@@ -28,25 +22,6 @@ export const isTraining = (project) => {
         );
     }
     return !!statusOk && !!timeStampOk;
-};
-
-export const checkNoDuplicatesInExamples = (examples) => {
-    const uniques = uniqBy(examples, 'text');
-    const duplicates = differenceBy(examples, uniques, '_id');
-    if (duplicates.length > 0) {
-        const dups = uniqBy(duplicates, 'text')
-            .map(d => `"${d.text}"`)
-            .join(', ');
-        throw new Meteor.Error('400', `Duplicates found: ${dups}`);
-    }
-};
-
-export const checkNoEmojisInExamples = (examples) => {
-    emojiTree(JSON.stringify(examples)).forEach((c) => {
-        if (c.type === 'emoji') {
-            throw new Meteor.Error('400', `Emojis not allowed: ${c.text}`);
-        }
-    });
 };
 
 export const getEntityCountDictionary = (entities) => {
