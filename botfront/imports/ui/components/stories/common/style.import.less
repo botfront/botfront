@@ -152,11 +152,23 @@
     padding: 9px 0 5px; // 4px extra because of .utterance-container bottom margin
 
     .side-by-side.top-right {
-        max-width: 80px;
+        max-width: 170px;
         position: absolute;
         top: 5px;
         right: 5px;
         visibility: hidden;
+        .import-from-lang {
+            padding: 0.2em 0.3em;
+            background-color: #eceff1;
+            div.text {
+                &:hover {
+                    color: rgba(0, 0, 0, 0.4);
+                }
+                color: rgba(0, 0, 0, 0.3);
+                font-weight: 500;
+                font-size: 13px;
+            }
+        }
     }
     .response-name-container {
         position: absolute;
@@ -364,6 +376,11 @@
         }
         .icon-button {
             margin-left: 6px;
+        }
+        &.entity-value-column {
+            .entity-value-input-container {
+                margin-top: 0.65rem;
+            }
         }
     }
 }

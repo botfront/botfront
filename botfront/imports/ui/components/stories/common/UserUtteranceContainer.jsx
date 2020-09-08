@@ -31,6 +31,7 @@ const UtteranceContainer = (props) => {
             });
         }
     }, [value]);
+
     const validateInput = async () => {
         try {
             const { intent, entities, text } = await parseUtterance(input);

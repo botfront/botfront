@@ -57,12 +57,12 @@ describe('nlu tagging in training data', function() {
         cy.visit('/project/bf/nlu/models');
         cy.get('.rt-tbody .rt-tr:first')
             .contains('Matthieu')
-            .trigger('mouseover');
-
+            .click();
         cy.get('[data-cy=entity-dropdown]').click();
         cy.get('[data-cy=entity-dropdown]')
             .contains(secondEntity)
-            .click({ force: true });
+            .click({ force: true })
+            .trigger('keydown', { force: true, key: 'Enter' });
 
         cy.get('.rt-tbody .rt-tr:first').contains(secondEntity);
 
@@ -76,7 +76,7 @@ describe('nlu tagging in training data', function() {
         cy.visit('/project/bf/nlu/models');
         cy.get('.rt-tbody .rt-tr:first')
             .contains('Matthieu')
-            .trigger('mouseover');
+            .click();
 
         cy.get('[data-cy=entity-dropdown]').click();
         cy.get('[data-cy=entity-dropdown] input').type(`${newEntity}{enter}`);

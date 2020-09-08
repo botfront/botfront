@@ -1,6 +1,7 @@
 /* eslint-disable no-alert */
 import React, { useState } from 'react';
 import { action } from '@storybook/addon-actions';
+import { withKnobs, boolean } from '@storybook/addon-knobs';
 import { withBackground } from '../../.storybook/decorators';
 import PayloadEditor from '../../imports/ui/components/stories/common/PayloadEditor';
 
@@ -19,6 +20,7 @@ const PayloadEditorWrapped = (props) => {
             {...props}
             value={payload}
             onChange={(...args) => { setPayload(...args); action('onChange')(...args); }}
+            disallowAdvancedEditing={boolean('disallowAdvancedEditing', false)}
         />
     );
 };
@@ -26,7 +28,7 @@ const PayloadEditorWrapped = (props) => {
 export default {
     title: 'ButtonsAndPayloads/PayloadEditor',
     component: PayloadEditor,
-    decorators: [withBackground],
+    decorators: [withKnobs, withBackground],
 };
 
 export const EmptyPayload = () => (

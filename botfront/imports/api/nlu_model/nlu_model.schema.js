@@ -20,6 +20,8 @@ export const TrainingExampleSchema = new SimpleSchema({
     'entities.$.end': SimpleSchema.Integer,
     'entities.$.entity': String,
     'entities.$.value': String,
+    'entities.$.group': { type: String, required: false },
+    'entities.$.role': { type: String, required: false },
     updatedAt: {
         type: Date,
         optional: true,

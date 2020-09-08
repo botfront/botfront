@@ -18,7 +18,7 @@ describe('training data import', function() {
             cy.dataCy('drop-zone-nlu-data').upload(content, 'data.json');
         });
         cy.wait(1000);
-        cy.get('button').contains('Import').click({ force: true });
+        cy.dataCy('import-rasa-files').click({ force: true });
 
         cy.visit('/project/bf/nlu/models');
         cy.contains('Training Data').click();

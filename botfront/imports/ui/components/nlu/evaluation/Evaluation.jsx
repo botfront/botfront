@@ -57,38 +57,26 @@ class Evaluation extends React.Component {
             evaluation: {
                 results: {
                     intent_evaluation: intentEvaluation,
+                    entity_evaluation: entityEvaluation,
                 } = {},
             } = {},
         } = this.state;
 
+        const menuItems = [];
         if (intentEvaluation) {
-            const {
-                report,
-                predictions,
-                accuracy,
-                f1_score: f1Score,
-                precision,
-            } = intentEvaluation;
-            return [{
+            menuItems.push({
                 menuItem: 'Intents',
-                render: () => (
-                    <IntentReport
-                        report={report}
-                        precision={precision}
-                        accuracy={accuracy}
-                        f1_score={f1Score}
-                        predictions={predictions}
-                    />
-                ),
-            }, {
+                render: () => <IntentReport {...intentEvaluation} />,
+            });
+        }
+        if (entityEvaluation && Object.keys(entityEvaluation).length > 0) {
+            menuItems.push({
                 menuItem: 'Entities',
-                render: () => (
-                    <EntityReport predictions={predictions} />
-                ),
-            }];
+                render: () => <EntityReport {...entityEvaluation} />,
+            });
         }
 
-        return [];
+        return menuItems;
     }
 
     evaluate() {

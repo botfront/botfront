@@ -1,7 +1,9 @@
 import { safeLoad, safeDump } from 'js-yaml';
 import { clearTypenameField } from './client.safe.utils';
 
-const checkContentEmpty = (content) => {
+export const checkContentEmpty = (content) => {
+    if (!content) return false;
+  
     switch (true) {
     case content.custom && Object.keys(content.custom).length > 0:
         // custom response
@@ -18,6 +20,17 @@ const checkContentEmpty = (content) => {
     case content.text && content.text.length > 0 && !content.buttons:
         // text response
         return true;
+    case content.elements && content.elements.length > 0 && ((content.elements[0].image_url
+        && content.elements[0].image_url.length > 0)
+        || (content.elements[0].title
+        && content.elements[0].title.length > 0)
+        || (content.elements[0].subtitle
+        && content.elements[0].subtitle.length > 0)
+        || (content.elements[0].buttons
+        && content.elements[0].buttons.length > 0)
+        || (content.elements[0].default_action)):
+        // carrousel response
+        return true;
     default:
         return false;
     }
@@ -25,8 +38,8 @@ const checkContentEmpty = (content) => {
 
 export const checkResponseEmpty = (response) => {
     let isEmpty = true;
-    if (response.metadata) isEmpty = false;
-    if (response.key !== 'utter_') isEmpty = false;
+    if (response.metadata) return false;
+    if (response.key !== 'utter_') return false;
     response.values.forEach((value) => {
         if (!isEmpty) return;
         value.sequence.forEach((variation) => {

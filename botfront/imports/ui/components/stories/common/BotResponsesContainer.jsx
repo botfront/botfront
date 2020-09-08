@@ -1,11 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 import React, {
-    useState, useEffect, useMemo,
+    useState, useEffect, useMemo, useContext,
 } from 'react';
 import PropTypes from 'prop-types';
 import {
-    Placeholder,
+    Placeholder, Dropdown,
 } from 'semantic-ui-react';
+import { useMutation } from '@apollo/react-hooks';
+import { safeLoad } from 'js-yaml';
 
 import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
@@ -14,9 +16,12 @@ import BotResponseEditor from '../../templates/templates-list/BotResponseEditor'
 import ButtonTypeToggle from '../../templates/common/ButtonTypeToggle';
 import BotResponseContainer from './BotResponseContainer';
 import { setStoriesCurrent } from '../../../store/actions/actions';
-
-import { checkMetadataSet, toggleButtonPersistence } from '../../../../lib/botResponse.utils';
+import { ProjectContext } from '../../../layouts/context';
+import {
+    checkMetadataSet, toggleButtonPersistence, parseContentType, checkContentEmpty,
+} from '../../../../lib/botResponse.utils';
 import BotResponseName from './BotResponseName';
+import { RESP_FROM_LANG } from '../graphql/mutations';
 
 export const ResponseContext = React.createContext();
 
@@ -33,8 +38,22 @@ const BotResponsesContainer = (props) => {
         responseLocations,
         loadingResponseLocations,
         router,
+        isNew,
     } = props;
-
+    const {
+        project: { _id: projectId },
+        otherLanguages,
+        language,
+        setResponseInCache,
+    } = useContext(ProjectContext);
+    const [importRespFromLang] = useMutation(RESP_FROM_LANG, {
+        onCompleted: (data) => {
+            const resp = data.importRespFromLang.values.find(value => value.lang === language);
+            const content = safeLoad(resp.sequence[0].content);
+            const type = parseContentType(content);
+            setResponseInCache(name, { ...content, __typename: type });
+        },
+    });
     const [template, setTemplate] = useState();
     const [editorOpen, setEditorOpen] = useState(false);
     const [toBeCreated, setToBeCreated] = useState(null);
@@ -45,7 +64,7 @@ const BotResponsesContainer = (props) => {
         Promise.resolve(initialValue).then((res) => {
             if (!res) return;
             setTemplate(res);
-            if (res.isNew) setFocus(0);
+            if (res.isNew && isNew !== false) setFocus(0);
         });
     }, [initialValue]);
 
@@ -168,6 +187,26 @@ const BotResponsesContainer = (props) => {
                         onToggleButtonType={handleToggleQuickReply}
                         responseType={typeName}
                     />
+                    {otherLanguages.length > 0 && initialValue && !initialValue.isNew && getSequence().length === 1 && !checkContentEmpty(getSequence()[0])
+                        && (
+                            <Dropdown
+                                button
+                                icon={null}
+                                compact
+                                data-cy='import-from-lang'
+                                className='import-from-lang'
+                                options={otherLanguages}
+                                text='Copy from'
+                                onChange={(_, selection) => {
+                                    importRespFromLang({
+                                        variables: {
+                                            projectId, key: name, originLang: selection.value, destLang: language,
+                                        },
+                                    });
+                                }}
+                            />
+                        )
+                    }
                     {enableEditPopup && (
                         <IconButton
                             icon='ellipsis vertical'
@@ -207,11 +246,13 @@ BotResponsesContainer.propTypes = {
     responseLocations: PropTypes.array,
     loadingResponseLocations: PropTypes.bool,
     router: PropTypes.object.isRequired,
+    isNew: PropTypes.bool,
 };
 
 BotResponsesContainer.defaultProps = {
     deletable: true,
     name: null,
+    isNew: false,
     initialValue: null,
     onChange: () => {},
     onDeleteAllResponses: null,

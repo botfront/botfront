@@ -67,5 +67,5 @@ git add ../cli/package-lock.json
 git add ../api/package.json
 git add ../api/package-lock.json
 
-git commit --no-verify --amend --no-edit
+git commit --amend --no-edit
 

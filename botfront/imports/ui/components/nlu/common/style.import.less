@@ -1,10 +1,13 @@
 .entity-dropdown.ui.selection.dropdown {
     border-color: fade(@teal, 50%);
-    border-top: none;
-    border-right: none;
-    border-left: none;
     border-radius: 0;
     min-width: 12em;
+
+    &:not(.active) {
+        border-top: none;
+        border-right: none;
+        border-left: none;
+    }
 
     & > input.search {
         padding-left: 3em !important;
@@ -35,6 +38,7 @@
 }
 
 .intent-label {
+    user-select: none;
     display: inline-flex;
     justify-content: space-between;
     align-items: center;
@@ -162,6 +166,7 @@
         width: 100px;
         bottom: ~"calc(100% - 1px)";
         font-size: small;
+        user-select: none;
     }
 }
 
@@ -176,6 +181,12 @@
         }
         .float {
             color: @color
+        }
+        .value-synonym {
+            font-variant: small-caps;
+            font-size: small;
+            color: darken(@color, 15%);
+            font-weight: bold;
         }
     }
     .createentitycolorclasses(@i + 1);

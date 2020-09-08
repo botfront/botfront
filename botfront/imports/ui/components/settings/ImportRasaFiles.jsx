@@ -243,7 +243,7 @@ const ImportRasaFiles = (props) => {
     const [domainImporting, setDomainImporting] = useState(false);
     const domainFileReader = useDomainFileReader({
         defaultDomain,
-        fallbackImportLanguage,
+        fallbackImportLanguage: fallbackImportLanguage || language,
         projectLanguages: projectLanguages.map(l => l.value),
     });
     const [dropDomainFilesIndicators, dropDomainFiles] = useFileDrop(domainFileReader);
@@ -251,7 +251,7 @@ const ImportRasaFiles = (props) => {
     const [datasetImporting, setDatasetImporting] = useState(false);
     const datasetFileReader = useDatasetFileReader({
         instanceHost: instance.host,
-        fallbackImportLanguage,
+        fallbackImportLanguage: fallbackImportLanguage || language,
         projectLanguages: projectLanguages.map(l => l.value),
     });
     const [dropDatasetFilesIndicators, dropDatasetFiles] = useFileDrop(datasetFileReader);
@@ -421,7 +421,7 @@ const ImportRasaFiles = (props) => {
                         />
                     </div>
                     <div>
-                        <Button content='Import' primary onClick={handleImport} />
+                        <Button content='Import' data-cy='import-rasa-files' primary onClick={handleImport} />
                     </div>
                 </div>
             </Message>

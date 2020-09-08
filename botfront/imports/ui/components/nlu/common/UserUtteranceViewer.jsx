@@ -1,97 +1,95 @@
-import React, { useState, useContext, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import EntityPopup from '../../example_editor/EntityPopup';
-import { ProjectContext } from '../../../layouts/context';
-import Intent from './IntentLabel';
-import Entity from './EntityLabel';
+import IntentLabel from './IntentLabel';
+import EntityLabel from './EntityLabel';
 
 function UserUtteranceViewer(props) {
     const {
-        value, onChange, disableEditing, projectId, showIntent, disabled, onClick,
+        value, onChange, disableEditing, showIntent, disabled, onClick,
     } = props;
-    const { text, intent, entities } = value;
+    const { text = '', intent = '', entities = [] } = value;
     const [textSelection, setSelection] = useState(null);
     const mouseDown = useRef(false);
     const setMouseDown = (v) => { mouseDown.current = v; };
-    const { entities: contextEntities } = useContext(ProjectContext);
     const utteranceViewerRef = useRef();
-    const textContent = []; // an ordered list of the utterance cut down into text and entities.
-    // We add the original index to entities for onChange and onDelete methods, then we sort them by order of appearance.
-    const sortedEntities = entities
-        ? entities
-            .map((entity, index) => ({ ...entity, index }))
-            .sort((a, b) => {
-                if (a.start !== undefined && b.start !== undefined) return a.start - b.start;
-                return 0;
-            })
-        : [];
 
-    // if there is no text we can just get the sorted entities.
-    if (!text) {
-        sortedEntities.forEach((entity) => {
-            textContent.push({
-                ...entity,
-                type: 'entity',
-            });
-        });
-        // If there is a text, we get text elements and entities, sorted in order of appearance.
-    } else {
-        const currentText = {
-            type: 'text',
-        };
-
-        const addChar = (index) => {
-            const tempText = currentText.text;
-            currentText.text = tempText
-                ? tempText.concat(text.charAt(index))
-                : text.charAt(index);
-            if (!tempText) {
-                currentText.start = index;
-            }
-        };
-
-        for (let i = 0; i < text.length; i += 1) {
-            if (i === text.length - 1) {
-                addChar(i);
-                if (currentText.text) textContent.push({ ...currentText });
-                break;
-            }
-            if (textSelection && i === textSelection.start) {
-                i = textSelection.end;
-                if (currentText.text) textContent.push({ ...currentText });
-                delete currentText.text;
-                textContent.push({ ...textSelection, type: 'selection' });
-            }
-            if (sortedEntities[0] && sortedEntities[0].start === i) {
-                i = sortedEntities[0].end - 1;
-                if (currentText.text) {
-                    textContent.push({ ...currentText });
-                    delete currentText.text;
-                }
-                textContent.push({
-                    ...sortedEntities[0],
+    const textContent = useMemo(() => {
+        // We add the original index to entities for onChange and onDelete methods, then we sort them by order of appearance.
+        const sortedEntities = entities
+            ? entities
+                .map((entity, index) => ({ ...entity, index }))
+                .sort((a, b) => {
+                    if (a.start !== undefined && b.start !== undefined) {
+                        return a.start - b.start;
+                    }
+                    return 0;
+                })
+            : [];
+        const newTextContent = []; // an ordered list of the utterance cut down into text and entities.
+        // if there is no text we can just get the sorted entities.
+        if (!text) {
+            sortedEntities.forEach((entity) => {
+                newTextContent.push({
+                    ...entity,
                     type: 'entity',
                 });
-                sortedEntities.shift();
-            } else {
-                addChar(i);
+            });
+            // If there is a text, we get text elements and entities, sorted in order of appearance.
+        } else {
+            const currentText = {
+                type: 'text',
+            };
+
+            const addChar = (index) => {
+                const tempText = currentText.text;
+                currentText.text = tempText
+                    ? tempText.concat(text.charAt(index))
+                    : text.charAt(index);
+                if (!tempText) {
+                    currentText.start = index;
+                }
+            };
+
+            for (let i = 0; i < text.length; i += 1) {
+                if (textSelection && i === textSelection.start) {
+                    i = textSelection.end;
+                    if (currentText.text) newTextContent.push({ ...currentText });
+                    delete currentText.text;
+                    newTextContent.push({ ...textSelection, type: 'selection' });
+                }
+                if (sortedEntities[0] && sortedEntities[0].start === i) {
+                    i = sortedEntities[0].end - 1;
+                    if (currentText.text) {
+                        newTextContent.push({ ...currentText });
+                        delete currentText.text;
+                    }
+                    newTextContent.push({
+                        ...sortedEntities[0],
+                        type: 'entity',
+                    });
+                    sortedEntities.shift();
+                } else {
+                    addChar(i);
+                }
+                if (i === text.length - 1) {
+                    if (currentText.text) newTextContent.push({ ...currentText });
+                }
             }
         }
-    }
+        return newTextContent;
+    }, [textSelection, entities]);
 
     const onChangeWrapped = onChange;
 
-    function handleEntityChange(newValue, entityIndex) {
-        return onChangeWrapped({
+    function handleEntityChange(entity, entityIndex) {
+        const {
+            type: _, text: __, index: ___, ...entityCleaned
+        } = entity;
+        onChangeWrapped({
             ...value,
-            entities: entities.map((e, index) => {
-                if (entityIndex === index) {
-                    return { ...e, entity: newValue };
-                }
-                return e;
-            }),
+            entities: entities.map((e, index) => (entityIndex === index ? entityCleaned : e)),
         });
     }
 
@@ -105,139 +103,103 @@ function UserUtteranceViewer(props) {
         });
     }
 
-    function handleAddEntity(entity, element) {
-        setSelection(null);
-        if (!entity || !entity.trim()) return null;
-        const newEntity = { ...element };
-        delete newEntity.type;
-        delete newEntity.text;
-        const entityToAdd = { ...newEntity, entity, value: element.text };
+    function handleAddEntity(entity) {
+        if (!entity || !entity.entity || !entity.entity.trim()) return null;
+        if (textSelection) setSelection(null);
+        const {
+            type: _, text: __, index: ___, ...entityCleaned
+        } = entity;
         return onChangeWrapped({
             ...value,
-            entities: entities instanceof Array ? [entityToAdd, ...entities] : [entityToAdd],
+            entities:
+                entities instanceof Array
+                    ? [entityCleaned, ...entities]
+                    : [entityCleaned],
         });
     }
 
-    // This function recursively removes the first non-word characters of a selection
-    // until it starts with a word character
-    function trimBeginning(completeText, anchor, extent) {
-        if (
-            anchor === extent
-            || (/[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(anchor, anchor + 1))
-                && /[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(anchor - 1, anchor)))
-        ) {
-            return false;
+    function adjustBeginning(completeText, anchor) {
+        if (anchor === 0 || anchor === completeText.length) return anchor;
+        if (/[\W.,?!;:]/.test(completeText.slice(anchor, anchor + 1))) {
+            return adjustBeginning(completeText, anchor + 1);
         }
-
         if (
-            /[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(anchor, anchor + 1))
-            && /\W/.test(completeText.slice(anchor - 1, anchor))
+            /[\W.,?!;:][a-zA-Z\u00C0-\u017F0-9-]/.test(
+                completeText.slice(anchor - 1, anchor + 1),
+            )
         ) {
             return anchor;
         }
 
-        return trimBeginning(completeText, anchor + 1, extent);
+        return adjustBeginning(completeText, anchor - 1);
     }
 
-    // This function recursively removes the last non-word characters of a selection
-    // until it ends with a word character
-    function trimEnding(completeText, anchor, extent) {
-        if (
-            anchor === extent
-            || (/[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(extent - 1, extent))
-                && /[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(extent, extent + 1)))
-        ) {
-            return false;
+    function adjustEnd(completeText, extent) {
+        if (extent === 0 || extent === completeText.length) return extent;
+        if (/[\W.,?!;:]/.test(completeText.slice(extent - 1, extent))) {
+            return adjustEnd(completeText, extent - 1);
         }
-
         if (
-            /[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(extent - 1, extent))
-            && /\W/.test(completeText.slice(extent, extent + 1))
+            /[a-zA-Z\u00C0-\u017F0-9-][\W.,?!;:]/.test(
+                completeText.slice(extent - 1, extent + 1),
+            )
         ) {
             return extent;
         }
 
-        return trimEnding(completeText, anchor, extent - 1);
+        return adjustEnd(completeText, extent + 1);
     }
 
-    function getCorrectSelection(completeText, anchor, extent) {
-        if (anchor === extent) {
-            return false;
-        }
-
-        // we check that the characters at the edge of the selection are either
-        // next to a non word character or at the edge of the completeText
-        const anchorCorrect = (anchor === 0 || /\W/.test(completeText.slice(anchor - 1, anchor)))
-            && /[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(anchor, anchor + 1));
-        const extentCorrect = (extent === completeText.length
-                || /\W/.test(completeText.slice(extent, extent + 1)))
-            && /[a-zA-Z\u00C0-\u017F0-9-]/.test(completeText.slice(extent - 1, extent));
-
-        if (anchorCorrect && extentCorrect) {
-            return {
-                anchor,
-                extent,
-            };
-        }
-
-        let trimmedAnchor = anchor;
-        let trimmedExtent = extent;
-
-        if (!anchorCorrect) {
-            trimmedAnchor = trimBeginning(completeText, anchor, extent);
-        }
-
-        if (!extentCorrect) {
-            trimmedExtent = trimEnding(completeText, anchor, extent);
-        }
-
-        if ((!trimmedAnchor && trimmedAnchor !== 0) || !trimmedExtent) {
-            return false;
-        }
-
-        return {
-            anchor: trimmedAnchor + 1,
-            extent: trimmedExtent,
-        };
-    }
-
-    function handleMouseUp({ shiftKey, ctrlKey, metaKey }, element) {
+    function handleMouseUp({ shiftKey, ctrlKey, metaKey }, element, exited) {
         const selection = window.getSelection();
-        const selectionBoundary = getCorrectSelection(
-            text,
-            Math.min(
-                element.start + selection.anchorOffset,
-                element.start + selection.focusOffset,
-            ),
-            Math.max(
-                element.start + selection.anchorOffset,
-                element.start + selection.focusOffset,
-            ),
+        let extraBound = [];
+        if (exited) extraBound = exited === 'left' ? [0] : [(element.text || '').length];
+        let bad = false;
+        let anchor = Math.min(
+            element.start + selection.anchorOffset,
+            element.start + selection.focusOffset,
+            ...extraBound,
         );
+        let extent = Math.max(
+            element.start + selection.anchorOffset,
+            element.start + selection.focusOffset,
+            ...extraBound,
+        );
+        if (anchor === extent) bad = true;
+        else {
+            anchor = adjustBeginning(text, anchor);
+            extent = adjustEnd(text, extent);
+        }
+        if (entities.some(e => anchor <= e.end && extent >= e.start)) bad = true;
         if (
-            disableEditing
+            bad
+            || disableEditing
             || selection.type !== 'Range'
             || selection.anchorNode !== selection.focusNode
             || selection.anchorOffset === selection.focusOffset
-            || !selectionBoundary
         ) {
             window.getSelection().removeAllRanges();
-            setSelection(null);
+            if (textSelection) setSelection(null);
             if (mouseDown.current) {
                 // if coming from another row, mouseDown has already been turned to false,
                 // so a new mousedown won't be dispatched
-                utteranceViewerRef.current.parentNode.dispatchEvent(new MouseEvent('mousedown', {
-                    bubbles: true, shiftKey, ctrlKey, metaKey,
-                }));
+                utteranceViewerRef.current.parentNode.dispatchEvent(
+                    new MouseEvent('mousedown', {
+                        bubbles: true,
+                        shiftKey,
+                        ctrlKey,
+                        metaKey,
+                    }),
+                );
             }
             setMouseDown(false);
             return;
         }
         setMouseDown(false);
         setSelection({
-            text: text.slice(selectionBoundary.anchor, selectionBoundary.extent),
-            start: selectionBoundary.anchor,
-            end: selectionBoundary.extent,
+            text: text.slice(anchor, extent),
+            start: anchor,
+            end: extent,
         });
     }
 
@@ -249,13 +211,70 @@ function UserUtteranceViewer(props) {
             data-cy='utterance-text'
             {...(onClick ? { onClick } : {})}
             {...{
-                onMouseLeave: () => {
+                onMouseLeave: (e) => {
+                    if (
+                        Array.from(document.querySelectorAll('.popup')).some(p => p.contains(e.target))
+                    ) {
+                        return;
+                    }
                     if (!mouseDown.current) return;
-                    if (!textSelection) window.getSelection().removeAllRanges();
+                    if (Math.abs(e.screenY - mouseDown.current[1]) < 10) {
+                        const element = e.screenX - mouseDown.current[0] < 0
+                            ? textContent[0]
+                            : textContent[textContent.length - 1];
+                        handleMouseUp(
+                            e,
+                            element,
+                            e.screenX - mouseDown.current[0] < 0 ? 'left' : 'right',
+                        );
+                        window.getSelection().removeAllRanges();
+                        setMouseDown(false);
+                        return;
+                    }
+                    window.getSelection().removeAllRanges();
                     setMouseDown(false);
                     // dispatch mousedown when exiting row, meaning selection behavior will kick in
                     // in above components
-                    utteranceViewerRef.current.parentNode.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+                    utteranceViewerRef.current.parentNode.dispatchEvent(
+                        new MouseEvent('mousedown', { bubbles: true }),
+                    );
+                },
+            }}
+            {...{
+                onMouseUp: (e) => {
+                    if (
+                        e.screenX === mouseDown.current[0] // it's a click!
+                        && e.screenY === mouseDown.current[1]
+                        && Array.from(document.querySelectorAll('.entity-container')).some(p => p.contains(e.target))
+                    ) {
+                        setMouseDown(false);
+                        return;
+                    }
+                    // get element in array from html data property
+                    let node = e.target;
+                    let elementStart = null;
+                    while (!elementStart && utteranceViewerRef.current.contains(node)) {
+                        // eslint-disable-next-line prefer-destructuring
+                        elementStart = node.dataset.elementStart;
+                        node = node.parentNode;
+                    }
+                    if (elementStart) {
+                        const element = textContent.find(
+                            ({ start }) => start === parseInt(elementStart, 10),
+                        );
+                        handleMouseUp(e, element);
+                    } else if (utteranceViewerRef.current.contains(e.target)) {
+                        const element = e.screenX - mouseDown.current[0] < 0
+                            ? textContent[0]
+                            : textContent[textContent.length - 1];
+                        handleMouseUp(e, element, false);
+                    }
+                },
+            }}
+            {...{
+                onMouseDown: (e) => {
+                    setMouseDown([e.screenX, e.screenY]);
+                    if (!disableEditing) e.stopPropagation();
                 },
             }}
             ref={utteranceViewerRef}
@@ -263,54 +282,55 @@ function UserUtteranceViewer(props) {
             {textContent.map(element => (
                 <React.Fragment key={`${element.start}-${element.index}`}>
                     {element.type === 'text' && (
-                        // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
-                        <span
-                            onMouseDown={(e) => {
-                                setMouseDown(true);
-                                if (!disableEditing) e.stopPropagation();
-                            }}
-                            onMouseUp={evt => handleMouseUp(evt, element)}
-                            role='application'
-                        >
+                        <span role='application' data-element-start={element.start}>
                             {element.text}
                         </span>
                     )}
                     {element.type === 'entity' && (
-                        <Entity
-                            value={element}
-                            size='mini'
-                            {...color}
-                            allowEditing={!disableEditing}
-                            deletable={!disableEditing}
-                            onDelete={() => handleEntityDeletion(element.index)}
-                            onChange={(_e, { value: newValue }) => handleEntityChange(newValue, element.index)}
-                        />
+                        <span data-element-start={element.start}>
+                            <EntityLabel
+                                value={{
+                                    ...element,
+                                    text: text
+                                        ? text.slice(element.start, element.end)
+                                        : element.value,
+                                }}
+                                {...color}
+                                allowEditing={!disableEditing}
+                                deletable={!disableEditing}
+                                onDelete={() => handleEntityDeletion(element.index)}
+                                onChange={v => handleEntityChange(v, element.index)}
+                            />
+                        </span>
                     )}
                     {element.type !== 'text' && element.type !== 'entity' && (
-                        <EntityPopup
-                            trigger={(
+                        <EntityLabel
+                            value={{ ...element, value: element.text, entity: '' }}
+                            customTrigger={(
                                 <span
                                     className='selected-text'
                                     role='application'
+                                    data-element-start={element.start}
                                 >
                                     {element.text}
                                 </span>
                             )}
-                            onSelectionReset={() => setSelection(null)}
-                            options={contextEntities.map((e => ({ text: e, value: e })))}
-                            entity={{ ...element, value: element.text, entity: '' }}
-                            length={element.end - element.start}
-                            selection
-                            onAddOrChange={(_e, data) => handleAddEntity(data.value, element)}
-                            projectId={projectId}
+                            openInitially
+                            allowEditing={!disableEditing}
+                            deletable={!disableEditing}
+                            onClose={() => {
+                                if (textSelection) setSelection(null);
+                            }}
+                            onDelete={() => handleEntityDeletion(element.index)}
+                            onChange={v => handleAddEntity(v)}
                         />
                     )}
                 </React.Fragment>
             ))}
             {showIntent && (
-                <> &nbsp;&nbsp;&nbsp;
+                <div style={{ display: 'inline-block', marginLeft: '10px' }}>
                     {intent && (
-                        <Intent
+                        <IntentLabel
                             value={intent}
                             allowEditing={!disableEditing}
                             allowAdditions
@@ -318,9 +338,8 @@ function UserUtteranceViewer(props) {
                             disabled={disabled}
                         />
                     )}
-                </>
+                </div>
             )}
-
         </div>
     );
 }
@@ -331,7 +350,6 @@ UserUtteranceViewer.propTypes = {
     disabled: PropTypes.bool,
     showIntent: PropTypes.bool,
     onChange: PropTypes.func,
-    projectId: PropTypes.string.isRequired,
     onClick: PropTypes.func,
 };
 
@@ -342,7 +360,6 @@ UserUtteranceViewer.defaultProps = {
     onChange: () => {},
     onClick: null,
 };
-
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),

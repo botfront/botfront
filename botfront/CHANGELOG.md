@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.26.0](https://github.com/botfront/botfront/compare/v0.26.0-rc.3...v0.26.0) (2020-08-28)
+
+## [0.26.0](https://github.com/botfront/botfront/compare/v0.26.0-rc.3...v0.26.0) (2020-08-28)
+
+## [0.26.0-rc.3](https://github.com/botfront/botfront/compare/v0.26.0-rc.2...v0.26.0-rc.3) (2020-08-27)
+
+
+### Bug Fixes
+
+* prevent entities report crash when evaluation entities empty ([3e7471c](https://github.com/botfront/botfront/commit/3e7471c32fce01b3535d58ab2b114dd4c4167fdd))
+
+## [0.26.0-rc.2](https://github.com/botfront/botfront/compare/v0.26.0-rc.1...v0.26.0-rc.2) (2020-08-24)
+
+
+### Bug Fixes
+
+* hide copyFrom in bot responses when there is only one language ([c3845d7](https://github.com/botfront/botfront/commit/c3845d7e0bb184b6c93cc5e4d5e49c58ca9afa2e))
+
+## [0.26.0-rc.1](https://github.com/botfront/botfront/compare/v0.25.9...v0.26.0-rc.1) (2020-08-19)
+
+
+### Features
+
+* inter language responses ([9953d36](https://github.com/botfront/botfront/commit/9953d36d65a9c7954648001789bdf9170e41a9d9))
+* routes for individual settings pages ([76d69ad](https://github.com/botfront/botfront/commit/76d69ad5bdcdee115f6e0fc120646951ad746aea))
+
+
+### Bug Fixes
+
+* display entity evaluation ([4de12cb](https://github.com/botfront/botfront/commit/4de12cb13f3809c020c26693e0e188df774fdbbb))
+* do not save duckling entities ([03b9207](https://github.com/botfront/botfront/commit/03b9207ad7dae13a590dbe65a885688857dd3eb4))
+* incoming bug when wrong default language in project ([81e6a4c](https://github.com/botfront/botfront/commit/81e6a4c126508e5d8af44aea3349ce5f18d70e31))
+* pinned stories were not pinned at the top ([39f2b15](https://github.com/botfront/botfront/commit/39f2b15bc217378320d7a5197c0c31032ff6339c))
+
 ### [0.25.9](https://github.com/botfront/botfront/compare/v0.25.8...v0.25.9) (2020-08-06)
 
 

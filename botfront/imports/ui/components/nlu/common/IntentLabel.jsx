@@ -203,6 +203,7 @@ const Intent = React.forwardRef((props, ref) => {
                     open
                     basic
                     content={renderContent()}
+                    position='bottom right'
                     on='click'
                     context={labelRef.current}
                     onClose={handleClose}
