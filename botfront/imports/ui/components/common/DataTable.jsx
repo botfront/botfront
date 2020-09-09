@@ -33,6 +33,12 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
     const selectionKey = (allColumns.filter(c => c.selectionKey)[0] || {}).key || allColumns[0].key;
     const isDatumSelected = datum => datum && selection.includes(datum[selectionKey]);
 
+    useEffect(() => {
+        if (externallyControlledSelection) return;
+        const selectionFiltered = selection.filter(d1 => data.some(d2 => d2[selectionKey] === d1));
+        if (selectionFiltered.length !== selection.length) onChangeSelection(selectionFiltered);
+    }, [data]);
+
     const tableRef = useRef(null);
     if (!externallyControlledSelection) {
         const isMount = useIsMount();
