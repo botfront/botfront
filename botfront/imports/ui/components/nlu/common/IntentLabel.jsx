@@ -166,7 +166,7 @@ const Intent = React.forwardRef((props, ref) => {
     );
 
     let extraClass = '';
-    if (popupOpen) extraClass = `${extraClass} selected`;
+    if (popupOpen && !disabled && allowEditing) extraClass = `${extraClass} selected`;
     if (disabled) extraClass = `${extraClass} disabled`;
     if (value === OOS_LABEL || !value) extraClass = `${extraClass} null`;
     if (!allowEditing) extraClass = `${extraClass} uneditable`;
