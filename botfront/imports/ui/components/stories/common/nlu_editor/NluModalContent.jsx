@@ -4,6 +4,7 @@ import React, {
     useReducer,
     useMemo,
     useContext,
+    useRef,
 } from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
@@ -22,11 +23,10 @@ import { ProjectContext } from '../../../../layouts/context';
 
 const NLUModalContent = (props) => {
     const { closeModal, payload, displayedExample } = props;
-    const {
-        project: { _id: projectId }, language,
-    } = useContext(ProjectContext);
+    const { project: { _id: projectId }, language } = useContext(ProjectContext);
+    const { reloadStories } = useContext(ConversationOptionsContext);
 
-    const { data: existingExamples, loading: loadingExamples } = useExamples({
+    const { data, loading: loadingExamples, refetch } = useExamples({
         projectId,
         language,
         pageSize: -1,
@@ -35,13 +35,20 @@ const NLUModalContent = (props) => {
         exactMatch: true,
     });
 
+    // always refetch first
+    const hasRefetched = useRef(false);
+    useEffect(() => {
+        if (!hasRefetched.current && typeof refetch === 'function') {
+            refetch();
+            hasRefetched.current = true;
+        }
+    }, [refetch]);
+
     const checkPayloadsMatch = example => example.intent === payload.intent
         && (example.entities || []).length === payload.entities.length
         && (example.entities || []).every(entity => payload.entities.find(
             payloadEntity => payloadEntity.entity === entity.entity,
         ));
-
-    const [shouldForceRefresh, setShouldForceRefresh] = useState(false);
 
     const canonicalizeExample = (newExample, currentExamples) => {
         const exists = currentExamples.some(
@@ -49,29 +56,21 @@ const NLUModalContent = (props) => {
                 && !currentExample.deleted,
         );
         if (!exists && checkPayloadsMatch(newExample)) {
-            setShouldForceRefresh(true);
             return {
-                ...newExample,
+                ...ExampleUtils.prepareExample(newExample),
                 metadata: { canonical: true },
                 canonicalEdited: true,
             };
         }
-        return newExample;
+        return ExampleUtils.prepareExample(newExample);
     };
 
-    const canonicalizeExamples = (newExamples, currentExamples) => newExamples.map(newExample => canonicalizeExample(newExample, currentExamples));
-
     const exampleReducer = (state, updatedExamples) => updatedExamples
-        .map((example) => {
-            if (example.isDisplayed && (example.deleted || example.edited)) {
-                setShouldForceRefresh(true);
-            }
-            return {
-                ...example,
-                invalid: !checkPayloadsMatch(example),
-                isDisplayed: example._id === displayedExample._id,
-            };
-        })
+        .map(example => ({
+            ...example,
+            invalid: !checkPayloadsMatch(example),
+            isDisplayed: example._id === displayedExample._id,
+        }))
         .sort((exampleA, exampleB) => {
             if (exampleA.invalid) {
                 if (exampleB.invalid) return 0;
@@ -92,6 +91,7 @@ const NLUModalContent = (props) => {
         });
 
     const [examples, setExamples] = useReducer(exampleReducer, []);
+    useEffect(() => setExamples(data), [data]);
     const [cancelPopupOpen, setCancelPopupOpen] = useState(false);
     const [selection, setSelection] = useState([]);
 
@@ -99,31 +99,18 @@ const NLUModalContent = (props) => {
         () => examples.some(example => example.invalid === true && !example.deleted),
         [examples],
     );
-    const { reloadStories } = useContext(ConversationOptionsContext);
 
-    useEffect(
-        () => setExamples(
-            existingExamples.reduce(
-                (acc, curr) => [
-                    ...acc,
-                    ...(acc.some(ex => ex._id === curr._id || ex.text === curr.text) ? [] : [curr]),
-                ],
-                examples || [],
-            ),
-        ),
-        [existingExamples],
-    );
-
-    const onNewExamples = (newExamples) => {
-        const canonicalizedExamples = canonicalizeExamples(newExamples, examples);
-        setExamples([
-            ...canonicalizedExamples.map(v => ({
-                ...ExampleUtils.prepareExample(v),
-                isNew: true,
-                ...(v.canonicalEdited ? { canonicalEdited: true } : {}),
-            })),
-            ...examples,
-        ]);
+    const onNewExamples = (incomingExamples) => {
+        const newExamples = incomingExamples.reduce(
+            (acc, curr) => [
+                ...acc,
+                ...([...acc, ...examples].some(ex => ex.text === curr.text)
+                    ? []
+                    : [{ ...canonicalizeExample(curr, examples), isNew: true }]),
+            ],
+            [],
+        );
+        setExamples([...newExamples, ...examples]);
     };
 
     const onDeleteExamples = (ids) => {
@@ -162,7 +149,6 @@ const NLUModalContent = (props) => {
     };
 
     const onSwitchCanonical = async (example) => {
-        setShouldForceRefresh(true);
         const updatedExamples = [...examples];
         const newCanonicalIndex = examples.findIndex((exampleMatch) => {
             if (example._id === exampleMatch._id) return true;
@@ -179,7 +165,7 @@ const NLUModalContent = (props) => {
         });
         updatedExamples[newCanonicalIndex].metadata.canonical = !example.metadata
             .canonical;
-        updatedExamples[newCanonicalIndex].canonicalEdited = true; // !updatedExamples[newCanonicalIndex].canonicalEdited;
+        updatedExamples[newCanonicalIndex].canonicalEdited = true;
         const clearOldCanonical = oldCanonicalIndex !== newCanonicalIndex && oldCanonicalIndex > -1;
         if (clearOldCanonical) {
             updatedExamples[oldCanonicalIndex] = {
@@ -192,16 +178,10 @@ const NLUModalContent = (props) => {
     };
 
     const saveAndExit = () => {
-        Meteor.call(
-            'nlu.saveExampleChanges',
-            projectId,
-            language,
-            examples,
-            () => {
-                if (shouldForceRefresh) reloadStories();
-                closeModal();
-            },
-        );
+        Meteor.call('nlu.saveExampleChanges', projectId, language, examples, () => {
+            reloadStories();
+            closeModal();
+        });
     };
 
     const handleCancel = (e) => {
@@ -266,7 +246,6 @@ const NLUModalContent = (props) => {
             <></>
         );
     };
-
 
     if (loadingExamples) return <div>Loading</div>;
     return (

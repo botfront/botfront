@@ -15,7 +15,7 @@ const UtteranceContainer = (props) => {
         value, onInput, onAbort, onDelete,
     } = props;
     const [mode, setMode] = useState(!value ? 'input' : 'view');
-    const { parseUtterance, getUtteranceFromPayload } = useContext(ProjectContext);
+    const { parseUtterance, getCanonicalExamples } = useContext(ProjectContext);
     const [stateValue, setStateValue] = useState(value);
     const [input, setInput] = useState();
     const [fetchedData, setFetchedData] = useState(value || null);
@@ -25,11 +25,7 @@ const UtteranceContainer = (props) => {
 
     useEffect(() => {
         setMode(!value ? 'input' : 'view');
-        if (value) {
-            getUtteranceFromPayload(value, (err, data) => {
-                if (!err) setFetchedData(data);
-            });
-        }
+        if (value) setFetchedData([...getCanonicalExamples(value), null][0]);
     }, [value]);
 
     const validateInput = async () => {

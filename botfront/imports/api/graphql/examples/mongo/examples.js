@@ -107,10 +107,12 @@ export const listIntentsAndEntities = async ({ projectId, language }) => {
     const intents = {};
     let entities = [];
     const examples = await Examples.find({ projectId, 'metadata.language': language })
-        .select({ intent: 1, entities: 1 })
+        .select({
+            intent: 1, entities: 1, text: 1, 'metadata.canonical': 1,
+        })
+        .sort({ 'metadata.canonical': -1 })
         .lean();
     examples
-        .sort((a, b) => b.canonical || false - a.canonical || false)
         .forEach((ex) => {
             const exEntities = (ex.entities || []).map(en => en.entity);
             entities = entities.concat(exEntities.filter(en => !entities.includes(en)));

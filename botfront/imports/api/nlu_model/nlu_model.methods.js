@@ -6,13 +6,19 @@ import { formatError } from '../../lib/utils';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { NLUModels } from './nlu_model.collection';
 import {
-    getExamples, insertExamples, deleteExamples, switchCanonical, updateExamples,
+    getExamples,
+    insertExamples,
+    deleteExamples,
+    switchCanonical,
+    updateExamples,
 } from '../graphql/examples/mongo/examples';
+import { publishIntentsOrEntitiesChanged } from '../graphql/examples/resolvers/examplesResolver';
 import { Projects } from '../project/project.collection';
 import { checkIfCan } from '../../lib/scopes';
 
 const gazetteDefaults = {
-    mode: 'ratio', minScoreDefault: 80,
+    mode: 'ratio',
+    minScoreDefault: 80,
 };
 
 Meteor.methods({
@@ -21,7 +27,7 @@ Meteor.methods({
         check(projectId, String);
         check(language, String);
         check(examples, Array);
-        
+
         const edited = [];
         const newExamples = [];
         const canonicalEdited = [];
@@ -29,7 +35,7 @@ Meteor.methods({
 
         examples.forEach((example) => {
             if (example.deleted) {
-                deleted.push(example._id);
+                if (!example.isNew) deleted.push(example._id);
                 return;
             }
             if (example.isNew) newExamples.push(example);
@@ -41,15 +47,25 @@ Meteor.methods({
                     value to the current value we nee to toggle it before
                     calling the nlu.switchCanonical method
                 */
-                canonicalEdited.push({ ...example, metadata: { ...example.metadata, canonical: !example?.metadata?.canonical } });
+                canonicalEdited.push({
+                    ...example,
+                    metadata: {
+                        ...example.metadata,
+                        canonical: !example?.metadata?.canonical,
+                    },
+                });
             }
         });
         await deleteExamples({ ids: deleted });
         await insertExamples({
-            examples: newExamples, language, projectId, options: { autoAssignCanonical: !canonicalEdited.length },
+            examples: newExamples,
+            language,
+            projectId,
+            options: { autoAssignCanonical: !canonicalEdited.length },
         });
         await updateExamples({ examples: edited });
         canonicalEdited.forEach(example => switchCanonical({ projectId, language, example }));
+        publishIntentsOrEntitiesChanged(projectId, language);
     },
 
     'nlu.upsertEntitySynonym'(modelId, item) {
@@ -57,17 +73,26 @@ Meteor.methods({
         check(item, Object);
 
         if (item._id) {
-            return NLUModels.update({ _id: modelId, 'training_data.entity_synonyms._id': item._id }, { $set: { 'training_data.entity_synonyms.$': item } });
+            return NLUModels.update(
+                { _id: modelId, 'training_data.entity_synonyms._id': item._id },
+                { $set: { 'training_data.entity_synonyms.$': item } },
+            );
         }
 
-        return NLUModels.update({ _id: modelId }, { $push: { 'training_data.entity_synonyms': { _id: uuidv4(), ...item } } });
+        return NLUModels.update(
+            { _id: modelId },
+            { $push: { 'training_data.entity_synonyms': { _id: uuidv4(), ...item } } },
+        );
     },
 
     'nlu.deleteEntitySynonym'(modelId, itemId) {
         check(modelId, String);
         check(itemId, String);
 
-        return NLUModels.update({ _id: modelId }, { $pull: { 'training_data.entity_synonyms': { _id: itemId } } });
+        return NLUModels.update(
+            { _id: modelId },
+            { $pull: { 'training_data.entity_synonyms': { _id: itemId } } },
+        );
     },
 
     'nlu.upsertEntityGazette'(modelId, item) {
@@ -75,39 +100,61 @@ Meteor.methods({
         check(item, Object);
 
         if (item._id) {
-            return NLUModels.update({ _id: modelId, 'training_data.fuzzy_gazette._id': item._id }, { $set: { 'training_data.fuzzy_gazette.$': item } });
+            return NLUModels.update(
+                { _id: modelId, 'training_data.fuzzy_gazette._id': item._id },
+                { $set: { 'training_data.fuzzy_gazette.$': item } },
+            );
         }
 
         const gazette = { _id: uuidv4(), ...gazetteDefaults, ...item };
 
-        return NLUModels.update({ _id: modelId }, { $push: { 'training_data.fuzzy_gazette': gazette } });
+        return NLUModels.update(
+            { _id: modelId },
+            { $push: { 'training_data.fuzzy_gazette': gazette } },
+        );
     },
 
     'nlu.deleteEntityGazette'(modelId, itemId) {
         check(modelId, String);
         check(itemId, String);
 
-        return NLUModels.update({ _id: modelId }, { $pull: { 'training_data.fuzzy_gazette': { _id: itemId } } });
+        return NLUModels.update(
+            { _id: modelId },
+            { $pull: { 'training_data.fuzzy_gazette': { _id: itemId } } },
+        );
     },
 });
 
 if (Meteor.isServer) {
     const getChitChatProjectid = () => {
-        const { settings: { public: { chitChatProjectId = null } = {} } = {} } = GlobalSettings.findOne({}, { fields: { 'settings.public.chitChatProjectId': 1 } });
+        const {
+            settings: { public: { chitChatProjectId = null } = {} } = {},
+        } = GlobalSettings.findOne(
+            {},
+            { fields: { 'settings.public.chitChatProjectId': 1 } },
+        );
         return chitChatProjectId;
     };
 
     const filterExistent = (current, toImport, identifier, defaultsToInsert) => {
         // identifier is a selected key to determine sameness, for example nlu example 'text'
         const toFilter = {};
-        current.forEach((item) => { toFilter[item[identifier]] = true; }); // keep hashmap of existing items by chosen identifier
-        const addToKeys = (input, curr) => { toFilter[curr[identifier]] = true; return input; };
-        return toImport
-            .reduce((acc, curr) => (
-                curr[identifier] in toFilter // if item with same identifier exists
-                    ? acc // pass
-                    : addToKeys([...acc, { ...curr, ...defaultsToInsert, _id: uuidv4() }], curr) // else add example, giving it new id, and add to hashmap
-            ), []);
+        current.forEach((item) => {
+            toFilter[item[identifier]] = true;
+        }); // keep hashmap of existing items by chosen identifier
+        const addToKeys = (input, curr) => {
+            toFilter[curr[identifier]] = true;
+            return input;
+        };
+        return toImport.reduce(
+            (acc, curr) => (curr[identifier] in toFilter // if item with same identifier exists
+                ? acc // pass
+                : addToKeys(
+                    [...acc, { ...curr, ...defaultsToInsert, _id: uuidv4() }],
+                    curr,
+                )), // else add example, giving it new id, and add to hashmap
+            [],
+        );
     };
 
     Meteor.methods({
@@ -115,10 +162,16 @@ if (Meteor.isServer) {
             check(projectId, String);
             check(language, String);
             check(incomingConfig, Match.Maybe(Object));
-            
-            const { languages } = Projects.findOne({ _id: projectId }, { fields: { languages: 1 } });
+
+            const { languages } = Projects.findOne(
+                { _id: projectId },
+                { fields: { languages: 1 } },
+            );
             if (languages.includes(language)) {
-                throw new Meteor.Error('409', `Model with language '${language}' already exists`);
+                throw new Meteor.Error(
+                    '409',
+                    `Model with language '${language}' already exists`,
+                );
             }
 
             let config = incomingConfig;
@@ -127,11 +180,17 @@ if (Meteor.isServer) {
                     settings: {
                         public: { defaultNLUConfig },
                     },
-                } = GlobalSettings.findOne({}, { fields: { 'settings.public.defaultNLUConfig': 1 } });
+                } = GlobalSettings.findOne(
+                    {},
+                    { fields: { 'settings.public.defaultNLUConfig': 1 } },
+                );
                 config = defaultNLUConfig;
             }
             const modelId = NLUModels.insert({ projectId, language, config });
-            Projects.update({ _id: projectId }, { $addToSet: { nlu_models: modelId, languages: language } });
+            Projects.update(
+                { _id: projectId },
+                { $addToSet: { nlu_models: modelId, languages: language } },
+            );
             return modelId;
         },
 
@@ -160,7 +219,10 @@ if (Meteor.isServer) {
                 const { _id } = NLUModels.findOne({ projectId, language });
                 try {
                     NLUModels.remove({ projectId, language });
-                    return Projects.update({ _id: projectId }, { $pull: { nlu_models: _id } });
+                    return Projects.update(
+                        { _id: projectId },
+                        { $pull: { nlu_models: _id } },
+                    );
                 } catch (e) {
                     throw e;
                 }
@@ -171,8 +233,12 @@ if (Meteor.isServer) {
         async 'nlu.getChitChatIntents'(language) {
             check(language, String);
             const projectId = getChitChatProjectid();
-            if (!projectId) throw ReferenceError('Chitchat project not set in global settings');
-            const { examples = [] } = await getExamples({ pageSize: -1, projectId, language });
+            if (!projectId) { throw ReferenceError('Chitchat project not set in global settings'); }
+            const { examples = [] } = await getExamples({
+                pageSize: -1,
+                projectId,
+                language,
+            });
             return sortBy(uniq(examples.map(e => e.intent)));
         },
 
@@ -182,16 +248,25 @@ if (Meteor.isServer) {
             check(intents, [String]);
 
             const chitchatId = getChitChatProjectid();
-            if (!chitchatId) throw ReferenceError('Chitchat project not set in global settings');
+            if (!chitchatId) { throw ReferenceError('Chitchat project not set in global settings'); }
 
             const { examples = [] } = await getExamples({
-                pageSize: -1, projectId: chitchatId, language, intents,
+                pageSize: -1,
+                projectId: chitchatId,
+                language,
+                intents,
             });
 
             insertExamples({ examples, language, projectId });
         },
 
-        async 'nlu.import'(nluData, projectId, language, overwrite, canonicalExamples = []) {
+        async 'nlu.import'(
+            nluData,
+            projectId,
+            language,
+            overwrite,
+            canonicalExamples = [],
+        ) {
             check(nluData, Object);
             check(projectId, String);
             check(language, String);
@@ -204,9 +279,18 @@ if (Meteor.isServer) {
             */
 
             try {
-                const currentModel = NLUModels.findOne({ projectId, language }, { fields: { training_data: 1 } });
-                const { examples: currentExamples = [] } = await getExamples({ pageSize: -1, projectId, language });
-                let commonExamples; let entitySynonyms; let fuzzyGazette;
+                const currentModel = NLUModels.findOne(
+                    { projectId, language },
+                    { fields: { training_data: 1 } },
+                );
+                const { examples: currentExamples = [] } = await getExamples({
+                    pageSize: -1,
+                    projectId,
+                    language,
+                });
+                let commonExamples;
+                let entitySynonyms;
+                let fuzzyGazette;
 
                 if (nluData.common_examples && nluData.common_examples.length > 0) {
                     commonExamples = nluData.common_examples.map(e => ({
@@ -214,31 +298,52 @@ if (Meteor.isServer) {
                         _id: uuidv4(),
                         canonical: canonicalExamples.includes(e.text),
                     }));
-                    if (overwrite) await deleteExamples(currentExamples.map(({ _id }) => _id));
+                    if (overwrite) { await deleteExamples(currentExamples.map(({ _id }) => _id)); }
                     commonExamples = overwrite
                         ? commonExamples
                         : filterExistent(currentExamples, commonExamples, 'text');
                 }
 
                 if (nluData.entity_synonyms && nluData.entity_synonyms.length > 0) {
-                    entitySynonyms = nluData.entity_synonyms.map(e => ({ ...e, _id: uuidv4() }));
+                    entitySynonyms = nluData.entity_synonyms.map(e => ({
+                        ...e,
+                        _id: uuidv4(),
+                    }));
                     entitySynonyms = {
                         'training_data.entity_synonyms': overwrite
                             ? entitySynonyms
-                            : { $each: filterExistent(currentModel.training_data.entity_synonyms, entitySynonyms, 'value'), $position: 0 },
+                            : {
+                                $each: filterExistent(
+                                    currentModel.training_data.entity_synonyms,
+                                    entitySynonyms,
+                                    'value',
+                                ),
+                                $position: 0,
+                            },
                     };
                 }
 
                 let gazetteKey;
-                if (nluData.fuzzy_gazette && nluData.fuzzy_gazette.length > 0) gazetteKey = 'fuzzy_gazette';
+                if (nluData.fuzzy_gazette && nluData.fuzzy_gazette.length > 0) { gazetteKey = 'fuzzy_gazette'; }
                 if (nluData.gazette && nluData.gazette.length > 0) gazetteKey = 'gazette';
 
                 if (gazetteKey) {
-                    fuzzyGazette = nluData[gazetteKey].map(e => ({ ...e, _id: uuidv4() }));
+                    fuzzyGazette = nluData[gazetteKey].map(e => ({
+                        ...e,
+                        _id: uuidv4(),
+                    }));
                     fuzzyGazette = {
                         'training_data.fuzzy_gazette': overwrite
                             ? fuzzyGazette
-                            : { $each: filterExistent(currentModel.training_data.fuzzy_gazette, fuzzyGazette, 'value', gazetteDefaults), $position: 0 },
+                            : {
+                                $each: filterExistent(
+                                    currentModel.training_data.fuzzy_gazette,
+                                    fuzzyGazette,
+                                    'value',
+                                    gazetteDefaults,
+                                ),
+                                $position: 0,
+                            },
                     };
                 }
 
@@ -267,21 +372,28 @@ if (Meteor.isServer) {
                     languages: ['en', 'fr'],
                 });
 
-                await Promise.all(Object.keys(data).map(lang => new Promise(async (resolve) => {
-                    await Meteor.callWithPromise(
-                        'nlu.insert',
-                        { name: `chitchat-${lang}`, language: lang },
-                        projectId,
-                    );
-                    await insertExamples({
-                        examples: data[lang],
-                        language: lang,
-                        projectId,
-                    });
-                    resolve();
-                })));
+                await Promise.all(
+                    Object.keys(data).map(
+                        lang => new Promise(async (resolve) => {
+                            await Meteor.callWithPromise(
+                                'nlu.insert',
+                                { name: `chitchat-${lang}`, language: lang },
+                                projectId,
+                            );
+                            await insertExamples({
+                                examples: data[lang],
+                                language: lang,
+                                projectId,
+                            });
+                            resolve();
+                        }),
+                    ),
+                );
 
-                GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.public.chitChatProjectId': projectId } });
+                GlobalSettings.update(
+                    { _id: 'SETTINGS' },
+                    { $set: { 'settings.public.chitChatProjectId': projectId } },
+                );
             } catch (e) {
                 throw formatError(e);
             }

@@ -1,5 +1,5 @@
 import React, {
-    useState, useCallback, useEffect, useContext,
+    useState, useCallback, useEffect, useContext, useRef,
 } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
@@ -123,9 +123,15 @@ function NLUModel(props) {
         [],
     );
 
+    useEffect(() => { if (refetch) refetch(); }, [variables]);
+    // always refetch first
+    const hasRefetched = useRef(false);
     useEffect(() => {
-        if (!loadingExamples) refetch();
-    }, [variables]);
+        if (!hasRefetched.current && typeof refetch === 'function') {
+            refetch();
+            hasRefetched.current = true;
+        }
+    }, [refetch]);
 
     const updateFilters = (newFilters) => {
         setFilters(newFilters);

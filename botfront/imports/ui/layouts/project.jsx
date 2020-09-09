@@ -33,7 +33,7 @@ import 'semantic-ui-css/semantic.min.css';
 import store from '../store/store';
 import { ProjectContext } from './context';
 import { setsAreIdentical } from '../../lib/utils';
-import { INSERT_EXAMPLES, GET_EXAMPLES } from '../components/nlu/models/graphql';
+import { INSERT_EXAMPLES } from '../components/nlu/models/graphql';
 import apolloClient from '../../startup/client/apollo';
 import { useResponsesContext } from './response.hooks';
 
@@ -100,34 +100,6 @@ function Project(props) {
                 entities.map(e => e.entity),
             ) || { intent: i },
         );
-    };
-
-    const getUtteranceFromPayload = (payload, callback = () => {}) => {
-        const { intent, entities = [] } = payload;
-        if (!intent) throw new Meteor.Error('400', 'Intent missing from payload');
-        apolloClient
-            .query({
-                query: GET_EXAMPLES,
-                variables: {
-                    projectId,
-                    language: workingLanguage,
-                    pageSize: -1,
-                    intents: [intent],
-                    entities,
-                    exactMatch: true,
-                    sortKey: 'canonical',
-                    order: 'DESC',
-                },
-            })
-            .then((res) => {
-                const { examples } = res.data.examples;
-                if (!examples || !examples.length) {
-                    return callback(
-                        new Error('No example found for payload'),
-                    );
-                }
-                return wrapMeteorCallback(callback)(null, examples[0]);
-            }, wrapMeteorCallback(callback));
     };
 
     const getIntercomUser = () => {
@@ -238,7 +210,6 @@ function Project(props) {
                                 responses,
                                 addResponses,
                                 refreshEntitiesAndIntents,
-                                getUtteranceFromPayload,
                                 parseUtterance,
                                 addUtterancesToTrainingData,
                                 getCanonicalExamples,

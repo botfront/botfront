@@ -13,7 +13,7 @@ const { PubSub, withFilter } = require('apollo-server-express');
 const pubsub = new PubSub();
 const INTENTS_OR_ENTITIES_CHANGED = 'INTENTS_OR_ENTITIES_CHANGED';
 
-const publishIntentsOrEntitiesChanged = (projectId, language) => pubsub.publish(
+export const publishIntentsOrEntitiesChanged = (projectId, language) => pubsub.publish(
     INTENTS_OR_ENTITIES_CHANGED,
     { projectId, language, intentsOrEntitiesChanged: { changed: true } },
 );
@@ -66,6 +66,8 @@ export default {
         },
         async switchCanonical(_, args, __) {
             const response = await switchCanonical(args);
+            const { projectId, language } = args;
+            publishIntentsOrEntitiesChanged(projectId, language);
             return response;
         },
     
