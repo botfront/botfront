@@ -68,19 +68,19 @@ const NluCommandBar = React.forwardRef((props, ref) => {
                 )}
                 {onUndraft && !selectionIncludesNonDraft && (
                     <>
-                        <span className='shortcut'>U</span>
+                        <span className='shortcut'>S</span>
                         <Popup
                             size='mini'
                             inverted
-                            content='Undraft'
+                            content='Save'
                             trigger={(
                                 <div>
                                     <IconButton
                                         basic
                                         size='small'
                                         onClick={() => onUndraft(selection.map(({ _id }) => _id))}
-                                        color='green'
-                                        icon='check'
+                                        color='blue'
+                                        icon='save'
                                         data-cy='remove-draft'
                                     />
                                 </div>

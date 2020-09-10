@@ -288,7 +288,7 @@ function NluTable(props) {
         }
         if (key === 'Escape') setSelection([]);
         if (key.toLowerCase() === 'd') handleDelete(selection);
-        if (key.toLowerCase() === 'u' && !noDrafts) handleUndraft(selection);
+        if (key.toLowerCase() === 's' && !noDrafts) handleUndraft(selection);
         if (key.toLowerCase() === 'i') {
             e.stopPropagation();
             e.preventDefault();
