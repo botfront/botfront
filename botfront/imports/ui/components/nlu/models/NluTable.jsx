@@ -315,7 +315,7 @@ function NluTable(props) {
                 />
             )}
             {filters && (
-                <div className='side-by-side'>
+                <div className='side-by-side middle'>
                     <Filters
                         intents={intents}
                         entities={entities}
