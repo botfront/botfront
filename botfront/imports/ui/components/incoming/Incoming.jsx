@@ -66,7 +66,7 @@ export default function Incoming(props) {
         <>
             <Menu borderless className='top-menu'>
                 <div className='language-container'>
-                    <Menu.Item header borderless className='language-item'>
+                    <Menu.Item header className='language-item'>
                         {['conversations', 'forms'].includes(activeTab)
                             ? null
                             : <LanguageDropdown />
