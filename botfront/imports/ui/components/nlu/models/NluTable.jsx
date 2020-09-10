@@ -144,7 +144,6 @@ function NluTable(props) {
                     <Popup.Content className='popup-canonical'>
                         This example is canonical for the intent
                         <span className='intent-name'> {datum.intent}</span>
-    
                         {datum.entities && datum.entities.length > 0
                             ? (
                                 <>
@@ -245,6 +244,7 @@ function NluTable(props) {
     };
 
     function handleDelete(ids) {
+        if (selectionWithFullData.some(d => d.metadata?.canonical)) return null;
         const fallbackUtterance = getFallbackUtterance(ids);
         const message = `Delete ${ids.length} NLU examples?`;
         const action = () => deleteExamples(ids)

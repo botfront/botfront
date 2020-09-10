@@ -59,6 +59,7 @@ const NluCommandBar = React.forwardRef((props, ref) => {
                     <span className='shortcut'>D</span>
                     <IconButton
                         size='small'
+                        disabled={selectionIncludesCanonical}
                         onClick={() => onDelete(selection.map(({ _id }) => _id))}
                         color='grey'
                         icon='trash'
