@@ -14,12 +14,12 @@ function InsertNlu(props) {
     const handleParse = (func, v) => Meteor.call(
         'rasa.parse',
         instance,
-        (v || value).split('\n').map(text => ({ text, lang: language })),
+        v.map(text => ({ text, lang: language })),
         { failSilently: true },
         (err, res) => {
             if (err || !res) {
                 return func(
-                    (v || value).map(text => ({
+                    v.map(text => ({
                         text,
                         metadata: { draft: !skipDraft },
                         intent: defaultIntent,
@@ -40,7 +40,7 @@ function InsertNlu(props) {
     );
 
     const doSetParsedExample = useCallback(debounce(
-        v => handleParse(setParsedExample, v), 500,
+        v => handleParse(setParsedExample, v.split('\n').slice(0, 1)), 500,
     ), []);
 
     function handleKeyPress(e) {
@@ -49,8 +49,7 @@ function InsertNlu(props) {
             e.stopPropagation();
             e.preventDefault();
             doSetParsedExample.cancel();
-            if (parsedExample) onSave(parsedExample);
-            else handleParse(onSave);
+            handleParse(onSave, value.split('\n'));
             setValue('');
             setParsedExample(null);
         }
@@ -82,7 +81,7 @@ function InsertNlu(props) {
                         data-cy='example-text-editor-input'
                     />
                 </Form>
-                {Array.isArray(parsedExample) && parsedExample.length === 1 && (
+                {parsedExample && value.split('\n').length < 2 && (
                     <div className='tester' data-cy='nlu-example-tester'>
                         <Segment>
                             <UserUtteranceViewer

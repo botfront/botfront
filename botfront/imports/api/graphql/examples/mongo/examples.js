@@ -4,7 +4,6 @@ import emojiTree from 'emoji-tree';
 import Examples from '../examples.model.js';
 import { setsAreIdentical } from '../../../../lib/utils';
 import { canonicalizeExamples } from '../../../nlu_model/nlu_model.utils';
-import ExampleUtils from '../../../../ui/components/utils/ExampleUtils';
 
 const checkNoEmojisInExamples = (example) => {
     if (emojiTree(example.text).some(c => c.type === 'emoji')) {
@@ -82,17 +81,13 @@ export const getExamples = async ({
         options,
     );
     const sortObject = createSortObject(sortKey, order);
-    const data = await Examples.find(
-        filtersObject, null, sortObject,
-    ).lean();
+    const data = await Examples.find(filtersObject, null, sortObject).lean();
 
     const cursorIndex = !cursor
         ? 0
         : data.findIndex(activity => activity._id === cursor) + 1;
-    const examples = pageSize === 0
-        ? data
-        : data.slice(cursorIndex, cursorIndex + pageSize);
-    
+    const examples = pageSize === 0 ? data : data.slice(cursorIndex, cursorIndex + pageSize);
+
     return {
         examples,
         pageInfo: {
@@ -108,21 +103,23 @@ export const listIntentsAndEntities = async ({ projectId, language }) => {
     let entities = [];
     const examples = await Examples.find({ projectId, 'metadata.language': language })
         .select({
-            intent: 1, entities: 1, text: 1, 'metadata.canonical': 1,
+            intent: 1,
+            entities: 1,
+            text: 1,
+            'metadata.canonical': 1,
         })
         .sort({ 'metadata.canonical': -1 })
         .lean();
-    examples
-        .forEach((ex) => {
-            const exEntities = (ex.entities || []).map(en => en.entity);
-            entities = entities.concat(exEntities.filter(en => !entities.includes(en)));
-            if (!Object.keys(intents).includes(ex.intent)) intents[ex.intent] = [];
-            if (
-                !intents[ex.intent].some(ex2 => setsAreIdentical(ex2.entities, exEntities))
-            ) {
-                intents[ex.intent].push({ entities: exEntities, example: ex });
-            }
-        });
+    examples.forEach((ex) => {
+        const exEntities = (ex.entities || []).map(en => en.entity);
+        entities = entities.concat(exEntities.filter(en => !entities.includes(en)));
+        if (!Object.keys(intents).includes(ex.intent)) intents[ex.intent] = [];
+        if (
+            !intents[ex.intent].some(ex2 => setsAreIdentical(ex2.entities, exEntities))
+        ) {
+            intents[ex.intent].push({ entities: exEntities, example: ex });
+        }
+    });
 
     return { intents, entities };
 };
@@ -131,38 +128,44 @@ export const insertExamples = async ({
     examples, language, projectId, options = {},
 }) => {
     if (!examples.length) return [];
-    const { autoAssignCanonical = true, overwriteOnSameText = true } = options;
+    const { autoAssignCanonical = true, overwriteOnSameText = false } = options;
     let preparedExamples = examples.reduce((acc, curr) => {
         checkNoEmojisInExamples(curr);
         if (acc.some(ex => ex.text === curr.text)) return acc; // no duplicates
         return [
             ...acc,
-            ExampleUtils.prepareExample({
+            {
                 ...curr,
                 projectId,
                 metadata: { ...(curr.metadata || {}), ...(language ? { language } : {}) },
                 createdAt: new Date(),
                 updatedAt: new Date(),
                 _id: shortid.generate(),
-            }),
+            },
         ];
     }, []);
-    let itemsToOverwrite = [];
-    if (autoAssignCanonical || overwriteOnSameText) {
-        const { examples: existingExamples } = await getExamples({ projectId, pageSize: -1, language });
-        if (overwriteOnSameText) {
-            itemsToOverwrite = intersectionBy(
-                existingExamples,
-                preparedExamples,
-                'text',
-            ).map(({ _id }) => _id);
-        }
-        if (autoAssignCanonical) {
-            preparedExamples = canonicalizeExamples(preparedExamples, existingExamples);
-        }
+    const { examples: existingExamples } = await getExamples({
+        projectId,
+        pageSize: -1,
+        language,
+    });
+    const itemsWithSameText = intersectionBy(
+        existingExamples,
+        preparedExamples,
+        'text',
+    ).map(({ text }) => text);
+    if (autoAssignCanonical) {
+        preparedExamples = canonicalizeExamples(preparedExamples, existingExamples);
+    }
+    if (!overwriteOnSameText) {
+        preparedExamples = preparedExamples.filter(
+            ({ text }) => !itemsWithSameText.includes(text),
+        );
     }
     try {
-        if (itemsToOverwrite.length) { await Examples.deleteMany({ _id: { $in: itemsToOverwrite } }).exec(); }
+        if (overwriteOnSameText) {
+            await Examples.deleteMany({ text: { $in: itemsWithSameText } }).exec();
+        }
         const result = await Examples.insertMany(preparedExamples);
         if (result.length !== preparedExamples.length) {
             throw new Error('Insert failed');
@@ -198,7 +201,6 @@ export const deleteExamples = async ({ ids }) => {
     return ids;
 };
 
-
 export const switchCanonical = async ({ projectId, language, example }) => {
     if (!example.intent) return { change: null };
     if (example.metadata && !example.metadata.canonical) {
@@ -207,17 +209,21 @@ export const switchCanonical = async ({ projectId, language, example }) => {
         */
         const entities = example.entities ? example.entities : [];
         let elemMatch = {
-            'metadata.canonical': true, intent: example.intent, entities: { $size: entities.length },
+            'metadata.canonical': true,
+            intent: example.intent,
+            entities: { $size: entities.length },
         };
 
         if (entities.length > 0) {
-            const entityElemMatchs = entities.map(entity => (
-                {
-                    $elemMatch: { entity: entity.entity, value: entity.value },
-                }));
+            const entityElemMatchs = entities.map(entity => ({
+                $elemMatch: { entity: entity.entity, value: entity.value },
+            }));
             elemMatch = {
                 ...elemMatch,
-                $and: [{ entities: { $size: entities.length } }, { entities: { $all: entityElemMatchs } }],
+                $and: [
+                    { entities: { $size: entities.length } },
+                    { entities: { $all: entityElemMatchs } },
+                ],
             };
             delete elemMatch.entities; // remove the entities field as the size condition is now in the $and
         }
@@ -230,10 +236,18 @@ export const switchCanonical = async ({ projectId, language, example }) => {
         const result = await Examples.findOne(query).lean();
         const examplesToUpdate = [];
         if (result) {
-            examplesToUpdate.push({ ...result, metadata: { ...result.metadata, canonical: false } });
+            examplesToUpdate.push({
+                ...result,
+                metadata: { ...result.metadata, canonical: false },
+            });
         }
-        examplesToUpdate.push({ ...example, metadata: { ...example.metadata, canonical: true } });
+        examplesToUpdate.push({
+            ...example,
+            metadata: { ...example.metadata, canonical: true },
+        });
         return updateExamples({ examples: examplesToUpdate });
     }
-    return updateExamples({ examples: [{ ...example, metadata: { ...example.metadata, canonical: false } }] });
+    return updateExamples({
+        examples: [{ ...example, metadata: { ...example.metadata, canonical: false } }],
+    });
 };

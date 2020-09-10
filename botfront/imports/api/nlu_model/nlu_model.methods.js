@@ -350,7 +350,9 @@ if (Meteor.isServer) {
                 const op = overwrite
                     ? { $set: { ...entitySynonyms, ...fuzzyGazette } }
                     : { $push: { ...entitySynonyms, ...fuzzyGazette } };
-                await insertExamples({ language, projectId, examples: commonExamples });
+                await insertExamples({
+                    language, projectId, examples: commonExamples, options: { overwriteOnSameText: true },
+                });
                 return NLUModels.update({ _id: currentModel._id }, op);
             } catch (e) {
                 if (e instanceof Meteor.Error) throw e;
