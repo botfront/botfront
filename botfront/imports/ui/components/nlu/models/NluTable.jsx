@@ -1,8 +1,8 @@
 import React, {
-    useState, useRef, useContext,
+    useState, useRef, useContext, useMemo,
 } from 'react';
 import {
-    Popup, Grid, Checkbox, Icon, Confirm, Form, Button,
+    Popup, Checkbox, Icon, Confirm, Form, Button,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import DataTable from '../../common/DataTable';
@@ -73,10 +73,16 @@ function NluTable(props) {
                 allowEditing={!canonical}
                 allowAdditions
                 onChange={i => handleEditExample({ ...datum, intent: i })}
+                onClose={() => tableRef.current.tableRef().current.focus()}
             />,
             canonical,
         );
     };
+
+    const selectionWithFullData = useMemo(
+        () => data.filter(({ _id }) => selection.includes(_id)),
+        [selection, data],
+    );
 
     const renderExample = (row) => {
         const { datum } = row;
@@ -128,7 +134,7 @@ function NluTable(props) {
 
     const renderActionsColumn = (row) => {
         const { datum } = row;
-        const { metadata: { canonical = false } = {}, _id } = datum;
+        const { metadata: { canonical = false, draft = false } = {}, _id } = datum;
         let tooltip = (<div>Mark as canonical</div>);
         if (canonical) {
             tooltip = (
@@ -169,25 +175,27 @@ function NluTable(props) {
                         onClick={() => deleteExamples([datum._id])}
                     />
                 )}
-                <Popup
-                    position='top center'
-                    disabled={tooltip === null}
-                    trigger={(
-                        <div>
-                            <IconButton
-                                color={canonical ? 'black' : 'grey'}
-                                basic={canonical}
-                                icon='gem'
-                                size='small'
-                                disabled={tooltip === null}
-                                onClick={() => switchCanonical(datum)}
-                                data-cy='icon-gem'
-                            />
-                        </div>
-                    )}
-                    inverted={!canonical}
-                    content={tooltip}
-                />
+                {!draft && (
+                    <Popup
+                        position='top center'
+                        disabled={tooltip === null}
+                        trigger={(
+                            <div>
+                                <IconButton
+                                    color={canonical ? 'black' : 'grey'}
+                                    basic={canonical}
+                                    icon='gem'
+                                    size='small'
+                                    disabled={tooltip === null}
+                                    onClick={() => switchCanonical(datum)}
+                                    data-cy='icon-gem'
+                                />
+                            </div>
+                        )}
+                        inverted={!canonical}
+                        content={tooltip}
+                    />
+                )}
             </div>
         );
     };
@@ -217,24 +225,43 @@ function NluTable(props) {
         },
     ];
 
-    function multipleDelete(ids) {
+    const getFallbackUtterance = (ids) => {
+        const bounds = [ids[0], ids[ids.length - 1]].map(id1 => data.findIndex(d => d._id === id1));
+        return data[bounds[1] + 1]
+            ? data[bounds[1] + 1]
+            : data[Math.max(0, bounds[0] - 1)];
+    };
+
+    const mutationCallback = (fallbackUtterance, mutationName) => ({
+        data: { [mutationName]: res = [] } = {},
+    }) => {
+        const filtered = selection.filter(s => !res.includes(s));
+        return setSelection(
+            // remove deleted from selection
+            filtered.length ? filtered : [fallbackUtterance._id],
+        );
+    };
+
+    function handleDelete(ids) {
+        const fallbackUtterance = getFallbackUtterance(ids);
         const message = `Delete ${ids.length} NLU examples?`;
-        const action = () => deleteExamples(ids);
-        setConfirm({ message, action });
+        const action = () => deleteExamples(ids)
+            .then(mutationCallback(fallbackUtterance, 'deleteExamples'));
+        return ids.length > 1 ? setConfirm({ message, action }) : action();
     }
 
-    function multipleUndraft(ids) {
+    function handleUndraft(ids) {
         const message = `Remove draft status of  ${ids.length} NLU examples`;
         const examplesToUpdate = ids.map(_id => ({ _id, metadata: { draft: false } }));
         const action = () => updateExamples(examplesToUpdate);
-        setConfirm({ message, action });
+        return ids.length > 1 ? setConfirm({ message, action }) : action();
     }
 
-    function multipleSetIntent(ids, intent) {
+    function handleSetIntent(ids, intent) {
         const message = `Change intent to ${intent} for ${ids.length} NLU examples?`;
         const examplesToUpdate = ids.map(_id => ({ _id, intent }));
         const action = () => updateExamples(examplesToUpdate);
-        setConfirm({ message, action });
+        return ids.length > 1 ? setConfirm({ message, action }) : action();
     }
 
     const handleOpenIntentSetterDialogue = () => {
@@ -260,8 +287,8 @@ function NluTable(props) {
             updateFilters({ ...filters, onlyCanonicals: !filters.onlyCanonicals });
         }
         if (key === 'Escape') setSelection([]);
-        if (key.toLowerCase() === 'd') multipleDelete(selection);
-        if (key.toLowerCase() === 'u' && !noDrafts) multipleUndraft(selection);
+        if (key.toLowerCase() === 'd') handleDelete(selection);
+        if (key.toLowerCase() === 'u' && !noDrafts) handleUndraft(selection);
         if (key.toLowerCase() === 'i') {
             e.stopPropagation();
             e.preventDefault();
@@ -328,10 +355,10 @@ function NluTable(props) {
             {selection.length > 1 && useShortcuts && (
                 <NluCommandBar
                     ref={nluCommandBarRef}
-                    selection={selection}
-                    onSetIntent={multipleSetIntent}
-                    onDelete={multipleDelete}
-                    onUndraft={noDrafts ? undefined : multipleUndraft}
+                    selection={selectionWithFullData}
+                    onSetIntent={handleSetIntent}
+                    onDelete={handleDelete}
+                    onUndraft={noDrafts ? undefined : handleUndraft}
                     onCloseIntentPopup={() => tableRef.current.tableRef().current.focus()}
                 />
             )}

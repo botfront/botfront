@@ -10,6 +10,8 @@ const NluCommandBar = React.forwardRef((props, ref) => {
     } = props;
     
     const intentLabelRef = useRef();
+    const selectionIncludesCanonical = selection.some(d => d.metadata?.canonical);
+    const selectionIncludesNonDraft = selection.some(d => !d.metadata?.draft);
 
     useImperativeHandle(ref, () => ({
         openIntentPopup: () => intentLabelRef.current.openPopup(),
@@ -19,27 +21,29 @@ const NluCommandBar = React.forwardRef((props, ref) => {
         <div className='activity-command-bar' data-cy='activity-command-bar'>
             <span>{selection.length} selected</span>
             <div className='side-by-side narrow right'>
-                {onSetIntent !== null && onCloseIntentPopup !== null && (
+                {onSetIntent && onCloseIntentPopup && (
                     <>
                         <span className='shortcut'>I</span>
                         <IntentLabel
                             ref={intentLabelRef}
                             detachedModal
                             allowAdditions
-                            allowEditing
-                            onChange={intent => onSetIntent(selection, intent)}
+                            allowEditing={!selectionIncludesCanonical}
+                            onChange={intent => onSetIntent(selection.map(({ _id }) => _id), intent)}
                             onClose={onCloseIntentPopup}
                             enableReset
                         />
                         <Popup
                             size='mini'
                             inverted
+                            disabled={selectionIncludesCanonical}
                             content='Change intent'
                             trigger={(
                                 <div>
                                     <IconButton
                                         basic
                                         size='small'
+                                        disabled={selectionIncludesCanonical}
                                         onClick={() => intentLabelRef.current.openPopup()}
                                         color='purple'
                                         icon='tag'
@@ -50,19 +54,19 @@ const NluCommandBar = React.forwardRef((props, ref) => {
                         />
                     </>
                 )}
-                {onDelete !== null && (
+                {onDelete && (
                 <>
                     <span className='shortcut'>D</span>
                     <IconButton
                         size='small'
-                        onClick={() => onDelete(selection)}
+                        onClick={() => onDelete(selection.map(({ _id }) => _id))}
                         color='grey'
                         icon='trash'
                         data-cy='trash icon-trash'
                     />
                 </>
                 )}
-                {onUndraft !== null && (
+                {onUndraft && !selectionIncludesNonDraft && (
                     <>
                         <span className='shortcut'>U</span>
                         <Popup
@@ -74,7 +78,7 @@ const NluCommandBar = React.forwardRef((props, ref) => {
                                     <IconButton
                                         basic
                                         size='small'
-                                        onClick={() => onUndraft(selection)}
+                                        onClick={() => onUndraft(selection.map(({ _id }) => _id))}
                                         color='green'
                                         icon='check'
                                         data-cy='remove-draft'
