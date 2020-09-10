@@ -17,7 +17,6 @@ import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
 import InsertNlu from '../../example_editor/InsertNLU';
 import Evaluation from '../evaluation/Evaluation';
 import ChitChat from './ChitChat';
-import IntentBulkInsert from './IntentBulkInsert';
 import Synonyms from '../../synonyms/Synonyms';
 import Gazette from '../../synonyms/Gazette';
 import NLUPipeline from './settings/NLUPipeline';
@@ -331,10 +330,6 @@ function NLUModel(props) {
                             {
                                 menuItem: 'Chit Chat',
                                 render: () => <ChitChat model={model} />,
-                            },
-                            {
-                                menuItem: 'Insert many',
-                                render: () => <IntentBulkInsert data-cy='insert-many' />,
                             },
                         ]}
                     />
