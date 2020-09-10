@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { TextArea } from 'semantic-ui-react';
 import { find, sortBy, isNull } from 'lodash';
 
-import { examplePropType } from '../utils/ExampleUtils';
 import getColor from '../../../lib/getColors';
 
 const emptyExample = () => ({ text: '', intent: '', entities: [] });
@@ -238,7 +237,7 @@ export class ExampleTextEditor extends React.Component {
 }
 
 ExampleTextEditor.propTypes = {
-    example: PropTypes.shape(examplePropType),
+    example: PropTypes.object,
     onChange: PropTypes.func,
     onEnter: PropTypes.func,
     highlightEntities: PropTypes.bool,

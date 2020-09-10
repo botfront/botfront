@@ -11,7 +11,6 @@ import path from 'path';
 import {
     formatError, getProjectModelLocalFolder, getProjectModelFileName,
 } from '../../lib/utils';
-import ExampleUtils from '../../ui/components/utils/ExampleUtils';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { Instances } from './instances.collection';
 import { CorePolicies } from '../core_policies';
@@ -89,7 +88,7 @@ export const getTrainingDataInRasaFormat = (
     }
 
     // Load examples
-    let common_examples = model.training_data.common_examples.map(e => ExampleUtils.stripBare(e, false));
+    let { common_examples } = model.training_data;
     if (intents.length > 0) {
         // filter by intent if specified
         common_examples = common_examples.filter(e => intents.indexOf(e.intent) >= 0);

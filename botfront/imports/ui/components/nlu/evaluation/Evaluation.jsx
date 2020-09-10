@@ -16,7 +16,6 @@ import apolloClient from '../../../../startup/client/apollo';
 
 import IntentReport from './IntentReport';
 import EntityReport from './EntityReport';
-import ExampleUtils from '../../utils/ExampleUtils';
 import { InputButtons } from './InputButtons.jsx';
 import { Evaluations } from '../../../../api/nlu_evaluation';
 import UploadDropzone from '../../utils/UploadDropzone';
@@ -107,14 +106,14 @@ class Evaluation extends React.Component {
 
     async useValidatedSet() {
         this.changeExampleSet('validation', true);
+        const { projectId, workingLanguage: language } = this.props;
         const { data: { getActivity: { activity: examples } } } = await apolloClient.query({
             query: activityQuery,
             variables: {
                 projectId, language, validated: true, pageSize: 0,
             },
         });
-        const validExamples = examples.filter(({ validated }) => validated)
-            .map(example => ExampleUtils.stripBare(example, false));
+        const validExamples = examples.filter(({ validated }) => validated);
         // Check that there are nonzero validated examples
         if (validExamples.length > 0) {
             this.setState({

@@ -4,8 +4,6 @@ import PropTypes from 'prop-types';
 import IconButton from '../../common/IconButton';
 import { ProjectContext } from '../../../layouts/context';
 
-import { entityPropType } from '../../utils/EntityUtils';
-
 // eslint-disable-next-line no-control-regex
 const asciiChar = /^[\x21-\x7E]+$/;
 
@@ -71,7 +69,7 @@ function EntityDropdown({
 }
 
 EntityDropdown.propTypes = {
-    entity: PropTypes.shape(entityPropType).isRequired,
+    entity: PropTypes.object.isRequired,
     onAddItem: PropTypes.func.isRequired,
     onChange: PropTypes.func.isRequired,
     onClear: PropTypes.func,

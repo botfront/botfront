@@ -1,5 +1,4 @@
 import moment from 'moment';
-import ExampleUtils from '../utils/ExampleUtils';
 
 export function generateTurns(tracker, debug = false, tzOffset = null) {
     const turns = [];
@@ -13,7 +12,8 @@ export function generateTurns(tracker, debug = false, tzOffset = null) {
 
         if (type === 'user' && !!event.text) {
             // The text check here is to remove the null userUttered events that are triggered by reminders
-            const example = ExampleUtils.fromParseData(event.parse_data);
+            const example = event.parse_data;
+            example.intent = (example.intent || {}).name || null;
 
             if (example.text.startsWith('/')) delete example.text;
             if (!example.text && buttonValues[example.intent]) { // use remembered button title-payload mapping
@@ -23,7 +23,7 @@ export function generateTurns(tracker, debug = false, tzOffset = null) {
             const userSays = {
                 example,
                 timestamp: moment.unix(event.timestamp),
-                confidence: ExampleUtils.getConfidence(event.parse_data),
+                confidence: (example.intent || {}).confidence,
             };
             if (Number.isInteger(tzOffset)) userSays.timestamp = userSays.timestamp.utcOffset(tzOffset);
 

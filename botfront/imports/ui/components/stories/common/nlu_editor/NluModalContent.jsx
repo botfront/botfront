@@ -16,14 +16,28 @@ import 'react-select/dist/react-select.css';
 import NluTable from '../../../nlu/models/NluTable';
 import InsertNlu from '../../../example_editor/InsertNLU';
 import ConfirmPopup from '../../../common/ConfirmPopup';
-import ExampleUtils from '../../../utils/ExampleUtils';
 import { ConversationOptionsContext } from '../../Context';
 import { useExamples } from '../../../nlu/models/hooks';
 import { ProjectContext } from '../../../../layouts/context';
 
+function sameCanonicalGroup(example, payload) {
+    // check if these examples are in the same canonical group
+    return (
+        example.intent === payload.intent
+        && (example.entities || []).length === (payload.entities || []).length
+        && (example.entities || []).every(entity => (payload.entities || []).find(
+            payloadEntity => payloadEntity.entity === entity.entity
+                    && payloadEntity.value === entity.value,
+        ))
+    );
+}
+
 const NLUModalContent = (props) => {
     const { closeModal, payload, displayedExample } = props;
-    const { project: { _id: projectId }, language } = useContext(ProjectContext);
+    const {
+        project: { _id: projectId },
+        language,
+    } = useContext(ProjectContext);
     const { reloadStories } = useContext(ConversationOptionsContext);
 
     const { data, loading: loadingExamples, refetch } = useExamples({
@@ -52,17 +66,16 @@ const NLUModalContent = (props) => {
 
     const canonicalizeExample = (newExample, currentExamples) => {
         const exists = currentExamples.some(
-            currentExample => ExampleUtils.sameCanonicalGroup(currentExample, newExample)
-                && !currentExample.deleted,
+            currentExample => sameCanonicalGroup(currentExample, newExample) && !currentExample.deleted,
         );
         if (!exists && checkPayloadsMatch(newExample)) {
             return {
-                ...ExampleUtils.prepareExample(newExample),
+                ...newExample,
                 metadata: { canonical: true },
                 canonicalEdited: true,
             };
         }
-        return ExampleUtils.prepareExample(newExample);
+        return newExample;
     };
 
     const exampleReducer = (state, updatedExamples) => updatedExamples
@@ -156,7 +169,7 @@ const NLUModalContent = (props) => {
         });
         const oldCanonicalIndex = examples.findIndex((oldExample) => {
             if (
-                ExampleUtils.sameCanonicalGroup(example, oldExample)
+                sameCanonicalGroup(example, oldExample)
                 && oldExample?.metadata?.canonical
             ) {
                 return true;
