@@ -101,7 +101,11 @@ export const getExamples = async ({
 export const listIntentsAndEntities = async ({ projectId, language }) => {
     const intents = {};
     let entities = [];
-    const examples = await Examples.find({ projectId, 'metadata.language': language })
+    const examples = await Examples.find({
+        projectId,
+        'metadata.language': language,
+        intent: { $ne: null },
+    })
         .select({
             intent: 1,
             entities: 1,
