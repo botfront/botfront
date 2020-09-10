@@ -1,9 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Input, Dropdown, Button } from 'semantic-ui-react';
+import {
+    Input, Dropdown, Button, Icon,
+} from 'semantic-ui-react';
 import getColor from '../../../../lib/getColors';
 
+const SORT_KEY_MAP = {
+    updatedAt: 'numeric',
+    intent: 'alphabet',
+};
+
 export default class Filters extends React.Component {
+    state = {
+        sortDropdownOpen: false,
+    };
+
     getIntentsOptions = () => {
         const { intents } = this.props;
         return intents.map(i => ({ text: i, value: i }));
@@ -113,6 +124,7 @@ export default class Filters extends React.Component {
             entities,
             className,
         } = this.props;
+        const { sortDropdownOpen } = this.state;
         const renderIntentLabel = label => ({
             color: 'purple',
             content: `${label.text}`,
@@ -159,25 +171,39 @@ export default class Filters extends React.Component {
                     onChange={this.handleTextChange}
                     value={query}
                 />
-
-                <Dropdown
-                    style={{ marginRight: '10px' }}
-                    placeholder='Choose sort'
-                    size='tiny'
-                    onChange={this.handleSortKeyChange}
-                    value={sortKey}
-                    selection
-                    options={[
-                        { text: 'Date', value: 'updatedAt' },
-                        { text: 'Intent', value: 'intent' },
-                    ]}
-                />
-
-                <Button
-                    content={sortOrder}
-                    onClick={() => this.handleSortOrderChange(sortOrder === 'ASC' ? 'DESC' : 'ASC')
-                    }
-                />
+                <Button.Group basic>
+                    <Button
+                        content={(
+                            <Icon
+                                name={`sort ${SORT_KEY_MAP[sortKey]} ${
+                                    sortOrder === 'ASC' ? 'ascending' : 'descending'
+                                }`}
+                            />
+                        )}
+                        onClick={() => this.handleSortOrderChange(
+                            sortOrder === 'ASC' ? 'DESC' : 'ASC',
+                        )}
+                    />
+                    <Button
+                        content={(
+                            <Dropdown
+                                onClick={() => this.setState({ sortDropdownOpen: !sortDropdownOpen })}
+                                onClose={() => this.setState({ sortDropdownOpen: false })}
+                                placeholder='Choose sort'
+                                size='tiny'
+                                open={sortDropdownOpen}
+                                onChange={this.handleSortKeyChange}
+                                value={sortKey}
+                                floating
+                                options={[
+                                    { text: 'Date', value: 'updatedAt' },
+                                    { text: 'Intent', value: 'intent' },
+                                ]}
+                            />
+                        )}
+                        onClick={() => this.setState({ sortDropdownOpen: !sortDropdownOpen })}
+                    />
+                </Button.Group>
             </div>
         );
     }

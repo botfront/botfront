@@ -286,38 +286,32 @@ function NluTable(props) {
                 />
             )}
             {filters && (
-                <Grid style={{ paddingBottom: '12px' }}>
-                    <Grid.Row>
-                        <Grid.Column width={13} textAlign='left' verticalAlign='middle'>
-                            <Filters
-                                intents={intents}
-                                entities={entities}
-                                filter={filters}
-                                onChange={newFilters => updateFilters(newFilters)}
-                            />
-                        </Grid.Column>
-                        <Grid.Column width={3} textAlign='right' verticalAlign='middle'>
-                            <Checkbox
-                                onChange={() => updateFilters({ ...filters, onlyCanonicals: !filters.onlyCanonicals })}
-                                hidden={false}
-                                slider
-                                checked={filters.onlyCanonicals}
-                                data-cy='only-canonical'
-                                readOnly={false}
-                                className='only-canonical'
-                            />
-                            <Popup
-                                trigger={
-                                    <Icon name='gem' color={filters.onlyCanonicals ? 'black' : 'grey'} />
-                                }
-                                content='Only show canonicals examples'
-                                position='top center'
-                                inverted
-                            />
-                            
-                        </Grid.Column>
-                    </Grid.Row>
-                </Grid>
+                <div className='side-by-side'>
+                    <Filters
+                        intents={intents}
+                        entities={entities}
+                        filter={filters}
+                        onChange={newFilters => updateFilters(newFilters)}
+                        className='left wrap'
+                    />
+                    <Checkbox
+                        onChange={() => updateFilters({ ...filters, onlyCanonicals: !filters.onlyCanonicals })}
+                        hidden={false}
+                        slider
+                        checked={filters.onlyCanonicals}
+                        data-cy='only-canonical'
+                        readOnly={false}
+                        className='only-canonical'
+                    />
+                    <Popup
+                        trigger={
+                            <Icon name='gem' color={filters.onlyCanonicals ? 'black' : 'grey'} />
+                        }
+                        content='Only show canonicals examples'
+                        position='top center'
+                        inverted
+                    />
+                </div>
             )}
             <DataTable
                 ref={tableRef}
