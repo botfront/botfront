@@ -33,7 +33,9 @@ Meteor.methods({
         const canonicalEdited = [];
         const deleted = [];
 
-        examples.forEach((example) => {
+        examples.forEach((ex) => {
+            // no drafts here
+            const example = { ...ex, metadata: { ...ex.metadata, draft: false } };
             if (example.deleted) {
                 if (!example.isNew) deleted.push(example._id);
                 return;

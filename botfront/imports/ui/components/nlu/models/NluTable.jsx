@@ -262,7 +262,6 @@ function NluTable(props) {
         if (key === 'Escape') setSelection([]);
         if (key.toLowerCase() === 'd') multipleDelete(selection);
         if (key.toLowerCase() === 'u' && !noDrafts) multipleUndraft(selection);
-        
         if (key.toLowerCase() === 'i') {
             e.stopPropagation();
             e.preventDefault();

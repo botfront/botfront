@@ -7,54 +7,80 @@ export default class Filters extends React.Component {
     getIntentsOptions = () => {
         const { intents } = this.props;
         return intents.map(i => ({ text: i, value: i }));
-    }
+    };
 
     getEntitiesOptions = () => {
         const { entities } = this.props;
         return entities.map(e => ({ text: e, value: e }));
-    }
+    };
 
     handleIntentSelectorChange = (e, { value }) => {
         const {
-            onChange, filter: {
+            onChange,
+            filter: {
                 entities: entitiesFilter, query, sortKey, sortOrder,
             },
         } = this.props;
         onChange({
-            intents: value, entities: entitiesFilter, query, sortKey, sortOrder,
+            intents: value,
+            entities: entitiesFilter,
+            query,
+            sortKey,
+            sortOrder,
         });
     };
 
     handleEntitiesSelectorChange = (e, { value }) => {
         const {
-            onChange, filter: {
+            onChange,
+            filter: {
                 intents: intentsFilter, query, sortKey, sortOrder,
             },
         } = this.props;
         onChange({
-            intents: intentsFilter, entities: value, query, sortKey, sortOrder,
+            intents: intentsFilter,
+            entities: value,
+            query,
+            sortKey,
+            sortOrder,
         });
     };
 
     handleTextChange = (e, { value: query }) => {
         const {
             filter: {
-                intents: intentsFilter, entities: entitiesFilter, sortKey, sortOrder,
-            }, onChange,
+                intents: intentsFilter,
+                entities: entitiesFilter,
+                sortKey,
+                sortOrder,
+            },
+            onChange,
         } = this.props;
         onChange({
-            query, intents: intentsFilter, entities: entitiesFilter, sortKey, sortOrder,
+            query,
+            intents: intentsFilter,
+            entities: entitiesFilter,
+            sortKey,
+            sortOrder,
         });
     };
 
     handleSortKeyChange = (e, { value: sortKey }) => {
         const {
             filter: {
-                intents: intentsFilter, entities: entitiesFilter, query, sortOrder,
-            }, onChange,
+                intents: intentsFilter,
+                entities: entitiesFilter,
+                query,
+                sortOrder,
+            },
+            onChange,
         } = this.props;
         onChange({
-            query, intents: intentsFilter, entities: entitiesFilter, sortKey, sortOrder,
+            query,
+            intents: intentsFilter,
+            entities: entitiesFilter,
+            sortKey,
+            sortOrder,
         });
     };
 
@@ -62,22 +88,39 @@ export default class Filters extends React.Component {
         const {
             filter: {
                 intents: intentsFilter, entities: entitiesFilter, query, sortKey,
-            }, onChange,
+            },
+            onChange,
         } = this.props;
         onChange({
-            query, intents: intentsFilter, entities: entitiesFilter, sortOrder, sortKey,
+            query,
+            intents: intentsFilter,
+            entities: entitiesFilter,
+            sortOrder,
+            sortKey,
         });
     };
-
 
     render() {
         const {
             filter: {
-                intents: intentsFilter = [], entities: entitiesFilter = [], query, sortKey, sortOrder,
-            }, intents, entities, className,
+                intents: intentsFilter = [],
+                entities: entitiesFilter = [],
+                query,
+                sortKey,
+                sortOrder,
+            },
+            intents,
+            entities,
+            className,
         } = this.props;
-        const renderIntentLabel = label => ({ color: 'purple', content: `${label.text}` });
-        const renderEntityLabel = label => ({ color: getColor(label.text, true), content: `${label.text}` });
+        const renderIntentLabel = label => ({
+            color: 'purple',
+            content: `${label.text}`,
+        });
+        const renderEntityLabel = label => ({
+            color: getColor(label.text, true),
+            content: `${label.text}`,
+        });
 
         return (
             <div className={`side-by-side narrow ${className}`}>
@@ -110,7 +153,12 @@ export default class Filters extends React.Component {
                     />
                 )}
 
-                <Input icon='search' placeholder='Search...' onChange={this.handleTextChange} value={query} />
+                <Input
+                    icon='search'
+                    placeholder='Search...'
+                    onChange={this.handleTextChange}
+                    value={query}
+                />
 
                 <Dropdown
                     style={{ marginRight: '10px' }}
@@ -119,11 +167,17 @@ export default class Filters extends React.Component {
                     onChange={this.handleSortKeyChange}
                     value={sortKey}
                     selection
-                    options={[{ text: 'Date', value: 'updatedAt' }, { text: 'Intent', value: 'intent' }, { text: 'Draft', value: 'metadata.draft' }]}
+                    options={[
+                        { text: 'Date', value: 'updatedAt' },
+                        { text: 'Intent', value: 'intent' },
+                    ]}
                 />
 
-                <Button content={sortOrder} onClick={() => this.handleSortOrderChange(sortOrder === 'ASC' ? 'DESC' : 'ASC')} />
-                
+                <Button
+                    content={sortOrder}
+                    onClick={() => this.handleSortOrderChange(sortOrder === 'ASC' ? 'DESC' : 'ASC')
+                    }
+                />
             </div>
         );
     }

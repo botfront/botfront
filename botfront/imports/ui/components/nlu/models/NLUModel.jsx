@@ -7,13 +7,7 @@ import { Meteor } from 'meteor/meteor';
 import { browserHistory } from 'react-router';
 import { useTracker } from 'meteor/react-meteor-data';
 import {
-    Label,
-    Container,
-    Icon,
-    Menu,
-    Message,
-    Tab,
-    Popup,
+    Label, Container, Icon, Menu, Message, Tab, Popup,
 } from 'semantic-ui-react';
 import 'react-select/dist/react-select.css';
 import { connect } from 'react-redux';
@@ -123,7 +117,9 @@ function NLUModel(props) {
         [],
     );
 
-    useEffect(() => { if (refetch) refetch(); }, [variables]);
+    useEffect(() => {
+        if (refetch) refetch();
+    }, [variables]);
     // always refetch first
     const hasRefetched = useRef(false);
     useEffect(() => {
@@ -164,11 +160,6 @@ function NLUModel(props) {
     };
 
     const handleInsert = (examples) => {
-        updateFilters({
-            ...filters,
-            sortKey: 'metadata.draft',
-            sortOrder: 'DESC',
-        });
         insertExamples({
             variables: {
                 examples,
@@ -222,9 +213,7 @@ function NLUModel(props) {
                                     basic
                                     content={(
                                         <div>
-                                            {`Trained ${moment(
-                                                endTime,
-                                            ).fromNow()}`}
+                                            {`Trained ${moment(endTime).fromNow()}`}
                                         </div>
                                     )}
                                     style={{
@@ -281,11 +270,11 @@ function NLUModel(props) {
             {renderTopMenu()}
             <Container>
                 {['Training Data', 'Evaluation'].includes(activeItem) && (
-                <>
-                    {renderWarningMessageIntents()}
-                    <br />
-                    <InsertNlu onSave={handleInsert} />
-                </>
+                    <>
+                        {renderWarningMessageIntents()}
+                        <br />
+                        <InsertNlu onSave={handleInsert} />
+                    </>
                 )}
                 <br />
                 {activeItem === 'Training Data' && (
@@ -298,11 +287,23 @@ function NLUModel(props) {
                                     <NluTable
                                         projectId={projectId}
                                         workingLanguage={workingLanguage}
-                                        entitySynonyms={model.training_data.entity_synonyms}
-                                        updateExamples={examples => updateExamples({ variables: { examples, projectId, language: workingLanguage } })}
+                                        entitySynonyms={
+                                            model.training_data.entity_synonyms
+                                        }
+                                        updateExamples={examples => updateExamples({
+                                            variables: {
+                                                examples,
+                                                projectId,
+                                                language: workingLanguage,
+                                            },
+                                        })}
                                         deleteExamples={ids => deleteExamples({ variables: { ids } })}
                                         switchCanonical={example => switchCanonical({
-                                            variables: { projectId, language: workingLanguage, example: clearTypenameField(example) },
+                                            variables: {
+                                                projectId,
+                                                language: workingLanguage,
+                                                example: clearTypenameField(example),
+                                            },
                                         })}
                                         data={data}
                                         loadingExamples={loadingExamples}
@@ -315,9 +316,19 @@ function NLUModel(props) {
                                     />
                                 ),
                             },
-                            { menuItem: 'Synonyms', render: () => <Synonyms model={model} /> },
-                            { menuItem: 'Gazette', render: () => <Gazette model={model} /> },
-                            { menuItem: 'API', render: () => <API model={model} instance={instance} /> }, {
+                            {
+                                menuItem: 'Synonyms',
+                                render: () => <Synonyms model={model} />,
+                            },
+                            {
+                                menuItem: 'Gazette',
+                                render: () => <Gazette model={model} />,
+                            },
+                            {
+                                menuItem: 'API',
+                                render: () => <API model={model} instance={instance} />,
+                            },
+                            {
                                 menuItem: 'Chit Chat',
                                 render: () => <ChitChat model={model} />,
                             },
@@ -345,7 +356,9 @@ function NLUModel(props) {
                         panes={[
                             {
                                 menuItem: 'Pipeline',
-                                render: () => <NLUPipeline model={model} projectId={projectId} />,
+                                render: () => (
+                                    <NLUPipeline model={model} projectId={projectId} />
+                                ),
                             },
                             {
                                 menuItem: 'Delete',

@@ -13,7 +13,7 @@ const checkNoEmojisInExamples = (example) => {
 
 const createSortObject = (fieldName = 'intent', order = 'ASC') => {
     const orderMongo = order === 'ASC' ? 1 : -1;
-    const sortObject = { [fieldName]: orderMongo };
+    const sortObject = { 'metadata.draft': -1, [fieldName]: orderMongo };
     return { sort: sortObject };
 };
 

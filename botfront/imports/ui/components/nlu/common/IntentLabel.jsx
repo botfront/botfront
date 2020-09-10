@@ -1,5 +1,5 @@
 import React, {
-    useContext, useState, useImperativeHandle, useRef,
+    useContext, useState, useImperativeHandle, useRef, useEffect,
 } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -53,6 +53,8 @@ const Intent = React.forwardRef((props, ref) => {
     const dataToDisplay = intents.filter(i => textMatch(i.intent, typeInput));
 
     const [selection, setSelection] = useState(dataToDisplay.slice(0, 1).map(i => i.intent));
+    // useEffect(() => console.log(selection), [selection]);
+    // useEffect(() => () => console.log('umount'), []);
 
     const hasInvalidChars = intentName => intentName.match(/[ +/{}/]/);
 
