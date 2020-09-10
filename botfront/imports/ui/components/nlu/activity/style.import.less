@@ -40,6 +40,15 @@
         &.selected {
             background-color: #edf5fc;
         }
+
+        .button:not(.persistent) {
+            visibility: hidden;
+        }
+        &:hover {
+            .button {
+                visibility: visible;
+            }
+        }
     }
 
     .item {

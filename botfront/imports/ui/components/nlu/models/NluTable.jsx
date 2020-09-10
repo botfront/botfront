@@ -124,6 +124,7 @@ function NluTable(props) {
         return (
             <Button
                 size='mini'
+                className='persistent'
                 compact
                 content='draft'
                 onClick={() => handleEditExample({ ...datum, metadata: { ...datum.metadata, draft: false } })}
@@ -183,6 +184,7 @@ function NluTable(props) {
                             <div>
                                 <IconButton
                                     color={canonical ? 'black' : 'grey'}
+                                    className={canonical ? 'persistent' : undefined}
                                     basic={canonical}
                                     icon='gem'
                                     size='small'
