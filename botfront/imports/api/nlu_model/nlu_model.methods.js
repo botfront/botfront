@@ -373,7 +373,7 @@ if (Meteor.isServer) {
                     _id: `chitchat-${shortid.generate()}`,
                     namespace: 'chitchat',
                     defaultLanguage: 'en',
-                    languages: ['en', 'fr'],
+                    languages: [],
                 });
 
                 await Promise.all(
@@ -381,8 +381,9 @@ if (Meteor.isServer) {
                         lang => new Promise(async (resolve) => {
                             await Meteor.callWithPromise(
                                 'nlu.insert',
-                                { name: `chitchat-${lang}`, language: lang },
                                 projectId,
+                                lang,
+                                { name: `chitchat-${lang}` },
                             );
                             await insertExamples({
                                 examples: data[lang],
