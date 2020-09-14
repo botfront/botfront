@@ -135,7 +135,7 @@ function NluTable(props) {
 
     const renderActionsColumn = (row) => {
         const { datum } = row;
-        const { metadata: { canonical = false, draft = false } = {}, _id } = datum;
+        const { intent, metadata: { canonical = false, draft = false } = {}, _id } = datum;
         let tooltip = (<div>Mark as canonical</div>);
         if (canonical) {
             tooltip = (
@@ -175,7 +175,7 @@ function NluTable(props) {
                         onClick={() => deleteExamples([datum._id])}
                     />
                 )}
-                {!draft && (
+                {!draft && intent && (
                     <Popup
                         position='top center'
                         disabled={tooltip === null}

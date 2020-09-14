@@ -206,7 +206,7 @@ export const deleteExamples = async ({ ids }) => {
 };
 
 export const switchCanonical = async ({ projectId, language, example }) => {
-    if (!example.intent) return { change: null };
+    if (!example.intent) return [];
     if (example.metadata && !example.metadata.canonical) {
         /* try to match a canonical item with the same characteristics (intent, entity, entity value)
         to check if the selected item can be used as canonical

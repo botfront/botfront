@@ -54,7 +54,7 @@ export default {
         },
         async insertExamples(_, args, __) {
             const response = await insertExamples(args);
-            if (response.length > 0) {
+            if ((response || []).length > 0) {
                 const { projectId, language } = args;
                 publishIntentsOrEntitiesChanged(projectId, language);
             }
