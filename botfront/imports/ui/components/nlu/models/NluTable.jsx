@@ -119,11 +119,12 @@ function NluTable(props) {
     const renderLabelColumn = (row, ...args) => {
         if (renderExternalLabelColumn) return renderExternalLabelColumn(row, ...args);
         const { datum } = row;
-        const { metadata: { draft = false } = {} } = datum;
+        const { metadata: { draft = false } = {}, intent } = datum;
         if (!draft) return null;
         return (
             <Button
                 size='mini'
+                disabled={!intent}
                 className='persistent'
                 compact
                 content='draft'
@@ -253,6 +254,7 @@ function NluTable(props) {
     }
 
     function handleUndraft(ids) {
+        if (selectionWithFullData.some(d => !d.intent)) return null;
         const message = `Remove draft status of  ${ids.length} NLU examples`;
         const examplesToUpdate = ids.map(_id => ({ _id, metadata: { draft: false } }));
         const action = () => updateExamples(examplesToUpdate);

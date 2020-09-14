@@ -12,6 +12,7 @@ const NluCommandBar = React.forwardRef((props, ref) => {
     const intentLabelRef = useRef();
     const selectionIncludesCanonical = selection.some(d => d.metadata?.canonical);
     const selectionIncludesNonDraft = selection.some(d => !d.metadata?.draft);
+    const selectionIncludesNullIntent = selection.some(d => !d.intent);
 
     useImperativeHandle(ref, () => ({
         openIntentPopup: () => intentLabelRef.current.openPopup(),
@@ -73,6 +74,7 @@ const NluCommandBar = React.forwardRef((props, ref) => {
                         <Popup
                             size='mini'
                             inverted
+                            disabled={selectionIncludesNullIntent}
                             content='Save'
                             trigger={(
                                 <div>
@@ -82,6 +84,7 @@ const NluCommandBar = React.forwardRef((props, ref) => {
                                         onClick={() => onUndraft(selection.map(({ _id }) => _id))}
                                         color='blue'
                                         icon='save'
+                                        disabled={selectionIncludesNullIntent}
                                         data-cy='remove-draft'
                                     />
                                 </div>
