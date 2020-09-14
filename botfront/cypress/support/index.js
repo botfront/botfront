@@ -24,7 +24,6 @@ import './conversation.commands';
 import './slot.commands';
 
 const axios = require('axios');
-require('cypress-plugin-retries');
 
 Cypress.on('uncaught:exception', () => false);
 
