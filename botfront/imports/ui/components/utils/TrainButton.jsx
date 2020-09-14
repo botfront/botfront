@@ -22,9 +22,9 @@ class TrainButton extends React.Component {
     }
 
     train = () => {
-        const { instance, projectId } = this.props;
+        const { projectId } = this.props;
         Meteor.call('project.markTrainingStarted', projectId);
-        Meteor.call('rasa.train', projectId, instance, wrapMeteorCallback());
+        Meteor.call('rasa.train', projectId, wrapMeteorCallback());
     };
 
 renderButton = (project, instance, popupContent, status, partialTrainning) => (

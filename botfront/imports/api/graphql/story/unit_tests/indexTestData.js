@@ -16,6 +16,7 @@ export const storyFixture = {
 export const frModelFixture = {
     _id: frModelId,
     name: 'My First Model',
+    projectId: 'test',
     language: 'fr',
     config:
         'pipeline:\n  - name: WhitespaceTokenizer\n  - name: CountVectorsFeaturizer\n  - name: DIETClassifier\n  - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: EntitySynonymMapper',
@@ -81,6 +82,7 @@ export const enModelFixture = {
     _id: enModelId,
     name: 'Default Model',
     language: 'en',
+    projectId: 'test',
     description: 'Default description',
     config:
                'pipeline:\n  - name: WhitespaceTokenizer\n  - name: CountVectorsFeaturizer\n  - name: DIETClassifier\n  - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: EntitySynonymMapper',

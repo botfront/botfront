@@ -1,4 +1,6 @@
 /* eslint-disable camelcase */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-await-in-loop */
 import { check, Match } from 'meteor/check';
 import queryString from 'query-string';
 import axiosRetry from 'axios-retry';
@@ -9,14 +11,18 @@ import { promisify } from 'util';
 import path from 'path';
 
 import {
-    formatError, getProjectModelLocalFolder, getProjectModelFileName,
+    formatError,
+    getProjectModelLocalFolder,
+    getProjectModelFileName,
 } from '../../lib/utils';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
+import { getExamples } from '../graphql/examples/mongo/examples';
 import { Instances } from './instances.collection';
 import { CorePolicies } from '../core_policies';
 import { Evaluations } from '../nlu_evaluation';
 import Activity from '../graphql/activity/activity.model';
 import { getStoriesAndDomain } from '../../lib/story.utils';
+import { Projects } from '../project/project.collection';
 
 const replaceMongoReservedChars = (input) => {
     if (Array.isArray(input)) return input.map(replaceMongoReservedChars);
@@ -50,70 +56,61 @@ export const createInstance = async (project) => {
     });
 };
 
-const getConfig = (model) => {
-    const config = yaml.safeLoad(model.config);
-    if (!config.pipeline) {
-        throw new Meteor.Error('Your NLU pipeline is empty.');
-    }
-    config.pipeline.forEach((item) => {
-        if (item.name.includes('Gazette')) {
-            if (model.training_data.fuzzy_gazette) {
-                // eslint-disable-next-line no-param-reassign
-                item.entities = model.training_data.fuzzy_gazette.map(
-                    ({ value, mode, min_score }) => ({ name: value, mode, min_score }),
-                );
-            }
-        }
-    });
-    config.language = model.language;
-    return yaml.dump(config);
-};
-
-export const getTrainingDataInRasaFormat = (
-    model,
-    withSynonyms = true,
-    intents = [],
-    withGazette = true,
-) => {
-    if (!model.training_data) {
-        throw Error('Property training_data of model argument is required');
-    }
-
-    function copyAndFilter(obj) {
-        const copy = JSON.parse(JSON.stringify(obj));
-        delete copy._id;
-        delete copy.mode;
-        delete copy.min_score;
-        return copy;
-    }
-
-    // Load examples
-    let { common_examples } = model.training_data;
-    if (intents.length > 0) {
-        // filter by intent if specified
-        common_examples = common_examples.filter(e => intents.indexOf(e.intent) >= 0);
-        if (intents.length === 1) {
-            // there is only one intent so we add a dummy in order for the nlu to train
-            common_examples.push({
-                text: 'dummyazerty12345', // this is just a weird example, to  avoid user input containing "dummy " to be interpreted as dummy intent
-                intent: 'dummy',
-                canonical: false,
-                entities: [],
-            });
-        }
-    }
-    common_examples = common_examples.sort(
-        (a, b) => b.canonical || false - a.canonical || false,
+export const getNluDataAndConfig = async (projectId, language, intents) => {
+    const model = await NLUModels.findOne(
+        { projectId, language },
+        { training_data: 1, config: 1 },
     );
+    if (!model) {
+        throw new Error(`Could not find ${language} model for project ${projectId}.`);
+    }
+    const copyAndFilter = ({
+        _id, mode, min_score, ...obj
+    }) => obj;
+    const {
+        training_data: { entity_synonyms, fuzzy_gazette, regex_features },
+        config,
+    } = model;
+    const { examples = [] } = await getExamples({
+        projectId,
+        language,
+        intents,
+        pageSize: -1,
+        sortKey: 'metadata.canonical',
+        order: 'DESC',
+    });
+    const common_examples = examples.filter(e => !e?.metadata?.draft);
+    const missingExamples = Math.abs(Math.min(0, common_examples.length - 2));
+    for (let i = 0; (intents || []).length && i < missingExamples; i += 1) {
+        common_examples.push({
+            text: `${i}dummy++azerty${i}`,
+            entities: [],
+            metadata: { canonical: true, language },
+            intent: `dumdum${i}`,
+        });
+    }
 
-    const entity_synonyms = withSynonyms && model.training_data.entity_synonyms
-        ? model.training_data.entity_synonyms.map(copyAndFilter)
-        : [];
-    const gazette = withGazette && model.training_data.fuzzy_gazette
-        ? model.training_data.fuzzy_gazette.map(copyAndFilter)
-        : [];
-
-    return { rasa_nlu_data: { common_examples, entity_synonyms, gazette } };
+    return {
+        rasa_nlu_data: {
+            common_examples: common_examples.map(
+                ({
+                    text, intent, entities = [], metadata = {},
+                }) => ({
+                    text,
+                    intent,
+                    entities,
+                    metadata,
+                }),
+            ),
+            entity_synonyms: entity_synonyms.map(copyAndFilter),
+            gazette: fuzzy_gazette.map(copyAndFilter),
+            regex_features: regex_features.map(copyAndFilter),
+        },
+        config: yaml.dump({
+            ...yaml.safeLoad(config),
+            language,
+        }),
+    };
 };
 
 if (Meteor.isServer) {
@@ -155,7 +152,7 @@ if (Meteor.isServer) {
                     const url = `${instance.host}/model/parse?${qs}`;
                     return client.post(url, payload);
                 });
-    
+
                 const result = (await axios.all(requests))
                     .filter(r => r.status === 200)
                     .map(r => r.data)
@@ -170,9 +167,16 @@ if (Meteor.isServer) {
                         }
                         return r;
                     });
-                if (result.length < 1 && !failSilently) throw new Meteor.Error('Error when parsing NLU');
-                if (Array.from(new Set(result.map(r => r.language))).length > 1 && !failSilently) {
-                    throw new Meteor.Error('Tried to parse for more than one language at a time.');
+                if (result.length < 1 && !failSilently) {
+                    throw new Meteor.Error('Error when parsing NLU');
+                }
+                if (
+                    Array.from(new Set(result.map(r => r.language))).length > 1
+                    && !failSilently
+                ) {
+                    throw new Meteor.Error(
+                        'Tried to parse for more than one language at a time.',
+                    );
                 }
                 return examples.length < 2 ? result[0] : result;
             } catch (e) {
@@ -219,115 +223,81 @@ if (Meteor.isServer) {
             return data;
         },
 
-        async 'rasa.getTrainingPayload'(projectId, { language = '', joinStoryFiles = true } = {}) {
+        async 'rasa.getTrainingPayload'(
+            projectId,
+            { language = '', joinStoryFiles = true } = {},
+        ) {
             check(projectId, String);
             check(language, String);
             const instance = await Instances.findOne({ projectId });
-            const appMethodLogger = getAppLoggerForMethod(
-                trainingAppLogger,
-                'rasa.getTrainingPayload',
-                Meteor.userId(),
-                { projectId, language },
-            );
             const client = axios.create({
                 baseURL: instance.host,
                 timeout: 3 * 60 * 1000,
             });
-            addLoggingInterceptors(client, appMethodLogger);
-
-            appMethodLogger.debug('Building training payload ...');
-            const t0 = performance.now();
 
             const corePolicies = CorePolicies.findOne({ projectId }, { policies: 1 })
                 .policies;
             const nlu = {};
             const config = {};
 
-            try {
-                const { stories, domain, wasPartial } = await getStoriesAndDomain(projectId, language);
-                const selectedIntents = wasPartial ? yaml.safeLoad(domain).intents : [];
-                
-
-                for (let i = 0; i < nluModels.length; ++i) {
-                    const currentLang = nluModels[i].language;
-                    // eslint-disable-next-line no-await-in-loop
-                    const { data } = await client.post('/data/convert/', {
-                        data: getTrainingDataInRasaFormat(
-                            nluModels[i],
-                            true,
-                            selectedIntents && selectedIntents.length > 0
-                                ? selectedIntents
-                                : undefined,
-                        ),
-                        output_format: 'md',
-                        language: currentLang,
-                    });
-                    const canonical = nluModels[i].training_data.common_examples
-                        .filter(e => e.canonical)
-                        .map(e => e.text);
-                    const canonicalText = canonical.length
-                        ? `\n\n# canonical\n- ${canonical.join('\n- ')}`
-                        : '';
-                    nlu[currentLang] = {
-                        data: `# lang:${currentLang}${canonicalText}\n\n${data.data}`,
-                    };
-                    config[currentLang] = `${getConfig(nluModels[i])}\n\n${corePolicies}`;
-                }
-
-                const payload = {
-                    domain,
-                    stories: joinStoryFiles ? stories.join('\n') : stories,
-                    nlu,
-                    config,
-                    fixed_model_name: getProjectModelFileName(projectId),
-                };
-                const t1 = performance.now();
-                appMethodLogger.debug(
-                    `Building training payload - ${(t1 - t0).toFixed(2)} ms`,
-                );
-                return payload;
-            } catch (e) {
-                const error = `${e.message || e.reason} ${(
-                    e.stack.split('\n')[2] || ''
-                ).trim()}`;
-                const t1 = performance.now();
-                appMethodLogger.error(
-                    `Building training payload failed - ${(t1 - t0).toFixed(2)} ms`,
-                    { error },
-                );
-                Meteor.call(
-                    'project.markTrainingStopped',
-                    projectId,
-                    'failure',
-                    e.reason,
-                );
-                throw formatError(e);
+            const { stories, domain, wasPartial } = await getStoriesAndDomain(
+                projectId,
+                language,
+            );
+            const selectedIntents = wasPartial
+                ? yaml.safeLoad(domain).intents
+                : undefined;
+            let languages = [language];
+            if (!language) {
+                const project = Projects.findOne({ _id: projectId }, { languages: 1 });
+                languages = project ? project.languages : [];
             }
+            for (const lang of languages) {
+                const {
+                    rasa_nlu_data,
+                    config: configForLang,
+                } = await getNluDataAndConfig(projectId, lang, selectedIntents);
+                const { data: result } = await client.post('/data/convert/', {
+                    data: { rasa_nlu_data },
+                    output_format: 'md',
+                    language: lang,
+                });
+                const canonical = rasa_nlu_data.common_examples
+                    .filter(e => e.canonical)
+                    .map(e => e.text);
+                const canonicalText = canonical.length
+                    ? `\n\n# canonical\n- ${canonical.join('\n- ')}`
+                    : '';
+                nlu[lang] = {
+                    data: `# lang:${lang}${canonicalText}\n\n${result.data}`,
+                };
+                config[lang] = `${configForLang}\n\n${corePolicies}`;
+            }
+
+            const payload = {
+                domain,
+                stories: joinStoryFiles ? stories.join('\n') : stories,
+                nlu,
+                config,
+                fixed_model_name: getProjectModelFileName(projectId),
+            };
+            return payload;
         },
 
-        async 'rasa.train'(projectId, instance) {
+        async 'rasa.train'(projectId) {
             check(projectId, String);
-            check(instance, Object);
             const appMethodLogger = getAppLoggerForMethod(
                 trainingAppLogger,
                 'rasa.train',
                 Meteor.userId(),
-                { projectId, instance },
+                { projectId },
             );
 
             appMethodLogger.debug(`Training project ${projectId}...`);
             const t0 = performance.now();
             try {
-                const client = axios.create({
-                    baseURL: instance.host,
-                    timeout: 3 * 60 * 1000,
-                });
-                addLoggingInterceptors(client, appMethodLogger);
-                const payload = await Meteor.call(
-                    'rasa.getTrainingPayload',
-                    projectId,
-                    instance,
-                );
+                const payload = await Meteor.call('rasa.getTrainingPayload', projectId);
+                const instance = await Instances.findOne({ projectId });
                 const trainingClient = axios.create({
                     baseURL: instance.host,
                     timeout: 30 * 60 * 1000,
@@ -367,8 +337,12 @@ if (Meteor.isServer) {
                         );
                     }
 
-                    await client.put('/model', { model_file: trainedModelPath });
-                    Activity.update({ projectId, validated: true }, { $set: { validated: false } }, { multi: true }).exec();
+                    await trainingClient.put('/model', { model_file: trainedModelPath });
+                    Activity.update(
+                        { projectId, validated: true },
+                        { $set: { validated: false } },
+                        { multi: true },
+                    ).exec();
                 }
                 Meteor.call('project.markTrainingStopped', projectId, 'success');
             } catch (e) {
@@ -380,17 +354,12 @@ if (Meteor.isServer) {
                     `Training project ${projectId} - ${(t1 - t0).toFixed(2)} ms`,
                     { error },
                 );
-                Meteor.call(
-                    'project.markTrainingStopped',
-                    projectId,
-                    'failure',
-                    e.reason,
-                );
+                Meteor.call('project.markTrainingStopped', projectId, 'failure', error);
                 throw formatError(e);
             }
         },
 
-        'rasa.evaluate.nlu'(projectId, language, testData) {
+        async 'rasa.evaluate.nlu'(projectId, language, testData) {
             check(projectId, String);
             check(language, String);
             check(testData, Match.Maybe(Object));
@@ -403,10 +372,11 @@ if (Meteor.isServer) {
             );
             try {
                 this.unblock();
-                const model = NLUModels.findOne({ projectId, language });
-                check(model, Object);
-                const examples = testData || getTrainingDataInRasaFormat(model, false);
-                const params = { language: model.language };
+                const examples = testData || {
+                    rasa_nlu_data: (await getNluDataAndConfig(projectId, language))
+                        .rasa_nlu_data,
+                };
+                const params = { language };
 
                 const instance = Instances.findOne({ projectId });
                 if (instance.token) Object.assign(params, { token: instance.token });
@@ -429,30 +399,21 @@ if (Meteor.isServer) {
                         results.data.entity_evaluation.DIETClassifier || {},
                 });
 
-                const evaluations = Evaluations.findOne({ projectId, language }, { field: { _id: 1 } });
-                if (!evaluations) {
-                    Evaluations.update({ _id: evaluations._id }, { $set: { results: results.data } });
+                const evaluations = Evaluations.findOne(
+                    { projectId, language },
+                    { field: { _id: 1 } },
+                );
+                if (evaluations) {
+                    Evaluations.update(
+                        { _id: evaluations._id },
+                        { $set: { results } },
+                    );
                 } else {
-                    Evaluations.insert({ results: results.data, projectId, language });
+                    Evaluations.insert({ results, projectId, language });
                 }
                 return 'ok';
             } catch (e) {
-                let error = null;
-                if (e.response) {
-                    // The request was made and the server responded with a status code
-                    // that falls out of the range of 2xx
-                    error = new Meteor.Error(e.response.status, e.response.data);
-                } else if (e.request) {
-                    // The request was made but no response was received
-                    // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                    // http.ClientRequest in node.js
-                    error = new Meteor.Error('399', 'timeout');
-                } else {
-                    // Something happened in setting up the request that triggered an Error
-                    error = new Meteor.Error('500', e);
-                }
-
-                throw error;
+                throw formatError(e);
             }
         },
     });

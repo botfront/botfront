@@ -86,7 +86,7 @@ export const getExamples = async ({
     const cursorIndex = !cursor
         ? 0
         : data.findIndex(activity => activity._id === cursor) + 1;
-    const examples = pageSize === 0 ? data : data.slice(cursorIndex, cursorIndex + pageSize);
+    const examples = pageSize <= 0 ? data : data.slice(cursorIndex, cursorIndex + pageSize);
 
     return {
         examples,
@@ -150,7 +150,7 @@ export const insertExamples = async ({
     }, []);
     const { examples: existingExamples } = await getExamples({
         projectId,
-        pageSize: -1,
+        pageSize: 0,
         language,
     });
     const itemsWithSameText = intersectionBy(
