@@ -12,7 +12,7 @@ export const getActivity = async ({
     filter = {},
 }) => {
     const onlyValidated = validated ? { validated: true } : {};
-    const ooSOption = ooS ? { ooS } : { $or: [{ ooS: { $exists: false } }, { ooS: { $eq: false } }] };
+    const ooSOption = ooS ? { ooS } : { ooS: { $not: { $eq: true } } };
     const envOption = env
         ? env === 'development'
             ? { env: { $in: ['development', null] } }
