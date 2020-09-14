@@ -1,5 +1,16 @@
 import gql from 'graphql-tag';
 
+const entityFields = gql`
+    fragment EntityFields on Entity {
+        entity
+        value
+        group
+        role
+        start
+        end
+    }
+`;
+
 export const GET_INTENT_STATISTICS = gql`
 query getIntentStatistics($projectId: String!, $language: String!) {
     getIntentStatistics(
@@ -56,16 +67,11 @@ query examples(
         exactMatch: $exactMatch
     ) {
         examples {
-            _id 
-            projectId 
-            text 
-            intent 
-            entities {
-                entity
-                value
-                start
-                end
-            }
+            _id
+            projectId
+            text
+            intent
+            entities { ...EntityFields }
             metadata
         }
         pageInfo {
@@ -74,7 +80,8 @@ query examples(
             totalLength
         }
     }
-}`;
+}
+${entityFields}`;
 
 
 export const LIST_INTENTS_AND_ENTITIES = gql`
@@ -102,15 +109,11 @@ mutation insertExamples($projectId: String!, $language: String!, $examples: [Exa
         projectId 
         text 
         intent 
-        entities {
-                entity
-                value
-                start
-                end
-        }
+        entities { ...EntityFields }
         metadata
     }
-}`;
+}
+${entityFields}`;
 
 
 export const DELETE_EXAMPLES = gql`
@@ -126,15 +129,11 @@ mutation switchCanonical($projectId:String, $language: String, $example: Example
         projectId 
         text 
         intent 
-        entities {
-                entity
-                value
-                start
-                end
-        }
+        entities { ...EntityFields }
         metadata
     }
-}`;
+}
+${entityFields}`;
 
 
 export const UPDATE_EXAMPLES = gql`
@@ -144,12 +143,8 @@ mutation updateExamples($projectId: String!, $language: String!, $examples: [Exa
         projectId 
         text 
         intent 
-        entities {
-                entity
-                value
-                start
-                end
-        }
+        entities { ...EntityFields }
         metadata
     }
-}`;
+}
+${entityFields}`;
