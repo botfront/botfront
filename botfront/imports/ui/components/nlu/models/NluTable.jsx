@@ -322,7 +322,7 @@ function NluTable(props) {
                         intents={intents}
                         entities={entities}
                         filter={filters}
-                        onChange={newFilters => updateFilters(newFilters)}
+                        onChange={newFilters => updateFilters({ ...filters, ...newFilters })}
                         className='left wrap'
                     />
                     <Checkbox
