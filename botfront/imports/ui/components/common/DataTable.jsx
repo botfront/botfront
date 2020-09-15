@@ -178,6 +178,7 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
         if (!mouseDown || rowInfo.datum[selectionKey] === lastFocusedStart.current) {
             return;
         }
+        window.getSelection().removeAllRanges();
         handleSelectionChange({ shiftKey: true, ...rowInfo });
     };
 
