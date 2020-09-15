@@ -10,6 +10,18 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import Row from './DataTableRow';
 import { useEventListener, useResizeObserver, useIsMount } from '../utils/hooks';
 
+const RowAsFunction = React.forwardRef(({ data, ...props }, ref) => (
+    <Row
+        {...props}
+        {...data(props)}
+        ref={ref}
+    />
+));
+
+RowAsFunction.propTypes = {
+    data: PropTypes.func.isRequired,
+};
+
 const DataTable = React.forwardRef((props, forwardedRef) => {
     const {
         data,
@@ -239,24 +251,21 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
                                     // eslint-disable-next-line no-underscore-dangle
                                     ref={(ref_) => { if (ref_ && ref_._outerRef) outerListRef.current = ref_._outerRef; return ref; }}
                                     width={w}
+                                    itemData={({ index, style }) => ({
+                                        isDataLoaded: isDataLoaded(index),
+                                        rowClassName: `${rowClassName} ${isDatumSelected(data[index]) ? 'selected' : ''}`,
+                                        style: {
+                                            ...style,
+                                            top: style.top + stickyRowsOffset,
+                                        },
+                                        onMouseDown: handleMouseDown,
+                                        onMouseEnter: handleMouseEnter,
+                                        columns,
+                                        datum: data[index],
+                                        index,
+                                    })}
                                 >
-                                    {React.forwardRef(({ index, style, ...row }, ref_) => ( // eslint-disable-line react/prop-types
-                                        <Row
-                                            {...row}
-                                            ref={ref_}
-                                            style={{
-                                                ...style,
-                                                top: style.top + stickyRowsOffset, // eslint-disable-line react/prop-types
-                                            }}
-                                            rowClassName={`${rowClassName} ${isDatumSelected(data[index]) ? 'selected' : ''}`}
-                                            onMouseDown={handleMouseDown}
-                                            onMouseEnter={handleMouseEnter}
-                                            isDataLoaded={isDataLoaded(index)}
-                                            datum={data[index]}
-                                            index={index}
-                                            columns={columns}
-                                        />
-                                    ))}
+                                    {RowAsFunction}
                                 </List>
                             )}
                         </InfiniteLoader>
