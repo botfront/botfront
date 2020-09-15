@@ -151,6 +151,7 @@ function UserUtteranceViewer(props) {
     }
 
     function handleMouseUp({ shiftKey, ctrlKey, metaKey }, element, exited) {
+        if (!element) return;
         const selection = window.getSelection();
         let extraBound = [];
         if (exited) extraBound = exited === 'left' ? [0] : [(element.text || '').length];
