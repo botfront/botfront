@@ -1,5 +1,12 @@
 import ResizeObserver from 'resize-observer-polyfill';
 import { useRef, useEffect } from 'react';
+import { useQuery } from '@apollo/react-hooks';
+
+export const useImperativeQuery = (query, variables) => {
+    const { refetch } = useQuery(query, { skip: true, variables });
+    const imperativelyCallQuery = vars => refetch(vars);
+    return imperativelyCallQuery;
+};
 
 export function useEventListener(eventName, handler, element = window) {
     // https://usehooks.com/useEventListener/

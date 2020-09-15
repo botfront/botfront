@@ -107,7 +107,7 @@ function NLUModel(props) {
                 intents: newFilters.intents,
                 entities: newFilters.entities,
                 onlyCanonicals: newFilters.onlyCanonicals,
-                text: newFilters.query,
+                text: [newFilters.query],
                 order: newFilters.sortOrder,
                 sortKey: newFilters.sortKey,
             };

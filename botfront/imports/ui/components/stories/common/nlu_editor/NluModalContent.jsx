@@ -17,7 +17,7 @@ import NluTable from '../../../nlu/models/NluTable';
 import InsertNlu from '../../../example_editor/InsertNLU';
 import ConfirmPopup from '../../../common/ConfirmPopup';
 import { ConversationOptionsContext } from '../../Context';
-import { useExamples } from '../../../nlu/models/hooks';
+import { useExamples, useLazyExamples } from '../../../nlu/models/hooks';
 import { ProjectContext } from '../../../../layouts/context';
 
 function sameCanonicalGroup(example, payload) {
@@ -48,6 +48,7 @@ const NLUModalContent = (props) => {
         entities: payload.entities,
         exactMatch: true,
     });
+    const fetchExamples = useLazyExamples({ projectId, language });
 
     // always refetch first
     const hasRefetched = useRef(false);
@@ -113,14 +114,15 @@ const NLUModalContent = (props) => {
         [examples],
     );
 
-    const onNewExamples = (incomingExamples) => {
+    const onNewExamples = async (incomingExamples) => {
+        const existingExamples = await fetchExamples({ text: incomingExamples.map(({ text }) => text) });
         const newExamples = incomingExamples.reduce(
-            (acc, curr) => [
-                ...acc,
-                ...([...acc, ...examples].some(ex => ex.text === curr.text)
-                    ? []
-                    : [{ ...canonicalizeExample(curr, examples), isNew: true }]),
-            ],
+            (acc, curr) => {
+                if ([...acc, ...examples].some(ex => ex.text === curr.text)) return acc;
+                const existingExample = existingExamples.find(ex => ex.text === curr.text);
+                if (existingExample) return [...acc, existingExample]; // if existing, add it without new status
+                return [...acc, { ...canonicalizeExample(curr, examples), isNew: true }];
+            },
             [],
         );
         setExamples([...newExamples, ...examples]);

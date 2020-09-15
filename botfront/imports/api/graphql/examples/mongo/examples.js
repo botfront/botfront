@@ -23,7 +23,7 @@ const createFilterObject = (
     intents,
     entities = [],
     onlyCanonicals,
-    text,
+    text = [],
     options = {},
 ) => {
     const filters = { projectId };
@@ -53,7 +53,7 @@ const createFilterObject = (
         filters['metadata.canonical'] = true;
     }
     if (text && text.length > 0) {
-        filters.text = { $regex: new RegExp(escapeRegExp(text), 'i') };
+        filters.text = { $regex: new RegExp(text.map(escapeRegExp).join('|'), 'i') };
     }
     return filters;
 };
@@ -64,7 +64,7 @@ export const getExamples = async ({
     language = '',
     intents = [],
     entities = [],
-    text = '',
+    text = [],
     onlyCanonicals = false,
     order = undefined,
     sortKey = undefined,

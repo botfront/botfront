@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useSubscription } from '@apollo/react-hooks';
+import { useImperativeQuery } from '../../utils/hooks';
 import {
     GET_EXAMPLES,
     LIST_INTENTS_AND_ENTITIES,
@@ -9,6 +10,13 @@ import {
     SWITCH_CANONICAL,
 } from './graphql.js';
 
+export const useLazyExamples = (variables) => {
+    const getExamples = useImperativeQuery(GET_EXAMPLES, { ...variables, pageSize: -1 });
+    return async (vars) => {
+        const { data } = await getExamples(vars);
+        return data.examples.examples || [];
+    };
+};
 
 export function useExamples(variables) {
     const {

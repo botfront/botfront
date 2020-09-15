@@ -46,7 +46,7 @@ query examples(
     $intents: [String]
     $entities: [Any]
     $onlyCanonicals: Boolean
-    $text: String
+    $text: [String]
     $order: order
     $sortKey: String
     $pageSize: Int
