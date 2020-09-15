@@ -415,8 +415,6 @@ function Activity(props) {
                         hasNextPage={hasNextPage}
                         loadMore={loading ? () => {} : loadMore}
                         onScroll={handleScroll}
-                        rowClassName='glow-box hoverable'
-                        className='new-utterances-table'
                         selection={selection}
                         onChangeSelection={setSelection}
                     />

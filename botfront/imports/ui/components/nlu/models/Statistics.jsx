@@ -60,7 +60,7 @@ const Statistics = (props) => {
         ];
 
         return cards.map(d => (
-            <div className='glow-box hoverable' style={{ width: `calc(100% / ${cards.length})` }} key={d.label}>
+            <div className='glow-box' style={{ width: `calc(100% / ${cards.length})` }} key={d.label}>
                 <Statistic>
                     <Statistic.Label>{d.label}</Statistic.Label>
                     <Statistic.Value>{d.value}</Statistic.Value>

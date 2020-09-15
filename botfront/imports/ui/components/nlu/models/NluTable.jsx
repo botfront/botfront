@@ -350,8 +350,6 @@ function NluTable(props) {
                 data={data}
                 hasNextPage={hasNextPage}
                 loadMore={loadingExamples ? () => { } : loadMore}
-                rowClassName='glow-box hoverable'
-                className='new-utterances-table'
                 selection={selection}
                 height={height}
                 onChangeSelection={newSelection => setSelection(newSelection)}
