@@ -32,7 +32,6 @@ const NluCommandBar = React.forwardRef((props, ref) => {
                             allowEditing={!selectionIncludesCanonical}
                             onChange={intent => onSetIntent(selection.map(({ _id }) => _id), intent)}
                             onClose={onCloseIntentPopup}
-                            enableReset
                         />
                         <Popup
                             size='mini'
