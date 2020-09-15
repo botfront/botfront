@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import React, {
     useRef, useState, useEffect, useMemo, useImperativeHandle,
 } from 'react';
@@ -11,11 +12,7 @@ import Row from './DataTableRow';
 import { useEventListener, useResizeObserver, useIsMount } from '../utils/hooks';
 
 const RowAsFunction = React.forwardRef(({ data, ...props }, ref) => (
-    <Row
-        {...props}
-        {...data(props)}
-        ref={ref}
-    />
+    <Row {...props} {...data(props)} ref={ref} />
 ));
 
 RowAsFunction.propTypes = {
@@ -48,13 +45,17 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
     useEffect(() => {
         if (externallyControlledSelection) return;
         const selectionFiltered = selection.filter(d1 => data.some(d2 => d2[selectionKey] === d1));
-        if (selectionFiltered.length !== selection.length) onChangeSelection(selectionFiltered);
+        if (selectionFiltered.length !== selection.length) {
+            onChangeSelection(selectionFiltered);
+        }
     }, [data]);
 
     const tableRef = useRef(null);
     if (!externallyControlledSelection) {
         const isMount = useIsMount();
-        useEffect(() => { if (isMount) tableRef.current.focus(); }, [selection]);
+        useEffect(() => {
+            if (isMount) tableRef.current.focus();
+        }, [selection]);
     }
     const windowInfoRef = useRef();
     const outerListRef = useRef();
@@ -68,7 +69,7 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
         headerRef: () => headerRef,
         stickyRowsRef: () => stickyRowsRef,
     }));
-    
+
     const [height, doSetHeight] = useState();
     const [headerOffset, setHeaderOffset] = useState(0);
     const [stickyRowsOffset, setStickyRowsOffset] = useState(0);
@@ -79,11 +80,10 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
     const getToScrollableNode = (ref) => {
         if (!ref.current) return [ref, ref];
         const isScrollable = node => ['overflow', 'overflow-y']
-            .some(prop => /(auto|scroll)/.test(
-                getComputedStyle(node, null).getPropertyValue(prop),
-            ));
-    
-        let previous; let { current } = ref;
+            .some(prop => /(auto|scroll)/.test(getComputedStyle(node, null).getPropertyValue(prop)));
+
+        let previous;
+        let { current } = ref;
         while (!isScrollable(current)) {
             previous = current;
             if (!(current.parentNode instanceof HTMLElement)) {
@@ -100,22 +100,33 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
         if (providedHeight !== 'auto') return doSetHeight(`${providedHeight}px`);
         const [lastUnscrollable, firstScrollable] = getToScrollableNode(tableRef);
         return doSetHeight(
-            getOffsetHeight(firstScrollable) - (
-                getOffsetHeight(lastUnscrollable) - getOffsetHeight(tableRef) + getOffsetTop(lastUnscrollable)
-            ) - 2,
+            getOffsetHeight(firstScrollable)
+                - (getOffsetHeight(lastUnscrollable)
+                    - getOffsetHeight(tableRef)
+                    + getOffsetTop(lastUnscrollable))
+                - 2,
         );
     };
     useEffect(setHeight, [providedHeight]);
     useResizeObserver(throttle(setHeight, 150), getToScrollableNode(tableRef)[1].current);
     useResizeObserver(setHeight, headerRef.current);
 
-    stickyRowsRef.current.setAttribute('style', 'position: sticky; top: 0; z-index: 100;');
+    stickyRowsRef.current.setAttribute(
+        'style',
+        'position: sticky; top: 0; z-index: 100;',
+    );
     stickyRowsRef.current.setAttribute('class', `virtual-table-sticky-row ${className}`);
     useEffect(() => {
         if (!outerListRef.current) return;
-        outerListRef.current.insertBefore(stickyRowsRef.current, outerListRef.current.firstChild || null);
+        outerListRef.current.insertBefore(
+            stickyRowsRef.current,
+            outerListRef.current.firstChild || null,
+        );
     }, [!!tableRef.current]);
-    useResizeObserver(() => setStickyRowsOffset(getOffsetHeight(stickyRowsRef)), stickyRowsRef.current);
+    useResizeObserver(
+        () => setStickyRowsOffset(getOffsetHeight(stickyRowsRef)),
+        stickyRowsRef.current,
+    );
 
     const [mouseDown, setMouseDown] = useState(false);
     const lastFocusedStart = useRef(selection[0]);
@@ -126,7 +137,9 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
         lastFocusedStart.current = id;
         lastFocusedRowInfo.current = { datum, index: indexInData };
         if (!metaKey) return onChangeSelection([id]);
-        if (selection.includes(id)) return onChangeSelection(selection.filter(el => el !== id));
+        if (selection.includes(id)) {
+            return onChangeSelection(selection.filter(el => el !== id));
+        }
         return onChangeSelection([...selection, id]);
     };
 
@@ -134,14 +147,20 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
         shiftKey, metaKey, datum, index: indexInData,
     }) => {
         if (!onChangeSelection) return null;
-        if (indexInData >= windowInfoRef.current.visibleStopIndex) outerListRef.current.scrollTop += 100;
-        if (indexInData <= windowInfoRef.current.visibleStartIndex) outerListRef.current.scrollTop -= 100;
+        if (indexInData >= windowInfoRef.current.visibleStopIndex) {
+            outerListRef.current.scrollTop += 100;
+        }
+        if (indexInData <= windowInfoRef.current.visibleStartIndex) {
+            outerListRef.current.scrollTop -= 100;
+        }
         if (metaKey || !shiftKey || !selection.length) {
             return selectItemAndResetFocus({ datum, index: indexInData, metaKey });
         }
         const allData = [...(stickyRows || []), ...data];
         const index = indexInData + (stickyRows || []).length;
-        const lastIndex = allData.findIndex(d => d[selectionKey] === lastFocusedStart.current);
+        const lastIndex = allData.findIndex(
+            d => d[selectionKey] === lastFocusedStart.current,
+        );
         const [min, max] = index < lastIndex ? [index, lastIndex] : [lastIndex, index];
         const newSelection = allData.slice(min, max + 1).map(d => d[selectionKey]);
         lastFocusedRowInfo.current = { datum, index: indexInData };
@@ -156,7 +175,9 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
     };
 
     const handleMouseEnter = (rowInfo) => {
-        if (!mouseDown || rowInfo.datum[selectionKey] === lastFocusedStart.current) return;
+        if (!mouseDown || rowInfo.datum[selectionKey] === lastFocusedStart.current) {
+            return;
+        }
         handleSelectionChange({ shiftKey: true, ...rowInfo });
     };
 
@@ -211,7 +232,9 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
                     index={-(stickyRows.length - i)}
                     datum={r}
                     columns={columns}
-                    rowClassName={`${rowClassName} ${isDatumSelected(r) ? 'selected' : ''}`}
+                    rowClassName={`${rowClassName} ${
+                        isDatumSelected(r) ? 'selected' : ''
+                    }`}
                     onMouseDown={handleMouseDown}
                     onMouseEnter={handleMouseEnter}
                 />
@@ -229,7 +252,11 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
             }}
             tabIndex={0} // eslint-disable-line jsx-a11y/no-noninteractive-tabindex
         >
-            {(stickyRows || []).length > 0 && <Portal open mountNode={stickyRowsRef.current}>{renderStickyRows()}</Portal>}
+            {(stickyRows || []).length > 0 && (
+                <Portal open mountNode={stickyRowsRef.current}>
+                    {renderStickyRows()}
+                </Portal>
+            )}
             {columns.some(c => c.header) ? renderHeader() : <div ref={headerRef} />}
             <div style={{ height: `calc(100% - ${headerOffset}px)` }}>
                 <AutoSizer>
@@ -241,19 +268,29 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
                         >
                             {({ onItemsRendered, ref }) => (
                                 <List
-                                    height={providedHeight && providedHeight !== 'auto' ? providedHeight : h}
+                                    height={
+                                        providedHeight && providedHeight !== 'auto'
+                                            ? providedHeight
+                                            : h
+                                    }
                                     itemCount={dataCount}
                                     onItemsRendered={(items) => {
                                         if (onScroll) onScroll(items);
                                         windowInfoRef.current = items;
                                         onItemsRendered(items);
                                     }}
-                                    // eslint-disable-next-line no-underscore-dangle
-                                    ref={(ref_) => { if (ref_ && ref_._outerRef) outerListRef.current = ref_._outerRef; return ref; }}
+                                    ref={(ref_) => {
+                                        if (ref_ && ref_._outerRef) {
+                                            outerListRef.current = ref_._outerRef;
+                                        }
+                                        return ref;
+                                    }}
                                     width={w}
                                     itemData={({ index, style }) => ({
                                         isDataLoaded: isDataLoaded(index),
-                                        rowClassName: `${rowClassName} ${isDatumSelected(data[index]) ? 'selected' : ''}`,
+                                        rowClassName: `${rowClassName} ${
+                                            isDatumSelected(data[index]) ? 'selected' : ''
+                                        }`,
                                         style: {
                                             ...style,
                                             top: style.top + stickyRowsOffset,
