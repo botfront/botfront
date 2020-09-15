@@ -65,7 +65,7 @@ type Example {
 }
 
 type NluStatistics {
-    intent: String!
+    intent: String
     example: Any
     counts: [NluStatisticsByLanguage]
 }
