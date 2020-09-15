@@ -94,7 +94,7 @@ const selectedExamples = allExamples.filter(({ intent }) => ['chitchat.greet', '
 const selectedExampleAndDummy = [
     ...allExamples.filter(({ intent }) => ['chitchat.greet'].includes(intent)),
     {
-        text: '0dummy++azerty0',
+        text: '0dummy0azerty0',
         intent: 'dumdum0',
         metadata: { canonical: true, language: 'en' },
         entities: [],

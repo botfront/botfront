@@ -49,7 +49,7 @@ const collections = { ...collectionsWithModelId, ...collectionsWithProjectId };
 const allCollections = { ...collections, models: NLUModels };
 exports.allCollections = allCollections;
 
-const colReallyDoesHaveProjectId = (col) => !!(col || [{ projectId: true }])[0].projectId
+const colReallyDoesHaveProjectId = (col) => !!([...(col || []), { projectId: true }][0].projectId)
 
 const nativizeProject = function (projectId, projectName, backup) {
     /*
@@ -84,6 +84,7 @@ const nativizeProject = function (projectId, projectName, backup) {
         nativizedBackup.models = nativizedBackup.models.map((m) => ({
             ...m,
             _id: modelMapping[m._id],
+            projectId,
         }));
         // move any common_example to the modern schema
         nativizedBackup.models.forEach((m) => {

@@ -83,7 +83,7 @@ export const getNluDataAndConfig = async (projectId, language, intents) => {
     const missingExamples = Math.abs(Math.min(0, common_examples.length - 2));
     for (let i = 0; (intents || []).length && i < missingExamples; i += 1) {
         common_examples.push({
-            text: `${i}dummy++azerty${i}`,
+            text: `${i}dummy${i}azerty${i}`,
             entities: [],
             metadata: { canonical: true, language },
             intent: `dumdum${i}`,

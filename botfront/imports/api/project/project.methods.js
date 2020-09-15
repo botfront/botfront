@@ -18,6 +18,7 @@ import { Slots } from '../slots/slots.collection';
 import { extractDomain } from '../../lib/story.utils';
 import { languages as languageOptions } from '../../lib/languages';
 import BotResponses from '../graphql/botResponses/botResponses.model';
+import Examples from '../graphql/examples/examples.model';
 
 if (Meteor.isServer) {
     export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain({ stories, slots, crashOnStoryWithErrors: false }));
@@ -72,6 +73,7 @@ if (Meteor.isServer) {
                 Stories.remove({ projectId });
                 Slots.remove({ projectId });
                 Projects.remove({ _id: projectId }); // Delete project
+                await Examples.remove({ projectId });
                 await BotResponses.remove({ projectId });
             } catch (e) {
                 if (!failSilently) throw e;

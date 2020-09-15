@@ -186,7 +186,7 @@ Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', de
         _id: projectId,
         name,
         defaultLanguage,
-        languages: [defaultLanguage],
+        languages: [],
     };
     cy.deleteProject(projectId);
     return cy.visit('/')

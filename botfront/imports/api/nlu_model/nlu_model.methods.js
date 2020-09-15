@@ -163,7 +163,7 @@ if (Meteor.isServer) {
         'nlu.insert'(projectId, language, incomingConfig = null) {
             check(projectId, String);
             check(language, String);
-            check(incomingConfig, Match.Maybe(Object));
+            check(incomingConfig, Match.Maybe(String));
 
             const { languages } = Projects.findOne(
                 { _id: projectId },
