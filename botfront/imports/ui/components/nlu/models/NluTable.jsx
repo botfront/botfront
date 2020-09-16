@@ -1,5 +1,5 @@
 import React, {
-    useState, useRef, useContext, useMemo,
+    useState, useRef, useContext, useMemo, useImperativeHandle,
 } from 'react';
 import {
     Popup, Checkbox, Icon, Confirm, Form, Button,
@@ -18,7 +18,7 @@ import { useEventListener } from '../../utils/hooks';
 import getColor from '../../../../lib/getColors';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
 
-function NluTable(props) {
+const NluTable = React.forwardRef((props, forwardedRef) => {
     const {
         loadingExamples,
         data,
@@ -30,12 +30,11 @@ function NluTable(props) {
         filters,
         selection,
         setSelection,
-        useShortcuts,
         noDrafts,
         renderLabelColumn: renderExternalLabelColumn,
-        height,
         switchCanonical,
     } = props;
+
     const { intents, entities } = useContext(ProjectContext);
     const [editExampleId, setEditExampleId] = useState([]);
 
@@ -45,6 +44,10 @@ function NluTable(props) {
     const singleSelectedIntentLabelRef = useRef(null);
 
     const handleEditExample = example => updateExamples([clearTypenameField(example)]);
+
+    useImperativeHandle(forwardedRef, () => ({
+        scrollToItem: tableRef?.current?.scrollToItem,
+    }));
 
     const handleExampleTextareaBlur = (example) => {
         setEditExampleId(null);
@@ -65,15 +68,17 @@ function NluTable(props) {
 
     const renderIntentLabel = (row) => {
         const { datum } = row;
-        const { metadata: { canonical = false } = {}, intent } = datum;
+        const { metadata: { canonical = false } = {}, intent, deleted } = datum;
         return canonicalTooltip(
             <IntentLabel
-                {...(selection.length === 1 && datum._id === selection[0] ? { ref: singleSelectedIntentLabelRef } : {})}
+                {...(selection.length === 1 && datum._id === selection[0]
+                    ? { ref: singleSelectedIntentLabelRef }
+                    : {})}
                 value={intent}
-                allowEditing={!canonical}
+                allowEditing={!canonical && !deleted}
                 allowAdditions
                 onChange={i => handleEditExample({ ...datum, intent: i })}
-                onClose={() => tableRef.current.tableRef().current.focus()}
+                onClose={() => tableRef?.current?.focusTable()}
             />,
             canonical,
         );
@@ -86,8 +91,8 @@ function NluTable(props) {
 
     const renderExample = (row) => {
         const { datum } = row;
-        const { metadata: { canonical = false } = {}, _id } = datum;
-    
+        const { metadata: { canonical = false } = {}, _id, deleted } = datum;
+
         if (editExampleId === _id) {
             return (
                 <Form className='example-editor-form' data-cy='example-editor-form'>
@@ -108,14 +113,14 @@ function NluTable(props) {
                     value={datum}
                     onChange={handleEditExample}
                     projectId=''
-                    disableEditing={canonical}
+                    disableEditing={canonical || deleted}
                     showIntent={false}
                 />
             </div>,
             canonical,
         );
     };
-    
+
     const renderLabelColumn = (row, ...args) => {
         if (renderExternalLabelColumn) return renderExternalLabelColumn(row, ...args);
         const { datum } = row;
@@ -128,16 +133,29 @@ function NluTable(props) {
                 className='persistent'
                 compact
                 content='draft'
-                onClick={() => handleEditExample({ ...datum, metadata: { ...datum.metadata, draft: false } })}
-                onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                onClick={() => handleEditExample({
+                    ...datum,
+                    metadata: { ...datum.metadata, draft: false },
+                })
+                }
+                onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }}
             />
         );
     };
 
     const renderActionsColumn = (row) => {
         const { datum } = row;
-        const { intent, metadata: { canonical = false, draft = false } = {}, _id } = datum;
-        let tooltip = (<div>Mark as canonical</div>);
+        const {
+            intent,
+            metadata: { canonical = false, draft = false } = {},
+            _id,
+            invalid,
+            deleted,
+        } = datum;
+        let tooltip = <div>Mark as canonical</div>;
         if (canonical) {
             tooltip = (
                 <>
@@ -145,23 +163,34 @@ function NluTable(props) {
                     <Popup.Content className='popup-canonical'>
                         This example is canonical for the intent
                         <span className='intent-name'> {datum.intent}</span>
-                        {datum.entities && datum.entities.length > 0
-                            ? (
-                                <>
-                                    &nbsp; and for the following entity - entity value combinations: <br />
-                                    {datum.entities.map(entity => (
-                                        <span><strong style={{ color: getColor(entity.entity).backgroundColor }}>{entity.entity}</strong>: {entity.value}</span>
-                                    ))}
-                                </>
-                            )
-                            : ''}
+                        {datum.entities && datum.entities.length > 0 ? (
+                            <>
+                                &nbsp; and for the following entity - entity value
+                                combinations: <br />
+                                {datum.entities.map(entity => (
+                                    <span>
+                                        <strong
+                                            style={{
+                                                color: getColor(entity.entity)
+                                                    .backgroundColor,
+                                            }}
+                                        >
+                                            {entity.entity}
+                                        </strong>
+                                        : {entity.value}
+                                    </span>
+                                ))}
+                            </>
+                        ) : (
+                            ''
+                        )}
                     </Popup.Content>
                 </>
             );
         }
         return (
             <div className='side-by-side narrow right'>
-                {!canonical && (
+                {!canonical && !deleted && (
                     <IconButton
                         active={canonical}
                         icon='edit'
@@ -176,7 +205,7 @@ function NluTable(props) {
                         onClick={() => deleteExamples([datum._id])}
                     />
                 )}
-                {!draft && intent && (
+                {!draft && intent && !deleted && !invalid && (
                     <Popup
                         position='top center'
                         disabled={tooltip === null}
@@ -248,8 +277,9 @@ function NluTable(props) {
         if (selectionWithFullData.some(d => d.metadata?.canonical)) return null;
         const fallbackUtterance = getFallbackUtterance(ids);
         const message = `Delete ${ids.length} NLU examples?`;
-        const action = () => deleteExamples(ids)
-            .then(mutationCallback(fallbackUtterance, 'deleteExamples'));
+        const action = () => deleteExamples(ids).then(
+            mutationCallback(fallbackUtterance, 'deleteExamples'),
+        );
         return ids.length > 1 ? setConfirm({ message, action }) : action();
     }
 
@@ -270,24 +300,26 @@ function NluTable(props) {
 
     const handleOpenIntentSetterDialogue = () => {
         if (!selection.length) return null;
-        if (selection.length === 1) return singleSelectedIntentLabelRef.current.openPopup();
+        if (selection.length === 1) { return singleSelectedIntentLabelRef.current.openPopup(); }
         return nluCommandBarRef.current.openIntentPopup();
     };
 
     useEventListener('keydown', (e) => {
-        if (!useShortcuts) return;
         const {
             key, shiftKey, metaKey, ctrlKey, altKey,
         } = e;
         if (shiftKey || metaKey || ctrlKey || altKey) return;
         if (!!confirm) {
             if (key.toLowerCase() === 'n') setConfirm(null);
-            if (key.toLowerCase() === 'y' || key === 'Enter') { confirm.action(); setConfirm(null); }
+            if (key.toLowerCase() === 'y' || key === 'Enter') {
+                confirm.action();
+                setConfirm(null);
+            }
             return;
         }
-        
-        if (e.target !== tableRef.current.tableRef().current) return;
-        if (selection.length === 0 && key.toLowerCase() === 'c') {
+
+        if (e.target !== tableRef?.current?.actualTable()) return;
+        if (selection.length === 0 && key.toLowerCase() === 'c' && filters) {
             updateFilters({ ...filters, onlyCanonicals: !filters.onlyCanonicals });
         }
         if (key === 'Escape') setSelection([]);
@@ -311,9 +343,13 @@ function NluTable(props) {
                     content={confirm.message}
                     onCancel={() => {
                         setConfirm(null);
-                        tableRef.current.tableRef().current.focus();
+                        return tableRef?.current?.focusTable();
                     }}
-                    onConfirm={() => { confirm.action(); setConfirm(null); tableRef.current.tableRef().current.focus(); }}
+                    onConfirm={() => {
+                        confirm.action();
+                        setConfirm(null);
+                        return tableRef?.current?.focusTable();
+                    }}
                 />
             )}
             {filters && (
@@ -322,11 +358,16 @@ function NluTable(props) {
                         intents={intents}
                         entities={entities}
                         filter={filters}
-                        onChange={newFilters => updateFilters({ ...filters, ...newFilters })}
+                        onChange={newFilters => updateFilters({ ...filters, ...newFilters })
+                        }
                         className='left wrap'
                     />
                     <Checkbox
-                        onChange={() => updateFilters({ ...filters, onlyCanonicals: !filters.onlyCanonicals })}
+                        onChange={() => updateFilters({
+                            ...filters,
+                            onlyCanonicals: !filters.onlyCanonicals,
+                        })
+                        }
                         hidden={false}
                         slider
                         checked={filters.onlyCanonicals}
@@ -335,9 +376,12 @@ function NluTable(props) {
                         className='only-canonical'
                     />
                     <Popup
-                        trigger={
-                            <Icon name='gem' color={filters.onlyCanonicals ? 'black' : 'grey'} />
-                        }
+                        trigger={(
+                            <Icon
+                                name='gem'
+                                color={filters.onlyCanonicals ? 'black' : 'grey'}
+                            />
+                        )}
                         content='Only show canonicals examples'
                         position='top center'
                         inverted
@@ -349,26 +393,24 @@ function NluTable(props) {
                 columns={columns}
                 data={data}
                 hasNextPage={hasNextPage}
-                loadMore={loadingExamples ? () => { } : loadMore}
+                loadMore={loadingExamples ? () => {} : loadMore}
                 selection={selection}
-                height={height}
                 onChangeSelection={newSelection => setSelection(newSelection)}
             />
-            {selection.length > 1 && useShortcuts && (
+            {selection.length > 1 && (
                 <NluCommandBar
                     ref={nluCommandBarRef}
                     selection={selectionWithFullData}
                     onSetIntent={handleSetIntent}
                     onDelete={handleDelete}
                     onUndraft={noDrafts ? undefined : handleUndraft}
-                    onCloseIntentPopup={() => tableRef.current.tableRef().current.focus()}
+                    onCloseIntentPopup={() => tableRef?.current?.focusTable()}
                 />
             )}
         </>
     );
     return renderDataTable();
-}
-
+});
 
 NluTable.propTypes = {
     loadingExamples: PropTypes.bool,
@@ -382,7 +424,6 @@ NluTable.propTypes = {
     filters: PropTypes.object,
     selection: PropTypes.array.isRequired,
     setSelection: PropTypes.func.isRequired,
-    useShortcuts: PropTypes.bool,
     noDrafts: PropTypes.bool,
     renderLabelColumn: PropTypes.func,
 };
@@ -396,7 +437,6 @@ NluTable.defaultProps = {
     hasNextPage: false,
     updateFilters: () => {},
     filters: null,
-    useShortcuts: true,
     noDrafts: false,
     renderLabelColumn: null,
 };

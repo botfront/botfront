@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useContext } from 'react';
 import PropTypes from 'prop-types';
+import shortid from 'shortid';
 import { Form, TextArea, Segment } from 'semantic-ui-react';
 import { debounce } from 'lodash';
 import UserUtteranceViewer from '../nlu/common/UserUtteranceViewer';
@@ -30,6 +31,7 @@ function InsertNlu(props) {
                 (Array.isArray(res) ? res : [res]).map(({
                     intent, text, entities,
                 }) => ({
+                    _id: shortid.generate(),
                     text,
                     intent: intent && intent.name ? intent.name : defaultIntent,
                     entities,

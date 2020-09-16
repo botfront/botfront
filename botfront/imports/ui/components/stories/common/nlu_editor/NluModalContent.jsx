@@ -39,6 +39,7 @@ const NLUModalContent = (props) => {
         language,
     } = useContext(ProjectContext);
     const { reloadStories } = useContext(ConversationOptionsContext);
+    const tableRef = useRef();
 
     const { data, loading: loadingExamples, refetch } = useExamples({
         projectId,
@@ -79,30 +80,37 @@ const NLUModalContent = (props) => {
         return newExample;
     };
 
-    const exampleReducer = (state, updatedExamples) => updatedExamples
-        .map(example => ({
-            ...example,
-            invalid: !checkPayloadsMatch(example),
-            isDisplayed: example._id === displayedExample._id,
-        }))
-        .sort((exampleA, exampleB) => {
-            if (exampleA.invalid) {
-                if (exampleB.invalid) return 0;
-                return -1;
-            }
-            if (exampleA.isNew) {
-                if (exampleB.invalid) return 1;
-                if (exampleB.isNew) return 0;
-                return -1;
-            }
-            if (exampleA.edited) {
-                if (exampleB.isNew || exampleB.invalid) return 1;
-                if (exampleB.edited) return 0;
-                return -1;
-            }
-            if (exampleB.invalid || exampleB.isNew || exampleB.edited) return 1;
-            return 0;
-        });
+    const exampleReducer = (state, updatedExamples) => {
+        const sortedUpdatedExamples = updatedExamples
+            .map(example => ({
+                ...example,
+                invalid: !checkPayloadsMatch(example),
+                isDisplayed: example._id === displayedExample._id,
+            }))
+            .sort((exampleA, exampleB) => {
+                if (exampleA.invalid) {
+                    if (exampleB.invalid) return 0;
+                    return -1;
+                }
+                if (exampleA.isNew) {
+                    if (exampleB.invalid) return 1;
+                    if (exampleB.isNew) return 0;
+                    return -1;
+                }
+                if (exampleA.edited) {
+                    if (exampleB.isNew || exampleB.invalid) return 1;
+                    if (exampleB.edited) return 0;
+                    return -1;
+                }
+                if (exampleB.invalid || exampleB.isNew || exampleB.edited) return 1;
+                return 0;
+            });
+        const firstChangedItem = sortedUpdatedExamples.findIndex(
+            ({ _id }, i) => (state[i] || {})._id !== _id,
+        );
+        if (firstChangedItem > -1) { tableRef?.current?.scrollToItem(firstChangedItem); }
+        return sortedUpdatedExamples;
+    };
 
     const [examples, setExamples] = useReducer(exampleReducer, []);
     useEffect(() => setExamples(data), [data]);
@@ -115,16 +123,15 @@ const NLUModalContent = (props) => {
     );
 
     const onNewExamples = async (incomingExamples) => {
-        const existingExamples = await fetchExamples({ text: incomingExamples.map(({ text }) => text) });
-        const newExamples = incomingExamples.reduce(
-            (acc, curr) => {
-                if ([...acc, ...examples].some(ex => ex.text === curr.text)) return acc;
-                const existingExample = existingExamples.find(ex => ex.text === curr.text);
-                if (existingExample) return [...acc, existingExample]; // if existing, add it without new status
-                return [...acc, { ...canonicalizeExample(curr, examples), isNew: true }];
-            },
-            [],
-        );
+        const existingExamples = await fetchExamples({
+            text: incomingExamples.map(({ text }) => text),
+        });
+        const newExamples = incomingExamples.reduce((acc, curr) => {
+            if ([...acc, ...examples].some(ex => ex.text === curr.text)) return acc;
+            const existingExample = existingExamples.find(ex => ex.text === curr.text);
+            if (existingExample) return [...acc, existingExample]; // if existing, add it without new status
+            return [...acc, { ...canonicalizeExample(curr, examples), isNew: true }];
+        }, []);
         setExamples([...newExamples, ...examples]);
     };
 
@@ -139,6 +146,7 @@ const NLUModalContent = (props) => {
             };
         });
         setExamples(updatedExamples);
+        return new Promise(() => ({ data: { deleteExamples: ids } })); // needed for mutationCallback in parent
     };
 
     const onUpdateExamples = (examplesUpdate) => {
@@ -269,12 +277,12 @@ const NLUModalContent = (props) => {
             <InsertNlu onSave={onNewExamples} defaultIntent={payload.intent} skipDraft />
             <br />
             <NluTable
+                ref={tableRef}
                 deleteExamples={onDeleteExamples}
                 updateExamples={onUpdateExamples}
                 switchCanonical={onSwitchCanonical}
                 data={examples}
                 selection={selection}
-                useShortcuts={false}
                 setSelection={setSelection}
                 noDrafts
                 renderLabelColumn={renderLabelColumn}
