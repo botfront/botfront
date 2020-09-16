@@ -28,22 +28,23 @@ function InsertNlu(props) {
                 );
             }
             return func(
-                (Array.isArray(res) ? res : [res]).map(({
-                    intent, text, entities,
-                }) => ({
-                    _id: shortid.generate(),
-                    text,
-                    intent: intent && intent.name ? intent.name : defaultIntent,
-                    entities,
-                    metadata: { draft: !skipDraft },
-                })),
+                (Array.isArray(res) ? res : [res]).map(
+                    ({ intent, text, entities }) => ({
+                        _id: shortid.generate(),
+                        text,
+                        intent: intent && intent.name ? intent.name : defaultIntent,
+                        entities,
+                        metadata: { draft: !skipDraft },
+                    }),
+                ),
             );
         },
     );
 
-    const doSetParsedExample = useCallback(debounce(
-        v => handleParse(setParsedExample, v.split('\n').slice(0, 1)), 500,
-    ), []);
+    const doSetParsedExample = useCallback(
+        debounce(v => handleParse(setParsedExample, v.split('\n').slice(0, 1)), 500),
+        [],
+    );
 
     function handleKeyPress(e) {
         const { key, shiftKey } = e;
@@ -51,7 +52,10 @@ function InsertNlu(props) {
             e.stopPropagation();
             e.preventDefault();
             doSetParsedExample.cancel();
-            handleParse(onSave, value.split('\n'));
+            handleParse(
+                onSave,
+                value.split('\n').filter(l => l.trim()),
+            );
             setValue('');
             setParsedExample(null);
         }
@@ -83,16 +87,24 @@ function InsertNlu(props) {
                         data-cy='example-text-editor-input'
                     />
                 </Form>
-                {parsedExample && value.split('\n').length < 2 && (
+                {(parsedExample
+                    || value.split('\n').filter(l => l.trim()).length >= 2) && (
                     <div className='tester' data-cy='nlu-example-tester'>
                         <Segment>
-                            <UserUtteranceViewer
-                                value={parsedExample[0]}
-                                disableEditing
-                            />
+                            {parsedExample && value.split('\n').length < 2 && (
+                                <UserUtteranceViewer
+                                    value={parsedExample[0]}
+                                    disableEditing
+                                />
+                            )}
+                            <div className='instructions'>
+                                Press [Enter] to add or edit example
+                                {value.split('\n').filter(l => l.trim()).length >= 2
+                                    && 's'}
+                                .
+                            </div>
                         </Segment>
                     </div>
-
                 )}
             </div>
         );
