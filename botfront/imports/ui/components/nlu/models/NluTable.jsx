@@ -285,7 +285,7 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
     }
 
     function handleUndraft(ids) {
-        if (selectionWithFullData.some(d => !d.intent)) return null;
+        if (selectionWithFullData.some(d => !d.intent || !d?.metadata?.draft)) return null;
         const message = `Remove draft status of  ${ids.length} NLU examples`;
         const examplesToUpdate = ids.map(_id => ({ _id, metadata: { draft: false } }));
         const action = () => updateExamples(examplesToUpdate);
