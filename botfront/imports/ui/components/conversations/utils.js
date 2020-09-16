@@ -13,17 +13,18 @@ export function generateTurns(tracker, debug = false, tzOffset = null) {
         if (type === 'user' && !!event.text) {
             // The text check here is to remove the null userUttered events that are triggered by reminders
             const example = event.parse_data;
-            example.intent = (example.intent || {}).name || null;
+            const { intent = {}, text = '' } = example;
+            example.intent = intent.name || null;
 
-            if (example.text.startsWith('/')) delete example.text;
-            if (!example.text && buttonValues[example.intent]) { // use remembered button title-payload mapping
+            if (text.startsWith('/')) delete example.text;
+            if (!text && buttonValues[example.intent]) { // use remembered button title-payload mapping
                 example.text = `<${buttonValues[example.intent]}>`;
             }
 
             const userSays = {
                 example,
                 timestamp: moment.unix(event.timestamp),
-                confidence: (example.intent || {}).confidence,
+                confidence: intent.confidence || null,
             };
             if (Number.isInteger(tzOffset)) userSays.timestamp = userSays.timestamp.utcOffset(tzOffset);
 
