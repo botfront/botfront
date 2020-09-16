@@ -68,6 +68,7 @@ function NLUModel(props) {
         order: 'ASC',
     });
     const [filters, setFilters] = useState({ sortKey: 'intent', sortOrder: 'ASC' });
+    const tableRef = useRef();
 
     const {
         data,
@@ -165,7 +166,7 @@ function NLUModel(props) {
                 language: workingLanguage,
                 projectId,
             },
-        });
+        }).then(() => tableRef?.current?.scrollToItem(0));
     };
 
     const renderTopMenuItem = (name, icon, visible) => (!visible ? null : (
@@ -284,6 +285,7 @@ function NLUModel(props) {
                                 menuItem: 'Examples',
                                 render: () => (
                                     <NluTable
+                                        ref={tableRef}
                                         projectId={projectId}
                                         workingLanguage={workingLanguage}
                                         entitySynonyms={
