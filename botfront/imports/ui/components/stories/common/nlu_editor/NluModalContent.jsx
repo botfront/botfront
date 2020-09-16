@@ -5,6 +5,7 @@ import React, {
     useMemo,
     useContext,
     useRef,
+    useImperativeHandle,
 } from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
@@ -32,7 +33,7 @@ function sameCanonicalGroup(example, payload) {
     );
 }
 
-const NLUModalContent = (props) => {
+const NLUModalContent = React.forwardRef((props, forwardedRef) => {
     const { closeModal, payload, displayedExample } = props;
     const {
         project: { _id: projectId },
@@ -221,6 +222,11 @@ const NLUModalContent = (props) => {
         }
     };
 
+    const cancelButtonRef = useRef();
+    useImperativeHandle(forwardedRef, () => ({
+        closeModal: () => cancelButtonRef?.current?.ref?.current?.click(),
+    }));
+
     const renderLabelColumn = (row) => {
         const {
             datum: {
@@ -309,7 +315,7 @@ const NLUModalContent = (props) => {
                 />
                 <Popup
                     trigger={(
-                        <Button onClick={handleCancel} data-cy='cancel-nlu-changes'>
+                        <Button onClick={handleCancel} data-cy='cancel-nlu-changes' ref={cancelButtonRef}>
                             Cancel
                         </Button>
                     )}
@@ -328,7 +334,7 @@ const NLUModalContent = (props) => {
             </div>
         </Container>
     );
-};
+});
 
 NLUModalContent.propTypes = {
     payload: PropTypes.object.isRequired,
