@@ -383,7 +383,6 @@ if (Meteor.isServer) {
                                 'nlu.insert',
                                 projectId,
                                 lang,
-                                { name: `chitchat-${lang}` },
                             );
                             await insertExamples({
                                 examples: data[lang],
