@@ -170,6 +170,7 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
         const [min, max] = index < lastIndex ? [index, lastIndex] : [lastIndex, index];
         const newSelection = allData.slice(min, max + 1).map(d => d[selectionKey]);
         lastFocusedRowInfo.current = { datum, index: indexInData };
+        window.getSelection().removeAllRanges();
         return onChangeSelection(newSelection);
     };
 
@@ -184,7 +185,6 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
         if (!mouseDown || rowInfo.datum[selectionKey] === lastFocusedStart.current) {
             return;
         }
-        window.getSelection().removeAllRanges();
         handleSelectionChange({ shiftKey: true, ...rowInfo });
     };
 
