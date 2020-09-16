@@ -291,7 +291,7 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
                                             innerListRef.current = ref_;
                                             outerListRef.current = ref_._outerRef;
                                         }
-                                        return ref;
+                                        return ref(ref_);
                                     }}
                                     width={w}
                                     itemData={({ index, style }) => ({
