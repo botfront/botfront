@@ -1,5 +1,5 @@
 import React, {
-    useContext, useState, useImperativeHandle, useRef, useEffect,
+    useContext, useState, useImperativeHandle, useRef,
 } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -53,8 +53,6 @@ const Intent = React.forwardRef((props, ref) => {
     const dataToDisplay = intents.filter(i => textMatch(i.intent, typeInput));
 
     const [selection, setSelection] = useState(dataToDisplay.slice(0, 1).map(i => i.intent));
-    // useEffect(() => console.log(selection), [selection]);
-    // useEffect(() => () => console.log('umount'), []);
 
     const hasInvalidChars = intentName => intentName.match(/[ +/{}/]/);
 
@@ -63,6 +61,7 @@ const Intent = React.forwardRef((props, ref) => {
     };
 
     const handleChange = (intentName) => {
+        if (!enableReset && !intentName) return;
         handleClose();
         onChange(intentName);
     };
@@ -242,7 +241,7 @@ Intent.defaultProps = {
     value: null,
     allowEditing: false,
     allowAdditions: false,
-    onChange: () => { },
+    onChange: () => {},
     disabled: false,
     enableReset: false,
     detachedModal: false,
