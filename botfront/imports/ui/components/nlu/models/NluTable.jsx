@@ -130,9 +130,8 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
             <Button
                 size='mini'
                 disabled={!intent}
-                className='persistent'
+                className='persistent draft-save-button'
                 compact
-                content='draft'
                 onClick={() => handleEditExample({
                     ...datum,
                     metadata: { ...datum.metadata, draft: false },

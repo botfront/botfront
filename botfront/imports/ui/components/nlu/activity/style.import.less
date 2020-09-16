@@ -38,6 +38,13 @@
             .button {
                 visibility: visible;
             }
+            .button.draft-save-button:not(.disabled) {
+                background-color: @blue;
+                color: #fff;
+                &::after {
+                    content: 'save';
+                }
+            }
         }
 
         &.selected {
@@ -47,6 +54,13 @@
 
         .button:not(.persistent) {
             visibility: hidden;
+        }
+
+        .button.draft-save-button {
+            width: 7ch;
+            &::after {
+                content: 'draft'
+            }
         }
     }
 
