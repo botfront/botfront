@@ -6,11 +6,10 @@ import {
 } from './mutations';
 
 export function useActivity(variables) {
-    const pageSize = 10;
     const {
         data, loading, error, fetchMore, refetch,
     } = useQuery(activityQuery, {
-        notifyOnNetworkStatusChange: true, variables: { ...variables, pageSize },
+        notifyOnNetworkStatusChange: true, variables,
     });
 
     if (!data || !data.getActivity) return { loading, data: [] };
@@ -20,7 +19,6 @@ export function useActivity(variables) {
         notifyOnNetworkStatusChange: true,
         variables: {
             ...variables,
-            pageSize,
             cursor: data.getActivity.pageInfo.endCursor,
         },
         updateQuery: (previousResult, { fetchMoreResult }) => {

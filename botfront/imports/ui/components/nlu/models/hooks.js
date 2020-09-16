@@ -26,29 +26,27 @@ export function useExamples(variables) {
     });
 
     if (!data || !data.examples) return { loading, data: [] };
-    const loadMore = () => {
-        fetchMore({
-            query: GET_EXAMPLES,
-            notifyOnNetworkStatusChange: true,
-            variables: {
-                ...variables,
-                cursor: data.examples.pageInfo.endCursor,
-            },
-            updateQuery: (previousResult, { fetchMoreResult }) => {
-                const { examples, pageInfo } = fetchMoreResult.examples;
-                return examples.length
-                    ? {
-                        examples: {
+    const loadMore = () => fetchMore({
+        query: GET_EXAMPLES,
+        notifyOnNetworkStatusChange: true,
+        variables: {
+            ...variables,
+            cursor: data.examples.pageInfo.endCursor,
+        },
+        updateQuery: (previousResult, { fetchMoreResult }) => {
+            const { examples, pageInfo } = fetchMoreResult.examples;
+            return examples.length
+                ? {
+                    examples: {
                         // eslint-disable-next-line no-underscore-dangle
-                            __typename: previousResult.examples.__typename,
-                            examples: [...previousResult.examples.examples, ...examples],
-                            pageInfo,
-                        },
-                    }
-                    : previousResult;
-            },
-        });
-    };
+                        __typename: previousResult.examples.__typename,
+                        examples: [...previousResult.examples.examples, ...examples],
+                        pageInfo,
+                    },
+                }
+                : previousResult;
+        },
+    });
 
     return {
         data: data.examples.examples,
