@@ -59,15 +59,21 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
     }
     const windowInfoRef = useRef();
     const outerListRef = useRef();
+    const innerListRef = useRef();
     const headerRef = useRef(null);
     const stickyRowsRef = useRef(document.createElement('div'));
 
     useImperativeHandle(forwardedRef, () => ({
-        tableRef: () => tableRef,
-        windowInfoRef: () => windowInfoRef,
-        outerListRef: () => outerListRef,
-        headerRef: () => headerRef,
-        stickyRowsRef: () => stickyRowsRef,
+        actualTable: () => tableRef?.current,
+        focusTable: () => tableRef?.current?.focus(),
+        visibleStartIndex: () => windowInfoRef?.current?.visibleStartIndex,
+        visibleStopIndex: () => windowInfoRef?.current?.visibleStopIndex,
+        scrollY: (delta) => {
+            if (Number.isInteger(outerListRef?.current?.scrollTop)) {
+                outerListRef.current.scrollTop += delta;
+            }
+        },
+        scrollToItem: index => innerListRef?.current?.scrollToItem(index),
     }));
 
     const [height, doSetHeight] = useState();
@@ -282,6 +288,7 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
                                     }}
                                     ref={(ref_) => {
                                         if (ref_ && ref_._outerRef) {
+                                            innerListRef.current = ref_;
                                             outerListRef.current = ref_._outerRef;
                                         }
                                         return ref;

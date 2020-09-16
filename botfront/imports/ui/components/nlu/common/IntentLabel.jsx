@@ -74,11 +74,9 @@ const Intent = React.forwardRef((props, ref) => {
         else if (key === 'ArrowDown') index += 1;
         else return;
         index = Math.min(Math.max(0, index), dataToDisplay.length - 1);
-        let { windowInfoRef = () => ({}), outerListRef = () => ({}) } = tableRef.current || {};
-        windowInfoRef = windowInfoRef(); outerListRef = outerListRef();
-        if (windowInfoRef.current && outerListRef.current) {
-            if (index >= windowInfoRef.current.visibleStopIndex) outerListRef.current.scrollTop += 100;
-            if (index <= windowInfoRef.current.visibleStartIndex) outerListRef.current.scrollTop -= 100;
+        if (Number.isInteger(tableRef.current?.visibleStartIndex())) {
+            if (index >= tableRef.current.visibleStopIndex()) tableRef.current.scrollY(100);
+            if (index <= tableRef.current.visibleStartIndex()) tableRef.current.scrollY(-100);
         }
         setSelection([dataToDisplay[index].intent]);
     };
