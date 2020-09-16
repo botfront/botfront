@@ -141,7 +141,7 @@ function NLUModel(props) {
     const handleMenuItemClick = (e, { name }) => setActiveItem(name);
 
     const renderWarningMessageIntents = () => {
-        if (intents.length < 2) {
+        if (!loadingExamples && intents.length < 2) {
             return (
                 <Message
                     size='tiny'
