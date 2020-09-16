@@ -137,12 +137,14 @@ const NLUModalContent = (props) => {
 
     const onDeleteExamples = (ids) => {
         const updatedExamples = [...examples];
+        const someOriginallyNotDeleted = examples.some(({ _id, deleted }) => !deleted && ids.includes(_id));
+
         ids.forEach((id) => {
             const removeIndex = examples.findIndex(({ _id }) => _id === id);
             const oldExample = { ...updatedExamples[removeIndex] };
             updatedExamples[removeIndex] = {
                 ...oldExample,
-                deleted: !oldExample.deleted,
+                deleted: someOriginallyNotDeleted,
             };
         });
         setExamples(updatedExamples);

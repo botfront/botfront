@@ -275,8 +275,10 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
 
     function handleDelete(ids) {
         if (selectionWithFullData.some(d => d.metadata?.canonical)) return null;
+        const someOriginallyNotDeleted = selectionWithFullData.some(({ deleted }) => !deleted);
+        const verb = someOriginallyNotDeleted ? 'Delete' : 'Undelete';
         const fallbackUtterance = getFallbackUtterance(ids);
-        const message = `Delete ${ids.length} NLU examples?`;
+        const message = `${verb} ${ids.length} NLU examples?`;
         const action = () => deleteExamples(ids).then(
             mutationCallback(fallbackUtterance, 'deleteExamples'),
         );
