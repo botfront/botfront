@@ -13,6 +13,7 @@ const NluCommandBar = React.forwardRef((props, ref) => {
     const selectionIncludesCanonical = selection.some(d => d.metadata?.canonical);
     const selectionIncludesNonDraft = selection.some(d => !d.metadata?.draft);
     const selectionIncludesNullIntent = selection.some(d => !d.intent);
+    const selectionIncludesDeleted = selection.some(d => d.deleted);
 
     useImperativeHandle(ref, () => ({
         openIntentPopup: () => intentLabelRef.current.openPopup(),
@@ -29,21 +30,21 @@ const NluCommandBar = React.forwardRef((props, ref) => {
                             ref={intentLabelRef}
                             detachedModal
                             allowAdditions
-                            allowEditing={!selectionIncludesCanonical}
+                            allowEditing={!selectionIncludesCanonical && !selectionIncludesDeleted}
                             onChange={intent => onSetIntent(selection.map(({ _id }) => _id), intent)}
                             onClose={onCloseIntentPopup}
                         />
                         <Popup
                             size='mini'
                             inverted
-                            disabled={selectionIncludesCanonical}
+                            disabled={selectionIncludesCanonical || selectionIncludesDeleted}
                             content='Change intent'
                             trigger={(
                                 <div>
                                     <IconButton
                                         basic
                                         size='small'
-                                        disabled={selectionIncludesCanonical}
+                                        disabled={selectionIncludesCanonical || selectionIncludesDeleted}
                                         onClick={() => intentLabelRef.current.openPopup()}
                                         color='purple'
                                         icon='tag'
