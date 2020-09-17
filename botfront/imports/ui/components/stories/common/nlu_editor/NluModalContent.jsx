@@ -34,7 +34,7 @@ function sameCanonicalGroup(example, payload) {
 }
 
 const NLUModalContent = React.forwardRef((props, forwardedRef) => {
-    const { closeModal, payload, displayedExample } = props;
+    const { closeModal, payload } = props;
     const {
         project: { _id: projectId },
         language,
@@ -86,7 +86,6 @@ const NLUModalContent = React.forwardRef((props, forwardedRef) => {
             .map(example => ({
                 ...example,
                 invalid: !checkPayloadsMatch(example),
-                isDisplayed: example._id === displayedExample._id,
             }))
             .sort((exampleA, exampleB) => {
                 if (exampleA.invalid) {
@@ -339,11 +338,7 @@ const NLUModalContent = React.forwardRef((props, forwardedRef) => {
 NLUModalContent.propTypes = {
     payload: PropTypes.object.isRequired,
     closeModal: PropTypes.func.isRequired,
-    displayedExample: PropTypes.object,
 };
 
-NLUModalContent.defaultProps = {
-    displayedExample: {},
-};
 
 export default NLUModalContent;

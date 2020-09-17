@@ -149,7 +149,6 @@ const UtteranceContainer = (props) => {
                                 ref={modalContentRef}
                                 payload={value}
                                 closeModal={closeModal}
-                                displayedExample={fetchedData}
                             />
                         </Segment>
                     </Modal>
