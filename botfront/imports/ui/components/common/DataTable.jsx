@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import React, {
-    useRef, useState, useEffect, useMemo, useImperativeHandle,
+    useRef, useState, useEffect, useMemo, useImperativeHandle, useCallback,
 } from 'react';
 import PropTypes from 'prop-types';
 import { Portal } from 'semantic-ui-react';
@@ -45,13 +45,11 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
     const isDatumSelected = datum => datum && selection.includes(datum[selectionKey]);
 
     // rowClassName may be a function from datum and index to text, or just text;
-    const rowClassName = useMemo(() => {
-        const addSelectionClass = (datum, cls) => `${cls}${isDatumSelected(datum) ? ' selected' : ''}`;
-        if (typeof textOrFuncRowClassName === 'function') {
-            return (datum, index) => addSelectionClass(datum, textOrFuncRowClassName(datum, index));
-        }
-        return datum => addSelectionClass(datum, textOrFuncRowClassName);
-    }, [textOrFuncRowClassName]);
+    const rowClassName = useCallback((datum, index) => {
+        const resolved = (typeof textOrFuncRowClassName === 'function')
+            ? textOrFuncRowClassName(datum, index) : textOrFuncRowClassName;
+        return `${resolved}${isDatumSelected(datum) ? ' selected' : ''}`;
+    }, [textOrFuncRowClassName, data]);
 
     useEffect(() => {
         if (externallyControlledSelection) return;

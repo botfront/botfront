@@ -30,6 +30,7 @@ const Intent = React.forwardRef((props, ref) => {
 
     const intents = [
         ...(value ? [{ intent: value }] : []),
+        ...(additionalIntentOption ? [{ intent: additionalIntentOption }] : []),
         ...contextIntents
             .filter(i => i !== value)
             .map(i => ({ intent: i })),
@@ -51,13 +52,7 @@ const Intent = React.forwardRef((props, ref) => {
         .replace(/ /g, '')
         .toLowerCase()
         .includes((s2 || '').replace(/ /g, '').toLowerCase());
-    let dataToDisplay;
-    if (intents.includes(additionalIntentOption)) {
-        dataToDisplay = intents.filter(i => textMatch(i.intent, typeInput));
-    } else {
-        dataToDisplay = [...intents, { intent: additionalIntentOption }].filter(i => textMatch(i.intent, typeInput));
-    }
-    
+    const dataToDisplay = intents.filter(i => textMatch(i.intent, typeInput));
 
     const [selection, setSelection] = useState(dataToDisplay.slice(0, 1).map(i => i.intent));
 
@@ -86,6 +81,13 @@ const Intent = React.forwardRef((props, ref) => {
         }
         setSelection([dataToDisplay[index].intent]);
     };
+    if (
+        selection.length
+        && dataToDisplay.length
+        && !dataToDisplay.map(i => i.intent).includes(selection[0])
+    ) {
+        selectSibling('ArrowDown');
+    }
 
     const handleKeyDown = (event) => {
         event.stopPropagation();
