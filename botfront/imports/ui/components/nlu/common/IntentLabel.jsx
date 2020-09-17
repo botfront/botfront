@@ -79,6 +79,7 @@ const Intent = React.forwardRef((props, ref) => {
             if (index >= tableRef.current.visibleStopIndex()) tableRef.current.scrollY(100);
             if (index <= tableRef.current.visibleStartIndex()) tableRef.current.scrollY(-100);
         }
+        tableRef.current?.scrollToItem(index);
         setSelection([dataToDisplay[index].intent]);
     };
     if (
@@ -98,7 +99,10 @@ const Intent = React.forwardRef((props, ref) => {
             handleChange(
                 (dataToDisplay || []).length ? selection[0] : typeInput,
             );
-        } else setSelection((dataToDisplay || []).length ? [dataToDisplay[0].intent] : []);
+        } else if ((dataToDisplay || []).length) {
+            setSelection([dataToDisplay[0].intent]);
+            tableRef.current?.scrollToItem(0);
+        } else setSelection([]);
     };
 
     const renderResetIntent = () => (
