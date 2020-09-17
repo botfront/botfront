@@ -16,6 +16,7 @@
 // ***********************************************************
 
 import './chat.commands';
+import './nlu.commands';
 import './story.commands';
 import './response.commands';
 import './incoming.commands';
