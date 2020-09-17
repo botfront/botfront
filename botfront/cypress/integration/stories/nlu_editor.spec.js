@@ -29,7 +29,7 @@ describe('nlu editor modal tests', () => {
         cy.get('.example-table-row').first().trigger('mouseover');
         cy.dataCy('icon-edit').should('exist'); // check appear on hover works correctly
         cy.dataCy('icon-edit').first().click({ force: true });
-        cy.dataCy('example-editor-form').find('[data-cy=example-text-editor-input]').type(' tonight{enter}');
+        cy.dataCy('example-editor-container').find('[data-cy=example-text-editor-input]').type(' tonight{enter}');
         cy.dataCy('example-text-editor-input').click().type('I will go to costco{enter}');
         cy.dataCy('nlu-modification-label').contains('deleted').should('exist');
         cy.dataCy('nlu-modification-label').contains('new').should('exist');
@@ -77,7 +77,7 @@ describe('nlu editor modal tests', () => {
         cancelChanges();
         cy.dataCy('utterance-text').click();
         cy.dataCy('icon-edit').first().click({ force: true });
-        cy.dataCy('example-editor-form').find('[data-cy=example-text-editor-input]').type(' tonight{enter}');
+        cy.dataCy('example-editor-container').find('[data-cy=example-text-editor-input]').type(' tonight{enter}');
         cy.dataCy('nlu-modification-label').contains('edited').should('exist');
         cancelChanges();
         cy.dataCy('utterance-text').click();
@@ -165,7 +165,7 @@ describe('auto-assingment of canonical in the nlu editor', () => {
 
         cy.dataCy('utterance-text').click();
         cy.dataCy('icon-edit').click({ force: true });
-        cy.dataCy('example-editor-form').find('[data-cy=example-text-editor-input]').type(' edited{enter}');
+        cy.dataCy('example-editor-container').find('[data-cy=example-text-editor-input]').type(' edited{enter}');
 
         cy.dataCy('nlu-modification-label').contains('edited').should('exist');
         cy.dataCy('save-nlu').click();

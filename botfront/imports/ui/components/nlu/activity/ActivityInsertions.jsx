@@ -65,7 +65,6 @@ export default function ActivityInsertions() {
                 <TextArea
                     rows={15}
                     value={text}
-                    autoheight='true'
                     disabled={loading}
                     onChange={onTextChanged}
                 />

@@ -2,7 +2,7 @@ import React, {
     useState, useRef, useContext, useMemo, useImperativeHandle,
 } from 'react';
 import {
-    Popup, Checkbox, Icon, Confirm, Form, Button,
+    Popup, Checkbox, Icon, Confirm, Button,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import DataTable from '../../common/DataTable';
@@ -49,9 +49,12 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
         scrollToItem: tableRef?.current?.scrollToItem,
     }));
 
-    const handleExampleTextareaBlur = (example) => {
-        setEditExampleId(null);
-        handleEditExample(example);
+    const resetEditExample = () => { setEditExampleId(null); return tableRef?.current?.focusTable(); };
+
+    const handleExampleTextSave = (example) => {
+        if (!example.text.trim()) return resetEditExample();
+        return handleEditExample(example)
+            .then(resetEditExample);
     };
 
     const canonicalTooltip = (jsx, canonical) => {
@@ -61,7 +64,13 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
                 trigger={<div>{jsx}</div>}
                 inverted
                 postion='left'
-                content={<>Remove canonical &#x27E8;<Icon name='gem' style={{ margin: 0 }} />&#x27E9; status to edit</>}
+                content={(
+                    <>
+                        Remove canonical &#x27E8;
+                        <Icon name='gem' style={{ margin: 0 }} />
+                        &#x27E9; status to edit
+                    </>
+                )}
             />
         );
     };
@@ -95,16 +104,11 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
 
         if (editExampleId === _id) {
             return (
-                <Form className='example-editor-form' data-cy='example-editor-form'>
-                    <ExampleTextEditor
-                        inline
-                        autofocus
-                        example={datum}
-                        onBlur={handleExampleTextareaBlur}
-                        onEnter={handleExampleTextareaBlur}
-                        disableNewEntities
-                    />
-                </Form>
+                <ExampleTextEditor
+                    example={datum}
+                    onCancel={resetEditExample}
+                    onSave={handleExampleTextSave}
+                />
             );
         }
         return canonicalTooltip(
@@ -274,7 +278,9 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
 
     function handleDelete(ids) {
         if (selectionWithFullData.some(d => d.metadata?.canonical)) return null;
-        const someOriginallyNotDeleted = selectionWithFullData.some(({ deleted }) => !deleted);
+        const someOriginallyNotDeleted = selectionWithFullData.some(
+            ({ deleted }) => !deleted,
+        );
         const verb = someOriginallyNotDeleted ? 'Delete' : 'Undelete';
         const fallbackUtterance = getFallbackUtterance(ids);
         const message = `${verb} ${ids.length} NLU examples?`;
@@ -285,7 +291,7 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
     }
 
     function handleUndraft(ids) {
-        if (selectionWithFullData.some(d => !d.intent || !d?.metadata?.draft)) return null;
+        if (selectionWithFullData.some(d => !d.intent || !d?.metadata?.draft)) { return null; }
         const message = `Remove draft status of  ${ids.length} NLU examples`;
         const examplesToUpdate = ids.map(_id => ({ _id, metadata: { draft: false } }));
         const action = () => updateExamples(examplesToUpdate);
@@ -301,7 +307,9 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
 
     const handleOpenIntentSetterDialogue = () => {
         if (!selection.length) return null;
-        if (selection.length === 1) { return singleSelectedIntentLabelRef.current.openPopup(); }
+        if (selection.length === 1) {
+            return singleSelectedIntentLabelRef.current.openPopup();
+        }
         return nluCommandBarRef.current.openIntentPopup();
     };
 
@@ -318,13 +326,19 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
             }
             return;
         }
-
         if (e.target !== tableRef?.current?.actualTable()) return;
         if (selection.length === 0 && key.toLowerCase() === 'c' && filters) {
             updateFilters({ ...filters, onlyCanonicals: !filters.onlyCanonicals });
         }
         if (key === 'Escape') setSelection([]);
         if (key.toLowerCase() === 'd') handleDelete(selection);
+        if (key.toLowerCase() === 'e') {
+            if (selection.length !== 1) return;
+            const { metadata, deleted, _id } = selectionWithFullData[0];
+            if (metadata?.canonical || deleted) return;
+            e.preventDefault();
+            setEditExampleId(_id);
+        }
         if (key.toLowerCase() === 's' && !noDrafts) handleUndraft(selection);
         if (key.toLowerCase() === 'i') {
             e.stopPropagation();
@@ -364,8 +378,7 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
                         intents={intents}
                         entities={entities}
                         filter={filters}
-                        onChange={newFilters => updateFilters({ ...filters, ...newFilters })
-                        }
+                        onChange={newFilters => updateFilters({ ...filters, ...newFilters })}
                         className='left wrap'
                     />
                     <Checkbox

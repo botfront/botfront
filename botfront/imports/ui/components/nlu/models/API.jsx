@@ -3,8 +3,9 @@
 import React from 'react';
 import moment from 'moment-timezone';
 import {
-    TextArea, Form, Dropdown, Input, Checkbox,
+    Form, Dropdown, Input, Checkbox,
 } from 'semantic-ui-react';
+import TextArea from 'react-textarea-autosize';
 import ReactJson from 'react-json-view';
 import { debounce } from 'lodash';
 import queryString from 'query-string';
@@ -14,7 +15,7 @@ export default class API extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            query: 'hello',
+            query: '',
             output: {},
             tz: null,
             reftime: 0,
@@ -29,7 +30,10 @@ export default class API extends React.Component {
     }
 
     getCodeString() {
-        const { instance: { host, token }, language: lang } = this.context;
+        const {
+            instance: { host, token },
+            language: lang,
+        } = this.context;
         const { query, reftime, tz } = this.state;
 
         const url = `${host}/model/parse`;
@@ -51,7 +55,11 @@ export default class API extends React.Component {
     };
 
     handleDucklingOptionsChange = (e, { checked }) => {
-        this.setState(checked ? { tz: moment.tz.guess(), reftime: moment().valueOf() } : { tz: null, reftime: 0 });
+        this.setState(
+            checked
+                ? { tz: moment.tz.guess(), reftime: moment().valueOf() }
+                : { tz: null, reftime: 0 },
+        );
         this.debouncedFunction();
     };
 
@@ -71,9 +79,14 @@ export default class API extends React.Component {
         if (tz) Object.assign(queryParams, { timezone: tz });
         if (reftime > 0) Object.assign(queryParams, { reference_time: reftime });
 
-        return Meteor.call('rasa.parse', instance, [{ text: query, lang: language }], (err, output) => this.setState({ output }));
+        return Meteor.call(
+            'rasa.parse',
+            instance,
+            [{ text: query, lang: language }],
+            (err, output) => this.setState({ output }),
+        );
     };
-    
+
     static contextType = ProjectContext;
 
     render() {
@@ -89,28 +102,53 @@ export default class API extends React.Component {
                 <div id='playground'>
                     <Form>
                         <Form.Field>
-                            <TextArea name='query' placeholder='User says...' autoheight='true' rows={1} value={query} onChange={this.handleTextChange} />
+                            <TextArea
+                                placeholder='User says...'
+                                minRows={1}
+                                maxRows={999}
+                                value={query}
+                                onChange={this.handleTextChange}
+                            />
                         </Form.Field>
                         <br />
-                        <Checkbox slider label='Show Duckling params' onChange={this.handleDucklingOptionsChange} />
+                        <Checkbox
+                            slider
+                            label='Show Duckling params'
+                            onChange={this.handleDucklingOptionsChange}
+                        />
                         <br />
                         <br />
                         {tz && (
                             <Form.Field>
                                 <label>Timezone: </label>
-                                <Dropdown name='tz' placeholder='Select timezone' search selection value={tz} options={tzOptions} onChange={this.handleChange} />
+                                <Dropdown
+                                    name='tz'
+                                    placeholder='Select timezone'
+                                    search
+                                    selection
+                                    value={tz}
+                                    options={tzOptions}
+                                    onChange={this.handleChange}
+                                />
                             </Form.Field>
                         )}
                         {reftime !== 0 && (
                             <Form.Field>
                                 <label>Ref. time:</label>
-                                <Input name='reftime' value={reftime} placeholder='Ref. time' onChange={this.handleChange} />
+                                <Input
+                                    name='reftime'
+                                    value={reftime}
+                                    placeholder='Ref. time'
+                                    onChange={this.handleChange}
+                                />
                             </Form.Field>
                         )}
                     </Form>
                 </div>
                 <br />
-                <div style={{ width: '100%', backgroundColor: '#efefef', padding: '1em' }}>
+                <div
+                    style={{ width: '100%', backgroundColor: '#efefef', padding: '1em' }}
+                >
                     <code>{codeString}</code>
                 </div>
                 <br />

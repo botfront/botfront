@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useContext } from 'react';
 import PropTypes from 'prop-types';
 import shortid from 'shortid';
-import { Form, TextArea, Segment } from 'semantic-ui-react';
+import { Form, Segment } from 'semantic-ui-react';
+import TextArea from 'react-textarea-autosize';
 import { debounce } from 'lodash';
 import UserUtteranceViewer from '../nlu/common/UserUtteranceViewer';
 import { ProjectContext } from '../../layouts/context';
@@ -66,9 +67,9 @@ function InsertNlu(props) {
         setParsedExample(null);
     }
 
-    function handleTextChange(e, data) {
-        setValue(data.value);
-        doSetParsedExample(data.value);
+    function handleTextChange(e) {
+        setValue(e.target.value);
+        doSetParsedExample(e.target.value);
     }
 
     function render() {
@@ -76,10 +77,9 @@ function InsertNlu(props) {
             <div id='playground'>
                 <Form>
                     <TextArea
-                        name='text'
                         placeholder='User says...'
-                        autoheight='true'
-                        rows={(value && value.split('\n').length) || 1}
+                        minRows={1}
+                        maxRows={999}
                         value={value}
                         onKeyPress={handleKeyPress}
                         onChange={handleTextChange}
