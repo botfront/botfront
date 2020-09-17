@@ -59,7 +59,7 @@ class DeleteModel extends React.Component {
             projectId,
             { language },
             wrapMeteorCallback((_, res) => {
-                const { data } = res.nlu;
+                const { [language]: { data } } = res.nlu;
                 const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
                 const filename = `${projectId.toLowerCase()}-${language}-${moment().toISOString()}.md`;
                 saveAs(blob, filename);
@@ -68,8 +68,7 @@ class DeleteModel extends React.Component {
         );
     };
 
-    renderCannotDeleteMessage = () => {
-        const { language } = this.props;
+    renderCannotDeleteMessage = (language) => {
         if (!this.cannotDelete()) {
             return (
                 <Message
@@ -96,25 +95,25 @@ class DeleteModel extends React.Component {
         const { backupDownloaded, confirmOpen } = this.state;
         const { language, examples } = this.props;
         const { projectLanguages } = this.context;
-        const languageName = projectLanguages.find(
+        const { text: languageName } = projectLanguages.find(
             lang => lang.value === language,
         );
         return (
             <Tab.Pane>
                 <Confirm
                     open={confirmOpen}
-                    header={`Delete ${language} data from your model? (${examples} examples)`}
+                    header={`Delete ${languageName} data from your model? (${examples} examples)`}
                     content='This cannot be undone!'
                     onCancel={this.onCancel}
                     onConfirm={this.onConfirm}
                 />
                 {!backupDownloaded && (
                     <div>
-                        {this.renderCannotDeleteMessage()}
+                        {this.renderCannotDeleteMessage(languageName)}
                         <br />
                         <Button positive onClick={this.downloadModelData} className='dowload-model-backup-button' data-cy='download-backup'>
                             <Icon name='download' />
-                            Backup {language} data of your model
+                            Backup {languageName} data of your model
                         </Button>
                     </div>
                 )}
@@ -139,16 +138,20 @@ class DeleteModel extends React.Component {
 }
 
 DeleteModel.propTypes = {
-    examples: PropTypes.number.isRequired,
+    examples: PropTypes.number,
     language: PropTypes.string.isRequired,
     projectId: PropTypes.string.isRequired,
+};
+
+DeleteModel.defaultProps = {
+    examples: 0,
 };
 
 const DeleteModelWithTracker = withTracker((props) => {
     const { projectId, workingLanguage: language } = props;
     const { data } = useQuery(GET_EXAMPLE_COUNT, { variables: { projectId, language } });
     const { totalLength: examples } = data?.examples?.pageInfo || {};
-    return { examples };
+    return { examples, language };
 })(DeleteModel);
 
 const mapStateToProps = state => ({
