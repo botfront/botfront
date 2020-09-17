@@ -32,16 +32,26 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
         columns: allColumns,
         onScroll,
         className,
-        rowClassName,
+        rowClassName: textOrFuncRowClassName,
         selection,
         onChangeSelection,
         externallyControlledSelection,
     } = props;
+
     const dataCount = hasNextPage ? data.length + bufferSize + 1 : data.length;
     const isDataLoaded = index => !hasNextPage || index < data.length;
     const columns = useMemo(() => allColumns.filter(c => !c.hidden), [allColumns]);
     const selectionKey = (allColumns.filter(c => c.selectionKey)[0] || {}).key || allColumns[0].key;
     const isDatumSelected = datum => datum && selection.includes(datum[selectionKey]);
+
+    // rowClassName may be a function from datum and index to text, or just text;
+    const rowClassName = useMemo(() => {
+        const addSelectionClass = (datum, cls) => `${cls}${isDatumSelected(datum) ? ' selected' : ''}`;
+        if (typeof textOrFuncRowClassName === 'function') {
+            return (datum, index) => addSelectionClass(datum, textOrFuncRowClassName(datum, index));
+        }
+        return datum => addSelectionClass(datum, textOrFuncRowClassName);
+    }, [textOrFuncRowClassName]);
 
     useEffect(() => {
         if (externallyControlledSelection) return;
@@ -86,8 +96,7 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
 
     const getToScrollableNode = (ref) => {
         if (!ref.current) return [ref, ref];
-        const isScrollable = node => ['overflow', 'overflow-y']
-            .some(prop => /(auto|scroll)/.test(getComputedStyle(node, null).getPropertyValue(prop)));
+        const isScrollable = node => ['overflow', 'overflow-y'].some(prop => /(auto|scroll)/.test(getComputedStyle(node, null).getPropertyValue(prop)));
 
         let previous;
         let { current } = ref;
@@ -240,9 +249,7 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
                     index={-(stickyRows.length - i)}
                     datum={r}
                     columns={columns}
-                    rowClassName={`${rowClassName} ${
-                        isDatumSelected(r) ? 'selected' : ''
-                    }`}
+                    rowClassName={rowClassName(r, i)}
                     onMouseDown={handleMouseDown}
                     onMouseEnter={handleMouseEnter}
                 />
@@ -297,10 +304,7 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
                                     width={w}
                                     itemData={({ index, style }) => ({
                                         isDataLoaded: isDataLoaded(index),
-                                        isD: isDataLoaded,
-                                        rowClassName: `${rowClassName} ${
-                                            isDatumSelected(data[index]) ? 'selected' : ''
-                                        }`,
+                                        rowClassName,
                                         style: {
                                             ...style,
                                             top: style.top + stickyRowsOffset,
@@ -334,7 +338,7 @@ DataTable.propTypes = {
     columns: PropTypes.array.isRequired,
     loadMore: PropTypes.func,
     onScroll: PropTypes.func,
-    rowClassName: PropTypes.string,
+    rowClassName: PropTypes.oneOf([PropTypes.string, PropTypes.func]),
     className: PropTypes.string,
     selection: PropTypes.array,
     onChangeSelection: PropTypes.func,
@@ -350,7 +354,7 @@ DataTable.defaultProps = {
     hasNextPage: false,
     loadMore: () => {},
     onScroll: null,
-    rowClassName: '',
+    rowClassName: () => '',
     className: '',
     selection: [],
     onChangeSelection: null,

@@ -333,6 +333,11 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
         }
     });
 
+    const rowClassName = (datum) => {
+        if (datum?.metadata?.draft && !noDrafts) return 'yellow';
+        return '';
+    };
+
     const renderDataTable = () => (
         <>
             {!!confirm && (
@@ -398,6 +403,7 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
                 loadMore={loadingExamples ? () => {} : loadMore}
                 selection={selection}
                 onChangeSelection={newSelection => setSelection(newSelection)}
+                rowClassName={rowClassName}
             />
             {selection.length > 1 && (
                 <NluCommandBar

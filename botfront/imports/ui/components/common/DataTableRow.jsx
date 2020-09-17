@@ -18,14 +18,14 @@ const Row = React.forwardRef((props, ref) => {
     if (!isDataLoaded) {
         return (
             <div ref={ref} style={style}>
-                <div className={`row ${rowClassName}`}>Loading...</div>
+                <div className={`row ${rowClassName(datum, index)}`}>Loading...</div>
             </div>
         );
     }
     return (
         <div ref={ref} style={style} data-index={index} className='row-wrapper'>
             <div
-                className={`row ${rowClassName}`}
+                className={`row ${rowClassName(datum, index)}`}
                 {...(onMouseDown
                     ? {
                         onMouseDown: ({
@@ -53,7 +53,7 @@ Row.propTypes = {
     index: PropTypes.number,
     datum: PropTypes.object,
     style: PropTypes.object,
-    rowClassName: PropTypes.string,
+    rowClassName: PropTypes.func,
     onMouseDown: PropTypes.func,
     onMouseEnter: PropTypes.func,
     isDataLoaded: PropTypes.bool,
@@ -64,7 +64,7 @@ Row.defaultProps = {
     index: null,
     datum: null,
     style: {},
-    rowClassName: '',
+    rowClassName: () => '',
     onMouseDown: null,
     onMouseEnter: null,
     isDataLoaded: true,
