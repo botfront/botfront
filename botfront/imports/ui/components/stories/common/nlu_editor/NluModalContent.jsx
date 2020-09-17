@@ -159,11 +159,23 @@ const NLUModalContent = React.forwardRef((props, forwardedRef) => {
             if (isEqual(example, oldExample)) {
                 return;
             }
-            updatedExamples[index] = {
-                ...updatedExamples[index],
-                ...example,
-                metadata: { ...updatedExamples[index].metadata, ...example.metadata },
-            };
+
+            if (oldExample.intent !== example.intent) { // if the intent have changed it might become a canonical example
+                const newExample = canonicalizeExample(example, updatedExamples);
+                updatedExamples[index] = {
+                    ...updatedExamples[index],
+                    ...newExample,
+                    metadata: { ...updatedExamples[index].metadata, ...newExample.metadata },
+                };
+            } else {
+                updatedExamples[index] = {
+                    ...updatedExamples[index],
+                    ...example,
+                    metadata: { ...updatedExamples[index].metadata, ...example.metadata },
+                };
+            }
+        
+
             if (example.isNew) {
                 updatedExamples[index] = canonicalizeExample(example, updatedExamples);
             } else {
@@ -293,6 +305,7 @@ const NLUModalContent = React.forwardRef((props, forwardedRef) => {
                 setSelection={setSelection}
                 noDrafts
                 renderLabelColumn={renderLabelColumn}
+                additionalIntentOption={payload.intent}
             />
             <div className='nlu-modal-buttons'>
                 <Popup

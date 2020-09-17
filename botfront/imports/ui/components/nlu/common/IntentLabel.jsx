@@ -19,6 +19,7 @@ const Intent = React.forwardRef((props, ref) => {
         enableReset,
         detachedModal,
         onClose,
+        additionalIntentOption,
     } = props;
     const { intents: contextIntents } = useContext(ProjectContext);
     const [popupOpen, setPopupOpen] = useState(false);
@@ -50,7 +51,13 @@ const Intent = React.forwardRef((props, ref) => {
         .replace(/ /g, '')
         .toLowerCase()
         .includes((s2 || '').replace(/ /g, '').toLowerCase());
-    const dataToDisplay = intents.filter(i => textMatch(i.intent, typeInput));
+    let dataToDisplay;
+    if (intents.includes(additionalIntentOption)) {
+        dataToDisplay = intents.filter(i => textMatch(i.intent, typeInput));
+    } else {
+        dataToDisplay = [...intents, { intent: additionalIntentOption }].filter(i => textMatch(i.intent, typeInput));
+    }
+    
 
     const [selection, setSelection] = useState(dataToDisplay.slice(0, 1).map(i => i.intent));
 
@@ -235,6 +242,7 @@ Intent.propTypes = {
     disabled: PropTypes.bool,
     detachedModal: PropTypes.bool,
     onClose: PropTypes.func,
+    additionalIntentOption: PropTypes.string,
 };
 
 Intent.defaultProps = {
@@ -246,6 +254,7 @@ Intent.defaultProps = {
     enableReset: false,
     detachedModal: false,
     onClose: null,
+    additionalIntentOption: '',
 };
 
 export default Intent;

@@ -25,6 +25,12 @@ describe('nlu editor modal tests', () => {
         cy.visit('/project/bf/stories');
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
+        cy.dataCy('icon-gem').last().should('have.class', 'black');
+        cy.dataCy('icon-gem').first().should('have.class', 'black');
+        cy.dataCy('icon-gem').last().click({ force: true });
+        cy.dataCy('icon-gem').first().click({ force: true });
+        cy.dataCy('icon-gem').last().should('have.class', 'grey');
+        cy.dataCy('icon-gem').first().should('have.class', 'grey');
         cy.dataCy('nlu-editor-modal').find('[data-cy=icon-trash]').last().click({ force: true });
         cy.get('.example-table-row').first().trigger('mouseover');
         cy.dataCy('icon-edit').should('exist'); // check appear on hover works correctly
@@ -56,7 +62,7 @@ describe('nlu editor modal tests', () => {
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
         cy.dataCy('example-text-editor-input').click().fill('Hello jim\nI will go to costco').type('{enter}');
-        cy.get('.example-data-table').find('[data-cy=intent-label]').should('have.length', 4);
+        cy.dataCy('nlu-editor-modal').find('[data-cy=intent-label]').should('have.length', 5);
         cy.dataCy('nlu-modification-label').contains('new').should('exist');
         cy.dataCy('nlu-modification-label').contains('invalid').should('exist');
     });
@@ -72,17 +78,19 @@ describe('nlu editor modal tests', () => {
         cy.dataCy('nlu-modification-label').contains('new').should('exist');
         cancelChanges();
         cy.dataCy('utterance-text').click();
+        cy.dataCy('icon-gem').first().click({ force: true });
         cy.dataCy('nlu-editor-modal').find('[data-cy=icon-trash]').first().click({ force: true });
         cy.dataCy('nlu-modification-label').contains('deleted').should('exist');
         cancelChanges();
         cy.dataCy('utterance-text').click();
+        cy.dataCy('icon-gem').first().click({ force: true });
         cy.dataCy('icon-edit').first().click({ force: true });
         cy.dataCy('example-editor-container').find('[data-cy=example-text-editor-input]').type(' tonight{enter}');
         cy.dataCy('nlu-modification-label').contains('edited').should('exist');
         cancelChanges();
         cy.dataCy('utterance-text').click();
         cy.dataCy('icon-gem').first().click({ force: true });
-        cy.dataCy('icon-gem').first().should('have.class', 'active');
+        cy.dataCy('icon-gem').first().should('have.class', 'grey');
         cancelChanges();
     });
     it('should modify canonical', () => {
@@ -90,21 +98,25 @@ describe('nlu editor modal tests', () => {
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
         cy.dataCy('icon-gem').first().click({ force: true });
-        cy.dataCy('icon-gem').first().should('have.class', 'active');
+        cy.dataCy('icon-gem').last().click({ force: true });
+        cy.dataCy('icon-gem').first().should('have.class', 'grey');
+        cy.dataCy('icon-gem').last().should('have.class', 'grey');
+
         cy.dataCy('example-text-editor-input').click().type('I will probably go to costco{enter}');
-        cy.get('.example-data-table').find('[data-cy=intent-label]').should('have.length', 3);
+        cy.dataCy('nlu-editor-modal').find('[data-cy=intent-label]').should('have.length', 4);
         cy.dataCy('save-nlu').click();
         cy.dataCy('nlu-editor-modal').should('not.exist');
         cy.dataCy('utterance-text').click();
-        cy.dataCy('icon-gem').eq(1).should('have.class', 'active');
-        cy.dataCy('icon-gem').first().click({ force: true });
-        cy.dataCy('icon-gem').first().should('have.class', 'active');
+        cy.dataCy('icon-gem').eq(1).should('have.class', 'grey');
+        cy.dataCy('icon-gem').last().click({ force: true });
+        cy.dataCy('icon-gem').last().should('have.class', 'black');
         cy.dataCy('save-nlu').click();
         cy.dataCy('nlu-editor-modal').should('not.exist');
+        cy.wait(1000);
         cy.dataCy('utterance-text').contains('I will probably go to').should('exist');
         cy.dataCy('utterance-text').click();
-        cy.dataCy('icon-gem').first().should('have.class', 'active');
-        cy.dataCy('icon-gem').eq(1).should('not.have.class', 'active');
+        cy.dataCy('icon-gem').first().should('have.class', 'grey');
+        cy.dataCy('icon-gem').eq(1).should('have.class', 'grey');
     });
 });
 
@@ -123,42 +135,49 @@ describe('auto-assingment of canonical in the nlu editor', () => {
         cy.logout();
         cy.deleteProject('bf');
     });
+    
     it('should set the first example to canonical and refresh the story editor', () => {
         cy.visit('/project/bf/stories');
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
-        cy.dataCy('example-text-editor-input').click().fill('I will go shopping').type('{enter}');
-        cy.dataCy('icon-gem').first().should('have.class', 'active');
+        cy.dataCy('example-text-editor-input').focus();
+        cy.dataCy('example-text-editor-input').fill('I will go shopping');
+        cy.dataCy('example-text-editor-input').type('{enter}');
+        cy.dataCy('icon-gem').first().should('have.class', 'black');
         cy.dataCy('save-nlu').click();
         cy.dataCy('nlu-editor-modal').should('not.exist');
 
         cy.dataCy('utterance-text').children('span').should('have.text', 'I will go shopping');
     });
+    
     it('should set the first example to canonical and refresh the story editor', () => {
         cy.visit('/project/bf/stories');
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
-        cy.dataCy('example-text-editor-input').click().fill('hello').type('{enter}');
-        cy.dataCy('icon-gem').should('not.have.class', 'active');
-        cy.get('.example-data-table').find('[data-cy=intent-label]').click();
+        cy.dataCy('example-text-editor-input').click().fill('hi').type('{enter}');
+        cy.get('.row'); // wait for the row to appear
+        cy.dataCy('icon-gem').should('not.exist');
+        cy.dataCy('nlu-editor-modal').find('[data-cy=intent-label]').last().click();
         cy.dataCy('intent-dropdown').find('.intent-label').contains('shopping').click();
-        cy.dataCy('icon-gem').should('have.class', 'active');
+
+        cy.dataCy('icon-gem').should('have.class', 'black');
         cy.dataCy('save-nlu').click();
         cy.dataCy('nlu-editor-modal').should('not.exist');
 
-        cy.dataCy('utterance-text').children('span').should('have.text', 'hello');
+        cy.dataCy('utterance-text').children('span').should('have.text', 'hi');
     });
+    
     it('should set the first example to canonical and refresh the story editor', () => {
         cy.visit('/project/bf/stories');
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
         cy.dataCy('example-text-editor-input').click().fill('I will go shopping').type('{enter}');
 
-        cy.dataCy('icon-gem').last().should('have.class', 'active');
+        cy.dataCy('icon-gem').last().should('have.class', 'black');
         cy.dataCy('icon-gem').last().click();
         cy.wait(200);
         cy.dataCy('icon-edit').last().should('not.have.class', 'disabled');
-        cy.dataCy('icon-gem').last().should('not.have.class', 'active');
+        cy.dataCy('icon-gem').last().should('not.have.class', 'black');
         cy.dataCy('save-nlu').click();
         cy.dataCy('nlu-editor-modal').should('not.exist');
         cy.dataCy('utterance-text').children('span').should('have.text', 'I will go shopping');
@@ -173,7 +192,7 @@ describe('auto-assingment of canonical in the nlu editor', () => {
         cy.dataCy('utterance-text').children('span').should('have.text', 'I will go shopping edited');
 
         cy.dataCy('utterance-text').click();
-        cy.get('.example-data-table').find('[data-cy=icon-trash]').click({ force: true });
+        cy.dataCy('nlu-editor-modal').find('[data-cy=icon-trash]').click({ force: true });
         cy.dataCy('nlu-modification-label').contains('deleted').should('exist');
         cy.dataCy('save-nlu').click();
         cy.dataCy('nlu-editor-modal').should('not.exist');

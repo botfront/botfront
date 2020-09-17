@@ -33,6 +33,7 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
         noDrafts,
         renderLabelColumn: renderExternalLabelColumn,
         switchCanonical,
+        additionalIntentOption,
     } = props;
 
     const { intents, entities } = useContext(ProjectContext);
@@ -93,6 +94,7 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
                 allowAdditions
                 onChange={i => handleEditExample({ ...datum, intent: i })}
                 onClose={() => tableRef?.current?.focusTable()}
+                additionalIntentOption={additionalIntentOption}
             />,
             canonical,
         );
@@ -457,6 +459,7 @@ NluTable.propTypes = {
     setSelection: PropTypes.func.isRequired,
     noDrafts: PropTypes.bool,
     renderLabelColumn: PropTypes.func,
+    additionalIntentOption: PropTypes.string,
 };
 
 NluTable.defaultProps = {
@@ -470,5 +473,6 @@ NluTable.defaultProps = {
     filters: null,
     noDrafts: false,
     renderLabelColumn: null,
+    additionalIntentOption: '',
 };
 export default NluTable;
