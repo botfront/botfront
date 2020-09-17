@@ -356,10 +356,10 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
 
     const rowClassName = (datum) => {
         if (datum?.metadata?.draft && !noDrafts) return 'yellow';
+        if (datum?.deleted) return 'grey';
         if (datum?.invalid) return 'red';
         if (datum?.isNew) return 'yellow';
         if (datum?.edited) return 'olive';
-        if (datum?.deleted) return 'grey';
         return '';
     };
 
