@@ -3,7 +3,7 @@ import Examples from '../examples.model.js';
 export const getIntentStatistics = async ({ projectId }) => Examples.aggregate([
     {
         $match: {
-            projectId, 'metadata.draft': { $ne: true },
+            projectId, 'metadata.draft': { $ne: true }, 'metadata.language': { $ne: null },
         },
     },
     {

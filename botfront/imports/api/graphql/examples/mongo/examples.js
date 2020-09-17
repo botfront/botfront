@@ -131,6 +131,7 @@ export const listIntentsAndEntities = async ({ projectId, language }) => {
 export const insertExamples = async ({
     examples, language, projectId, options = {},
 }) => {
+    if (!language || !projectId) throw new Error('Missing language or projectId.');
     if (!examples.length) return [];
     const { autoAssignCanonical = true, overwriteOnSameText = false } = options;
     let preparedExamples = examples.reduce((acc, curr) => {
@@ -141,7 +142,7 @@ export const insertExamples = async ({
             {
                 ...curr,
                 projectId,
-                metadata: { ...(curr.metadata || {}), ...(language ? { language } : {}) },
+                metadata: { ...(curr.metadata || {}), language },
                 createdAt: new Date(),
                 updatedAt: new Date(),
                 _id: shortid.generate(),

@@ -338,7 +338,7 @@ DataTable.propTypes = {
     columns: PropTypes.array.isRequired,
     loadMore: PropTypes.func,
     onScroll: PropTypes.func,
-    rowClassName: PropTypes.oneOf([PropTypes.string, PropTypes.func]),
+    rowClassName: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
     className: PropTypes.string,
     selection: PropTypes.array,
     onChangeSelection: PropTypes.func,
