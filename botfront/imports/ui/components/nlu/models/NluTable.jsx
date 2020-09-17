@@ -49,12 +49,17 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
         scrollToItem: tableRef?.current?.scrollToItem,
     }));
 
-    const resetEditExample = () => { setEditExampleId(null); return tableRef?.current?.focusTable(); };
+    const resetEditExample = () => {
+        setEditExampleId(null);
+        return tableRef?.current?.focusTable();
+    };
 
     const handleExampleTextSave = (example) => {
-        if (!example.text.trim()) return resetEditExample();
-        return handleEditExample(example)
-            .then(resetEditExample);
+        if ( // no text or text didn't change
+            !example.text.trim()
+            || example.text === (data.find(({ _id }) => _id === example._id) || {}).text
+        ) { return resetEditExample(); }
+        return Promise.resolve(handleEditExample(example)).then(resetEditExample);
     };
 
     const canonicalTooltip = (jsx, canonical) => {
@@ -291,7 +296,9 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
     }
 
     function handleUndraft(ids) {
-        if (selectionWithFullData.some(d => !d.intent || !d?.metadata?.draft)) { return null; }
+        if (selectionWithFullData.some(d => !d.intent || !d?.metadata?.draft)) {
+            return null;
+        }
         const message = `Remove draft status of  ${ids.length} NLU examples`;
         const examplesToUpdate = ids.map(_id => ({ _id, metadata: { draft: false } }));
         const action = () => updateExamples(examplesToUpdate);
@@ -378,7 +385,8 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
                         intents={intents}
                         entities={entities}
                         filter={filters}
-                        onChange={newFilters => updateFilters({ ...filters, ...newFilters })}
+                        onChange={newFilters => updateFilters({ ...filters, ...newFilters })
+                        }
                         className='left wrap'
                     />
                     <Checkbox

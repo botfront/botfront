@@ -171,7 +171,7 @@ const NLUModalContent = React.forwardRef((props, forwardedRef) => {
                 updatedExamples[index].edited = true;
             }
         });
-        setExamples(updatedExamples);
+        return setExamples(updatedExamples);
     };
 
     const onSwitchCanonical = async (example) => {
