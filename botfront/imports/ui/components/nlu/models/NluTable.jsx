@@ -61,7 +61,7 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
                 trigger={<div>{jsx}</div>}
                 inverted
                 postion='left'
-                content='Cannot edit a canonical example'
+                content={<>Remove canonical &#x27E8;<Icon name='gem' style={{ margin: 0 }} />&#x27E9; status to edit</>}
             />
         );
     };
