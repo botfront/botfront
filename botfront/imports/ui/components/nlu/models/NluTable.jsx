@@ -117,15 +117,13 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
             );
         }
         return canonicalTooltip(
-            <div className='example-table-row'>
-                <UserUtteranceViewer
-                    value={datum}
-                    onChange={handleEditExample}
-                    projectId=''
-                    disableEditing={canonical || deleted}
-                    showIntent={false}
-                />
-            </div>,
+            <UserUtteranceViewer
+                value={datum}
+                onChange={handleEditExample}
+                projectId=''
+                disableEditing={canonical || deleted}
+                showIntent={false}
+            />,
             canonical,
         );
     };

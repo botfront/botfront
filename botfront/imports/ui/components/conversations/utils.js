@@ -17,7 +17,7 @@ export function generateTurns(tracker, debug = false, tzOffset = null) {
             example.intent = intent.name || null;
 
             if (text.startsWith('/')) delete example.text;
-            if (!text && buttonValues[example.intent]) { // use remembered button title-payload mapping
+            if (!example.text && buttonValues[example.intent]) { // use remembered button title-payload mapping
                 example.text = `<${buttonValues[example.intent]}>`;
             }
 
