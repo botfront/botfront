@@ -298,7 +298,7 @@ if (Meteor.isServer) {
                     commonExamples = nluData.common_examples.map(e => ({
                         ...e,
                         _id: uuidv4(),
-                        canonical: canonicalExamples.includes(e.text),
+                        metadata: { canonical: canonicalExamples.includes(e.text) },
                     }));
                     if (overwrite) { await deleteExamples(currentExamples.map(({ _id }) => _id)); }
                     commonExamples = overwrite
