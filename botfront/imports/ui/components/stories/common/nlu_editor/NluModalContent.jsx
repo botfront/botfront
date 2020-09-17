@@ -170,7 +170,7 @@ const NLUModalContent = React.forwardRef((props, forwardedRef) => {
                 updatedExamples[index].edited = true;
             }
         });
-        setExamples(updatedExamples);
+        return setExamples(updatedExamples);
     };
 
     const onSwitchCanonical = async (example) => {
@@ -248,12 +248,12 @@ const NLUModalContent = React.forwardRef((props, forwardedRef) => {
             message = 'The intent and entities associated with this utterance do not correspond to the currently selected payload. Either adjust intent and entities or delete this utterance';
         } else if (isNew) {
             text = 'new';
-            color = 'green';
+            color = 'yellow';
             title = 'New example';
             message = 'You just added this utterance and it is not yet added to the training set';
         } else if (edited) {
             text = 'edited';
-            color = 'blue';
+            color = 'olive';
             title = 'Edited example';
             message = 'You edited this utterance and the changes are not yet saved in the training set';
         }
