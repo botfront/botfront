@@ -51,7 +51,7 @@ query examples(
     $sortKey: String
     $pageSize: Int
     $cursor: String
-    $exactMatch: Boolean = false
+    $matchEntityName: Boolean = false
 ) {
     examples(
         projectId: $projectId
@@ -64,7 +64,7 @@ query examples(
         sortKey: $sortKey
         pageSize: $pageSize
         cursor: $cursor
-        exactMatch: $exactMatch
+        matchEntityName: $matchEntityName
     ) {
         examples {
             _id

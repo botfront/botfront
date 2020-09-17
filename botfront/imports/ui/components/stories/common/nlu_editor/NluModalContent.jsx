@@ -48,7 +48,7 @@ const NLUModalContent = React.forwardRef((props, forwardedRef) => {
         pageSize: -1,
         intents: [payload.intent],
         entities: payload.entities,
-        exactMatch: true,
+        matchEntityName: true,
     });
     const fetchExamples = useLazyExamples({ projectId, language });
 

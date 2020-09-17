@@ -27,7 +27,7 @@ const createFilterObject = (
     options = {},
 ) => {
     const filters = { projectId };
-    const { exactMatch } = options;
+    const { matchEntityName } = options;
     filters['metadata.language'] = language;
 
     if (intents && intents.length > 0) {
@@ -35,17 +35,17 @@ const createFilterObject = (
             $in: intents,
         };
     }
-    if (!exactMatch && entities && entities.length > 0) {
+    if (!matchEntityName && entities && entities.length > 0) {
         filters['entities.entity'] = {
             $in: entities,
         };
     }
-    if (exactMatch) {
-        // perfect match of entity payload if entities is array of { entity, value }
+    if (matchEntityName) {
+        // match all entities in the entities array by their name
         filters.entities = { $size: entities.length };
         if (entities.length) {
-            filters.entities.$all = entities.map(({ entity, value }) => ({
-                $elemMatch: { entity, value },
+            filters.entities.$all = entities.map(({ entity }) => ({
+                $elemMatch: { entity },
             }));
         }
     }

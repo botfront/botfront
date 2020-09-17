@@ -20,8 +20,8 @@ export const publishIntentsOrEntitiesChanged = (projectId, language) => pubsub.p
 
 export default {
     Query: {
-        async examples(_, { exactMatch, countOnly, ...args }, __) {
-            return getExamples({ ...args, options: { exactMatch, countOnly } });
+        async examples(_, { matchEntityName, countOnly, ...args }, __) {
+            return getExamples({ ...args, options: { matchEntityName, countOnly } });
         },
         async listIntentsAndEntities(_, args, __) {
             return listIntentsAndEntities(args);
