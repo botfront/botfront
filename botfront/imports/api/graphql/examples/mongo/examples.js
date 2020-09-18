@@ -184,9 +184,12 @@ export const insertExamples = async ({
 export const updateExamples = async ({ examples }) => {
     const updatesPromises = examples.map(async (example) => {
         checkNoEmojisInExamples(example);
+        const { metadata = {}, ...rest } = example;
+        const metadataUpdate = Object.keys(metadata)
+            .reduce((acc, k) => ({ ...acc, [`metadata.${k}`]: metadata[k] }), {});
         const result = await Examples.findOneAndUpdate(
             { _id: example._id },
-            { $set: { ...example, updatedAt: new Date() } },
+            { $set: { ...rest, updatedAt: new Date(), ...metadataUpdate } },
             { new: true }, // return the document after the update
         ).lean();
         if (!result) {

@@ -10,5 +10,8 @@ Cypress.Commands.add('addExamples', (examples = [], intent = null) => {
         cy.get('.row.selected').should('have.length', examples.length);
         cy.get('body').type('{shift}');
         cy.changeIntentOfSelectedUtterances(intent);
+        cy.get('.virtual-table').focus();
+        cy.get('body').type('s');
+        cy.get('@texts').then((texts) => { if (texts.length > 1) cy.yesToConfirmation(); });
     }
 });
