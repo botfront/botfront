@@ -1,5 +1,5 @@
 import React, {
-    useState, useCallback, useEffect, useContext, useRef,
+    useState, useCallback, useEffect, useContext, useRef, useMemo,
 } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
@@ -60,17 +60,13 @@ function NLUModel(props) {
         return { model: NLUModels.findOne({ projectId, language: workingLanguage }) };
     });
 
-    const [sortAndFilters, setSortAndFilters] = useState({
-        sortKey: 'intent',
-        order: 'ASC',
-    });
-    const variables = {
-        ...sortAndFilters,
+    const [filters, setFilters] = useState({ sortKey: 'intent', sortOrder: 'ASC' });
+    const variables = useMemo(() => ({
+        ...filters,
         pageSize: 20,
         projectId,
         language: workingLanguage,
-    };
-    const [filters, setFilters] = useState({ sortKey: 'intent', sortOrder: 'ASC' });
+    }), [filters, projectId, workingLanguage]);
     const tableRef = useRef();
 
     const {
@@ -104,10 +100,10 @@ function NLUModel(props) {
         return false;
     };
     // if we do not useCallback the debounce is re-created on every render
-    const setSortAndFiltersDebounced = useCallback(
+    const setFiltersDebounced = useCallback(
         debounce((newFilters) => {
-            setSortAndFilters({
-                ...sortAndFilters,
+            setFilters({
+                ...filters,
                 intents: newFilters.intents,
                 entities: newFilters.entities,
                 onlyCanonicals: newFilters.onlyCanonicals,
@@ -130,11 +126,6 @@ function NLUModel(props) {
             hasRefetched.current = true;
         }
     }, [refetch]);
-
-    const updateFilters = (newFilters) => {
-        setFilters(newFilters);
-        setSortAndFiltersDebounced(newFilters);
-    };
 
     const handleLanguageChange = (value) => {
         changeWorkingLanguage(value);
@@ -312,7 +303,7 @@ function NLUModel(props) {
                                         loadingExamples={loadingExamples}
                                         hasNextPage={hasNextPage}
                                         loadMore={loadMore}
-                                        updateFilters={updateFilters}
+                                        updateFilters={setFiltersDebounced}
                                         filters={filters}
                                         setSelection={setSelection}
                                         selection={selection}
