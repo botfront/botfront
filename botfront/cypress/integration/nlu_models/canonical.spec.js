@@ -121,38 +121,24 @@ describe('NLU canonical examples', function () {
         cy.contains('hello').should('exist');
         cy.contains('welcome').should('not.exist');
     });
-    
+
     it('canonical should be unique per intent, entity and entity value', function () {
         // firstly import all the testing data
         cy.visit('/project/bf/nlu/models');
         cy.importNluData('bf', 'nlu_import_canonical.json', 'fr');
         cy.contains('Training Data').click();
-        // we should be able to mark all those as canonical
-        /* .each may cause the test to not pass as its detach the
-        element from the DOM */
-        cy.dataCy('icon-gem').eq(0).click({ force: true });
-        cy.wait(200);
-        cy.dataCy('icon-gem').eq(1).click({ force: true });
-        cy.wait(200);
-        cy.dataCy('icon-gem').eq(2).click({ force: true });
-        cy.wait(200);
-        cy.dataCy('icon-gem').eq(3).click({ force: true });
-        cy.wait(200);
-        cy.dataCy('icon-gem').eq(4).click({ force: true });
-        cy.wait(200);
-        cy.dataCy('icon-gem').eq(5).click({ force: true });
-        cy.wait(200);
-        cy.dataCy('icon-gem', null, '.active').should('have.length', 6);
+        // All the imported examples should have been marked automatically as canonical ones
+        cy.dataCy('icon-gem', null, '.black').should('have.length', 6);
     });
+    
     
     it('should tag the first example for an intent created in the visual editor as canonical', function () {
         cy.visit('/project/bf/stories');
         cy.browseToStory('Farewells');
-
         cy.dataCy('add-user-line').click({ force: true });
         cy.dataCy('user-line-from-input').last().click({ force: true });
         cy.addUserUtterance('this example should be canonical', 'intenttest', 1);
         cy.visit('/project/bf/nlu/models');
-        cy.dataCy('icon-gem').should('have.class', 'active');
+        cy.dataCy('icon-gem').should('have.class', 'black');
     });
 });

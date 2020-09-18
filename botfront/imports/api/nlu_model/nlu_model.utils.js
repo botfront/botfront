@@ -27,10 +27,10 @@ export const isTraining = (project) => {
 export const getEntitySummary = entities => (entities || []).map(({ entity, value }) => ({ entity, value }));
 
 const compare = (a, b) => {
-    if (a.entity < b.entity) {
+    if (a?.entity < b?.entity) {
         return -1;
     }
-    if (a.entity > b.entity) {
+    if (a?.entity > b?.entity) {
         return 1;
     }
     return 0;
