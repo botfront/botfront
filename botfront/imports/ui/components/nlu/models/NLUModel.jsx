@@ -60,13 +60,16 @@ function NLUModel(props) {
         return { model: NLUModels.findOne({ projectId, language: workingLanguage }) };
     });
 
-    const [variables, setVariables] = useState({
-        projectId,
-        language: workingLanguage,
-        pageSize: 20,
+    const [sortAndFilters, setSortAndFilters] = useState({
         sortKey: 'intent',
         order: 'ASC',
     });
+    const variables = {
+        ...sortAndFilters,
+        pageSize: 20,
+        projectId,
+        language: workingLanguage,
+    };
     const [filters, setFilters] = useState({ sortKey: 'intent', sortOrder: 'ASC' });
     const tableRef = useRef();
 
@@ -101,18 +104,17 @@ function NLUModel(props) {
         return false;
     };
     // if we do not useCallback the debounce is re-created on every render
-    const setVariablesDebounced = useCallback(
+    const setSortAndFiltersDebounced = useCallback(
         debounce((newFilters) => {
-            const newVariables = {
-                ...variables,
+            setSortAndFilters({
+                ...sortAndFilters,
                 intents: newFilters.intents,
                 entities: newFilters.entities,
                 onlyCanonicals: newFilters.onlyCanonicals,
                 text: [newFilters.query],
                 order: newFilters.sortOrder,
                 sortKey: newFilters.sortKey,
-            };
-            setVariables(newVariables);
+            });
         }, 500),
         [],
     );
@@ -131,7 +133,7 @@ function NLUModel(props) {
 
     const updateFilters = (newFilters) => {
         setFilters(newFilters);
-        setVariablesDebounced(newFilters);
+        setSortAndFiltersDebounced(newFilters);
     };
 
     const handleLanguageChange = (value) => {

@@ -321,7 +321,7 @@ Cypress.Commands.add('graphQlQuery', (query, variables) => cy.get('@loginToken')
 Cypress.Commands.add('insertNluExamples', (projectId, language = 'en', examples) => cy.graphQlQuery(
     `mutation insertExamples($projectId: String!, $language: String!, $examples: [ExampleInput]!) {
         insertExamples(projectId: $projectId, language: $language, examples: $examples) {  
-            success
+            _id
         }
     }`,
     { projectId, language, examples },

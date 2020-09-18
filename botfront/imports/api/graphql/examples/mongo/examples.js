@@ -149,25 +149,25 @@ export const insertExamples = async ({
             },
         ];
     }, []);
-    const { examples: existingExamples } = await getExamples({
-        projectId,
-        pageSize: 0,
-        language,
-    });
-    const itemsWithSameText = intersectionBy(
-        existingExamples,
-        preparedExamples,
-        'text',
-    ).map(({ text }) => text);
-    if (autoAssignCanonical) {
-        preparedExamples = canonicalizeExamples(preparedExamples, existingExamples);
-    }
-    if (!overwriteOnSameText) {
-        preparedExamples = preparedExamples.filter(
-            ({ text }) => !itemsWithSameText.includes(text),
-        );
-    }
     try {
+        const { examples: existingExamples } = await getExamples({
+            projectId,
+            pageSize: 0,
+            language,
+        });
+        const itemsWithSameText = intersectionBy(
+            existingExamples,
+            preparedExamples,
+            'text',
+        ).map(({ text }) => text);
+        if (autoAssignCanonical) {
+            preparedExamples = canonicalizeExamples(preparedExamples, existingExamples);
+        }
+        if (!overwriteOnSameText) {
+            preparedExamples = preparedExamples.filter(
+                ({ text }) => !itemsWithSameText.includes(text),
+            );
+        }
         if (overwriteOnSameText) {
             await Examples.deleteMany({ text: { $in: itemsWithSameText } }).exec();
         }

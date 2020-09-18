@@ -140,12 +140,12 @@ describe('story visual editor', function () {
             {
                 text: 'bonjour canonical',
                 intent: 'chitchat.greet',
-                canonical: true,
+                metadata: { canonical: true },
             },
             {
                 text: 'bonjour not canonical',
                 intent: 'chitchat.greet',
-                canonical: false,
+                metadata: { canonical: false },
             },
         ]);
         cy.visit('/project/bf/stories');

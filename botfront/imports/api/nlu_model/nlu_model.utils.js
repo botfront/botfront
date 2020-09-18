@@ -24,8 +24,7 @@ export const isTraining = (project) => {
     return !!statusOk && !!timeStampOk;
 };
 
-export const getEntitySummary = entities => entities.map(({ entity, value }) => ({ entity, value }));
-
+export const getEntitySummary = entities => (entities || []).map(({ entity, value }) => ({ entity, value }));
 
 const compare = (a, b) => {
     if (a.entity < b.entity) {
