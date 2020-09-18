@@ -32,7 +32,7 @@ describe('nlu editor modal tests', () => {
         cy.dataCy('icon-gem').last().should('have.class', 'grey');
         cy.dataCy('icon-gem').first().should('have.class', 'grey');
         cy.dataCy('nlu-editor-modal').find('[data-cy=icon-trash]').last().click({ force: true });
-        cy.get('.example-table-row').first().trigger('mouseover');
+        cy.get('.row').first().trigger('mouseover');
         cy.dataCy('icon-edit').should('exist'); // check appear on hover works correctly
         cy.dataCy('icon-edit').first().click({ force: true });
         cy.dataCy('example-editor-container').find('[data-cy=example-text-editor-input]').type(' tonight{enter}');
