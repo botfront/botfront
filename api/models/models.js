@@ -101,7 +101,6 @@ const analytics_dashboards = new Schema({ _id: String }, { strict: false, versio
 const activity = new Schema({
     _id: { type: String, default: shortid.generate },
 }, { strict: false, versionKey: false });
-activity.index({ text: 1, modelId: 1, env: 1 }, { unique: true });
 const examples = new Schema({ _id: String }, { strict: false, versionKey: false });
 
 exports.Examples = mongoose.model('Examples', examples, 'examples');
