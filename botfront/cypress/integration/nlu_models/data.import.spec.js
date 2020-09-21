@@ -23,14 +23,14 @@ describe('training data import', function() {
         cy.visit('/project/bf/nlu/models');
         cy.contains('Training Data').click();
         cy.contains('Statistics').click();
-        cy.contains('943')
-            .siblings('.label')
-            .should('contain', 'Examples');
-        cy.contains('Intents')
+        cy.get('.glow-box').contains('Examples')
             .siblings('.value')
-            .should('contain', '56');
-        cy.contains('Entities')
+            .should('contain', '4');
+        cy.get('.glow-box').contains('Intents')
             .siblings('.value')
-            .should('contain', '3');
+            .should('contain', '2');
+        cy.get('.glow-box').contains('Entities')
+            .siblings('.value')
+            .should('contain', '1');
     });
 });

@@ -223,7 +223,7 @@ if (Meteor.isServer) {
                     NLUModels.remove({ projectId, language });
                     return Projects.update(
                         { _id: projectId },
-                        { $pull: { nlu_models: _id } },
+                        { $pull: { nlu_models: _id, languages: language } },
                     );
                 } catch (e) {
                     throw e;
