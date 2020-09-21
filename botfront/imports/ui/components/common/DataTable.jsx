@@ -49,7 +49,7 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
         const resolved = (typeof textOrFuncRowClassName === 'function')
             ? textOrFuncRowClassName(datum, index) : textOrFuncRowClassName;
         return `${resolved}${isDatumSelected(datum) ? ' selected' : ''}`;
-    }, [textOrFuncRowClassName, data]);
+    }, [textOrFuncRowClassName, data, selection]);
 
     useEffect(() => {
         if (externallyControlledSelection) return;

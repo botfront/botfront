@@ -1,16 +1,10 @@
 /* global cy Cypress:true */
 
 describe('incoming page', function() {
-    before(() => {
-        cy.createProject('bf', 'My Project', 'en').then(() => {
-            cy.login();
-            cy.waitForResolve(Cypress.env('RASA_URL'));
-        });
-    });
-
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
+            cy.waitForResolve(Cypress.env('RASA_URL'));
             cy.importNluData('bf', 'nlu_sample_en.json', 'en');
             cy.train();
             cy.addNewUtterances(['apple', 'kiwi', 'banana']);
@@ -60,7 +54,7 @@ describe('incoming page', function() {
         cy.get('.row').should('have.length', 1);
         cy.visit('/project/bf/nlu/models');
         cy.get('@texts').then((text) => { // saved from toggleValidationOfSelectedUtterances
-            cy.contains('[role=row]', text[0]).should('exist');
+            cy.contains('.row', text[0]).should('exist');
         });
     });
 

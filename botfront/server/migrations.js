@@ -376,6 +376,7 @@ Migrations.add({
             );
             // add 'projectId' and 'language' keys to activity and evaluation docs
             Object.keys(languages).forEach(async (language) => {
+                await Activity.syncIndexes(); // remove old modelId_text_env index
                 await Activity.updateMany(
                     { modelId: languages[language] },
                     { $set: { language, projectId } },
