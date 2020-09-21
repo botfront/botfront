@@ -2,18 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [0.26.0-ee.2](https://github.com/botfront/botfront-ee/compare/v0.26.0-ee.1...v0.26.0-ee.2) (2020-09-21)
-
-
-### Features
-
-* allow role and group for entities in training data ([6294dbc](https://github.com/botfront/botfront-ee/commit/6294dbc206bc8eb2dcb310feb6ca650437d4516f))
-* forms chart ([3b03411](https://github.com/botfront/botfront-ee/commit/3b0341174e40d2fd96eebc53811cf8d5d3be58ac))
+## [0.26.0-ee.3](https://github.com/botfront/botfront/compare/v0.26.0-ee.2...v0.26.0-ee.3) (2020-09-21)
 
 
 ### Bug Fixes
 
-* edited activity data is not loaded ([dff7835](https://github.com/botfront/botfront-ee/commit/dff78351a7dcee4b3e2547be40d89bd442db3c1f))
+* story group delete and unselect ([ccf2c6b](https://github.com/botfront/botfront/commit/ccf2c6b23322a5fa6018764cc013ee8959fef255))
 
 ## [0.26.0-ee.1](https://github.com/botfront/botfront/compare/v0.25.8-ee.2...v0.26.0-ee.1) (2020-08-27)
 

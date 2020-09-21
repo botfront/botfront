@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.26.0-ee.3](https://github.com/botfront/botfront/compare/v0.26.0-ee.2...v0.26.0-ee.3) (2020-09-21)
+
+
+### Bug Fixes
+
+* story group delete and unselect ([ccf2c6b](https://github.com/botfront/botfront/commit/ccf2c6b23322a5fa6018764cc013ee8959fef255))
+
 ## [0.26.0-ee.1](https://github.com/botfront/botfront/compare/v0.25.8-ee.2...v0.26.0-ee.1) (2020-08-27)
 
 
