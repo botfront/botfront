@@ -44,7 +44,8 @@ const arrayOfObjectsEqual = function(arrayA, arrayB) {
 
 export const findExampleMatch = (example, item, itemEntities) => {
     if (item.intent !== example.intent) return false; // check examples have the same intent name
-    if (item.entities.length !== example.entities.length) return false; // check examples have the same number of entities
+    if (item.entities === undefined && example.entities === undefined) return true; // the two intent are the same, and both examples do not have entities
+    if (item?.entities?.length !== example?.entities?.length) return false; // check examples have the same number of entities
     const exampleEntities = getEntitySummary(example.entities);
     return arrayOfObjectsEqual(exampleEntities, itemEntities); // check that the summary of entities values is the same for both items
 };

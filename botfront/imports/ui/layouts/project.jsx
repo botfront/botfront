@@ -82,6 +82,12 @@ function Project(props) {
         }
     }, [!!window.Intercom]);
 
+    useEffect(() => {
+        if (refreshEntitiesAndIntents) {
+            refreshEntitiesAndIntents();
+        }
+    }, [workingLanguage, projectId]);
+
     const findExactMatch = (canonicals, entities) => {
         const exactMatch = canonicals.filter(ex => setsAreIdentical(ex.entities, entities))[0];
         return exactMatch ? exactMatch.example : null;
