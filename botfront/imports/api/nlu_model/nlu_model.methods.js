@@ -136,6 +136,37 @@ Meteor.methods({
             { $pull: { 'training_data.fuzzy_gazette': { _id: itemId } } },
         );
     },
+
+    'nlu.upsertRegexFeature'(modelId, item) {
+        check(modelId, String);
+        check(item, Object);
+        if (item._id) {
+            return NLUModels.update(
+                { _id: modelId, 'training_data.regex_features._id': item._id },
+                {
+                    $set: {
+                        'training_data.regex_features.$': item,
+                    },
+                },
+            );
+        }
+
+        const regexFeature = { ...item, _id: uuidv4() };
+        return NLUModels.update(
+            { _id: modelId },
+            { $push: { 'training_data.regex_features': regexFeature } },
+        );
+    },
+
+    'nlu.deleteRegexFeature'(modelId, itemId) {
+        check(modelId, String);
+        check(itemId, String);
+        console.log(itemId);
+        return NLUModels.update(
+            { _id: modelId },
+            { $pull: { 'training_data.regex_features': { _id: itemId } } },
+        );
+    },
 });
 
 if (Meteor.isServer) {

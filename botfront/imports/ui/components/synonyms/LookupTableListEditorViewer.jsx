@@ -4,6 +4,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import LookupTableListEditor from './LookupTableListEditor';
 import LookupTableListViewer from './LookupTableListViewer';
+import LookupTableStringViewer from './LookupTableStringViewer';
+import LookupTableStringEditor from './LookupTableStringEditor';
 
 export default class LookupTableListEditorViewer extends React.Component {
     constructor(props) {
@@ -24,11 +26,17 @@ export default class LookupTableListEditorViewer extends React.Component {
 
     render() {
         const { edit } = this.state;
-        const { entitySynonym, listAttribute } = this.props;
+        const { entitySynonym, listAttribute, multiple } = this.props;
         return (
             <div onClick={this.setEditMode}>
-                {edit && <LookupTableListEditor listAttribute={listAttribute} entitySynonym={entitySynonym} onDone={this.onEditDone} />}
-                {!edit && <LookupTableListViewer listAttribute={listAttribute} entitySynonym={entitySynonym} />}
+                {edit && (multiple
+                    ? <LookupTableListEditor listAttribute={listAttribute} entitySynonym={entitySynonym} onDone={this.onEditDone} />
+                    : <LookupTableStringEditor listAttribute={listAttribute} item={entitySynonym} onDone={this.onEditDone} />
+                )}
+                {!edit && (multiple
+                    ? <LookupTableListViewer listAttribute={listAttribute} entitySynonym={entitySynonym} />
+                    : <LookupTableStringViewer listAttribute={listAttribute} item={entitySynonym} />
+                )}
             </div>
         );
     }
@@ -38,8 +46,10 @@ LookupTableListEditorViewer.propTypes = {
     entitySynonym: PropTypes.object,
     onEdit: PropTypes.func.isRequired,
     listAttribute: PropTypes.string.isRequired,
+    multiple: PropTypes.bool,
 };
 
 LookupTableListEditorViewer.defaultProps = {
     entitySynonym: {},
+    multiple: true,
 };

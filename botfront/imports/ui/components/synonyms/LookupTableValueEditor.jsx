@@ -17,21 +17,20 @@ export default class LookupTableValueEditor extends React.Component {
 
     handleTextChange = (event) => {
         const { entitySynonym } = this.state;
-        const { onEdit } = this.props;
+        const { onEdit, keyAttribute } = this.props;
         const obj = { ...entitySynonym };
-        obj.value = event.target.value;
+        obj[keyAttribute] = event.target.value;
 
         this.setState({ entitySynonym: obj });
-
         onEdit(obj);
     };
 
     handleDone = () => {
-        const { onDone } = this.props;
+        const { onDone, keyAttribute } = this.props;
         const { entitySynonym } = this.state;
         const { entitySynonym: entitySynonymProps } = this.props;
         // If the field is empty, we return the initial value
-        if (!entitySynonym.value) {
+        if (!entitySynonym[keyAttribute]) {
             onDone(entitySynonymProps);
             return;
         }
@@ -39,20 +38,22 @@ export default class LookupTableValueEditor extends React.Component {
     };
 
     render() {
-        const { placeholder } = this.props;
+        const { placeholder, keyAttribute, autoFocus } = this.props;
         const { entitySynonym } = this.state;
+        console.log(keyAttribute);
         return (
             <Input
                 className='entity-synonym'
-                autoFocus
+                autoFocus={autoFocus}
                 placeholder={placeholder}
                 name='value'
-                value={entitySynonym.value}
+                value={entitySynonym[keyAttribute]}
                 onBlur={this.handleDone}
                 onChange={this.handleTextChange}
                 fluid
-                data-cy='add-entity'
-            />);
+                data-cy='key-input'
+            />
+        );
     }
 }
 
@@ -61,6 +62,8 @@ LookupTableValueEditor.propTypes = {
     placeholder: PropTypes.string,
     entitySynonym: PropTypes.object,
     onDone: PropTypes.func,
+    keyAttribute: PropTypes.string.isRequired,
+    autoFocus: PropTypes.bool,
 };
 
 LookupTableValueEditor.defaultProps = {
@@ -68,4 +71,5 @@ LookupTableValueEditor.defaultProps = {
     onEdit: () => {},
     onDone: () => {},
     placeholder: '',
+    autoFocus: true,
 };
