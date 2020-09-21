@@ -102,7 +102,7 @@ describe('## Import', () => {
             } = { ...exportPayloads[1].project };
             newProject.training = exportFileProject.training;
             const storyGroup = await allCollections.storyGroups
-                .findOne({ _id: { $nin: [storyGroupId] } }, { _id: 1 })
+                .findOne({ _id: { $nin: [storyGroupId] }, name: 'two', projectId }, { _id: 1 })
                 .lean();
             const exportFileStoryGroupId = exportPayloads[1].storyGroups[0]._id;
             const checkpoint = await allCollections.stories
