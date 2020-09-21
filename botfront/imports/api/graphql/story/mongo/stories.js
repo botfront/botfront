@@ -1,8 +1,7 @@
 import { Stories } from '../../../story/stories.collection';
-import { Projects } from '../../../project/project.collection';
-import { NLUModels } from '../../../nlu_model/nlu_model.collection';
 import BotResponses from '../../botResponses/botResponses.model';
 import { indexStory } from '../../../story/stories.index';
+import Examples from '../../examples/examples.model.js';
 
 const combineSearches = (search, responseKeys, intents) => {
     const searchRegex = [search];
@@ -15,14 +14,9 @@ const combineSearches = (search, responseKeys, intents) => {
 const escape = string => string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 
 export const searchStories = async (projectId, language, search) => {
-    const project = Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } });
-    const nluModels = project.nlu_models;
     const escapedSearch = escape(search);
     const searchRegex = new RegExp(escape(search), 'i');
-    const model = NLUModels.findOne(
-        { _id: { $in: nluModels }, language },
-    );
-    const modelExamples = model.training_data.common_examples;
+    const modelExamples = await Examples.find({ projectId, 'metadata.language': language }).lean();
     const intents = modelExamples.reduce((filtered, option) => {
         if (searchRegex.test(option.text)) {
             return [...filtered, option.intent];
