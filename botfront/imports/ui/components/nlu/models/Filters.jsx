@@ -29,7 +29,7 @@ export default class Filters extends React.Component {
         const {
             onChange,
             filter: {
-                entities: entitiesFilter, query, sortKey, sortOrder,
+                entities: entitiesFilter, query, sortKey, order,
             },
         } = this.props;
         onChange({
@@ -37,7 +37,7 @@ export default class Filters extends React.Component {
             entities: entitiesFilter,
             query,
             sortKey,
-            sortOrder,
+            order,
         });
     };
 
@@ -45,7 +45,7 @@ export default class Filters extends React.Component {
         const {
             onChange,
             filter: {
-                intents: intentsFilter, query, sortKey, sortOrder,
+                intents: intentsFilter, query, sortKey, order,
             },
         } = this.props;
         onChange({
@@ -53,7 +53,7 @@ export default class Filters extends React.Component {
             entities: value,
             query,
             sortKey,
-            sortOrder,
+            order,
         });
     };
 
@@ -63,7 +63,7 @@ export default class Filters extends React.Component {
                 intents: intentsFilter,
                 entities: entitiesFilter,
                 sortKey,
-                sortOrder,
+                order,
             },
             onChange,
         } = this.props;
@@ -72,7 +72,7 @@ export default class Filters extends React.Component {
             intents: intentsFilter,
             entities: entitiesFilter,
             sortKey,
-            sortOrder,
+            order,
         });
     };
 
@@ -82,7 +82,7 @@ export default class Filters extends React.Component {
                 intents: intentsFilter,
                 entities: entitiesFilter,
                 query,
-                sortOrder,
+                order,
             },
             onChange,
         } = this.props;
@@ -91,11 +91,11 @@ export default class Filters extends React.Component {
             intents: intentsFilter,
             entities: entitiesFilter,
             sortKey,
-            sortOrder,
+            order,
         });
     };
 
-    handleSortOrderChange = (sortOrder) => {
+    handleorderChange = (order) => {
         const {
             filter: {
                 intents: intentsFilter, entities: entitiesFilter, query, sortKey,
@@ -106,7 +106,7 @@ export default class Filters extends React.Component {
             query,
             intents: intentsFilter,
             entities: entitiesFilter,
-            sortOrder,
+            order,
             sortKey,
         });
     };
@@ -118,7 +118,7 @@ export default class Filters extends React.Component {
                 entities: entitiesFilter = [],
                 query,
                 sortKey,
-                sortOrder,
+                order,
             },
             intents,
             entities,
@@ -176,12 +176,12 @@ export default class Filters extends React.Component {
                         content={(
                             <Icon
                                 name={`sort ${SORT_KEY_MAP[sortKey]} ${
-                                    sortOrder === 'ASC' ? 'ascending' : 'descending'
+                                    order === 'ASC' ? 'ascending' : 'descending'
                                 }`}
                             />
                         )}
-                        onClick={() => this.handleSortOrderChange(
-                            sortOrder === 'ASC' ? 'DESC' : 'ASC',
+                        onClick={() => this.handleorderChange(
+                            order === 'ASC' ? 'DESC' : 'ASC',
                         )}
                     />
                     <Button

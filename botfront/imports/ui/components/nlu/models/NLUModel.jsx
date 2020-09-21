@@ -60,7 +60,7 @@ function NLUModel(props) {
         return { model: NLUModels.findOne({ projectId, language: workingLanguage }) };
     });
 
-    const [filters, setFilters] = useState({ sortKey: 'intent', sortOrder: 'ASC' });
+    const [filters, setFilters] = useState({ sortKey: 'intent', order: 'ASC' });
     const variables = useMemo(() => ({
         ...filters,
         pageSize: 20,
@@ -108,7 +108,7 @@ function NLUModel(props) {
                 entities: newFilters.entities,
                 onlyCanonicals: newFilters.onlyCanonicals,
                 text: [newFilters.query],
-                order: newFilters.sortOrder,
+                order: newFilters.order,
                 sortKey: newFilters.sortKey,
             });
         }, 500),
