@@ -335,9 +335,10 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
                     ? {
                         onConfirm: () => {
                             handleRemoveItem(deletionModalVisible.id);
+                            const children = deletionModalVisible.children || [];
                             onChangeStoryMenuSelection(
                                 storyMenuSelection.filter(
-                                    id => id !== deletionModalVisible.id,
+                                    id => (id !== deletionModalVisible.id) && !(children.some(child => child === id)),
                                 ),
                             );
                             setDeletionModalVisible(false);
