@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Button, Grid } from 'semantic-ui-react';
 import LookupTableValueEditor from './LookupTableValueEditor';
 import LookupTableListEditor from './LookupTableListEditor';
+import LookupTableStringEditor from './LookupTableStringEditor';
 
 export default class AddLookupTableRow extends React.Component {
     constructor(props) {
@@ -15,12 +16,12 @@ export default class AddLookupTableRow extends React.Component {
     };
 
     onSave = () => {
-        const { onAdd, listAttribute } = this.props;
+        const { onAdd, listAttribute, multiple } = this.props;
         const { item } = this.state;
         const obj = { ...item };
 
         // Weeds out empty list items
-        obj[listAttribute] = obj[listAttribute].filter(listItem => listItem);
+        if (multiple) obj[listAttribute] = obj[listAttribute].filter(listItem => listItem);
         
         onAdd(obj, (err) => {
             if (!err) this.setState(this.emptyState());
@@ -28,14 +29,23 @@ export default class AddLookupTableRow extends React.Component {
     };
 
     emptyState() {
-        const { listAttribute } = this.props;
-        const obj = { value: '' };
-        obj[listAttribute] = [];
+        const { multiple } = this.props;
+        const { listAttribute, keyAttribute } = this.props;
+        const obj = {
+            [keyAttribute]: '',
+            [listAttribute]: multiple ? [] : [''],
+        };
         return { item: obj };
     }
 
     render() {
-        const { listAttribute, valuePlaceholder, listPlaceholder } = this.props;
+        const {
+            listAttribute,
+            keyAttribute,
+            valuePlaceholder,
+            listPlaceholder,
+            multiple,
+        } = this.props;
         const { item } = this.state;
         return (
             <Grid data-cy='add-item-row'>
@@ -43,6 +53,7 @@ export default class AddLookupTableRow extends React.Component {
                     <Grid.Column width={4}>
                         <LookupTableValueEditor
                             listAttribute={listAttribute}
+                            keyAttribute={keyAttribute}
                             placeholder={valuePlaceholder}
                             entitySynonym={item}
                             onEdit={this.onItemChanged}
@@ -50,13 +61,23 @@ export default class AddLookupTableRow extends React.Component {
                         />
                     </Grid.Column>
                     <Grid.Column width={10}>
-                        <LookupTableListEditor
-                            listAttribute={listAttribute}
-                            placeholder={listPlaceholder}
-                            entitySynonym={item}
-                            onEdit={this.onItemChanged}
-                            autoFocus={false}
-                        />
+                        { multiple ? (
+                            <LookupTableListEditor
+                                listAttribute={listAttribute}
+                                placeholder={listPlaceholder}
+                                entitySynonym={item}
+                                onEdit={this.onItemChanged}
+                                autoFocus={false}
+                            />
+                        ) : (
+                            <LookupTableStringEditor
+                                listAttribute={listAttribute}
+                                placeholder={listPlaceholder}
+                                item={item}
+                                onEdit={this.onItemChanged}
+                                autoFocus={false}
+                            />
+                        )}
                     </Grid.Column>
                     <Grid.Column width={1}>
                         <Button
@@ -64,8 +85,9 @@ export default class AddLookupTableRow extends React.Component {
                             onClick={this.onSave}
                             className='entity-synonym-save-button'
                             // disabling the add button if empty field
+                            data-cy='save-new-table-row'
                             disabled={
-                                !item.value
+                                !item[keyAttribute]
                                 || !item[listAttribute].length
                                 || (item[listAttribute].length === 1 && !item[listAttribute][0])
                             }
@@ -82,4 +104,10 @@ AddLookupTableRow.propTypes = {
     valuePlaceholder: PropTypes.string.isRequired,
     listPlaceholder: PropTypes.string.isRequired,
     listAttribute: PropTypes.string.isRequired,
+    keyAttribute: PropTypes.string.isRequired,
+    multiple: PropTypes.bool,
+};
+
+AddLookupTableRow.defaultProps = {
+    multiple: true,
 };
