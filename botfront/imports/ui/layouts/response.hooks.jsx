@@ -75,7 +75,7 @@ export function useResponsesContext({ projectId, workingLanguage, projectLanguag
 
     const addResponses = async (templates) => {
         const { responses: oldResponses } = await readResponsesFrag();
-        const newTemplates = templates.filter(r => !Object.keys(responses).includes(r));
+        const newTemplates = templates.filter(r => !Object.keys(oldResponses).includes(r));
         if (!newTemplates.length) return setResponsesState(oldResponses);
         const result = await apolloClient.query({
             query: GET_BOT_RESPONSES,
