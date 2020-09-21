@@ -62,13 +62,13 @@ if (Meteor.isServer) {
 
             try {
                 if (!project) throw new Meteor.Error('Project not found');
-                NLUModels.remove({ _id: { $in: project.nlu_models } }); // Delete NLU models
-                Activity.remove({ projectId, language: { $in: project.languages } }).exec(); // Delete Logs
-                Instances.remove({ projectId: project._id }); // Delete instances
-                CorePolicies.remove({ projectId: project._id }); // Delete Core Policies
-                Credentials.remove({ projectId: project._id }); // Delete credentials
-                Endpoints.remove({ projectId: project._id }); // Delete endpoints
-                Conversations.remove({ projectId: project._id }); // Delete Conversations
+                NLUModels.remove({ projectId }); // Delete NLU models
+                Activity.remove({ projectId }).exec(); // Delete Logs
+                Instances.remove({ projectId }); // Delete instances
+                CorePolicies.remove({ projectId }); // Delete Core Policies
+                Credentials.remove({ projectId }); // Delete credentials
+                Endpoints.remove({ projectId }); // Delete endpoints
+                Conversations.remove({ projectId }); // Delete Conversations
                 StoryGroups.remove({ projectId });
                 Stories.remove({ projectId });
                 Slots.remove({ projectId });

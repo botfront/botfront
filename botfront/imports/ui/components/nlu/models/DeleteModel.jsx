@@ -40,7 +40,10 @@ class DeleteModel extends React.Component {
             'nlu.remove',
             projectId,
             language,
-            wrapMeteorCallback(() => changeWorkingLanguage(fallbackLang), 'Model deleted!'),
+            wrapMeteorCallback(() => {
+                changeWorkingLanguage(fallbackLang);
+                this.setState({ confirmOpen: false });
+            }, 'Model deleted!'),
         );
     };
 
