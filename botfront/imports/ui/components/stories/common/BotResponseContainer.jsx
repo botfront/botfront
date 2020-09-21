@@ -11,7 +11,7 @@ import QuickReplies from './QuickReplies';
 
 const BotResponseContainer = (props) => {
     const {
-        value, onDelete, onChange, focus, onFocus, editCustom, tag, hasMetadata, metadata, editable,
+        value, onDelete, onChange, focus, onFocus, editCustom, tag, hasMetadata, metadata, editable, disableEnterKey,
     } = props;
 
     const [input, setInput] = useState();
@@ -52,7 +52,7 @@ const BotResponseContainer = (props) => {
             e.preventDefault();
             onDelete();
         }
-        if (key === 'Enter' && isTextResponse) {
+        if (key === 'Enter' && isTextResponse && !disableEnterKey) {
             if (shiftKey) return;
             e.preventDefault();
             onChange({ text: formatNewlines(input) }, true);
@@ -149,6 +149,7 @@ BotResponseContainer.propTypes = {
     hasMetadata: PropTypes.bool,
     metadata: PropTypes.object,
     editable: PropTypes.bool,
+    disableEnterKey: PropTypes.bool,
 };
 
 BotResponseContainer.defaultProps = {
@@ -158,6 +159,7 @@ BotResponseContainer.defaultProps = {
     hasMetadata: false,
     metadata: {},
     editable: true,
+    disableEnterKey: false,
 };
 
 export default BotResponseContainer;

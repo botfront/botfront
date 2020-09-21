@@ -1,7 +1,16 @@
 /* eslint-disable no-multi-str */
 import { expect } from 'chai';
 import { Meteor } from 'meteor/meteor';
-import { importSubmissions } from './forms';
+import { importSubmissions, upsertForm } from './forms';
+import Forms from '../forms.model';
+import { Slots } from '../../../slots/slots.collection';
+
+import { createTestUser, removeTestUser } from '../../../testUtils';
+
+
+import {
+    testForm, slots, formUpdateData, expectedRemainingSlots, otherForm,
+} from './formTestData';
 
 const formSubmissionTemplate = {
     conversationId: 'conversationId',
@@ -74,5 +83,31 @@ if (Meteor.isServer) {
                 nUpdated: 0,
             });
         });
+    });
+
+    let testUser = null;
+    describe.only('delete unused slots on form upsert', () => {
+        beforeEach(done => (async () => {
+            await removeTestUser();
+            await Forms.deleteMany();
+            await Slots.remove({ projectId: 'bf' });
+            testUser = await createTestUser();
+            done();
+        })());
+        after(done => (async () => {
+            await removeTestUser();
+            await Forms.deleteMany();
+            await Slots.remove({ projectId: 'bf' });
+            done();
+        })());
+        it('should delete unfeaturized slots', done => (async () => {
+            await Forms.update({ _id: testForm._id }, testForm, { upsert: true });
+            await Promise.all(slots.map(slot => Slots.insert(slot)));
+            await upsertForm({ form: otherForm }, testUser);
+            await upsertForm(formUpdateData, testUser);
+            const remainingSlots = Slots.find().fetch();
+            expect(remainingSlots).to.deep.equal(expectedRemainingSlots);
+            done();
+        })());
     });
 }

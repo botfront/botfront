@@ -53,7 +53,6 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
         stories,
         isDeletionPossible,
     } = props;
-
     const [deletionModalVisible, setDeletionModalVisible] = useState(false);
     const [mouseDown, setMouseDown] = useState(false);
 
@@ -67,7 +66,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
     const verifyGroupOrder = () => {
         // It may happen that storyGroups and storyGroupOrder are out of sync
         // This is just a workaround as Meteor does not update storyGroupOrder after importing
-        const ids = [...storyGroups, ...forms].map(({ _id }) => _id);
+        const ids = [...storyGroups].map(({ _id }) => _id);
         // check that storygroup forms and storygrous are in sync ( have the same value in different orders)
         if (!(
             ids.length === storyGroupOrder.length
@@ -76,16 +75,18 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
             Meteor.call('storyGroups.rebuildOrder', projectId);
         }
     };
-
     useEffect(verifyGroupOrder, []);
 
     const treeFromProps = useMemo(() => {
         // build tree
+        const itemIds = [];
+
         const newTree = {
             rootId: 'root',
             items: {},
         };
         stories.forEach(({ _id, storyGroupId, ...n }) => {
+            itemIds.push(_id);
             newTree.items[_id] = {
                 ...n,
                 id: _id,
@@ -93,29 +94,35 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
                 type: 'story',
             };
         });
-        storyGroups.sort((a, b) => !!b.pinned - !!a.pinned).forEach(({ _id, name, ...n }) => {
+        forms.forEach(({
+            _id, groupId, pinned, isExpanded, children, slots, ...form
+        }) => {
+            itemIds.push(_id);
+            newTree.items[_id] = {
+                ...form,
+                id: _id,
+                parentId: groupId,
+                title: form.name,
+                type: 'form',
+            };
+        });
+        storyGroups.sort((a, b) => !!b.pinned - !!a.pinned).forEach(({
+            _id, name, children, ...n
+        }) => {
+            /*
+                if an there is no item corresponding to an id in children the tree crashes.
+
+                filtering the children by existing item ids prevents crashes caused by the
+                order updates to a child and its parent are recieved.
+            */
+            const safeChildren = children.filter(childId => itemIds.includes(childId));
             newTree.items[_id] = {
                 ...n,
+                children: safeChildren,
                 id: _id,
                 parentId: 'root',
                 title: name,
                 type: 'story-group',
-            };
-        });
-        forms.forEach(({ _id, slots, ...form }) => {
-            newTree.items[_id] = {
-                ...form,
-                id: _id,
-                parentId: 'root',
-                title: form.name,
-                children: slots.map(({ name, ...slot }) => {
-                    const id = `${name}_slot_for_${_id}`;
-                    newTree.items[id] = {
-                        id, title: name, ...slot, parentId: _id, type: 'form-slot',
-                    };
-                    return id;
-                }),
-                type: 'form',
             };
         });
         newTree.items.root = {
@@ -141,6 +148,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
         handleRemoveItem,
         handleRenameItem,
         handleAddStory,
+        handleAddForm,
     } = useStoryGroupTree(treeFromProps, storyMenuSelection);
     const menuRef = useRef();
     const lastFocusedItem = useRef(tree.items[storyMenuSelection[0]] || null);
@@ -300,6 +308,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
             handleToggleExpansion={handleToggleExpansion}
             handleCollapse={handleCollapse}
             handleAddStory={handleAddStory}
+            handleAddForm={handleAddForm}
             handleToggleFocus={handleToggleFocus}
             handleRenameItem={handleRenameItem}
             selectionIsNonContiguous={selectionIsNonContiguous}

@@ -17,6 +17,7 @@ const {
     AnalyticsDashboards,
 } = require('../models/models');
 const { getVerifiedProject, aggregateEvents } = require('../server/utils');
+const { migrateForms } = require('../server/forms/forms.utils');
 const uuidv4 = require('uuid/v4');
 const JSZip = require('jszip');
 const { sortBy, get: _get } = require('lodash');
@@ -102,26 +103,36 @@ const nativizeProject = function (projectId, projectName, backup) {
             _id: conversationsMapping[conversation._id],
         }))
     }
-
-    if ('storyGroups' in nativizedBackup && 'stories' in nativizedBackup) {
+    if ('storyGroups' in nativizedBackup && ('stories' in nativizedBackup || 'forms' in nativizedBackup)) {
+        const originalStories = nativizedBackup.stories || [];
+        const originalForms = nativizedBackup.forms || [];
         const storyGroupMapping = {};
         const storyMapping = {};
-        nativizedBackup.storyGroups.forEach((m) =>
-            Object.assign(storyGroupMapping, { [m._id]: uuidv4() }),
-        );
-        nativizedBackup.stories.forEach((m) =>
+        const formMapping = {};
+        nativizedBackup.storyGroups.forEach((m) => {
+            Object.assign(storyGroupMapping, { [m._id]: uuidv4() });
+        });
+        originalStories.forEach((m) =>
             Object.assign(storyMapping, { [m._id]: uuidv4() }),
         );
+        originalForms.forEach((m) =>
+            Object.assign(formMapping, { [m._id]: uuidv4()}),
+        );
+        const storyGroupChildMapping = {...storyMapping, ...formMapping};
+
         nativizedBackup.storyGroups = nativizedBackup.storyGroups.map((sg) => ({
             ...sg,
             _id: storyGroupMapping[sg._id],
             isExpanded: sg.isExpanded || !!sg.introStory,
             children: sg.children
-                ? sg.children.map(id => storyMapping[id])
-                : nativizedBackup.stories.filter(s => s.storyGroupId === sg._id)
-                    .map(s => storyMapping[s._id]),
+                ? sg.children.map(id => storyGroupChildMapping[id])
+                : [
+                    ...originalStories.filter(s => s.storyGroupId === sg._id)
+                        .map(s => storyGroupChildMapping[s._id]),
+                    ...originalForms.filter(f => f.groupId === sg._id),
+                ],
         })); // apply to storygroups
-        nativizedBackup.stories = nativizedBackup.stories.map((s) => ({
+        nativizedBackup.stories = originalStories.map((s) => ({
             ...s,
             storyGroupId: storyGroupMapping[s.storyGroupId],
             _id: storyMapping[s._id],
@@ -132,16 +143,44 @@ const nativizeProject = function (projectId, projectName, backup) {
                 ]),
             }),
         })); // apply to stories
-
+        const {
+            forms: updatedForms,
+            formMigrationGroup, // also indicates if a migration occured
+        } =  migrateForms(originalForms, nativizedBackup.storyGroups);
+        if (formMigrationGroup) {
+            nativizedBackup.forms = updatedForms;
+            nativizedBackup.storyGroups = [...nativizedBackup.storyGroups, formMigrationGroup];
+        }
         // At the top level of the story object, create an array of events in a story and its branches
         nativizedBackup.stories = nativizedBackup.stories.map(aggregateEvents);
+        let storyGroupOrder = []
+        if (formMigrationGroup && project.storyGroups) {
+            const newOrder = project.storyGroups.reduce((acc, sg) => {
+                const newId = storyGroupMapping[sg]
+                // filter to only story groups (forms used to be top level menu items)
+                if (newId) return [...acc, newId];
+                return acc
+            }, [])
+            const insertAt = newOrder.indexOf((groupId) => (
+                !(nativizedBackup.storyGroups.find(({ _id }) => _id === groupId)
+                    || { pinned: true }
+                ).pinned
+            ))
+            storyGroupOrder = [
+                ...newOrder.slice(0, insertAt),
+                formMigrationGroup._id,
+                ...newOrder.slice(insertAt, newOrder.length),
+            ];
+        } else if (project.storyGroups) {
+            storyGroupOrder = project.storyGroups.map(sg => storyGroupMapping[sg])
+        } else {
+            storyGroupOrder = nativizedBackup.storyGroups.sort((a, b) => b.introStory - a.introStory)
+                .map(({ _id }) => _id)
+        }
 
         nativizedBackup.project = {
             ...project,
-            storyGroups: project.storyGroups
-                ? project.storyGroups.map(sg => storyGroupMapping[sg])
-                : nativizedBackup.storyGroups.sort((a, b) => b.introStory - a.introStory)
-                    .map(({ _id }) => _id),
+            storyGroups: storyGroupOrder,
         };
     }
 
@@ -160,7 +199,7 @@ const nativizeProject = function (projectId, projectName, backup) {
 
     Object.keys(nativizedBackup).forEach((col) => {
         // change id of every other doc
-        if (!['project', 'models', 'storyGroups', 'stories', 'conversations'].includes(col)) {
+        if (!['project', 'models', 'storyGroups', 'stories', 'conversations', 'forms'].includes(col)) {
             nativizedBackup[col] = nativizedBackup[col].map((doc) => ({
                 ...doc,
                 _id: uuidv4(),

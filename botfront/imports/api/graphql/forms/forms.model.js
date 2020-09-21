@@ -41,6 +41,12 @@ if (Meteor.isServer) {
                         entity: {
                             type: Mixed,
                         },
+                        group: {
+                            type: Mixed,
+                        },
+                        role: {
+                            type: Mixed,
+                        },
                         not_intent: {
                             type: [String],
                         },
@@ -67,7 +73,7 @@ if (Meteor.isServer) {
                             'email',
                         ],
                     },
-                    comparatum: Schema.Types.Mixed,
+                    comparatum: Mixed,
                 },
                 utter_on_new_valid_slot: {
                     type: Boolean,
@@ -77,6 +83,8 @@ if (Meteor.isServer) {
         },
         isExpanded: { type: Boolean, defaultValue: true },
         pinned: { type: Boolean, defaultValue: true },
+        graph_elements: { type: Mixed },
+        groupId: { type: String },
     }, { versionKey: false });
     forms.index({ name: 1, projectId: 1 }, { unique: true });
     module.exports = mongoose.model('Forms', forms, 'forms');

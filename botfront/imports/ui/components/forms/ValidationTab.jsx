@@ -1,7 +1,7 @@
 import {
     Select, Input, Dropdown, Header, Checkbox,
 } from 'semantic-ui-react';
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
@@ -9,6 +9,7 @@ import BotResponsesContainer from '../stories/common/BotResponsesContainer';
 import { ProjectContext } from '../../layouts/context';
 import ChangeResponseType from './ChangeResponseType';
 import { can } from '../../../lib/scopes';
+import StrictNumberInput from '../common/StrictNumberInput';
 
 const validationOptions = [
     { key: 'is_in', value: 'is_in', text: 'be in' },
@@ -58,16 +59,12 @@ const ValidationTab = (props) => {
 
     const canEdit = can('stories:w', projectId);
 
-    const [validationState, setValidationState] = useState(validation);
-
     const { upsertResponse } = useContext(ProjectContext);
-
-    useEffect(() => {
-        if (validation) setValidationState(validation);
-    }, [validation]);
-
+    /*
+        allow '-' and '' to appear in the input field
+        while ensuring that the value in the database is always a number
+    */
     const handleChange = (newValidation) => {
-        setValidationState(newValidation);
         onChange(newValidation);
     };
 
@@ -76,7 +73,7 @@ const ValidationTab = (props) => {
     };
 
     const handleRenderComparatum = () => {
-        const { operator, comparatum } = validationState;
+        const { operator, comparatum } = validation;
         if (operator === 'is_in') {
             return (
                 <Dropdown
@@ -93,7 +90,7 @@ const ValidationTab = (props) => {
                     }
                     value={Array.isArray(comparatum) ? comparatum : []}
                     onChange={(_, { value }) => {
-                        handleChange({ ...validationState, comparatum: value });
+                        handleChange({ ...validation, comparatum: value });
                     }}
                 />
             );
@@ -108,7 +105,7 @@ const ValidationTab = (props) => {
                     value={typeof comparatum === 'string' ? comparatum : ''}
                     disabled={!canEdit}
                     onChange={(_, { value }) => {
-                        handleChange({ ...validationState, comparatum: value });
+                        handleChange({ ...validation, comparatum: value });
                     }}
                 />
             );
@@ -127,30 +124,18 @@ const ValidationTab = (props) => {
                 'shorter_or_equal',
             ].includes(operator)
         ) {
-            let parsedComparatum = NaN;
-            const keepComparatum = comparatum === '-' || comparatum === ''; // we want to those two so we can erase the value and put - alone
-            if (!keepComparatum) parsedComparatum = parseInt(comparatum, 10); // handle negative number when they not complety typed
+            const parsedComparatum = parseFloat(comparatum, 10);
             return (
-                <Input
-                    value={Number.isNaN(parsedComparatum) ? (keepComparatum ? comparatum : '') : parsedComparatum}
+                <StrictNumberInput
+                    value={parsedComparatum}
                     disabled={!canEdit}
-                    type={Number.isNaN(parsedComparatum) ? 'text' : 'number'}
-                    
-                    onChange={(_, data) => {
-                        const { value } = data;
-                        if (value === '-' || value === '') {
-                            setValidationState({
-                                ...validationState,
-                                comparatum: value,
-                            });
-                            return;
-                        }
-                        const parsedValue = parseInt(value, 10);
+                    onChange={(value) => {
                         handleChange({
-                            ...validationState,
-                            comparatum: Number.isNaN(parsedValue) ? 0 : parsedValue,
+                            ...validation,
+                            comparatum: value,
                         });
                     }}
+                    fallbackValue={0}
                 />
             );
         }
@@ -163,20 +148,21 @@ const ValidationTab = (props) => {
                 disabled={!canEdit}
                 toggle
                 label='Validate the slot'
-                checked={!!validationState}
-                onChange={() => handleChange(validationState ? null : initialValue)}
+                checked={!!validation}
+                onChange={() => handleChange(validation ? null : initialValue)}
             />
-            {!!validationState && (
+            {!!validation && (
                 <>
                     <div className='validation-criteria'>
                         <span>The value of the slot must </span>
+                        <br />
                         <Select
                             options={validationOptions}
                             disabled={!canEdit}
-                            value={validationState.operator || 'is_in '}
+                            value={validation.operator || 'is_in '}
                             onChange={(_, { value }) => {
                                 handleChange({
-                                    ...validationState,
+                                    ...validation,
                                     operator: value,
                                     comparatum: null,
                                 });
@@ -193,8 +179,7 @@ const ValidationTab = (props) => {
                         <BotResponsesContainer
                             deletable={false}
                             name={
-                                (invalidResponse && invalidResponse.name)
-                                || `utter_invalid_${slotName}`
+                                `utter_invalid_${slotName}`
                             }
                             initialValue={invalidResponse}
                             onChange={content => handleResponseChange(content, `utter_invalid_${slotName}`)
@@ -205,8 +190,7 @@ const ValidationTab = (props) => {
                         />
                         <ChangeResponseType
                             name={
-                                (invalidResponse && invalidResponse.name)
-                                || `utter_invalid_${slotName}`
+                                `utter_invalid_${slotName}`
                             }
                             // eslint-disable-next-line no-underscore-dangle
                             currentType={invalidResponse && invalidResponse.__typename}

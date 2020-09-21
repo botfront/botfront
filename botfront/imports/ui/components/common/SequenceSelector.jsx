@@ -8,7 +8,7 @@ import IntentLabel from '../nlu/common/IntentLabel';
 
 
 function SequenceSelector({
-    sequence, onChange, actionOptions, slotOptions, allowedEventTypes, bordered, enableExclusions, width,
+    sequence, onChange, actionOptions, slotOptions, allowedEventTypes, bordered, enableExclusions, width, direction,
 }) {
     const [search, setSearch] = useState('');
     const [mainDropdownOpen, setMainDropdownOpen] = useState(null);
@@ -171,6 +171,7 @@ function SequenceSelector({
                         enableReset
                         onChange={onAddStep}
                         onClose={() => { setDropdownOpen(null); setMainDropdownOpen(false); }}
+                        width='400'
                     />
                 </Dropdown.Menu>
             );
@@ -230,6 +231,7 @@ function SequenceSelector({
                         value=' '
                         open={mainDropdownOpen}
                         onClick={() => setMainDropdownOpen(true)}
+                        direction={direction}
                     >
                         {allowedEventTypes.length > 1 ? renderMultiTypeDropdown() : renderSingleTypeDropdown(allowedEventTypes[0])}
                     </Dropdown>
@@ -259,6 +261,7 @@ SequenceSelector.propTypes = {
     bordered: PropTypes.bool,
     enableExclusions: PropTypes.bool,
     width: PropTypes.number,
+    direction: PropTypes.string,
 };
 
 
@@ -270,6 +273,7 @@ SequenceSelector.defaultProps = {
     bordered: false,
     enableExclusions: true,
     width: 14,
+    direction: 'right',
 };
 
 

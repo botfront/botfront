@@ -52,3 +52,5 @@ export const typeDefs = mergeTypeDefs([
     storiesTypes,
     analyticsDashboardTypes,
 ], { all: true });
+
+export const schemaDirectives = {};

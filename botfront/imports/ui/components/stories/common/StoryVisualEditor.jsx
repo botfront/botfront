@@ -78,6 +78,13 @@ export default class StoryVisualEditor extends React.Component {
         story.insertLine(index, data);
     };
 
+    //used by forms
+    handleCreateMultiLineSlotOrAction = (index, data) => {
+        this.setState({ lineInsertIndex: null });
+        const { story } = this.props;
+        story.insertLines(index, data);
+    };
+
     handleCreateSequence = (index, templateType, suppliedKey) => {
         this.setState({ lineInsertIndex: null });
         const { story } = this.props;
@@ -131,6 +138,7 @@ export default class StoryVisualEditor extends React.Component {
                     onCreateUtteranceFromPayload={payload => this.handleCreateUserUtterance(index, payload)}
                     onCreateResponse={templateType => this.handleCreateSequence(index, templateType)}
                     onCreateGenericLine={data => this.handleCreateSlotOrAction(index, data)}
+                    onCreateGenericLines={data => this.handleCreateMultiLineSlotOrAction(index, data)}
                     onBlur={({ relatedTarget }) => {
                         const modals = Array.from(document.querySelectorAll('.modal'));
                         const popups = Array.from(document.querySelectorAll('.popup'));

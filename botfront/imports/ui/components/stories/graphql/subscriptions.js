@@ -26,6 +26,8 @@ export const FORMS_MODIFIED = gql`
             projectId
             isExpanded
             pinned
+            graph_elements
+            groupId
         }
     }
 `;
@@ -56,6 +58,8 @@ export const FORMS_CREATED = gql`
             projectId
             isExpanded
             pinned
+            graph_elements
+            groupId
         }
     }
 `;

@@ -5,7 +5,7 @@ import { getUser } from 'meteor/apollo';
 import { Accounts } from 'meteor/accounts-base';
 import axios from 'axios';
 import { typeDefs, resolvers, schemaDirectives } from '../../api/graphql/index';
-import { can } from '../../api/roles/roles';
+import { can } from '../../lib/scopes';
 
 const MONGO_URL = process.env.MONGO_URL || `mongodb://localhost:${(process.env.METEOR_PORT || 3000) + 1}/meteor`;
 
@@ -77,7 +77,7 @@ export const runAppolloServer = () => {
                 res.statusCode = 401;
                 res.end();
             }
-        }).catch(function (error) {
+        }).catch(function () {
             res.statusCode = 500;
             res.end();
         });

@@ -31,7 +31,7 @@
 @import '../imports/ui/components/incoming/style.import.less';
 @import '../imports/ui/components/form_fields/style.import.less';
 @import '../imports/ui/components/forms/style.import.less';
-@import 'react-dates/lib/css/_datepicker.css';
+@import '../imports/ui/components/forms/graph/style.import.less';
 
 
 @sidebar-bg: rgb(45, 47, 74);
@@ -111,7 +111,7 @@ html {
 
 .chat-demo-container {
     text-align: center;
-    background-color: #f4f4f5;
+    background-color: @botfront-grey-bg;
     height: 100%;
     .rw-conversation-container {
         box-shadow: none;
@@ -140,7 +140,7 @@ body {
 }
 
 .Pane.vertical.Pane1 {
-    background-color: #f4f4f5;
+    background-color: @botfront-grey-bg;
     & > .storygroup-browser {
         background-color:#fff;
     }

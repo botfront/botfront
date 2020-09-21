@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-    Icon, Menu, Input, Popup,
+    Icon, Menu, Input, Popup, Dropdown,
 } from 'semantic-ui-react';
 import { formNameIsValid } from '../../../lib/client.safe.utils';
 
@@ -18,6 +18,7 @@ const StoryGroupTreeNode = (props) => {
         handleToggleExpansion,
         handleCollapse,
         handleAddStory,
+        handleAddForm,
         handleToggleFocus,
         handleRenameItem,
         handleTogglePublish,
@@ -34,14 +35,13 @@ const StoryGroupTreeNode = (props) => {
 
     const trimLong = string => (string.length > 50 ? `${string.substring(0, 48)}...` : string);
     const isInSelection = activeStories.includes(item.id);
-    const disableEdit = disabled || isSmartNode || item.smartGroup || type === 'form-slot';
+    const disableEdit = disabled || isSmartNode || item.smartGroup;
     const disableDrag = disabled
         || isSmartNode
         || (selectionIsNonContiguous && activeStories.includes(item.id));
-
-    const icon = ['story-group', 'form'].includes(type) ? (
+    const icon = type === 'story-group' ? (
         <Icon
-            name={`caret ${item.isExpanded ? 'down' : 'right'}`}
+            name={`caret ${!!item && item.isExpanded ? 'down' : 'right'}`}
             {...(!somethingIsMutating
                 ? {
                     onClick: () => handleToggleExpansion(item),
@@ -86,7 +86,7 @@ const StoryGroupTreeNode = (props) => {
             onMouseDown: (e, ...args) => {
                 e.preventDefault();
                 e.stopPropagation();
-                if (item.isExpanded) handleCollapse(item.id);
+                if (item && item.isExpanded) handleCollapse(item.id);
                 provided.dragHandleProps.onMouseDown(e, ...args);
             },
         }
@@ -128,27 +128,55 @@ const StoryGroupTreeNode = (props) => {
                                 'Focus story group',
                             )}
                             {tooltipWrapper(
-                                <Icon
-                                    className='cursor pointer'
-                                    data-cy='add-story-in-story-group'
-                                    name='plus'
-                                    {...(!somethingIsMutating
-                                        ? {
-                                            onClick: () => handleAddStory(
-                                                item.id,
-                                                `${item.title} (${
-                                                    item.children.length + 1
-                                                })`,
-                                                showPublish ? 'unpublished' : 'published',
-                                            ),
-                                            onMouseDown: (e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                            },
-                                        }
-                                        : {})}
-                                />,
-                                'Add new story to group',
+                                <Dropdown
+                                    icon='plus'
+                                    // button
+                                    className='icon cursor pointer'
+                                    data-cy='add-child-to-group'
+                                    style={{ textAlign: 'center' }}
+                                    direction='left'
+                                >
+                                    <Dropdown.Menu>
+                                        <Dropdown.Item
+                                            icon='book'
+                                            content='Story'
+                                            data-cy='add-story'
+                                            {...(!somethingIsMutating
+                                                ? {
+                                                    onClick: () => handleAddStory(
+                                                        item.id,
+                                                        `${item.title} (${
+                                                            item.children.length + 1
+                                                        })`,
+                                                        showPublish ? 'unpublished' : 'published',
+                                                    ),
+                                                    onMouseDown: (e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                    },
+                                                }
+                                                : {})}
+                                        />
+                                        <Dropdown.Item
+                                            icon='wpforms'
+                                            content='Form'
+                                            data-cy='add-form'
+                                            {...(!somethingIsMutating
+                                                ? {
+                                                    onClick: () => handleAddForm(
+                                                        item.id,
+                                                        `${item.title.replace(/[^a-zA-Z0-9-_]/g, '')}_form`,
+                                                    ),
+                                                    onMouseDown: (e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                    },
+                                                }
+                                                : {})}
+                                        />
+                                    </Dropdown.Menu>
+                                </Dropdown>,
+                                'Add story or form',
                             )}
                         </>
                     )}
@@ -232,24 +260,33 @@ const StoryGroupTreeNode = (props) => {
                     />
                     <div className='item-chevron'>{icon}</div>
                     {isBeingRenamed ? (
-                        <Input
-                            onChange={(_, { value }) => setNewTitle(value)}
-                            value={newTitle}
-                            onKeyDown={handleKeyDownInput}
-                            autoFocus
-                            onBlur={submitNameChange}
-                            data-cy='edit-name'
-                            className='item-edit-box'
-                            {...(renamerRef.current
-                                ? {
-                                    style: {
-                                        width: `${
-                                            renamerRef.current.clientWidth - 25
-                                        }px`,
-                                    },
-                                }
-                                : {})}
-                        />
+                        <>
+                            <Popup
+                                content='Form names must end with _form and may not contain any special characters'
+                                trigger={(
+                                    <Input
+                                        onChange={(_, { value }) => setNewTitle(value)}
+                                        value={newTitle}
+                                        onKeyDown={handleKeyDownInput}
+                                        autoFocus
+                                        onBlur={submitNameChange}
+                                        data-cy='edit-name'
+                                        className='item-edit-box'
+                                        {...(renamerRef.current
+                                            ? {
+                                                style: {
+                                                    width: `${
+                                                        renamerRef.current.clientWidth - 25
+                                                    }px`,
+                                                },
+                                            }
+                                            : {})}
+                                    />
+                                )}
+                                open={type === 'form'}
+                                inverted
+                            />
+                        </>
                     ) : (
                         <span
                             className={`item-name ${
@@ -261,7 +298,7 @@ const StoryGroupTreeNode = (props) => {
                                 ? { onDoubleClick: () => setRenamingModalPosition(item) }
                                 : {})}
                         >
-                            {trimLong(item.title)}
+                            {trimLong(item.title || '')}
                         </span>
                     )}
                     {renderItemActions()}
@@ -283,6 +320,7 @@ StoryGroupTreeNode.propTypes = {
     handleToggleExpansion: PropTypes.func.isRequired,
     handleCollapse: PropTypes.func.isRequired,
     handleAddStory: PropTypes.func.isRequired,
+    handleAddForm: PropTypes.func.isRequired,
     handleToggleFocus: PropTypes.func.isRequired,
     handleRenameItem: PropTypes.func.isRequired,
     handleTogglePublish: PropTypes.func.isRequired,

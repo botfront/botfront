@@ -110,12 +110,17 @@ export const upsertFullResponse = async (projectId, _id, key, newResponse) => {
 };
 
 export const createAndOverwriteResponses = async (projectId, responses) => Promise.all(
-    responses.map(({ key, _id, ...rest }) => {
+    responses.map(({ key, _id = shortid.generate(), ...rest }) => {
         const textIndex = indexBotResponse({ key, _id, ...rest });
         return BotResponses.findOneAndUpdate(
-            { projectId, key }, {
-                projectId, key, ...rest, textIndex,
-            }, { new: true, lean: true, upsert: true },
+            { projectId, key },
+            {
+                $set: {
+                    projectId, key, ...rest, textIndex,
+                },
+                $setOnInsert: { _id },
+            },
+            { new: true, lean: true, upsert: true },
         );
     }),
 );
@@ -124,7 +129,7 @@ export const getBotResponses = async projectId => BotResponses.find({
     projectId,
 }).lean();
 
-export const getImageUrls = (response, excludeLang = '') =>
+export const getImageUrls = (response, excludeLang = '') => (
     response.values.reduce((vacc, vcurr) => {
         if (vcurr.lang !== excludeLang) {
             return [
@@ -137,14 +142,14 @@ export const getImageUrls = (response, excludeLang = '') =>
                     let imagesSources = [image]; // let assume the response is an imageResponse
                     if (elements) {
                         // if it's a carouselResponse image source will be replaced
-                        imagesSources = elements.map((element) => element.image_url);
+                        imagesSources = elements.map(element => element.image_url);
                     }
                     return [...sacc, ...imagesSources];
                 }, []),
             ];
         }
         return vacc;
-    }, []);
+    }, []));
 
 export const deleteResponse = async (projectId, key) => {
     const response = await BotResponses.findOne({ projectId, key }).lean();

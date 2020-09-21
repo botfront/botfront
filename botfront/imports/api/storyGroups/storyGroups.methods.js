@@ -104,6 +104,7 @@ Meteor.methods({
             { $pull: { storyGroups: storyGroup._id } },
         );
         StoryGroups.remove({ _id: storyGroup._id });
+        Forms.deleteMany({ groupId: storyGroup._id }).exec();
         const result = Stories.remove({ storyGroupId: storyGroup._id });
         deleteResponsesRemovedFromStories(eventstoRemove, storyGroup.projectId);
         auditLogIfOnServer('Story group deleted', {
@@ -195,9 +196,8 @@ Meteor.methods({
         check(projectId, String);
         const { storyGroups: order = [] } = Projects.findOne({ _id: projectId }, { fields: { storyGroups: 1 } });
         const storyGroups = StoryGroups.find({ projectId }, { fields: { _id: 1, pinned: 1, name: 1 } }).fetch();
-        const forms = await Forms.find({ projectId }, { _id: 1, pinned: 1, name: 1 }).lean();
         
-        const newOrder = [...forms, ...storyGroups]
+        const newOrder = storyGroups
             .sort((a, b) => order.findIndex(id => id === a._id) - order.findIndex(id => id === b._id))
             .sort((a, b) => !!b.pinned - !!a.pinned)
             .map(({ _id }) => _id);

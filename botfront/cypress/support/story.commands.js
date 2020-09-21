@@ -40,7 +40,6 @@ Cypress.Commands.add('linkStory', (storyName, linkTo) => {
 
 Cypress.Commands.add('createStoryGroup', ({ groupName = 'Groupo' } = {}) => {
     cy.dataCy('add-item').click({ force: true });
-    cy.dataCy('add-story-group').click();
     cy.dataCy('add-item-input')
         .find('input')
         .type(`${groupName}{enter}`);
@@ -53,7 +52,9 @@ Cypress.Commands.add('createStoryInGroup', ({ groupName = 'Groupo', storyName = 
         const len = storyItems.length;
    
         cy.dataCy('story-group-menu-item', groupName)
-            .findCy('add-story-in-story-group')
+            .findCy('add-child-to-group')
+            .click({ force: true })
+            .findCy('add-story')
             .click({ force: true });
         
         // we check that one node was indeed added
@@ -71,6 +72,21 @@ Cypress.Commands.add('createStoryInGroup', ({ groupName = 'Groupo', storyName = 
 
             if (storyName) renameStoryOrGroup('new-story', storyName);
         });
+    });
+});
+
+Cypress.Commands.add('createFormInGroup', ({ groupName = 'Groupo', formName = null } = {}) => {
+    findGroupAndOpenIfClosed(groupName);
+    cy.dataCy('story-group-menu-item').then((storyItems) => {
+        const len = storyItems.length;
+   
+        cy.dataCy('story-group-menu-item', groupName)
+            .findCy('add-child-to-group')
+            .click({ force: true })
+            .findCy('add-form')
+            .click({ force: true });
+        
+        cy.dataCy('story-group-menu-item').should('have.length', len + 1);
     });
 });
 
@@ -180,6 +196,7 @@ Cypress.Commands.add('createCustomStoryGroup', (projectId, storyGroupId, name) =
         _id: storyGroupId,
         isExpanded: true,
         pinned: false,
+        children: [],
     };
     cy.MeteorCall('storyGroups.insert', [storyGroup]);
 });

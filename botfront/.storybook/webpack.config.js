@@ -9,7 +9,18 @@ module.exports = async ({ config, mode }) => {
     // Make whatever fine-grained changes you need
     config.module.rules.push({
         test: /\.less$/,
-        use: ['style-loader', 'css-loader', 'less-loader'],
+        use: [
+            {
+                loader: 'style-loader',
+            },{
+                loader: 'css-loader',
+            },{
+                loader: 'less-loader',
+                options: {
+                    javascriptEnabled: true,
+                },
+            },
+        ]
     });
 
     // allows loading icon fonts imported in main.less

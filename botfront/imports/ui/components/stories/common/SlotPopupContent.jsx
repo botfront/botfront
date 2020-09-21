@@ -3,20 +3,23 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Dropdown, Button, Popup } from 'semantic-ui-react';
 import { groupBy } from 'lodash';
-import { ConversationOptionsContext } from '../Context';
+
 import { ProjectContext } from '../../../layouts/context';
+import { ConversationOptionsContext } from '../Context';
 import { slotValueToLabel } from '../SlotLabel';
 
 const SlotPopupContent = (props) => {
     const {
-        value: active, onSelect, trigger, trackOpenMenu,
+        value: active, onSelect, trigger, trackOpenMenu, chooseSlotWithoutValue, allowUnfeaturized, slotsToRemove,
     } = props;
     const { browseToSlots } = useContext(ConversationOptionsContext);
     const { slots, requestedSlot } = useContext(ProjectContext);
-    const slotsToUse = requestedSlot ? [...(slots.filter(x => x.name !== 'requested_slot')), requestedSlot] : slots;
+    let slotsToUse = requestedSlot ? [...(slots.filter(x => x.name !== 'requested_slot')), requestedSlot] : slots;
+    slotsToUse = slotsToUse.filter(x => !slotsToRemove.some(slot => slot === x.name));
     const [popupOpen, setPopupOpen] = useState();
     const [menuOpen, setMenuOpen] = useState();
     const allowedTypes = ['bool', 'float', 'list', 'text', 'categorical'];
+    if (allowUnfeaturized) allowedTypes.push('unfeaturized');
 
     if (!slotsToUse.filter(s => allowedTypes.includes(s.type)).length) {
         return (
@@ -84,18 +87,45 @@ const SlotPopupContent = (props) => {
                         active={activeType === c}
                         className='dropdown'
                         key={`slotcat-${c}`}
+                        // This onclick prevents closing the dropdown
+                        // when you click above or below the text
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                        }}
                     >
-                        <Dropdown text={c} fluid>
+                        <Dropdown
+                            text={c}
+                            fluid
+                            // The upward here prevents a visual bug
+                            upward={false}
+                        >
                             <Dropdown.Menu>
                                 {slotsByCat[c].map(s => (
                                     <Dropdown.Item
                                         active={activeName === s.name}
                                         className='dropdown'
                                         key={`slotname-${s.name}`}
+                                        // This onclick prevents closing the dropdown
+                                        // when you click above or below the text
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                        }}
                                     >
-                                        <Dropdown text={s.name} fluid>
+                                        <Dropdown
+                                            text={s.name}
+                                            fluid
+                                            // The upward here prevents a visual bug
+                                            upward={false}
+                                        >
                                             <Dropdown.Menu>
-                                                {getSlotValue(s).map(content => (
+                                                {chooseSlotWithoutValue ? (
+                                                    <Dropdown.Item
+                                                        text='Choose this slot'
+                                                        onClick={() => onSelect({ ...s })}
+                                                    />
+                                                ) : getSlotValue(s).map(content => (
                                                     <Dropdown.Item
                                                         onClick={() => onSelect({
                                                             ...s,
@@ -127,12 +157,18 @@ SlotPopupContent.propTypes = {
     onSelect: PropTypes.func,
     trigger: PropTypes.element.isRequired,
     trackOpenMenu: PropTypes.func,
+    chooseSlotWithoutValue: PropTypes.bool,
+    allowUnfeaturized: PropTypes.bool,
+    slotsToRemove: PropTypes.array,
 };
 
 SlotPopupContent.defaultProps = {
     value: null,
     onSelect: () => {},
     trackOpenMenu: () => {},
+    chooseSlotWithoutValue: false,
+    allowUnfeaturized: false,
+    slotsToRemove: [],
 };
 
 const mapStateToProps = state => ({

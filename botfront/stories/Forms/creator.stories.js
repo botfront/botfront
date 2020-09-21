@@ -1,7 +1,7 @@
 /* eslint-disable no-alert */
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import FormCreator from '../../imports/ui/components/forms/CreateForm';
+import FormCreator from '../../imports/ui/components/forms/Form';
 
 
 const WrappedFormEditor = props => (

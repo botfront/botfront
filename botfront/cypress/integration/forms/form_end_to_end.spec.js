@@ -1,11 +1,14 @@
 /* global cy Cypress expect */
 
+const newFormName = 'Defaultstories_1_form';
+
 const policices = `policies:
 - name: KerasPolicy
   epochs: 50
 - name: FallbackPolicy
 - name: AugmentedMemoizationPolicy
 - name: FormPolicy`;
+
 describe('test forms end to end', () => {
     beforeEach(() => {
         cy.createProject('bf', 'My Project', 'en').then(() => {
@@ -14,43 +17,51 @@ describe('test forms end to end', () => {
     });
 
     afterEach(() => {
-        // cy.request('DELETE', `${Cypress.env('RASA_URL')}/model`);
-        // cy.logout();
-        // cy.deleteProject('bf');
-        Cypress.runner.stop();
+        cy.request('DELETE', `${Cypress.env('RASA_URL')}/model`);
+        cy.logout();
+        cy.deleteProject('bf');
     });
 
     it('should create, use, and view the results of a form', () => {
-        cy.visit('project/bf/stories');
         const benchmarkDate = new Date();
-        cy.meteorAddSlot('textSlot', 'text');
         cy.setPolicies('bf', policices);
-        cy.manuallyCreateForm();
+
+        cy.visit('project/bf/stories');
+        cy.createFormInGroup({ groupName: 'Default stories' });
+        cy.createFormInGroup({ groupName: 'Default stories' });
+        cy.selectForm(newFormName);
+
+        cy.dataCy('start-node').click();
+        cy.dataCy('side-questions').click();
+        cy.dataCy('form-collection-togglefield').click();
+        cy.dataCy('toggled-true').should('exist');
+
+        cy.dataCy('add-node-1').click();
+
+        cy.dataCy('slot-name').find('input').type('slot1{enter}');
+
+        cy.dataCy('slot-node-slot1').click();
+
+        cy.dataCy('form-top-menu-item').contains('Extraction').click();
+        cy.dataCy('extraction-source-dropdown').click();
+        cy.dataCy('extraction-source-dropdown').find('span.text').contains('from the user message').click();
+        cy.dataCy('extraction-source-dropdown').find('div.text').should('have.text', 'from the user message');
+
         cy.createStoryGroup();
-        cy.dataCy('story-group-menu-item').should('include.text', 'Groupo');
         cy.createStoryInGroup({ storyName: 'testStory ' });
         cy.addUtteranceLine({ intent: 'trigger_form' });
         cy.dataCy('add-form-line').click({ force: true });
         cy.dataCy('start-form').click({ force: true });
-        cy.dataCy('start-form').find('span.text').contains('test1_form').click({ force: true });
-        cy.selectForm('test1_form');
-        cy.addSlotToForm('textSlot');
-        cy.dataCy('form-collection-togglefield').click();
-        cy.dataCy('toggled-true').should('exist');
-        cy.dataCy('form-submit-field').click();
-        cy.selectFormSlot('textSlot');
-        cy.dataCy('form-top-menu-item').contains('Extraction').click();
-        cy.dataCy('extraction-source-dropdown').click();
-        cy.dataCy('extraction-source-dropdown').find('span.text').contains('From the user message').click();
-        cy.dataCy('extraction-source-dropdown').find('div.text').should('have.text', 'From the user message');
+        cy.dataCy('start-form').find('span.text').contains(newFormName).click({ force: true });
+
         cy.train();
         cy.newChatSesh();
         cy.typeChatMessage('/trigger_form', 'utter_ask_catSlot');
         cy.typeChatMessage('text slot value');
         cy.dataCy('incoming-sidebar-link').click({ force: true });
         cy.dataCy('forms').click();
-        cy.get('.ui.header').should('include.text', 'test1_form');
-        cy.dataCy('export-form-submissions').should('include.text', 'Export 1 submission to CSV format').click();
+        cy.get('.ui.header').should('include.text', newFormName);
+        cy.dataCy('export-form-submissions').eq(1).should('include.text', 'Export 1 submission to CSV format').click();
         cy.getWindowMethod('getCsvData').then((getCsvData) => {
             const csvData = getCsvData().split('\n')[1].split(',');
             const [date, textSlot] = [csvData[0], csvData[csvData.length - 1]];

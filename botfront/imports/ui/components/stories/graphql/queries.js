@@ -26,7 +26,7 @@ export const GET_FORMS = gql`
                     type
                     intent
                     not_intent
-                    ...on SlotFillingFromEntity { entity }
+                    ...on SlotFillingFromEntity { entity role group }
                     ...on SlotFillingFromIntent { value }
                 }
                 validation @skip(if: $onlySlotList) {
@@ -41,6 +41,8 @@ export const GET_FORMS = gql`
             projectId
             isExpanded
             pinned
+            graph_elements
+            groupId
         }
     }
 `;

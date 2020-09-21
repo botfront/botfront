@@ -44,6 +44,7 @@ const BotResponsesContainer = (props) => {
         loadingResponseLocations,
         router,
         projectId,
+        disableEnterKey,
         isNew,
     } = props;
     const {
@@ -166,6 +167,7 @@ const BotResponsesContainer = (props) => {
                     hasMetadata={template && checkMetadataSet(template.metadata)}
                     metadata={(template || {}).metadata}
                     editable={editable}
+                    disableEnterKey={disableEnterKey}
                 />
                 {deletable && sequenceArray.length > 1 && <IconButton onClick={() => handleDeleteResponse(index)} icon='trash' />}
             </div>
@@ -261,6 +263,7 @@ BotResponsesContainer.propTypes = {
     router: PropTypes.object.isRequired,
     projectId: PropTypes.string.isRequired,
     renameable: PropTypes.bool,
+    disableEnterKey: PropTypes.bool,
     isNew: PropTypes.bool,
 };
 
@@ -276,6 +279,7 @@ BotResponsesContainer.defaultProps = {
     responseLocations: [],
     loadingResponseLocations: false,
     renameable: true,
+    disableEnterKey: false,
 };
 
 const mapStateToProps = state => ({

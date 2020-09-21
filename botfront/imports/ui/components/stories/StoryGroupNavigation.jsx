@@ -1,5 +1,5 @@
 import {
-    Icon, Input, Button, Popup, Dropdown,
+    Icon, Input, Button, Popup,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -45,22 +45,11 @@ class StoryGroupNavigation extends React.Component {
 
     submitTitleInput = (element) => {
         const {
-            editing, newItemName, itemName, addMode,
+            editing, newItemName, itemName,
         } = this.state;
         const {
-            addGroup, updateGroup, upsertForm, setStoryMenuSelection,
+            addGroup, updateGroup,
         } = this.props;
-        if (addMode === 'form') {
-            if (formNameIsValid(newItemName)) {
-                upsertForm({
-                    name: newItemName, slots: [], isExpanded: true, pinned: true,
-                }, ({ data: { upsertForm: { _id } = {} } = {} } = {}) => {
-                    if (_id) setStoryMenuSelection([_id]);
-                });
-                this.resetAddItem();
-            }
-            return;
-        }
         if (editing === -1 && !!newItemName) {
             addGroup({ name: newItemName });
             this.resetAddItem();
@@ -94,29 +83,18 @@ class StoryGroupNavigation extends React.Component {
         return (
             <div className='navigation'>
                 <Button.Group fluid>
-                    <Dropdown
-                        icon='add'
-                        button
-                        className='icon'
-                        data-cy='add-item'
-                        disabled={!allowAddition}
-                        style={{ textAlign: 'center' }}
-                    >
-                        <Dropdown.Menu>
-                            <Dropdown.Item
-                                icon='book'
-                                content='Story group'
-                                data-cy='add-story-group'
-                                onClick={() => this.setState({ addMode: 'group' })}
-                            />
-                            <Dropdown.Item
-                                icon='wpforms'
-                                content='Form'
-                                data-cy='add-form'
-                                onClick={() => this.setState({ addMode: 'form' })}
-                            />
-                        </Dropdown.Menu>
-                    </Dropdown>
+                    {this.tooltipWrapper(
+                        <Button
+                            icon='add'
+                            className='icon'
+                            data-cy='add-item'
+                            disabled={!allowAddition}
+                            style={{ textAlign: 'center' }}
+                            onClick={() => this.setState({ addMode: true })}
+                        />,
+                        'Create group',
+                    )}
+
                     {this.tooltipWrapper(
                         <Button
                             content='Slots'
@@ -151,9 +129,6 @@ class StoryGroupNavigation extends React.Component {
     render() {
         const { allowAddition } = this.props;
         const { addMode, newItemName } = this.state;
-        let placeholder = '';
-        if (addMode === 'group') placeholder = 'Choose a group name';
-        if (addMode === 'form') placeholder = 'Choose a form name';
 
         return !allowAddition || !addMode
             ? this.renderNavigation()
@@ -167,7 +142,7 @@ class StoryGroupNavigation extends React.Component {
                     open
                     trigger={(
                         <Input
-                            placeholder={placeholder}
+                            placeholder='Choose a group name'
                             onChange={this.handleChangeNewItemName}
                             value={newItemName}
                             onKeyDown={this.handleKeyDownInput}
@@ -177,7 +152,6 @@ class StoryGroupNavigation extends React.Component {
                             data-cy='add-item-input'
                             className='navigation'
                         />
-
                     )}
                 />
             );

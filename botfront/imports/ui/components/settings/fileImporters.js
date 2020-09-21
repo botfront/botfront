@@ -1,15 +1,42 @@
+import uuidv4 from 'uuid/v4';
 import { wrapMeteorCallback } from '../utils/Errors';
 import { CREATE_AND_OVERWRITE_RESPONSES as createResponses, DELETE_BOT_RESPONSE as deleteReponse } from '../templates/mutations';
 import { GET_BOT_RESPONSES as listResponses } from '../templates/queries';
-import { UPSERT_FORM as upsertForm } from '../stories/graphql/queries';
+import { UPSERT_FORM as upsertForm, GET_FORMS as getForms, DELETE_FORMS as deleteForms } from '../stories/graphql/queries';
 import apolloClient from '../../../startup/client/apollo';
+import { getGraphElementsFromDomain } from '../../../lib/form.utils';
 
-const handleImportForms = async (bfForms = [], projectId) => {
-    const res = await Promise.all(bfForms.map(form => apolloClient
-        .mutate({
-            mutation: upsertForm,
-            variables: { form: { ...form, projectId } },
-        })));
+
+const handleImportForms = async (bfForms = [], projectId, existingStoryGroups = []) => {
+    const newGroupMapping = {};
+    const existingGroupNames = existingStoryGroups.map(({ name }) => name);
+    const res = await Promise.all(bfForms.map(async ({ groupName = 'forms', _id, ...form }) => {
+        let groupId = newGroupMapping[groupName];
+        if (!groupId) {
+            const newGroupName = existingGroupNames.includes(groupName)
+                ? `${groupName} (${new Date()
+                    .toISOString()
+                    .replace('T', ' ')
+                    .replace('Z', '')})`
+                : groupName;
+            groupId = uuidv4();
+            newGroupMapping[groupName] = groupId;
+            await Meteor.callWithPromise(
+                'storyGroups.insert',
+                { _id: groupId, name: newGroupName, projectId },
+            );
+        }
+        const graphElements = getGraphElementsFromDomain(form.graph_elements, form.slots);
+        return apolloClient
+            .mutate({
+                mutation: upsertForm,
+                variables: {
+                    form: {
+                        ...form, projectId, groupId, graph_elements: graphElements,
+                    },
+                },
+            });
+    }));
     if (!res) return 'Forms not inserted.';
     const notUpserted = [];
     res.forEach(({ data } = {}, index) => {
@@ -81,6 +108,16 @@ const wipeDomain = async (projectId, existingSlots) => {
             variables: { projectId },
         });
     if (!Array.isArray(botResponses)) throw new Error();
+    const { data: { getForms: forms = [] } = {} } = await apolloClient
+        .query({
+            query: getForms,
+            variables: { projectId },
+        });
+    const { data: { deleteForms: formsDeleted = [] } = {} } = await apolloClient.mutate({
+        mutation: deleteForms,
+        variables: { projectId, ids: forms.map(({ _id }) => _id) },
+    });
+    if (!forms.every(({ _id }) => formsDeleted.find(({ _id: deletedId }) => _id === deletedId))) throw new Error();
     const deletedResponses = await Promise.all(botResponses.map(r => apolloClient.mutate({
         mutation: deleteReponse,
         variables: { projectId, key: r.key },
@@ -92,7 +129,7 @@ const wipeDomain = async (projectId, existingSlots) => {
 };
 
 export const handleImportDomain = (files, {
-    projectId, fileReader: [_, setFileList], setImportingState, wipeCurrent, existingSlots,
+    projectId, fileReader: [_, setFileList], setImportingState, wipeCurrent, existingSlots, existingStoryGroups,
 }) => {
     if (!files.length) return;
     setImportingState(true);
@@ -111,7 +148,7 @@ export const handleImportDomain = (files, {
                 if (err) return callback(err);
                 return Promise.all([
                     handleImportResponse(responses, projectId),
-                    handleImportForms(bfForms, projectId),
+                    handleImportForms(bfForms, projectId, existingStoryGroups),
                 ]).then((res) => {
                     const messages = res.filter(r => r !== true);
                     if (messages.length) return callback({ message: messages.join('\n') });

@@ -196,23 +196,9 @@ function Stories(props) {
     );
 
     const handleDeleteForm = useCallback(
-        ({ _id }, ...args) => deleteForms({ variables: { projectId, ids: [_id] } }).then(callbackCaller(args), callbackCaller(args)),
+        ({ _id }, ...args) => deleteForms({ variables: { projectId, ids: [_id] } }).then(callbackCaller(args)),
         [projectId],
     );
-
-    const handleReorderForm = ({ _id: idToUpdate, children }, ...args) => {
-        const newSlotOrder = children.map(c => c.replace(/_slot_for_.*$/, ''));
-        const formToUpdate = (currentForms.current || []).find(({ _id }) => _id === idToUpdate);
-        let reorderedSlots = [];
-        try {
-            reorderedSlots = newSlotOrder.map((name) => {
-                const foundSlot = (formToUpdate.slots || []).find(s => s.name === name);
-                if (!foundSlot) throw new Error();
-                return foundSlot;
-            });
-        } catch { return; }
-        handleUpsertForm({ _id: idToUpdate, slots: reorderedSlots }, ...args);
-    };
 
     const handleAddStoryGroup = useCallback(
         (storyGroup, f) => Meteor.call(
@@ -319,7 +305,6 @@ function Stories(props) {
                     getResponseLocations: handleGetResponseLocations,
                     upsertForm: handleUpsertForm,
                     deleteForm: handleDeleteForm,
-                    reorderForm: handleReorderForm,
                     forms,
                 }}
             >
@@ -360,23 +345,22 @@ function Stories(props) {
                             />
                         </Loading>
                     </div>
-                    <Container>
-                        {forms.some(({ _id }) => (storyMenuSelection.includes(_id) || _id.replace(/^.*_slot_for_/, '') === _id)) && (
+                    {forms.some(({ _id }) => storyMenuSelection[0] === _id)
+                        ? (
                             <FormEditors
                                 projectId={projectId}
-                                formIds={storyMenuSelection.map(id => id.replace(/^.*_slot_for_/, ''))}
-                                slots={storyMenuSelection.map(id => id.replace(/_slot_for_.*$/, ''))}
+                                formIds={storyMenuSelection}
                             />
-                        )}
-                        {stories.some(({ _id }) => storyMenuSelection.includes(_id)) && (
-                            <StoryEditors
-                                projectId={projectId}
-                                selectedIds={storyMenuSelection.map(cleanId)}
-                                key={storyEditorsKey}
-                            />
-
-                        )}
-                    </Container>
+                        ) : (
+                            <Container>
+                                <StoryEditors
+                                    projectId={projectId}
+                                    selectedIds={storyMenuSelection.map(cleanId)}
+                                    key={storyEditorsKey}
+                                />
+                            </Container>
+                        )
+                    }
                 </SplitPane>
             </ConversationOptionsContext.Provider>
         </Loading>
@@ -412,7 +396,7 @@ const StoriesWithTracker = withRouter(withTracker((props) => {
                     ...story,
                     _id: `${sg.smartGroup.prefix}_SMART_${story._id}`,
                     storyGroupId: sg._id,
-                    smart: true
+                    smart: true,
                 }));
             smartStories = smartStories.concat(results);
             return { ...sg, children: results.map(({ _id }) => _id) };

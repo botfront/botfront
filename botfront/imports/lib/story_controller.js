@@ -331,6 +331,14 @@ export class StoryController {
         this.validateStory();
     };
 
+    // used when adding forms, thoses require that multiple line are inserted at once
+    insertLines = (i, contents) => {
+        const newMdLines = contents.map(content => this.generateMdLine(content));
+        this.lines = [...this.lines.slice(0, i + 1), ...newMdLines, ...this.lines.slice(i + 1)];
+        this.md = this.lines.map(l => l.md).join('\n');
+        this.validateStory();
+    };
+
     replaceLine = (i, content) => {
         const newMdLine = this.generateMdLine(content);
         if (!newMdLine) return;

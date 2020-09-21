@@ -59,7 +59,7 @@
             }
             &[type='form'] {
                 .item-name {
-                    font-weight: bold;
+                    font-weight: normal;
                     color: @botfront-blue;
                     &:before {
                         content: '\1F4DD\0020';
@@ -202,62 +202,6 @@
     z-index: 100;
 }
 
-.stories-container {
-    .container.aligned.center {
-        padding-top: 0.3em;
-        padding-bottom: 0.9em;
-    }
-    .dolly.icon.move-icon{
-        color:#767676;
-        &:hover{
-            color: #5c5c5c;
-            cursor: pointer;
-        }
-        &.disabled{
-            color: #767676;
-            &:hover{
-            color: #767676;
-            }
-        }
-    }
-
-    .menu.vertical .active.item {
-        cursor: default;
-    }
-
-    .menu.vertical {
-        .loader {
-            position: absolute;
-            right: 8px;
-            top: 21px;
-            left: unset;
-            animation-name: fadein;
-            animation-duration: 0.4s;
-            animation-timing-function: cubic-bezier(0.95, 0.26, 0.57, 0.7);
-        }
-    }
-
-    .icon.add {
-        margin-top: 1em;
-    }
-
-    .warning.message {
-        animation-name: warningPopup;
-        animation-duration: 0.2s;
-    }
-    .trigger-editor-modal-trigger {
-        margin-bottom: 2px;
-        cursor: pointer;
-    }
-
-    a.item span {
-        max-width: 136px;
-        display: block;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-}
-
 .story-editor {
     margin-bottom: 20px;
     box-shadow: 0 1px 5px rgba(34, 36, 38, 0.1);
@@ -279,6 +223,12 @@
                 transform: rotate(90deg);
             }
         }
+
+        .trigger-editor-modal-trigger {
+            margin-bottom: 2px;
+            cursor: pointer;
+        }
+        
         .icon.top-menu-clickable {
             color: #767676;
             &:hover {

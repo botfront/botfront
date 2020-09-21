@@ -160,6 +160,17 @@ export const withProjectContext = (story) => {
                 ],
                 language: 'en',
                 getCanonicalExamples,
+                addResponses: (responses) => {
+                    let newResponses = {};
+                    const emptyResponse = {
+                        __typename: 'TextPayload',
+                        text: '',
+                    };
+                    responses.forEach((response) => {
+                        newResponses = { ...newResponses, [response]: { ...emptyResponse }};
+                    });
+                    updateResponses(prevResponses => ({ ...prevResponses, ...newResponses }));
+                }
             }}
         >
             {story()}

@@ -16,6 +16,7 @@ import { indexStory } from '../imports/api/story/stories.index';
 import Activity from '../imports/api/graphql/activity/activity.model';
 import AnalyticsDashboards from '../imports/api/graphql/analyticsDashboards/analyticsDashboards.model';
 import { defaultDashboard } from '../imports/api/graphql/analyticsDashboards/generateDefaults';
+import Forms from '../imports/api/graphql/forms/forms.model';
 
 import BotResponses from '../imports/api/graphql/botResponses/botResponses.model';
 /* globals Migrations */
@@ -551,6 +552,91 @@ Migrations.add({
         });
     },
 });
+
+Migrations.add({
+    version: 22,
+    up: async () => {
+        const forms = await Forms.find().lean();
+        const groups = {};
+
+        const formIds = forms.map(({ _id }) => _id);
+        await Projects.update({}, { $pull: { storyGroups: { $in: formIds } } }, { multi: true });
+
+        forms.forEach(async (form) => {
+            let { groupId } = form;
+            if (!groupId) {
+                if (!groups[form.projectId]) {
+                    groups[form.projectId] = {
+                        _id: shortid.generate(), projectId: form.projectId, children: [], isExpanded: true, pinned: false, selected: false,
+                    };
+                }
+                groupId = groups[form.projectId]._id;
+                groups[form.projectId].children.push(form._id);
+                await Forms.updateOne({ _id: form._id }, {
+                    $set: {
+                        groupId,
+                    },
+                });
+            }
+
+            if (!form.slots || !(form.slots.length > 0)) return;
+            // if the form has graph_elements it was migrated previously
+            if (form.graph_elements) return;
+            // eslint-disable-next-line camelcase
+            const graph_elements = form.slots.reduce((acc, slot, i) => {
+                const previousId = i === 0 ? '1' : form.slots[i - 1].name;
+                const { name, filling, ...slotData } = slot;
+                return [
+                    ...acc,
+                    {
+                        id: slot.name,
+                        data: {
+                            ...slotData,
+                            slotName: name,
+                            type: 'slot',
+                            filling: filling.length > 0 ? filling : [{ type: 'from_entity' }],
+                        },
+                        position: { x: 120, y: 200 + (i + 1) * 150 },
+                        type: 'slot',
+                        className: 'slot-node',
+                    },
+                    {
+                        id: `e${previousId}-${slot.name}`,
+                        source: previousId,
+                        target: `${slot.name}`,
+                        animated: true,
+                        type: 'condition',
+                        arrowHeadType: 'arrowclosed',
+                        data: {
+                            condition: null,
+                        },
+                    },
+                ];
+            }, [{
+                id: '1', data: { type: 'start' }, position: { x: 200, y: 200 }, type: 'start', className: 'start-node',
+            }]);
+            await Forms.updateOne({ _id: form._id }, {
+                $set: {
+                    graph_elements,
+                },
+            });
+        });
+
+        Object.values(groups).forEach(async (group) => {
+            const pinnedGroups = StoryGroups.find({ projectId: group.projectId, pinned: true }).fetch();
+            const nameConflicts = StoryGroups.find({ projectId: group.projectId, name: { $regex: 'forms' } }, { fields: { name: 1 } }).fetch();
+            const groupNames = nameConflicts ? nameConflicts.map(({ name }) => name) : [];
+            let safeName = 'forms';
+            const index = 1;
+            while (groupNames.includes(safeName)) {
+                safeName = `forms ${index}`;
+            }
+            await StoryGroups.insert({ ...group, name: safeName });
+            await Projects.update({ _id: group.projectId }, { $push: { storyGroups: { $each: [group._id], $position: pinnedGroups.length } } });
+        });
+    },
+});
+
 Meteor.startup(() => {
     Migrations.migrateTo('latest');
 });

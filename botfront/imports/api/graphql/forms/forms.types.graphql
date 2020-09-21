@@ -35,8 +35,10 @@ type Form {
     utter_on_submit: Boolean # utter_submit_{slot_name}
     description: String
     projectId: String
+    groupId: String
     isExpanded: Boolean
     pinned: Boolean
+    graph_elements: Any
 }
 
 type SlotToFill {
@@ -63,6 +65,8 @@ interface SlotFilling {
 type SlotFillingFromEntity implements SlotFilling {
     type: FillingSource!
     entity: [String]
+    group: [String]
+    role: [String]
     intent: [String]
     not_intent: [String]
 }
@@ -115,10 +119,12 @@ input FormInput {
     slots: [SlotToFillInput]
     description: String
     projectId: String!
+    groupId: String
     utter_on_submit: Boolean # utter_submit_{slot_name}
     collect_in_botfront: Boolean
     isExpanded: Boolean
-    pinned: Boolean = true
+    pinned: Boolean = false
+    graph_elements: Any
 }
 
 input SlotToFillInput {
@@ -129,8 +135,10 @@ input SlotToFillInput {
 }
 
 input SlotFillingInput {
-    type: FillingSource = from_entity
+    type: FillingSource = from_text
     entity: [String]
+    group: [String]
+    role: [String]
     intent: [String]
     not_intent: [String]
     value: Any

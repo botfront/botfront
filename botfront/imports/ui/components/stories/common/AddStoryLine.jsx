@@ -17,6 +17,7 @@ const AddStoryLine = React.forwardRef((props, ref) => {
         onSelectResponse,
         onCreateResponse,
         onCreateGenericLine,
+        onCreateGenericLines,
         onCreateUtteranceFromInput,
         onCreateUtteranceFromPayload,
         size,
@@ -35,16 +36,20 @@ const AddStoryLine = React.forwardRef((props, ref) => {
                         key={`formname-${f.name}`}
                         content={f.name}
                         onClick={() => {
-                            if (start) { // reverse order, since insertion index doesn't change
-                                onCreateGenericLine({
+                            if (start) { 
+                                onCreateGenericLines([{
+                                    type: 'form_decl',
+                                    data: { name: f.name },
+                                },{
                                     type: 'form',
+                                    data: { name: f.name },
+                                }])
+                            } else {
+                                onCreateGenericLine({
+                                    type: 'form_decl',
                                     data: { name: f.name },
                                 });
                             }
-                            onCreateGenericLine({
-                                type: 'form_decl',
-                                data: { name: f.name },
-                            });
                         }}
                     />
                 )) : (
@@ -188,6 +193,7 @@ AddStoryLine.propTypes = {
     onSelectResponse: PropTypes.func,
     onCreateResponse: PropTypes.func,
     onCreateGenericLine: PropTypes.func,
+    onCreateGenericLines: PropTypes.func,
     noButtonResponse: PropTypes.bool,
     size: PropTypes.string,
     onBlur: PropTypes.func,
@@ -200,6 +206,7 @@ AddStoryLine.defaultProps = {
     onSelectResponse: () => {},
     onCreateResponse: () => {},
     onCreateGenericLine: () => {},
+    onCreateGenericLines: () => {},
     noButtonResponse: false,
     size: 'mini',
     onBlur: () => {},

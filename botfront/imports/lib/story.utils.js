@@ -246,6 +246,13 @@ export const addlinkCheckpoints = (stories) => {
     return storiesCheckpointed;
 };
 
+const formGroupIdsToGroupNames = (forms) => {
+    if (!forms || !forms.length > 0) return [];
+    const { projectId } = forms[0];
+    const storyGroups = StoryGroups.find(({ projectId, _id: { $in: forms.map(({ groupId }) => groupId) } })).fetch();
+    return forms.map(({ groupId, ...form }) => ({ ...form, groupName: (storyGroups.find(({ _id }) => _id === groupId) || {}).name }));
+};
+
 export const extractDomain = ({
     stories,
     slots,
@@ -354,7 +361,7 @@ export const extractDomain = ({
                 ? {
                     bf_forms: {
                         type: 'unfeaturized',
-                        initial_value: bfForms,
+                        initial_value: formGroupIdsToGroupNames(bfForms),
                     },
                 } : {}
             ),
@@ -478,7 +485,39 @@ export const getStoriesAndDomain = async (projectId, language, env = 'developmen
     const bfForms = (await getForms(projectId))
         .map(({
             _id, projectId: pid, pinned, isExpanded, ...rest
-        }) => rest);
+        }) => {
+            const newElements = { nodes: [], edges: [] };
+            if (rest.graph_elements) {
+                rest.graph_elements.forEach((elm) => {
+                    if (elm.type === 'start') {
+                        newElements.nodes.push({
+                            id: elm.id,
+                            type: elm.type,
+                        });
+                    }
+                    if (elm.type === 'slot') {
+                        newElements.nodes.push({
+                            id: elm.id,
+                            type: elm.type,
+                            slotName: elm.data.slotName,
+                        });
+                    }
+                    if (elm.type === 'condition') {
+                        newElements.edges.push({
+                            id: elm.id,
+                            type: elm.type,
+                            source: elm.source,
+                            target: elm.target,
+                            condition: elm.data.condition,
+                        });
+                    }
+                });
+            }
+            return {
+                ...rest,
+                graph_elements: newElements,
+            };
+        });
 
     appMethodLogger.debug('Generating domain');
     const responses = await getAllResponses(projectId, language);

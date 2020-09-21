@@ -102,8 +102,8 @@ Meteor.methods({
             resId: projectId,
             user: Meteor.user(),
             projectId,
-            type: 'updated',
-            operation: 'slots.updated',
+            type: 'deleted',
+            operation: 'slots.deleted',
             before: { slot },
             resType: 'slots',
         });

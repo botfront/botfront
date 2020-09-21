@@ -5,43 +5,28 @@ import {
 } from 'semantic-ui-react';
 import { can } from '../../../lib/scopes';
 import IconButton from '../common/IconButton';
-import IntentLabel from '../nlu/common/IntentLabel';
 import SequenceSelector from '../common/SequenceSelector';
+import EntityDropdown from '../nlu/common/EntityDropdown';
+import EntityValueEditor from '../stories/common/EntityValueEditor';
 
 const ExtractionItem = (props) => {
     const {
         slotFilling: {
-            type = 'from_entity',
+            type = 'from_text',
             entity,
+            group,
+            role,
             intent,
             not_intent: notIntent,
             value,
         },
         slotFilling,
-        intents,
-        entities,
         slot,
         onChange,
         onDelete,
         index,
         projectId,
     } = props;
-
-    const entityOptions = useMemo(() => {
-        if (!entity || entities.some(({ value: entityName }) => entityName === entity)) {
-            return entities;
-        }
-        return [...entities, { text: entity, value: entity }];
-    }, [entity, entities]);
-
-    const getMissingIntents = () => {
-        const intentValues = intent || notIntent || [];
-        const missingIntents = intentValues.reduce((acc, intentValue) => {
-            if (intents.some(({ value: name }) => name === intentValue)) return acc;
-            return [...acc, { value: intentValue, text: intentValue }];
-        }, []);
-        return missingIntents;
-    };
 
     const canEdit = can('stories:w', projectId);
     const intentCondition = useMemo(() => {
@@ -65,41 +50,54 @@ const ExtractionItem = (props) => {
     };
 
     const handleValueSourceChange = (e, { value: source }) => {
-        onChange({ type: source, value: null, entity: null });
+        onChange({
+            type: source, value: null, entity: null, role: null, group: null,
+        });
     };
 
     const handleChangeValue = (e, { value: newValue }) => {
-        onChange({ value: newValue, entity: null });
+        onChange({
+            value: newValue, entity: null, role: null, group: null,
+        });
     };
 
-    const handleChangeEntity = (e, { value: newValue }) => {
+    const handleChangeEntity = (newValue) => {
         if (!newValue) {
             onChange({ entity: null });
             return;
         }
-        onChange({ value: null, entity: newValue });
+        onChange({ value: null, entity: [newValue] });
     };
 
+    const handleChangeEntityValue = ({ role: newRole, group: newGroup }) => {
+        onChange({
+            role: newRole || newRole === '' ? [newRole] : null,
+            group: newGroup || newGroup === '' ? [newGroup] : null,
+        });
+    };
+
+    const getValueFromArray = arrayValue => (Array.isArray(arrayValue) ? arrayValue[0] : null);
+
     const renderSelectEntitiy = () => (
-        <>
-            <Dropdown
-                key={`${!value ? 'empty-' : ''}entity-dropdown-${value}`}
-                disabled={!canEdit}
+        <div className='entity-selector-container'>
+            <EntityDropdown
+                entity={entity ? { entity: entity[0] } : null}
                 allowAdditions
-                search
-                data-cy='entity-value-dropdown'
-                className='extraction-dropdown entity'
-                selection
-                clearable
-                placeholder='select an entity'
-                options={entityOptions}
-                value={entity}
+                onAddItem={handleChangeEntity}
                 onChange={handleChangeEntity}
             />
-        </>
+            <EntityValueEditor
+                entity={{
+                    role: getValueFromArray(role),
+                    group: getValueFromArray(group),
+                }}
+                onChange={handleChangeEntityValue}
+                disallowValueEditing
+            />
+        </div>
     );
 
-    const rederCategoricalDropdown = () => {
+    const renderCategoricalDropdown = () => {
         const { categories } = slot;
         return (
             <Dropdown
@@ -145,7 +143,7 @@ const ExtractionItem = (props) => {
     const renderSlotValue = () => {
         switch (slot.type) {
         case 'categorical':
-            return rederCategoricalDropdown();
+            return renderCategoricalDropdown();
         case 'bool':
             return renderBoolDropdown();
         case 'text':
@@ -172,6 +170,7 @@ const ExtractionItem = (props) => {
                 value={intentCondition}
                 onChange={handleIntentConditionChange}
             />
+            <br />
             {intentCondition && (
                 <SequenceSelector
                     sequence={(intentCondition === 'include' ? intent : notIntent) || []}
@@ -184,39 +183,41 @@ const ExtractionItem = (props) => {
                     bordered
                     width={12}
                     enableExclusions={false}
+                    direction='left'
                 />
             )}
         </div>
     );
 
     const renderValueFromIntent = () => (
-        <div>
+        <div className='value-from-intent'>
             {renderIntentSelect()}
-            <span>the value is</span>
+            <span>Then the value is</span>
             {renderSlotValue()}
         </div>
     );
+
     return (
-        <List.Item className={`${canEdit ? '' : 'read-only'}`} data-cy='extraction-item-container'>
-            <div>
-                {index !== 0 && <Divider horizontal className='extraction-item-divider'>OR</Divider>}
-                <div className='extraction-option-buttons'>
-                    {canEdit && <IconButton icon='trash' color='grey' onClick={() => onDelete(index)} />}
-                </div>
-                <span>
-                    Get the slot value:
+        <List.Item className={`extraction-item-container ${canEdit ? '' : 'read-only'}`} data-cy='extraction-item-container'>
+            {index !== 0 && <Divider horizontal className='extraction-item-divider'>OR</Divider>}
+            <div className='extraction-option-buttons'>
+                {canEdit && <IconButton icon='trash' color='grey' onClick={() => onDelete(index)} />}
+            </div>
+            <div className={`extraction-line ${type || 'from_text'}`}>
+                <span className='slot-value-from'>
+                    Get the slot value
                 </span>
                 <Dropdown
                     disabled={!canEdit}
                     data-cy='extraction-source-dropdown'
                     className='extraction-dropdown'
-                    selection
+                    inline
                     options={[
-                        { value: 'from_text', text: 'From the user message' },
-                        { value: 'from_intent', text: 'Conditionally on the intent' },
-                        { value: 'from_entity', text: 'From the entity' },
+                        { value: 'from_text', text: 'from the user message' },
+                        { value: 'from_intent', text: 'conditionally on the intent' },
+                        { value: 'from_entity', text: 'from the entity' },
                     ]}
-                    value={type || 'from_entity'}
+                    value={type || 'from_text'}
                     onChange={handleValueSourceChange}
                 />
                 {type === 'from_intent' && renderValueFromIntent()}
@@ -228,10 +229,8 @@ const ExtractionItem = (props) => {
 };
 
 ExtractionItem.propTypes = {
-    intents: PropTypes.array.isRequired,
     slotFilling: PropTypes.object,
     onChange: PropTypes.func.isRequired,
-    entities: PropTypes.array,
     slot: PropTypes.object,
     index: PropTypes.number.isRequired,
     onDelete: PropTypes.func.isRequired,
@@ -240,7 +239,6 @@ ExtractionItem.propTypes = {
 
 ExtractionItem.defaultProps = {
     slotFilling: {},
-    entities: [],
     slot: {},
 };
 

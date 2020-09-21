@@ -5,19 +5,30 @@ import PropTypes from 'prop-types';
 
 import { defaultTemplate } from '../../../lib/botResponse.utils';
 import { ProjectContext } from '../../layouts/context';
-import { can } from '../../../api/roles/roles';
+import { can } from '../../../lib/scopes';
 
 const ChangeResponseType = (props) => {
-    const { name, currentResponseType, projectId } = props;
+    const {
+        name, currentResponseType, projectId,
+    } = props;
     const [selectedType, setSelectedType] = useState();
 
     const { upsertResponse } = useContext(ProjectContext);
+
+    const options = [
+        { value: 'TextPayload', text: 'text' },
+        { value: 'QuickRepliesPayload', text: 'quick reply' },
+        { value: 'TextWithButtonsPayload', text: 'buttons' },
+        { value: 'CarouselPayload', text: 'carousel' },
+        { value: 'CustomPayload', text: 'custom' },
+    ];
+    
     const handleChangeResponseType = () => {
         upsertResponse(name, { payload: defaultTemplate(selectedType) }, 0);
         setSelectedType(null);
     };
 
-    const handleSelectType = (e, { value }) => {
+    const handleSelectType = (value) => {
         if (value === currentResponseType) return;
         setSelectedType(value);
     };
@@ -32,14 +43,18 @@ const ChangeResponseType = (props) => {
                 className='change-response-type'
                 text='Change response type'
                 onChange={handleSelectType}
-                options={[
-                    { value: 'TextPayload', text: 'text' },
-                    { value: 'QuickRepliesPayload', text: 'quick reply' },
-                    { value: 'TextWithButtonsPayload', text: 'buttons' },
-                    { value: 'CarouselPayload', text: 'carousel' },
-                    { value: 'CustomPayload', text: 'custom' },
-                ]}
-            />
+            >
+                <Dropdown.Menu>
+                    {options.map(option => (
+                        <Dropdown.Item
+                            onClick={() => handleSelectType(option.value)}
+                            active={currentResponseType === option.value}
+                        >
+                            {option.text}
+                        </Dropdown.Item>
+                    ))}
+                </Dropdown.Menu>
+            </Dropdown>
             <Confirm
                 open={!!selectedType}
                 header='Warning!'

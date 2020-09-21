@@ -41,6 +41,7 @@ describe('story permissions', function() {
         cy.dataCy('single-story-editor').first().trigger('mouseover');
         cy.dataCy('icon-trash').should('not.exist');
         cy.dataCy('icon-add').should('not.exist');
+        cy.dataCy('add-item-to-group').should('not.exist');
         cy.dataCy('add-item').should('have.class', 'disabled');
         cy.get('.item-actions').children().should('have.length', 0);
         cy.get('.item-name').should('have.class', 'uneditable');
@@ -104,18 +105,5 @@ describe('story permissions', function() {
         cy.dataCy('cancel-nlu-changes').should('not.exist');
         cy.dataCy('example-text-editor-input').click().type('I will probably go to costco{enter}');
         cy.dataCy('example-text-editor-input').should('not.have.value', '');
-    });
-    it('should not be able to add a form', () => {
-        cy.visit('project/bf/stories');
-        cy.selectForm('example_form');
-        // the top level of the form is disabled so if one field is disabled they all are
-        cy.dataCy('form-name-field').should('have.class', 'disabled');
-        cy.selectFormSlot('test');
-        cy.dataCy('form-top-menu-item').contains('Extraction').click();
-        cy.dataCy('add-condition').should('not.exist');
-        // all editable elements are wraped in a read only container
-        cy.dataCy('extraction-item-container').should('have.class', 'read-only');
-        cy.dataCy('extraction-source-dropdown').should('have.class', 'disabled');
-        cy.dataCy('extraction-item-container').find('[data-cy=icon-trash]').should('not.exist');
     });
 });

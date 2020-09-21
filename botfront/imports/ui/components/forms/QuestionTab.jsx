@@ -14,7 +14,7 @@ const QuestionTab = (props) => {
     const { upsertResponse } = useContext(ProjectContext);
 
     const handleResponseChange = (content) => {
-        upsertResponse((response && response.name) || `utter_ask_${slotName}`, content, 0);
+        upsertResponse(`utter_ask_${slotName}`, content, 0);
     };
 
     return (
@@ -24,14 +24,15 @@ const QuestionTab = (props) => {
             </Header>
             <BotResponsesContainer
                 deletable={false}
-                name={(response && response.name) || `utter_ask_${slotName}`}
+                name={`utter_ask_${slotName}`}
                 initialValue={response}
                 onChange={handleResponseChange}
                 enableEditPopup
                 enableChangeType
                 renameable={false}
             />
-            <ChangeResponseType name={(response && response.name) || `utter_ask_${slotName}`} currentType={response && response.__typename} />
+            {/* eslint-disable-next-line no-underscore-dangle */}
+            <ChangeResponseType name={`utter_ask_${slotName}`} currentType={response && response.__typename} />
         </div>
     );
 };

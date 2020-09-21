@@ -104,7 +104,11 @@ export const searchStories = async (projectId, language, search) => {
             },
         },
     ).fetch();
-    const matchedForms = await searchForms(projectId, search, responseKeys);
+    let matchedForms = [];
+    // only search for forms if we have no smart triggers
+    if (!Object.keys(flags).some(flagKey => flags[flagKey])) {
+        matchedForms = await searchForms(projectId, search, responseKeys);
+    }
     return { stories: matched, forms: matchedForms };
 };
 

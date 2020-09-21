@@ -7,26 +7,33 @@ const ButtonSelectField = (props) => {
     const {
         options,
         onChange,
-        values,
+        value,
+        optionsAreExclusive,
+        compact,
+        className,
     } = props;
 
     const renderOptionButtons = () => (options).map((optionParams) => {
-        const { value, text, description } = optionParams;
+        const { value: buttonValue, text, description } = optionParams;
         return (
             <Popup
-                key={value}
+                key={buttonValue}
                 inverted
                 disabled={!description}
                 trigger={(
                     <Button
                         className='option-button'
-                        active={values[value]}
+                        active={optionsAreExclusive ? value === buttonValue : value[buttonValue]}
                         onClick={(e) => {
                             e.preventDefault();
-                            onChange(value, !values[value]);
+                            if (optionsAreExclusive) {
+                                onChange(buttonValue);
+                                return;
+                            }
+                            onChange(buttonValue, !value[buttonValue]);
                         }}
                     >
-                        {text || value}
+                        {text || buttonValue}
                     </Button>
                 )}
                 content={description}
@@ -36,7 +43,8 @@ const ButtonSelectField = (props) => {
     return (
         <Button.Group
             basic
-            className='options-button-group'
+            compact={compact}
+            className={`options-button-group ${className}`}
         >
             {renderOptionButtons()}
         </Button.Group>
@@ -47,11 +55,17 @@ const ButtonSelectField = (props) => {
 ButtonSelectField.propTypes = {
     options: PropTypes.array.isRequired,
     onChange: PropTypes.func.isRequired,
-    values: PropTypes.any,
+    value: PropTypes.any,
+    optionsAreExclusive: PropTypes.bool,
+    compact: PropTypes.bool,
+    className: PropTypes.string,
 };
 
 ButtonSelectField.defaultProps = {
-    values: {},
+    value: {},
+    optionsAreExclusive: false,
+    compact: false,
+    className: '',
 };
 
 export default ButtonSelectField;

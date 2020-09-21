@@ -1,9 +1,9 @@
 import uuidv4 from 'uuid/v4';
 import Forms from '../forms.model';
+import BotResponses from '../../botResponses/botResponses.model';
 import FormResults from '../form_results.model';
 import { StoryGroups } from '../../../storyGroups/storyGroups.collection';
 import { Slots } from '../../../slots/slots.collection';
-import { Projects } from '../../../project/project.collection';
 import { auditLogIfOnServer } from '../../../../lib/utils';
 import { combineSearches } from '../../story/mongo/stories';
 
@@ -14,8 +14,11 @@ export const getForms = async (projectId, ids = null) => {
 };
 
 export const deleteForms = async ({ projectId, ids }) => {
-    Projects.update({ _id: projectId }, { $pull: { storyGroups: { $in: ids } } });
     const forms = await Forms.find({ projectId, _id: { $in: ids } }).lean();
+    await Promise.all(forms.map(form => StoryGroups.update(
+        { _id: form.groupId },
+        { $pull: { children: form._id } },
+    )));
     const response = await Forms.remove({ projectId, _id: { $in: ids } }).exec();
     if (response.ok) return forms;
     return [];
@@ -41,28 +44,139 @@ const addNewSlots = async (projectId, slots, user) => {
     });
 };
 
+// returns array of slotnames in other forms than the one passed.
+const getSlotsInOtherForms = async (formId, projectId) => {
+    const forms = await getForms(projectId);
+    const otherForms = forms.filter(form => form._id !== formId);
+    const slotsInOtherForms = [];
+    otherForms.forEach((form) => {
+        // eslint-disable-next-line no-param-reassign
+        if (!form.slots) form.slots = [];
+        form.slots.forEach(slot => slotsInOtherForms.push(slot.name));
+    });
+    return slotsInOtherForms;
+};
+
+export const deleteUnusedSlots = async (formId, projectId, newSlots, user) => {
+    const previousForm = await Forms.findOne({ _id: formId }).lean();
+    const newSlotNames = newSlots.map(({ name }) => name);
+    const slotsInOtherForms = await getSlotsInOtherForms(formId, projectId);
+    if (!previousForm) return;
+    const slotsToRemove = previousForm.slots.reduce((acc, { name }) => {
+        if (!newSlotNames.includes(name) && !slotsInOtherForms.some(slot => slot === name)) {
+            return [...acc, name];
+        }
+        return acc;
+    }, []);
+
+    const removedSlots = Slots.find({
+        projectId, name: { $in: slotsToRemove }, type: 'unfeaturized',
+    }).fetch();
+    Slots.remove({
+        projectId, name: { $in: slotsToRemove }, type: 'unfeaturized',
+    });
+    removedSlots.forEach((slot) => {
+        auditLogIfOnServer('Deleted slot', {
+            resId: slot._id,
+            user,
+            projectId,
+            type: 'deleted',
+            operation: 'slots.deleted',
+            before: { slot },
+            resType: 'slots',
+        });
+    });
+
+    const responseKeys = [];
+    removedSlots.forEach(({ name }) => {
+        responseKeys.push(
+            `utter_ask_${name}`,
+            `utter_valid_${name}`,
+            `utter_invalid_${name}`,
+        );
+    });
+    const responseQuery = { projectId, key: { $in: responseKeys } };
+    const removedResponses = await BotResponses.find(responseQuery).lean();
+    await BotResponses.deleteMany(responseQuery).exec();
+    removedResponses.forEach((response) => {
+        auditLogIfOnServer('Deleted response', {
+            resId: response._id,
+            user,
+            projectId,
+            type: 'deleted',
+            operation: 'response-deleted',
+            before: { response },
+            resType: 'response',
+        });
+    });
+};
+
+const checkNewAndDuplicateName = async (_id, name) => {
+    const idExists = await Forms.findOne({ _id }).lean();
+    const nameExists = await Forms.findOne({ name }).lean();
+    return !!nameExists && !idExists;
+};
+
+const getSafeFormName = async (projectId, originalName) => {
+    const basicName = originalName.replace(/_form*/, '');
+    const formsIncludingName = await Forms.find({ name: { $regex: basicName }, projectId }).lean();
+    const formNames = (formsIncludingName || []).map(({ name }) => name);
+
+    let safeName = basicName;
+    let index = 1;
+    while (formNames.includes(`${safeName}_form`)) {
+        safeName = `${basicName}_${index}`;
+        index += 1;
+    }
+    return `${safeName}_form`;
+};
+
 export const upsertForm = async (data, user) => {
-    const { projectId, _id, ...update } = data.form;
-    
-    const query = { ...(_id ? { _id } : {}), projectId, ...(!_id ? { name: update.name } : {}) };
+    const {
+        projectId, _id, groupName, ...update
+    } = data.form;
+    let chartSlots = [];
+    if (update.graph_elements) {
+        // If we receive such an array it's a bug, don't save it!
+        if (update.graph_elements.length < 1) return { status: 'failed', value: {} };
+        chartSlots = update.graph_elements
+            .filter(elm => elm.type === 'slot')
+            .map(elm => ({
+                name: elm.data.slotName,
+                validation: elm.data.validation,
+                filling: elm.data.filling,
+                utter_on_new_valid_slot: elm.data.utter_on_new_valid_slot,
+            }));
+        update.slots = chartSlots;
+    }
+    await deleteUnusedSlots(_id, projectId, chartSlots, user);
+
+    const nonDuplicateName = update.name && (await checkNewAndDuplicateName(_id, update.name))
+        ? await getSafeFormName(projectId, update.name)
+        : update.name;
+
+    const query = { ...(_id ? { _id } : {}), projectId, ...(!_id ? { name: nonDuplicateName } : {}) };
+    const insertId = _id || uuidv4();
     const result = await Forms.findOneAndUpdate(
         query,
         {
-            $set: update,
-            ...(!_id ? { $setOnInsert: { _id: uuidv4() } } : {}),
+            $set: { ...update, ...(update.name ? { name: nonDuplicateName } : {}) },
+            ...(!_id ? { $setOnInsert: { _id: insertId } } : {}),
         },
         { new: true, upsert: true, rawResult: true },
     ).lean();
+
     const { lastErrorObject: { upserted } = {}, ok, value = {} } = result;
-    const $position = update.pinned
-        ? 0
-        : StoryGroups.find({ projectId, pinned: true }).count()
-          + (await Forms.countDocuments({ projectId, pinned: true }));
-    Projects.update(
-        { _id: projectId },
-        { $push: { storyGroups: { $each: [upserted], $position } } },
-    );
-    addNewSlots(projectId, update.slots, user);
+    if (upserted) {
+        StoryGroups.update(
+            { _id: update.groupId },
+            {
+                $push: { children: { $each: [_id || insertId], $position: 0 } },
+                $set: { isExpanded: true },
+            },
+        );
+    }
+    addNewSlots(projectId, chartSlots, user);
     const status = !ok ? 'failed' : upserted ? 'inserted' : 'updated';
     return { status, value };
 };

@@ -1,10 +1,9 @@
-import React, { useContext, useMemo } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'semantic-ui-react';
 
 import { connect } from 'react-redux';
 import ExtractionItem from './ExtractionItem';
-import { ProjectContext } from '../../layouts/context';
 import { can } from '../../../lib/scopes';
 
 const ExtractionTab = (props) => {
@@ -17,10 +16,6 @@ const ExtractionTab = (props) => {
         projectId,
     } = props;
 
-    const { intents, entities } = useContext(ProjectContext);
-    const intentOptions = useMemo(() => intents.map(intentName => ({ value: intentName, text: intentName })));
-    const entityOptions = useMemo(() => entities.map(entityName => ({ value: entityName, text: entityName })));
-
     const handleAddCondition = () => {
         addCondition();
     };
@@ -28,11 +23,9 @@ const ExtractionTab = (props) => {
     const renderExtractionItem = (settings, i) => (
         <ExtractionItem
             key={`extration-item-${i}`}
-            intents={intentOptions}
             slotFilling={settings}
             index={i}
             slot={slot}
-            entities={entityOptions}
             onChange={v => onChange(v, i)}
             onDelete={deleteCondition}
             projectId={projectId}
@@ -41,7 +34,7 @@ const ExtractionTab = (props) => {
     return (
         <>
             {slotSettings.length > 0 && slotSettings.map(renderExtractionItem)}
-            {slotSettings.length === 0 && renderExtractionItem({ type: 'from_entity' }, 0)}
+            {slotSettings.length === 0 && renderExtractionItem({ type: 'from_text' }, 0)}
             {can('stories:w', projectId) && (
                 <Button
                     data-cy='add-condition'
