@@ -180,25 +180,26 @@ if (Meteor.isServer) {
         return chitChatProjectId;
     };
 
-    const filterExistent = (current, toImport, identifier, defaultsToInsert) => {
-        // identifier is a selected key to determine sameness, for example nlu example 'text'
+
+    const filterExistent = (current, toImport, identifiers, defaultsToInsert = {}) => {
         const toFilter = {};
+        identifiers.forEach((key) => { toFilter[key] = {}; });
+
         current.forEach((item) => {
-            toFilter[item[identifier]] = true;
-        }); // keep hashmap of existing items by chosen identifier
-        const addToKeys = (input, curr) => {
-            toFilter[curr[identifier]] = true;
-            return input;
-        };
-        return toImport.reduce(
-            (acc, curr) => (curr[identifier] in toFilter // if item with same identifier exists
-                ? acc // pass
-                : addToKeys(
-                    [...acc, { ...curr, ...defaultsToInsert, _id: uuidv4() }],
-                    curr,
-                )), // else add example, giving it new id, and add to hashmap
-            [],
-        );
+            identifiers.forEach((key) => {
+                toFilter[key][item[key]] = true;
+            });
+        });
+        return toImport.reduce((acc, curr) => {
+            const exists = identifiers.every(key => curr[key] in toFilter[key]);
+            if (!exists) {
+                identifiers.forEach((key) => {
+                    toFilter[key][curr[key]] = true;
+                });
+                return [...acc, { ...curr, ...defaultsToInsert, _id: uuidv4() }];
+            }
+            return acc;
+        }, []);
     };
 
     Meteor.methods({
@@ -340,6 +341,7 @@ if (Meteor.isServer) {
                 let commonExamples;
                 let entitySynonyms;
                 let fuzzyGazette;
+                let regexFeatures;
 
                 if (nluData.common_examples && nluData.common_examples.length > 0) {
                     commonExamples = nluData.common_examples.map(e => ({
@@ -347,10 +349,10 @@ if (Meteor.isServer) {
                         _id: uuidv4(),
                         metadata: { canonical: canonicalExamples.includes(e.text) },
                     }));
-                    if (overwrite) { await deleteExamples(currentExamples.map(({ _id }) => _id)); }
+                    if (overwrite) { await deleteExamples({ ids: currentExamples.map(({ _id }) => _id) }); }
                     commonExamples = overwrite
                         ? commonExamples
-                        : filterExistent(currentExamples, commonExamples, 'text');
+                        : filterExistent(currentExamples, commonExamples, ['text']);
                 }
 
                 if (nluData.entity_synonyms && nluData.entity_synonyms.length > 0) {
@@ -365,7 +367,7 @@ if (Meteor.isServer) {
                                 $each: filterExistent(
                                     currentModel.training_data.entity_synonyms,
                                     entitySynonyms,
-                                    'value',
+                                    ['value'],
                                 ),
                                 $position: 0,
                             },
@@ -388,7 +390,7 @@ if (Meteor.isServer) {
                                 $each: filterExistent(
                                     currentModel.training_data.fuzzy_gazette,
                                     fuzzyGazette,
-                                    'value',
+                                    ['value'],
                                     gazetteDefaults,
                                 ),
                                 $position: 0,
@@ -396,9 +398,23 @@ if (Meteor.isServer) {
                     };
                 }
 
+                if (nluData.regex_features) {
+                    regexFeatures = nluData.regex_features.map(regexFeature => ({
+                        ...regexFeature,
+                        _id: uuidv4(),
+                    }));
+                    regexFeatures = {
+                        'training_data.regex_features': overwrite
+                            ? regexFeatures
+                            : {
+                                $each: filterExistent(currentModel.training_data.regex_features, regexFeatures, ['regex', 'pattern']),
+                                $position: 0,
+                            },
+                    };
+                }
                 const op = overwrite
-                    ? { $set: { ...entitySynonyms, ...fuzzyGazette } }
-                    : { $push: { ...entitySynonyms, ...fuzzyGazette } };
+                    ? { $set: { ...entitySynonyms, ...fuzzyGazette, ...regexFeatures } }
+                    : { $push: { ...entitySynonyms, ...fuzzyGazette, ...regexFeatures } };
                 await insertExamples({
                     language, projectId, examples: commonExamples, options: { overwriteOnSameText: true },
                 });

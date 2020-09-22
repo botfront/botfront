@@ -76,7 +76,7 @@ export const TrainingDataSchema = new SimpleSchema({
     'regex_features.$': Object,
     'regex_features.$._id': { type: String },
     'regex_features.$.name': { type: String, regEx: /.*\S.*/ },
-    'regex_features.$.pattern': [String],
+    'regex_features.$.pattern': String,
 });
 export const NLUModelSchema = new SimpleSchema({
     name: { type: String, optional: true },

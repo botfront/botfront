@@ -364,6 +364,11 @@ const ImportRasaFiles = (props) => {
                 'rasa_nlu_data.gazette',
                 f => f.language === l.value,
             );
+            numbers[`${l.text} regex_features`] = countAcrossFiles(
+                datasetFileReader,
+                'rasa_nlu_data.regex_features',
+                f => f.language === l.value,
+            );
         });
 
         const pluralizeUnit = unit => (unit.slice(-1) === 'y' ? `${unit.slice(0, -1)}ies` : `${unit}s`);
