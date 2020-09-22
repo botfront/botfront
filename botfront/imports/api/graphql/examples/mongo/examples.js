@@ -132,7 +132,7 @@ export const insertExamples = async ({
     examples, language, projectId, options = {},
 }) => {
     if (!language || !projectId) throw new Error('Missing language or projectId.');
-    if (!examples.length) return [];
+    if (!examples || !examples.length) return [];
     const { autoAssignCanonical = true, overwriteOnSameText = false } = options;
     let preparedExamples = examples.reduce((acc, curr) => {
         checkNoEmojisInExamples(curr);

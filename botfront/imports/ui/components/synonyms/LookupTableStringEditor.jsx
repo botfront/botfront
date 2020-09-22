@@ -14,28 +14,27 @@ const LookupTableStringEditor = (props) => {
     } = props;
 
     const [inputValue, setInputValue] = useState(
-        item[listAttribute] && item[listAttribute.length] > 0
-            ? item[listAttribute][0]
+        item[listAttribute]
+            ? item[listAttribute]
             : '',
     );
 
     useEffect(() => {
-        console.log(item);
-        if (item[listAttribute] && item[listAttribute].length > 0) {
-            setInputValue(item[listAttribute][0]);
+        if (item[listAttribute]) {
+            setInputValue(item[listAttribute]);
         }
     },
     [item]);
 
     const handleTextChange = (_, { value }) => {
         setInputValue(value);
-        onEdit({ ...item, [listAttribute]: [value] });
+        onEdit({ ...item, [listAttribute]: value });
     };
 
     const handleDone = () => {
         const update = { ...item };
         if (inputValue && inputValue.length) {
-            update[listAttribute] = [inputValue];
+            update[listAttribute] = inputValue;
             onDone(update);
         } else {
             onDone(update);

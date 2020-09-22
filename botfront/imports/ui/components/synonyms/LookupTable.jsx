@@ -38,7 +38,7 @@ export default class LookupTable extends React.Component {
                 className: 'lookup-list',
                 Cell: ({ value }) => {
                     // eslint-disable-next-line no-param-reassign
-                    value[listAttribute] = sortBy(value[listAttribute]);
+                    if (multiple) value[listAttribute] = sortBy(value[listAttribute]);
                     return (
                         <div>
                             <LookupTableListEditorViewer keyAttribute={keyAttribute} listAttribute={listAttribute} entitySynonym={value} onEdit={onItemChanged} multiple={multiple} />
@@ -78,7 +78,6 @@ export default class LookupTable extends React.Component {
         const {
             keyAttribute, listAttribute, data, onItemChanged, valuePlaceholder, listPlaceholder, multiple,
         } = this.props;
-        console.log(keyAttribute);
         const headerStyle = { textAlign: 'left', fontWeight: 800, paddingBottom: '10px' };
         return (
             <Tab.Pane as='div'>

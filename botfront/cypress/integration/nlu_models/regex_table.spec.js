@@ -36,9 +36,8 @@ describe('regex features table', () => {
             .blur();
         cy.dataCy('lookup-table-row-key').should('have.text', 'test_regex_edited');
         cy.dataCy('lookup-table-row-value').should('have.text', '^[0-9]*');
-
         // delete the regex
-        cy.dataCy('icon-trash').trigger('mouseover', { force: true }).click();
+        cy.dataCy('icon-trash').click({ force: true });
         cy.dataCy('lookup-table-row-value').should('not.exist');
     });
 });

@@ -66,7 +66,9 @@ class GazetteEditor extends React.Component {
         return (
             <LookupTable
                 data={model.training_data.fuzzy_gazette}
-                header='Gazette'
+                keyHeader='Value'
+                keyAttribute='value'
+                listHeader='Gazette'
                 listAttribute='gazette'
                 extraColumns={this.extraColumns()}
                 onItemChanged={this.onItemChanged}

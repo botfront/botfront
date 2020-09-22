@@ -40,7 +40,6 @@ export default class LookupTableValueEditor extends React.Component {
     render() {
         const { placeholder, keyAttribute, autoFocus } = this.props;
         const { entitySynonym } = this.state;
-        console.log(keyAttribute);
         return (
             <Input
                 className='entity-synonym'
