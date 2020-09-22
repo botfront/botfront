@@ -6,9 +6,8 @@ describe('regex features table', () => {
         cy.login();
     });
     afterEach(() => {
-        // cy.logout();
-        // cy.deleteProject('bf');
-        Cypress.runner.stop();
+        cy.logout();
+        cy.deleteProject('bf');
     });
 
     it('should create, edit, and delete a regex in the table', () => {
