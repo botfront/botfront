@@ -135,39 +135,41 @@ export default class Filters extends React.Component {
                     onChange={this.handleTextChange}
                     value={query}
                 />
-                <Button.Group basic>
-                    <Button
-                        content={(
-                            <Icon
-                                name={`sort ${SORT_KEY_MAP[sortKey]} ${
-                                    order === 'ASC' ? 'ascending' : 'descending'
-                                }`}
-                            />
-                        )}
-                        onClick={() => this.handleOrderChange(
-                            order === 'ASC' ? 'DESC' : 'ASC',
-                        )}
-                    />
-                    <Button
-                        content={(
-                            <Dropdown
-                                onClick={() => this.setState({ sortDropdownOpen: !sortDropdownOpen })}
-                                onClose={() => this.setState({ sortDropdownOpen: false })}
-                                placeholder='Choose sort'
-                                size='tiny'
-                                open={sortDropdownOpen}
-                                onChange={this.handleSortKeyChange}
-                                value={sortKey}
-                                floating
-                                options={[
-                                    { text: 'Date', value: 'updatedAt' },
-                                    { text: 'Intent', value: 'intent' },
-                                ]}
-                            />
-                        )}
-                        onClick={() => this.setState({ sortDropdownOpen: !sortDropdownOpen })}
-                    />
-                </Button.Group>
+                {order && sortKey && (
+                    <Button.Group basic>
+                        <Button
+                            content={(
+                                <Icon
+                                    name={`sort ${SORT_KEY_MAP[sortKey]} ${
+                                        order === 'ASC' ? 'ascending' : 'descending'
+                                    }`}
+                                />
+                            )}
+                            onClick={() => this.handleOrderChange(
+                                order === 'ASC' ? 'DESC' : 'ASC',
+                            )}
+                        />
+                        <Button
+                            content={(
+                                <Dropdown
+                                    onClick={() => this.setState({ sortDropdownOpen: !sortDropdownOpen })}
+                                    onClose={() => this.setState({ sortDropdownOpen: false })}
+                                    placeholder='Choose sort'
+                                    size='tiny'
+                                    open={sortDropdownOpen}
+                                    onChange={this.handleSortKeyChange}
+                                    value={sortKey}
+                                    floating
+                                    options={[
+                                        { text: 'Date', value: 'updatedAt' },
+                                        { text: 'Intent', value: 'intent' },
+                                    ]}
+                                />
+                            )}
+                            onClick={() => this.setState({ sortDropdownOpen: !sortDropdownOpen })}
+                        />
+                    </Button.Group>
+                )}
             </div>
         );
     }

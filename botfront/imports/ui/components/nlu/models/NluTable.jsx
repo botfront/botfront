@@ -16,6 +16,7 @@ import { ExampleTextEditor } from '../../example_editor/ExampleTextEditor';
 import IntentLabel from '../common/IntentLabel';
 import { useEventListener } from '../../utils/hooks';
 import getColor from '../../../../lib/getColors';
+import { can } from '../../../../lib/scopes';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
 
 const NluTable = React.forwardRef((props, forwardedRef) => {
@@ -36,8 +37,9 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
         additionalIntentOption,
     } = props;
 
-    const { intents, entities } = useContext(ProjectContext);
+    const { intents, entities, project: { _id: projectId } } = useContext(ProjectContext);
     const [editExampleId, setEditExampleId] = useState([]);
+    const canEdit = can('nlu-data:w', projectId);
 
     const tableRef = useRef(null);
     const nluCommandBarRef = useRef(null);
@@ -68,6 +70,7 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
         return (
             <Popup
                 trigger={<div>{jsx}</div>}
+                disabled={!canEdit}
                 inverted
                 postion='left'
                 content={(
@@ -90,7 +93,7 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
                     ? { ref: singleSelectedIntentLabelRef }
                     : {})}
                 value={intent}
-                allowEditing={!canonical && !deleted}
+                allowEditing={canEdit && !canonical && !deleted}
                 allowAdditions
                 onChange={i => handleEditExample({ ...datum, intent: i })}
                 onClose={() => tableRef?.current?.focusTable()}
@@ -123,7 +126,7 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
                 value={datum}
                 onChange={handleEditExample}
                 projectId=''
-                disableEditing={canonical || deleted}
+                disableEditing={!canEdit || canonical || deleted}
                 showIntent={false}
             />,
             canonical,
@@ -138,8 +141,7 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
         return (
             <Button
                 size='mini'
-                disabled={!intent}
-                data-cy='draft-button'
+                disabled={!canEdit || !intent}
                 className='persistent draft-save-button'
                 compact
                 onClick={() => handleEditExample({
@@ -164,6 +166,7 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
             invalid,
             deleted,
         } = datum;
+        if (!canEdit) return null;
         let tooltip = <div>Mark as canonical</div>;
         if (canonical) {
             tooltip = (
@@ -398,8 +401,7 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
                         onChange={() => updateFilters({
                             ...filters,
                             onlyCanonicals: !filters.onlyCanonicals,
-                        })
-                        }
+                        })}
                         hidden={false}
                         slider
                         checked={filters.onlyCanonicals}
@@ -427,11 +429,11 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
                 data={data}
                 hasNextPage={hasNextPage}
                 loadMore={loadingExamples ? () => {} : loadMore}
-                selection={selection}
-                onChangeSelection={newSelection => setSelection(newSelection)}
+                selection={canEdit ? selection : undefined}
+                onChangeSelection={canEdit ? setSelection : undefined}
                 rowClassName={rowClassName}
             />
-            {selection.length > 1 && (
+            {canEdit && selection.length > 1 && (
                 <NluCommandBar
                     ref={nluCommandBarRef}
                     selection={selectionWithFullData}

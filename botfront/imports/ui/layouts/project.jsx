@@ -58,8 +58,8 @@ function Project(props) {
     const [intercomId, setIntercomId] = useState('');
     const [resizingChatPane, setResizingChatPane] = useState(false);
     const {
-        intents: intentsList,
-        entities: entitiesList,
+        intents: intentsList = {},
+        entities: entitiesList = {},
         refetch: refreshEntitiesAndIntents,
     } = useIntentAndEntityList({ projectId, language: workingLanguage || '' });
     const {

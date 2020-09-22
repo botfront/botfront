@@ -333,7 +333,7 @@ function Activity(props) {
     });
 
     const renderTopBar = () => (
-        <div className='side-by-side' style={{ marginBottom: '10px' }}>
+        <div className='side-by-side wrap' style={{ marginBottom: '10px' }}>
             {!!confirm && (
                 <Confirm
                     open
