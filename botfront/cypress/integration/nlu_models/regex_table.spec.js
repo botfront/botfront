@@ -6,13 +6,14 @@ describe('regex features table', () => {
         cy.login();
     });
     afterEach(() => {
-        cy.logout();
-        cy.deleteProject('bf');
+        // cy.logout();
+        // cy.deleteProject('bf');
+        Cypress.runner.stop();
     });
 
     it('should create, edit, and delete a regex in the table', () => {
         cy.visit('/project/bf/nlu/model/en');
-        
+        cy.dataCy('nlu-page').find('.item').contains('Regex').click();
         // add a regex to the table
         cy.dataCy('key-input').find('input').click();
         cy.dataCy('key-input').find('input').type('test_regex');
