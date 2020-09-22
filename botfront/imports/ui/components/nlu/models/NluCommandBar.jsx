@@ -33,6 +33,7 @@ const NluCommandBar = React.forwardRef((props, ref) => {
                             allowEditing={!selectionIncludesCanonical && !selectionIncludesDeleted}
                             onChange={intent => onSetIntent(selection.map(({ _id }) => _id), intent)}
                             onClose={onCloseIntentPopup}
+                            data-cy='intent-shortcut-popup'
                         />
                         <Popup
                             size='mini'
@@ -74,7 +75,7 @@ const NluCommandBar = React.forwardRef((props, ref) => {
                                     onClick={() => onDelete(selection.map(({ _id }) => _id))}
                                     color='grey'
                                     icon='trash'
-                                    data-cy='trash icon-trash'
+                                    data-cy='trash-shortcut'
                                 />
                             </div>
                         )}

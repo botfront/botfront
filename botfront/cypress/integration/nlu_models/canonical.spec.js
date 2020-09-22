@@ -82,4 +82,28 @@ describe('NLU canonical examples', function () {
         cy.visit('/project/bf/nlu/models');
         cy.dataCy('icon-gem').should('have.class', 'black');
     });
+
+    it('should not be possible to delete or edit a selection containing a canonical example', function () {
+        cy.visit('/project/bf/nlu/models');
+        cy.insertNluExamples('bf', 'fr', [
+            { text: 'hello', intent: 'chitchat.greet' },
+            { text: 'hi', intent: 'chitchat.greet' },
+            { text: 'hey', intent: 'chitchat.greet' },
+        ]);
+        cy.get('.row').eq(0).click().should('have.class', 'selected');
+        cy.get('body').type('{shift}', { release: false });
+        cy.get('.row').eq(2).click();
+        cy.get('.row.selected').should('have.length', 3);
+        cy.get('body').type('{shift}');
+        cy.get('.virtual-table').focus();
+        cy.dataCy('edit-intent').trigger('mouseover', { force: true });
+        cy.get('.popup').should('have.text', 'Cannot change intent as the selection contains canonicals');
+        cy.dataCy('edit-intent').trigger('mouseout', { force: true });
+        cy.dataCy('trash-shortcut').trigger('mouseover', { force: true });
+        cy.get('.popup').should('have.text', 'Cannot delete with a selection containing canonicals');
+        cy.get('body').type('d');
+        cy.get('.row.selected').should('have.length', 3);
+        cy.get('body').type('i');
+        cy.dataCy('intent-shortcut-popup').should('not.exist');
+    });
 });
