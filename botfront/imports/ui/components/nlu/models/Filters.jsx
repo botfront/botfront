@@ -3,6 +3,10 @@ import PropTypes from 'prop-types';
 import {
     Input, Dropdown, Button, Icon,
 } from 'semantic-ui-react';
+// import moment from 'moment';
+// import DatePicker from '../../common/DatePicker';
+import { ProjectContext } from '../../../layouts/context';
+// import { applyTimezoneOffset } from '../../../../lib/graphs';
 import getColor from '../../../../lib/getColors';
 
 const SORT_KEY_MAP = {
@@ -25,91 +29,39 @@ export default class Filters extends React.Component {
         return entities.map(e => ({ text: e, value: e }));
     };
 
-    handleIntentSelectorChange = (e, { value }) => {
-        const {
-            onChange,
-            filter: {
-                entities: entitiesFilter, query, sortKey, order,
-            },
-        } = this.props;
-        onChange({
-            intents: value,
-            entities: entitiesFilter,
-            query,
-            sortKey,
-            order,
-        });
+    handleIntentSelectorChange = (_, { value: intents }) => {
+        const { onChange, filter } = this.props;
+        onChange({ ...filter, intents });
     };
 
-    handleEntitiesSelectorChange = (e, { value }) => {
-        const {
-            onChange,
-            filter: {
-                intents: intentsFilter, query, sortKey, order,
-            },
-        } = this.props;
-        onChange({
-            intents: intentsFilter,
-            entities: value,
-            query,
-            sortKey,
-            order,
-        });
+    handleEntitiesSelectorChange = (_, { value: entities }) => {
+        const { onChange, filter } = this.props;
+        onChange({ ...filter, entities });
     };
 
-    handleTextChange = (e, { value: query }) => {
-        const {
-            filter: {
-                intents: intentsFilter,
-                entities: entitiesFilter,
-                sortKey,
-                order,
-            },
-            onChange,
-        } = this.props;
-        onChange({
-            query,
-            intents: intentsFilter,
-            entities: entitiesFilter,
-            sortKey,
-            order,
-        });
+    handleTextChange = (_, { value: query }) => {
+        const { filter, onChange } = this.props;
+        onChange({ ...filter, query });
     };
 
-    handleSortKeyChange = (e, { value: sortKey }) => {
-        const {
-            filter: {
-                intents: intentsFilter,
-                entities: entitiesFilter,
-                query,
-                order,
-            },
-            onChange,
-        } = this.props;
-        onChange({
-            query,
-            intents: intentsFilter,
-            entities: entitiesFilter,
-            sortKey,
-            order,
-        });
+    handleSortKeyChange = (_, { value: sortKey }) => {
+        const { onChange, filter } = this.props;
+        onChange({ ...filter, sortKey });
     };
 
-    handleorderChange = (order) => {
-        const {
-            filter: {
-                intents: intentsFilter, entities: entitiesFilter, query, sortKey,
-            },
-            onChange,
-        } = this.props;
-        onChange({
-            query,
-            intents: intentsFilter,
-            entities: entitiesFilter,
-            order,
-            sortKey,
-        });
+    handleOrderChange = (order) => {
+        const { onChange, filter } = this.props;
+        onChange({ ...filter, order });
     };
+
+    // handleCalendarChange = (...bounds) => {
+    //     const { filter, onChange } = this.props;
+    //     const { project: { timezoneOffset: tz = 0 } = {} } = this.context;
+    //     const [startDate, endDate] = bounds.map(date => moment(applyTimezoneOffset(date, tz)));
+    //     onChange({ ...filter, dateRange: { startDate, endDate } });
+    // };
+
+    static contextType = ProjectContext;
 
     render() {
         const {
@@ -119,11 +71,13 @@ export default class Filters extends React.Component {
                 query,
                 sortKey,
                 order,
+                // dateRange,
             },
             intents,
             entities,
             className,
         } = this.props;
+        // const { startDate, endDate } = dateRange || {};
         const { sortDropdownOpen } = this.state;
         const renderIntentLabel = label => ({
             color: 'purple',
@@ -135,7 +89,17 @@ export default class Filters extends React.Component {
         });
 
         return (
-            <div className={`side-by-side narrow ${className}`}>
+            <div className={`side-by-side narrow middle ${className}`}>
+                {/* {dateRange !== undefined && (
+                    <div className='date-picker' data-cy='date-picker-container'>
+                        <DatePicker
+                            startDate={startDate}
+                            endDate={endDate}
+                            onConfirm={this.handleCalendarChange}
+                            placeholder='Filter by date'
+                        />
+                    </div>
+                )} */}
                 {intents.length > 0 && (
                     <Dropdown
                         style={{ marginRight: '10px' }}
@@ -180,7 +144,7 @@ export default class Filters extends React.Component {
                                 }`}
                             />
                         )}
-                        onClick={() => this.handleorderChange(
+                        onClick={() => this.handleOrderChange(
                             order === 'ASC' ? 'DESC' : 'ASC',
                         )}
                     />
