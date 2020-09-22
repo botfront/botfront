@@ -37,8 +37,11 @@ const NluCommandBar = React.forwardRef((props, ref) => {
                         <Popup
                             size='mini'
                             inverted
-                            disabled={selectionIncludesCanonical || selectionIncludesDeleted}
-                            content='Change intent'
+                            content={(() => { // IFFE to avoid a mess with nested ternary condition
+                                if (selectionIncludesCanonical) return 'Cannot change intent as the selection contains canonicals';
+                                if (selectionIncludesDeleted) return 'Cannot change intent as the selection contains deleted examples';
+                                return 'Change intent';
+                            })()}
                             trigger={(
                                 <div>
                                     <IconButton
@@ -58,13 +61,23 @@ const NluCommandBar = React.forwardRef((props, ref) => {
                 {onDelete && (
                 <>
                     <span className='shortcut'>D</span>
-                    <IconButton
-                        size='small'
-                        disabled={selectionIncludesCanonical}
-                        onClick={() => onDelete(selection.map(({ _id }) => _id))}
-                        color='grey'
-                        icon='trash'
-                        data-cy='trash icon-trash'
+                    <Popup
+                        size='mini'
+                        inverted
+                        disabled={!selectionIncludesCanonical}
+                        content='Cannot delete with a selection containing canonicals'
+                        trigger={(
+                            <div>
+                                <IconButton
+                                    size='small'
+                                    disabled={selectionIncludesCanonical}
+                                    onClick={() => onDelete(selection.map(({ _id }) => _id))}
+                                    color='grey'
+                                    icon='trash'
+                                    data-cy='trash icon-trash'
+                                />
+                            </div>
+                        )}
                     />
                 </>
                 )}
@@ -74,8 +87,7 @@ const NluCommandBar = React.forwardRef((props, ref) => {
                         <Popup
                             size='mini'
                             inverted
-                            disabled={selectionIncludesNullIntent}
-                            content='Save'
+                            content={!selectionIncludesNullIntent ? 'Save' : 'Cannot save as some examples do not have intents'}
                             trigger={(
                                 <div>
                                     <IconButton
