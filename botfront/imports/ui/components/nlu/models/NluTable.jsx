@@ -167,7 +167,22 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
             invalid,
             deleted,
         } = datum;
-        if (!canEdit) return null;
+        if (!canEdit && canonical) {
+            return (
+                <div className='side-by-side narrow right'>
+                    <IconButton
+                        color='black'
+                        className='persistent default-cursor'
+                        basic
+                        icon='gem'
+                        size='small'
+                        data-cy='icon-gem'
+                    />
+                         
+                </div>
+            );
+        }
+
         let tooltip = <div>Mark as canonical</div>;
         if (canonical) {
             tooltip = (
