@@ -25,7 +25,10 @@ import './slot.commands';
 
 const axios = require('axios');
 
-Cypress.on('uncaught:exception', () => false);
+Cypress.on('uncaught:exception', (err, runnable) => {
+    expect(err.message).to.equal(false);
+    return false;
+});
 
 Cypress.Screenshot.defaults({
     screenshotOnRunFailure: !!JSON.parse(String(Cypress.env('SCREENSHOTS')).toLowerCase()),
