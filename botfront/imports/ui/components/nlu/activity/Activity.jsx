@@ -62,7 +62,7 @@ function Activity(props) {
     const {
         data, hasNextPage, loading, loadMore, refetch,
     } = useActivity(variables);
-    const [insertExamples] = useInsertExamples(variables);
+    const [insertExamples] = useInsertExamples(variables, false);
     const [selection, setSelection] = useState([]);
     let reinterpreting = [];
     const setReinterpreting = (v) => {

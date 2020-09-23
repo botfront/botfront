@@ -135,11 +135,11 @@ export const useSwitchCanonical = variables => useMutation(
     },
 );
 
-export const useInsertExamples = variables => useMutation(
+export const useInsertExamples = (variables, updateCache = true) => useMutation(
     INSERT_EXAMPLES,
     {
         variables,
-        update: (cache, { data: { insertExamples: insertedExamples } }) => {
+        update: updateCache ? (cache, { data: { insertExamples: insertedExamples } }) => {
             const result = cache.readQuery({ query: GET_EXAMPLES, variables });
             const { examples: { examples } } = result;
             const newExamples = [...insertedExamples, ...examples];
@@ -154,7 +154,7 @@ export const useInsertExamples = variables => useMutation(
                     },
                 },
             });
-        },
+        } : undefined,
     },
 );
 
