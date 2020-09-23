@@ -36,6 +36,7 @@ import {
     useSwitchCanonical,
     useInsertExamples,
 } from './hooks';
+import { can } from '../../../../lib/scopes';
 
 function NLUModel(props) {
     const { changeWorkingLanguage } = props;
@@ -322,10 +323,11 @@ function NLUModel(props) {
                                 menuItem: 'API',
                                 render: () => <API model={model} instance={instance} />,
                             },
-                            {
-                                menuItem: 'Chit Chat',
-                                render: () => <ChitChat model={model} />,
-                            },
+                            ...(can('nlu-data:w', projectId)
+                                ? [{
+                                    menuItem: 'Chit Chat',
+                                    render: () => <ChitChat model={model} />,
+                                }] : []),
                         ]}
                     />
                 )}
