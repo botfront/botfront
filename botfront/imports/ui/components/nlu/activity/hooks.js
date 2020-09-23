@@ -49,6 +49,7 @@ export function useActivity(variables) {
 export const useDeleteActivity = variables => useMutation(
     deleteActivityMutation,
     {
+        variables,
         update: (cache, { data: { deleteActivity: deleted } }) => {
             const result = cache.readQuery({ query: activityQuery, variables });
             const { getActivity: { activity } } = result;
@@ -67,4 +68,4 @@ export const useDeleteActivity = variables => useMutation(
     },
 );
 
-export const useUpsertActivity = () => useMutation(upsertActivityMutation);
+export const useUpsertActivity = variables => useMutation(upsertActivityMutation, { variables });
