@@ -25,38 +25,41 @@ import './slot.commands';
 
 const axios = require('axios');
 
-// Cypress.on('uncaught:exception', () => false);
+Cypress.on('uncaught:exception', (err) => {
+    console.log(err);
+    return false;
+});
 
 Cypress.Screenshot.defaults({
     screenshotOnRunFailure: !!JSON.parse(String(Cypress.env('SCREENSHOTS')).toLowerCase()),
 });
 
-switch (Cypress.env('abort_strategy')) {
-case 'run':
-    // eslint-disable-next-line no-undef
-    before(function onBeforeEach() {
-        // Skips any subsequent specs, if the run has been flagged as failed
-        cy.getCookie('has_failed_test').then((cookie) => {
-            if (cookie && typeof cookie === 'object' && cookie.value === 'true') {
-                Cypress.runner.stop();
-            }
-        });
-    });
-    /* fallthrough */
-case 'spec':
-    afterEach(function onAfterEach() {
-        // Skips all subsequent tests in a spec, and flags the whole run as failed
-        if (this.currentTest.state === 'failed') {
-            cy.setCookie('has_failed_test', 'true');
-            Cypress.runner.stop();
-        }
-    });
-    Cypress.Cookies.defaults({
-        whitelist: 'has_failed_test',
-    });
-    break;
-default:
-}
+// switch (Cypress.env('abort_strategy')) {
+// case 'run':
+//     // eslint-disable-next-line no-undef
+//     before(function onBeforeEach() {
+//         // Skips any subsequent specs, if the run has been flagged as failed
+//         cy.getCookie('has_failed_test').then((cookie) => {
+//             if (cookie && typeof cookie === 'object' && cookie.value === 'true') {
+//                 Cypress.runner.stop();
+//             }
+//         });
+//     });
+//     /* fallthrough */
+// case 'spec':
+//     afterEach(function onAfterEach() {
+//         // Skips all subsequent tests in a spec, and flags the whole run as failed
+//         if (this.currentTest.state === 'failed') {
+//             cy.setCookie('has_failed_test', 'true');
+//             Cypress.runner.stop();
+//         }
+//     });
+//     Cypress.Cookies.defaults({
+//         whitelist: 'has_failed_test',
+//     });
+//     break;
+// default:
+// }
 
 Cypress.Commands.add('login', (visit = true, email = 'test@test.com', password = 'Aaaaaaaa00') => {
     if (visit) cy.visit('/');
