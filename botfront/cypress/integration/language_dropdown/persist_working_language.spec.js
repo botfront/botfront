@@ -42,7 +42,7 @@ describe('redux working language', function() {
             { text: 'yo', intent: 'yo' },
         ]);
         // the active language in NLU should match the active language in stories
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         selectLanguage('French');
         checkLanguage('French');
         cy.dataCy('incoming-sidebar-link')

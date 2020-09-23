@@ -27,7 +27,7 @@ class Index extends React.Component {
                     const projects = Projects.find({ _id: { $in: projectIds } }, { fields: { name: 1 } }).fetch();
                     const projectsWithoutChitchat = projects.filter(({ name }) => !name.match('chitchat'));
                     if (projectsWithoutChitchat.length === 0) router.push('/404');
-                    router.push(`/project/${projectsWithoutChitchat[0]._id}/stories`);
+                    router.push(`/project/${projectsWithoutChitchat[0]._id}/dialogue`);
                 }
             });
         } else {

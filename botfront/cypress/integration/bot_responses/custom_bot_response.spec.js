@@ -55,7 +55,7 @@ describe('Bot responses', function() {
         cy.dataCy('custom-response-editor').contains('test: B').should('exist');
     });
     it('should add a custom response in the visual story editor', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.createStoryInGroup({ groupName: 'Default stories', storyName: 'myTest' });
         cy.dataCy('story-title').should('have.value', 'myTest');
 
@@ -74,7 +74,7 @@ describe('Bot responses', function() {
     });
     it('should provide the correct response template in a new language', () => {
         cy.createNLUModelProgramatically('bf', '', 'fr');
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.createStoryGroup();
         cy.createStoryInGroup();
         cy.dataCy('single-story-editor').trigger('mouseover');

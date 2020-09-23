@@ -9,7 +9,7 @@ describe('nlu editor modal tests', () => {
     };
     beforeEach(() => {
         cy.createProject('bf', 'My Project', 'en').then(() => cy.login());
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.createStoryGroup();
         cy.createStoryInGroup();
         cy.browseToStory();
@@ -22,7 +22,7 @@ describe('nlu editor modal tests', () => {
         cy.deleteProject('bf');
     });
     it('should be able to add, edit, toggle canonical and delete examples through the nlu modal', () => {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
         cy.dataCy('icon-gem').last().should('have.class', 'black');
@@ -48,7 +48,7 @@ describe('nlu editor modal tests', () => {
         cy.dataCy('utterance-text').contains('I will go to').should('exist');
     });
     it('should not be able to save changes when there is an invalid example', () => {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
         cy.dataCy('example-text-editor-input').click().type('Hello jim{enter}');
@@ -58,7 +58,7 @@ describe('nlu editor modal tests', () => {
         cy.dataCy('save-nlu').should('not.have.class', 'disabled');
     });
     it('should create multiple examples when pasting multiple lines', () => {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
         cy.dataCy('example-text-editor-input').click().fill('Hello jim\nI will go to costco').type('{enter}');
@@ -67,7 +67,7 @@ describe('nlu editor modal tests', () => {
         cy.dataCy('nlu-modification-label').contains('invalid').should('exist');
     });
     it('should show a popup on Cancel when any change has been made', () => {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
         cy.dataCy('example-text-editor-input').click().type('Hello jim{enter}');
@@ -94,7 +94,7 @@ describe('nlu editor modal tests', () => {
         cancelChanges();
     });
     it('should modify canonical', () => {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
         cy.dataCy('icon-gem').first().click({ force: true });
@@ -123,7 +123,7 @@ describe('nlu editor modal tests', () => {
 describe('auto-assingment of canonical in the nlu editor', () => {
     beforeEach(() => {
         cy.createProject('bf', 'My Project', 'en').then(() => cy.login());
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.createStoryGroup();
         cy.createStoryInGroup();
         cy.browseToStory();
@@ -137,7 +137,7 @@ describe('auto-assingment of canonical in the nlu editor', () => {
     });
     
     it('should set the first example to canonical and refresh the story editor', () => {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
         cy.dataCy('example-text-editor-input').focus();
@@ -151,7 +151,7 @@ describe('auto-assingment of canonical in the nlu editor', () => {
     });
     
     it('should set the first example to canonical and refresh the story editor', () => {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
         cy.dataCy('example-text-editor-input').click().fill('hi').type('{enter}');
@@ -168,7 +168,7 @@ describe('auto-assingment of canonical in the nlu editor', () => {
     });
     
     it('should set the first example to canonical and refresh the story editor', () => {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
         cy.dataCy('example-text-editor-input').click().fill('I will go shopping').type('{enter}');

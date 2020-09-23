@@ -99,7 +99,7 @@ describe('Bot responses', function() {
 
     it('should provide the correct response template in a new language', () => {
         cy.createNLUModelProgramatically('bf', '', 'fr');
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.createStoryGroup();
         cy.createStoryInGroup();
         cy.dataCy('single-story-editor').trigger('mouseover');
@@ -112,7 +112,7 @@ describe('Bot responses', function() {
 
     it('should be able to turn a quick reply into a textWithButtons response', () => {
         cy.createNLUModelProgramatically('bf', '', 'fr');
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.createStoryGroup();
         cy.createStoryInGroup();
         cy.dataCy('story-title').should('have.value', 'Groupo (1)');

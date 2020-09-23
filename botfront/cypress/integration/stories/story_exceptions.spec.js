@@ -2,7 +2,7 @@
 
 describe('story exceptions', function() {
     const init = () => {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.createStoryGroup({ groupName: 'Exception test group' });
         cy.createStoryInGroup({ storyName: 'Exception test story', groupName: 'Exception test group' });
         cy.browseToStory('Exception test story', 'Exception test group');
