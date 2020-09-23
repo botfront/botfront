@@ -13,7 +13,9 @@ export function generateTurns(tracker, debug = false, tzOffset = null) {
         if (type === 'user' && !!event.text) {
             // The text check here is to remove the null userUttered events that are triggered by reminders
             const example = event.parse_data;
-            const { intent = {}, text = '' } = example;
+            const { intent: intentInExample, text: textInExample } = example;
+            const intent = intentInExample || {};
+            const text = textInExample || '';
             example.intent = intent.name || null;
 
             if (text.startsWith('/')) delete example.text;
