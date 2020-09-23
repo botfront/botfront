@@ -59,7 +59,7 @@ function Project(props) {
     const [resizingChatPane, setResizingChatPane] = useState(false);
     const {
         intents: intentsList = {},
-        entities: entitiesList = {},
+        entities: entitiesList = [],
         refetch: refreshEntitiesAndIntents,
     } = useIntentAndEntityList({ projectId, language: workingLanguage || '' });
     const {
