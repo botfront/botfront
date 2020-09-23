@@ -13,7 +13,10 @@
     "viewportHeight": 900,
     "viewportWidth": 1800,
     "ignoreTestFiles":[],
-    "retries": 5,
+    "retries": {
+        "runMode": 5,
+        "openMode": 0
+    },
     "env": {
         "RASA_URL": "http://localhost:5005",
         "API_URL": "http://localhost:8080",
