@@ -153,12 +153,13 @@ const ConversationFilters = ({
                     {/* conversation type filter */}
                     <div className='conversation-filter conversation-type-buttons' data-cy='conversation-type-filter'>
                         <ToggleButtonGroup
-                            onChange={(name, value) => setFilter(name, value)}
+                            onChange={(name, value) => setFilter(name, value)
+                            }
                             options={[
                                 { text: 'User initiated', value: 'userInitiatedConversations' },
                                 { text: 'Triggered', value: 'triggeredConversations' },
                             ]}
-                            values={newFilters}
+                            value={newFilters}
                         />
                     </div>
                     {/* intents actions filter */}
