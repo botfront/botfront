@@ -105,7 +105,18 @@ jobs:
           docker build \
           -t botfront-local \
           .
+      - name: save map files from meteor build
+        run: |
+          docker run \
+          -v $(pwd)/maps:/maps \
+          --entrypoint /bin/bash \
+          botfront-local \
+          -c "cd /opt/bundle/bundle/programs && find . -name '*.map' -exec cp --parents '{}' /maps/ \;"
       - run: docker save botfront-local $(docker history -q botfront-local | awk '!/<missing>/{print}') > botfront-local.tar
+      - uses: actions/upload-artifact@v1
+        with:
+          name: source-maps
+          path: maps
       - uses: actions/upload-artifact@v1
         with:
           name: botfront-local

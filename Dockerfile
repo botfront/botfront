@@ -5,6 +5,7 @@ FROM geoffreybooth/meteor-base:1.10.1
 COPY ./botfront/package*.json $APP_SOURCE_FOLDER/
 ARG ARG_NODE_ENV=production
 ENV NODE_ENV $ARG_NODE_ENV
+ENV DISABLE_CLIENT_STATS 1
 # Increase Node memory for build
 ENV TOOL_NODE_FLAGS --max-old-space-size=4096
 
