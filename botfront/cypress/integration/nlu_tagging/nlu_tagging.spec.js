@@ -36,7 +36,6 @@ describe('nlu tagging in training data', function() {
 
     it('should be able to change an entity with a popup', function() {
         cy.visit('/project/bf/nlu/models');
-        cy.pause();
         cy.get('.row:contains(chitchat.presentation)')
             .eq(1)
             .findCy('entity-label')

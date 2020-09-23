@@ -144,6 +144,7 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
                 disabled={!canEdit || !intent}
                 className='persistent draft-save-button'
                 compact
+                data-cy='draft-button'
                 onClick={() => handleEditExample({
                     ...datum,
                     metadata: { ...datum.metadata, draft: false },
