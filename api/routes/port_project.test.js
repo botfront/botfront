@@ -7,6 +7,7 @@ chai.config.includeStack = true;
 const { Projects } = require('../models/models');
 const { allCollections } = require('./port_project');
 
+const { graphElementMigration } = require('./test_data/results');
 const dbFile = __dirname + '/test_data/db.json';
 const { projects, ...db } = JSON.parse(fs.readFileSync(dbFile, 'utf8'));
 
@@ -104,6 +105,9 @@ describe('## Import', () => {
             const storyGroup = await allCollections.storyGroups
                 .findOne({ _id: { $nin: [storyGroupId] }, name: 'two', projectId }, { _id: 1 })
                 .lean();
+            const formMigrationGroup = await allCollections.storyGroups
+                .findOne({ name: 'forms', projectId }, { _id: 1 })
+                .lean();
             const exportFileStoryGroupId = exportPayloads[1].storyGroups[0]._id;
             const checkpoint = await allCollections.stories
                 .findOne({ title: 'two-a', _id: { $ne: 'two-a' } })
@@ -137,8 +141,10 @@ describe('## Import', () => {
                         projectId: docProjectId,
                         modelId: docModelId,
                         storyGroupId: docStoryGroupId,
+                        groupId: docGroupId,
                         checkpoints: docCheckpoints,
                         children: docChildren,
+                        graph_elements: docGraphElements,
                         ...doc
                     } = fetched;
                     const {
@@ -147,17 +153,20 @@ describe('## Import', () => {
                         storyGroupId: exportFileStoryGroupId,
                         checkpoints: exportFileCheckpoints,
                         children: exportFileChildren,
+                        groupId: exportFileGroupId,
                         ...exportFileDoc
                     } = { ...exportPayloads[1][col][0] };
     
                     expect(doc).to.exist; // able to find collection
-    
                     if (col === 'models') expect(doc._id).to.be.equal(modelId); // modelId is as remembered
                     if (docModelId) expect(docModelId).to.be.equal(modelId); // modelId is as remembered
                     if (docProjectId) expect(docProjectId).to.be.equal(projectId); // projectId didn't change
                     if (docStoryGroupId) expect(docStoryGroupId).to.be.equal(storyGroupId); // storyGroupId is as remembered
                     if (docCheckpoints) expect(docCheckpoints).to.be.deep.equal(checkpoints);
-    
+                    if (docGroupId && !exportFileGroupId) { // form without graph elements and a group (they used to be top level items in the story menu)
+                        expect(docGroupId).to.equal(formMigrationGroup._id);
+                        expect(docGraphElements).to.deep.equal(graphElementMigration)
+                    }
                     delete doc._id;
                     delete exportFileDoc._id;
                     expect(JSON.parse(JSON.stringify(doc))).to.be.deep.equal(exportFileDoc); // everything else is as in backup

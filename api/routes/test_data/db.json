@@ -112,11 +112,13 @@
     "forms": [
         {
             "_id": "one",
-            "projectId": "one"
+            "projectId": "one",
+            "slots": [{ "name": "slot_one_A" }, { "name": "slot_one_B" }]
         },
         {
             "_id": "two",
-            "projectId": "two"
+            "projectId": "two",
+            "slots": [{ "name": "slot_two_A" }, { "name": "slot_two_B" }]
         }
     ],
     "formResults": [
@@ -264,7 +266,7 @@
             "updatedAt": "2019-09-10T18:10:08.431Z",
             "selected": false,
             "isExpanded": false,
-            "children": ["one-a", "one-b"]
+            "children": ["one-a", "one-b", "form_one_b"]
         },
         {
             "_id": "two",
