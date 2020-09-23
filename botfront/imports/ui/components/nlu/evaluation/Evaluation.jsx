@@ -237,7 +237,7 @@ const EvaluationContainer = withTracker((props) => {
         projectId,
         workingLanguage,
         validationRender,
-        evaluation: Evaluations.findOne(),
+        evaluation: Evaluations.findOne({ projectId, language: workingLanguage }),
         loading: !evalsHandler.ready(),
     };
 })(Evaluation);
