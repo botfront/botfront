@@ -41,7 +41,7 @@ case 'run':
         // Skips any subsequent specs, if the run has been flagged as failed
         cy.getCookie('has_failed_test').then((cookie) => {
             if (cookie && typeof cookie === 'object' && cookie.value === 'true') {
-                // Cypress.runner.stop();
+                Cypress.runner.stop();
             }
         });
     });
@@ -49,7 +49,7 @@ case 'run':
 case 'spec':
     afterEach(function onAfterEach() {
         // Skips all subsequent tests in a spec, and flags the whole run as failed
-        if (this.currentTest.state === 'failed') {
+        if (this && this.currentTest && this.currentTest.state === 'failed') {
             cy.setCookie('has_failed_test', 'true');
             Cypress.runner.stop();
         }
