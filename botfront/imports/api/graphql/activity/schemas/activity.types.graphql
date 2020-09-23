@@ -22,8 +22,6 @@ type Mutation {
 
 input ActivityInput {
   _id: String
-  projectId: String
-  language: String
   text: String
   intent: String
   entities: [EntityInput]

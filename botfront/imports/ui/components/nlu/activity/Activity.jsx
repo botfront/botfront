@@ -76,7 +76,11 @@ function Activity(props) {
         if (refetch) refetch();
     }, [refetch, projectId, language, sortType]);
 
-    const [upsertActivity] = useUpsertActivity();
+    const [upsertActivity] = useUpsertActivity({
+        projectId,
+        language,
+        ...getSortFunction(),
+    });
     const [deleteActivity] = useDeleteActivity({
         projectId,
         language,
@@ -112,7 +116,7 @@ function Activity(props) {
         );
         insertExamples({ variables: { examples } });
         const result = await deleteActivity({
-            variables: { projectId, language, ids: utterances.map(u => u._id) },
+            variables: { ids: utterances.map(u => u._id) },
         });
         mutationCallback(fallbackUtterance, 'deleteActivity')(result);
     };
@@ -124,7 +128,7 @@ function Activity(props) {
                 .map(d1 => ({ ...d1, ...newData.find(d2 => d2._id === d1._id) })),
         );
         return upsertActivity({
-            variables: { projectId, language, data: dataUpdated },
+            variables: { data: dataUpdated },
             optimisticResponse: {
                 __typename: 'Mutation',
                 upsertActivity: dataUpdated.map(d => ({
@@ -140,7 +144,7 @@ function Activity(props) {
         const fallbackUtterance = getFallbackUtterance(ids);
         const message = `Delete ${utterances.length} incoming utterances?`;
         const action = () => deleteActivity({
-            variables: { projectId, language, ids },
+            variables: { ids },
             optimisticResponse: {
                 __typename: 'Mutation',
                 deleteActivity: ids.map(_id => ({ __typename: 'Activity', _id })),
