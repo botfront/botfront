@@ -52,15 +52,17 @@ function Activity(props) {
         instance,
     } = useContext(ProjectContext);
 
-    const {
-        data, hasNextPage, loading, loadMore, refetch,
-    } = useActivity({
+    const variables = useMemo(() => ({
         projectId,
         language,
         pageSize: 20,
         ...getSortFunction(),
-    });
-    const [insertExamples] = useInsertExamples({ projectId, language });
+    }), [projectId, language, getSortFunction()]);
+
+    const {
+        data, hasNextPage, loading, loadMore, refetch,
+    } = useActivity(variables);
+    const [insertExamples] = useInsertExamples(variables);
     const [selection, setSelection] = useState([]);
     let reinterpreting = [];
     const setReinterpreting = (v) => {
@@ -76,16 +78,8 @@ function Activity(props) {
         if (refetch) refetch();
     }, [refetch, projectId, language, sortType]);
 
-    const [upsertActivity] = useUpsertActivity({
-        projectId,
-        language,
-        ...getSortFunction(),
-    });
-    const [deleteActivity] = useDeleteActivity({
-        projectId,
-        language,
-        ...getSortFunction(),
-    });
+    const [upsertActivity] = useUpsertActivity(variables);
+    const [deleteActivity] = useDeleteActivity(variables);
 
     const isUtteranceOutdated = ({ updatedAt }) => moment(updatedAt).isBefore(moment(endTime));
     const isUtteranceReinterpreting = ({ _id }) => reinterpreting.includes(_id);
