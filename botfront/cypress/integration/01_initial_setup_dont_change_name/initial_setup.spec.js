@@ -18,7 +18,7 @@ describe('intial setup', function () {
 
     it('Should create projects when completing the initial setup', () => {
         cy.visit('/');
-        cy.url().should('equal', 'http://localhost:3000/setup/welcome');
+        cy.url().should('include', '/setup/welcome');
         cy.get('[data-cy=start-setup]').click();
 
         cy.get('#uniforms-0001-0001').type('Testing');
