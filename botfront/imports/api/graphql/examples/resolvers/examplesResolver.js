@@ -7,6 +7,7 @@ import {
     switchCanonical,
 } from '../mongo/examples.js';
 import { getIntentStatistics } from '../mongo/statistics';
+import { checkIfCan } from '../../../../lib/scopes';
 
 const { PubSub, withFilter } = require('apollo-server-express');
 
@@ -20,14 +21,16 @@ export const publishIntentsOrEntitiesChanged = (projectId, language) => pubsub.p
 
 export default {
     Query: {
-        async examples(_, { matchEntityName, countOnly, ...args }, __) {
+        async examples(_, { matchEntityName, countOnly, ...args }, context) {
+            checkIfCan('nlu-data:r', args.projectId, context.user._id);
             return getExamples({ ...args, options: { matchEntityName, countOnly } });
         },
-        async listIntentsAndEntities(_, args, __) {
+        async listIntentsAndEntities(_, args) {
             return listIntentsAndEntities(args);
         },
-        getIntentStatistics: async (_root, args) => {
+        getIntentStatistics: async (_root, args, context) => {
             const { projectId, language } = args;
+            checkIfCan('nlu-data:r', projectId, context.user._id);
             const stats = await getIntentStatistics({ projectId });
             return stats.map(({ intent, languages }) => ({
                 intent,
@@ -46,13 +49,15 @@ export default {
         },
     },
     Mutation: {
-        async updateExamples(_, args, __) {
+        async updateExamples(_, args, context) {
+            checkIfCan('nlu-data:w', args.projectId, context.user._id);
             const response = await updateExamples(args);
             const { projectId, language } = args;
             publishIntentsOrEntitiesChanged(projectId, language);
             return response;
         },
-        async insertExamples(_, args, __) {
+        async insertExamples(_, args, context) {
+            checkIfCan('nlu-data:w', args.projectId, context.user._id);
             const response = await insertExamples(args);
             if ((response || []).length > 0) {
                 const { projectId, language } = args;
@@ -60,11 +65,13 @@ export default {
             }
             return response;
         },
-        async deleteExamples(_, args, __) {
+        async deleteExamples(_, args, context) {
+            checkIfCan('nlu-data:w', args.projectId, context.user._id);
             const response = await deleteExamples(args);
             return response;
         },
-        async switchCanonical(_, args, __) {
+        async switchCanonical(_, args, context) {
+            checkIfCan('nlu-data:w', args.projectId, context.user._id);
             const response = await switchCanonical(args);
             const { projectId, language } = args;
             publishIntentsOrEntitiesChanged(projectId, language);
