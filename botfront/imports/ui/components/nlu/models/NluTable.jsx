@@ -182,7 +182,7 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
                 </div>
             );
         }
-
+        if (!canEdit) return null;
         let tooltip = <div>Mark as canonical</div>;
         if (canonical) {
             tooltip = (
