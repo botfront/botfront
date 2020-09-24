@@ -19,6 +19,17 @@ export const publishIntentsOrEntitiesChanged = (projectId, language) => pubsub.p
     { projectId, language, intentsOrEntitiesChanged: { changed: true } },
 );
 
+
+export const subscriptionFilter = (payload, variables, context) => {
+    if (
+        checkIfCan('nlu-data:r', payload.projectId, context.userId, { backupPlan: true })
+    ) {
+        return payload.projectId === variables.projectId
+        && payload.language === variables.language;
+    }
+    return false;
+};
+
 export default {
     Query: {
         async examples(_, { matchEntityName, countOnly, ...args }, context) {
@@ -43,9 +54,8 @@ export default {
     Subscription: {
         intentsOrEntitiesChanged: {
             subscribe: withFilter(
-                () => pubsub.asyncIterator([INTENTS_OR_ENTITIES_CHANGED]),
-                (payload, variables) => payload.projectId === variables.projectId
-                    && payload.language === variables.language,
+                () => pubsub.asyncIterator([INTENTS_OR_ENTITIES_CHANGED]), subscriptionFilter
+                ,
             ),
         },
     },
