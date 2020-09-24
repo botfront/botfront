@@ -21,6 +21,9 @@ const gazetteDefaults = {
     minScoreDefault: 80,
 };
 
+const getProjectIdFromModelId = modelId => NLUModels.findOne({ _id: modelId }).projectId;
+
+
 Meteor.methods({
     async 'nlu.saveExampleChanges'(projectId, language, examples) {
         checkIfCan('nlu-data:w', projectId);
@@ -71,6 +74,8 @@ Meteor.methods({
     },
 
     'nlu.upsertEntitySynonym'(modelId, item) {
+        const projectId = getProjectIdFromModelId(modelId);
+        checkIfCan('nlu-data:w', projectId);
         check(modelId, String);
         check(item, Object);
 
@@ -88,6 +93,8 @@ Meteor.methods({
     },
 
     'nlu.deleteEntitySynonym'(modelId, itemId) {
+        const projectId = getProjectIdFromModelId(modelId);
+        checkIfCan('nlu-data:w', projectId);
         check(modelId, String);
         check(itemId, String);
 
@@ -98,6 +105,8 @@ Meteor.methods({
     },
 
     'nlu.upsertEntityGazette'(modelId, item) {
+        const projectId = getProjectIdFromModelId(modelId);
+        checkIfCan('nlu-data:w', projectId);
         check(modelId, String);
         check(item, Object);
 
@@ -117,6 +126,8 @@ Meteor.methods({
     },
 
     'nlu.deleteEntityGazette'(modelId, itemId) {
+        const projectId = getProjectIdFromModelId(modelId);
+        checkIfCan('nlu-data:w', projectId);
         check(modelId, String);
         check(itemId, String);
 
@@ -161,6 +172,7 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         'nlu.insert'(projectId, language, incomingConfig = null) {
+            checkIfCan('nlu-data:w', projectId);
             check(projectId, String);
             check(language, String);
             check(incomingConfig, Match.Maybe(String));
@@ -197,6 +209,8 @@ if (Meteor.isServer) {
         },
 
         'nlu.update.general'(modelId, item) {
+            const projectId = getProjectIdFromModelId(modelId);
+            checkIfCan('nlu-data:w', projectId);
             check(item, Object);
             check(modelId, String);
 
@@ -213,6 +227,7 @@ if (Meteor.isServer) {
         },
 
         'nlu.remove'(projectId, language) {
+            checkIfCan('nlu-data:w', projectId);
             check(language, String);
             check(projectId, String);
             // check the default language of project and the language of model
@@ -244,6 +259,7 @@ if (Meteor.isServer) {
         },
 
         async 'nlu.addChitChatToTrainingData'(projectId, language, intents) {
+            checkIfCan('nlu-data:w', projectId);
             check(projectId, String);
             check(language, String);
             check(intents, [String]);
@@ -268,6 +284,7 @@ if (Meteor.isServer) {
             overwrite,
             canonicalExamples = [],
         ) {
+            checkIfCan('nlu-data:w', projectId);
             check(nluData, Object);
             check(projectId, String);
             check(language, String);
