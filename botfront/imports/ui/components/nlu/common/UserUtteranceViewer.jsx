@@ -213,6 +213,7 @@ function UserUtteranceViewer(props) {
             {...(onClick ? { onClick } : {})}
             {...{
                 onMouseLeave: (e) => {
+                    // console.log(e);
                     if (
                         Array.from(document.querySelectorAll('.popup')).some(p => p.contains(e.target))
                     ) {
@@ -274,6 +275,7 @@ function UserUtteranceViewer(props) {
             }}
             {...{
                 onMouseDown: (e) => {
+                    if (Array.from(document.querySelectorAll('.popup')).some(p => p.contains(e.target))) return;
                     setMouseDown([e.screenX, e.screenY]);
                     if (!disableEditing) e.stopPropagation();
                 },
