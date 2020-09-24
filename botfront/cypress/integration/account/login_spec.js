@@ -3,7 +3,9 @@ describe('Login', function() {
     it('Visits login', function() {
         cy.visit('/');
         cy.contains('LOGIN').click();
-        cy.url().should('be', '/');
+        cy.get('.ui.error.message').should('include.text', 'Password is required');
+        cy.get('.ui.error.message').should('include.text', 'Email is required');
+        cy.url().should('include', '/login');
     });
 
     it('Failed login with non existing account', function() {
