@@ -8,7 +8,7 @@ import { NLUModels } from '../imports/api/nlu_model/nlu_model.collection';
 import { StoryGroups } from '../imports/api/storyGroups/storyGroups.collection';
 import { aggregateEvents } from '../imports/lib/story.utils';
 import { indexBotResponse } from '../imports/api/graphql/botResponses/mongo/botResponses';
-import Examples from '../imports/api/graphql/examples/examples.model';
+import { insertExamples } from '../imports/api/graphql/examples/mongo/examples';
 import { indexStory } from '../imports/api/story/stories.index';
 import Activity from '../imports/api/graphql/activity/activity.model';
 import { Evaluations } from '../imports/api/nlu_evaluation';
@@ -344,12 +344,11 @@ Migrations.add({
     version: 11,
     up: async () => {
         const projects = await Projects.find({}, { fields: { nlu_models: 1, _id: 1 } });
-        await Activity.syncIndexes(); // remove old modelId_text_env index
         projects.forEach((project) => {
             const projectId = project._id;
             const NluModels = NLUModels.find({ _id: { $in: project.nlu_models } });
             const languages = {};
-            NluModels.forEach((nluModel) => {
+            NluModels.forEach(async (nluModel) => {
                 const {
                     language,
                     training_data: { common_examples: examples = [] },
@@ -368,8 +367,11 @@ Migrations.add({
                         _id: shortid.generate(),
                     };
                 });
-                // ignore duplicate key errors, the chitchat file actually has duplicates
-                Examples.insertMany(preparedExamples, { ordered: false });
+                await insertExamples({
+                    examples: preparedExamples,
+                    language,
+                    projectId,
+                });
             });
             // add 'languages' key to projects
             Projects.update(
@@ -394,6 +396,7 @@ Migrations.add({
                 { multi: true },
             );
         });
+        await Activity.syncIndexes(); // remove old modelId_text_env index
     },
 });
 
