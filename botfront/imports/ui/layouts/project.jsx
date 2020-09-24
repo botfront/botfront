@@ -30,7 +30,6 @@ import { Credentials } from '../../api/credentials';
 import { Instances } from '../../api/instances/instances.collection';
 import { Slots } from '../../api/slots/slots.collection';
 import 'semantic-ui-css/semantic.min.css';
-import store from '../store/store';
 import { ProjectContext } from './context';
 import { setsAreIdentical } from '../../lib/utils';
 import { INSERT_EXAMPLES } from '../components/nlu/models/graphql';
@@ -289,6 +288,7 @@ const ProjectContainer = withTracker((props) => {
     const {
         params: { project_id: projectId },
         projectId: storeProjectId,
+        workingLanguage,
         changeWorkingLanguage,
         changeProjectId,
     } = props;
@@ -334,7 +334,7 @@ const ProjectContainer = withTracker((props) => {
     const projectLanguages = ready ? (project.languages || []).map(value => ({ text: languageOptions[value].name, value })) : [];
 
     // update working language
-    if (!store.getState().settings.get('workingLanguage') && defaultLanguage) {
+    if (defaultLanguage && !project.languages.includes(workingLanguage)) {
         changeWorkingLanguage(defaultLanguage);
     }
 
