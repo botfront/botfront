@@ -25,7 +25,8 @@ export default {
             checkIfCan('nlu-data:r', args.projectId, context.user._id);
             return getExamples({ ...args, options: { matchEntityName, countOnly } });
         },
-        async listIntentsAndEntities(_, args) {
+        async listIntentsAndEntities(_, args, context) {
+            checkIfCan('nlu-data:r', args.projectId, context.user._id);
             return listIntentsAndEntities(args);
         },
         getIntentStatistics: async (_root, args, context) => {
