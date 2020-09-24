@@ -17,12 +17,14 @@ class ProjectInfo extends React.Component {
         this.state = {
             saving: false,
             value: [],
+            model: {},
         };
     }
 
     componentDidMount() {
-        const { projectLanguages } = this.context;
+        const { projectLanguages, project } = this.context;
         this.setState({ value: projectLanguages.map(l => l.value) });
+        this.setState({ model: project });
     }
 
     getOptions = () => {
@@ -97,14 +99,14 @@ class ProjectInfo extends React.Component {
     static contextType = ProjectContext;
 
     render() {
-        const { project, projectLanguages } = this.context;
-        const { saving, value } = this.state;
+        const { projectLanguages } = this.context;
+        const { saving, value, model } = this.state;
         const bridge = new SimpleSchema2Bridge(ProjectsSchema);
         return (
             <>
                 <AutoForm
                     schema={bridge}
-                    model={project}
+                    model={model}
                     onSubmit={updateProject => this.onSave(updateProject)}
                     disabled={saving}
                 >
