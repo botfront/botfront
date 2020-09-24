@@ -86,7 +86,7 @@ if (Meteor.isServer) {
     });
 
     let testUser = null;
-    describe.only('delete unused slots on form upsert', () => {
+    describe('delete unused slots on form upsert', () => {
         beforeEach(done => (async () => {
             await removeTestUser();
             await Forms.deleteMany();
