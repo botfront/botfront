@@ -29,6 +29,7 @@ describe('Bot responses', function() {
             .type('D');
         cy.dataCy('bot-response-input').contains('D').should('exist');
         cy.dataCy('icon-trash').eq(1).click();
+        cy.dataCy('bot-response-input').should('have.length', 2);
         cy.dataCy('bot-response-input').contains('A').should('exist');
         cy.dataCy('bot-response-input').contains('C').should('exist');
         cy.dataCy('bot-response-input').contains('D').should('not.exist');
