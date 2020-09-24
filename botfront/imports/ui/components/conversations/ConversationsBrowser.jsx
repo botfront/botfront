@@ -110,43 +110,38 @@ function ConversationsBrowser(props) {
         refetch();
     }
 
+    if (!trackers.length) return <Message data-cy='no-conv' info>No conversation to load</Message>;
     return (
-        <div>
-            {trackers.length > 0 ? (
-                <Grid>
-                    <Grid.Column width={4}>
-                        {pages > 1 ? (
-                            <Pagination
-                                totalPages={pages}
-                                onPageChange={(e, { activePage }) => pageChange(activePage)}
-                                activePage={page}
-                                boundaryRange={0}
-                                siblingRange={0}
-                                size='mini'
-                                firstItem='1'
-                                lastItem={`${pages}`}
-                                data-cy='pagination'
-                            />
-                        ) : <></>}
+        <Grid>
+            <Grid.Column width={5}>
+                {pages > 1 ? (
+                    <Pagination
+                        totalPages={pages}
+                        onPageChange={(e, { activePage }) => pageChange(activePage)}
+                        activePage={page}
+                        boundaryRange={0}
+                        siblingRange={0}
+                        size='mini'
+                        firstItem='1'
+                        lastItem={`${pages}`}
+                        data-cy='pagination'
+                    />
+                ) : <></>}
 
-                        <Menu pointing vertical fluid>
-                            {renderMenuItems()}
+                <Menu pointing vertical fluid className='conversation-browser'>
+                    {renderMenuItems()}
 
-                        </Menu>
-                    </Grid.Column>
-                    <Grid.Column width={12}>
-                        <ConversationViewer
-                            conversationId={activeConversationId}
-                            onDelete={deleteConversation}
-                            removeReadMark={optimisticRemoveMarker}
-                            optimisticlyRemoved={optimisticRemoveReadMarker}
-                        />
-                    </Grid.Column>
-                </Grid>
-            ) : (
-                <Message data-cy='no-conv' info>No conversation to load</Message>
-            )}
-        </div>
+                </Menu>
+            </Grid.Column>
+            <Grid.Column width={11}>
+                <ConversationViewer
+                    conversationId={activeConversationId}
+                    onDelete={deleteConversation}
+                    removeReadMark={optimisticRemoveMarker}
+                    optimisticlyRemoved={optimisticRemoveReadMarker}
+                />
+            </Grid.Column>
+        </Grid>
     );
 }
 
@@ -217,16 +212,11 @@ const ConversationsBrowserContainer = (props) => {
         });
     }
     return (
-        <div>
-            <Loading loading={loading}>
-                <Container>
-                    <ConversationsBrowser
-                        {...componentProps}
-                    />
-
-                </Container>
-            </Loading>
-        </div>
+        <Loading loading={loading}>
+            <ConversationsBrowser
+                {...componentProps}
+            />
+        </Loading>
     );
 };
 
