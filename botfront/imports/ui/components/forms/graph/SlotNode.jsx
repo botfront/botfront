@@ -34,7 +34,7 @@ const SlotNode = (props) => {
         upsertResponse(responseName, content, 0);
     };
     return (
-        <div className={`slot-node-content ${selected && slotChoiceModalOpen !== id ? 'slot-node-selected' : ''}`}>
+        <div className={`slot-node-content ${selected && slotChoiceModalOpen !== id ? 'slot-node-selected' : ''}`} data-cy={`slot-node-wrapper-${slotName}`}>
             <span className='slot-node-header' data-cy={`slot-node-${slotName}`}>{slotName}</span>
             <BotResponsesContainer
                 deletable={false}

@@ -15,6 +15,7 @@ export default function ConditionEdge({
     sourcePosition,
     targetPosition,
     source,
+    target,
     style = {},
     data = {},
     arrowHeadType,
@@ -59,6 +60,7 @@ export default function ConditionEdge({
                 strokeWidth='1'
                 fill='none'
                 fillRule='evenodd'
+                data-cy={`edge-button-${source}-${target}`}
                 transform={`translate(${edgeCenter[0] - 12}, ${edgeCenter[1] - 12})`}
                 className={`if-button ${siblingsLength === 1 && !data.condition && !shiftKey ? 'hover-show' : ''}`}
             >
@@ -93,7 +95,6 @@ export default function ConditionEdge({
                         fontSize='14'
                         fontWeight='normal'
                         fill='#fff'
-                        data-cy='edit-condition'
                         className={siblingsLength === 1 && !data.condition ? 'hover-show' : ''}
                         onClick={handleClick}
                     >
@@ -115,6 +116,7 @@ ConditionEdge.propTypes = {
     sourcePosition: PropTypes.string.isRequired,
     targetPosition: PropTypes.string.isRequired,
     source: PropTypes.string.isRequired,
+    target: PropTypes.string.isRequired,
     style: PropTypes.object,
     data: PropTypes.shape({
         condition: PropTypes.object,

@@ -97,7 +97,7 @@ export default function ConditionModal(props) {
         </div>
     );
     return (
-        <Modal open onClose={() => onClose(QbUtils.getTree(tree))} className='slot-condition-modal'>
+        <Modal open onClose={() => onClose(QbUtils.getTree(tree))} className='slot-condition-modal' data-cy='condition-modal'>
             <Modal.Header>Conditions needed to get to the next response</Modal.Header>
             <Modal.Content>
                 Use the space below to create your condition.

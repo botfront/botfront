@@ -352,7 +352,7 @@ const SlotsGraph = (props) => {
             <Checkbox
                 toggle
                 // eslint-disable-next-line jsx-a11y/label-has-for
-                label={(<label>Edge edition mode <span className='shortcut'>(Shift key)</span></label>)}
+                label={(<label data-cy='shift-mode'>Edge edition mode <span className='shortcut'>(Shift key)</span></label>)}
                 checked={shiftKey}
                 onChange={() => setShiftKey(sk => !sk)}
                 className='shift-mode-toggle'

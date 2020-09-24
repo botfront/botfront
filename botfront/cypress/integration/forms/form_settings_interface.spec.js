@@ -5,6 +5,69 @@ const catSlot = 'catSlot';
 const newFormName = 'Defaultstories_1_form';
 const description = 'this is test text';
 
+const form = {
+    _id: 'ab02fae1-6868-48bd-a83e-4c163d966bbd',
+    projectId: 'bf',
+    groupId: 'test_group_A',
+    name: 'Defaultstories_1_form',
+    pinned: false,
+    collect_in_botfront: true,
+    description: '',
+    graph_elements: [{
+        id: '1', data: { type: 'start' }, position: { x: 200, y: 200 }, type: 'start', className: 'start-node',
+    }, {
+        id: 'slot1',
+        data: {
+            type: 'slot', slotName: 'slot1', filling: [{ type: 'from_text' }], validation: null,
+        },
+        position: { x: 120, y: 350 },
+        type: 'slot',
+        className: 'slot-node',
+    }, {
+        id: 'e1-slot1', source: '1', target: 'slot1', animated: true, type: 'condition', arrowHeadType: 'arrowclosed', data: { condition: null },
+    }, {
+        id: 'oui',
+        data: {
+            type: 'slot', slotName: 'oui', filling: [{ type: 'from_text' }], validation: null,
+        },
+        position: { x: 120, y: 500 },
+        type: 'slot',
+        className: 'slot-node',
+    }, {
+        id: 'eslot1-oui',
+        source: 'slot1',
+        target: 'oui',
+        animated: true,
+        type: 'condition',
+        arrowHeadType: 'arrowclosed',
+        data: {
+            condition: {
+                id: 'ab9b9aa9-0123-4456-b89a-b174bc858dca',
+                type: 'group',
+                children1: {
+                    'b8bab9a9-cdef-4012-b456-7174bc85bad5': {
+                        type: 'rule',
+                        properties: {
+                            field: 'slot1', operator: 'is_exactly', value: ['oui'], valueSrc: ['value'], valueType: ['custom_text'],
+                        },
+                    },
+                },
+                properties: { conjunction: 'AND' },
+            },
+        },
+    }, {
+        id: 'non',
+        data: {
+            type: 'slot', slotName: 'non', filling: [{ type: 'from_text' }], validation: null,
+        },
+        position: { x: 420, y: 500 },
+        type: 'slot',
+        className: 'slot-node',
+    }, {
+        id: 'eslot1-non', source: 'slot1', target: 'non', animated: true, type: 'condition', arrowHeadType: 'arrowclosed', data: { condition: null },
+    }],
+    isExpanded: null,
+};
 
 describe('use the main form editor interface to', () => {
     beforeEach(() => {
@@ -18,7 +81,7 @@ describe('use the main form editor interface to', () => {
     });
 
     const changeResponseType = (type) => {
-        cy.dataCy('change-response-type').find('span').contains(type).click({ force: true });
+        cy.dataCy('change-response-type').find('.item').contains(type).click({ force: true });
         cy.dataCy('confirm-response-type-change').click();
     };
 
@@ -44,46 +107,50 @@ describe('use the main form editor interface to', () => {
         cy.dataCy('side-questions').should('have.class', 'checked');
     });
 
-    // it('should change the response type via the dropdown', () => {
-    //     cy.visit('project/bf/stories');
-    //     cy.meteorAddSlot('catSlot', 'categorical');
-    //     cy.createForm('bf', 'test1_form', {
-    //         slots: [catSlot],
-    //     });
-    //     cy.visit('project/bf/stories');
-    //     cy.get('.loader').should('not.exist');
-    //     cy.selectFormSlot(catSlot);
-    //     // check quick reply responses
-    //     cy.dataCy('change-response-type').click();
-    //     cy.dataCy('change-response-type').find('span').contains('quick reply').click();
-    //     cy.dataCy('confirm-response-type-change').click();
-    //     cy.dataCy('bot-response-input').find('textarea').should('exist');
-    //     cy.dataCy('button_title').should('exist');
-    //     cy.dataCy('icon-pin').should('not.have.class', 'light-green');
-    //     // check button responses
-    //     changeResponseType('buttons');
-    //     cy.dataCy('bot-response-input').find('textarea').should('exist');
-    //     cy.dataCy('button_title').should('exist');
-    //     cy.dataCy('icon-pin').should('have.class', 'light-green');
-    //     // check carousel responses
-    //     changeResponseType('carousel');
-    //     cy.dataCy('add-slide').should('exist');
-    //     cy.dataCy('image-container').should('exist');
-    //     // check custom responses
-    //     changeResponseType('custom');
-    //     cy.dataCy('edit-custom-response').click();
-    //     cy.dataCy('custom-response-editor').should('exist');
-    //     cy.escapeModal();
-    //     // check responses
-    //     changeResponseType('text');
-    //     cy.dataCy('edit-custom-response').should('not.exist');
-    //     cy.dataCy('bot-response-input').find('textarea').should('exist');
-    //     // edit response
-    //     cy.dataCy('bot-response-input').find('textarea').type('categorical slot').blur();
-    //     cy.reload();
-    //     cy.selectFormSlot(catSlot);
-    //     cy.dataCy('bot-response-input').find('textarea').should('have.text', 'categorical slot');
-    // });
+    it('should change the response type via the dropdown', () => {
+        cy.visit('project/bf/stories');
+        cy.createCustomStoryGroup('bf', 'test_group_A', 'group A');
+        cy.createForm('bf', 'test1_form', form);
+        cy.visit('project/bf/stories');
+        cy.get('.loader').should('not.exist');
+        cy.selectForm(newFormName);
+
+        cy.dataCy('slot-node-slot1').click();
+
+        // check quick reply responses
+        cy.dataCy('change-response-type').click();
+        cy.dataCy('change-response-type').find('.item').contains('quick reply').click();
+        cy.dataCy('confirm-response-type-change').click();
+        cy.dataCy('bot-response-input').find('textarea').should('exist');
+        cy.dataCy('button_title').should('exist');
+        cy.dataCy('icon-pin').should('not.have.class', 'light-green');
+        // check button responses
+        changeResponseType('buttons');
+        cy.dataCy('bot-response-input').find('textarea').should('exist');
+        cy.dataCy('button_title').should('exist');
+        cy.dataCy('icon-pin').should('have.class', 'light-green');
+        // check carousel responses
+        changeResponseType('carousel');
+        cy.dataCy('add-slide').should('exist');
+        cy.dataCy('image-container').should('exist');
+        // check custom responses
+        changeResponseType('custom');
+        cy.dataCy('edit-custom-response').click();
+        cy.dataCy('custom-response-editor').should('exist');
+        cy.escapeModal();
+        // check responses
+        changeResponseType('text');
+        cy.dataCy('edit-custom-response').should('not.exist');
+        cy.dataCy('bot-response-input').find('textarea').should('exist');
+        // edit response
+        cy.dataCy('slot-node-wrapper-slot1').find('[data-cy=bot-response-input]').find('textarea').type('categorical slot')
+            .blur();
+        cy.reload();
+        cy.get('.loader').should('not.exist');
+        cy.selectForm(newFormName);
+        cy.dataCy('slot-node-wrapper-slot1').find('[data-cy=bot-response-input]').find('textarea').should('have.text', 'categorical slot');
+    });
+
     // it('should change the response languages', () => {
     //     cy.visit('project/bf/stories');
     //     cy.createNLUModelProgramatically('bf', 'testModel', 'fr', 'multi lingual test model');
@@ -102,6 +169,7 @@ describe('use the main form editor interface to', () => {
     //     cy.dataCy('language-selector').find('span.text').contains('English').click();
     //     cy.get('[data-cy=bot-response-input] > div >textarea').should('have.value', 'test');
     // });
+    
     // it('set all slot types', () => {
     //     cy.visit('project/bf/stories');
     //     cy.importNluData('bf', 'nlu_entity_sample.json', 'en');

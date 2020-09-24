@@ -391,7 +391,7 @@ if (Meteor.isServer) {
                 }
                 const client = axios.create({
                     baseURL: instance.host,
-                    timeout: 3 * 60 * 1000,
+                    timeout: process.env.TRAINING_TIMEOUT || 0,
                 });
                 addLoggingInterceptors(client, appMethodLogger);
                 const payload = await Meteor.call(
