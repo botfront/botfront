@@ -344,6 +344,7 @@ Migrations.add({
     version: 11,
     up: async () => {
         const projects = await Projects.find({}, { fields: { nlu_models: 1, _id: 1 } });
+        await Activity.syncIndexes(); // remove old modelId_text_env index
         projects.forEach((project) => {
             const projectId = project._id;
             const NluModels = NLUModels.find({ _id: { $in: project.nlu_models } });
@@ -367,7 +368,8 @@ Migrations.add({
                         _id: shortid.generate(),
                     };
                 });
-                Examples.insertMany(preparedExamples);
+                // ignore duplicate key errors, the chitchat file actually has duplicates
+                Examples.insertMany(preparedExamples, { ordered: false });
             });
             // add 'languages' key to projects
             Projects.update(
@@ -376,7 +378,6 @@ Migrations.add({
             );
             // add 'projectId' and 'language' keys to activity and evaluation docs
             Object.keys(languages).forEach(async (language) => {
-                await Activity.syncIndexes(); // remove old modelId_text_env index
                 await Activity.updateMany(
                     { modelId: languages[language] },
                     { $set: { language, projectId } },
