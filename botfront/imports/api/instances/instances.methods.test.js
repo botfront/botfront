@@ -84,7 +84,6 @@ const testProject = {
     },
     enableSharing: false,
     disabled: false,
-    nlu_models: ['test_model'],
     updatedAt: { $date: '2020-07-24T13:51:26.698Z' },
     storyGroups: ['r4xYPj8w6MgkwjQTm'],
     training: { instanceStatus: 'notTraining' },

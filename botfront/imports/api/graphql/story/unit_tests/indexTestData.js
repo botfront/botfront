@@ -138,7 +138,6 @@ export const projectFixture = {
             'slots:\n  disambiguation_message:\n    type: unfeaturized\nactions:\n  - action_botfront_disambiguation\n  - action_botfront_disambiguation_followup\n  - action_botfront_fallback\n  - action_botfront_mapping',
     },
     disabled: false,
-    nlu_models: [enModelId, frModelId],
     updatedAt: { $date: { $numberLong: '1583521253932' } },
 };
 

@@ -57,7 +57,7 @@ if (Meteor.isServer) {
             const { failSilently } = options;
             const project = Projects.findOne(
                 { _id: projectId },
-                { fields: { nlu_models: 1 } },
+                { fields: { _id: 1 } },
             );
 
             try {

@@ -191,7 +191,7 @@ if (Meteor.isServer) {
             const modelId = NLUModels.insert({ projectId, language, config });
             Projects.update(
                 { _id: projectId },
-                { $addToSet: { nlu_models: modelId, languages: language } },
+                { $addToSet: { languages: language } },
             );
             return modelId;
         },
@@ -218,12 +218,11 @@ if (Meteor.isServer) {
             // check the default language of project and the language of model
             const projectDefaultLanguage = Projects.findOne({ _id: projectId });
             if (language !== projectDefaultLanguage.defaultLanguage) {
-                const { _id } = NLUModels.findOne({ projectId, language });
                 try {
                     NLUModels.remove({ projectId, language });
                     return Projects.update(
                         { _id: projectId },
-                        { $pull: { nlu_models: _id, languages: language } },
+                        { $pull: { languages: language } },
                     );
                 } catch (e) {
                     throw e;

@@ -120,20 +120,10 @@ const logUtterancesFromTracker = async function (projectId, events, env, convId)
             const { language } = userUtterances[0].metadata || {}; // take lang from first
             const project = await Projects.findOne(
                 { _id: projectId },
-                { nlu_models: 1, defaultLanguage: 1 },
+                { defaultLanguage: 1 },
             ).lean();
             const { defaultLanguage } = project;
             if (!language && !defaultLanguage) return;
-            const model = await mongoose.model(
-                'Model', new mongoose.Schema({ _id: String }, { strict: false }), 'nlu_models',
-            ).findOne(
-                {
-                    language: language || defaultLanguage,
-                    _id: { $in: project.nlu_models },
-                },
-                { _id: 1 },
-            ).lean();
-            if (!model) return;
             userUtterances.forEach(utterance => logUtterance(
                 utterance,
                 projectId,
