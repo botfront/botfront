@@ -7,7 +7,7 @@ import {
     switchCanonical,
 } from '../mongo/examples.js';
 import { getIntentStatistics } from '../mongo/statistics';
-import { checkIfCan } from '../../../../lib/scopes';
+import { can, checkIfCan } from '../../../../lib/scopes';
 
 const { PubSub, withFilter } = require('apollo-server-express');
 
@@ -22,7 +22,7 @@ export const publishIntentsOrEntitiesChanged = (projectId, language) => pubsub.p
 
 export const subscriptionFilter = (payload, variables, context) => {
     if (
-        checkIfCan('nlu-data:r', payload.projectId, context.userId, { backupPlan: true })
+        can('nlu-data:r', payload.projectId, context.userId)
     ) {
         return payload.projectId === variables.projectId
         && payload.language === variables.language;
