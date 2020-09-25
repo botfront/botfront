@@ -24,7 +24,7 @@ export function PageMenu(props) {
     } = props;
     const {
         project,
-        project: { _id: projectId, training: { endTime, status } = {} },
+        project: { _id: projectId, training: { endTime, status } = {} } = {},
         instance,
     } = useContext(ProjectContext);
     return (
