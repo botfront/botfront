@@ -5,7 +5,7 @@ import { useQuery, useMutation } from '@apollo/react-hooks';
 import Alert from 'react-s-alert';
 import { browserHistory, withRouter } from 'react-router';
 import {
-    Container, Grid, Icon, Menu, Message, Pagination,
+    Grid, Icon, Menu, Message, Pagination,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import { GET_CONVERSATIONS } from './queries';
@@ -15,19 +15,15 @@ import ConversationViewer from './ConversationViewer';
 import { Loading } from '../utils/Utils';
 import { updateIncomingPath } from '../incoming/incoming.utils';
 
-
 function ConversationsBrowser(props) {
     const {
-        page,
-        pages,
-        trackers,
-        activeConversationId,
-        refetch,
-        router,
+        page, pages, trackers, activeConversationId, refetch, router,
     } = props;
 
     const [deleteConv, { data }] = useMutation(DELETE_CONV);
-    const [optimisticRemoveReadMarker, setOptimisticRemoveReadMarker] = useState(new Set());
+    const [optimisticRemoveReadMarker, setOptimisticRemoveReadMarker] = useState(
+        new Set(),
+    );
 
     useEffect(() => {
         if (data && !data.delete.success) {
@@ -38,7 +34,8 @@ function ConversationsBrowser(props) {
         }
     }, [data]);
 
-    useEffect(() => { // empty the optimistic marking of read message when new data arrive
+    useEffect(() => {
+        // empty the optimistic marking of read message when new data arrive
         setOptimisticRemoveReadMarker(new Set());
     }, [trackers]);
 
@@ -57,9 +54,13 @@ function ConversationsBrowser(props) {
 
         return '';
     }
-    
+
     const goToConversation = (newPage, conversationId, replace = false) => {
-        const url = updateIncomingPath({ ...router.params, page: newPage || 1, selected_id: conversationId });
+        const url = updateIncomingPath({
+            ...router.params,
+            page: newPage || 1,
+            selected_id: conversationId,
+        });
         if (replace) return browserHistory.replace({ pathname: url });
         return browserHistory.push({ pathname: url });
     };
@@ -69,7 +70,10 @@ function ConversationsBrowser(props) {
     }
 
     function pageChange(newPage) {
-        const url = updateIncomingPath({ ...router.params, page: newPage || 1 }, 'selected_id');
+        const url = updateIncomingPath(
+            { ...router.params, page: newPage || 1 },
+            'selected_id',
+        );
         return browserHistory.push({ pathname: url });
     }
 
@@ -82,10 +86,10 @@ function ConversationsBrowser(props) {
                 onClick={handleItemClick}
                 data-cy='conversation-item'
             >
-                {optimisticRemoveReadMarker.has(t._id) ? renderIcon({ status: 'read' }) : renderIcon(t)}
-                <span style={{ fontSize: '10px' }}>
-                    {t._id}
-                </span>
+                {optimisticRemoveReadMarker.has(t._id)
+                    ? renderIcon({ status: 'read' })
+                    : renderIcon(t)}
+                <span style={{ fontSize: '10px' }}>{t._id}</span>
             </Menu.Item>
         ));
         return items;
@@ -109,9 +113,15 @@ function ConversationsBrowser(props) {
         refetch();
     }
 
-    if (!trackers.length) return <Message data-cy='no-conv' info>No conversation to load</Message>;
-    return (
-        <Grid>
+    const renderNoMessages = () => (
+        <Grid.Row>
+            <Message data-cy='no-conv' info>
+                No conversation to load
+            </Message>
+        </Grid.Row>
+    );
+    const renderBody = () => (
+        <>
             <Grid.Column width={5}>
                 {pages > 1 ? (
                     <Pagination
@@ -125,11 +135,11 @@ function ConversationsBrowser(props) {
                         lastItem={`${pages}`}
                         data-cy='pagination'
                     />
-                ) : <></>}
-
+                ) : (
+                    <></>
+                )}
                 <Menu pointing vertical fluid className='conversation-browser'>
                     {renderMenuItems()}
-
                 </Menu>
             </Grid.Column>
             <Grid.Column width={11}>
@@ -140,8 +150,10 @@ function ConversationsBrowser(props) {
                     optimisticlyRemoved={optimisticRemoveReadMarker}
                 />
             </Grid.Column>
-        </Grid>
+        </>
     );
+
+    return <Grid>{trackers.length ? renderBody() : renderNoMessages()}</Grid>;
 }
 
 ConversationsBrowser.propTypes = {
@@ -159,7 +171,6 @@ ConversationsBrowser.defaultProps = {
     pages: 1,
 };
 
-
 const ConversationsBrowserContainer = (props) => {
     const { router } = props;
     if (!router) {
@@ -173,7 +184,6 @@ const ConversationsBrowserContainer = (props) => {
         page = 1;
     }
 
-
     const {
         loading, error, data, refetch,
     } = useQuery(GET_CONVERSATIONS, {
@@ -181,19 +191,24 @@ const ConversationsBrowserContainer = (props) => {
         pollInterval: 5000,
     });
 
-
     const componentProps = {
-        page, projectId, refetch, router,
+        page,
+        projectId,
+        refetch,
+        router,
     };
 
     if (!loading && !error) {
         const { conversations, pages } = data.conversationsPage;
 
         // If for some reason the conversation is not in the current page, discard it.
-        if (!conversations.some(c => c._id === activeConversationId)) activeConversationId = null;
+        if (!conversations.some(c => c._id === activeConversationId)) { activeConversationId = null; }
         if (!activeConversationId && conversations.length) {
             const url = updateIncomingPath({
-                ...router.params, tab: 'conversations', page: page || 1, selected_id: conversations[0]._id,
+                ...router.params,
+                tab: 'conversations',
+                page: page || 1,
+                selected_id: conversations[0]._id,
             }); // tab will always be conversations if set on the converesations tab
             browserHistory.replace({ pathname: url });
         } else {
@@ -211,9 +226,7 @@ const ConversationsBrowserContainer = (props) => {
     }
     return (
         <Loading loading={loading}>
-            <ConversationsBrowser
-                {...componentProps}
-            />
+            <ConversationsBrowser {...componentProps} />
         </Loading>
     );
 };
