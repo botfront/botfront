@@ -11,7 +11,7 @@ import { Projects } from '../../../../api/project/project.collection';
 import TemplatesTable from './TemplatesTable';
 import { GET_BOT_RESPONSES } from '../queries';
 import { RESPONSES_MODIFIED, RESPONSES_DELETED } from './subscriptions';
-import { Loading } from '../../utils/Utils';
+import { Loading, PageMenu } from '../../utils/Utils';
 import { Stories } from '../../../../api/story/stories.collection';
 import { DELETE_BOT_RESPONSE } from '../mutations';
 import { ProjectContext } from '../../../layouts/context';
@@ -70,17 +70,11 @@ class Templates extends React.Component {
     );
 
     renderMenu = () => (
-        <Menu pointing secondary className='top-menu'>
-            <Menu.Item>
-                <Menu.Header as='h3'>
-                    <Icon name='comment alternate' />
-                    Bot responses
-                </Menu.Header>
-            </Menu.Item>
+        <PageMenu title='Bot responses' icon='comment alternate'>
             <Menu.Menu position='right'>
                 <Menu.Item>{this.renderAddResponse()}</Menu.Item>
             </Menu.Menu>
-        </Menu>
+        </PageMenu>
     );
 
     render() {

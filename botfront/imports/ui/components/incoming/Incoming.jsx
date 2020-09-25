@@ -5,6 +5,7 @@ import { Container, Menu } from 'semantic-ui-react';
 import { browserHistory } from 'react-router';
 
 import LanguageDropdown from '../common/LanguageDropdown';
+import { PageMenu } from '../utils/Utils';
 import Activity from '../nlu/activity/Activity';
 import ActivityInsertions from '../nlu/activity/ActivityInsertions';
 import ConversationBrowser from '../conversations/ConversationsBrowser';
@@ -64,19 +65,17 @@ export default function Incoming(props) {
 
     return (
         <>
-            <Menu borderless className='top-menu'>
-                <div className='language-container'>
-                    <Menu.Item header className='language-item'>
-                        {['conversations', 'forms'].includes(activeTab)
-                            ? null
-                            : <LanguageDropdown />
-                        }
-                    </Menu.Item>
-                </div>
-                <div className='incoming-tabs'>
+            <PageMenu>
+                <Menu.Item>
+                    {['conversations', 'forms'].includes(activeTab)
+                        ? null
+                        : <LanguageDropdown />
+                    }
+                </Menu.Item>
+                <Menu.Item>
                     {renderTabs()}
-                </div>
-            </Menu>
+                </Menu.Item>
+            </PageMenu>
             <div>
                 <Container>{renderPageContent()}</Container>
             </div>

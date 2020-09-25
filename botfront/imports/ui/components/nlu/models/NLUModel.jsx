@@ -2,17 +2,16 @@ import React, {
     useState, useCallback, useEffect, useContext, useRef, useMemo,
 } from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 import { Meteor } from 'meteor/meteor';
 import { browserHistory } from 'react-router';
 import { useTracker } from 'meteor/react-meteor-data';
 import {
-    Label, Container, Icon, Menu, Message, Tab, Popup,
+    Container, Icon, Menu, Message, Tab,
 } from 'semantic-ui-react';
 import 'react-select/dist/react-select.css';
 import { connect } from 'react-redux';
 import { debounce } from 'lodash';
-import { isTraining } from '../../../../api/nlu_model/nlu_model.utils';
+import { PageMenu } from '../../utils/Utils';
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
 import InsertNlu from '../../example_editor/InsertNLU';
 import Evaluation from '../evaluation/Evaluation';
@@ -20,7 +19,6 @@ import ChitChat from './ChitChat';
 import Synonyms from '../../synonyms/Synonyms';
 import Gazette from '../../synonyms/Gazette';
 import NLUPipeline from './settings/NLUPipeline';
-import TrainButton from '../../utils/TrainButton';
 import Statistics from './Statistics';
 import DeleteModel from './DeleteModel';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
@@ -55,7 +53,6 @@ function NLUModel(props) {
         });
     }
 
-    const { training: { status, endTime } = {} } = project;
     const { model } = useTracker(() => {
         Meteor.subscribe('nlu_models', projectId);
         return { model: NLUModels.findOne({ projectId, language: workingLanguage }) };
@@ -184,83 +181,19 @@ function NLUModel(props) {
     ];
 
     const renderTopMenu = () => (
-        <Menu borderless className='top-menu'>
+        <PageMenu withTraining>
             <Menu.Item header>
                 <LanguageDropdown handleLanguageChange={handleLanguageChange} />
             </Menu.Item>
             {topMenuItems.map(([...params]) => renderTopMenuItem(...params))}
-            <Menu.Menu position='right'>
-                <Menu.Item>
-                    {!isTraining(project) && status === 'success' && (
-                        <Popup
-                            trigger={(
-                                <Icon
-                                    size='small'
-                                    name='check'
-                                    fitted
-                                    circular
-                                    style={{ color: '#2c662d' }}
-                                />
-                            )}
-                            content={(
-                                <Label
-                                    basic
-                                    content={(
-                                        <div>
-                                            {`Trained ${moment(endTime).fromNow()}`}
-                                        </div>
-                                    )}
-                                    style={{
-                                        borderColor: '#2c662d',
-                                        color: '#2c662d',
-                                    }}
-                                />
-                            )}
-                        />
-                    )}
-                    {!isTraining(project) && status === 'failure' && (
-                        <Popup
-                            trigger={(
-                                <Icon
-                                    size='small'
-                                    name='warning'
-                                    color='red'
-                                    fitted
-                                    circular
-                                />
-                            )}
-                            content={(
-                                <Label
-                                    basic
-                                    color='red'
-                                    content={(
-                                        <div>
-                                            {`Training failed ${moment(
-                                                endTime,
-                                            ).fromNow()}`}
-                                        </div>
-                                    )}
-                                />
-                            )}
-                        />
-                    )}
-                </Menu.Item>
-                <Menu.Item>
-                    <TrainButton
-                        project={project}
-                        instance={instance}
-                        projectId={projectId}
-                    />
-                </Menu.Item>
-            </Menu.Menu>
-        </Menu>
+        </PageMenu>
     );
 
     if (!project) return null;
     if (!model) return null;
 
     return (
-        <div id='nlu-model'>
+        <>
             {renderTopMenu()}
             <Container>
                 {['Training Data', 'Evaluation'].includes(activeItem) && (
@@ -360,7 +293,7 @@ function NLUModel(props) {
                     />
                 )}
             </Container>
-        </div>
+        </>
     );
 }
 
