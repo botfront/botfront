@@ -136,10 +136,19 @@ describe('branches', function() {
             .get('textarea')
             .eq(1)
             .focus()
-            .type('xxx', { force: true });
+            .type('aaa', { force: true });
 
         cy.dataCy('branch-label').should('have.lengthOf', 2);
         cy.dataCy('branch-label').eq(1).should('have.class', 'active');
+
+
+        cy.dataCy('create-branch').click({ force: true });
+        cy.dataCy('single-story-editor').should('have.length', 3);
+        cy.dataCy('single-story-editor')
+            .get('textarea')
+            .last()
+            .focus()
+            .type('bbb', { force: true });
 
         cy.dataCy('branch-label')
             .first()
@@ -156,7 +165,11 @@ describe('branches', function() {
         cy.wait(250);
         cy.dataCy('confirm-yes')
             .click({ force: true });
-        cy.contains('xxx');
+        
+        cy.dataCy('branch-label').first().click();
+        cy.dataCy('single-story-editor').should('have.length', 2);
+        cy.dataCy('single-story-editor').first().contains('aaa');
+        cy.dataCy('single-story-editor').last().contains('bbb');
     });
 
     it('should save branch title on blur and Enter, discard on esc', function() {
