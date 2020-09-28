@@ -166,7 +166,6 @@ describe('branches', function() {
         cy.dataCy('confirm-yes')
             .click({ force: true });
         
-        cy.dataCy('branch-label').first().click();
         cy.dataCy('single-story-editor').should('have.length', 2);
         cy.dataCy('single-story-editor').first().contains('aaa');
         cy.dataCy('single-story-editor').last().contains('bbb');
