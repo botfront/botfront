@@ -217,7 +217,7 @@ describe('story tree navigation', function() {
         cy.visit('/project/bf/dialogue');
         cy.browseToStory('Groupo (1)');
         cy.dataCy('incoming-sidebar-link').click({ force: true });
-        cy.dataCy('stories-sidebar-link').click({ force: true });
+        cy.dataCy('dialogue-sidebar-link').click({ force: true });
         cy.dataCy('story-title').should('have.value', 'Groupo (1)');
     });
 });

@@ -59,7 +59,7 @@ describe('redux working language', function() {
         cy.dataCy('intent-label')
             .should('exist');
         // the language in stories should be english
-        cy.dataCy('stories-sidebar-link')
+        cy.dataCy('dialogue-sidebar-link')
             .click({ force: true });
         checkLanguage('English');
     });
