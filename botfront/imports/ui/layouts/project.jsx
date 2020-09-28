@@ -295,7 +295,7 @@ const ProjectContainer = withTracker((props) => {
     } = props;
 
     if (!Meteor.userId()) {
-        Object.keys(router.push('/login'));
+        router.push('/login');
     }
     
     if (!projectId) return browserHistory.replace({ pathname: '/404' });
