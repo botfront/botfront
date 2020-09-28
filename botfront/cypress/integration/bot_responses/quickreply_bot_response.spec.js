@@ -79,7 +79,7 @@ describe('Bot responses', function() {
         cy.dataCy('save-button').click();
 
         cy.dataCy('add-variation').click();
-
+        cy.dataCy('variation-container').should('have.length', 2);
         cy.dataCy('bot-response-input').last().click().find('textarea')
             .type('response text B');
         cy.dataCy('button_title').last().click({ force: true });
