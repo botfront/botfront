@@ -125,23 +125,24 @@ if (Meteor.isServer) {
             try {
                 // eslint-disable-next-line no-param-reassign
                 const projectBefore = Projects.findOne({ _id: item._id });
-                if (projectBefore
+                if (projectBefore && 'deploymentEnvironments' in item
                     && !isEqual(projectBefore.deploymentEnvironments, item.deploymentEnvironments)
                 ) {
                     checkIfCan('resources:w', item._id);
                 }
-                delete item.createdAt;
+                const update = item;
+                delete update.createdAt;
                 auditLog('Updated project', {
                     user: Meteor.user(),
-                    resId: item._id,
+                    resId: update._id,
                     type: 'updated',
-                    projectId: item._id,
+                    projectId: update._id,
                     operation: 'project-updated',
                     before: { project: projectBefore },
-                    after: { project: item },
+                    after: { project: update },
                     resType: 'project',
                 });
-                return Projects.update({ _id: item._id }, { $set: item });
+                return Projects.update({ _id: update._id }, { $set: update });
             } catch (e) {
                 throw formatError(e);
             }
