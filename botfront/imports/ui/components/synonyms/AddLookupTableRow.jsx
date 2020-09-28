@@ -83,7 +83,7 @@ export default class AddLookupTableRow extends React.Component {
                         <Button
                             content='Add'
                             onClick={this.onSave}
-                            className='entity-synonym-save-button'
+                            className='add-row-save-button'
                             // disabling the add button if empty field
                             data-cy='save-new-table-row'
                             disabled={

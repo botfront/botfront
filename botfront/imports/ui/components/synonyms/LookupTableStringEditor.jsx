@@ -44,7 +44,8 @@ const LookupTableStringEditor = (props) => {
     return (
         <Form data-cy='add-value'>
             <Input
-                className='entity-synonym-values'
+                fluid
+                className='lookup-table-values'
                 autoFocus={autoFocus}
                 placeholder={placeholder}
                 name='synonyms'

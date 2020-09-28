@@ -69,7 +69,7 @@ export default class LookupTableListEditor extends React.Component {
         return (
             <Form data-cy='add-value'>
                 <TextArea
-                    className='entity-synonym-values'
+                    className='lookup-table-values'
                     minRows={1}
                     maxRows={999}
                     autoFocus={autoFocus}
