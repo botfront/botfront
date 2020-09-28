@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.26.0-ee.4](https://github.com/botfront/botfront/compare/v0.26.0-ee.3...v0.26.0-ee.4) (2020-09-28)
+
+
+### Bug Fixes
+
+* broken conversation type filter ([356bd89](https://github.com/botfront/botfront/commit/356bd89c79a94d026c98a656c94a30c89d2b8998))
+
 ## [0.26.0-ee.3](https://github.com/botfront/botfront/compare/v0.26.0-ee.2...v0.26.0-ee.3) (2020-09-21)
 
 
