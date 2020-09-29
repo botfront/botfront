@@ -57,8 +57,9 @@ describe('Bot responses', function() {
     it('should create quick reply variations', function() {
         cy.createResponseFromResponseMenu('quickreply', 'test_A');
 
-        cy.dataCy('bot-response-input').click().find('textarea').type('response text deleted');
-        cy.dataCy('button_title').click({ force: true });
+        cy.dataCy('bot-response-input').click().find('textarea')
+            .type('response text deleted')
+            .blur();
         cy.dataCy('button_title').click({ force: true });
         cy.dataCy('enter-button-title').find('input').type('button deleted');
         cy.dataCy('intent-label').should('exist').click();
@@ -81,8 +82,8 @@ describe('Bot responses', function() {
         cy.dataCy('add-variation').click();
         cy.dataCy('variation-container').should('have.length', 2);
         cy.dataCy('bot-response-input').last().click().find('textarea')
-            .type('response text B');
-        cy.dataCy('button_title').last().click({ force: true });
+            .type('response text B')
+            .blur();
         cy.dataCy('button_title').last().click({ force: true });
         cy.dataCy('enter-button-title').find('input').type('button B');
         cy.dataCy('intent-label').should('exist').click();
