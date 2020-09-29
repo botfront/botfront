@@ -6,6 +6,7 @@ labels: ''
 assignees: ''
 
 ---
+⚠️ Before posting a new issue, please make sure that your issue hasn't already been resolved in another issue.
 
 **Describe the bug**
 A clear and concise description of what the bug is.
