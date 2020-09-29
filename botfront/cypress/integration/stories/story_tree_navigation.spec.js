@@ -21,6 +21,15 @@ const deleteSmartGroups = () => {
     });
 };
 
+const populateMenu = () => {
+    cy.createCustomStoryGroup('bf', 'test_group_a', 'Groupi');
+    cy.createCustomStoryGroup('bf', 'test_group_b', 'Groupo');
+    cy.createCustomStory('bf', 'test_group_a', 'test_Story_a', { title: 'Groupi (1)' });
+    cy.createCustomStory('bf', 'test_group_b', 'test_Story_b', { title: 'Groupo (1)' });
+    cy.createCustomStory('bf', 'test_group_b', 'test_Story_c', { title: 'Groupo (2)' });
+    cy.get('[data-cy=story-group-menu-item][type="story"]').should('have.length', 6);
+};
+
 describe('story tree navigation', function() {
     afterEach(function() {
         cy.logout();
@@ -30,15 +39,6 @@ describe('story tree navigation', function() {
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
         cy.visit('/project/bf/stories');
-        cy.createStoryGroup({ groupName: 'Groupi' });
-        cy.dataCy('story-group-menu-item').should('have.length', 5);
-        cy.createStoryInGroup({ groupName: 'Groupi' });
-        cy.dataCy('story-group-menu-item').should('have.length', 6);
-        cy.createStoryGroup();
-        cy.dataCy('story-group-menu-item').should('have.length', 7);
-        cy.createStoryInGroup();
-        cy.dataCy('story-group-menu-item').should('have.length', 8);
-        cy.createStoryInGroup();
     });
     
     it('should be possible to delete a story group', function() {
@@ -48,6 +48,7 @@ describe('story tree navigation', function() {
     });
 
     it('it should not be possible to delete a story group with a linking origin or destination', function() {
+        populateMenu();
         cy.linkStory('Groupo (1)', 'Greetings');
         cy.deleteStoryOrGroup('Groupo', 'story-group', false); // origin group
         cy.get('.modal').should('contain.text', 'contains links');
@@ -74,14 +75,15 @@ describe('story tree navigation', function() {
     });
 
     it('should be able to add and delete stories', function() {
-        cy.dataCy('story-group-menu-item', null, '[type="story"]').should('have.length', 6);
+        cy.dataCy('story-group-menu-item', null, '[type="story"]').should('have.length', 3);
         cy.createStoryInGroup({ groupName: 'Default stories' });
-        cy.dataCy('story-group-menu-item', null, '[type="story"]').should('have.length', 7);
+        cy.dataCy('story-group-menu-item', null, '[type="story"]').should('have.length', 4);
         cy.deleteStoryOrGroup('Default stories (4)');
-        cy.dataCy('story-group-menu-item', null, '[type="story"]').should('have.length', 6);
+        cy.dataCy('story-group-menu-item', null, '[type="story"]').should('have.length', 3);
     });
 
     it('should be able to select multiple stories and show them in the right order', function() {
+        populateMenu();
         cy.createStoryInGroup();
         cy.selectStories('Groupo (3)', 2);
         cy.dataCy('story-title').should('have.length', 2);
@@ -95,18 +97,21 @@ describe('story tree navigation', function() {
     });
 
     it('should not be able to select stories from different groups', function() {
+        populateMenu();
         cy.selectStories('Groupo (1)', 2);
         cy.dataCy('story-title').should('have.length', 1);
         cy.dataCy('story-title').eq(0).should('have.value', 'Groupi (1)');
     });
 
     it('should be able to move a single story to another group', function() {
+        populateMenu();
         cy.checkMenuItemAtIndex(2, 'Groupo (1)');
         cy.moveStoryOrGroup({ name: 'Groupo (1)' }, { name: 'Groupi' });
         cy.checkMenuItemAtIndex(4, 'Groupo (1)');
     });
 
     it('should be able to move 2 stories to another group by moving whichever of 2', function() {
+        populateMenu();
         cy.checkMenuItemAtIndex(1, 'Groupo (2)');
         cy.checkMenuItemAtIndex(2, 'Groupo (1)');
         cy.selectStories('Groupo (2)', 2);
@@ -121,6 +126,7 @@ describe('story tree navigation', function() {
     });
 
     it('should be able to move stories above or below others', function() {
+        populateMenu();
         cy.checkMenuItemAtIndex(4, 'Groupi (1)');
         cy.moveStoryOrGroup({ name: 'Groupi (1)' }, { name: 'Groupo (2)' });
         cy.checkMenuItemAtIndex(1, 'Groupi (1)');
@@ -142,6 +148,7 @@ describe('story tree navigation', function() {
     });
 
     it('should be able to move a story or group and not lose current selection', function() {
+        populateMenu();
         cy.selectStories('Groupo (2)', 2);
         cy.moveStoryOrGroup({ name: 'Groupi (1)' }, { name: 'Groupo' });
         cy.checkMenuItemAtIndex(3, 'Groupi (1)');
@@ -153,6 +160,7 @@ describe('story tree navigation', function() {
     });
 
     it('should not be able to move a sg into a sg or a story to the root', function() {
+        populateMenu();
         cy.dataCy('story-group-menu-item').then((els) => {
             const pinned = Array.from(els).filter(el => el.attributes['data-pinned'].value === 'true').length;
             cy.moveStoryOrGroup({ name: 'Groupi' }, { name: 'Groupo (2)' });
@@ -170,6 +178,7 @@ describe('story tree navigation', function() {
     });
 
     it('should always display pinned groups on top', () => {
+        populateMenu();
         insertPinnedGroup(2);
         insertPinnedGroup(1);
         deleteSmartGroups();
@@ -188,6 +197,7 @@ describe('story tree navigation', function() {
     });
 
     it('train button should have the same text on both the NLU and stories page', function() {
+        populateMenu();
         cy.dataCy('story-group-menu-item', 'Groupi').findCy('focus-story-group')
             .click({ force: true });
         cy.dataCy('focus-story-group', null, '.focused').should('have.length', 1);
@@ -203,6 +213,7 @@ describe('story tree navigation', function() {
     });
 
     it('should remember selected story', () => {
+        populateMenu();
         cy.visit('/project/bf/stories');
         cy.browseToStory('Groupo (1)');
         cy.dataCy('incoming-sidebar-link').click({ force: true });
