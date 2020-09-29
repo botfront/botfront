@@ -1,5 +1,4 @@
 /* global cy Cypress:true */
-
 describe('incoming page', function() {
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'en').then(() => {
@@ -70,5 +69,18 @@ describe('incoming page', function() {
         cy.selectOrUnselectIncomingRow('kiwi');
         cy.deleteSelectedUtterances();
         cy.get('.row').should('have.length', 1).should('contain.text', 'banana');
+    });
+
+    it('should automatically validate the utterance if there is an intent', function() {
+        cy.selectOrUnselectIncomingRow('apple');
+        cy.selectOrUnselectIncomingRow('banana');
+        cy.changeIntentOfSelectedUtterances('fruit');
+        cy.get('.virtual-table').findCy('invalidate-utterance').should('have.length', 2);
+    });
+
+    it('should not automatically validate the utterance  when there is no intent', function() {
+        cy.selectOrUnselectIncomingRow('apple');
+        cy.dataCy('remove-intent').first().click({ force: true });
+        cy.get('.virtual-table').findCy('validate-utterance').should('have.length', 3);
     });
 });
