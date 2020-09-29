@@ -63,12 +63,20 @@ describe('incoming page', function() {
         cy.selectOrUnselectIncomingRow('banana');
         cy.dataCy('activity-command-bar').should('exist').should('contain.text', '2 selected');
         cy.changeIntentOfSelectedUtterances('fruit');
-        cy.toggleValidationOfSelectedUtterances();
         cy.get('.virtual-table').findCy('invalidate-utterance').should('have.length', 2);
         cy.selectOrUnselectIncomingRow('banana');
         cy.selectOrUnselectIncomingRow('kiwi');
         cy.deleteSelectedUtterances();
         cy.get('.row').should('have.length', 1).should('contain.text', 'banana');
+    });
+
+    it('should batch validate', function() {
+        cy.selectOrUnselectIncomingRow('apple');
+        cy.dataCy('activity-command-bar').should('not.exist');
+        cy.selectOrUnselectIncomingRow('banana');
+        cy.dataCy('activity-command-bar').should('exist').should('contain.text', '2 selected');
+        cy.toggleValidationOfSelectedUtterances();
+        cy.get('.virtual-table').findCy('invalidate-utterance').should('have.length', 2);
     });
 
     it('should automatically validate the utterance if there is an intent', function() {
