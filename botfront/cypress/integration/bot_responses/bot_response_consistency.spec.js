@@ -58,6 +58,7 @@ describe('Bot responses', function() {
         cy.wait(500);
         cy.dataCy('icon-trash')
             .click({ force: true });
+        cy.dataCy('confirm-yes').click();
         cy.wait(500);
         cy.dataCy('bot-response-input').should('not.exist');
         checkResponsesDeleted();
