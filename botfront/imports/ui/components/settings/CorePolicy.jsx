@@ -1,4 +1,4 @@
-import { AutoForm, ErrorsField } from 'uniforms-semantic';
+import { NumField, AutoForm, ErrorsField } from 'uniforms-semantic';
 import { withTracker } from 'meteor/react-meteor-data';
 import 'react-s-alert/dist/s-alert-default.css';
 import { connect } from 'react-redux';
@@ -60,7 +60,8 @@ class CorePolicy extends React.Component {
                     return newModel;
                 }}
             >
-                <AceField name='policies' mode='yaml' label={null} readOnly={!can('stories:w', projectId)} />
+                <NumField data-cy='augmentation-factor' name='augmentationFactor' label='Augmentation factor' />
+                <AceField data-cy='core-policies-yaml' name='policies' mode='yaml' label={null} readOnly={!can('stories:w', projectId)} />
                 <ErrorsField />
                 {showConfirmation && (
                     <ChangesSaved
