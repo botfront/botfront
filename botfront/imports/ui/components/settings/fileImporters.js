@@ -74,7 +74,7 @@ const wipeDomain = async (projectId, existingSlots) => {
 };
 
 export const handleImportDomain = (files, {
-    projectId, fileReader: [, setFileList], setImportingState, wipeCurrent, existingSlots,
+    projectId, fileReader: [, setFileList], setImportingState, wipeCurrent, existingSlots, existingStoryGroups,
 }) => {
     if (!files.length) return;
     setImportingState(true);
@@ -93,7 +93,7 @@ export const handleImportDomain = (files, {
                 if (err) return callback(err);
                 return Promise.all([
                     handleImportResponse(responses, projectId),
-                    handleImportForms(bfForms, projectId),
+                    handleImportForms(bfForms, projectId, existingStoryGroups),
                 ]).then((res) => {
                     const messages = res.filter(r => r !== true);
                     if (messages.length) return callback({ message: messages.join('\n') });

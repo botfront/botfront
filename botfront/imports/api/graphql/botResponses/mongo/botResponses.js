@@ -4,7 +4,7 @@ import { safeLoad } from 'js-yaml';
 import BotResponses from '../botResponses.model';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { Stories } from '../../../story/stories.collection';
-import { addTemplateLanguage, modifyResponseType, parseContentType } from '../../../../lib/botResponse.utils';
+import { addTemplateLanguage, modifyResponseType } from '../../../../lib/botResponse.utils';
 import { parsePayload } from '../../../../lib/storyMd.utils';
 import { replaceStoryLines } from '../../story/mongo/stories';
 
@@ -110,12 +110,17 @@ export const upsertFullResponse = async (projectId, _id, key, newResponse) => {
 };
 
 export const createAndOverwriteResponses = async (projectId, responses) => Promise.all(
-    responses.map(({ key, _id, ...rest }) => {
+    responses.map(({ key, _id = shortid.generate(), ...rest }) => {
         const textIndex = indexBotResponse({ key, _id, ...rest });
         return BotResponses.findOneAndUpdate(
-            { projectId, key }, {
-                projectId, key, ...rest, textIndex,
-            }, { new: true, lean: true, upsert: true },
+            { projectId, key },
+            {
+                $set: {
+                    projectId, key, ...rest, textIndex,
+                },
+                $setOnInsert: { _id },
+            },
+            { new: true, lean: true, upsert: true },
         );
     }),
 );
