@@ -1,8 +1,10 @@
 import React from 'react';
 import { render } from 'react-dom';
+import PropTypes from 'prop-types';
 import {
     Router, Route, IndexRoute, browserHistory,
 } from 'react-router';
+import { withTracker } from 'meteor/react-meteor-data';
 import DocumentTitle from 'react-document-title';
 import { Meteor } from 'meteor/meteor';
 import { Provider } from 'react-redux';
@@ -32,6 +34,8 @@ import Project from '../../ui/layouts/project';
 import ChatDemo from '../../ui/layouts/chat.demo';
 import Index from '../../ui/components/index';
 import store from '../../ui/store/store';
+
+const MigrationStatus = new Mongo.Collection('migrationStatus');
 
 const authenticateProject = (nextState, replace, callback) => {
     Tracker.autorun(() => {
@@ -94,6 +98,15 @@ const withErrorCatcher = Component => props => <ErrorCatcher><Component {...prop
 // eslint-disable-next-line react/prefer-stateless-function
 class Routes extends React.Component {
     render() {
+        const { ready, isMigrating } = this.props;
+        if (!ready) return <div />;
+        if (isMigrating) {
+            return (
+                <DocumentTitle title='Botfront.'>
+                    <div>Migrating database to latest version...</div>
+                </DocumentTitle>
+            );
+        }
         return (
             <DocumentTitle title='Botfront.'>
                 <ApolloProvider client={apolloClient}>
@@ -156,7 +169,25 @@ class Routes extends React.Component {
     }
 }
 
+Routes.propTypes = {
+    isMigrating: PropTypes.bool,
+    ready: PropTypes.bool.isRequired,
+};
+
+Routes.defaultProps = {
+    isMigrating: false,
+};
+
+const RoutesWithTracker = withTracker(() => {
+    const handler = Meteor.subscribe('isMigrating');
+    const { isMigrating } = MigrationStatus.findOne('global') || {};
+    return {
+        ready: handler.ready(),
+        isMigrating,
+    };
+})(Routes);
+
 Meteor.startup(() => {
-    render(<Routes />,
+    render(<RoutesWithTracker />,
         document.getElementById('render-target'));
 });

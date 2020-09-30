@@ -10,6 +10,30 @@ import { indexBotResponse } from '../graphql/botResponses/mongo/botResponses';
 import { Stories } from '../story/stories.collection';
 
 if (Meteor.isServer) {
+    const getMigrationStatus = () => {
+        // eslint-disable-next-line no-underscore-dangle
+        const { locked, version } = Migrations._getControl();
+        // eslint-disable-next-line no-underscore-dangle
+        const latest = Migrations._list.length - 1;
+        return { locked, version, latest };
+    };
+
+    Meteor.publish('isMigrating', function() {
+        // eslint-disable-next-line no-underscore-dangle
+        const handle = Migrations._collection._collection.find({}).observeChanges({
+            changed: () => {
+                const { locked, version, latest } = getMigrationStatus();
+                this.changed('migrationStatus', 'global', { isMigrating: !locked && version < latest });
+            },
+        });
+
+        const { locked, version, latest } = getMigrationStatus();
+        this.added('migrationStatus', 'global', { isMigrating: !locked && version < latest });
+        this.ready();
+
+        this.onStop(() => handle.stop());
+    });
+
     Meteor.methods({
         'settings.save'(settings) {
             check(settings, Object);
