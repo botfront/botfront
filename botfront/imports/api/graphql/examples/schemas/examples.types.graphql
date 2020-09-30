@@ -1,0 +1,86 @@
+type Query {
+    examples(
+        projectId: String!
+        language: String!
+        intents: [String]
+        entities: [Any]
+        onlyCanonicals: Boolean
+        text: [String]
+        order: order
+        sortKey: String
+        pageSize: Int
+        cursor: String
+        matchEntityName: Boolean = false
+    ): ExamplePage
+    listIntentsAndEntities(
+        projectId: String!
+        language: String!
+    ): IntentsAndEntitiesList
+    getIntentStatistics(
+        projectId: String!
+        language: String!
+    ): [NluStatistics]
+}
+
+type Subscription {
+    intentsOrEntitiesChanged(
+        projectId: String!
+        language: String!
+    ): SubscriptionWarning
+}
+
+type Mutation {
+    updateExamples(
+        examples: [ExampleInput]!, 
+        language: String!
+        projectId: String!
+        ): [Example]
+    insertExamples(
+        examples: [ExampleInput]!
+        language: String!
+        projectId: String!
+    ):  [Example]
+    deleteExamples(ids: [String]!): [String]
+    switchCanonical( projectId:String, language: String, example: ExampleInput!): [Example]
+}
+
+type IntentsAndEntitiesList {
+    intents: Any!
+    entities: [String]!
+}
+
+type ExamplePage {
+    examples: [Example]
+    pageInfo: PageInfo
+}
+
+type Example {
+    _id: String,
+    projectId: String,
+    text: String,
+    intent: String,
+    entities: [Entity],
+    metadata: Any,
+
+}
+
+type NluStatistics {
+    intent: String
+    example: Any
+    counts: [NluStatisticsByLanguage]
+}
+
+type NluStatisticsByLanguage {
+    language: String!
+    count: Int!
+}
+
+input ExampleInput {
+    _id: String,
+    projectId: String,
+    text: String,
+    intent: String,
+    entities: [EntityInput],
+    metadata: Any
+}
+

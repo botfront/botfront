@@ -150,6 +150,7 @@ if (Meteor.isServer) {
                 name: projectData.project,
                 namespace: slugify(projectData.project, { lower: true }),
                 defaultLanguage: projectData.language,
+                languages: [],
             };
 
             if (process.env.BF_PROJECT_ID) project._id = process.env.BF_PROJECT_ID;
@@ -158,11 +159,8 @@ if (Meteor.isServer) {
 
             await Meteor.callWithPromise(
                 'nlu.insert',
-                {
-                    name: 'My First Model',
-                    language: projectData.language,
-                },
                 projectId,
+                projectData.language,
             );
 
             return projectId;

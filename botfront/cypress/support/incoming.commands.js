@@ -34,6 +34,7 @@ Cypress.Commands.add('changeIntentOfSelectedUtterances', (intentName = 'dummy') 
     cy.get('body').type('i');
     cy.get('.intent-popup').find('input').type(`${intentName}{enter}`);
     cy.get('@texts').then((texts) => { if (texts.length > 1) cy.yesToConfirmation(); });
+    cy.wait(100);
     cy.get('@texts').then(texts => texts.forEach((text) => {
         cy.get(`.row:contains(${text})`).findCy('intent-label')
             .should('have.text', intentName);

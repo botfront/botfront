@@ -1,10 +1,7 @@
-import React, {
-    useState, useContext, useRef, useMemo,
-} from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { ProjectContext } from '../../../layouts/context';
 import IntentLabel from './IntentLabel';
 import EntityLabel from './EntityLabel';
 
@@ -15,10 +12,7 @@ function UserUtteranceViewer(props) {
     const { text = '', intent = '', entities = [] } = value;
     const [textSelection, setSelection] = useState(null);
     const mouseDown = useRef(false);
-    const setMouseDown = (v) => {
-        mouseDown.current = v;
-    };
-    const { entities: contextEntities, addEntity } = useContext(ProjectContext);
+    const setMouseDown = (v) => { mouseDown.current = v; };
     const utteranceViewerRef = useRef();
 
     const textContent = useMemo(() => {
@@ -87,14 +81,7 @@ function UserUtteranceViewer(props) {
         return newTextContent;
     }, [textSelection, entities]);
 
-    const onChangeWrapped = (data) => {
-        if (data && data.entities) {
-            data.entities.forEach((e) => {
-                if (!contextEntities.includes(e.entity)) addEntity(e.entity);
-            });
-        }
-        onChange(data);
-    };
+    const onChangeWrapped = onChange;
 
     function handleEntityChange(entity, entityIndex) {
         const {
@@ -164,6 +151,7 @@ function UserUtteranceViewer(props) {
     }
 
     function handleMouseUp({ shiftKey, ctrlKey, metaKey }, element, exited) {
+        if (!element) return;
         const selection = window.getSelection();
         let extraBound = [];
         if (exited) extraBound = exited === 'left' ? [0] : [(element.text || '').length];
@@ -225,6 +213,7 @@ function UserUtteranceViewer(props) {
             {...(onClick ? { onClick } : {})}
             {...{
                 onMouseLeave: (e) => {
+                    // console.log(e);
                     if (
                         Array.from(document.querySelectorAll('.popup')).some(p => p.contains(e.target))
                     ) {
@@ -286,6 +275,7 @@ function UserUtteranceViewer(props) {
             }}
             {...{
                 onMouseDown: (e) => {
+                    if (Array.from(document.querySelectorAll('.popup')).some(p => p.contains(e.target))) return;
                     setMouseDown([e.screenX, e.screenY]);
                     if (!disableEditing) e.stopPropagation();
                 },

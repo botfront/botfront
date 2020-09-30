@@ -23,6 +23,7 @@ describe('test stories searching ui', () => {
         } else {
             cy.dataCy('stories-search-item').contains(storyName).click();
         }
+        cy.dataCy('stories-search-bar').find('input').trigger('keydown', { key: 'Escape' });
     };
 
     it('should find stories created on project init', () => {

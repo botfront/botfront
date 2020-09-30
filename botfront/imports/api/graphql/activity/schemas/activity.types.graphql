@@ -1,44 +1,45 @@
 type Query {
   getActivity(
-    modelId: String!,
-    pageSize: Int,
-    sortKey: String,
-    sortDesc: Boolean,
-    cursor: String,
+    projectId: String!
+    language: String!
+    pageSize: Int
+    sortKey: String
+    sortDesc: Boolean
+    cursor: String
     validated: Boolean
   ): ActivityPage
 }
 
 type ActivityPage {
-  activity: [Activity!],
+  activity: [Activity!]
   pageInfo: PageInfo
 }
 
 type Mutation {
-  upsertActivity(modelId: String!, data: [ActivityInput!]!, isOoS: Boolean): [Activity!]
-  deleteActivity(modelId: String!, ids: [String!]!, isOoS: Boolean): [Activity!]
+  upsertActivity(projectId: String!, language: String!, data: [ActivityInput!]!, isOoS: Boolean): [Activity!]
+  deleteActivity(projectId: String!, language: String!, ids: [String!]!, isOoS: Boolean): [Activity!]
 }
 
 input ActivityInput {
-  _id: String,
-  modelId: String,
-  text: String,
-  intent: String,
-  entities: [EntityInput],
-  confidence: Float,
-  validated: Boolean,
-  createdAt: Date,
-  updatedAt: Date,
+  _id: String
+  text: String
+  intent: String
+  entities: [EntityInput]
+  confidence: Float
+  validated: Boolean
+  createdAt: Date
+  updatedAt: Date
 }
 
 type Activity {
-  _id: String!,
-  modelId: String!,
-  text: String!,
-  intent: String,
-  entities: [Entity],
-  confidence: Float,
-  validated: Boolean,
-  createdAt: Date,
-  updatedAt: Date,
+  _id: String!
+  projectId: String!
+  language: String!
+  text: String!
+  intent: String
+  entities: [Entity]
+  confidence: Float
+  validated: Boolean
+  createdAt: Date
+  updatedAt: Date
 }

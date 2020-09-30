@@ -12,8 +12,8 @@ describe('NLU Intent warning message displays', function() {
     });
 
     after(function() {
-        // cy.deleteProject('bf');
-        // cy.logout();
+        cy.deleteProject('bf');
+        cy.logout();
     });
 
     it('Should add and delete multiple examples', function() {
@@ -22,27 +22,9 @@ describe('NLU Intent warning message displays', function() {
         // check warning message exists
         cy.contains('You need at least two distinct intents to train NLU').should('exist');
 
-        // create first intent
-        cy.contains('Insert many').click();
-        cy.get('.batch-insert-input').type('cya\nlater');
-        cy.dataCy('intent-label')
-            .click({ force: true })
-            .type('newintent{enter}');
-        cy.get('[data-cy=save-button]').click();
-        cy.get('[data-cy=save-button]').should('not.have.property', 'disabled');
+        cy.addExamples(['cya', 'later'], 'byebye');
+        cy.addExamples(['hello', 'hi guys'], 'hihi');
 
-        // create second intent
-        cy.contains('Examples').click();
-        cy.contains('Insert many').click();
-        cy.get('.batch-insert-input').type('hello\nhi guys');
-        cy.dataCy('intent-label')
-            .click({ force: true })
-            .type('intent1{enter}');
-        cy.get('[data-cy=save-button]').click();
-        cy.get('[data-cy=save-button]').should('not.have.property', 'disabled');
-
-        // returns to the example tab
-        cy.contains('Examples').click();
         // the warning message should not exist
         cy.contains('You need at least two distinct intents to train NLU').should('not.exist');
     });

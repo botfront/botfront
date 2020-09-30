@@ -9,31 +9,31 @@ import botResponsesResolvers from './botResponses/resolvers';
 import botResponsesTypes from './botResponses/schemas';
 import configResolver from './config/configResolver';
 import configTypes from './config/config.types.graphql';
-import nluResolvers from './nlu/resolvers';
-import nluTypes from './nlu/schemas';
 import storiesTypes from './story/schemas/stories.types.graphql';
 import storiesResolver from './story/resolvers/storiesResolver';
 import trackerStoreResolver from './trackerStore/resolvers/trackerStoreResolver';
 import trackerStoreTypes from './trackerStore/schemas';
+import examplesResolver from './examples/resolvers/examplesResolver';
+import examplesTypes from './examples/schemas';
 
 
 export const resolvers = [
     conversationsResolver,
     ...botResponsesResolvers,
-    ...nluResolvers,
     activityResolver,
     commonResolver,
     configResolver,
     storiesResolver,
     trackerStoreResolver,
+    examplesResolver,
 ];
 
 export const typeDefs = mergeTypeDefs([
     ...conversationTypes,
     ...botResponsesTypes,
     ...activityTypes,
-    ...nluTypes,
     ...trackerStoreTypes,
+    ...examplesTypes,
     commonTypes,
     configTypes,
     storiesTypes,

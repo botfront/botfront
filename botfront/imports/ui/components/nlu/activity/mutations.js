@@ -3,12 +3,14 @@ import { activityFields } from './queries';
 
 export const upsertActivity = gql`
 mutation (
-    $modelId: String!
+    $projectId: String!
+    $language: String!
     $data: [ActivityInput!]!
 ) {
     upsertActivity(
-        modelId: $modelId,
-        data: $data,
+        projectId: $projectId
+        language: $language
+        data: $data
     ) {
         __typename
         ...ActivityFields
@@ -19,12 +21,14 @@ ${activityFields}
 
 export const deleteActivity = gql`
 mutation (
-    $modelId: String!
+    $projectId: String!
+    $language: String!
     $ids: [String!]!
 ) {
     deleteActivity(
-        modelId: $modelId,
-        ids: $ids,
+        projectId: $projectId
+        language: $language
+        ids: $ids
     ) {
         _id
         __typename

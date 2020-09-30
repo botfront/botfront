@@ -1,8 +1,8 @@
 import uuidv4 from 'uuid/v4';
+import mongoose from 'mongoose';
 import Conversations from '../../conversations/conversations.model';
 import Activity from '../../activity/activity.model';
 import Projects from '../../project/project.model';
-import NLUModels from '../../nlu/nlu.model';
 
 export const getTracker = async (senderId, projectId, after, maxEvents = 100) => {
     const aggregation = [
@@ -74,7 +74,7 @@ const extractMetadataFromTracker = (tracker) => {
     return {};
 };
 
-async function logUtterance(utterance, modelId, convId, env, callback) {
+async function logUtterance(utterance, projectId, language, convId, env, callback) {
     const { parse_data: parseData, message_id: mid } = utterance;
     const { text } = parseData;
     const newData = {
@@ -97,7 +97,9 @@ async function logUtterance(utterance, modelId, convId, env, callback) {
     }
 
     Activity.updateOne(
-        { modelId, text, env },
+        {
+            projectId, language, text, env,
+        },
         {
             $set: newUtterance,
             $setOnInsert: { _id: uuidv4() },
@@ -118,21 +120,14 @@ const logUtterancesFromTracker = async function (projectId, events, env, convId)
             const { language } = userUtterances[0].metadata || {}; // take lang from first
             const project = await Projects.findOne(
                 { _id: projectId },
-                { nlu_models: 1, defaultLanguage: 1 },
+                { defaultLanguage: 1 },
             ).lean();
             const { defaultLanguage } = project;
             if (!language && !defaultLanguage) return;
-            const model = await NLUModels.findOne(
-                {
-                    language: language || defaultLanguage,
-                    _id: { $in: project.nlu_models },
-                },
-                { _id: 1 },
-            ).lean();
-            if (!model) return;
             userUtterances.forEach(utterance => logUtterance(
                 utterance,
-                model._id,
+                projectId,
+                language,
                 convId,
                 env,
                 (_, e) => e && console.log('Logging failed: ', e, utterance),

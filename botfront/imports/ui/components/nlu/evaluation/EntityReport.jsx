@@ -6,9 +6,7 @@ import _ from 'lodash';
 import KeyMetrics from './KeyMetrics';
 import ReportTable from './ReportTable';
 import UserUtteranceViewer from '../common/UserUtteranceViewer';
-import EntityUtils from '../../utils/EntityUtils';
 import { Info } from '../../common/Info';
-import { examplePropType } from '../../utils/ExampleUtils';
 
 function ExampleTextComparison({ example, prediction }) {
     return (
@@ -20,8 +18,8 @@ function ExampleTextComparison({ example, prediction }) {
 }
 
 ExampleTextComparison.propTypes = {
-    example: PropTypes.shape(examplePropType).isRequired,
-    prediction: PropTypes.shape(examplePropType).isRequired,
+    example: PropTypes.object.isRequired,
+    prediction: PropTypes.object.isRequired,
 };
 
 export default class EntityReport extends React.Component {
@@ -128,7 +126,7 @@ export default class EntityReport extends React.Component {
         const { predictions } = this.props;
 
         predictions.forEach((p) => {
-            const predictedEntities = (p.predicted_entities || []).filter(EntityUtils.filterDuckling);
+            const predictedEntities = (p.predicted_entities || []);
             const entitiesGold = p.entities || [];
             const join = entitiesGold.reduce((acc, curr) => {
                 if (acc.some(a => a.entity === curr.entity)) return acc;

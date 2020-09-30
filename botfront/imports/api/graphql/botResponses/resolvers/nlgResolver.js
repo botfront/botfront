@@ -2,9 +2,9 @@ import { safeLoad } from 'js-yaml';
 import { sample } from 'lodash';
 import { GraphQLScalarType } from 'graphql';
 import { newGetBotResponses } from '../mongo/botResponses';
-import { getLanguagesFromProjectId } from '../../../../lib/utils';
 import { parseContentType } from '../../../../lib/botResponse.utils';
 import commonResolvers from '../../common/commonResolver';
+import Projects from '../../project/project.model';
 
 const interpolateSlots = (text, slots) => {
     // fills in {slotname} in templates
@@ -49,7 +49,10 @@ export default {
                 channel: { name: channel } = {},
             } = args;
             if (!projectId) throw new Error('ProjectId missing!');
-            const language = specifiedLang && getLanguagesFromProjectId(projectId).includes(specifiedLang)
+            const { languages } = await Projects.findOne(
+                { _id: projectId }, { languages: 1 },
+            ).lean();
+            const language = specifiedLang && languages.includes(specifiedLang)
                 ? specifiedLang
                 : slots.fallback_language;
             return resolveTemplate({

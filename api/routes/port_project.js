@@ -1,4 +1,5 @@
 const {
+    Examples,
     Activity,
     Conversations,
     FormResults,
@@ -17,17 +18,23 @@ const {
     AnalyticsDashboards,
 } = require('../models/models');
 const { getVerifiedProject, aggregateEvents } = require('../server/utils');
+const { migrateForms } = require('../server/forms/forms.utils');
 const uuidv4 = require('uuid/v4');
 const JSZip = require('jszip');
+const shortid = require('shortid');
 const { sortBy, get: _get } = require('lodash');
-const { createResponsesIndex, createStoriesIndex } = require('../server/searchIndex/searchIndexing.utils')
-const { version } = require('../package-lock.json')
+const {
+    createResponsesIndex,
+    createStoriesIndex,
+} = require('../server/searchIndex/searchIndexing.utils');
+const { version } = require('../package-lock.json');
 
 const collectionsWithModelId = {
     activity: Activity,
     evaluations: Evaluations,
 };
 const collectionsWithProjectId = {
+    examples: Examples,
     storyGroups: StoryGroups,
     stories: Stories,
     slots: Slots,
@@ -46,6 +53,9 @@ const collections = { ...collectionsWithModelId, ...collectionsWithProjectId };
 const allCollections = { ...collections, models: NLUModels };
 exports.allCollections = allCollections;
 
+const colReallyDoesHaveProjectId = (col) =>
+    !![...(col || []), { projectId: true }][0].projectId;
+
 const nativizeProject = function (projectId, projectName, backup) {
     /*
         given a projectId and a backup, change all IDs of backup so as to avoid potential
@@ -59,52 +69,117 @@ const nativizeProject = function (projectId, projectName, backup) {
     });
 
     let nlu_models = undefined;
+    let languages = undefined;
+    const modelMapping = {};
 
     if ('models' in nativizedBackup) {
-        nlu_models = project.nlu_models;
-        const modelMapping = {};
+        nlu_models = project.nlu_models || [];
+        languages = project.languages || [];
         nativizedBackup.models.forEach((m) =>
-            Object.assign(modelMapping, { [m._id]: uuidv4() }),
+            Object.assign(modelMapping, {
+                [m._id]: { _id: uuidv4(), language: m.language },
+            }),
         ); // generate mapping from old to new id
         nlu_models = nlu_models // apply mapping to nlu_models property of project
             .filter((id) => !Object.keys(modelMapping).includes(id))
-            .concat(Object.values(modelMapping));
-
-        Object.keys(collectionsWithModelId)
-            .filter((col) => col in nativizedBackup) // apply mapping to collections whose docs have a modelId key
-            .forEach((col) => {
-                nativizedBackup[col] = nativizedBackup[col].map((c) => ({
-                    ...c,
-                    modelId: modelMapping[c.modelId],
-                }));
-            });
+            .concat(Object.values(modelMapping).map((v) => v._id));
+        languages = languages
+            .filter(
+                (lang) =>
+                    !Object.values(modelMapping)
+                        .map((v) => v.language)
+                        .includes(lang),
+            )
+            .concat(Object.values(modelMapping).map((v) => v.language));
 
         // apply mapping to NLUModels collection
         nativizedBackup.models = nativizedBackup.models.map((m) => ({
             ...m,
             _id: modelMapping[m._id],
+            projectId,
         }));
+        // move any common_example to the modern schema
+        nativizedBackup.models.forEach((m) => {
+            const examples = [...(m.training_data.common_examples || [])].map(
+                ({ canonical, ...example }) => ({
+                    ...example,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    projectId,
+                    metadata: { canonical, language: m.language },
+                    _id: shortid.generate(),
+                }),
+            );
+            nativizedBackup.examples = [...(nativizedBackup.examples || []), ...examples];
+            delete m.training_data.common_examples;
+        });
+    }
+    // activity use conversations ids to display the conversations bubbles
+    // so wee need to update activities with the new conversations ids
+    if ('conversations' in nativizedBackup && 'activity' in nativizedBackup) {
+        const conversationsMapping = {};
+        nativizedBackup.conversations.forEach((conv) =>
+            Object.assign(conversationsMapping, { [conv._id]: uuidv4() }),
+        );
+        nativizedBackup.activity = nativizedBackup.activity.map(activity => ({
+            ...activity,
+            conversation_id: conversationsMapping[activity.conversation_id],
+        }))
+        nativizedBackup.conversations = nativizedBackup.conversations.map(conversation => ({
+            ...conversation,
+            _id: conversationsMapping[conversation._id],
+        }))
     }
 
-    if ('storyGroups' in nativizedBackup && 'stories' in nativizedBackup) {
+    Object.keys(collectionsWithModelId)
+        .filter((col) => col in nativizedBackup)
+        // apply mapping to collections whose docs have a modelId key
+        // but not a projectId (modern schema)
+        .forEach((col) => {
+            if (!colReallyDoesHaveProjectId(nativizedBackup[col])) {
+                if (!('models' in backup)) delete nativizedBackup[col];
+                else {
+                    nativizedBackup[col] = nativizedBackup[col].map(
+                        ({ modelId, ...c }) => ({
+                            ...c,
+                            language: modelMapping[modelId].language,
+                            projectId,
+                        }),
+                    );
+                }
+            }
+        });
+
+    if ('storyGroups' in nativizedBackup && ('stories' in nativizedBackup || 'forms' in nativizedBackup)) {
+        const originalStories = nativizedBackup.stories || [];
+        const originalForms = nativizedBackup.forms || [];
         const storyGroupMapping = {};
         const storyMapping = {};
-        nativizedBackup.storyGroups.forEach((m) =>
-            Object.assign(storyGroupMapping, { [m._id]: uuidv4() }),
-        );
-        nativizedBackup.stories.forEach((m) =>
+        const formMapping = {};
+        nativizedBackup.storyGroups.forEach((m) => {
+            Object.assign(storyGroupMapping, { [m._id]: uuidv4() });
+        });
+        originalStories.forEach((m) =>
             Object.assign(storyMapping, { [m._id]: uuidv4() }),
         );
+        originalForms.forEach((m) =>
+            Object.assign(formMapping, { [m._id]: uuidv4()}),
+        );
+        const storyGroupChildMapping = {...storyMapping, ...formMapping};
+
         nativizedBackup.storyGroups = nativizedBackup.storyGroups.map((sg) => ({
             ...sg,
             _id: storyGroupMapping[sg._id],
             isExpanded: sg.isExpanded || !!sg.introStory,
             children: sg.children
-                ? sg.children.map(id => storyMapping[id])
-                : nativizedBackup.stories.filter(s => s.storyGroupId === sg._id)
-                    .map(s => storyMapping[s._id]),
+                ? sg.children.map(id => storyGroupChildMapping[id])
+                : [
+                    ...originalStories.filter(s => s.storyGroupId === sg._id)
+                        .map(s => storyGroupChildMapping[s._id]),
+                    ...originalForms.filter(f => f.groupId === sg._id),
+                ],
         })); // apply to storygroups
-        nativizedBackup.stories = nativizedBackup.stories.map((s) => ({
+        nativizedBackup.stories = originalStories.map((s) => ({
             ...s,
             storyGroupId: storyGroupMapping[s.storyGroupId],
             _id: storyMapping[s._id],
@@ -115,16 +190,45 @@ const nativizeProject = function (projectId, projectName, backup) {
                 ]),
             }),
         })); // apply to stories
-
+        const {
+            forms: updatedForms,
+            formMigrationGroup, // also indicates if a migration occured
+        } =  migrateForms(originalForms, nativizedBackup.storyGroups);
+        if (formMigrationGroup) {
+            nativizedBackup.forms = updatedForms;
+            nativizedBackup.storyGroups = [...nativizedBackup.storyGroups, formMigrationGroup];
+        }
         // At the top level of the story object, create an array of events in a story and its branches
         nativizedBackup.stories = nativizedBackup.stories.map(aggregateEvents);
+        let storyGroupOrder = []
+        if (formMigrationGroup && project.storyGroups) {
+            const newOrder = project.storyGroups.reduce((acc, sg) => {
+                const newId = storyGroupMapping[sg]
+                // filter to only story groups (forms used to be top level menu items)
+                if (newId) return [...acc, newId];
+                return acc
+            }, [])
+            const insertAt = newOrder.indexOf((groupId) => (
+                !(nativizedBackup.storyGroups.find(({ _id }) => _id === groupId)
+                    || { pinned: true }
+                ).pinned
+            ))
+            storyGroupOrder = [
+                ...newOrder.slice(0, insertAt),
+                formMigrationGroup._id,
+                ...newOrder.slice(insertAt, newOrder.length),
+            ];
+        } else if (project.storyGroups) {
+            storyGroupOrder = project.storyGroups.map(sg => storyGroupMapping[sg])
+        } else {
+            storyGroupOrder = nativizedBackup.storyGroups
+                .sort((a, b) => b.introStory - a.introStory)
+                .map(({ _id }) => _id)
+        }
 
         nativizedBackup.project = {
             ...project,
-            storyGroups: project.storyGroups
-                ? project.storyGroups.map(sg => storyGroupMapping[sg])
-                : nativizedBackup.storyGroups.sort((a, b) => b.introStory - a.introStory)
-                    .map(({ _id }) => _id),
+            storyGroups: storyGroupOrder,
         };
     }
 
@@ -133,6 +237,7 @@ const nativizeProject = function (projectId, projectName, backup) {
         _id: projectId,
         name: projectName,
         ...(nlu_models ? { nlu_models } : {}),
+        ...(languages ? { languages } : {}),
     }; // change id of project
 
     Object.keys(collectionsWithProjectId)
@@ -143,7 +248,7 @@ const nativizeProject = function (projectId, projectName, backup) {
 
     Object.keys(nativizedBackup).forEach((col) => {
         // change id of every other doc
-        if (!['project', 'models', 'storyGroups', 'stories'].includes(col)) {
+        if (!['project', 'models', 'storyGroups', 'stories', 'conversations', 'forms'].includes(col)) {
             nativizedBackup[col] = nativizedBackup[col].map((doc) => ({
                 ...doc,
                 _id: uuidv4(),
@@ -156,29 +261,32 @@ const nativizeProject = function (projectId, projectName, backup) {
 
 const overwriteCollection = async function (projectId, modelIds, collection, backup) {
     if (!(collection in backup)) return;
-    if (collection in collectionsWithModelId && !('models' in backup)) return;
     const model =
         collection in collectionsWithModelId
             ? collectionsWithModelId[collection]
             : collectionsWithProjectId[collection];
     const filter =
         collection in collectionsWithModelId
-            ? { modelId: { $in: modelIds } }
+            ? { $or: [{ modelId: { $in: modelIds || [] } }, { projectId }] }
             : { projectId };
     await model.deleteMany(filter).exec();
     // if the first botresponse has an index, the backup is from a version with response indexing
     // so we do not need to index it
-    if (collection === 'botResponses' && !_get(backup, 'botResponses[0].textIndex', undefined)) {
-        await createResponsesIndex(projectId, backup[collection])
-        return
+    if (
+        collection === 'botResponses' &&
+        !_get(backup, 'botResponses[0].textIndex', undefined)
+    ) {
+        await createResponsesIndex(projectId, backup[collection]);
+        return;
     }
     // if the first botresponse has an index, the backup is from a version with stories indexing
     // so we do not need to index it
     if (collection === 'stories' && !_get(backup, 'stories[0].textIndex', undefined)) {
-        await createStoriesIndex(projectId, backup[collection])
-        return
+        await createStoriesIndex(projectId, backup[collection]);
+        return;
     }
-    try { // ignore duplicate index violations
+    try {
+        // ignore duplicate index violations
         await model.insertMany(backup[collection], { ordered: false });
     } catch (e) {
         if ((e.err || e || {}).code === 11000) return;
@@ -205,19 +313,17 @@ const unzipFile = async (body) => {
 
 const gatherCollectionsForExport = async (project, models, excludedCollections) => {
     const response = { project, models };
+    if (excludedCollections.includes('models')) delete response.models;
     delete response.project.training;
-    for (let col in collectionsWithModelId) {
+    for (let col in collections) {
         if (!excludedCollections.includes(col)) {
-            const result = await collectionsWithModelId[col]
-                .find({ modelId: { $in: project.nlu_models } })
-                .lean();
-            if (result.length) response[col] = result;
-        }
-    }
-    for (let col in collectionsWithProjectId) {
-        if (!excludedCollections.includes(col)) {
-            const result = await collectionsWithProjectId[col]
-                .find({ projectId: project._id })
+            const result = await collections[col]
+                .find({
+                    $or: [
+                        { modelId: { $in: project.nlu_models || [] } },
+                        { projectId: project._id },
+                    ],
+                })
                 .lean();
             if (result.length) response[col] = result;
         }
@@ -246,7 +352,12 @@ exports.exportProject = async function (req, res) {
     try {
         const project = await getVerifiedProject(projectId, req);
         if (!project) throw { code: 401, error: 'unauthorized' };
-        const models = await NLUModels.find({ _id: { $in: project.nlu_models } }).lean();
+        const models = await NLUModels.find({
+            $or: [
+                { _id: { $in: project.nlu_models || [] } },
+                { projectId: project._id },
+            ],
+        }).lean();
         const response = await gatherCollectionsForExport(
             project,
             models,
@@ -336,8 +447,6 @@ const createResponsesFromOldFormat = (oldTemplates, projectId) => {
     return botResponses;
 };
 
-
-
 exports.importProject = async function (req, res) {
     const { project_id: projectId } = req.params;
     const body = req.body instanceof Buffer ? await unzipFile(req.body) : req.body;
@@ -361,13 +470,20 @@ exports.importProject = async function (req, res) {
             await overwriteCollection(projectId, project.nlu_models, col, backup);
         }
         const overwrittenProject = { ...project, ...backup.project };
-        if ('models' in backup) await NLUModels.deleteMany({ _id: { $in: project.nlu_models } }).exec();
+        if ('models' in backup)
+            await NLUModels.deleteMany({
+                $or: [
+                    { _id: { $in: project.nlu_models || [] } },
+                    { projectId: project._id },
+                ],
+            }).exec();
         else overwrittenProject.nlu_models = project.nlu_models;
         await Projects.deleteMany({ _id: projectId }).exec();
         if ('models' in backup) await NLUModels.insertMany(backup.models);
         await Projects.insertMany([overwrittenProject]);
         return res.status(200).send('Success');
     } catch (e) {
+        console.log(e);
         return res.status(e.code || 500).json(e.error);
     }
 };

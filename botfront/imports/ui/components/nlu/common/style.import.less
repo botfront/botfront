@@ -132,11 +132,17 @@
     }
     .virtual-table .row {
         margin-right: 0;
-        &.selected {
-            background-color: fade(@purple, 10%);
+        &:hover {
+            background: none;
+            border-bottom: 1px solid #eee;
+            &.selected {
+                background: lighten(@purple, 40%);
+                border-bottom: 1px solid lighten(@purple, 20%);
+            }
         }
-        &.selected:hover {
-            background-color: fade(@purple, 20%);
+        &.selected {
+            background-color: lighten(@purple, 45%);
+            border-bottom: 1px solid lighten(@purple, 35%);
         }
         &:hover {
             cursor: pointer;

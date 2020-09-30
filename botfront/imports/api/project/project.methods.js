@@ -5,12 +5,7 @@ import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { createInstance } from '../instances/instances.methods';
 import { Instances } from '../instances/instances.collection';
 import Activity from '../graphql/activity/activity.model';
-import {
-    getAllTrainingDataGivenProjectIdAndLanguage,
-    setsAreIdentical,
-    formatError,
-    getLanguagesFromProjectId,
-} from '../../lib/utils';
+import { formatError } from '../../lib/utils';
 import { CorePolicies, createPolicies } from '../core_policies';
 import { createEndpoints } from '../endpoints/endpoints.methods';
 import { Endpoints } from '../endpoints/endpoints.collection';
@@ -20,59 +15,13 @@ import { createDefaultStoryGroup } from '../storyGroups/storyGroups.methods';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
 import { Slots } from '../slots/slots.collection';
-import { flattenStory, extractDomain } from '../../lib/story.utils';
+import { extractDomain } from '../../lib/story.utils';
+import { languages as languageOptions } from '../../lib/languages';
 import BotResponses from '../graphql/botResponses/botResponses.model';
+import Examples from '../graphql/examples/examples.model';
 
 if (Meteor.isServer) {
     export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain({ stories, slots, crashOnStoryWithErrors: false }));
-
-    export const getExamplesFromTrainingData = (
-        trainingData,
-        startIntents = [],
-        startEntities = [],
-    ) => {
-        /*  input: training data and optional initial arrays of intents and entities
-            output: {
-                entities: [entityName, ...]
-                intents: {
-                    intentName: [
-                        {
-                            entities: [entityName, ...]
-                            example: <FULL_EXAMPLE>
-                        },
-                        ...
-                    ],
-                    ...
-                }
-            }
-        */
-
-        const entries = startIntents.map(i => [i, []]);
-        const intents = {};
-        entries.forEach((entry) => {
-            const [key, value] = entry;
-            intents[key] = value;
-        });
-
-        let entities = startEntities;
-
-        trainingData
-            .sort((a, b) => b.canonical || false - a.canonical || false)
-            .forEach((ex) => {
-                const exEntities = (ex.entities || []).map(en => en.entity);
-                entities = entities.concat(
-                    exEntities.filter(en => !entities.includes(en)),
-                );
-                if (!Object.keys(intents).includes(ex.intent)) intents[ex.intent] = [];
-                if (
-                    !intents[ex.intent].some(ex2 => setsAreIdentical(ex2.entities, exEntities))
-                ) {
-                    intents[ex.intent].push({ entities: exEntities, example: ex });
-                }
-            });
-
-        return { intents, entities };
-    };
 
     Meteor.methods({
         async 'project.insert'(item) {
@@ -108,22 +57,23 @@ if (Meteor.isServer) {
             const { failSilently } = options;
             const project = Projects.findOne(
                 { _id: projectId },
-                { fields: { nlu_models: 1 } },
+                { fields: { _id: 1 } },
             );
 
             try {
                 if (!project) throw new Meteor.Error('Project not found');
-                NLUModels.remove({ _id: { $in: project.nlu_models } }); // Delete NLU models
-                Activity.remove({ modelId: { $in: project.nlu_models } }).exec(); // Delete Logs
-                Instances.remove({ projectId: project._id }); // Delete instances
-                CorePolicies.remove({ projectId: project._id }); // Delete Core Policies
-                Credentials.remove({ projectId: project._id }); // Delete credentials
-                Endpoints.remove({ projectId: project._id }); // Delete endpoints
-                Conversations.remove({ projectId: project._id }); // Delete Conversations
+                NLUModels.remove({ projectId }); // Delete NLU models
+                Activity.remove({ projectId }).exec(); // Delete Logs
+                Instances.remove({ projectId }); // Delete instances
+                CorePolicies.remove({ projectId }); // Delete Core Policies
+                Credentials.remove({ projectId }); // Delete credentials
+                Endpoints.remove({ projectId }); // Delete endpoints
+                Conversations.remove({ projectId }); // Delete Conversations
                 StoryGroups.remove({ projectId });
                 Stories.remove({ projectId });
                 Slots.remove({ projectId });
                 Projects.remove({ _id: projectId }); // Delete project
+                await Examples.remove({ projectId });
                 await BotResponses.remove({ projectId });
             } catch (e) {
                 if (!failSilently) throw e;
@@ -156,42 +106,6 @@ if (Meteor.isServer) {
             }
         },
 
-        async 'project.getEntitiesAndIntents'(projectId, language) {
-            check(projectId, String);
-            check(language, String);
-
-            try {
-                const stories = Stories.find({ projectId }).fetch();
-                const slots = Slots.find({ projectId }).fetch();
-                const {
-                    intents: intentSetFromDomain = [],
-                    entities: entitiesSetFromDomain = [],
-                } = stories.length !== 0
-                    ? extractDomainFromStories(
-                        stories
-                            .reduce(
-                                (acc, story) => [...acc, ...flattenStory(story)],
-                                [],
-                            )
-                            .map(story => story.story || ''),
-                        slots,
-                    )
-                    : {};
-                const trainingData = getAllTrainingDataGivenProjectIdAndLanguage(
-                    projectId,
-                    language,
-                );
-
-                return getExamplesFromTrainingData(
-                    trainingData,
-                    intentSetFromDomain,
-                    entitiesSetFromDomain,
-                );
-            } catch (error) {
-                throw error;
-            }
-        },
-
         async 'project.getDefaultLanguage'(projectId) {
             check(projectId, String);
             try {
@@ -221,11 +135,12 @@ if (Meteor.isServer) {
                 chatWidgetSettings: { initPayload = '/get_started' } = {},
                 enableSharing,
                 name: projectName,
+                languages: langs,
                 defaultLanguage,
             } = Projects.findOne(
                 { _id: projectId },
                 {
-                    chatWidgetSettings: 1, enableSharing: 1, name: 1, defaultLanguage: 1,
+                    chatWidgetSettings: 1, enableSharing: 1, name: 1, defaultLanguage: 1, languages: 1,
                 },
             ) || {};
 
@@ -244,7 +159,7 @@ if (Meteor.isServer) {
             if (!channel) { throw new Meteor.Error(404, `No credentials found for project '${projectName}'.`); }
             const { base_url: socketUrl, socket_path: socketPath } = credentials[channel];
 
-            const languages = (await getLanguagesFromProjectId(projectId, true)) || [];
+            const languages = langs.map(value => ({ text: languageOptions[value].name, value }));
 
             if (!languages.length) { throw new Meteor.Error(404, `No languages found for project '${projectName}'.`); }
 

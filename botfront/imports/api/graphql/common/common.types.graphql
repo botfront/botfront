@@ -2,9 +2,21 @@ scalar Date
 
 scalar Any
 
+enum order {
+    ASC
+    DESC
+}
+
 type PageInfo {
-    endCursor: String!,
+    endCursor: String!
     hasNextPage: Boolean!
+    totalLength: Int
+}
+
+type SubscriptionWarning {
+    projectId: String
+    language: String
+    changed: Boolean!
 }
 
 type batchMutationOutput {
@@ -13,6 +25,30 @@ type batchMutationOutput {
     nInserted: Int
     nUpdated: Int
     failed: [String]
+}
+
+type Entity {
+    entity: String
+    value: String
+    group: String
+    role: String
+    start: Int
+    end: Int
+    confidence: Float
+    extractor: String
+    processors: [String]
+}
+
+input EntityInput {
+    entity: String
+    value: String
+    group: String
+    role: String
+    start: Int
+    end: Int
+    confidence: Float
+    extractor: String
+    processors: [String]
 }
 
 type updateResponse {

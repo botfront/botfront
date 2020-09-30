@@ -102,7 +102,7 @@ describe('## Import', () => {
             } = { ...exportPayloads[1].project };
             newProject.training = exportFileProject.training;
             const storyGroup = await allCollections.storyGroups
-                .findOne({ _id: { $nin: [storyGroupId] } }, { _id: 1 })
+                .findOne({ _id: { $nin: [storyGroupId] }, name: 'two', projectId }, { _id: 1 })
                 .lean();
             const exportFileStoryGroupId = exportPayloads[1].storyGroups[0]._id;
             const checkpoint = await allCollections.stories
@@ -153,7 +153,7 @@ describe('## Import', () => {
                     expect(doc).to.exist; // able to find collection
     
                     if (col === 'models') expect(doc._id).to.be.equal(modelId); // modelId is as remembered
-                    if (docModelId) expect(docModelId).to.be.equal(modelId); // modelId is as remembered
+                    if (docModelId) expect(docModelId).to.be.undefined; // modelId is as remembered
                     if (docProjectId) expect(docProjectId).to.be.equal(projectId); // projectId didn't change
                     if (docStoryGroupId) expect(docStoryGroupId).to.be.equal(storyGroupId); // storyGroupId is as remembered
                     if (docCheckpoints) expect(docCheckpoints).to.be.deep.equal(checkpoints);

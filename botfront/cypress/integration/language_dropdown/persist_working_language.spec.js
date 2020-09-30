@@ -38,14 +38,9 @@ describe('redux working language', function() {
         cy.dataCy('settings-menu').find('.active.item').click();
         cy.get('[data-cy=save-changes]').click();
         // add an English example
-        cy.visit('/project/bf/nlu/models');
-        cy.contains('Insert many').click();
-        cy.get('.batch-insert-input').type('cya\nlater');
-        cy.dataCy('intent-label')
-            .first()
-            .click({ force: true })
-            .type('newintent{enter}');
-        cy.get('[data-cy=save-button]').click();
+        cy.insertNluExamples('bf', 'en', [
+            { text: 'yo', intent: 'yo' },
+        ]);
         // the active language in NLU should match the active language in stories
         cy.visit('/project/bf/stories');
         selectLanguage('French');

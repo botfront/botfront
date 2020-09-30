@@ -6,11 +6,10 @@ import {
 } from './mutations';
 
 export function useActivity(variables) {
-    const pageSize = 10;
     const {
         data, loading, error, fetchMore, refetch,
     } = useQuery(activityQuery, {
-        notifyOnNetworkStatusChange: true, variables: { ...variables, pageSize },
+        notifyOnNetworkStatusChange: true, variables,
     });
 
     if (!data || !data.getActivity) return { loading, data: [] };
@@ -20,7 +19,6 @@ export function useActivity(variables) {
         notifyOnNetworkStatusChange: true,
         variables: {
             ...variables,
-            pageSize,
             cursor: data.getActivity.pageInfo.endCursor,
         },
         updateQuery: (previousResult, { fetchMoreResult }) => {
@@ -51,6 +49,7 @@ export function useActivity(variables) {
 export const useDeleteActivity = variables => useMutation(
     deleteActivityMutation,
     {
+        variables,
         update: (cache, { data: { deleteActivity: deleted } }) => {
             const result = cache.readQuery({ query: activityQuery, variables });
             const { getActivity: { activity } } = result;
@@ -69,4 +68,4 @@ export const useDeleteActivity = variables => useMutation(
     },
 );
 
-export const useUpsertActivity = () => useMutation(upsertActivityMutation);
+export const useUpsertActivity = variables => useMutation(upsertActivityMutation, { variables });

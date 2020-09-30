@@ -124,13 +124,11 @@ describe('Importing a project', function() {
             importProject();
             cy.visit('/project/test_project/nlu/models');
             cy.contains(intentExampleText)
-                .closest('.rt-tr')
+                .closest('.row')
                 .contains(intent)
                 .should('exist');
             cy.dataCy('intent-label')
                 .should('have.lengthOf', nExamples);
-            cy.contains('Insert many').click();
-            cy.contains('Examples').click();
         });
         it('should import all responses', function() {
             importProject();

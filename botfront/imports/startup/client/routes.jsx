@@ -115,28 +115,22 @@ class Routes extends React.Component {
                                 </Route>
                                 <Route exact path='/project' component={withErrorCatcher(Project)}>
                                     <Route path='/project/:project_id/nlu/models' component={NLUModelComponent} name='NLU Models' onEnter={authenticateProject} />
-                                    <Route path='/project/:project_id/nlu/model/:model_id' component={NLUModelComponent} name='NLU Models' onEnter={authenticateProject} />
+                                    <Route path='/project/:project_id/nlu/model/:language' component={NLUModelComponent} name='NLU Models' onEnter={authenticateProject} />
                                     <Route path='/project/:project_id/incoming' component={Incoming} name='Incoming' onEnter={authenticateProject} />
                                     <Route
-                                        path='/project/:project_id/incoming/:model_id'
+                                        path='/project/:project_id/incoming/:tab'
                                         component={Incoming}
                                         name='Incoming'
                                         onEnter={authenticateProject}
                                     />
                                     <Route
-                                        path='/project/:project_id/incoming/:model_id/:tab'
+                                        path='/project/:project_id/incoming/:tab/:page'
                                         component={Incoming}
                                         name='Incoming'
                                         onEnter={authenticateProject}
                                     />
                                     <Route
-                                        path='/project/:project_id/incoming/:model_id/:tab/:page'
-                                        component={Incoming}
-                                        name='Incoming'
-                                        onEnter={authenticateProject}
-                                    />
-                                    <Route
-                                        path='/project/:project_id/incoming/:model_id/:tab/:page/:selected_id'
+                                        path='/project/:project_id/incoming/:tab/:page/:selected_id'
                                         component={Incoming}
                                         name='Incoming'
                                         onEnter={authenticateProject}

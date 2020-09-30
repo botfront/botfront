@@ -1,9 +1,4 @@
-/* global cy:true */
-
-const utterance = 'whatever this is a testing utterance';
-const intentName = 'KPI';
-const secondEntity = 'name';
-const newEntity = 'myNewEntity';
+/* global cy */
 
 describe('nlu tagging in training data', function() {
     before(function() {});
@@ -19,73 +14,51 @@ describe('nlu tagging in training data', function() {
         cy.logout();
         cy.deleteProject('bf');
     });
-
-    it('Should add training data', function() {
-        cy.visit('/project/bf/nlu/models');
-        cy.contains('Insert many').click();
-        cy.get('.batch-insert-input').type(utterance);
-        cy.dataCy('intent-label')
-            .click({ force: true })
-            .type(`${intentName}{enter}`);
-        cy.get('[data-cy=save-button]').click();
-        cy.visit('/project/bf/nlu/models');
-        cy.get('.rt-tbody .rt-tr:first').should('contain', utterance);
-        cy.get('.rt-tbody .rt-tr:first').should('contain', intentName);
-    });
-
+    
     it('should be able to change the intent with a popup', function() {
         cy.visit('/project/bf/nlu/models');
-        cy.get('.rt-tbody .rt-tr:first')
-            .contains('chitchat.presentation')
-            .click({ force: true });
-        cy.get('.intent-dropdown input')
+        cy.get('.row:contains(chitchat.presentation)')
+            .eq(1)
+            .findCy('intent-label')
             .click({ force: true })
             .type('chitchat.tell_me_a_joke{enter}');
-
-        cy.get('.rt-tbody .rt-tr:first').contains('chitchat.tell_me_a_joke');
+        cy.get('.row:contains(chitchat.tell_me_a_joke)');
     });
 
     it('should delete the training data', function() {
         cy.visit('/project/bf/nlu/models');
-        cy.get('.rt-tbody .rt-tr:first [data-cy=icon-trash]').click({
-            force: true,
-        });
-        cy.get('.rt-tbody .rt-tr:first').should('not.contain', utterance);
+        cy.get('.row:contains(chitchat.presentation)')
+            .eq(1)
+            .findCy('icon-trash')
+            .click({ force: true });
+        cy.get('.row:contains(chitchat.presentation)').should('have.length', 1);
     });
 
     it('should be able to change an entity with a popup', function() {
         cy.visit('/project/bf/nlu/models');
-        cy.get('.rt-tbody .rt-tr:first')
-            .contains('Matthieu')
+        cy.get('.row:contains(chitchat.presentation)')
+            .eq(1)
+            .findCy('entity-label')
             .click();
-        cy.get('[data-cy=entity-dropdown]').click();
-        cy.get('[data-cy=entity-dropdown]')
-            .contains(secondEntity)
-            .click({ force: true })
-            .trigger('keydown', { force: true, key: 'Enter' });
-
-        cy.get('.rt-tbody .rt-tr:first').contains(secondEntity);
-
-        cy.visit('/project/bf/nlu/models');
-        cy.contains('Training Data').click();
-
-        cy.get('.rt-tbody .rt-tr:first').contains(secondEntity);
+        cy.dataCy('entity-dropdown')
+            .find('input')
+            .type('person{enter}');
+        cy.get('.row:contains(person)');
     });
 
-    it('should be able to change an entity with a popup to a new entity', function() {
+    it('should remove the draft status on the example', function() {
         cy.visit('/project/bf/nlu/models');
-        cy.get('.rt-tbody .rt-tr:first')
-            .contains('Matthieu')
-            .click();
-
-        cy.get('[data-cy=entity-dropdown]').click();
-        cy.get('[data-cy=entity-dropdown] input').type(`${newEntity}{enter}`);
-
-        cy.get('.rt-tbody .rt-tr:first').contains(newEntity);
-
-        cy.visit('/project/bf/nlu/models');
-        cy.contains('Training Data').click();
-
-        cy.get('.rt-tbody .rt-tr:first').contains(newEntity);
+        cy.addExamples(['testa', 'testb']);
+        cy.get('.row').eq(0).click().should('have.class', 'selected');
+        cy.get('body').type('{shift}', { release: false });
+        cy.get('.row').eq(1).click();
+        cy.get('.row.selected').should('have.length', 2);
+        cy.get('body').type('{shift}');
+        cy.changeIntentOfSelectedUtterances('test_intent');
+        cy.get('.virtual-table').focus();
+        cy.dataCy('draft-button').should('have.length', 2);
+        cy.get('body').type('s');
+        cy.get('@texts').then((texts) => { if (texts.length > 1) cy.yesToConfirmation(); });
+        cy.dataCy('draft-button').should('not.exist');
     });
 });

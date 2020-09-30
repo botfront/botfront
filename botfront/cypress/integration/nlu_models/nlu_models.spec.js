@@ -54,14 +54,4 @@ describe('NLU Models ', function() {
         cy.get('.dowload-model-backup-button').click();
         cy.get('.delete-model-button').should('not.exist');
     });
-
-    // TODO: move to unit tests
-
-    // it('should NOT be able to call the nlu.remove for the default model', function() {
-    //     cy.MeteorCall('nlu.remove', [this.bf_model_id, this.bf_project_id]).then(
-    //         (result) => {
-    //             expect(result.error).equals('409');
-    //         },
-    //     );
-    // });
 });

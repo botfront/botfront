@@ -8,8 +8,6 @@ import axios from 'axios';
 
 import { GlobalSettings } from '../api/globalSettings/globalSettings.collection';
 import { Projects } from '../api/project/project.collection';
-import { NLUModels } from '../api/nlu_model/nlu_model.collection';
-import { getNluModelLanguages } from '../api/nlu_model/nlu_model.utils';
 
 export const setsAreIdentical = (arr1, arr2) => (
     arr1.every(en => arr2.includes(en))
@@ -69,8 +67,6 @@ export const getBackgroundImageUrl = () => {
 
 export const isEntityValid = e => e && e.entity && (!Object.prototype.hasOwnProperty.call(e, 'value') || e.value.length > 0);
 
-export const getProjectIdFromModelId = modelId => Projects.findOne({ nlu_models: modelId }, { fields: { _id: 1 } })._id;
-
 if (Meteor.isServer) {
     import {
         getAppLoggerForMethod,
@@ -110,18 +106,6 @@ if (Meteor.isServer) {
         },
     });
 }
-
-export const getModelIdsFromProjectId = projectId => (Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }) || {}).nlu_models;
-
-export const getLanguagesFromProjectId = (projectId, asOptions = false) => getNluModelLanguages(getModelIdsFromProjectId(projectId), asOptions);
-
-export const getAllTrainingDataGivenProjectIdAndLanguage = (projectId, language) => {
-    const nluModelIds = getModelIdsFromProjectId(projectId);
-    const models = NLUModels.find({ _id: { $in: nluModelIds }, language }, { fields: { training_data: 1 } }).fetch();
-    return models.map(model => model.training_data.common_examples)
-        .reduce((acc, x) => acc.concat(x), []);
-};
-
 
 export const validateYaml = function () {
     try {

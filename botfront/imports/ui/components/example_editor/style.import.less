@@ -1,24 +1,15 @@
-.example-editor-form {
-  .example-editor-container {
-    .inline-example-editor {
-      padding-left: 0.5em;
-    }
-    .highlight {
-      padding-left: 0;
-      font-family: unset;
-    }
+.ui.form.example-editor-container {
+  textarea {
+    overflow-y: hidden; // so the scrollbar doesn't screw up alignment
   }
-}
-.example-editor-container {
   .highlight {
-      color: transparent;
-      pointer-events: none;
-      font-family: sans-serif;
-      padding: 5px 8px;
-      white-space: pre;
-      position: absolute;
-      top: 7px;
-      left: 7px;
+    color: transparent;
+    pointer-events: none;
+    padding: @relative11px @relative14px; // same as textarea
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: 1px transparent solid;
   }
 }
 

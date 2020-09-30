@@ -6,7 +6,6 @@ import {
     Menu, Icon, Dropdown, Popup, Message,
 } from 'semantic-ui-react';
 import Chat from './Chat';
-import { getLanguagesFromProjectId } from '../../../lib/utils';
 import { setShouldRefreshChat } from '../../store/actions/actions';
 
 class ProjectChat extends React.Component {
@@ -39,8 +38,7 @@ class ProjectChat extends React.Component {
     };
 
     loadAvailableLanguages = async () => {
-        const { projectId } = this.props;
-        const languages = await getLanguagesFromProjectId(projectId);
+        const { project: { languages = [] } } = this.props;
         this.setState({
             languageOptions: languages.map(l => ({ text: l, value: l })),
             selectedLanguage: languages[0] ? languages[0] : '',
@@ -90,7 +88,7 @@ class ProjectChat extends React.Component {
             path,
         } = this.state;
         const {
-            triggerChatPane, projectId, initPayload,
+            triggerChatPane, project: { _id: projectId }, initPayload,
         } = this.props;
         return (
             <div className='chat-pane-container' data-cy='chat-pane'>
@@ -181,7 +179,7 @@ class ProjectChat extends React.Component {
 }
 
 ProjectChat.propTypes = {
-    projectId: PropTypes.string.isRequired,
+    project: PropTypes.object.isRequired,
     triggerChatPane: PropTypes.func.isRequired,
     channel: PropTypes.object.isRequired,
     initPayload: PropTypes.string,
