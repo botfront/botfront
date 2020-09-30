@@ -46,7 +46,7 @@ function AnalyticsCard(props) {
 
     const {
         project: {
-            _id: projectId, name: projectName = 'Botfront', timezoneOffset: projectTimezoneOffset = 0, nlu_models,
+            _id: projectId, name: projectName = 'Botfront', timezoneOffset: projectTimezoneOffset = 0,
         },
     } = useContext(ProjectContext);
 
@@ -221,7 +221,7 @@ function AnalyticsCard(props) {
         Object.keys(filters).forEach((key) => {
             queryObject[key] = queryifyFilter(key, filters[key]);
         });
-        browserHistory.push({ pathname: `/project/${projectId}/incoming/${nlu_models[0]}/conversations/`, query: queryObject });
+        browserHistory.push({ pathname: `/project/${projectId}/incoming/conversations/`, query: queryObject });
     };
 
     const renderChart = () => {

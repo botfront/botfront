@@ -6,6 +6,8 @@ if (Meteor.isServer) {
     // resolvers
     import { subscriptionFilter as responsesSub } from '../../graphql/botResponses/resolvers/botResponsesResolver';
     import { subscriptionFilter as formsSub } from '../../graphql/forms/formResolver';
+    import { subscriptionFilter as examplesSub } from '../../graphql/examples/resolvers/examplesResolver';
+
 
     import { setScopes } from '../../../lib/scopes';
     import { roles, readers, formatRoles } from './roleTestUtils';
@@ -33,6 +35,13 @@ if (Meteor.isServer) {
             variables: { projectId: 'bf' },
             payload: { projectId: 'bf' },
             acceptedRoles: readers.stories,
+        },
+        {
+            name: 'intentsOrEntitiesChanged',
+            subFunction: examplesSub,
+            variables: { projectId: 'bf' },
+            payload: { projectId: 'bf' },
+            acceptedRoles: readers.nluData,
         },
     ];
 
@@ -86,7 +95,7 @@ if (Meteor.isServer) {
             checkResult(e);
         }
     };
-    describe('graphQL subscription roles', () => {
+    describe.only('graphQL subscription roles', () => {
         testCases.forEach((testCase) => {
             roles.forEach((role) => {
                 it(`subscribe to ${testCase.name} as ${role} with a global scope`, (done) => {

@@ -9,27 +9,23 @@ import { ProjectContext } from '../../../layouts/context';
 import UtteranceInput from '../../utils/UtteranceInput';
 import NluModalContent from './nlu_editor/NluModalContent';
 
-
 const UtteranceContainer = (props) => {
     const {
         value, onInput, onAbort, onDelete,
     } = props;
     const [mode, setMode] = useState(!value ? 'input' : 'view');
-    const { parseUtterance, getUtteranceFromPayload } = useContext(ProjectContext);
+    const { parseUtterance, getCanonicalExamples } = useContext(ProjectContext);
     const [stateValue, setStateValue] = useState(value);
     const [input, setInput] = useState();
     const [fetchedData, setFetchedData] = useState(value || null);
     const [modalOpen, setModalOpen] = useState(false);
     const closeModal = useCallback(() => setModalOpen(false), []);
     const containerBody = useRef();
+    const modalContentRef = useRef();
 
     useEffect(() => {
         setMode(!value ? 'input' : 'view');
-        if (value) {
-            getUtteranceFromPayload(value, (err, data) => {
-                if (!err) setFetchedData(data);
-            });
-        }
+        if (value) setFetchedData([...getCanonicalExamples(value), null][0]);
     }, [value]);
 
     const validateInput = async () => {
@@ -56,10 +52,19 @@ const UtteranceContainer = (props) => {
             && !!stateValue
             && mode === 'input'
             && !containerBody.current.contains(event.target)
-            && !['.intent-popup', '.entity-popup', '.row', '.trash', '.navigation', '.project-sidebar'].some(
+            && ![
+                '.intent-popup',
+                '.entity-popup',
+                '.row',
+                '.trash',
+                '.navigation',
+                '.project-sidebar',
+            ].some(
                 c => event.target.closest(c), // target has ancestor with class
             )
-        ) { saveInput(); }
+        ) {
+            saveInput();
+        }
     };
 
     useEffect(() => {
@@ -72,13 +77,16 @@ const UtteranceContainer = (props) => {
         };
     }, [stateValue]);
 
-    useEffect(() => () => {
-        // as state update are async we're not sure mode have change already
-        // that why we use  wasSaved to keep track of the save state
-        if (mode === 'input' && !containerBody.current.wasSaved) {
-            onDelete();
-        }
-    }, []);
+    useEffect(
+        () => () => {
+            // as state update are async we're not sure mode have change already
+            // that why we use  wasSaved to keep track of the save state
+            if (mode === 'input' && !containerBody.current.wasSaved) {
+                onDelete();
+            }
+        },
+        [],
+    );
 
     const render = () => {
         if (mode === 'input') {
@@ -96,10 +104,7 @@ const UtteranceContainer = (props) => {
             }
             return (
                 <>
-                    <UserUtteranceViewer
-                        value={stateValue}
-                        onChange={setStateValue}
-                    />
+                    <UserUtteranceViewer value={stateValue} onChange={setStateValue} />
                     <Button
                         primary
                         onClick={saveInput}
@@ -130,12 +135,21 @@ const UtteranceContainer = (props) => {
             {render()}
             {modalOpen && (
                 <>
-                    <Modal open>
+                    <Modal
+                        open
+                        className='nlu-editor-stories'
+                        onClose={() => modalContentRef?.current?.closeModal()}
+                        closeOnEscape={false}
+                    >
                         <Segment className='nlu-editor-modal' data-cy='nlu-editor-modal'>
                             <div className='nlu-editor-top-content'>
                                 <UserUtteranceViewer value={value} disableEditing />
                             </div>
-                            <NluModalContent payload={value} closeModal={closeModal} displayedExample={fetchedData} />
+                            <NluModalContent
+                                ref={modalContentRef}
+                                payload={value}
+                                closeModal={closeModal}
+                            />
                         </Segment>
                     </Modal>
                 </>

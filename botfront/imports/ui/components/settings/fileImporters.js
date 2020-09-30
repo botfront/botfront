@@ -70,7 +70,7 @@ const handleImportResponse = (responses, projectId) => new Promise(resolve => ap
     }));
 
 export const handleImportStoryGroups = (files, {
-    projectId, fileReader: [_, setFileList], setImportingState, wipeCurrent, existingStoryGroups,
+    projectId, fileReader: [, setFileList], setImportingState, wipeCurrent, existingStoryGroups,
 }) => {
     if (!files.length) return;
     setImportingState(true);
@@ -129,7 +129,7 @@ const wipeDomain = async (projectId, existingSlots) => {
 };
 
 export const handleImportDomain = (files, {
-    projectId, fileReader: [_, setFileList], setImportingState, wipeCurrent, existingSlots, existingStoryGroups,
+    projectId, fileReader: [, setFileList], setImportingState, wipeCurrent, existingSlots, existingStoryGroups,
 }) => {
     if (!files.length) return;
     setImportingState(true);
@@ -165,7 +165,7 @@ export const handleImportDomain = (files, {
 };
 
 export const handleImportDataset = (files, {
-    projectId, fileReader: [_, setFileList], setImportingState, wipeCurrent,
+    projectId, fileReader: [, setFileList], setImportingState, wipeCurrent,
 }) => {
     if (!files.length) return;
     setImportingState(true);

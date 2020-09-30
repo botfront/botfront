@@ -13,8 +13,6 @@ import { GlobalSettings } from '../api/globalSettings/globalSettings.collection'
 import { checkIfCan } from './scopes';
 
 import { Projects } from '../api/project/project.collection';
-import { NLUModels } from '../api/nlu_model/nlu_model.collection';
-import { getNluModelLanguages } from '../api/nlu_model/nlu_model.utils';
 
 export const setsAreIdentical = (arr1, arr2) => (
     arr1.every(en => arr2.includes(en))
@@ -73,8 +71,6 @@ export const getBackgroundImageUrl = () => {
 };
 
 export const isEntityValid = e => e && e.entity && (!Object.prototype.hasOwnProperty.call(e, 'value') || e.value.length > 0);
-
-export const getProjectIdFromModelId = modelId => Projects.findOne({ nlu_models: modelId }, { fields: { _id: 1 } })._id;
 
 export const getProjectModelFileName = (projectId, extension = null) => {
     const modelName = `model-${projectId}`;
@@ -206,7 +202,7 @@ if (Meteor.isServer) {
             if (url && method) {
                 const response = await BotResponses.findOne({ projectId, key }).lean();
                 const imagesUrls = getImageUrls(response, lang); // check if the url is used in any other language
-                if (imagesUrls.filter((x) => x == imgSrc).length < 1) {
+                if (imagesUrls.filter(x => x == imgSrc).length < 1) {
                     deleteImages([imgSrc], projectId, url, method);
                 }
             }
@@ -240,21 +236,6 @@ if (Meteor.isServer) {
         },
     });
 }
-
-
-export const getModelIdsFromProjectId = projectId => (Projects.findOne({ _id: projectId }, { fields: { nlu_models: 1 } }) || {}).nlu_models;
-
-// used from outside botfront
-// -permission- add check with apikey
-export const getLanguagesFromProjectId = (projectId, asOptions = false) => getNluModelLanguages(getModelIdsFromProjectId(projectId), asOptions);
-
-export const getAllTrainingDataGivenProjectIdAndLanguage = (projectId, language) => {
-    const nluModelIds = getModelIdsFromProjectId(projectId);
-    const models = NLUModels.find({ _id: { $in: nluModelIds }, language }, { fields: { training_data: 1 } }).fetch();
-    return models.map(model => model.training_data.common_examples)
-        .reduce((acc, x) => acc.concat(x), []);
-};
-
 
 export const validateYaml = function () {
     try {

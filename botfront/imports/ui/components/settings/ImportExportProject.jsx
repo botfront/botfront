@@ -10,7 +10,6 @@ import { GlobalSettings } from '../../../api/globalSettings/globalSettings.colle
 import ImportProject from './ImportProject.jsx';
 import ExportProject from './ExportProject.jsx';
 import { can } from '../../../lib/scopes';
-import { Projects } from '../../../api/project/project.collection';
 
 
 class ImportExportProject extends React.Component {
@@ -79,8 +78,7 @@ ImportExportProject.defaultProps = {
     apiHost: '',
 };
 
-const ImportExportProjectTracker = withTracker(({ projectId }) => {
-    const modelsHandler = Meteor.subscribe('nlu_models.lite', projectId);
+const ImportExportProjectTracker = withTracker(() => {
     const settingsHandler = Meteor.subscribe('settings');
     const settings = GlobalSettings
         .findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.bfApiHost': true } });
@@ -89,7 +87,7 @@ const ImportExportProjectTracker = withTracker(({ projectId }) => {
         api = settings.settings.private.bfApiHost;
     }
     return {
-        ready: settingsHandler.ready() && modelsHandler.ready(),
+        ready: settingsHandler.ready(),
         apiHost: api,
     };
 })(ImportExportProject);

@@ -32,7 +32,6 @@ function AnalyticsContainer(props) {
     } = props;
     
     const dashboardRef = useRef(null);
-    const [availableEnvs, setAvailableEnvs] = useState(['development']);
     const [sequenceOptions, setSequenceOptions] = useState([]);
     const [slotOptions, setSlotOptions] = useState([]);
     const [actionOptions, setActionOptions] = useState([]);
@@ -40,13 +39,6 @@ function AnalyticsContainer(props) {
         project: { _id: projectId },
         projectLanguages,
     } = useContext(ProjectContext);
-
-    useEffect(() => {
-        Meteor.call('project.getDeploymentEnvironments', projectId, (err, res) => {
-            if (!err) setAvailableEnvs(res);
-        });
-    }, []);
-
     
     useQuery(GET_INTENTS_IN_CONVERSATIONS, {
         variables: { projectId },
@@ -76,7 +68,7 @@ function AnalyticsContainer(props) {
             }
         });
     }, []);
-   
+
     const {
         loading,
         error,
@@ -190,9 +182,8 @@ function AnalyticsContainer(props) {
             )}
             <div>
                 <PageMenu title='Analytics' icon='chart bar'>
-                    <Menu.Item className='env-select'>
+                    <Menu.Item>
                         <EnvSelector
-                            availableEnvs={availableEnvs}
                             value={dashboard.envs[0]} // multi env not supported
                             envChange={env => handleUpdateDashboard({ envs: [env] })}
                         />

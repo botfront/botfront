@@ -10,7 +10,6 @@ import {
 import { DELETE_CONV } from './mutations';
 import ConversationViewer from './ConversationViewer';
 import ConversationFilters from './ConversationFilters';
-import { Loading } from '../utils/Utils';
 import { updateIncomingPath } from '../incoming/incoming.utils';
 import { ConversationBrowserContext } from './context';
 
@@ -24,7 +23,6 @@ function ConversationsBrowser(props) {
         router,
         activeFilters,
         changeFilters,
-        loading,
         intentsActionsOptions,
         handleDownloadConversations,
     } = props;
@@ -66,7 +64,9 @@ function ConversationsBrowser(props) {
 
     const goToConversation = (newPage, conversationId, replace = false) => {
         // let url = `/project/${projectId}/incoming/${modelId}/conversations/${page || 1}`;
-        const { location: { query } } = router;
+        const {
+            location: { query },
+        } = router;
         const url = updateIncomingPath({
             ...router.params,
             page: newPage || 1,
@@ -85,7 +85,9 @@ function ConversationsBrowser(props) {
     };
 
     function pageChange(newPage) {
-        const { location: { query } } = router;
+        const {
+            location: { query },
+        } = router;
         const url = updateIncomingPath(
             { ...router.params, page: newPage || 1 },
             'selected_id',
@@ -128,69 +130,66 @@ function ConversationsBrowser(props) {
         deleteConv({ variables: { id: conversationId } }).then(() => refetch());
     }
 
+    const renderNoMessages = () => (
+        <Grid.Row>
+            <Message data-cy='no-conv' info>
+                No conversation to load
+            </Message>
+        </Grid.Row>
+    );
+    const renderBody = () => (
+        <>
+            <Grid.Column width={5}>
+                {pages > 1 ? (
+                    <Pagination
+                        totalPages={pages}
+                        onPageChange={(e, { activePage }) => pageChange(activePage)}
+                        activePage={page}
+                        boundaryRange={0}
+                        siblingRange={0}
+                        size='mini'
+                        firstItem='1'
+                        lastItem={`${pages}`}
+                        data-cy='pagination'
+                    />
+                ) : (
+                    <></>
+                )}
+                <Menu pointing vertical fluid className='conversation-browser'>
+                    {renderMenuItems()}
+                </Menu>
+            </Grid.Column>
+            <Grid.Column width={11}>
+                <ConversationViewer
+                    conversationId={activeConversationId}
+                    onDelete={deleteConversation}
+                    removeReadMark={optimisticRemoveMarker}
+                    optimisticlyRemoved={optimisticRemoveReadMarker}
+                />
+            </Grid.Column>
+        </>
+    );
+
     return (
         <ConversationBrowserContext.Provider
             value={{
                 modifyFilters: handleModifyFilters,
             }}
         >
-            <div>
-                <Grid>
-                    <Grid.Row>
-                        <ConversationFilters
-                            activeFilters={activeFilters}
-                            changeFilters={changeFilters}
-                          
-                            intentsActionsOptions={intentsActionsOptions}
-                            onDownloadConversations={handleDownloadConversations}
-                        />
-                    </Grid.Row>
-                    <Loading loading={loading}>
-                        {trackers.length > 0 ? (
-                            <>
-                                <Grid.Column width={4}>
-                                    {pages > 1 ? (
-                                        <Pagination
-                                            totalPages={pages}
-                                            onPageChange={(e, { activePage }) => pageChange(activePage)}
-                                            activePage={page}
-                                            boundaryRange={0}
-                                            siblingRange={0}
-                                            size='mini'
-                                            firstItem='1'
-                                            lastItem={`${pages}`}
-                                            data-cy='pagination'
-                                        />
-                                    ) : (
-                                        <></>
-                                    )}
-
-                                    <Menu pointing vertical fluid>
-                                        {renderMenuItems()}
-                                    </Menu>
-                                </Grid.Column>
-                                <Grid.Column width={12}>
-                                    <ConversationViewer
-                                        conversationId={activeConversationId}
-                                        onDelete={deleteConversation}
-                                        removeReadMark={optimisticRemoveMarker}
-                                        optimisticlyRemoved={optimisticRemoveReadMarker}
-
-                                    />
-                                </Grid.Column>
-                            </>
-                        ) : (
-                            <Grid.Column width={16}>
-                                <Message data-cy='no-conv' info>
-                                No conversations to load.
-                                </Message>
-                            </Grid.Column>
-                        )}
-                    </Loading>
-                </Grid>
-            </div>
+            <Grid>
+                <Grid.Row>
+                    <ConversationFilters
+                        activeFilters={activeFilters}
+                        changeFilters={changeFilters}
+                        intentsActionsOptions={intentsActionsOptions}
+                        onDownloadConversations={handleDownloadConversations}
+                    />
+                </Grid.Row>
+                {trackers.length ? renderBody() : renderNoMessages()}
+            </Grid>
         </ConversationBrowserContext.Provider>
     );
+
 }
 
 ConversationsBrowser.propTypes = {
@@ -203,7 +202,6 @@ ConversationsBrowser.propTypes = {
     activeFilters: PropTypes.object.isRequired,
     changeFilters: PropTypes.func.isRequired,
     intentsActionsOptions: PropTypes.array,
-    loading: PropTypes.bool.isRequired,
     handleDownloadConversations: PropTypes.func.isRequired,
 };
 
@@ -213,6 +211,5 @@ ConversationsBrowser.defaultProps = {
     activeConversationId: null,
     intentsActionsOptions: [],
 };
-
 
 export default ConversationsBrowser;

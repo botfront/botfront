@@ -28,7 +28,6 @@
 @import '../imports/ui/components/stories/rules/style.import.less';
 @import '../imports/ui/components/stories/search/style.import.less';
 @import '../imports/ui/components/stories/common/nlu_editor/style.import.less';
-@import '../imports/ui/components/incoming/style.import.less';
 @import '../imports/ui/components/form_fields/style.import.less';
 @import '../imports/ui/components/forms/style.import.less';
 @import '../imports/ui/components/forms/graph/style.import.less';
@@ -71,6 +70,11 @@
     font-variant: normal;
     text-decoration: inherit;
     text-transform: none;
+}
+
+.ui.form textarea:not([rows]) {
+    min-height: unset !important;
+    max-height: unset !important;
 }
 
 .monospace {
@@ -241,8 +245,16 @@ div[role="button"] {
     width: 100%;
 }
 
-.tester .ellipsis {
-    overflow-x: auto;
+.tester {
+    .ellipsis {
+        overflow-x: auto;
+    }
+    .instructions {
+        text-align: center;
+        margin-top: 2px;
+        color: grey;
+        font-style: italic;
+    }
 }
 
 .warning_container {
@@ -302,6 +314,9 @@ p.overflow {
 
 .ui.basic.button, .ui.basic.button:hover {
     background: #fff none !important;
+    &.icon-button {
+        background: #fff none !important; 
+    }
     &.green.small.icon {
         background: #fff none !important; 
     }

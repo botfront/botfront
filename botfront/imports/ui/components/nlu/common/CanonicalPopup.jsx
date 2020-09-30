@@ -15,7 +15,8 @@ const CanonicalPopup = React.forwardRef((props, ref) => {
     const [tooltipOpen, setTooltipOpen] = useState(false);
 
     const canonicalExample = getCanonicalExamples({ intent })[0];
-    const intentLabelRef = ref || useRef();
+    const defaultLabelRef = useRef();
+    const intentLabelRef = ref || defaultLabelRef;
     
     const renderPopupContent = () => (
         <div className='side-by-side middle'>
@@ -24,7 +25,7 @@ const CanonicalPopup = React.forwardRef((props, ref) => {
                 : (
                     <>
                         <Icon
-                            name={canonicalExample.canonical ? 'gem' : 'tag'}
+                            name={canonicalExample.metadata?.canonical ? 'gem' : 'tag'}
                         />
                         <UserUtteranceViewer
                             value={canonicalExample}

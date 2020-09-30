@@ -1,4 +1,4 @@
-import Model from '../nlu.model';
+import Model from '../examples.model';
 
 export const getIntentDistribution = async id => Model.aggregate([
     {
@@ -7,13 +7,8 @@ export const getIntentDistribution = async id => Model.aggregate([
         },
     },
     {
-        $unwind: {
-            path: '$training_data.common_examples',
-        },
-    },
-    {
         $group: {
-            _id: '$training_data.common_examples.intent',
+            _id: '$intent',
             count: { $sum: 1 },
         },
     },
@@ -35,17 +30,12 @@ export const getEntityDistribution = async id => Model.aggregate([
     },
     {
         $unwind: {
-            path: '$training_data.common_examples',
-        },
-    },
-    {
-        $unwind: {
-            path: '$training_data.common_examples.entities',
+            path: '$entities',
         },
     },
     {
         $group: {
-            _id: '$training_data.common_examples.entities.entity',
+            _id: '$entities.entity',
             count: { $sum: 1 },
         },
     },

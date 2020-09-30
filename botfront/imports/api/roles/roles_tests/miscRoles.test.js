@@ -50,34 +50,10 @@ if (Meteor.isServer) {
         },
         nluThreshold: 0.75,
         timezoneOffset: 0,
-        nlu_models: [modelId],
         updatedAt: '2020-02-18T16:44:24.809Z',
         deploymentEnvironments: [],
     };
 
-
-    // eslint-disable-next-line import/named
-    import { getTrainingDataInRasaFormat, parseNlu } from '../../instances/instances.methods';
-
-    const callGetTrainingDataInRasaFormat = async (role, scope, done) => {
-        await Meteor.users.remove({ _id: userId });
-        await Projects.remove({ _id: projectId });
-        await Meteor.roleAssignment.remove({ user: { _id: userId } });
-        await Meteor.users.insert(userData);
-        await Projects.insert(projectData);
-        await setScopes(formatRoles(role, scope), userId);
-        try {
-            const result = await getTrainingDataInRasaFormat({ _id: modelId });
-            expect(result).to.not.equal(result); // getTrainingDataInRasaFormat should always throw an error in this test so this line should not be reached
-        } catch (err) {
-            if (!readers.nluData.includes(role) || scope === 'DNE') {
-                expect(err.error).to.be.equal('403');
-            } else {
-                expect(err.error).to.not.equal('403');
-            }
-        }
-        done();
-    };
     const callParseNlu = async (role, scope, done) => {
         await Meteor.users.remove({ _id: userId });
         await Projects.remove({ _id: projectId });
@@ -115,17 +91,6 @@ if (Meteor.isServer) {
         done();
     };
     describe('should test toles for miscellaneous functions', () => {
-        roles.forEach((role) => {
-            it(`call getTrainingDataInRasaFormat as ${role} with GLOBAL scope`, (done) => {
-                callGetTrainingDataInRasaFormat(role, 'GLOBAL', done);
-            });
-            it(`call getTrainingDataInRasaFormat as ${role} with project scope`, (done) => {
-                callGetTrainingDataInRasaFormat(role, projectId, done);
-            });
-            it(`call getTrainingDataInRasaFormat as ${role} with wrong project scope`, (done) => {
-                callGetTrainingDataInRasaFormat(role, 'DNE', done);
-            });
-        });
         roles.forEach((role) => {
             it(`call parseNlu as ${role} with GLOBAL scope`, (done) => {
                 callParseNlu(role, 'GLOBAL', done);

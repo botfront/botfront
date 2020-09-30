@@ -2,8 +2,6 @@ import React, {
     useState, useEffect, useMemo, useRef, useContext,
 } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-
 import { debounce } from 'lodash';
 import {
     Message, Button, Icon, Confirm,
@@ -15,7 +13,6 @@ import { useActivity, useDeleteActivity, useUpsertActivity } from './hooks';
 import { populateActivity } from './ActivityInsertions';
 import { getSmartTips } from '../../../../lib/smart_tips';
 import Filters from '../models/Filters';
-import { ProjectContext } from '../../../layouts/context';
 
 import DataTable from '../../common/DataTable';
 import ActivityActionsColumn from './ActivityActionsColumn';
@@ -23,6 +20,8 @@ import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { isTraining } from '../../../../api/nlu_model/nlu_model.utils';
 import { can, Can } from '../../../../lib/scopes';
 import { useEventListener } from '../../utils/hooks';
+import { useInsertExamples } from '../models/hooks';
+import { ProjectContext } from '../../../layouts/context';
 
 import PrefixDropdown from '../../common/PrefixDropdown';
 import ActivityCommandBar from './ActivityCommandBar';
@@ -54,47 +53,55 @@ function Activity(props) {
         }
     };
 
+    const { linkRender } = props;
     const {
-        model,
-        model: { _id: modelId, language: lang },
-        workingEnvironment,
-        instance,
+        language,
+        environment,
         project,
-        projectId,
-        linkRender,
-    } = props;
+        project: { training: { endTime } = {}, _id: projectId, nluThreshold },
+        instance,
+    } = useContext(ProjectContext);
+    const examples = []; // change me!!!!
 
     const [openConvPopup, setOpenConvPopup] = useState(-1);
     const [filter, setFilter] = useState({
         entities: [], intents: [], query: '', dateRange: {},
     });
-    const {
-        data, hasNextPage, loading, loadMore, refetch,
-    } = useActivity({
-        modelId,
-        env: workingEnvironment,
+
+    const variables = useMemo(() => ({
+        projectId,
+        language,
+        env: environment,
+        pageSize: 20,
         filter,
         ...getSortFunction(),
-    });
+    }), [projectId, language, environment, filter, getSortFunction()]);
+
+    const {
+        data, hasNextPage, loading, loadMore, refetch,
+    } = useActivity(variables);
+    const [insertExamples] = useInsertExamples(variables, false);
     const [selection, setSelection] = useState([]);
     let reinterpreting = [];
-    const setReinterpreting = (v) => { reinterpreting = v; };
+    const setReinterpreting = (v) => {
+        reinterpreting = v;
+    };
     const [confirm, setConfirm] = useState(null);
     const singleSelectedIntentLabelRef = useRef();
     const activityCommandBarRef = useRef();
     const tableRef = useRef();
-    
+
     // always refetch on first page load and sortType change
-    useEffect(() => { if (refetch) refetch(); }, [refetch, modelId, workingEnvironment, sortType, filter]);
+    useEffect(() => {
+        if (refetch) refetch();
+    }, [refetch, projectId, language, sortType, filter]);
 
-    const [upsertActivity] = useUpsertActivity({
-        modelId, env: workingEnvironment, filter, ...getSortFunction(),
-    });
-    const [deleteActivity] = useDeleteActivity({
-        modelId, env: workingEnvironment, filter, ...getSortFunction(),
-    });
+    const [upsertActivity] = useUpsertActivity(variables);
+    const [deleteActivity] = useDeleteActivity(variables);
 
-    const isUtteranceOutdated = u => getSmartTips(model, project, u).code === 'outdated';
+    const isUtteranceOutdated = utterance => getSmartTips({
+        nluThreshold, endTime, examples, utterance,
+    }).code === 'outdated';
     const isUtteranceReinterpreting = ({ _id }) => reinterpreting.includes(_id);
 
     const validated = data.filter(a => a.validated);
@@ -106,29 +113,42 @@ function Activity(props) {
             : data[Math.max(0, bounds[0] - 1)];
     };
 
-    const mutationCallback = (fallbackUtterance, mutationName) => ({ data: { [mutationName]: res = [] } = {} }) => {
+    const mutationCallback = (fallbackUtterance, mutationName) => ({
+        data: { [mutationName]: res = [] } = {},
+    }) => {
         const filtered = selection.filter(s => !res.map(({ _id }) => _id).includes(s));
-        return setSelection( // remove deleted from selection
+        return setSelection(
+            // remove deleted from selection
             filtered.length ? filtered : [fallbackUtterance._id],
         );
     };
 
     const handleAddToTraining = async (utterances) => {
         const fallbackUtterance = getFallbackUtterance(utterances.map(u => u._id));
-        await Meteor.call('nlu.insertExamples', modelId, utterances);
-        const result = await deleteActivity({ variables: { modelId, ids: utterances.map(u => u._id) } });
+        const toAdd = clearTypenameField(
+            utterances.map(({ text, intent, entities: ents }) => ({ text, intent, entities: ents })),
+        );
+        insertExamples({ variables: { examples: toAdd } });
+        const result = await deleteActivity({
+            variables: { ids: utterances.map(u => u._id) },
+        });
         mutationCallback(fallbackUtterance, 'deleteActivity')(result);
     };
 
     const handleUpdate = async (newData) => {
-        const dataUpdated = clearTypenameField(data.filter(d1 => newData.map(d2 => d2._id).includes(d1._id)).map(
-            d1 => ({ ...d1, ...newData.find(d2 => d2._id === d1._id) }),
-        ));
+        const dataUpdated = clearTypenameField(
+            data
+                .filter(d1 => newData.map(d2 => d2._id).includes(d1._id))
+                .map(d1 => ({ ...d1, ...newData.find(d2 => d2._id === d1._id) })),
+        );
         return upsertActivity({
-            variables: { modelId, data: dataUpdated },
+            variables: { data: dataUpdated },
             optimisticResponse: {
                 __typename: 'Mutation',
-                upsertActivity: dataUpdated.map(d => ({ __typename: 'Activity', ...d })),
+                upsertActivity: dataUpdated.map(d => ({
+                    __typename: 'Activity',
+                    ...d,
+                })),
             },
         });
     };
@@ -138,7 +158,7 @@ function Activity(props) {
         const fallbackUtterance = getFallbackUtterance(ids);
         const message = `Delete ${utterances.length} incoming utterances?`;
         const action = () => deleteActivity({
-            variables: { modelId, ids },
+            variables: { ids },
             optimisticResponse: {
                 __typename: 'Mutation',
                 deleteActivity: ids.map(_id => ({ __typename: 'Activity', _id })),
@@ -148,7 +168,9 @@ function Activity(props) {
     };
 
     const handleSetValidated = (utterances, val = true) => {
-        const message = `Mark ${utterances.length} incoming utterances as ${val ? 'validated' : 'invalidated'} ?`;
+        const message = `Mark ${utterances.length} incoming utterances as ${
+            val ? 'validated' : 'invalidated'
+        } ?`;
         const action = () => handleUpdate(utterances.map(({ _id }) => ({ _id, validated: val })));
         return utterances.length > 1 ? setConfirm({ message, action }) : action();
     };
@@ -165,18 +187,37 @@ function Activity(props) {
         const message = intent
             ? `Set intent of ${utterances.length} incoming utterances to ${intent}?`
             : `Reset intent of ${utterances.length} incoming utterances?`;
-        const action = () => handleUpdate(utterances.map(({ _id }) => ({
-            _id, intent, confidence: null, ...(!intent ? { validated: false } : {}),
-        })));
+        const action = () => handleUpdate(
+            utterances.map(({ _id }) => ({
+                _id,
+                intent,
+                confidence: null,
+                ...(!intent ? { validated: false } : {}),
+            })),
+        );
         return utterances.length > 1 ? setConfirm({ message, action }) : action();
     };
 
     const handleReinterpret = async (utterances) => {
-        setReinterpreting(Array.from(new Set([...reinterpreting, ...utterances.map(u => u._id)])));
-        const reset = () => setReinterpreting(reinterpreting.filter(uid => !utterances.map(u => u._id).includes(uid)));
+        setReinterpreting(
+            Array.from(new Set([...reinterpreting, ...utterances.map(u => u._id)])),
+        );
+        const reset = () => setReinterpreting(
+            reinterpreting.filter(
+                uid => !utterances.map(u => u._id).includes(uid),
+            ),
+        );
         try {
-            populateActivity(instance, utterances.map(u => ({ text: u.text, lang })), modelId, reset);
-        } catch (e) { reset(); }
+            populateActivity(
+                instance,
+                utterances.map(u => ({ text: u.text, lang: language })),
+                projectId,
+                language,
+                reset,
+            );
+        } catch (e) {
+            reset();
+        }
     };
 
     const doAttemptReinterpretation = (visibleData) => {
@@ -190,7 +231,8 @@ function Activity(props) {
 
     const handleScroll = debounce((items) => {
         const { visibleStartIndex: start, visibleStopIndex: end } = items;
-        const visibleData = Array(end - start + 1).fill()
+        const visibleData = Array(end - start + 1)
+            .fill()
             .map((_, i) => start + i)
             .map(i => data[i])
             .filter(d => d);
@@ -204,7 +246,7 @@ function Activity(props) {
             || typeof datum.intent !== 'string'
             || typeof datum.confidence !== 'number'
             || datum.confidence <= 0
-        ) return null;
+        ) { return null; }
         return (
             <div className='confidence-text'>
                 {`${Math.floor(datum.confidence * 100)}%`}
@@ -227,7 +269,7 @@ function Activity(props) {
                         allowAdditions
                         onChange={intent => handleSetIntent([{ _id: datum._id }], intent)}
                         enableReset
-                        onClose={() => tableRef.current.tableRef().current.focus()}
+                        onClose={() => tableRef?.current?.focusTable()}
                     />
                 )}
             />
@@ -239,7 +281,7 @@ function Activity(props) {
         return (
             <UserUtteranceViewer
                 value={datum}
-                onChange={({ _id, entities }) => handleUpdate([{ _id, entities }])}
+                onChange={({ _id, entities: ents }) => handleUpdate([{ _id, entities: ents }])}
                 projectId={projectId}
                 disabled={isUtteranceOutdated(datum)}
                 disableEditing={isUtteranceOutdated(datum)}
@@ -251,15 +293,13 @@ function Activity(props) {
     const renderActions = row => (
         <ActivityActionsColumn
             datum={row.datum}
-            data={data}
-            instance={instance}
-            modelId={modelId}
-            lang={lang}
-            projectId={projectId}
             handleSetValidated={handleSetValidated}
-            getSmartTips={u => getSmartTips(model, project, u)}
-            onMarkOoS={handleMarkOoS}
             onDelete={handleDelete}
+            onMarkOoS={handleMarkOoS}
+            data={data}
+            getSmartTips={utterance => getSmartTips({
+                nluThreshold, endTime, examples, utterance,
+            })}
         />
     );
 
@@ -274,31 +314,42 @@ function Activity(props) {
     const columns = [
         { key: '_id', selectionKey: true, hidden: true },
         {
-            key: 'confidence', style: { width: '51px', minWidth: '51px' }, render: renderConfidence,
+            key: 'confidence',
+            style: { width: '51px', minWidth: '51px' },
+            render: renderConfidence,
         },
         {
-            key: 'intent', style: { width: '180px', minWidth: '180px', overflow: 'hidden' }, render: renderIntent,
+            key: 'intent',
+            style: { width: '180px', minWidth: '180px', overflow: 'hidden' },
+            render: renderIntent,
         },
         {
             key: 'conversation-popup', style: { width: '30px', minWidth: '30px' }, render: renderConvPopup,
         },
         {
-            key: 'text', style: { width: '100%' }, render: renderExample,
+            key: 'text',
+            style: { width: '100%' },
+            render: renderExample,
         },
         ...(can('incoming:w', projectId) ? [
             {
-                key: 'actions', style: { width: '150px' }, render: renderActions,
+                key: 'actions',
+                style: { width: '110px' },
+                render: renderActions,
             },
         ] : []),
     ];
 
     const handleOpenIntentSetterDialogue = () => {
         if (!selection.length) return null;
-        if (selection.length === 1) return singleSelectedIntentLabelRef.current.openPopup();
+        if (selection.length === 1) { return singleSelectedIntentLabelRef.current.openPopup(); }
         return activityCommandBarRef.current.openIntentPopup();
     };
 
-    const selectionWithFullData = useMemo(() => data.filter(({ _id }) => selection.includes(_id)), [selection, data]);
+    const selectionWithFullData = useMemo(
+        () => data.filter(({ _id }) => selection.includes(_id)),
+        [selection, data],
+    );
 
     useEventListener('keydown', (e) => {
         const {
@@ -307,10 +358,13 @@ function Activity(props) {
         if (shiftKey || metaKey || ctrlKey || altKey) return;
         if (!!confirm) {
             if (key.toLowerCase() === 'n') setConfirm(null);
-            if (key.toLowerCase() === 'y' || key === 'Enter') { confirm.action(); setConfirm(null); }
+            if (key.toLowerCase() === 'y' || key === 'Enter') {
+                confirm.action();
+                setConfirm(null);
+            }
             return;
         }
-        if (e.target !== tableRef.current.tableRef().current) return;
+        if (e.target !== tableRef?.current?.actualTable()) return;
         if (key === 'Escape') setSelection([]);
         if (key.toLowerCase() === 'd') handleDelete(selectionWithFullData);
         if (key.toLowerCase() === 'o') handleMarkOoS(selectionWithFullData);
@@ -320,7 +374,10 @@ function Activity(props) {
         }
         if (key.toLowerCase() === 'v') {
             if (selectionWithFullData.some(d => !d.intent)) return;
-            handleSetValidated(selectionWithFullData, selectionWithFullData.some(d => !d.validated));
+            handleSetValidated(
+                selectionWithFullData,
+                selectionWithFullData.some(d => !d.validated),
+            );
         }
         if (key.toLowerCase() === 'i') {
             e.preventDefault();
@@ -329,132 +386,131 @@ function Activity(props) {
     });
 
     const renderTopBar = () => (
-        <>
-            <div className='side-by-side' style={{ marginBottom: '10px' }}>
-                {!!confirm && (
-                    <Confirm
-                        open
-                        className='with-shortcuts'
-                        cancelButton='No'
-                        confirmButton='Yes'
-                        content={confirm.message}
-                        onCancel={() => {
-                            setConfirm(null);
-                            tableRef.current.tableRef().current.focus();
-                        }}
-                        onConfirm={() => { confirm.action(); setConfirm(null); tableRef.current.tableRef().current.focus(); }}
-                    />
-                )}
-                <Can I='nlu-data:w'>
-                    <Button.Group>
-                        <Button
-                            className='white'
-                            basic
-                            color='green'
-                            icon
-                            labelPosition='left'
-                            data-cy='run-evaluation'
-                            onClick={() => setConfirm({
-                                message: 'This will evaluate the model using the validated examples as a validation set and overwrite your current evaluation results.',
-                                action: linkRender,
-                            })}
-                            disabled={!validated.length}
-                        >
-                            <Icon name='lab' />Run evaluation
-                        </Button>
-                        <Button
-                            color='green'
-                            icon
-                            labelPosition='right'
-                            data-cy='add-to-training-data'
-                            onClick={() => setConfirm({
-                                message: 'The validated utterances will be added to the training data.',
-                                action: () => handleAddToTraining(validated),
-                            })}
-                            disabled={!validated.length}
-                        >
-                            <Icon name='add square' />Add to training data
-                        </Button>
-                    </Button.Group>
-                </Can>
-                <PrefixDropdown
-                    selection={sortType}
-                    updateSelection={option => setSortType(option.value)}
-                    options={[
-                        { value: 'Newest', text: 'Newest' },
-                        { value: 'Oldest', text: 'Oldest' },
-                        { value: 'Validated first', text: 'Validated first' },
-                        { value: 'Validated last', text: 'Validated last' },
-                        { value: '% ascending', text: '% ascending' },
-                        { value: '% decending', text: '% decending' },
-                    ]}
-                    prefix='Sort by'
+        <div className='side-by-side wrap' style={{ marginBottom: '10px' }}>
+            {!!confirm && (
+                <Confirm
+                    open
+                    className='with-shortcuts'
+                    cancelButton='No'
+                    confirmButton='Yes'
+                    content={confirm.message}
+                    onCancel={() => {
+                        setConfirm(null);
+                        return tableRef?.current?.focusTable();
+                    }}
+                    onConfirm={() => {
+                        confirm.action();
+                        setConfirm(null);
+                        return tableRef?.current?.focusTable();
+                    }}
                 />
-            </div>
+            )}
+            <Can I='nlu-data:w'>
+                <Button.Group>
+                    <Button
+                        className='white'
+                        basic
+                        color='green'
+                        icon
+                        labelPosition='left'
+                        data-cy='run-evaluation'
+                        onClick={() => setConfirm({
+                            message:
+                                'This will evaluate the model using the validated examples as a validation set and overwrite your current evaluation results.',
+                            action: linkRender,
+                        })
+                        }
+                        disabled={!validated.length}
+                    >
+                        <Icon name='lab' />
+                        Run evaluation
+                    </Button>
+                    <Button
+                        color='green'
+                        icon
+                        labelPosition='right'
+                        data-cy='add-to-training-data'
+                        onClick={() => setConfirm({
+                            message:
+                                'The validated utterances will be added to the training data.',
+                            action: () => handleAddToTraining(validated),
+                        })
+                        }
+                        disabled={!validated.length}
+                    >
+                        <Icon name='add square' />
+                        Add to training data
+                    </Button>
+                </Button.Group>
+            </Can>
+            <PrefixDropdown
+                selection={sortType}
+                updateSelection={option => setSortType(option.value)}
+                options={[
+                    { value: 'Newest', text: 'Newest' },
+                    { value: 'Oldest', text: 'Oldest' },
+                    { value: 'Validated first', text: 'Validated first' },
+                    { value: 'Validated last', text: 'Validated last' },
+                    { value: '% ascending', text: '% ascending' },
+                    { value: '% decending', text: '% decending' },
+                ]}
+                prefix='Sort by'
+            />
             <Filters
                 intents={intents}
                 entities={entities}
                 filter={filter}
                 onChange={f => setFilter(f)}
-                className='right'
+                className='left wrap'
             />
-        </>
+        </div>
     );
     return (
         <>
             {renderTopBar()}
-            {data && data.length
-                ? (
-                    <>
-                        <DataTable
-                            ref={tableRef}
-                            columns={columns}
-                            data={data}
-                            hasNextPage={hasNextPage}
-                            loadMore={loading ? () => {} : loadMore}
-                            onScroll={handleScroll}
-                            rowClassName='glow-box hoverable'
-                            className='new-utterances-table'
-                            selection={selection}
-                            onChangeSelection={(newSel) => {
-                                setSelection(newSel);
-                                if (openConvPopup !== -1) setOpenConvPopup(newSel[0] || -1);
-                            }}
+            {data && data.length ? (
+                <>
+                    <DataTable
+                        ref={tableRef}
+                        bufferSize={20}
+                        columns={columns}
+                        data={data}
+                        hasNextPage={hasNextPage}
+                        loadMore={loading ? () => {} : loadMore}
+                        onScroll={handleScroll}
+                        selection={selection}
+                        onChangeSelection={setSelection}
+                    />
+                    {can('incoming:w', projectId) && selection.length > 1 && (
+                        <ActivityCommandBar
+                            ref={activityCommandBarRef}
+                            isUtteranceOutdated={isUtteranceOutdated}
+                            selection={selectionWithFullData}
+                            onSetValidated={handleSetValidated}
+                            onDelete={handleDelete}
+                            onSetIntent={handleSetIntent}
+                            onMarkOoS={handleMarkOoS}
+                            onCloseIntentPopup={() => tableRef?.current?.focusTable()}
                         />
-                        {can('incoming:w', projectId) && selection.length > 1 && (
-                            <ActivityCommandBar
-                                ref={activityCommandBarRef}
-                                selection={selectionWithFullData}
-                                onSetValidated={handleSetValidated}
-                                onMarkOoS={handleMarkOoS}
-                                onDelete={handleDelete}
-                                onSetIntent={handleSetIntent}
-                                onCloseIntentPopup={() => tableRef.current.tableRef().current.focus()}
-                            />
-                        )}
-                    </>
-                )
-                : <Message success icon='check' header='No activity' data-cy='no-activity' content='No activity was found for the given criteria.' />
-            }
+                    )}
+                </>
+            ) : (
+                <Message
+                    success
+                    icon='check'
+                    header='No activity'
+                    data-cy='no-activity'
+                    content='No activity was found for the given criteria.'
+                />
+            )}
         </>
     );
 }
 
 Activity.propTypes = {
-    projectId: PropTypes.string.isRequired,
-    workingEnvironment: PropTypes.string.isRequired,
-    model: PropTypes.object.isRequired,
-    instance: PropTypes.object.isRequired,
-    project: PropTypes.object.isRequired,
     linkRender: PropTypes.func.isRequired,
 };
 
-Activity.defaultProps = {
-};
+Activity.defaultProps = {};
 
-const mapStateToProps = state => ({
-    projectId: state.settings.get('projectId'),
-    workingEnvironment: state.settings.get('workingDeploymentEnvironment'),
-});
-
-export default connect(mapStateToProps)(Activity);
+export default Activity;

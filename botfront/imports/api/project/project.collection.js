@@ -53,8 +53,8 @@ if (Meteor.isServer) {
             fields: {
                 name: 1,
                 defaultLanguage: 1,
+                languages: 1,
                 disabled: 1,
-                nlu_models: 1,
                 updatedAt: 1,
                 instance: 1,
                 training: 1,

@@ -62,17 +62,11 @@ const conversationUpdate = {
 };
 
 describe('incoming page', function() {
-    before(() => {
-        cy.createProject('bf', 'My Project', 'en').then(() => {
-            cy.login();
-            cy.waitForResolve(Cypress.env('RASA_URL'));
-        });
-    });
-
     beforeEach(function() {
         cy.deleteProject('bf');
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
+            cy.waitForResolve(Cypress.env('RASA_URL'));
             cy.importNluData('bf', 'nlu_sample_en.json', 'en');
             cy.train();
             cy.addNewUtterances(['apple', 'kiwi', 'banana']);
@@ -121,7 +115,7 @@ describe('incoming page', function() {
         cy.get('.row').should('have.length', 1);
         cy.visit('/project/bf/nlu/models');
         cy.get('@texts').then((text) => { // saved from toggleValidationOfSelectedUtterances
-            cy.contains('[role=row]', text[0]).should('exist');
+            cy.contains('.row', text[0]).should('exist');
         });
     });
 
@@ -142,7 +136,8 @@ describe('incoming page', function() {
     it('should be possible to view the conversation from the utterance', function() {
         cy.addCustomConversation('bf', 'test', { events: [{ type: 'user', text: 'test conv link' }] });
         cy.visit('/project/bf/incoming');
-        cy.get('.utterance-viewer').first().should('have.text', 'test conv link');
+        cy.get('.utterance-viewer').first().should('have.text', 'test conv link')
+            .trigger('mouseover');
         cy.dataCy('conversation-viewer').first().click({ force: true });
         cy.get('.popup').should('exist');
         cy.get('.popup').should('contains.text', 'test conv link');
@@ -158,7 +153,7 @@ describe('incoming page', function() {
         cy.get('body').type('o');
 
         cy.visit('/project/bf/nlu/models');
-        cy.get('a.item').contains('Out of Scope').click();
+        cy.get('a.item').contains('Out Of Scope').click();
         cy.get('.row:contains(banana)').should('exist');
         cy.dataCy('icon-plus').should('not.exist');
         cy.wait(300);
@@ -166,9 +161,10 @@ describe('incoming page', function() {
         cy.get('.popup').should('exist');
         cy.get('.row:contains(greet)').click();
         cy.wait(300);
-        cy.dataCy('icon-plus').should('exist').click();
+        cy.get('.row:contains(banana)').trigger('mouseover');
+        cy.dataCy('icon-plus').should('exist').click({ force: true });
         
         cy.get('a.item').contains('Examples').click();
-        cy.get('.rt-td').contains('banana').should('exist');
+        cy.get('.row').contains('banana').should('exist');
     });
 });

@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Alert from 'react-s-alert';
-
-import requiredIf from 'react-required-if';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import {
@@ -12,17 +10,17 @@ import {
     Message,
     Tab,
 } from 'semantic-ui-react';
+import { connect } from 'react-redux';
 import { activityQuery } from '../activity/queries';
 import apolloClient from '../../../../startup/client/apollo';
 
 import IntentReport from './IntentReport';
 import EntityReport from './EntityReport';
-import ExampleUtils from '../../utils/ExampleUtils';
 import { InputButtons } from './InputButtons.jsx';
 import { Evaluations } from '../../../../api/nlu_evaluation';
 import UploadDropzone from '../../utils/UploadDropzone';
 import { Loading } from '../../utils/Utils';
-
+import { can } from '../../../../lib/scopes';
 import 'react-select/dist/react-select.css';
 
 
@@ -83,16 +81,11 @@ class Evaluation extends React.Component {
 
     evaluate() {
         this.setState({ evaluating: true });
-        const {
-            projectId,
-            model: {
-                _id: modelId,
-            } = {},
-        } = this.props;
+        const { projectId, workingLanguage } = this.props;
 
         const { data } = this.state;
 
-        Meteor.call('rasa.evaluate.nlu', modelId, projectId, data, (err) => {
+        Meteor.call('rasa.evaluate.nlu', projectId, workingLanguage, data, (err) => {
             this.setState({ evaluating: false });
             if (err) {
                 Alert.error(`Error: ${JSON.stringify(err.reason)}`, {
@@ -113,13 +106,14 @@ class Evaluation extends React.Component {
 
     async useValidatedSet() {
         this.changeExampleSet('validation', true);
-        const { model: { _id: modelId } = {} } = this.props;
+        const { projectId, workingLanguage: language } = this.props;
         const { data: { getActivity: { activity: examples } } } = await apolloClient.query({
             query: activityQuery,
-            variables: { modelId, validated: true, pageSize: 0 },
+            variables: {
+                projectId, language, validated: true, pageSize: 0,
+            },
         });
-        const validExamples = examples.filter(({ validated }) => validated)
-            .map(example => ExampleUtils.stripBare(example, false));
+        const validExamples = examples.filter(({ validated }) => validated);
         // Check that there are nonzero validated examples
         if (validExamples.length > 0) {
             this.setState({
@@ -164,6 +158,7 @@ class Evaluation extends React.Component {
             validationRender,
             evaluation,
             loading: reportLoading,
+            projectId,
         } = this.props;
 
         const {
@@ -186,26 +181,29 @@ class Evaluation extends React.Component {
                     {errorMessage}
                     <br />
                     <Form>
-                        <div id='test_set_buttons'>
-                            <InputButtons
-                                labels={['Use training set', 'Upload test set', 'Use validated examples']}
-                                operations={[this.useTrainingSet.bind(this), this.useTestSet.bind(this), this.useValidatedSet.bind(this)]}
-                                defaultSelection={defaultSelection}
-                                onDefaultLoad={defaultSelection === 2 ? this.evaluate : () => {}}
-                                selectedIndex={selectedIndex}
-                            />
-                        </div>
-                        {exampleSet === 'test' && <UploadDropzone success={!!data} onDropped={this.loadData} binary={false} />}
-                        {!dataLoading && !errorMessage && (
-                            <div>
-                                <Button type='submit' basic fluid color='green' loading={evaluating} onClick={this.evaluate} data-cy='start-evaluation'>
-                                    <Icon name='percent' />
-                                    Start evaluation
-                                </Button>
-                                <br />
+                        {can('nlu-data:x', projectId) && (
+                        <>
+                            <div id='test_set_buttons'>
+                                <InputButtons
+                                    labels={['Use training set', 'Upload test set', 'Use validated examples']}
+                                    operations={[this.useTrainingSet.bind(this), this.useTestSet.bind(this), this.useValidatedSet.bind(this)]}
+                                    defaultSelection={defaultSelection}
+                                    onDefaultLoad={defaultSelection === 2 ? this.evaluate : () => {}}
+                                    selectedIndex={selectedIndex}
+                                />
                             </div>
+                            {exampleSet === 'test' && <UploadDropzone success={!!data} onDropped={this.loadData} binary={false} />}
+                            {!dataLoading && !errorMessage && (
+                                <div>
+                                    <Button type='submit' basic fluid color='green' loading={evaluating} onClick={this.evaluate} data-cy='start-evaluation'>
+                                        <Icon name='percent' />
+                                    Start evaluation
+                                    </Button>
+                                    <br />
+                                </div>
+                            )}
+                        </>
                         )}
-
                         {!!evaluation && !evaluating && (
                             <Tab menu={{ pointing: true, secondary: true }} panes={this.getPrimaryPanes()} />
                         )}
@@ -217,9 +215,9 @@ class Evaluation extends React.Component {
 }
 
 Evaluation.propTypes = {
-    model: PropTypes.object.isRequired,
     evaluation: PropTypes.object,
     projectId: PropTypes.string.isRequired,
+    workingLanguage: PropTypes.string.isRequired,
     loading: PropTypes.bool.isRequired,
     validationRender: PropTypes.func,
     initialState: PropTypes.object,
@@ -233,24 +231,24 @@ Evaluation.defaultProps = {
 
 const EvaluationContainer = withTracker((props) => {
     const {
-        model,
-        model: {
-            _id: modelId,
-        } = {},
         projectId,
+        workingLanguage,
         validationRender,
     } = props;
 
-    const evalsHandler = Meteor.subscribe('nlu_evaluations', props.model._id);
-    const loading = !evalsHandler.ready();
-    const evaluation = Evaluations.findOne({ modelId });
+    const evalsHandler = Meteor.subscribe('nlu_evaluations', projectId, workingLanguage);
     return {
-        model,
         projectId,
+        workingLanguage,
         validationRender,
-        evaluation,
-        loading,
+        evaluation: Evaluations.findOne({ projectId, language: workingLanguage }),
+        loading: !evalsHandler.ready(),
     };
 })(Evaluation);
 
-export default EvaluationContainer;
+const mapStateToProps = state => ({
+    workingLanguage: state.settings.get('workingLanguage'),
+    projectId: state.settings.get('projectId'),
+});
+
+export default connect(mapStateToProps)(EvaluationContainer);

@@ -73,10 +73,7 @@ export const WithFire = () => (
 );
 export const WithStyle = () => (
     <div style={{ backgroundColor: '#cce2dd' }}>
-        <DataTableWrapped
-            rowClassName='glow-box hoverable'
-            className='new-utterances-table'
-        />
+        <DataTableWrapped />
     </div>
 );
 export const InfiniteLoading = () => {

@@ -14,7 +14,7 @@ describe('story visual editor', function () {
         cy.createStoryGroup();
         cy.createStoryInGroup();
     });
-
+    
     it('should persist a user utterance, a bot response, and display add-user-line option appropriately', function () {
         cy.importNluData('bf', 'nlu_sample_en.json', 'en');
         cy.train();
@@ -31,6 +31,7 @@ describe('story visual editor', function () {
         cy.dataCy('add-bot-line').click({ force: true });
 
         cy.dataCy('from-text-template').click({ force: true });
+        cy.get('.story-line').should('have.length', 2);
         cy.dataCy('bot-response-input')
             .find('textarea').should('be.empty');
 
@@ -80,13 +81,14 @@ describe('story visual editor', function () {
             });
 
         cy.visit('/project/bf/nlu/models');
-        cy.get('[role=row]')
-            .contains('[role=row]', 'hello !')
+        cy.get('.row')
+            .contains('.row', 'hello !')
             .contains('chitchat.greet')
             .should('exist'); // there nlu example is there too
     });
 
     it('should be able to click on intent in dropdown to change it', function () {
+        cy.importNluData('bf', 'nlu_sample_en.json', 'en');
         cy.visit('/project/bf/stories');
         cy.browseToStory('Groupo (1)');
 
@@ -99,12 +101,10 @@ describe('story visual editor', function () {
         cy.dataCy('intent-label').eq(0).click();
         cy.get('.intent-dropdown input')
             .click({ force: true });
-        cy.pause();
         cy.get('.row').contains('chitchat.bye').click();
         cy.dataCy('save-new-user-input').click({ force: true });
         cy.get('.utterances-container').contains('chitchat.bye').should('exist');
     });
-
     it('should rerender on language change', function () {
         cy.importNluData('bf', 'nlu_sample_en.json', 'en');
 
@@ -116,54 +116,56 @@ describe('story visual editor', function () {
 
         cy.dataCy('language-selector').click().find('div').contains('German')
             .click({ force: true });
+        cy.dataCy('single-story-editor').should('exist');
+        cy.dataCy('bot-response-input').should('exist');
         cy.dataCy('single-story-editor').should('not.contain', 'Let\'s get started!');
         cy.dataCy('single-story-editor').should('not.contain', 'I agree let\'s do it!!');
 
         cy.dataCy('language-selector').click().find('div').contains('English')
             .click({ force: true });
-        cy.get('.container > .ui.loader').should('exist');
+        cy.dataCy('single-story-editor').should('exist');
+        cy.dataCy('bot-response-input').should('exist');
         cy.dataCy('single-story-editor').should('contain', 'Let\'s get started!');
         cy.dataCy('single-story-editor').should('contain', 'I agree let\'s do it!!');
     });
 
     it('should use the canonical example if one is available', function () {
-        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'en', [
+        cy.insertNluExamples('bf', 'en', [
             {
                 text: 'bonjour canonical',
                 intent: 'chitchat.greet',
-                canonical: true,
+                metadata: { canonical: true },
             },
-        ]]);
-        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'en', [
             {
                 text: 'bonjour not canonical',
                 intent: 'chitchat.greet',
-                canonical: false,
-
+                metadata: { canonical: false },
             },
-        ]]);
+        ]);
         cy.visit('/project/bf/stories');
         cy.browseToStory('Greetings');
         cy.get('[role = "application"]').should('have.text', 'bonjour canonical');
     });
 
     it('should use the most recent example if no canonical is available', function () {
-        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'en', [
+        cy.insertNluExamples('bf', 'en', [
             {
                 text: 'bonjour not canonical',
                 intent: 'chitchat.greet',
             },
-        ]]);
+        ]);
         cy.visit('/project/bf/nlu/models');
-        cy.dataCy('icon-gem', null, '.active').click({ force: true });
-        cy.dataCy('icon-gem', null, '.active').should('not.exist');
-        cy.MeteorCall('nlu.insertExamplesWithLanguage', ['bf', 'en', [
+        cy.dataCy('icon-gem', null, '.black').click({ force: true });
+        cy.dataCy('icon-gem', null, '.black').should('not.exist');
+        cy.insertNluExamples('bf', 'en', [
             {
                 text: 'bonjour not canonical recent',
                 intent: 'chitchat.greet',
             },
-        ]]);
+        ]);
+        
         cy.visit('/project/bf/stories');
+        cy.wait(20000);
         cy.browseToStory('Greetings');
         cy.dataCy('single-story-editor').should('exist');
         cy.get('[role = "application"]').should('have.text', 'bonjour not canonical recent');

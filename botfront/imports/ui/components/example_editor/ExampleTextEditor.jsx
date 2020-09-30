@@ -1,115 +1,32 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { TextArea } from 'semantic-ui-react';
-import { find, sortBy, isNull } from 'lodash';
+import { Form } from 'semantic-ui-react';
+import TextArea from 'react-textarea-autosize';
+import { sortBy, isNull } from 'lodash';
 
-import { examplePropType } from '../utils/ExampleUtils';
 import getColor from '../../../lib/getColors';
 
 const emptyExample = () => ({ text: '', intent: '', entities: [] });
 
 export class ExampleTextEditor extends React.Component {
-    constructor(props) {
-        super(props);
-        this.inputSelectionRef = null; // reference to the parent of the example text input
-        this.selectionAnchorRef = null; // reference to the example text input
-        const { example } = props;
-        this.state = { example };
-    }
+    state = {}
 
     componentDidMount() {
-        const { highlightEntities, autofocus } = this.props;
-        const { example } = this.state;
-        if (autofocus) {
-            this.inputSelectionRef.ref.current.focus();
-            this.inputSelectionRef.ref.current.setSelectionRange(example.text.length, example.text.length);
-        }
-
-        if (highlightEntities) {
-            // CREATE ENTITY LISTENER
-            document.addEventListener('mouseup', this.mouseUpListener, false);
-        }
-    }
-
-    componentDidUpdate(prevProps) {
-        const { example } = this.state;
-        const { example: exampleFromProps } = this.props;
-        const { example: exampleFromPrevProps } = prevProps;
-        if (exampleFromProps !== exampleFromPrevProps && exampleFromProps !== example) {
-            this.setExample(exampleFromProps);
-        }
-    }
-
-    componentWillUnmount() {
-        document.removeEventListener('mouseup', this.mouseUpListener);
-    }
-
-    mouseUpListener = () => {
-        const { disableNewEntities } = this.props;
-        if (disableNewEntities) return;
-        if (this.inputSelectionRef === null) return;
-        const { example: { text } = {} } = this.state;
-        const { anchorNode } = window.getSelection() || {};
-        const { selectionStart: start, selectionEnd: end } = this.inputSelectionRef.ref.current || {};
-        if (anchorNode === this.selectionAnchorRef && this.isValidEntity(start, end) && start < end) {
-            const value = text.substring(start, end);
-            this.insertEntity({
-                value,
-                start,
-                end,
-            });
-        }
-    }
-
-    setExample = example => this.setState({ example });
-
-    insertEntity = (fields) => {
-        const { example, example: { entities } = {} } = this.state;
-        const { onChange } = this.props;
-        
-        let entity = find(entities, { entity: '' });
-        if (!entity) {
-            entities.push({
-                entity: '', value: '', start: 0, end: 0,
-            });
-            entity = find(entities, { entity: '' });
-        }
-        
-        Object.assign(entity, fields);
-
+        const { autofocus, example = {} } = this.props;
+        const { text = '' } = example;
         this.setState({ example });
-        onChange(example);
-    };
-
-    isValidEntity = (start, end) => (
-        (!this.getNextChar(end) || !this.getNextChar(end).match(/\w/)) // null value means last char
-        && (!this.getPrevChar(start) || !this.getPrevChar(start).match(/\w/)) // null value means first char
-    );
-
-    getPrevChar = (selectionStart) => {
-        const { example: { text } = {} } = this.state;
-        if (selectionStart === 0) {
-            return null;
+        if (autofocus) {
+            const exampleTextArea = document.getElementById('example-text-area');
+            exampleTextArea?.focus();
+            exampleTextArea?.setSelectionRange(text.length, text.length);
         }
-        return text.substring(selectionStart - 1, selectionStart);
-    };
-
-    getNextChar = (selectionEnd) => {
-        const { example: { text } = {} } = this.state;
-        if (selectionEnd === text.length - 1) {
-            return null;
-        }
-        return text.substring(selectionEnd, selectionEnd + 1);
-    };
+    }
 
     handleTextChange = (event) => {
         const { example } = this.state;
         const {
             onChange,
-            example: {
-                text: oldText,
-                entities: oldEntities,
-            } = {},
+            example: { text: oldText, entities: oldEntities } = {},
         } = this.props;
         const text = event.target.value;
 
@@ -121,7 +38,6 @@ export class ExampleTextEditor extends React.Component {
                 changeBegin = i;
                 return true;
             }
-            
             return false;
         });
 
@@ -146,34 +62,42 @@ export class ExampleTextEditor extends React.Component {
             }
         }
         // Determine action on entities
-        const entities = oldEntities.map((entity) => {
-            const changeSizeOld = changeEnd - changeBegin;
-            const changeSizeNew = changeEndNew - changeBegin;
-            const sizeChange = changeSizeNew - changeSizeOld;
+        const entities = oldEntities
+            .map((entity) => {
+                const changeSizeOld = changeEnd - changeBegin;
+                const changeSizeNew = changeEndNew - changeBegin;
+                const sizeChange = changeSizeNew - changeSizeOld;
 
-            let { value, start, end } = entity;
-            if (changeEnd <= start) { // Change is before entity begins
-                start += sizeChange;
-                end += sizeChange;
-            } else if (changeBegin >= end) { // Change after copy ends
-            } else if (changeBegin <= start && changeEnd >= end) { // Change consumes entity
-                return null;
-            } else if (changeBegin <= start && changeEnd >= start) { // Change cuts the beginning
-                start = changeEndNew;
-                end += sizeChange;
-            } else if (changeEnd >= end && changeBegin <= end) { // Change cuts end
-                end = changeBegin;
-            } else { // Change is internal to the entity
-                end += sizeChange;
-            }
+                let { value, start, end } = entity;
+                if (changeEnd <= start) {
+                    // Change is before entity begins
+                    start += sizeChange;
+                    end += sizeChange;
+                } else if (changeBegin >= end) {
+                    // Change after copy ends
+                } else if (changeBegin <= start && changeEnd >= end) {
+                    // Change consumes entity
+                    return null;
+                } else if (changeBegin <= start && changeEnd >= start) {
+                    // Change cuts the beginning
+                    start = changeEndNew;
+                    end += sizeChange;
+                } else if (changeEnd >= end && changeBegin <= end) {
+                    // Change cuts end
+                    end = changeBegin;
+                } else {
+                    // Change is internal to the entity
+                    end += sizeChange;
+                }
 
-            if (start === end) {
-                return null;
-            }
+                if (start === end) {
+                    return null;
+                }
 
-            value = text.substring(start, end);
-            return { ...entity, ...{ value, start, end } };
-        }).filter(e => !isNull(e));
+                value = text.substring(start, end);
+                return { ...entity, ...{ value, start, end } };
+            })
+            .filter(e => !isNull(e));
 
         // Update state
         const updatedExample = { ...example, text, entities };
@@ -181,80 +105,97 @@ export class ExampleTextEditor extends React.Component {
         onChange(updatedExample);
     };
 
-    handleBlur = () => {
-        const { onBlur } = this.props;
-        const { example } = this.state;
-        onBlur(example);
-    }
-
     highLightEntitiesInText = () => {
         const { example: { entities = [], text } = {} } = this.state;
-        const sortedEntities = sortBy(entities.filter(e => !e.extractor || e.extractor === 'ner_crf'), 'start');
+        const sortedEntities = sortBy(
+            entities.filter(e => !e.extractor || e.extractor === 'ner_crf'),
+            'start',
+        );
         const spans = [];
         sortedEntities.forEach((e, i) => {
-            if (i === 0 && e.start > 0) spans.push(<span key='before-entities'>{text.substr(0, e.start)}</span>);
-            spans.push(<span key={`${e.entity}-${i}`} style={{ ...getColor(e.entity) }}>{text.substr(e.start, e.end - e.start)}</span>);
-            if (i < sortedEntities.length - 1) spans.push(<span key={`between-${e.entity}-${i}`}>{text.substr(e.end, sortedEntities[i + 1].start - e.end)}</span>);
-            if (i === sortedEntities.length - 1) spans.push(<span key='after-entities'>{text.substr(e.end, e.value.length - e.end)}</span>);
+            if (i === 0 && e.start > 0) { spans.push(<span key='before-entities'>{text.substr(0, e.start)}</span>); }
+            spans.push(
+                <span key={`${e.entity}-${i}`} style={{ ...getColor(e.entity) }}>
+                    {text.substr(e.start, e.end - e.start)}
+                </span>,
+            );
+            if (i < sortedEntities.length - 1) {
+                spans.push(
+                    <span key={`between-${e.entity}-${i}`}>
+                        {text.substr(e.end, sortedEntities[i + 1].start - e.end)}
+                    </span>,
+                );
+            }
+            if (i === sortedEntities.length - 1) {
+                spans.push(
+                    <span key='after-entities'>
+                        {text.substr(e.end, e.value.length - e.end)}
+                    </span>,
+                );
+            }
         });
-        return (
-            <div className='highlight'>
-                {spans}
-            </div>
-        );
-    }
+        return spans;
+    };
 
-    handleKeyPress = (e) => {
-        const { onEnter } = this.props;
+    handleKeyDown = (e) => {
+        const { onSave, onCancel } = this.props;
         const { example } = this.state;
-        if (e.key === 'Enter' && onEnter) {
+        if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            onEnter(example);
+            onSave(example);
+        }
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            e.stopPropagation();
+            this.justEscaped = true;
+            onCancel();
         }
     };
 
+    swallowEvent = (e) => {
+        e.stopPropagation();
+    };
+
     render() {
-        const { example: { text = '' } = {} } = this.state;
-        const { highlightEntities, inline } = this.props;
+        const { example: { text = '' } = {}, example } = this.state;
+        const {
+            highlightEntities, onSave,
+        } = this.props;
         return (
-            <div ref={(node) => { this.selectionAnchorRef = node; }} className='example-editor-container'>
+            <Form className='example-editor-container' data-cy='example-editor-container'>
                 <TextArea
-                    className={inline ? 'inline-example-editor' : ''}
-                    ref={(node) => { this.inputSelectionRef = node; }}
-                    name='text'
+                    id='example-text-area'
                     placeholder='User says...'
-                    autoheight='true'
-                    rows={(text && text.split('\n').length) || 1}
+                    minRows={1}
+                    maxRows={999}
                     value={text}
-                    onKeyPress={this.handleKeyPress}
+                    onKeyDown={this.handleKeyDown}
+                    onMouseDown={this.swallowEvent}
+                    onMouseUp={this.swallowEvent}
                     onChange={this.handleTextChange}
-                    onBlur={this.handleBlur}
+                    onBlur={() => { if (!this.justEscaped) onSave(example); }}
                     data-cy='example-text-editor-input'
                 />
-                {highlightEntities && this.highLightEntitiesInText()}
-            </div>
+                {highlightEntities && <div className='highlight'>{this.highLightEntitiesInText()}</div>}
+            </Form>
         );
     }
 }
 
 ExampleTextEditor.propTypes = {
-    example: PropTypes.shape(examplePropType),
+    example: PropTypes.object,
     onChange: PropTypes.func,
-    onEnter: PropTypes.func,
+    onSave: PropTypes.func,
     highlightEntities: PropTypes.bool,
-    inline: PropTypes.bool,
-    onBlur: PropTypes.func,
+    onCancel: PropTypes.func,
     autofocus: PropTypes.bool,
-    disableNewEntities: PropTypes.bool,
 };
 
 ExampleTextEditor.defaultProps = {
     example: emptyExample(),
     onChange: () => {},
-    onEnter: null,
+    onSave: () => {},
     highlightEntities: true,
-    inline: false,
-    onBlur: () => {},
-    autofocus: false,
-    disableNewEntities: false,
+    onCancel: () => {},
+    autofocus: true,
 };

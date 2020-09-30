@@ -6,7 +6,7 @@
             "defaultLanguage": "one",
             "disabled": false,
             "nlu_models": ["one"],
-            
+            "languages": ["one"],
             "updatedAt": "2019-09-10T18:10:08.431Z",
             "instance": "one",
             "responsesUpdatedAt": 1568139008431,
@@ -22,7 +22,7 @@
             "defaultLanguage": "two",
             "disabled": false,
             "nlu_models": ["two"],
-            
+            "languages": ["two"],
             "updatedAt": "2019-09-10T18:10:08.432Z",
             "instance": "two",
             "responsesUpdatedAt": 1568139008432,
@@ -31,6 +31,44 @@
                 "endTime": "2019-09-10T18:10:08.432Z"
             },
             "storyGroups": ["two"]
+        }
+    ],
+    "examples": [
+        {
+            "_id": "one",
+            "projectId": "one",
+            "metadata": {
+                "language": "one"
+            },
+            "text": "one",
+            "intent": "one",
+            "entities": [
+                {
+                    "start": 0,
+                    "end": 1,
+                    "value": "one",
+                    "entity": "one"
+                }
+            ],
+            "updatedAt": "2019-09-10T18:10:08.431Z"
+        },
+        {
+            "_id": "two",
+            "projectId": "two",
+            "metadata": {
+                "language": "two"
+            },
+            "text": "two",
+            "intent": "two",
+            "entities": [
+                {
+                    "start": 0,
+                    "end": 1,
+                    "value": "two",
+                    "entity": "two"
+                }
+            ],
+            "updatedAt": "2019-09-10T18:10:08.432Z"
         }
     ],
     "models": [
@@ -43,22 +81,6 @@
             "intents": [],
             "chitchat_intents": [],
             "training_data": {
-                "common_examples": [
-                    {
-                        "_id": "one",
-                        "text": "one",
-                        "intent": "one",
-                        "entities": [
-                            {
-                                "start": 0,
-                                "end": 1,
-                                "value": "one",
-                                "entity": "one"
-                            }
-                        ],
-                        "updatedAt": "2019-09-10T18:10:08.431Z"
-                    }
-                ],
                 "entity_synonyms": [
                     {
                         "value": "one",
@@ -80,22 +102,6 @@
             "intents": [],
             "chitchat_intents": [],
             "training_data": {
-                "common_examples": [
-                    {
-                        "_id": "two",
-                        "text": "two",
-                        "intent": "two",
-                        "entities": [
-                            {
-                                "start": 0,
-                                "end": 1,
-                                "value": "two",
-                                "entity": "two"
-                            }
-                        ],
-                        "updatedAt": "2019-09-10T18:10:08.432Z"
-                    }
-                ],
                 "entity_synonyms": [
                     {
                         "value": "two",
@@ -136,6 +142,7 @@
             "_id": "one",
             "modelId": "one",
             "text": "one",
+            "language": "one",
             "confidence": 1,
             "createdAt": "2019-09-10T18:10:08.431Z",
             "entities": [
@@ -156,6 +163,7 @@
             "_id": "two",
             "modelId": "two",
             "text": "two",
+            "language": "two",
             "confidence": 1,
             "createdAt": "2019-09-10T18:10:08.432Z",
             "entities": [
@@ -176,6 +184,7 @@
     "evaluations": [
         {
             "_id": "one",
+            "language": "one",
             "results": {
                 "intent_evaluation": {
                     "predictions": [
@@ -217,6 +226,7 @@
         },
         {
             "_id": "two",
+            "language": "two",
             "results": {
                 "intent_evaluation": {
                     "predictions": [

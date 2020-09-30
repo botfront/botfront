@@ -17,6 +17,7 @@
 
 import './chat.commands';
 import gql from 'graphql-tag';
+import './nlu.commands';
 import './story.commands';
 import './response.commands';
 import './incoming.commands';
@@ -169,13 +170,12 @@ Cypress.Commands.add('createNLUModel', (projectId, name, language, description, 
     cy.get('[data-cy=model-save-button]').click();
 });
 
-Cypress.Commands.add('createNLUModelProgramatically', (projectId, name, language, description) => cy.window()
+Cypress.Commands.add('createNLUModelProgramatically', (projectId, name, language) => cy.window()
     .then(({ Meteor }) => cy.fixture('lite-pipeline.yaml').then(config => Meteor.callWithPromise(
         'nlu.insert',
-        {
-            name, language, description, config,
-        },
         projectId,
+        language,
+        config,
     ))));
 
 Cypress.Commands.add('MeteorCall', (method, args) => {
@@ -223,6 +223,7 @@ Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', de
         name,
         defaultLanguage,
         namespace: `bf-${projectId}`,
+        languages: [],
     };
     cy.deleteProject(projectId);
     return cy.visit('/')
@@ -665,6 +666,15 @@ Cypress.Commands.add('graphQlQuery', (query, variables) => cy.get('@loginToken')
     headers: { 'Content-Type': 'application/json', Authorization: token },
     body: { query, variables },
 })));
+
+Cypress.Commands.add('insertNluExamples', (projectId, language = 'en', examples) => cy.graphQlQuery(
+    `mutation insertExamples($projectId: String!, $language: String!, $examples: [ExampleInput]!) {
+        insertExamples(projectId: $projectId, language: $language, examples: $examples) {  
+            _id
+        }
+    }`,
+    { projectId, language, examples },
+));
 
 Cypress.Commands.add('addConversation', (projectId, id, conversation, env = 'development') => cy.graphQlQuery(
     `mutation ($tracker: Any) {\n  insertTrackerStore(senderId: "${id}", projectId: "${projectId}", tracker: $tracker, env: ${env}){\n  lastIndex\n  }\n}`,

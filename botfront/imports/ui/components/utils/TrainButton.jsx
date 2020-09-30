@@ -45,19 +45,11 @@ class TrainButton extends React.Component {
         document.body.removeChild(dummy);
     }
 
-    train = async (target = 'development', loadModel = true) => {
-        const { instance, projectId } = this.props;
+    train = (target = 'development') => {
+        const { projectId } = this.props;
         Meteor.call('project.markTrainingStarted', projectId);
-        // a promise is needed so we are able to wait for training to finish before trying to deploy the trained model
-        await new Promise((resolve, reject) => {
-            Meteor.call('rasa.train', projectId, instance, target, loadModel, wrapMeteorCallback((err) => {
-                if (err) {
-                    reject(new Error());
-                }
-                resolve();
-            }));
-        });
-    }
+        Meteor.call('rasa.train', projectId, target, wrapMeteorCallback());
+    };
 
     showModal = (env, visible) => {
         const modalOpen = this.state;

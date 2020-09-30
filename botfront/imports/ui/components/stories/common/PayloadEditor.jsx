@@ -8,7 +8,6 @@ import EntityValueEditor from './EntityValueEditor';
 import { ProjectContext } from '../../../layouts/context';
 
 const PayloadEditor = (props) => {
-    const { addEntity } = useContext(ProjectContext);
     const {
         value: { intent = '', entities = [] },
         onChange,
@@ -43,13 +42,10 @@ const PayloadEditor = (props) => {
                                 key={`entityfield-for-${entity.entity}`}
                                 allowAdditions
                                 onChange={v => handleChangeEntityAtIndex({ ...entity, entity: v }, i)}
-                                onAddItem={(v) => {
-                                    addEntity(v);
-                                    handleChangeEntityAtIndex(
-                                        { ...entity, entity: v },
-                                        i,
-                                    );
-                                }}
+                                onAddItem={v => handleChangeEntityAtIndex(
+                                    { ...entity, entity: v },
+                                    i,
+                                )}
                                 entity={entity}
                                 onClear={() => onChange({
                                     intent,

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Form, TextArea } from 'semantic-ui-react';
+import { Form } from 'semantic-ui-react';
+import TextArea from 'react-textarea-autosize';
 
 export default class LookupTableListEditor extends React.Component {
     constructor(props) {
@@ -69,11 +70,10 @@ export default class LookupTableListEditor extends React.Component {
             <Form data-cy='add-value'>
                 <TextArea
                     className='entity-synonym-values'
-                    rows={1}
+                    minRows={1}
+                    maxRows={999}
                     autoFocus={autoFocus}
-                    autoheight='true'
                     placeholder={placeholder}
-                    name='synonyms'
                     value={
                         entitySynonym && entitySynonym[listAttribute]
                             ? entitySynonym[listAttribute].join(', ')

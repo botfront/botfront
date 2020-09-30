@@ -14,9 +14,9 @@ if (Meteor.isServer) {
     import conversationCountsResolvers from '../../graphql/conversations/resolvers/conversationCountsResolver';
     import actionCountsResolvers from '../../graphql/conversations/resolvers/actionCountsResolver';
 
-    import entityDistributionResolver from '../../graphql/nlu/resolvers/entityDistributionResolver';
-    import nluStatisticsResolver from '../../graphql/nlu/resolvers/nluStatisticsResolver';
-    import intentDistributionResolver from '../../graphql/nlu/resolvers/intentDistributionResolver';
+    import examplesResolver from '../../graphql/examples/resolvers/examplesResolver';
+    import entityDistributionResolver from '../../graphql/examples/resolvers/entityDistributionResolver';
+    import intentDistributionResolver from '../../graphql/examples/resolvers/intentDistributionResolver';
 
     import analyticsDashboardResolver from '../../graphql/analyticsDashboards/analyticsDashboardResolver';
 
@@ -25,6 +25,7 @@ if (Meteor.isServer) {
     import storiesResolver from '../../graphql/story/resolvers/storiesResolver';
 
     import formsResolver from '../../graphql/forms/formResolver';
+
 
     import { setScopes } from '../../../lib/scopes';
     import { Projects } from '../../project/project.collection';
@@ -52,7 +53,6 @@ if (Meteor.isServer) {
         },
         nluThreshold: 0.75,
         timezoneOffset: 0,
-        nlu_models: ['bfModel'],
         updatedAt: '2020-02-18T16:44:24.809Z',
         deploymentEnvironments: [],
     };
@@ -235,7 +235,7 @@ if (Meteor.isServer) {
         },
         {
             name: 'getIntentStatistics',
-            query: nluStatisticsResolver.Query.getIntentStatistics,
+            query: examplesResolver.Query.getIntentStatistics,
             args: { projectId },
             acceptedRoles: readers.nluData,
         },
@@ -290,6 +290,49 @@ if (Meteor.isServer) {
             args: { projectId },
             acceptedRoles: writers.stories,
         },
+        {
+            name: 'updateExamples',
+            query: examplesResolver.Mutation.updateExamples,
+            args: { projectId },
+            acceptedRoles: writers.nluData,
+        },
+        {
+            name: 'insertExamples',
+            query: examplesResolver.Mutation.insertExamples,
+            args: { projectId },
+            acceptedRoles: writers.nluData,
+        },
+        {
+            name: 'deleteExamples',
+            query: examplesResolver.Mutation.deleteExamples,
+            args: { projectId },
+            acceptedRoles: writers.nluData,
+        },
+        {
+            name: 'switchCanonical',
+            query: examplesResolver.Mutation.switchCanonical,
+            args: { projectId },
+            acceptedRoles: writers.nluData,
+        },
+        {
+            name: 'examples',
+            query: examplesResolver.Query.examples,
+            args: { projectId },
+            acceptedRoles: readers.nluData,
+        },
+        {
+            name: 'getIntentStatistics',
+            query: examplesResolver.Query.getIntentStatistics,
+            args: { projectId },
+            acceptedRoles: readers.nluData,
+        },
+        {
+            name: 'listIntentsAndEntities',
+            query: examplesResolver.Query.listIntentsAndEntities,
+            args: { projectId },
+            acceptedRoles: readers.nluData,
+        },
+        
     ];
 
     if (Meteor.isServer) {

@@ -1,15 +1,4 @@
 {
-    "project" : {
-        "training": {
-            "endTime": "2000-05-01T16:12:55.601Z"
-        },
-        "nluThreshold": 0.5
-    },
-    "model" : {
-        "training_data": {
-            "common_examples": []
-        }
-    },
     "training1" : {
         "intent": "FavoriteFood",
         "entities": [],

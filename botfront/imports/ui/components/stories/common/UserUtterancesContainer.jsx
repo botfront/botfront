@@ -56,7 +56,7 @@ const UserUtterancesContainer = (props) => {
                     onDelete={() => { handleDeleteDisjunct(index); }}
                 />
                 {payload && index !== value.length - 1 && (
-                    <IconButton icon='add' className='or-label' color='other' />
+                    <IconButton icon='add' className='or-label' color='vk' />
                 )}
                 {!somethingIsBeingInput && index === value.length - 1 && canEdit && (
                     <UserUtterancePopupContent

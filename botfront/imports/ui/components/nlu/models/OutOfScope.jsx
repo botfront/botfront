@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect, useContext } from 'react';
 import { useMutation } from '@apollo/react-hooks';
-import { connect } from 'react-redux';
 import {
     Message, Popup, Button, Icon,
 } from 'semantic-ui-react';
@@ -14,6 +12,8 @@ import {
     deleteActivity as deleteActivityMutation,
 } from '../activity/mutations';
 import { can } from '../../../../lib/scopes';
+import { ProjectContext } from '../../../layouts/context';
+import { useInsertExamples } from './hooks';
 
 import DataTable from '../../common/DataTable';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
@@ -21,7 +21,7 @@ import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import PrefixDropdown from '../../common/PrefixDropdown';
 import IconButton from '../../common/IconButton';
 
-function OutOfScope(props) {
+function OutOfScope() {
     const [sortType, setSortType] = useState('Newest');
     const getSortFunction = () => {
         switch (sortType) {
@@ -35,30 +35,38 @@ function OutOfScope(props) {
     };
 
     const {
-        model: { _id: modelId },
-        projectId,
-    } = props;
+        project: { _id: projectId }, language,
+    } = useContext(ProjectContext);
 
     const {
         data, hasNextPage, loading, loadMore, refetch, loadAll,
-    } = useActivity({ modelId, ooS: true, ...getSortFunction() });
+    } = useActivity({
+        projectId, language, ooS: true, ...getSortFunction(),
+    });
 
     // always refetch on first page load; change this to subscription
-    useEffect(() => { if (refetch) refetch(); }, [refetch, modelId]);
+    const variables = { projectId, language };
+    useEffect(() => { if (refetch) refetch(); }, [refetch, variables]);
 
-    const [upsertActivity] = useMutation(upsertActivityMutation);
-    const [deleteActivity] = useMutation(deleteActivityMutation);
+    const [upsertActivity] = useMutation(upsertActivityMutation, { variables });
+    const [deleteActivity] = useMutation(deleteActivityMutation, { variables });
+    const [insertExamples] = useInsertExamples(variables, false);
 
     const handleAddToTraining = async (utterances) => {
-        await Meteor.call('nlu.insertExamples', modelId, utterances);
-        await deleteActivity({ variables: { modelId, ids: utterances.map(u => u._id) } });
+        const examples = clearTypenameField(
+            utterances.map(({ text, intent, entities: ents }) => ({
+                text, intent, entities: ents,
+            })),
+        );
+        await insertExamples({ variables: { examples } });
+        await deleteActivity({ variables: { ids: utterances.map(u => u._id) } });
         refetch();
     };
 
     const handleUpdate = async (newData, rest) => {
         // rest argument is to supress warnings caused by incomplete schema on optimistic response
         upsertActivity({
-            variables: { modelId, data: newData, isOoS: true },
+            variables: { data: newData, isOoS: true },
             optimisticResponse: {
                 __typename: 'Mutation',
                 upsertActivity: newData.map(d => ({ __typename: 'Activity', ...rest, ...d })),
@@ -67,7 +75,9 @@ function OutOfScope(props) {
     };
 
     const handleDelete = async (ids) => {
-        await deleteActivity({ variables: { modelId, ids, isOoS: true } });
+        await deleteActivity({
+            variables: { ids, isOoS: true },
+        });
         refetch();
     };
 
@@ -185,16 +195,6 @@ function OutOfScope(props) {
     );
 }
 
-OutOfScope.propTypes = {
-    projectId: PropTypes.string.isRequired,
-    model: PropTypes.object.isRequired,
-};
+OutOfScope.propTypes = {};
 
-OutOfScope.defaultProps = {
-};
-
-const mapStateToProps = state => ({
-    projectId: state.settings.get('projectId'),
-});
-
-export default connect(mapStateToProps)(OutOfScope);
+export default OutOfScope;

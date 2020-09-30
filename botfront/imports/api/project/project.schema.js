@@ -69,11 +69,11 @@ export const ProjectsSchema = new SimpleSchema({
         type: Number, defaultValue: 0, min: -22, max: 22,
     },
     enableSharing: { type: Boolean, defaultValue: false },
+    languages: { type: Array, optional: true },
+    'languages.$': { type: String, allowedValues: Object.keys(languages) }, //
     defaultLanguage: { type: String, allowedValues: Object.keys(languages) },
     createdAt: { type: Date, optional: true },
     disabled: { type: Boolean, defaultValue: false, index: 1 },
-    nlu_models: { type: Array, defaultValue: [] },
-    'nlu_models.$': { type: String },
     updatedAt: {
         type: Date,
         optional: true,

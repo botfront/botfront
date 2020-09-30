@@ -1,9 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 import { expect } from 'chai';
 import { Stories } from '../../../story/stories.collection';
+import Examples from '../../examples/examples.model.js';
 // test imports
 import {
-    projectFixture, storyFixture, enModelFixture, frModelFixture, storyId, enModelId, frModelId, projectId, botResponseFixture, botResponsesFixture, botResponsesFixtureWithCustomCss, botResponsesFixtureWithHighlight, botResponseFixtureWithObserve,
+    projectFixture, storyFixture, examplesFixture, storyId, enModelId, frModelId, projectId, botResponseFixture, botResponsesFixture, botResponsesFixtureWithCustomCss, botResponsesFixtureWithHighlight, botResponseFixtureWithObserve,
 } from './indexTestData';
 import { indexStory } from '../../../story/stories.index';
 import { Projects } from '../../../project/project.collection';
@@ -33,8 +34,7 @@ if (Meteor.isServer) {
     const addData = async () => {
         await createResponses(projectId, [botResponseFixture]);
         await createResponses(projectId, botResponsesFixture);
-        await NLUModels.insert({ ...enModelFixture });
-        await NLUModels.insert(frModelFixture);
+        await Examples.insertMany(examplesFixture);
         await Projects.insert(projectFixture);
         await Stories.insert(storyFixture);
         const { textIndex } = await indexStory(storyId);

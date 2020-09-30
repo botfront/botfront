@@ -15,15 +15,27 @@ export const loadDomain = ({
     let domain;
     try {
         domain = safeLoad(rawText);
-        if (!['templates', 'responses', 'slots'].some(k => k in domain)) throw new Error();
+        if (!['templates', 'responses', 'slots'].some(k => k in domain)) {
+            throw new Error();
+        }
     } catch (e) {
         return { errors: ['Domain could not be parsed from YAML.'] };
     }
-    const { slots: slotsFromFile = {}, templates: legacyResponsesFromFile = {}, responses: modernResponsesFromFile = {} } = domain;
-    const { slots: defaultSlots = {}, responses: defaultResponses = {} } = defaultDomain;
-    const responsesFromFile = { ...legacyResponsesFromFile, ...modernResponsesFromFile };
+    const {
+        slots: slotsFromFile = {},
+        templates: legacyResponsesFromFile = {},
+        responses: modernResponsesFromFile = {},
+    } = domain;
+    const {
+        slots: defaultSlots = {},
+        responses: defaultResponses = {},
+    } = defaultDomain;
+    const responsesFromFile = {
+        ...(legacyResponsesFromFile || {}),
+        ...(modernResponsesFromFile || {}),
+    };
     // get forms
-    const bfForms = 'bf_forms' in slotsFromFile
+    const bfForms = 'bf_forms' in (slotsFromFile || {})
         ? slotsFromFile.bf_forms.initial_value
         : [];
     // do not import slots that are in current default domain or are programmatically generated
@@ -80,7 +92,7 @@ export const loadDomain = ({
         }
     });
 
-    Object.keys(slotsFromFile).forEach((name) => {
+    Object.keys(slotsFromFile || {}).forEach((name) => {
         const slot = slotsFromFile[name];
         const options = {};
         if (slot.min_value) options.minValue = slot.min_value;

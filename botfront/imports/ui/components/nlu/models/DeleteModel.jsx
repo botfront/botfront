@@ -1,5 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useQuery } from '@apollo/react-hooks';
+import { withTracker } from 'meteor/react-meteor-data';
+import { connect } from 'react-redux';
 import {
     Button, Confirm, Icon, Message, Tab,
 } from 'semantic-ui-react';
@@ -7,9 +10,12 @@ import 'brace/mode/json';
 import 'brace/theme/github';
 import { saveAs } from 'file-saver';
 import moment from 'moment';
-import { getTrainingDataInRasaFormat } from '../../../../api/instances/instances.methods';
+import { ProjectContext } from '../../../layouts/context';
+import { wrapMeteorCallback } from '../../utils/Errors';
+import { setWorkingLanguage } from '../../../store/actions/actions';
+import { GET_EXAMPLE_COUNT } from './graphql';
 
-export default class DeleteModel extends React.Component {
+class DeleteModel extends React.Component {
     constructor(props) {
         super(props);
         this.state = this.getInitialState();
@@ -27,8 +33,26 @@ export default class DeleteModel extends React.Component {
     };
 
     onConfirm = () => {
-        const { onDeleteModel } = this.props;
-        onDeleteModel();
+        const { projectId, language, changeWorkingLanguage } = this.props;
+        const { projectLanguages } = this.context;
+        const { value: fallbackLang } = projectLanguages.find(({ value }) => value !== language) || {};
+        Meteor.call(
+            'nlu.remove',
+            projectId,
+            language,
+            wrapMeteorCallback(() => {
+                changeWorkingLanguage(fallbackLang);
+                this.setState({ confirmOpen: false });
+            }, 'Model deleted!'),
+        );
+    };
+
+    cannotDelete = () => {
+        const {
+            project: { defaultLanguage },
+            language,
+        } = this.context;
+        return language === defaultLanguage;
     };
 
     downloadModelData = () => {
@@ -36,22 +60,32 @@ export default class DeleteModel extends React.Component {
             this.setState({ backupDownloaded: true });
             return;
         }
-        const { model } = this.props;
-        const data = JSON.stringify(getTrainingDataInRasaFormat(model, true, []), null, 2);
-        const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
-        const filename = `${model.name.toLowerCase()}-${moment().toISOString()}.json`;
-        saveAs(blob, filename);
-        this.setState({ backupDownloaded: true });
+        const { language, projectId } = this.props;
+        Meteor.call(
+            'rasa.getTrainingPayload',
+            projectId,
+            { language },
+            wrapMeteorCallback((_, res) => {
+                const {
+                    [language]: { data },
+                } = res.nlu;
+                const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
+                const filename = `${projectId.toLowerCase()}-${language}-${moment().toISOString()}.md`;
+                saveAs(blob, filename);
+                this.setState({ backupDownloaded: true });
+            }),
+        );
     };
 
-    renderCannotDeleteMessage = (cannotDelete) => {
-        const { language } = this.props;
-        if (!cannotDelete) {
+    renderCannotDeleteMessage = (language) => {
+        if (this.cannotDelete()) {
             return (
                 <Message
                     header='Default language cannot be deleted'
                     icon='warning'
-                    content={'You can\'t delete the default language, to delete this language change the default language of the project.'}
+                    content={
+                        'You can\'t delete the default language, to delete this language change the default language of the project.'
+                    }
                     warning
                 />
             );
@@ -64,44 +98,56 @@ export default class DeleteModel extends React.Component {
                 content='Please use the button below to download a backup of your data before proceeding.'
             />
         );
-    }
-    
+    };
+
+    static contextType = ProjectContext;
 
     render() {
         const { backupDownloaded, confirmOpen } = this.state;
-        const { model, cannotDelete, language } = this.props;
+        const { language, examples } = this.props;
+        const { projectLanguages } = this.context;
+        const { text: languageName } = projectLanguages.find(
+            lang => lang.value === language,
+        );
         return (
             <Tab.Pane>
                 <Confirm
                     open={confirmOpen}
-                    header={`Delete ${language} data from your model? (${model.training_data.common_examples.length} examples)`}
+                    header={`Delete ${languageName} data from your model? (${examples} examples)`}
                     content='This cannot be undone!'
                     onCancel={this.onCancel}
                     onConfirm={this.onConfirm}
                 />
                 {!backupDownloaded && (
                     <div>
-                        {this.renderCannotDeleteMessage(cannotDelete)}
+                        {this.renderCannotDeleteMessage(languageName)}
                         <br />
-                        <Button positive onClick={this.downloadModelData} className='dowload-model-backup-button' data-cy='download-backup'>
+                        <Button
+                            positive
+                            onClick={this.downloadModelData}
+                            className='dowload-model-backup-button'
+                            data-cy='download-backup'
+                        >
                             <Icon name='download' />
-                            Backup {language} data of your model
+                            Backup {languageName} data of your model
                         </Button>
                     </div>
                 )}
-                {backupDownloaded && <Message success icon='check circle' content='Backup downloaded' />}
+                {backupDownloaded && (
+                    <Message success icon='check circle' content='Backup downloaded' />
+                )}
                 <br />
                 <br />
-                {cannotDelete && (
+                {!this.cannotDelete() && (
                     <Button
                         className='delete-model-button'
                         type='submit'
                         onClick={() => this.setState({ confirmOpen: true })}
                         negative
-                        disabled={!backupDownloaded || !cannotDelete}
+                        disabled={!backupDownloaded || this.cannotDelete()}
                     >
                         <Icon name='trash' />
-                        Delete <strong>{language}</strong> data from your model
+                        Delete <strong>{languageName}</strong> data from your model
                     </Button>
                 )}
             </Tab.Pane>
@@ -110,8 +156,30 @@ export default class DeleteModel extends React.Component {
 }
 
 DeleteModel.propTypes = {
-    model: PropTypes.object.isRequired,
-    onDeleteModel: PropTypes.func.isRequired,
-    cannotDelete: PropTypes.bool.isRequired,
+    examples: PropTypes.number,
     language: PropTypes.string.isRequired,
+    changeWorkingLanguage: PropTypes.func.isRequired,
+    projectId: PropTypes.string.isRequired,
 };
+
+DeleteModel.defaultProps = {
+    examples: 0,
+};
+
+const DeleteModelWithTracker = withTracker((props) => {
+    const { projectId, workingLanguage: language } = props;
+    const { data } = useQuery(GET_EXAMPLE_COUNT, { variables: { projectId, language } });
+    const { totalLength: examples } = data?.examples?.pageInfo || {};
+    return { examples, language };
+})(DeleteModel);
+
+const mapStateToProps = state => ({
+    projectId: state.settings.get('projectId'),
+    workingLanguage: state.settings.get('workingLanguage'),
+});
+
+const mapDispatchToProps = {
+    changeWorkingLanguage: setWorkingLanguage,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(DeleteModelWithTracker);

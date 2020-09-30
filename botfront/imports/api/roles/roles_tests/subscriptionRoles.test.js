@@ -48,7 +48,6 @@ if (Meteor.isServer) {
         },
         nluThreshold: 0.75,
         timezoneOffset: 0,
-        nlu_models: [modelId],
         updatedAt: '2020-02-18T16:44:24.809Z',
         deploymentEnvironments: [],
     };
@@ -58,7 +57,6 @@ if (Meteor.isServer) {
         name: 'trial',
         defaultLanguage: 'en',
         disabled: false,
-        nlu_models: [modelId],
         updatedAt: '2020-02-18T16:44:24.809Z',
         nluThreshold: 0.75,
     };
@@ -76,7 +74,6 @@ if (Meteor.isServer) {
         },
         nluThreshold: 0.75,
         timezoneOffset: 0,
-        nlu_models: ['DneModel'],
         updatedAt: '2020-02-18T16:44:24.809Z',
         deploymentEnvironments: [],
     };
@@ -412,19 +409,6 @@ the tests are created by iterating over subscriptions. the test params are as fo
             },
             args: [modelId],
             acceptedRoles: readers.nluData,
-        },
-        {
-            name: 'nlu_models.lite',
-            collectionName: 'nlu_models',
-            testDataInsert: async () => {
-                await NLUModels.insert(nluModelData);
-            },
-            testDataRemove: async (done) => {
-                await NLUModels.remove({ _id: modelId });
-                done();
-            },
-            args: [projectId],
-            acceptedRoles: [...readers.nluData, ...readers.responses, ...readers.projects],
         },
         {
             name: 'projects',

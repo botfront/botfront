@@ -118,18 +118,6 @@ export const withProjectContext = (story) => {
     const [intents, setIntents] = useState(intentsFixture);
     const [utterances, updateUtterances] = useState(utteranceFixtures)
 
-    const addEntity = entity => setEntities(Array.from(new Set([...entities, entity])));
-    const addIntent = intent => setIntents(Array.from(new Set([...intents, intent])));
-    const getUtteranceFromPayload = (payload, callback) => {
-        callback(
-            null,
-            [
-                ...Object.values(utterances).filter(u => u.intent === payload.intent),
-                { ...payload, text: 'not found' },
-            ][0],
-        );
-    };
-
     return (
         <ProjectContext.Provider
             value={{
@@ -149,9 +137,6 @@ export const withProjectContext = (story) => {
                     updateResponses({ ...responses, [title]: payload });
                     return resolve({ ...responses, [title]: payload })
                 }),
-                addEntity,
-                addIntent,
-                getUtteranceFromPayload,
                 updateResponses,
                 projectLanguages: [
                     { text: 'English', value: 'en' },

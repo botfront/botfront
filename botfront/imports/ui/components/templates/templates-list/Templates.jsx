@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import {
-    Container, Icon, Menu, Dropdown,
+    Container, Menu, Dropdown,
 } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, { useState, useEffect, useContext } from 'react';
@@ -9,10 +9,9 @@ import { connect } from 'react-redux';
 import { useQuery, useSubscription, useMutation } from '@apollo/react-hooks';
 import { Projects } from '../../../../api/project/project.collection';
 import TemplatesTable from './TemplatesTable';
-import { getNluModelLanguages } from '../../../../api/nlu_model/nlu_model.utils';
 import { GET_BOT_RESPONSES } from '../queries';
 import { RESPONSES_MODIFIED, RESPONSES_DELETED } from './subscriptions';
-import { Loading } from '../../utils/Utils';
+import { Loading, PageMenu } from '../../utils/Utils';
 import { Stories } from '../../../../api/story/stories.collection';
 import { DELETE_BOT_RESPONSE } from '../mutations';
 import { ProjectContext } from '../../../layouts/context';
@@ -72,19 +71,13 @@ class Templates extends React.Component {
     );
 
     renderMenu = projectId => (
-        <Menu pointing secondary className='top-menu'>
-            <Menu.Item>
-                <Menu.Header as='h3'>
-                    <Icon name='comment alternate' />
-                    Bot responses
-                </Menu.Header>
-            </Menu.Item>
+        <PageMenu title='Bot responses' icon='comment alternate'>
             <Can I='responses:w' projectId={projectId}>
                 <Menu.Menu position='right'>
                     <Menu.Item>{this.renderAddResponse()}</Menu.Item>
                 </Menu.Menu>
             </Can>
-        </Menu>
+        </PageMenu>
     );
 
     render() {
@@ -128,14 +121,10 @@ const TemplatesContainer = ({ params, events, ready }) => {
 
     const { insertResponse } = useContext(ProjectContext);
 
-    const project = Projects.find(
+    const { languages = [] } = Projects.findOne(
         { _id: params.project_id },
-        { fields: { nlu_models: 1 } },
-    ).fetch();
-    if (project.length === 0) {
-        // eslint-disable-next-line no-console
-        console.log('Project not found');
-    }
+        { fields: { languages: 1 } },
+    ) || {};
 
     const {
         loading, error, data, refetch,
@@ -202,7 +191,7 @@ const TemplatesContainer = ({ params, events, ready }) => {
             templates={templates}
             deleteBotResponse={deleteBotResponse}
             projectId={params.project_id}
-            nluLanguages={getNluModelLanguages(project[0].nlu_models)}
+            nluLanguages={languages}
             insertResponse={insertResponse}
         />
     );

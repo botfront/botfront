@@ -78,7 +78,10 @@ Meteor.methods({
         check(newStatus, String);
         const storiesToUpdate = Stories.find({ projectId, status: oldStatus }, { fields: { projectId: 1, status: 1 } }).fetch();
         const updatedStories = storiesToUpdate.map(story => ({ ...story, status: newStatus }));
-        return Meteor.call('stories.update', updatedStories);
+        if( (Array.isArray(updatedStories) && updatedStories.length>0)) {
+            return Meteor.call('stories.update', updatedStories);
+        }
+        return 
     },
 
     async 'stories.update'(story, options = {}) {

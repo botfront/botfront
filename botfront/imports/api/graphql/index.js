@@ -11,8 +11,6 @@ import configResolver from './config/configResolver';
 import configTypes from './config/config.types.graphql';
 import formResolver from './forms/formResolver';
 import formTypes from './forms/forms.types.graphql';
-import nluResolvers from './nlu/resolvers';
-import nluTypes from './nlu/schemas';
 import storiesTypes from './story/schemas/stories.types.graphql';
 import storiesResolver from './story/resolvers/storiesResolver';
 import rolesDataTypes from './rolesData/schemas';
@@ -21,13 +19,13 @@ import trackerStoreResolver from './trackerStore/resolvers/trackerStoreResolver'
 import trackerStoreTypes from './trackerStore/schemas';
 import analyticsDashboardResolver from './analyticsDashboards/analyticsDashboardResolver';
 import analyticsDashboardTypes from './analyticsDashboards/analyticsDashboards.types.graphql';
+import examplesResolver from './examples/resolvers/examplesResolver';
+import examplesTypes from './examples/schemas';
 
 
 export const resolvers = [
     ...conversationResolvers,
-    ...nluResolvers,
     ...botResponsesResolvers,
-    ...nluResolvers,
     rolesDataResolver,
     activityResolver,
     commonResolver,
@@ -36,16 +34,16 @@ export const resolvers = [
     storiesResolver,
     trackerStoreResolver,
     analyticsDashboardResolver,
+    examplesResolver,
 ];
 
 export const typeDefs = mergeTypeDefs([
     ...conversationTypes,
     ...botResponsesTypes,
-    ...nluTypes,
     ...activityTypes,
-    ...nluTypes,
     ...rolesDataTypes,
     ...trackerStoreTypes,
+    ...examplesTypes,
     commonTypes,
     configTypes,
     formTypes,

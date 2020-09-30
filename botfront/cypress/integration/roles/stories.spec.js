@@ -98,12 +98,11 @@ describe('story permissions', function() {
     });
     it('should not be able to edit nlu data from the modal', () => {
         cy.visit('/project/bf/stories');
-        cy.browseToStory('Get started');
+        cy.browseToStory('Greetings');
         cy.dataCy('utterance-text').click();
         cy.dataCy('close-nlu-modal').should('exist');
         cy.dataCy('save-nlu').should('not.exist');
         cy.dataCy('cancel-nlu-changes').should('not.exist');
-        cy.dataCy('example-text-editor-input').click().type('I will probably go to costco{enter}');
-        cy.dataCy('example-text-editor-input').should('not.have.value', '');
+        cy.dataCy('example-text-editor-input').should('not.exist');
     });
 });

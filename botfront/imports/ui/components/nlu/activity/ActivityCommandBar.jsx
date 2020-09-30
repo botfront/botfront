@@ -6,9 +6,10 @@ import IntentLabel from '../common/IntentLabel';
 
 const ActivityCommandBar = React.forwardRef((props, ref) => {
     const {
-        selection, onSetValidated, onMarkOoS, onSetIntent, onDelete, onCloseIntentPopup,
+        selection, onSetValidated, onSetIntent, onDelete, onCloseIntentPopup, isUtteranceOutdated, onMarkOoS,
     } = props;
     const someValidated = selection.some(d => !!d.validated);
+    const someOutdated = selection.some(d => isUtteranceOutdated(d));
     const someNotValidated = selection.some(d => !d.validated);
     const someLackingIntent = selection.some(d => !d.intent);
     const someHavingIntent = selection.some(d => d.intent);
@@ -66,7 +67,7 @@ const ActivityCommandBar = React.forwardRef((props, ref) => {
                     ref={intentLabelRef}
                     detachedModal
                     allowAdditions
-                    allowEditing
+                    allowEditing={!someOutdated}
                     onChange={intent => onSetIntent(selection, intent)}
                     onClose={onCloseIntentPopup}
                     enableReset
@@ -75,12 +76,14 @@ const ActivityCommandBar = React.forwardRef((props, ref) => {
                     size='mini'
                     inverted
                     content='Change intent'
+                    disabled={someOutdated}
                     trigger={(
                         <div>
                             <IconButton
                                 basic
                                 size='small'
                                 onClick={() => intentLabelRef.current.openPopup()}
+                                disabled={someOutdated}
                                 color='purple'
                                 icon='tag'
                                 data-cy='edit-intent'
@@ -102,6 +105,7 @@ const ActivityCommandBar = React.forwardRef((props, ref) => {
 });
 
 ActivityCommandBar.propTypes = {
+    isUtteranceOutdated: PropTypes.func.isRequired,
     selection: PropTypes.array,
     onSetValidated: PropTypes.func.isRequired,
     onMarkOoS: PropTypes.func.isRequired,

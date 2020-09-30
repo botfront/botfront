@@ -100,21 +100,10 @@ const form_results = new Schema({ _id: String }, { strict: false, versionKey: fa
 const analytics_dashboards = new Schema({ _id: String }, { strict: false, versionKey: false });
 const activity = new Schema({
     _id: { type: String, default: shortid.generate },
-    modelId: { type: String, required: true },
-    text: { type: String, required: true },
-    intent: { type: String, required: false },
-    entities: { type: [entity], required: false },
-    confidence: { type: Number, required: false },
-    validated: { type: Boolean, required: false },
-    ooS: { type: Boolean, required: false },
-    createdAt: { type: Date, required: false, default: Date.now },
-    updatedAt: { type: Date, required: false, default: Date.now },
-    env: { type: String, enum: ['development', 'staging', 'production'], required: false },
-    message_id: { type: String, required: false },
-    conversation_id: { type: String, required: false },
-}, { versionKey: false });
-activity.index({ text: 1, modelId: 1, env: 1 }, { unique: true });
+}, { strict: false, versionKey: false });
+const examples = new Schema({ _id: String }, { strict: false, versionKey: false });
 
+exports.Examples = mongoose.model('Examples', examples, 'examples');
 exports.Activity = mongoose.model('Activity', activity, 'activity');
 exports.AnalyticsDashboards = mongoose.model('AnalyticsDashboards', analytics_dashboards, 'analyticsDashboards');
 exports.Conversations = mongoose.model('Conversations', conversations, 'conversations');

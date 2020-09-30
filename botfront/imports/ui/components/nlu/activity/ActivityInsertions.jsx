@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useContext } from 'react';
 import {
     Button,
     Form,
@@ -9,8 +8,9 @@ import {
 } from 'semantic-ui-react';
 import { upsertActivity as upsertActivityMutation } from './mutations';
 import apolloClient from '../../../../startup/client/apollo';
+import { ProjectContext } from '../../../layouts/context';
 
-export async function populateActivity(instance, examples, modelId, callback) {
+export async function populateActivity(instance, examples, projectId, language, callback) {
     return Meteor.call('rasa.parse', instance, examples, async (err, activity) => {
         if (err) return;
         const data = (Array.isArray(activity) ? activity : [activity]).map(a => ({
@@ -29,15 +29,17 @@ export async function populateActivity(instance, examples, modelId, callback) {
             }, []),
         }));
 
-        await apolloClient.mutate({ mutation: upsertActivityMutation, variables: { modelId, data } });
+        await apolloClient.mutate({ mutation: upsertActivityMutation, variables: { projectId, language, data } });
         if (callback) callback();
     });
 }
 
-export default function ActivityInsertions(props) {
+export default function ActivityInsertions() {
     const {
-        model: { _id: modelId, language: lang }, instance,
-    } = props;
+        language,
+        project: { _id: projectId },
+        instance,
+    } = useContext(ProjectContext);
     const MAX_LINES = 50;
     const [text, setText] = useState('');
     const [loading, setLoading] = useState(false);
@@ -49,9 +51,9 @@ export default function ActivityInsertions(props) {
         
         const examples = text.split('\n')
             .filter(t => !t.match(/^\s*$/))
-            .map(t => ({ text: t, lang }));
+            .map(t => ({ text: t, lang: language }));
         try {
-            populateActivity(instance, examples, modelId, () => { setText(''); setLoading(false); });
+            populateActivity(instance, examples, projectId, language, () => { setText(''); setLoading(false); });
         } catch (e) { setLoading(false); }
     };
 
@@ -63,7 +65,6 @@ export default function ActivityInsertions(props) {
                 <TextArea
                     rows={15}
                     value={text}
-                    autoheight='true'
                     disabled={loading}
                     onChange={onTextChanged}
                 />
@@ -75,7 +76,4 @@ export default function ActivityInsertions(props) {
     );
 }
 
-ActivityInsertions.propTypes = {
-    model: PropTypes.object.isRequired,
-    instance: PropTypes.object.isRequired,
-};
+ActivityInsertions.propTypes = {};

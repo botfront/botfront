@@ -5,7 +5,6 @@ import { check } from 'meteor/check';
 
 import { Endpoints } from '../endpoints/endpoints.collection';
 import { Credentials } from '../credentials';
-import { Instances } from '../instances/instances.collection';
 
 import { generateErrorText } from './importExport.utils';
 import { checkIfCan } from '../../lib/scopes';
@@ -51,8 +50,6 @@ if (Meteor.isServer) {
             check(language, String);
 
             const passedLang = language === 'all' ? {} : { language };
-
-            const instance = await Instances.findOne({ projectId });
             const credentials = await Credentials.findOne(
                 { projectId },
                 { fields: { credentials: 1 } },
@@ -64,7 +61,6 @@ if (Meteor.isServer) {
             const rasaData = await Meteor.callWithPromise(
                 'rasa.getTrainingPayload',
                 projectId,
-                instance,
                 { ...passedLang, joinStoryFiles: false },
             );
 

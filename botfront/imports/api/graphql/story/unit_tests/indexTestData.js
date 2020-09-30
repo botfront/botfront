@@ -21,161 +21,132 @@ export const storyFixture = {
     status: 'published',
 };
 
-export const frModelFixture = {
-    _id: frModelId,
-    name: 'My First Model',
-    language: 'fr',
-    config:
-        'pipeline:\n  - name: WhitespaceTokenizer\n  - name: CountVectorsFeaturizer\n  - name: DIETClassifier\n  - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: EntitySynonymMapper',
-    evaluations: [],
-    intents: [],
-    chitchat_intents: [],
-    training_data: {
-        common_examples: [
+export const examplesFixture = [
+    {
+        _id: '055ba31b-b7ad-4ad4-8fd4-10fecccda971',
+        text: 'comment peuvez vous m\'aider ce matin',
+        intent: 'get_started',
+        canonical: true,
+        entities: [
             {
-                _id: '055ba31b-b7ad-4ad4-8fd4-10fecccda971',
-                text: 'comment peuvez vous m\'aider ce matin',
-                intent: 'get_started',
-                canonical: true,
-                entities: [
-                    {
-                        start: 31,
-                        end: 26,
-                        value: 'matin',
-                        entity: 'timeOfDay',
-                    },
-                ],
-                updatedAt: { $date: { $numberLong: '1583766541865' } },
-            },
-            {
-                _id: '1c2e3fdc-1b7d-41af-9c24-d424e772ab7e',
-                text: 'bonjour AA',
-                intent: 'hello',
-                canonical: true,
-                entities: [
-                    {
-                        start: 8,
-                        end: 10,
-                        value: 'AA',
-                        entity: 'letters',
-                    },
-                ],
-                updatedAt: { $date: { $numberLong: '1583522610598' } },
-            },
-            {
-                _id: '3c4de3a0-2981-483c-8b91-e18a21d64363',
-                text: 'salut BB',
-                intent: 'hello',
-                canonical: false,
-                entities: [
-                    {
-                        start: 6,
-                        end: 8,
-                        value: 'BB',
-                        entity: 'letters',
-                    },
-                ],
-                updatedAt: { $date: { $numberLong: '1583522623487' } },
+                start: 31,
+                end: 26,
+                value: 'matin',
+                entity: 'timeOfDay',
             },
         ],
-        entity_synonyms: [],
-        regex_features: [],
-        fuzzy_gazette: [],
+        metadata: { language: 'fr' },
+        projectId: 'bf',
     },
-    updatedAt: { $date: { $numberLong: '1583521349830' } },
-};
-
-export const enModelFixture = {
-    _id: enModelId,
-    name: 'Default Model',
-    language: 'en',
-    description: 'Default description',
-    config:
-               'pipeline:\n  - name: WhitespaceTokenizer\n  - name: CountVectorsFeaturizer\n  - name: DIETClassifier\n  - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: EntitySynonymMapper',
-    evaluations: [],
-    intents: [],
-    chitchat_intents: [],
-    training_data: {
-        common_examples: [
+    {
+        _id: '1c2e3fdc-1b7d-41af-9c24-d424e772ab7e',
+        text: 'bonjour AA',
+        intent: 'hello',
+        canonical: true,
+        entities: [
             {
-                _id: '055ba31b-b7ad-4ad4-8fd4-10fecccda971',
-                text: 'How can you help me this morning?',
-                intent: 'get_started',
-                canonical: true,
-                entities: [
-                    {
-                        start: 24,
-                        end: 31,
-                        value: 'morning',
-                        entity: 'timeOfDay',
-                    },
-                ],
-                updatedAt: { $date: { $numberLong: '1583766541865' } },
-            },
-            { // to test that multiple intent matches do not break the search regexp
-                _id: '055ba31b-b7ad-4ad4-8fd4-10fecccda971',
-                text: 'How can you help me out this morning?',
-                intent: 'get_started',
-                canonical: true,
-                entities: [
-                    {
-                        start: 28,
-                        end: 35,
-                        value: 'morning',
-                        entity: 'timeOfDay',
-                    },
-                ],
-                updatedAt: { $date: { $numberLong: '1583766541865' } },
-            },
-            {
-                _id: '4aad51cb-cbb7-483d-ad73-4400994b4f0b',
-                text: 'test AA',
-                intent: 'test',
-                canonical: false,
-                entities: [
-                    {
-                        start: 5,
-                        end: 7,
-                        value: 'AA',
-                        entity: 'letter',
-                    },
-                ],
-                updatedAt: { $date: { $numberLong: '1583521335768' } },
-            },
-            {
-                _id: '5edb3a01-ce18-4da3-b1d2-4ed4e50f336f',
-                text: 'test BB',
-                intent: 'test',
-                canonical: true,
-                entities: [
-                    {
-                        start: 5,
-                        end: 7,
-                        value: 'BB',
-                        entity: 'letter',
-                    },
-                ],
-                updatedAt: { $date: { $numberLong: '1583521349831' } },
+                start: 8,
+                end: 10,
+                value: 'AA',
+                entity: 'letters',
             },
         ],
-        entity_synonyms: [],
-        regex_features: [],
-        fuzzy_gazette: [],
+        metadata: { language: 'fr' },
+        projectId: 'bf',
     },
-    updatedAt: { $date: { $numberLong: '1583522623487' } },
-};
+    {
+        _id: '3c4de3a0-2981-483c-8b91-e18a21d64363',
+        text: 'salut BB',
+        intent: 'hello',
+        canonical: false,
+        entities: [
+            {
+                start: 6,
+                end: 8,
+                value: 'BB',
+                entity: 'letters',
+            },
+        ],
+        metadata: { language: 'fr' },
+        projectId: 'bf',
+    },
+    {
+        _id: '055ba31b-b7ad-4ad4-8fd4-10feccbda971',
+        text: 'How can you help me this morning?',
+        intent: 'get_started',
+        canonical: true,
+        entities: [
+            {
+                start: 24,
+                end: 31,
+                value: 'morning',
+                entity: 'timeOfDay',
+            },
+        ],
+        metadata: { language: 'en' },
+        projectId: 'bf',
+    },
+    { // to test that multiple intent matches do not break the search regexp
+        _id: '055ba31b-b7ad-4ad4-8fd4-10feaccda971',
+        text: 'How can you help me out this morning?',
+        intent: 'get_started',
+        canonical: true,
+        entities: [
+            {
+                start: 28,
+                end: 35,
+                value: 'morning',
+                entity: 'timeOfDay',
+            },
+        ],
+        metadata: { language: 'en' },
+        projectId: 'bf',
+    },
+    {
+        _id: '4aad51cb-cbb7-483d-ad73-4400994b4f0b',
+        text: 'test AA',
+        intent: 'test',
+        canonical: false,
+        entities: [
+            {
+                start: 5,
+                end: 7,
+                value: 'AA',
+                entity: 'letter',
+            },
+        ],
+        metadata: { language: 'en' },
+        projectId: 'bf',
+    },
+    {
+        _id: '5edb3a01-ce18-4da3-b1d2-4ed4e50f336f',
+        text: 'test BB',
+        intent: 'test',
+        canonical: true,
+        entities: [
+            {
+                start: 5,
+                end: 7,
+                value: 'BB',
+                entity: 'letter',
+            },
+        ],
+        metadata: { language: 'en' },
+        projectId: 'bf',
+    },
+];
 
 export const projectFixture = {
     _id: projectId,
     name: 'My Project',
     defaultLanguage: 'en',
     namespace: 'bf-wack',
+    languages: ['en', 'fr'],
     defaultDomain: {
         content:
             'slots:\n  disambiguation_message:\n    type: unfeaturized\nactions:\n  - action_botfront_disambiguation\n  - action_botfront_disambiguation_followup\n  - action_botfront_fallback\n  - action_botfront_mapping',
     },
     disabled: false,
-    nlu_models: [enModelId, frModelId],
     updatedAt: { $date: { $numberLong: '1583521253932' } },
 };
 

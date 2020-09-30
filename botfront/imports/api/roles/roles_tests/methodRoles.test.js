@@ -46,7 +46,6 @@ if (Meteor.isServer) {
         },
         nluThreshold: 0.75,
         timezoneOffset: 0,
-        nlu_models: [modelId],
         updatedAt: '2020-02-18T16:44:24.809Z',
         deploymentEnvironments: [],
     };
@@ -145,31 +144,6 @@ if (Meteor.isServer) {
             args: [null, projectId],
         },
         {
-            name: 'nlu.insertExamplesWithLanguage',
-            roles: [...writers.nluData, 'stories:w'],
-            args: [projectId],
-        },
-        {
-            name: 'nlu.insertExamples',
-            roles: writers.nluData,
-            args: [modelId],
-        },
-        {
-            name: 'nlu.updateExample',
-            roles: writers.nluData,
-            args: [modelId],
-        },
-        {
-            name: 'nlu.switchCanonical',
-            roles: writers.nluData,
-            args: [modelId],
-        },
-        {
-            name: 'nlu.deleteExample',
-            roles: writers.nluData,
-            args: [modelId],
-        },
-        {
             name: 'nlu.upsertEntitySynonym',
             roles: writers.nluData,
             args: [modelId],
@@ -195,11 +169,6 @@ if (Meteor.isServer) {
             args: [null, projectId],
         },
         {
-            name: 'nlu.update',
-            roles: writers.nluData,
-            args: [modelId],
-        },
-        {
             name: 'nlu.update.general',
             roles: otherRoles.nluDataX,
             args: [modelId],
@@ -210,17 +179,7 @@ if (Meteor.isServer) {
             args: [modelId],
         },
         {
-            name: 'nlu.getChitChatIntents',
-            roles: readers.nluData,
-            args: [modelId],
-        },
-        {
             name: 'nlu.addChitChatToTrainingData',
-            roles: writers.nluData,
-            args: [modelId],
-        },
-        {
-            name: 'nlu.updateChitChatIntents',
             roles: writers.nluData,
             args: [modelId],
         },
@@ -230,11 +189,6 @@ if (Meteor.isServer) {
             args: [null, projectId],
         },
         {
-            name: 'nlu.getUtteranceFromPayload',
-            roles: readers.nluData,
-            args: [projectId],
-        },
-        {
             name: 'nlu.chitChatSetup',
             roles: writers.projects,
             args: [],
@@ -242,11 +196,6 @@ if (Meteor.isServer) {
         },
         {
             name: 'nlu.saveExampleChanges',
-            roles: writers.nluData,
-            args: [modelId],
-        },
-        {
-            name: 'nlu.updateManyExamples',
             roles: writers.nluData,
             args: [modelId],
         },
@@ -283,11 +232,6 @@ if (Meteor.isServer) {
             args: [projectId],
         },
         {
-            name: 'project.getEntitiesAndIntents',
-            roles: [...readers.nluData, ...readers.responses],
-            args: [projectId],
-        },
-        {
             name: 'project.getActions',
             roles: [...readers.nluData, ...readers.responses],
             args: [projectId],
@@ -295,11 +239,6 @@ if (Meteor.isServer) {
         {
             name: 'project.getDefaultLanguage',
             roles: [...readers.nluData, ...readers.responses],
-            args: [projectId],
-        },
-        {
-            name: 'project.getDeploymentEnvironments',
-            roles: [...readers.incoming, ...readers.projects],
             args: [projectId],
         },
         {

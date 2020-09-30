@@ -2,9 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@apollo/react-hooks';
 import { browserHistory, withRouter } from 'react-router';
-import {
-    Container,
-} from 'semantic-ui-react';
+import { Container } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import { Meteor } from 'meteor/meteor';
 import moment from 'moment';
@@ -18,10 +16,13 @@ import { applyTimezoneOffset } from '../../../lib/graphs';
 import apolloClient from '../../../startup/client/apollo';
 import { formatConversationsInMd } from './utils';
 import { clearTypenameField } from '../../../lib/client.safe.utils';
-import { setConversationFilters } from '../../store/actions/actions';
+import {
+    setConversationFilters,
+    setWorkingDeploymentEnvironment,
+} from '../../store/actions/actions';
 import { queryifyFilter } from '../../../lib/conversationFilters.utils';
+import { Loading } from '../utils/Utils';
 import ConversationsBrowser from './ConversationsBrowser';
-
 
 const ConversationsBrowserContainer = (props) => {
     const {
@@ -34,7 +35,6 @@ const ConversationsBrowserContainer = (props) => {
     if (!router) {
         return <></>;
     }
-   
 
     const projectId = router.params.project_id;
     let activeConversationId = router.params.selected_id;
@@ -45,10 +45,14 @@ const ConversationsBrowserContainer = (props) => {
         confidenceFilter: { compare: -1, xThan: 'lessThan' },
         eventFilter: [],
         startDate: moment().subtract(7, 'd').set({
-            hour: 0, minute: 0, second: 0,
+            hour: 0,
+            minute: 0,
+            second: 0,
         }),
         endDate: moment().set({
-            hour: 23, minute: 59, second: 59,
+            hour: 23,
+            minute: 59,
+            second: 59,
         }),
         eventFilterOperator: 'or',
         userId: null,
@@ -58,8 +62,11 @@ const ConversationsBrowserContainer = (props) => {
     };
 
     const getQueryParam = (key) => {
-        const { location: { query } } = router;
+        const {
+            location: { query },
+        } = router;
         let value = query[key];
+       
         switch (key) {
         case 'actionFilters':
         case 'eventFilter':
@@ -92,6 +99,7 @@ const ConversationsBrowserContainer = (props) => {
         return filter;
     };
 
+
     const getInitialFilters = () => ({
         lengthFilter: getFilterFromQuery('lengthFilter'),
         confidenceFilter: getFilterFromQuery('confidenceFilter'),
@@ -109,32 +117,36 @@ const ConversationsBrowserContainer = (props) => {
     const [intentsActionsOptions, setIntentsActionsOptions] = useState([]);
     const [projectTimezoneOffset, setProjectTimezoneOffset] = useState(0);
 
-    const queryVariables = useMemo(() => ({
-        projectId,
-        page,
-        pageSize: 20,
-        ...activeFilters,
-        lengthFilter: activeFilters.lengthFilter.compare,
-        durationFilterLowerBound: activeFilters.durationFilter.compareLowerBound,
-        durationFilterUpperBound: activeFilters.durationFilter.compareUpperBound,
-        xThanLength: activeFilters.lengthFilter.xThan,
-        confidenceFilter: activeFilters.confidenceFilter.compare,
-        xThanConfidence: activeFilters.confidenceFilter.xThan,
-    }), [activeFilters, page]);
-    
+    const queryVariables = useMemo(
+        () => ({
+            projectId,
+            page,
+            pageSize: 20,
+            ...activeFilters,
+            lengthFilter: activeFilters.lengthFilter.compare,
+            durationFilterLowerBound: activeFilters.durationFilter.compareLowerBound,
+            durationFilterUpperBound: activeFilters.durationFilter.compareUpperBound,
+            xThanLength: activeFilters.lengthFilter.xThan,
+            confidenceFilter: activeFilters.confidenceFilter.compare,
+            xThanConfidence: activeFilters.confidenceFilter.xThan,
+        }),
+        [activeFilters, page],
+    );
+
     const {
         loading, error, data, refetch,
     } = useQuery(GET_CONVERSATIONS, {
         variables: queryVariables,
     });
-    
+
     const setActiveFilters = (...args) => {
         setActiveFiltersHidden(...args);
     };
 
-
     const updateQueryParams = (vals) => {
-        const { location: { pathname } } = router;
+        const {
+            location: { pathname },
+        } = router;
         const queryObject = {};
         Object.keys(activeFilters).forEach((key) => {
             queryObject[key] = queryifyFilter(key, vals[key]);
@@ -174,9 +186,7 @@ const ConversationsBrowserContainer = (props) => {
             { _id: projectId },
             { fields: { timezoneOffset: 1 } },
         );
-        setProjectTimezoneOffset(
-            timezoneOffset || 0,
-        );
+        setProjectTimezoneOffset(timezoneOffset || 0);
     }, [projectId]);
 
     useEffect(() => {
@@ -184,38 +194,53 @@ const ConversationsBrowserContainer = (props) => {
             { _id: projectId },
             { fields: { timezoneOffset: 1 } },
         );
-        setProjectTimezoneOffset(
-            timezoneOffset || 0,
-        );
+        setProjectTimezoneOffset(timezoneOffset || 0);
     }, [projectId]);
 
-    useEffect(() => {
-        changeFilters({ ...activeFilters, env: getFilterFromQuery('env') });
-    }, [env]);
 
+    // those two useEffect do different things
+    // this update the query string when changing the env
+    useEffect(() => changeFilters({ ...activeFilters, env }), [env]); 
+
+    //this allow to land on the right environment after clicking a link with a env
     useEffect(() => {
-        changeWorkingEnv(getFilterFromQuery('env') || 'development', true);
-    }, []);
+        changeWorkingEnv(getFilterFromQuery('env') || 'development', true); 
+    });
 
     useEffect(() => {
         changeFilters(activeFilters);
     }, [projectTimezoneOffset]);
-  
-  
+
     useQuery(GET_INTENTS_IN_CONVERSATIONS, {
         variables: { projectId },
         fetchPolicy: 'no-cache',
         onCompleted: (dataIntents) => {
-            setIntentsActionsOptions([...intentsActionsOptions, ...dataIntents.intentsInConversations.map((intent) => {
-                if (intent === null) { return { value: { name: null, excluded: false }, text: 'null', key: 'null' }; }
-                return { value: { name: intent, excluded: false }, text: intent, key: intent };
-            })]);
+            setIntentsActionsOptions([
+                ...intentsActionsOptions,
+                ...dataIntents.intentsInConversations.map((intent) => {
+                    if (intent === null) {
+                        return {
+                            value: { name: null, excluded: false },
+                            text: 'null',
+                            key: 'null',
+                        };
+                    }
+                    return {
+                        value: { name: intent, excluded: false },
+                        text: intent,
+                        key: intent,
+                    };
+                }),
+            ]);
         },
     });
 
-
     useEffect(() => {
-        const { location: { query: { actionFilters } } } = router;
+        const {
+            location: {
+                query: { actionFilters },
+            },
+        } = router;
         Meteor.call(
             'project.getActions',
             projectId,
@@ -225,15 +250,24 @@ const ConversationsBrowserContainer = (props) => {
                     if (Array.isArray(actionFilters)) {
                         newActionOptions = [
                             ...availableActions,
-                            ...actionFilters.filter(actionName => !availableActions.includes(actionName)),
+                            ...actionFilters.filter(
+                                actionName => !availableActions.includes(actionName),
+                            ),
                         ];
-                    } else if (!availableActions.includes(actionFilters) && actionFilters !== undefined) {
-                        newActionOptions = [
-                            ...availableActions,
-                            actionFilters,
-                        ];
+                    } else if (
+                        !availableActions.includes(actionFilters)
+                        && actionFilters !== undefined
+                    ) {
+                        newActionOptions = [...availableActions, actionFilters];
                     }
-                    setIntentsActionsOptions([...intentsActionsOptions, ...newActionOptions.map(action => ({ value: { name: action, excluded: false }, text: action, key: action }))]);
+                    setIntentsActionsOptions([
+                        ...intentsActionsOptions,
+                        ...newActionOptions.map(action => ({
+                            value: { name: action, excluded: false },
+                            text: action,
+                            key: action,
+                        })),
+                    ]);
                 }
             }),
         );
@@ -251,11 +285,18 @@ const ConversationsBrowserContainer = (props) => {
                 },
             })
             .then(({ data: { conversationsPage } = {} }) => {
-                if (!conversationsPage || !conversationsPage.conversations.length) return false;
+                if (!conversationsPage || !conversationsPage.conversations.length) { return false; }
                 let blob;
                 if (format === 'json') {
                     blob = new Blob(
-                        [JSON.stringify({ conversations: clearTypenameField(conversationsPage.conversations), project: { _id: projectId } })],
+                        [
+                            JSON.stringify({
+                                conversations: clearTypenameField(
+                                    conversationsPage.conversations,
+                                ),
+                                project: { _id: projectId },
+                            }),
+                        ],
                         { type: 'application/json;charset=utf-8' },
                     );
                 }
@@ -285,7 +326,7 @@ const ConversationsBrowserContainer = (props) => {
         const { conversations, pages } = data.conversationsPage;
 
         // If for some reason the conversation is not in the current page, discard it.
-        if (!conversations.some(c => c._id === activeConversationId)) activeConversationId = null;
+        if (!conversations.some(c => c._id === activeConversationId)) { activeConversationId = null; }
         if (!activeConversationId && conversations.length > 0) {
             const url = updateIncomingPath({
                 ...router.params,
@@ -319,11 +360,11 @@ const ConversationsBrowserContainer = (props) => {
     }
 
     return (
-        <div>
+        <Loading loading={loading}>
             <Container>
-                <ConversationsBrowser {...componentProps} loading={loading} />
+                <ConversationsBrowser {...componentProps} />
             </Container>
-        </div>
+        </Loading>
     );
 };
 
@@ -350,4 +391,7 @@ const mapStateToProps = state => ({
 
 const ConversationsRouter = withRouter(ConversationsBrowserContainer);
 
-export default connect(mapStateToProps, { setFiltersInRedux: setConversationFilters })(ConversationsRouter);
+export default connect(mapStateToProps, {
+    setFiltersInRedux: setConversationFilters,
+    changeWorkingEnv: setWorkingDeploymentEnvironment,
+})(ConversationsRouter);

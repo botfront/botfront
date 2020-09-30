@@ -72,7 +72,7 @@ describe('link from analytics to conversations and apply filters', () => {
             .click({ force: true });
         cy.addConversationEventFilter('intent', 'intent_test');
         cy.escapeModal();
-       
+
         // click on the most recent data in the graph
         cy.dataCy('analytics-card')
             .first()
@@ -183,7 +183,7 @@ describe('link from analytics to conversations and apply filters', () => {
             .contains(`${moment().subtract(29, 'days').startOf('day').format('DD/MM/YYYY')} - ${moment().format('DD/MM/YYYY')}`);
     });
 
-    it('should set the correct order from an funnnel', () => {
+    it('should set the correct order from a funnel', () => {
         cy.addConversationFromTemplate('bf', 'action_test', 'actiontest1');
         cy.addConversationFromTemplate('bf', 'action_test', 'actiontest2');
         cy.addConversationFromTemplate('bf', 'action_autre', 'actionautre1');
@@ -202,16 +202,15 @@ describe('link from analytics to conversations and apply filters', () => {
         cy.get('.page').click({ force: true });
         cy.dataCy('analytics-card').first().find('rect').last()
             .click();
-       
 
         cy.dataCy('intents-actions-filter').find('.label').should('have.length', 2); // wait for page to load
         cy.get('.label').contains('chitchat.greet').should('exist');
         cy.get('.label').contains('action_test').should('exist');
         cy.dataCy('intents-actions-filter').find('.and-or-order div.text').should('have.text', 'In order');
-        cy.get(' .four > .ui ').should('have.text', 'actiontest2actiontest1');
+        cy.dataCy('conversation-item').should('have.text', 'actiontest2actiontest1');
     });
 
-    it('should set the correct order from an funnnel with exclusion', () => {
+    it('should set the correct order from a funnel with exclusion', () => {
         cy.addConversationFromTemplate('bf', 'action_test', 'actiontest1');
         cy.addConversationFromTemplate('bf', 'action_test', 'actiontest2');
         cy.addConversationFromTemplate('bf', 'action_autre', 'actionautre1');
@@ -241,7 +240,7 @@ describe('link from analytics to conversations and apply filters', () => {
         cy.get('.label').contains('chitchat.greet').should('exist');
         cy.get('.label').contains('action_test').should('exist');
         cy.dataCy('intents-actions-filter').find('.and-or-order div.text').should('have.text', 'In order');
-        cy.get(' .four > .ui ').should('have.text', 'actiontest2actiontest1');
+        cy.dataCy('conversation-item').should('have.text', 'actiontest2actiontest1');
     });
     it('should link from a pie chart', () => {
         cy.addConversationFromTemplate('bf', 'intent_test', 'intenttest');

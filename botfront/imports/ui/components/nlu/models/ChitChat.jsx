@@ -6,6 +6,7 @@ import {
     Dropdown, Confirm, Button,
     Loader, Message, Icon,
 } from 'semantic-ui-react';
+import { ProjectContext } from '../../../layouts/context';
 import 'react-s-alert/dist/s-alert-default.css';
 
 import { wrapMeteorCallback } from '../../utils/Errors';
@@ -30,9 +31,9 @@ export default class ChitChat extends React.Component {
     };
 
     loadChitChatIntents = () => {
-        const { model: { language, _id: modelId } } = this.props;
+        const { model: { language } } = this.props;
 
-        Meteor.call('nlu.getChitChatIntents', modelId, language, (e, intents) => {
+        Meteor.call('nlu.getChitChatIntents', language, (e, intents) => {
             if (e) {
                 if (e instanceof ReferenceError) {
                     this.setState({ notConfiguredError: e.message });
@@ -49,11 +50,12 @@ export default class ChitChat extends React.Component {
     };
 
     addToTrainingData = () => {
-        const { model: { _id: modelId, language } } = this.props;
+        const { model: { language } } = this.props;
+        const { project: { _id: projectId } } = this.context;
         const { selectedIntents } = this.state;
         this.close();
 
-        Meteor.call('nlu.addChitChatToTrainingData', modelId, language, selectedIntents, wrapMeteorCallback(() => {
+        Meteor.call('nlu.addChitChatToTrainingData', projectId, language, selectedIntents, wrapMeteorCallback(() => {
             this.setState({ selectedIntents: [] });
         }, 'imported chitchat examples to training data.'));
     };
@@ -61,6 +63,8 @@ export default class ChitChat extends React.Component {
     open = () => this.setState({ confirmOpen: true });
 
     close = () => this.setState({ confirmOpen: false });
+
+    static contextType = ProjectContext;
 
     render() {
         const {

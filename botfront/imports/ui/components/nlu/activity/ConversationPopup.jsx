@@ -25,6 +25,8 @@ const ConversationPopup = (props) => {
             id={`conversation-popup-${datum._id}`}
             className={convId ? 'dialogue-popup' : ''}
             open={open}
+            hideOnScroll
+            onClose={() => setOpen(false)}
             on='click'
             trigger={(
                 <div>

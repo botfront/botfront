@@ -1,26 +1,25 @@
-import Model from '../nlu.model';
+import Examples from '../examples.model.js';
 
-export const getIntentStatistics = async ids => Model.aggregate([
+export const getIntentStatistics = async ({ projectId }) => Examples.aggregate([
     {
-        $match: { _id: { $in: ids } },
+        $match: {
+            projectId, 'metadata.draft': { $ne: true }, 'metadata.language': { $ne: null },
+        },
     },
     {
-        $unwind: { path: '$training_data.common_examples' },
-    },
-    {
-        $sort: { 'training_data.common_examples.canonical': -1 },
+        $sort: { 'metadata.canonical': -1 },
     },
     {
         $group: {
             _id: {
-                intent: '$training_data.common_examples.intent',
-                language: '$language',
+                intent: '$intent',
+                language: '$metadata.language',
             },
             count: { $sum: 1 },
             example: {
                 $first: {
-                    text: '$training_data.common_examples.text',
-                    canonical: '$training_data.common_examples.canonical',
+                    text: '$text',
+                    canonical: '$metadata.canonical',
                 },
             },
         },

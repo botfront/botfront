@@ -1,6 +1,16 @@
 import React from 'react';
 import {
-    Message, Accordion, Icon, Form, Input, Header, Divider, Button, Select, Menu, Loader,
+    Message,
+    Accordion,
+    Icon,
+    Form,
+    Input,
+    Header,
+    Divider,
+    Button,
+    Select,
+    Menu,
+    Loader,
 } from 'semantic-ui-react';
 import {
     AutoField, AutoForm, LongTextField, ErrorsField,
@@ -14,7 +24,6 @@ import { safeLoad } from 'js-yaml';
 import ToggleField from '../common/ToggleField';
 import SelectField from '../form_fields/SelectField';
 import { Credentials as CredentialsCollection } from '../../../api/credentials';
-import { Projects as ProjectsCollection } from '../../../api/project/project.collection';
 import { chatWidgetSettingsSchema } from '../../../api/project/project.schema';
 import { wrapMeteorCallback } from '../utils/Errors';
 import 'react-s-alert/dist/s-alert-default.css';
@@ -22,11 +31,8 @@ import SaveButton from '../utils/SaveButton';
 import { can } from '../../../lib/scopes';
 import ChangesSaved from '../utils/ChangesSaved';
 import IntentField from '../form_fields/IntentField';
+import { ProjectContext } from '../../layouts/context';
 import InfoField from '../utils/InfoField';
-
-import { languages } from '../../../lib/languages';
-import { getNluModelLanguages } from '../../../api/nlu_model/nlu_model.utils';
-
 
 const ColorField = React.lazy(() => import('../form_fields/ColorField'));
 class ChatWidgetForm extends React.Component {
@@ -44,41 +50,49 @@ class ChatWidgetForm extends React.Component {
     }
 
     componentDidMount() {
-        const { widgetSettings, projectId, defaultLanguage } = this.props;
-        if (widgetSettings && widgetSettings.customData && !widgetSettings.customData.language) {
-            Meteor.call(
-                'project.update',
-                {
-                    _id: projectId, chatWidgetSettings: { ...widgetSettings, customData: { language: `${defaultLanguage}` } },
+        const {
+            project: { defaultLanguage, chatWidgetSettings = {}, _id: projectId },
+        } = this.context;
+        if (
+            chatWidgetSettings
+            && chatWidgetSettings.customData
+            && !chatWidgetSettings.customData.language
+        ) {
+            Meteor.call('project.update', {
+                _id: projectId,
+                chatWidgetSettings: {
+                    ...chatWidgetSettings,
+                    customData: { language: `${defaultLanguage}` },
                 },
-            );
+            });
         }
     }
-
 
     componentWillUnmount() {
         clearTimeout(this.successTimeout);
     }
 
-
     getSnippetString() {
-        const { credentials, widgetSettings } = this.props;
+        const { credentials } = this.props;
+        const {
+            project: { chatWidgetSettings = {} },
+        } = this.context;
         const { selectedEnvironment } = this.state;
         const credential = safeLoad(credentials[selectedEnvironment]);
-        let channel = credential['rasa_addons.core.channels.webchat.WebchatInput'];
-        if (!channel) {
-            channel = credential['rasa_addons.core.channels.webchat_plus.WebchatPlusInput'];
-        }
+        const channel = credential['rasa_addons.core.channels.webchat.WebchatInput'];
         // eslint-disable-next-line max-len
-        const snippet = `<script>!function(){let e=document.createElement("script"),t=document.head||document.getElementsByTagName("head")[0];e.src="https://storage.googleapis.com/cdn.botfront.cloud/botfront-widget-latest.js",e.async=!0,e.onload=(()=>{window.RasaWebchatPro({customData:${JSON.stringify(widgetSettings.customData)},socketUrl:"${channel.base_url}"})}),t.insertBefore(e,t.firstChild)}();</script>`;
+        const snippet = `<script>!function(){let e=document.createElement("script"),t=document.head||document.getElementsByTagName("head")[0];e.src="https://storage.googleapis.com/cdn.botfront.cloud/botfront-widget-latest.js",e.async=!0,e.onload=(()=>{window.RasaWebchatPro({customData:${JSON.stringify(
+            chatWidgetSettings.customData,
+        )},socketUrl:"${
+            channel.base_url
+        }"})}),t.insertBefore(e,t.firstChild)}();</script>`;
         return snippet;
     }
-
 
     toogleAdvanced = () => {
         const { advancedVisible } = this.state;
         this.setState({ advancedVisible: !advancedVisible });
-    }
+    };
 
     onSave = (settings) => {
         const newSettings = settings;
@@ -86,7 +100,9 @@ class ChatWidgetForm extends React.Component {
         newSettings.customData = JSON.parse(newSettings.customData);
         const { initPayload } = newSettings;
         if (initPayload) {
-            newSettings.initPayload = initPayload.startsWith('/') ? initPayload : `/${initPayload}`;
+            newSettings.initPayload = initPayload.startsWith('/')
+                ? initPayload
+                : `/${initPayload}`;
         }
         this.setState({ saving: true, showConfirmation: false });
         clearTimeout(this.successTimeout);
@@ -94,7 +110,8 @@ class ChatWidgetForm extends React.Component {
         Meteor.call(
             'project.update',
             {
-                _id: projectId, chatWidgetSettings: newSettings,
+                _id: projectId,
+                chatWidgetSettings: newSettings,
             },
             wrapMeteorCallback((err) => {
                 if (!err) {
@@ -106,8 +123,7 @@ class ChatWidgetForm extends React.Component {
                 this.setState({ saving: false, showConfirmation: true });
             }),
         );
-    }
-
+    };
 
     // eslint-disable-next-line class-methods-use-this
     copySnippet = () => {
@@ -115,39 +131,24 @@ class ChatWidgetForm extends React.Component {
         copyText.select();
         document.execCommand('copy');
         window.getSelection().removeAllRanges();
-    }
+    };
 
     handleCopy = () => {
         this.copySnippet();
         this.setState({ copied: true });
         setTimeout(() => this.setState({ copied: false }), 1000);
-    }
+    };
 
-    handleEnvClick = (e, { name }) => this.setState({ selectedEnvironment: name })
-
-
-    getlanguageOptions = () => {
-        const { languagesCode } = this.props;
-        const options = languagesCode.map(lang => ({
-            text: languages[lang.value].name,
-            key: lang.value,
-            // eslint-disable-next-line no-useless-escape
-            value: `{\"language\":\"${lang.value}\"}`, // we need the double quotes because it's a json
-        }));
-        return options;
-    }
+    handleEnvClick = (e, { name }) => this.setState({ selectedEnvironment: name });
 
     renderInstall = () => {
+        const { copied, selectedEnvironment } = this.state;
         const {
-            copied, selectedEnvironment,
-        } = this.state;
-        const { availableEnvs } = this.props;
+            project: { deploymentEnvironments: availableEnvs = [] },
+        } = this.context;
         return (
             <>
-                <Message
-                    info
-                    content='Paste this snippet in your html'
-                />
+                <Message info content='Paste this snippet in your html' />
                 <Form>
                     <Input
                         action
@@ -160,8 +161,13 @@ class ChatWidgetForm extends React.Component {
 
                         {availableEnvs && availableEnvs.length > 0 && (
                             <Select
-                                options={['development', ...availableEnvs].map(env => ({ value: env, text: env }))}
-                                onChange={(e, data) => { this.setState({ selectedEnvironment: data.value }); }}
+                                options={['development', ...availableEnvs].map(env => ({
+                                    value: env,
+                                    text: env,
+                                }))}
+                                onChange={(e, data) => {
+                                    this.setState({ selectedEnvironment: data.value });
+                                }}
                                 value={selectedEnvironment}
                                 data-cy='envs-selector'
                             />
@@ -169,7 +175,10 @@ class ChatWidgetForm extends React.Component {
 
                         <Button
                             positive={copied}
-                            onClick={(e) => { e.preventDefault(); this.handleCopy(); }}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                this.handleCopy();
+                            }}
                             className='copy-button'
                             icon='copy'
                             content={copied ? 'Copied' : 'Copy'}
@@ -178,12 +187,11 @@ class ChatWidgetForm extends React.Component {
                 </Form>
             </>
         );
-    }
+    };
 
     renderWidgetSettings = (saving, settings, projectId) => {
-        const {
-            saved, advancedVisible, showConfirmation,
-        } = this.state;
+        const { saved, advancedVisible, showConfirmation } = this.state;
+        const { projectLanguages } = this.context;
         return (
             <>
                 <Message
@@ -199,10 +207,14 @@ class ChatWidgetForm extends React.Component {
                     modelTransform={(mode, model) => {
                         const newModel = cloneDeep(model);
 
-                        if (typeof newModel.customData !== 'string' || newModel.customData === '') {
-                            newModel.customData = JSON.stringify(newModel.customData || {});
+                        if (
+                            typeof newModel.customData !== 'string'
+                            || newModel.customData === ''
+                        ) {
+                            newModel.customData = JSON.stringify(
+                                newModel.customData || {},
+                            );
                         }
-
 
                         if (mode === 'validate' || mode === 'submit') {
                             newModel.projectId = projectId;
@@ -223,21 +235,35 @@ class ChatWidgetForm extends React.Component {
                         label='Initial payload'
                         name='initPayload'
                     />
-                    <SelectField options={this.getlanguageOptions()} name='customData' label='Language' />
+                    <SelectField
+                        options={projectLanguages}
+                        name='customData'
+                        label='Language'
+                    />
                     <ErrorsField />
                     <Divider />
 
                     <Header as='h3'>Colors</Header>
                     <ColorField label='Main webchat color' name='mainColor' />
-                    <ColorField label='Conversation background color' name='conversationBackgroundColor' />
+                    <ColorField
+                        label='Conversation background color'
+                        name='conversationBackgroundColor'
+                    />
                     <ColorField label='User message text color' name='userTextColor' />
-                    <ColorField label='User message background color' name='userBackgroundColor' />
-                    <ColorField label='Assistant message text color' name='assistTextColor' />
-                    <ColorField label='Assistant message background color' name='assistBackgoundColor' />
-
+                    <ColorField
+                        label='User message background color'
+                        name='userBackgroundColor'
+                    />
+                    <ColorField
+                        label='Assistant message text color'
+                        name='assistTextColor'
+                    />
+                    <ColorField
+                        label='Assistant message background color'
+                        name='assistBackgoundColor'
+                    />
 
                     <Divider />
-
 
                     <Accordion>
                         <Accordion.Title
@@ -245,11 +271,21 @@ class ChatWidgetForm extends React.Component {
                             index={0}
                             onClick={this.toogleAdvanced}
                         >
-                            <Header as='h3' icon> <Icon name='dropdown' />Advanced</Header>
+                            <Header as='h3' icon>
+                                {' '}
+                                <Icon name='dropdown' />
+                                Advanced
+                            </Header>
                         </Accordion.Title>
                         <Accordion.Content active={advancedVisible}>
-                            <AutoField label='User input hint' name='inputTextFieldHint' />
-                            <ToggleField label='Show full screen button' name='showFullScreenButton' />
+                            <AutoField
+                                label='User input hint'
+                                name='inputTextFieldHint'
+                            />
+                            <ToggleField
+                                label='Show full screen button'
+                                name='showFullScreenButton'
+                            />
                             <InfoField
                                 label='Display unread messages count'
                                 required={false}
@@ -258,7 +294,6 @@ class ChatWidgetForm extends React.Component {
                                 name='displayUnreadCount'
                             />
                             <InfoField
-
                                 label='Hide when not connected'
                                 required={false}
                                 info='If set, the widget will remain hidden if it cannot connect to Botfront'
@@ -266,7 +301,6 @@ class ChatWidgetForm extends React.Component {
                                 name='hideWhenNotConnected'
                             />
                             <InfoField
-
                                 label='Disable tooltips'
                                 required={false}
                                 info='If set, messages will not appear as a bubble when the widget is closed'
@@ -288,47 +322,69 @@ class ChatWidgetForm extends React.Component {
                                 name='showMessageDate'
                             />
                             <Divider />
-                            <AutoField label='Open launcher image' name='openLauncherImage' />
+                            <AutoField
+                                label='Open launcher image'
+                                name='openLauncherImage'
+                            />
                             <AutoField label='Close launcher image' name='closeImage' />
                             <AutoField label='Avatar path' name='profileAvatar' />
                             <Divider />
-                            <LongTextField className='monospaced' label='Default highlight class name' name='defaultHighlightClassname' />
-                            <LongTextField className='monospaced' label='Default highlight css' name='defaultHighlightCss' />
-                            <LongTextField className='monospaced' label='Default highlight css animation' name='defaultHighlightAnimation' />
-
+                            <LongTextField
+                                className='monospaced'
+                                label='Default highlight class name'
+                                name='defaultHighlightClassname'
+                            />
+                            <LongTextField
+                                className='monospaced'
+                                label='Default highlight css'
+                                name='defaultHighlightCss'
+                            />
+                            <LongTextField
+                                className='monospaced'
+                                label='Default highlight css animation'
+                                name='defaultHighlightAnimation'
+                            />
                         </Accordion.Content>
-
                     </Accordion>
                     <br />
                     {showConfirmation && (
                         <ChangesSaved
-                            onDismiss={() => this.setState({ saved: false, showConfirmation: false })}
-
+                            onDismiss={() => this.setState({ saved: false, showConfirmation: false })
+                            }
                         />
                     )}
-                    <SaveButton saved={saved} saving={saving} disabled={!!saving || !can('projects:w', projectId)} />
+                    <SaveButton
+                        saved={saved}
+                        saving={saving}
+                        disabled={!!saving || !can('projects:w', projectId)}
+                    />
                 </AutoForm>
             </>
-
         );
     };
 
     renderLoading = () => <div />;
 
     renderContents = () => {
-        const { widgetSettings, projectId } = this.props;
         const { saving, activeMenu } = this.state;
-        const { initPayload } = widgetSettings;
+        const {
+            project: { chatWidgetSettings = {}, _id: projectId },
+        } = this.context;
+        const { initPayload } = chatWidgetSettings;
         if (initPayload) {
-            widgetSettings.initPayload = initPayload.startsWith('/') ? initPayload.slice(1) : initPayload;
+            chatWidgetSettings.initPayload = initPayload.startsWith('/')
+                ? initPayload.slice(1)
+                : initPayload;
         }
         if (activeMenu === 'Configuration') {
-            return this.renderWidgetSettings(saving, widgetSettings, projectId);
+            return this.renderWidgetSettings(saving, chatWidgetSettings, projectId);
         }
         return this.renderInstall();
     };
 
-    handleMenuClick = (e, { name }) => this.setState({ activeMenu: name })
+    handleMenuClick = (e, { name }) => this.setState({ activeMenu: name });
+
+    static contextType = ProjectContext;
 
     render() {
         const { ready } = this.props;
@@ -336,7 +392,6 @@ class ChatWidgetForm extends React.Component {
         if (ready) {
             return (
                 <>
-
                     <Menu pointing secondary>
                         <Menu.Item
                             name='Configuration'
@@ -352,7 +407,6 @@ class ChatWidgetForm extends React.Component {
                     </Menu>
                     <React.Suspense fallback={<Loader />}>
                         {this.renderContents()}
-
                     </React.Suspense>
                 </>
             );
@@ -363,49 +417,29 @@ class ChatWidgetForm extends React.Component {
 
 ChatWidgetForm.propTypes = {
     projectId: PropTypes.string.isRequired,
-    widgetSettings: PropTypes.object,
     credentials: PropTypes.object.isRequired,
     ready: PropTypes.bool.isRequired,
-    availableEnvs: PropTypes.array,
-    languagesCode: PropTypes.array.isRequired,
-    defaultLanguage: PropTypes.string.isRequired,
 };
 
-ChatWidgetForm.defaultProps = {
-    widgetSettings: {},
-    availableEnvs: [],
-};
+ChatWidgetForm.defaultProps = {};
 
 const widgetSettingsContainer = withTracker(({ projectId }) => {
     const handlerCredentials = Meteor.subscribe('credentials', projectId);
     const handlerProject = Meteor.subscribe('projects', projectId);
     const credentials = {};
-    CredentialsCollection.find({ projectId }, { fields: { credentials: true, environment: true } })
+    CredentialsCollection.find(
+        { projectId },
+        { fields: { credentials: true, environment: true } },
+    )
         .fetch()
         .forEach((credential) => {
             const env = credential.environment || 'development';
             credentials[env] = credential.credentials;
         });
-    const projectSettings = ProjectsCollection.findOne(
-        { _id: projectId },
-        {
-            fields: {
-                deploymentEnvironments: 1,
-                chatWidgetSettings: 1,
-                nlu_models: 1,
-                defaultLanguage: 1,
-            },
-        },
-    );
-    const modelLanguages = getNluModelLanguages(projectSettings.nlu_models, true);
 
     return {
-        ready: (handlerCredentials.ready() && handlerProject.ready()),
-        widgetSettings: projectSettings.chatWidgetSettings,
-        availableEnvs: projectSettings.deploymentEnvironments,
+        ready: handlerCredentials.ready() && handlerProject.ready(),
         credentials,
-        languagesCode: modelLanguages,
-        defaultLanguage: projectSettings.defaultLanguage,
     };
 })(ChatWidgetForm);
 

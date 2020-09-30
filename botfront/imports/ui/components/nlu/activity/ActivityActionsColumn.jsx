@@ -71,6 +71,7 @@ export default function ActivityActionsColumn(props) {
                     size={size}
                     onClick={() => handleSetValidated([datum], false)}
                     color='green'
+                    className='persistent'
                     icon='check'
                     data-cy='invalidate-utterance'
                 />
@@ -150,6 +151,7 @@ export default function ActivityActionsColumn(props) {
                             onClick={() => handleSetValidated([datum], true)}
                             color='green'
                             icon='check'
+                            className='persistent'
                             data-cy='validate-utterance'
                         />
                     </div>

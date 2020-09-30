@@ -61,26 +61,23 @@ const smartTips = (flags) => {
     };
 };
 
-const isUtteranceOutdated = ({ training: { endTime = 0 } = {} }, { updatedAt }) => moment(updatedAt).isBefore(moment(endTime));
+const isUtteranceOutdated = (endTime, { updatedAt }) => moment(updatedAt).isBefore(moment(endTime));
 
-const getSimilarTD = (model, utterance) => {
-    // const synonyms = model.training_data.entity_synonyms;
-    // const gazette = model.training_data.gazette;
+const getSimilarTD = (examples, utterance) => {
     const utteranceEntities = utterance.entities ? utterance.entities.map(entity => entity.entity) : [];
-    const examples = model.training_data.common_examples
+    return examples
         .filter((example) => {
             if (example.intent !== utterance.intent) return false;
             const exEntities = example.entities ? example.entities.map(entity => entity.entity) : [];
             return (utteranceEntities.every(entity => exEntities.includes(entity))
                 && exEntities.some(entity => !utteranceEntities.includes(entity)));
         });
-    return examples;
 };
 
-export const getSmartTips = (model, project, utterance) => {
-    const th = project.nluThreshold;
-
-    if (isUtteranceOutdated(project, utterance)) return smartTips({ outdated: true });
+export const getSmartTips = ({
+    nluThreshold: th, endTime, examples, utterance,
+}) => {
+    if (isUtteranceOutdated(endTime, utterance)) return smartTips({ outdated: true });
 
     const intentBelowTh = utterance.confidence < th ? { name: utterance.intent, confidence: utterance.confidence } : null;
     if (intentBelowTh) return smartTips({ intentBelowTh });
@@ -91,7 +88,7 @@ export const getSmartTips = (model, project, utterance) => {
 
     const entitiesInUt = utterance.entities.map(entity => entity.entity);
     const entitiesInTD = union(
-        ...getSimilarTD(model, utterance)
+        ...getSimilarTD(examples, utterance)
             .map(td => td.entities.map(entity => entity.entity)),
     ).filter(entity => !entitiesInUt.includes(entity));
     if (entitiesInTD.length) return smartTips({ entitiesInTD });

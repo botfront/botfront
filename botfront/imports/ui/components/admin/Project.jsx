@@ -28,6 +28,7 @@ class Project extends React.Component {
     });
 
     updateProject = (project) => {
+       
         if (project._id) {
             Meteor.call('project.update', project, wrapMeteorCallback((err) => {
                 if (!err) {
@@ -35,16 +36,11 @@ class Project extends React.Component {
                 }
             }));
         } else {
-            Meteor.call('project.insert', project, wrapMeteorCallback((err, result) => {
+         
+            Meteor.call('project.insert', project, wrapMeteorCallback((err, result ) => {
                 if (!err) {
                     Meteor.callWithPromise(
-                        'nlu.insert',
-                        {
-                            name: 'Default Model',
-                            language: project.defaultLanguage,
-                            published: true,
-                        },
-                        result,
+                        'nlu.insert', result, project.defaultLanguage, // result is the newly created project id
                     );
                     browserHistory.goBack();
                 }

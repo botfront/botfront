@@ -1,7 +1,7 @@
 import React, {
     useContext, useState, useImperativeHandle, useRef,
 } from 'react';
-import PropTypes, { array } from 'prop-types';
+import PropTypes from 'prop-types';
 import {
     Icon, Popup, Input, Button, Modal, Item, Label, Dropdown,
 } from 'semantic-ui-react';
@@ -20,13 +20,12 @@ const Intent = React.forwardRef((props, ref) => {
         enableReset,
         detachedModal,
         onClose,
+        additionalIntentOption,
         multiple,
         width,
         onlyDataTable,
     } = props;
-    const {
-        addIntent, getCanonicalExamples,
-    } = useContext(ProjectContext);
+    const { getCanonicalExamples } = useContext(ProjectContext);
     const [popupOpen, setPopupOpen] = useState(false);
     const [typeInput, setTypeInput] = useState('');
     const labelRef = useRef();
@@ -42,6 +41,7 @@ const Intent = React.forwardRef((props, ref) => {
 
     const intents = [
         ...getIntentsFromValue(),
+        ...(additionalIntentOption ? [{ intent: additionalIntentOption }] : []),
         ...getCanonicalExamples({})
             .filter((i) => {
                 if (Array.isArray(value)) {
@@ -77,7 +77,7 @@ const Intent = React.forwardRef((props, ref) => {
     };
 
     const handleChange = (intentName) => {
-        if (intentName) addIntent(intentName);
+        if (!enableReset && !intentName) return;
         handleClose();
         if (multiple === true) {
             if (Array.isArray(value) && value.includes(intentName)) return;
@@ -101,14 +101,20 @@ const Intent = React.forwardRef((props, ref) => {
         else if (key === 'ArrowDown') index += 1;
         else return;
         index = Math.min(Math.max(0, index), dataToDisplay.length - 1);
-        let { windowInfoRef = () => ({}), outerListRef = () => ({}) } = tableRef.current || {};
-        windowInfoRef = windowInfoRef(); outerListRef = outerListRef();
-        if (windowInfoRef.current && outerListRef.current) {
-            if (index >= windowInfoRef.current.visibleStopIndex) outerListRef.current.scrollTop += 100;
-            if (index <= windowInfoRef.current.visibleStartIndex) outerListRef.current.scrollTop -= 100;
+        if (Number.isInteger(tableRef.current?.visibleStartIndex())) {
+            if (index >= tableRef.current.visibleStopIndex()) tableRef.current.scrollY(100);
+            if (index <= tableRef.current.visibleStartIndex()) tableRef.current.scrollY(-100);
         }
+        tableRef.current?.scrollToItem(index);
         setSelection([dataToDisplay[index].intent]);
     };
+    if (
+        selection.length
+        && dataToDisplay.length
+        && !dataToDisplay.map(i => i.intent).includes(selection[0])
+    ) {
+        selectSibling('ArrowDown');
+    }
 
     const handleKeyDown = (event) => {
         event.stopPropagation();
@@ -119,7 +125,10 @@ const Intent = React.forwardRef((props, ref) => {
             handleChange(
                 (dataToDisplay || []).length ? selection[0] : typeInput,
             );
-        } else setSelection([dataToDisplay[0].intent]);
+        } else if ((dataToDisplay || []).length) {
+            setSelection([dataToDisplay[0].intent]);
+            tableRef.current?.scrollToItem(0);
+        } else setSelection([]);
     };
 
     const renderResetIntent = () => (
@@ -168,7 +177,7 @@ const Intent = React.forwardRef((props, ref) => {
                     showIntent={false}
                 />
                 <Icon
-                    name={datum.canonical ? 'gem' : 'tag'}
+                    name={datum.metadata?.canonical ? 'gem' : 'tag'}
                 />
             </div>
         );
@@ -195,7 +204,6 @@ const Intent = React.forwardRef((props, ref) => {
         >
             {allowAdditions && renderInsertNewIntent()}
             {showReset && renderResetIntent()}
-
             {!!dataToDisplay.length && (
                 <DataTable
                     ref={tableRef}
@@ -222,13 +230,13 @@ const Intent = React.forwardRef((props, ref) => {
     );
 
     let extraClass = '';
-    if (popupOpen) extraClass = `${extraClass} selected`;
+    if (popupOpen && !disabled && allowEditing) extraClass = `${extraClass} selected`;
     if (disabled) extraClass = `${extraClass} disabled`;
     if (value === OOS_LABEL || !value) extraClass = `${extraClass} null`;
     if (!allowEditing) extraClass = `${extraClass} uneditable`;
 
-    if (detachedModal && !!allowEditing) {
-        if (!popupOpen) return null;
+    if (detachedModal) {
+        if (!popupOpen || !allowEditing) return null;
         return (
             <Modal
                 open
@@ -329,13 +337,14 @@ Intent.propTypes = {
     multiple: PropTypes.bool,
     width: PropTypes.number,
     onlyDataTable: PropTypes.bool,
+    additionalIntentOption: PropTypes.string,
 };
 
 Intent.defaultProps = {
     value: null,
     allowEditing: false,
     allowAdditions: false,
-    onChange: () => { },
+    onChange: () => {},
     disabled: false,
     enableReset: false,
     detachedModal: false,
@@ -343,6 +352,7 @@ Intent.defaultProps = {
     multiple: false,
     width: 500,
     onlyDataTable: false,
+    additionalIntentOption: '',
 };
 
 export default Intent;

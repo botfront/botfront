@@ -43,15 +43,16 @@ const BotResponsesContainer = (props) => {
         responseLocations,
         loadingResponseLocations,
         router,
-        projectId,
         disableEnterKey,
         isNew,
     } = props;
     const {
-        otherLanguages,
+        project: { _id: projectId },
+        projectLanguages = [],
         language,
         setResponseInCache,
     } = useContext(ProjectContext);
+    const otherLanguages = projectLanguages.filter(lang => lang.value !== language);
     const [importRespFromLang] = useMutation(RESP_FROM_LANG, {
         onCompleted: (data) => {
             const resp = data.importRespFromLang.values.find(value => value.lang === language);
@@ -261,7 +262,6 @@ BotResponsesContainer.propTypes = {
     responseLocations: PropTypes.array,
     loadingResponseLocations: PropTypes.bool,
     router: PropTypes.object.isRequired,
-    projectId: PropTypes.string.isRequired,
     renameable: PropTypes.bool,
     disableEnterKey: PropTypes.bool,
     isNew: PropTypes.bool,
