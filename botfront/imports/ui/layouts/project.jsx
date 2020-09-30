@@ -291,7 +291,13 @@ const ProjectContainer = withTracker((props) => {
         workingLanguage,
         changeWorkingLanguage,
         changeProjectId,
+        router,
     } = props;
+
+    if (!Meteor.userId()) {
+        router.push('/login');
+    }
+    
     if (!projectId) return browserHistory.replace({ pathname: '/404' });
     const projectHandler = Meteor.subscribe('projects', projectId);
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
