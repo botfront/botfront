@@ -291,7 +291,7 @@ const StoryEditorContainer = ({
                 story: newParentStory,
             }, {
                 callback: (err) => {
-                    if (!err) handleSwitchBranch(null);
+                    if (!err) handleSwitchBranch(parentPath);
                 },
             });
             storyControllers[parentPath.join()].setMd(newParentStory);
