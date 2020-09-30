@@ -25,10 +25,7 @@ import './slot.commands';
 
 const axios = require('axios');
 
-Cypress.on('uncaught:exception', (err) => {
-    console.log(err);
-    return false;
-});
+Cypress.on('uncaught:exception', () => false);
 
 Cypress.Screenshot.defaults({
     screenshotOnRunFailure: !!JSON.parse(String(Cypress.env('SCREENSHOTS')).toLowerCase()),
@@ -39,7 +36,6 @@ function abortEarly() {
         Cypress.runner.stop();
     }
 }
-
 beforeEach(abortEarly);
 afterEach(abortEarly);
 
