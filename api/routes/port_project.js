@@ -130,22 +130,6 @@ const nativizeProject = function (projectId, projectName, backup) {
             _id: conversationsMapping[conversation._id],
         }))
     }
-    // activity use conversations ids to display the conversations bubbles
-    // so wee need to update activities with the new conversations ids
-    if ('conversations' in nativizedBackup && 'activity' in nativizedBackup) {
-        const conversationsMapping = {};
-        nativizedBackup.conversations.forEach((conv) =>
-            Object.assign(conversationsMapping, { [conv._id]: uuidv4() }),
-        );
-        nativizedBackup.activity = nativizedBackup.activity.map(activity => ({
-            ...activity,
-            conversation_id: conversationsMapping[activity.conversation_id],
-        }))
-        nativizedBackup.conversations = nativizedBackup.conversations.map(conversation => ({
-            ...conversation,
-            _id: conversationsMapping[conversation._id],
-        }))
-    }
 
     Object.keys(collectionsWithModelId)
         .filter((col) => col in nativizedBackup)

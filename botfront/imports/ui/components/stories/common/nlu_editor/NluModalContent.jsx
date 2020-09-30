@@ -311,48 +311,49 @@ const NLUModalContent = React.forwardRef((props, forwardedRef) => {
                 additionalIntentOption={payload.intent}
             />
             <div className='nlu-modal-buttons'>
-                {canEdit ? (<>
-                    <Popup
-                        disabled={!hasInvalidExamples}
-                        trigger={(
-                            <span>
-                                <Button
-                                    color='blue'
-                                    onClick={saveAndExit}
-                                    disabled={hasInvalidExamples}
-                                    data-cy='save-nlu'
-                                >
+                {canEdit ? (
+                    <>
+                        <Popup
+                            disabled={!hasInvalidExamples}
+                            trigger={(
+                                <span>
+                                    <Button
+                                        color='blue'
+                                        onClick={saveAndExit}
+                                        disabled={hasInvalidExamples}
+                                        data-cy='save-nlu'
+                                    >
                                     Save and exit
-                                </Button>
-                            </span>
-                        )}
-                        header='Cannot save changes'
-                        content='You must fix invalid utterances prior to saving'
-                    />
+                                    </Button>
+                                </span>
+                            )}
+                            header='Cannot save changes'
+                            content='You must fix invalid utterances prior to saving'
+                        />
                 
-                    <Popup
-                        trigger={(
-                            <Button onClick={handleCancel} data-cy='cancel-nlu-changes' ref={cancelButtonRef}>
+                        <Popup
+                            trigger={(
+                                <Button onClick={handleCancel} data-cy='cancel-nlu-changes' ref={cancelButtonRef}>
                                 Cancel
-                            </Button>
-                        )}
-                        content={(
-                            <ConfirmPopup
-                                description='Are you sure? All the data you entered above will be discarded!'
-                                onYes={closeModal}
-                                onNo={() => setCancelPopupOpen(false)}
-                            />
-                        )}
-                        disabled={!canEdit}
-                        on='click'
-                        open={cancelPopupOpen}
-                        onClose={() => setCancelPopupOpen(false)}
-                        onOpen={() => setCancelPopupOpen(true)}
-                    />
-                </>
+                                </Button>
+                            )}
+                            content={(
+                                <ConfirmPopup
+                                    description='Are you sure? All the data you entered above will be discarded!'
+                                    onYes={closeModal}
+                                    onNo={() => setCancelPopupOpen(false)}
+                                />
+                            )}
+                            disabled={!canEdit}
+                            on='click'
+                            open={cancelPopupOpen}
+                            onClose={() => setCancelPopupOpen(false)}
+                            onOpen={() => setCancelPopupOpen(true)}
+                        />
+                    </>
                 ) : (
-                    <Button onClick={closeModal} data-cy='close-nlu-modal'>	
-                    Close	
+                    <Button onClick={closeModal} data-cy='close-nlu-modal'>
+                    Close
                     </Button>
                 )}
             </div>

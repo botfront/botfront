@@ -356,11 +356,11 @@ if (Meteor.isServer) {
 
             auditLogIfOnServer('Added Chitchat to training data', {
                 user: Meteor.user(),
-                resId: itemId,
+                resId: projectId,
                 projectId,
                 type: 'insert',
                 operation: 'nlu-data-inserted',
-                after: { examples: examples },
+                after: { examples },
                 resType: 'nlu-data',
             });
 
@@ -467,10 +467,10 @@ if (Meteor.isServer) {
                     projectId,
                     type: 'insert',
                     operation: 'nlu-data-inserted',
-                    after: { NlUmodel: { entitySynonyms, fuzzyGazette}, examples: commonExamples },
+                    after: { NlUmodel: { entitySynonyms, fuzzyGazette }, examples: commonExamples },
                     resType: 'nlu-data',
                 });
-               return  NLUModels.update({ _id: currentModel._id }, op);
+                return NLUModels.update({ _id: currentModel._id }, op);
             } catch (e) {
                 if (e instanceof Meteor.Error) throw e;
                 throw new Meteor.Error(e);

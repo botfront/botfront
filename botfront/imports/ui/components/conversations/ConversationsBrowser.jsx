@@ -189,7 +189,6 @@ function ConversationsBrowser(props) {
             </Grid>
         </ConversationBrowserContext.Provider>
     );
-
 }
 
 ConversationsBrowser.propTypes = {
