@@ -13,7 +13,7 @@ describe('regex features table', () => {
     it('should create, edit, and delete a regex in the table', () => {
         cy.visit('/project/bf/nlu/model/en');
         cy.dataCy('nlu-page').find('.item').contains('Regex').click();
-        // add a regex to the table
+        // add a regex item to the table
         cy.dataCy('key-input').find('input').click();
         cy.dataCy('key-input').find('input').type('test_regex');
         cy.dataCy('add-value').click();
@@ -22,7 +22,7 @@ describe('regex features table', () => {
         cy.dataCy('lookup-table-row-key').should('have.text', 'test_regex');
         cy.dataCy('lookup-table-row-value').should('have.text', '^[0-9]');
 
-        // edit the regex
+        // edit the regex item
         cy.dataCy('lookup-table-row-key').click();
         cy.dataCy('key-input').should('have.length', 2);
         cy.dataCy('key-input').last().find('input')
@@ -36,7 +36,7 @@ describe('regex features table', () => {
             .blur();
         cy.dataCy('lookup-table-row-key').should('have.text', 'test_regex_edited');
         cy.dataCy('lookup-table-row-value').should('have.text', '^[0-9]*');
-        // delete the regex
+        // delete the regex item
         cy.dataCy('icon-trash').click({ force: true });
         cy.dataCy('lookup-table-row-value').should('not.exist');
     });
