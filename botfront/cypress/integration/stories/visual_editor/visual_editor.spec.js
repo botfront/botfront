@@ -125,7 +125,6 @@ describe('story visual editor', function () {
             .click({ force: true });
         cy.dataCy('single-story-editor').should('exist');
         cy.dataCy('bot-response-input').should('exist');
-        // cy.wait(200000);
         cy.dataCy('single-story-editor').should('contain', 'Let\'s get started!');
         cy.dataCy('single-story-editor').should('contain', 'I agree let\'s do it!!');
 
@@ -179,7 +178,6 @@ describe('story visual editor', function () {
             },
         ]);
         cy.visit('/project/bf/dialogue');
-        cy.wait(20000);
         cy.browseToStory('Greetings');
         cy.get('[role = "application"]').should('have.text', 'bonjour not canonical recent');
     });
