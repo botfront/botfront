@@ -140,6 +140,11 @@ Meteor.methods({
     'nlu.upsertRegexFeature'(modelId, item) {
         check(modelId, String);
         check(item, Object);
+        try {
+            RegExp(item.pattern);
+        } catch (e) {
+            throw new Meteor.Error(`invalid regular expression: ${item.pattern}`);
+        }
         if (item._id) {
             return NLUModels.update(
                 { _id: modelId, 'training_data.regex_features._id': item._id },

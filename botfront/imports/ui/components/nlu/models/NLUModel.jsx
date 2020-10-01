@@ -136,17 +136,16 @@ function NLUModel(props) {
     const renderWarningMessageIntents = () => {
         if (!loadingExamples && intents.length < 2) {
             return (
-                <></>
-                // <Message
-                //     size='tiny'
-                //     content={(
-                //         <div>
-                //             <Icon name='warning' />
-                //             You need at least two distinct intents to train NLU
-                //         </div>
-                //     )}
-                //     info
-                // />
+                <Message
+                    size='tiny'
+                    content={(
+                        <div>
+                            <Icon name='warning' />
+                            You need at least two distinct intents to train NLU
+                        </div>
+                    )}
+                    info
+                />
             );
         }
         return <></>;

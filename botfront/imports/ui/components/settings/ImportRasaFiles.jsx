@@ -364,7 +364,7 @@ const ImportRasaFiles = (props) => {
                 'rasa_nlu_data.gazette',
                 f => f.language === l.value,
             );
-            numbers[`${l.text} regex_features`] = countAcrossFiles(
+            numbers[`${l.text} regex_feature`] = countAcrossFiles(
                 datasetFileReader,
                 'rasa_nlu_data.regex_features',
                 f => f.language === l.value,
