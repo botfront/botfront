@@ -207,6 +207,9 @@ function NLUModel(props) {
                 {activeItem === 'Training Data' && (
                     <Tab
                         menu={{ pointing: true, secondary: true }}
+                        // activeIndex === 0 is the example tab, we want to refetch data everytime we land on it
+                        // as it may have changed from the chitchat tab
+                        onTabChange={(e, { activeIndex }) => { if (activeIndex === 0) refetch(); }}
                         panes={[
                             {
                                 menuItem: 'Examples',
