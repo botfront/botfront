@@ -3,7 +3,6 @@ import 'react-s-alert/dist/s-alert-default.css';
 import { browserHistory } from 'react-router';
 import SplitPane from 'react-split-pane';
 import { Meteor } from 'meteor/meteor';
-import Intercom from 'react-intercom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { DndProvider } from 'react-dnd-cjs';
@@ -58,8 +57,6 @@ function Project(props) {
         settings,
         allowContextualQuestions,
     } = props;
-    const [showIntercom, setShowIntercom] = useState(false);
-    const [intercomId, setIntercomId] = useState('');
     const [resizingChatPane, setResizingChatPane] = useState(false);
     const [requestedSlot, setRequestedSlot] = useState(null);
     const {
@@ -74,18 +71,6 @@ function Project(props) {
         resetResponseInCache,
         setResponseInCache,
     } = useResponsesContext({ projectId, workingLanguage, projectLanguages });
-
-    useEffect(() => {
-        if (window.Intercom) {
-            window.Intercom('show');
-            window.Intercom('update', {
-                hide_default_launcher: true,
-            });
-            window.Intercom('onHide', () => {
-                setShowIntercom(false);
-            });
-        }
-    }, [!!window.Intercom]);
 
     useEffect(() => {
         if (refreshEntitiesAndIntents) {
@@ -121,15 +106,6 @@ function Project(props) {
                 entities.map(e => e.entity),
             ) || { intent: i },
         );
-    };
-
-    const getIntercomUser = () => {
-        const { _id, emails, profile } = Meteor.user();
-        return {
-            user_id: _id,
-            email: emails[0].address,
-            name: profile.firstName,
-        };
     };
 
     const parseUtterance = utterance => Meteor.callWithPromise('rasa.parse', instance, [
@@ -175,9 +151,6 @@ function Project(props) {
 
     return (
         <div style={{ height: '100vh' }}>
-            {showIntercom && !loading && (
-                <Intercom appID={intercomId} {...getIntercomUser()} />
-            )}
             <div className='project-sidebar'>
                 {(settings && settings.settings && settings.settings.public && settings.settings.public.logoUrl) || project.logoUrl ? (
                     <Header as='h1' className='logo'>
@@ -202,10 +175,6 @@ function Project(props) {
                     <ProjectSidebarComponent
                         projectId={projectId}
                         handleChangeProject={pid => replace(pathname.replace(/\/project\/.*?\//, `/project/${pid}/`))}
-                        triggerIntercom={(id) => {
-                            setShowIntercom(true);
-                            setIntercomId(id);
-                        }}
                     />
                 )}
             </div>
@@ -326,7 +295,13 @@ const ProjectContainer = withTracker((props) => {
         workingLanguage,
         changeWorkingLanguage,
         changeProjectId,
+        router,
     } = props;
+
+    if (!Meteor.userId()) {
+        router.push('/login');
+    }
+    
     if (!projectId) return browserHistory.replace({ pathname: '/404' });
     const projectHandler = Meteor.subscribe('projects', projectId);
     const credentialsHandler = Meteor.subscribe('credentials', projectId);

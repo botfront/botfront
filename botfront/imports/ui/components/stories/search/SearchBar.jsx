@@ -49,7 +49,6 @@ const SearchBar = (props) => {
         const { storiesSearch: { stories = [] } = {} } = data;
         setResults({
             ...data.storiesSearch,
-
             // fixes a warning in the dev console
             stories: stories.map(({
                 _id, storyGroupId, __typename, title,

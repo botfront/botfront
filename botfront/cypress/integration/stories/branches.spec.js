@@ -3,7 +3,7 @@
 describe('branches', function() {
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.createStoryGroup();
         cy.createStoryInGroup();
     });
@@ -39,7 +39,7 @@ describe('branches', function() {
             .type('xxx', { force: true })
             .wait(100)
             .blur();
-        cy.visit('/project/bf/stories'); // reload page
+        cy.visit('/project/bf/dialogue'); // reload page
         cy.browseToStory();
         cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('branch-label').should('have.lengthOf', 2);
@@ -108,7 +108,7 @@ describe('branches', function() {
         cy.dataCy('add-branch').click({ force: true });
         cy.dataCy('branch-label').should('have.lengthOf', 3);
         cy.contains('NLU').click({ force: true });
-        cy.contains('Stories').click({ force: true });
+        cy.dataCy('dialogue-sidebar-link').click({ force: true });
         cy.browseToStory();
         cy.dataCy('branch-label').should('have.lengthOf', 3);
         cy.dataCy('branch-label')
@@ -136,10 +136,19 @@ describe('branches', function() {
             .get('textarea')
             .eq(1)
             .focus()
-            .type('xxx', { force: true });
+            .type('aaa', { force: true });
 
         cy.dataCy('branch-label').should('have.lengthOf', 2);
         cy.dataCy('branch-label').eq(1).should('have.class', 'active');
+
+
+        cy.dataCy('create-branch').click({ force: true });
+        cy.dataCy('single-story-editor').should('have.length', 3);
+        cy.dataCy('single-story-editor')
+            .get('textarea')
+            .last()
+            .focus()
+            .type('bbb', { force: true });
 
         cy.dataCy('branch-label')
             .first()
@@ -156,7 +165,13 @@ describe('branches', function() {
         cy.wait(250);
         cy.dataCy('confirm-yes')
             .click({ force: true });
-        cy.contains('xxx');
+        cy.dataCy('single-story-editor').should('have.length', 1);
+        cy.dataCy('branch-label').first().click({ force: true });
+        cy.dataCy('single-story-editor').should('have.length', 2);
+        
+        cy.dataCy('single-story-editor').should('have.length', 2);
+        cy.dataCy('single-story-editor').first().contains('aaa');
+        cy.dataCy('single-story-editor').last().contains('bbb');
     });
 
     it('should save branch title on blur and Enter, discard on esc', function() {

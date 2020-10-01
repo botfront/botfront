@@ -311,12 +311,12 @@ const StoryEditorContainer = ({
         const parentPath = path.slice(0, path.length - 1);
         if (branches.length < 3) {
             // we append the remaining story to the parent one.
-            const deletedStory = branches[!index ? 1 : 0].story;
+            const deletedStory = branches[!index ? 1 : 0];
             const newParentStory = `${storyControllers[parentPath.join()].md}${
-                deletedStory ? '\n' : ''
-            }${deletedStory || ''}`;
+                deletedStory.story ? '\n' : ''
+            }${deletedStory.story || ''}`;
             saveStory(parentPath, {
-                branches: [],
+                branches: deletedStory.branches,
                 story: newParentStory,
             }, {
                 callback: (err) => {

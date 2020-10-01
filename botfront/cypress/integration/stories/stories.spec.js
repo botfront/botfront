@@ -11,7 +11,7 @@ describe('stories', function() {
     });
     
     it('should autosave stories as you edit them', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.dataCy('toggle-md').click({ force: true });
         cy.browseToStory('Greetings');
         cy.get('.ace_content').click({ force: true });
@@ -25,19 +25,19 @@ describe('stories', function() {
     });
 
     it('should be able to collapse stories and to persist that across application state', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.dataCy('toggle-md').click({ force: true });
         cy.browseToStory('Farewells');
         cy.dataCy('single-story-editor');
         cy.dataCy('collapse-story-button').click({ force: true });
         cy.dataCy('single-story-editor').should('not.exist');
         cy.contains('NLU').click({ force: true });
-        cy.contains('Stories').click({ force: true });
+        cy.dataCy('dialogue-sidebar-link').click({ force: true });
         cy.dataCy('single-story-editor').should('not.exist');
     });
 
     // it('should be able to collapse and expand all stories', function() {
-    //     cy.visit('/project/bf/stories');
+    //     cy.visit('/project/bf/dialogue');
     //     cy.dataCy('toggle-md').click({ force: true });
     //     cy.dataCy('single-story-editor').should('have.length', 2); // wait for the second story to be added
     //     cy.dataCy('collapse-story-button').first().dblclick({ force: true });
@@ -56,7 +56,7 @@ describe('stories', function() {
     // });
 
     it('should list all linkable stories', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Farewells');
         cy.dataCy('stories-linker').click({ force: true });
         // the double children() reach the spans containing the names of stories
@@ -68,7 +68,7 @@ describe('stories', function() {
     });
 
     it('should be only possible to link of leaf stories', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.dataCy('toggle-md').click({ force: true });
         cy.browseToStory('Farewells');
         cy.dataCy('create-branch').click({ force: true });
@@ -102,7 +102,7 @@ describe('stories', function() {
     });
 
     it('should be possible to link and unlink stories', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.dataCy('toggle-md').click({ force: true });
         cy.browseToStory('Get started');
         cy.dataCy('story-footer').should('not.have.class', 'linked');
@@ -132,7 +132,7 @@ describe('stories', function() {
     });
 
     it('should be possible to change the linked story', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.dataCy('toggle-md').click({ force: true });
         cy.browseToStory('Get started');
         cy.dataCy('story-footer').should('not.have.class', 'linked');
@@ -165,7 +165,7 @@ describe('stories', function() {
     });
 
     it('should be possible to self link when a story has branches', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.dataCy('toggle-md').click({ force: true });
         cy.browseToStory('Get started');
         cy.dataCy('stories-linker')
@@ -188,7 +188,7 @@ describe('stories', function() {
     });
 
     it('should disable the delete button in the branch tab for a linked branch and its parent branches', function () {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.dataCy('toggle-md').click({ force: true });
         cy.browseToStory('Get started');
         cy.dataCy('create-branch').click({ force: true });

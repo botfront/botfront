@@ -19,7 +19,7 @@ const createResponse = () => {
 describe('Bot responses', function() {
     beforeEach(function() {
         cy.createProject('bf').then(() => cy.login());
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Greetings', 'Default stories');
         cy.dataCy('story-title').should('have.value', 'Greetings');
         cy.dataCy('bot-response-input')
@@ -60,6 +60,7 @@ describe('Bot responses', function() {
             .click({ force: true });
         cy.dataCy('icon-trash')
             .click({ force: true });
+        cy.dataCy('confirm-yes').click();
         cy.wait(500);
         cy.dataCy('bot-response-input').should('not.exist');
         checkResponsesDeleted();
@@ -70,7 +71,7 @@ describe('Bot responses', function() {
         cy.visit('/project/bf/responses');
         cy.dataCy('response-text').should('contain.text', RESPONSE_TEXT);
 
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.deleteStoryOrGroup(STORY_NAME, 'story');
         cy.wait(500);
         checkResponsesDeleted();
@@ -80,7 +81,7 @@ describe('Bot responses', function() {
         createResponse();
         cy.visit('/project/bf/responses');
         cy.dataCy('response-text').should('contain.text', RESPONSE_TEXT);
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.deleteStoryOrGroup(STORY_NAME, 'story');
         cy.wait(500);
         cy.visit('/project/bf/responses');
@@ -157,14 +158,14 @@ describe('Bot responses', function() {
         cy.dataCy('template-intent').should('have.length', 2);
     });
     it('should ignore stories from other projects when deleting responses', () => {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Farewells', 'Default stories');
         cy.dataCy('story-title').should('have.value', 'Farewells');
         cy.dataCy('bot-response-input').find('textarea').click().type('a')
             .blur();
         cy.visit('/project/bf/responses');
         cy.dataCy('template-intent').contains('utter_bye').should('exist');
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Farewells', 'Default stories');
         cy.deleteStoryOrGroup('Farewells');
         checkResponsesDeleted();

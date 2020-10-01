@@ -32,7 +32,7 @@ describe('slots', function() {
     }
 
     it('should be able to add and delete a slot', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.dataCy('slots-modal').click();
         createSlot();
         cy.dataCy('slot-editor');
@@ -41,7 +41,7 @@ describe('slots', function() {
     });
 
     it('should be able to add a min and max value to a float slot', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.dataCy('slots-modal').click();
         createSlot();
         cy.contains('Min value');
@@ -66,7 +66,7 @@ describe('slots', function() {
     });
 
     it('should not show an error when we add a slot in stories that is in the db', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.dataCy('toggle-md').click({ force: true });
         cy.browseToStory('Greetings', 'Default stories');
         cy.get('.ace_content').click({ force: true });

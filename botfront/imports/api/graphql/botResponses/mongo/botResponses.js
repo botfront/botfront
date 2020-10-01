@@ -3,7 +3,7 @@ import shortid from 'shortid';
 import BotResponses from '../botResponses.model';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { Stories } from '../../../story/stories.collection';
-import { addTemplateLanguage, modifyResponseType, parseContentType } from '../../../../lib/botResponse.utils';
+import { addTemplateLanguage, modifyResponseType } from '../../../../lib/botResponse.utils';
 import { parsePayload } from '../../../../lib/storyMd.utils';
 import { getWebhooks, deleteImages } from '../../../../lib/utils';
 import { replaceStoryLines } from '../../story/mongo/stories';

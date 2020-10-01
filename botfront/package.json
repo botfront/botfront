@@ -84,7 +84,6 @@
     "react-dom": "16.8.6",
     "react-flow-renderer": "^5.2.0",
     "react-google-recaptcha": "^1.0.5",
-    "react-intercom": "^1.0.15",
     "react-json-view": "^1.19.1",
     "react-moment-proptypes": "^1.7.0",
     "react-redux": "^5.1.0",

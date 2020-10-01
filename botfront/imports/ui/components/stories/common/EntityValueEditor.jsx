@@ -20,6 +20,7 @@ function EntityValueEditor({
                 onChange={(_, { value }) => onChange(
                     { ...entity, [key]: value },
                 )}
+                onMouseDown={e => e.stopPropagation()}
                 size='small'
                 labelPosition='left'
                 className='entity-value-input'

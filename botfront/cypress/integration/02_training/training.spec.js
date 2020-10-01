@@ -12,7 +12,7 @@ describe('Training', function() {
         cy.waitForResolve(Cypress.env('RASA_URL'));
         cy.wait(1000);
         cy.request('DELETE', `${Cypress.env('RASA_URL')}/model`);
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
     });
     
     afterEach(function() {

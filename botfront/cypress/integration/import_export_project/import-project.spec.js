@@ -80,10 +80,10 @@ describe('Importing a project', function() {
         });
 
         it('should import the right number and names of story groups', function() {
-            cy.visit('/project/test_project/stories');
+            cy.visit('/project/test_project/dialogue');
             cy.deleteStoryOrGroup('Default stories', 'story-group');
             importProject();
-            cy.visit('/project/test_project/stories');
+            cy.visit('/project/test_project/dialogue');
             cy.dataCy('story-group-menu-item', storyGroupName).should('exist');
             cy.get('[type="story-group"]').should('have.lengthOf', 4);
         });
@@ -91,7 +91,7 @@ describe('Importing a project', function() {
         it('should import story contents', function() {
             importProject();
 
-            cy.visit('/project/test_project/stories');
+            cy.visit('/project/test_project/dialogue');
             cy.dataCy('toggle-md')
                 .click();
             cy.browseToStory('Account', 'Account');
@@ -108,7 +108,7 @@ describe('Importing a project', function() {
         it('should import slots with the right type and name', function() {
             importProject();
 
-            cy.visit('/project/test_project/stories');
+            cy.visit('/project/test_project/dialogue');
             cy.dataCy('slots-modal')
                 .click();
             cy.dataCy('slot-editor').should('have.lengthOf', 1);

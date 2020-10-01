@@ -24,7 +24,7 @@ class Index extends React.Component {
             return '/admin/projects';
         }
         if (can('stories:r', pId)) {
-            return `/project/${pId}/stories`;
+            return `/project/${pId}/dialogue`;
         }
         if (can('users:r', { anyScope: true })) {
             return '/admin/users';

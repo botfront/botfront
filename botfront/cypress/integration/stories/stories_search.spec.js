@@ -27,14 +27,14 @@ describe('test stories searching ui', () => {
     };
 
     it('should find stories created on project init', () => {
-        cy.visit('project/bf/stories');
+        cy.visit('project/bf/dialogue');
         searchStories('greetings', 'Greetings');
         cy.dataCy('story-title').should('have.value', 'Greetings');
         searchStories('utter_get_started', 'Get started');
         cy.dataCy('story-title').should('have.value', 'Get started');
     });
     it('should index stories that are created and edited in the app', () => {
-        cy.visit('project/bf/stories');
+        cy.visit('project/bf/dialogue');
         cy.createStoryGroup({ groupName: 'test group' });
         cy.createStoryInGroup({ groupName: 'test group', storyName: 'types of fruit' });
         searchStories('types', 'types of fruit');
@@ -52,7 +52,7 @@ describe('test stories searching ui', () => {
         cy.dataCy('story-title').should('have.value', 'food');
     });
     it('should find stories created on project init', () => {
-        cy.visit('project/bf/stories');
+        cy.visit('project/bf/dialogue');
         cy.createStoryGroup({ groupName: 'test group A' });
         cy.createStoryInGroup({ groupName: 'test group A', storyName: 'title A' });
         cy.createStoryGroup({ groupName: 'test group B' });

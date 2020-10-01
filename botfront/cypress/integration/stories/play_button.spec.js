@@ -31,7 +31,7 @@ describe('Story play button', function() {
     });
 
     it('should open and start a new story in the chat when the play button is pressed', () => {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.train();
         cy.browseToStory('Test Story', 'Test Group');
         cy.dataCy('story-title').should('have.value', 'Test Story');
@@ -40,7 +40,7 @@ describe('Story play button', function() {
         cy.dataCy('chat-pane').find('p').contains('utter_play_success');
     });
     it('should disable the play button when a story does not start with a user utterance', () => {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Test Story', 'Test Group');
         cy.get('.story-line').should('have.length', 2);
         cy.dataCy('icon-trash').first().click({ force: true });

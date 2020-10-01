@@ -15,7 +15,7 @@ describe('Project Core Policy', function() {
         cy.dataCy('rebuild-indices-confirm').find('.primary.button').click();
         cy.dataCy('rebuild-indices-confirm').should('not.exist');
         cy.dataCy('rebuild-button').should('exist');
-        cy.visit('project/bf/stories');
+        cy.visit('project/bf/dialogue');
         cy.dataCy('stories-search-bar').click();
         cy.dataCy('stories-search-bar').find('input').type('get_', { force: true });
         cy.dataCy('stories-search-item').contains('Get started');

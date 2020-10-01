@@ -21,47 +21,14 @@ const deleteSmartGroups = () => {
     });
 };
 
-describe('form navigation in the story menu', () => {
-    beforeEach(() => {
-        cy.createProject('bf', 'trial', 'fr');
-        cy.login();
-        cy.visit('/project/bf/stories');
-    });
-
-    afterEach(() => {
-        cy.logout();
-        cy.deleteProject('bf');
-    });
-    it('should be able to add and delete forms', () => {
-        cy.dataCy('story-group-menu-item', null, '[type="form"]').should('not.exist');
-        cy.createFormInGroup({ groupName: 'Default stories' });
-        cy.wait(1000);
-        cy.dataCy('story-group-menu-item', null, '[type="form"]').should('exist');
-        cy.deleteStoryOrGroup('Defaultstories_form');
-        cy.dataCy('story-group-menu-item', null, '[type="form"]').should('not.exist');
-    });
-
-    it('should not be able to select multiple forms', () => {
-        cy.createCustomStoryGroup('bf', 'FORM_GROUP', 'Form group');
-        cy.dataCy('story-group-menu-item').should('include.text', 'Form group');
-        cy.createForm('bf', 'test_1_form', { groupId: 'FORM_GROUP', _id: 'form1' });
-        cy.createForm('bf', 'test_2_form', { groupId: 'FORM_GROUP', _id: 'form2' });
-        cy.dataCy('story-group-menu-item').should('include.text', 'test_2_form');
-        cy.visit('/project/bf/stories?ids%5B%5D=form1&ids%5B%5D=form2');
-        cy.get('.form-graph-wrapper').should('have.length', 1);
-    });
-    it('should be able to move a form between story groups', () => {
-        cy.createCustomStoryGroup('bf', 'FORM_GROUP', 'Form group');
-        cy.createCustomStoryGroup('bf', 'DEST_GROUP', 'Dest group');
-        cy.dataCy('story-group-menu-item').should('include.text', 'Form group');
-        cy.createForm('bf', 'test_1_form', { groupId: 'FORM_GROUP', _id: 'form1' });
-        cy.dataCy('story-group-menu-item').should('include.text', 'test_1_form');
-        cy.moveStoryOrGroup({ name: 'test_1_form' });
-        cy.checkMenuItemAtIndex(2, 'test_1_form');
-        cy.moveStoryOrGroup({ name: 'test_1_form' }, { name: 'Dest group' });
-        cy.checkMenuItemAtIndex(1, 'test_1_form');
-    });
-});
+const populateMenu = () => {
+    cy.createCustomStoryGroup('bf', 'test_group_a', 'Groupi');
+    cy.createCustomStoryGroup('bf', 'test_group_b', 'Groupo');
+    cy.createCustomStory('bf', 'test_group_a', 'test_Story_a', { title: 'Groupi (1)' });
+    cy.createCustomStory('bf', 'test_group_b', 'test_Story_b', { title: 'Groupo (1)' });
+    cy.createCustomStory('bf', 'test_group_b', 'test_Story_c', { title: 'Groupo (2)' });
+    cy.get('[data-cy=story-group-menu-item][type="story"]').should('have.length', 6);
+};
 
 describe('story tree navigation', function() {
     afterEach(function() {
@@ -71,17 +38,7 @@ describe('story tree navigation', function() {
 
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
-        cy.visit('/project/bf/stories');
-        cy.createStoryGroup({ groupName: 'Groupi' });
-        cy.dataCy('story-group-menu-item').should('have.length', 7);
-        cy.createStoryInGroup({ groupName: 'Groupi' });
-        cy.dataCy('story-group-menu-item').should('have.length', 8);
-        cy.createStoryGroup();
-        cy.dataCy('story-group-menu-item').should('have.length', 9);
-        cy.createStoryInGroup();
-        cy.dataCy('story-group-menu-item').should('have.length', 10);
-        cy.createStoryInGroup();
-        cy.dataCy('story-group-menu-item').should('have.length', 11);
+        cy.visit('/project/bf/dialogue');
     });
     
     it('should be possible to delete a story group', function() {
@@ -91,6 +48,7 @@ describe('story tree navigation', function() {
     });
 
     it('it should not be possible to delete a story group with a linking origin or destination', function() {
+        populateMenu();
         cy.linkStory('Groupo (1)', 'Greetings');
         cy.deleteStoryOrGroup('Groupo', 'story-group', false); // origin group
         cy.get('.modal').should('contain.text', 'contains links');
@@ -117,14 +75,15 @@ describe('story tree navigation', function() {
     });
 
     it('should be able to add and delete stories', function() {
-        cy.dataCy('story-group-menu-item', null, '[type="story"]').should('have.length', 6);
+        cy.dataCy('story-group-menu-item', null, '[type="story"]').should('have.length', 3);
         cy.createStoryInGroup({ groupName: 'Default stories' });
-        cy.dataCy('story-group-menu-item', null, '[type="story"]').should('have.length', 7);
+        cy.dataCy('story-group-menu-item', null, '[type="story"]').should('have.length', 4);
         cy.deleteStoryOrGroup('Default stories (4)');
-        cy.dataCy('story-group-menu-item', null, '[type="story"]').should('have.length', 6);
+        cy.dataCy('story-group-menu-item', null, '[type="story"]').should('have.length', 3);
     });
 
     it('should be able to select multiple stories and show them in the right order', function() {
+        populateMenu();
         cy.createStoryInGroup();
         cy.selectStories('Groupo (3)', 2);
         cy.dataCy('story-title').should('have.length', 2);
@@ -138,18 +97,21 @@ describe('story tree navigation', function() {
     });
 
     it('should not be able to select stories from different groups', function() {
+        populateMenu();
         cy.selectStories('Groupo (1)', 2);
         cy.dataCy('story-title').should('have.length', 1);
         cy.dataCy('story-title').eq(0).should('have.value', 'Groupi (1)');
     });
 
     it('should be able to move a single story to another group', function() {
+        populateMenu();
         cy.checkMenuItemAtIndex(2, 'Groupo (1)');
         cy.moveStoryOrGroup({ name: 'Groupo (1)' }, { name: 'Groupi' });
         cy.checkMenuItemAtIndex(4, 'Groupo (1)');
     });
 
     it('should be able to move 2 stories to another group by moving whichever of 2', function() {
+        populateMenu();
         cy.checkMenuItemAtIndex(1, 'Groupo (2)');
         cy.checkMenuItemAtIndex(2, 'Groupo (1)');
         cy.selectStories('Groupo (2)', 2);
@@ -164,6 +126,7 @@ describe('story tree navigation', function() {
     });
 
     it('should be able to move stories above or below others', function() {
+        populateMenu();
         cy.checkMenuItemAtIndex(4, 'Groupi (1)');
         cy.moveStoryOrGroup({ name: 'Groupi (1)' }, { name: 'Groupo (2)' });
         cy.checkMenuItemAtIndex(1, 'Groupi (1)');
@@ -185,6 +148,7 @@ describe('story tree navigation', function() {
     });
 
     it('should be able to move a story or group and not lose current selection', function() {
+        populateMenu();
         cy.selectStories('Groupo (2)', 2);
         cy.moveStoryOrGroup({ name: 'Groupi (1)' }, { name: 'Groupo' });
         cy.checkMenuItemAtIndex(3, 'Groupi (1)');
@@ -196,6 +160,7 @@ describe('story tree navigation', function() {
     });
 
     it('should not be able to move a sg into a sg or a story to the root', function() {
+        populateMenu();
         cy.dataCy('story-group-menu-item').then((els) => {
             const pinned = Array.from(els).filter(el => el.attributes['data-pinned'].value === 'true').length;
             cy.moveStoryOrGroup({ name: 'Groupi' }, { name: 'Groupo (2)' });
@@ -213,6 +178,7 @@ describe('story tree navigation', function() {
     });
 
     it('should always display pinned groups on top', () => {
+        populateMenu();
         insertPinnedGroup(2);
         insertPinnedGroup(1);
         deleteSmartGroups();
@@ -231,6 +197,7 @@ describe('story tree navigation', function() {
     });
 
     it('train button should have the same text on both the NLU and stories page', function() {
+        populateMenu();
         cy.dataCy('story-group-menu-item', 'Groupi').findCy('focus-story-group')
             .click({ force: true });
         cy.dataCy('focus-story-group', null, '.focused').should('have.length', 1);
@@ -246,12 +213,11 @@ describe('story tree navigation', function() {
     });
 
     it('should remember selected story', () => {
-        cy.visit('/project/bf/stories');
-        cy.wait(1000);
+        populateMenu();
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Groupo (1)');
         cy.dataCy('incoming-sidebar-link').click({ force: true });
-        cy.dataCy('stories-sidebar-link').click({ force: true });
-        cy.wait(200);
+        cy.dataCy('dialogue-sidebar-link').click({ force: true });
         cy.dataCy('story-title').should('have.value', 'Groupo (1)');
     });
 });
