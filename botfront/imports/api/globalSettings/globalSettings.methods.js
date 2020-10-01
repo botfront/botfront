@@ -18,17 +18,21 @@ if (Meteor.isServer) {
         return { locked, version, latest };
     };
 
-    Meteor.publish('isMigrating', function() {
+    Meteor.publish('isMigrating', function () {
         // eslint-disable-next-line no-underscore-dangle
         const handle = Migrations._collection._collection.find({}).observeChanges({
             changed: () => {
                 const { locked, version, latest } = getMigrationStatus();
-                this.changed('migrationStatus', 'global', { isMigrating: !locked && version < latest });
+                this.changed('migrationStatus', 'global', {
+                    isMigrating: !locked && version > 0 && version < latest,
+                });
             },
         });
 
         const { locked, version, latest } = getMigrationStatus();
-        this.added('migrationStatus', 'global', { isMigrating: !locked && version < latest });
+        this.added('migrationStatus', 'global', {
+            isMigrating: !locked && version > 0 && version < latest,
+        });
         this.ready();
 
         this.onStop(() => handle.stop());
@@ -51,7 +55,10 @@ if (Meteor.isServer) {
                 .then((botResponses) => {
                     botResponses.forEach((botResponse) => {
                         const textIndex = indexBotResponse(botResponse);
-                        BotResponses.updateOne({ _id: botResponse._id }, { textIndex }).exec();
+                        BotResponses.updateOne(
+                            { _id: botResponse._id },
+                            { textIndex },
+                        ).exec();
                     });
                 });
             const allStories = Stories.find().fetch();
@@ -67,7 +74,7 @@ if (Meteor.isServer) {
             const latest = Migrations._list.length - 1;
             return { locked, version, latest };
         },
-        'settings.unlockMigration' () {
+        'settings.unlockMigration'() {
             Migrations.unlock();
         },
     });
