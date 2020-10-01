@@ -1,27 +1,15 @@
-import moment from 'moment';
 import { isEqual } from 'lodash';
 
 export const isTraining = (project) => {
     const {
-        _id: projectId,
         training,
-        training: { startTime, instanceStatus } = {},
+        training: { instanceStatus } = {},
     } = project;
     if (!training) {
         return false;
     }
-    const statusOk = instanceStatus === 'training' && moment().diff(moment(startTime), 'minutes') < 30;
-    const timeStampOk = moment().diff(moment(startTime), 'minutes') < 30;
-    if (statusOk && !timeStampOk) {
-        // something went wrong and training timed out
-        Meteor.call(
-            'project.markTrainingStopped',
-            projectId,
-            'failure',
-            'training timed out',
-        );
-    }
-    return !!statusOk && !!timeStampOk;
+    const statusOk = instanceStatus === 'training';
+    return !!statusOk;
 };
 
 export const getEntitySummary = entities => (entities || []).map(({ entity, value }) => ({ entity, value }));
