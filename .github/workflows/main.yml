@@ -105,7 +105,26 @@ jobs:
           docker build \
           -t botfront-local \
           .
+      - name: save map files from meteor build
+        if: contains(github.ref, 'tags')
+        run: |
+          docker run \
+          -v $(pwd)/maps:/maps \
+          --entrypoint /bin/bash \
+          botfront-local \
+          -c "cd /opt/bundle/bundle/programs && find . -name '*.map' ! -path './server/**' -exec cp --parents '{}' /maps/ \;"
+      - name: get version
+        if: contains(github.ref, 'tags')
+        id: version
+        run: |
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          echo ::set-output name=tag::$VERSION
       - run: docker save botfront-local $(docker history -q botfront-local | awk '!/<missing>/{print}') > botfront-local.tar
+      - uses: actions/upload-artifact@v1
+        if: contains(github.ref, 'tags')
+        with:
+          name: source-maps-${{ steps.version.outputs.tag }}
+          path: maps
       - uses: actions/upload-artifact@v1
         with:
           name: botfront-local
