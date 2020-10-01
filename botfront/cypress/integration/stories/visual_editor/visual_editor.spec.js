@@ -10,7 +10,7 @@ describe('story visual editor', function () {
             () => cy.createNLUModelProgramatically('bf', '', 'de'),
         );
         cy.login();
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.createStoryGroup();
         cy.createStoryInGroup();
     });
@@ -18,7 +18,7 @@ describe('story visual editor', function () {
     it('should persist a user utterance, a bot response, and display add-user-line option appropriately', function () {
         cy.importNluData('bf', 'nlu_sample_en.json', 'en');
         cy.train();
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Groupo (1)');
 
         cy.dataCy('add-user-line').click({ force: true });
@@ -89,7 +89,7 @@ describe('story visual editor', function () {
 
     it('should be able to click on intent in dropdown to change it', function () {
         cy.importNluData('bf', 'nlu_sample_en.json', 'en');
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Groupo (1)');
 
         cy.dataCy('add-user-line').click({ force: true });
@@ -125,7 +125,6 @@ describe('story visual editor', function () {
             .click({ force: true });
         cy.dataCy('single-story-editor').should('exist');
         cy.dataCy('bot-response-input').should('exist');
-        // cy.wait(200000);
         cy.dataCy('single-story-editor').should('contain', 'Let\'s get started!');
         cy.dataCy('single-story-editor').should('contain', 'I agree let\'s do it!!');
 
@@ -157,7 +156,7 @@ describe('story visual editor', function () {
                 metadata: { canonical: false },
             },
         ]);
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Greetings');
         cy.get('[role = "application"]').should('have.text', 'bonjour canonical');
     });
@@ -178,15 +177,13 @@ describe('story visual editor', function () {
                 intent: 'chitchat.greet',
             },
         ]);
-        
-        cy.visit('/project/bf/stories');
-        cy.wait(20000);
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Greetings');
         cy.get('[role = "application"]').should('have.text', 'bonjour not canonical recent');
     });
 
     it('should add user utterance payload disjuncts, delete them, and Md representation should match', function () {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Greetings', 'Default stories');
         cy.dataCy('icon-add').click({ force: true });
         cy.dataCy('user-line-from-input').first().click({ force: true });
@@ -204,7 +201,7 @@ describe('story visual editor', function () {
     });
 
     it('should not utterance payload disjunct if some disjunct already has identical payload', function () {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Greetings', 'Default stories');
         cy.dataCy('intent-label').should('have.length', 1);
         cy.dataCy('icon-add').click({ force: true });

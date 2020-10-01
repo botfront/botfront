@@ -141,7 +141,7 @@ describe('Bot responses', function() {
     });
 
     it('be able to edit a response with the response editor in the visual story editor', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.createStoryInGroup({ groupName: 'Default stories', storyName: 'myTest' });
         cy.dataCy('story-title').should('have.value', 'myTest');
         cy.dataCy('toggle-md').click();
@@ -151,7 +151,7 @@ describe('Bot responses', function() {
         addTextResponse('test_A', 'aa');
         cy.dataCy('template-intent').contains('utter_test_A').should('exist');
 
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('myTest');
         cy.dataCy('bot-response-input').contains('aa').should('exist').trigger('mouseover');
         cy.dataCy('edit-responses').click({ force: true });
@@ -180,7 +180,7 @@ describe('Bot responses', function() {
         cy.visit('/project/bf/responses');
         addTextResponse('utter_test', 'this is a test');
 
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.createStoryGroup();
         cy.createStoryInGroup();
         cy.createStoryInGroup();

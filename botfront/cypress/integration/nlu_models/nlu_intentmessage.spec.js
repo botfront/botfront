@@ -11,7 +11,7 @@ describe('NLU Intent warning message displays', function() {
         cy.login();
     });
 
-    after(function() {
+    afterEach(function() {
         cy.deleteProject('bf');
         cy.logout();
     });
@@ -23,7 +23,9 @@ describe('NLU Intent warning message displays', function() {
         cy.contains('You need at least two distinct intents to train NLU').should('exist');
 
         cy.addExamples(['cya', 'later'], 'byebye');
+        cy.dataCy('draft-button').should('not.exist');
         cy.addExamples(['hello', 'hi guys'], 'hihi');
+        cy.dataCy('draft-button').should('not.exist');
 
         // the warning message should not exist
         cy.contains('You need at least two distinct intents to train NLU').should('not.exist');

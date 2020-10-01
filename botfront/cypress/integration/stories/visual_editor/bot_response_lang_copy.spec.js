@@ -11,14 +11,14 @@ describe('Bot responses copy between languages', function() {
             () => cy.createNLUModelProgramatically('bf', '', 'de'),
         );
         cy.login();
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.createStoryGroup();
         cy.createStoryInGroup();
     });
 
     
     it('should allow copy from another language with a text response', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Groupo (1)');
         cy.dataCy('add-bot-line').click({ force: true });
         cy.dataCy('from-text-template').click({ force: true });
@@ -36,7 +36,7 @@ describe('Bot responses copy between languages', function() {
         cy.dataCy('bot-response-input').should('have.text', 'test response');
     });
     it('should allow copy from another language with a image response', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Groupo (1)');
         cy.dataCy('add-bot-line').click({ force: true });
         cy.dataCy('from-image-template').click({ force: true });
@@ -55,7 +55,7 @@ describe('Bot responses copy between languages', function() {
     });
 
     it('should allow copy from another language with a button response', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.dataCy('language-selector').click();
         cy.dataCy('add-bot-line').click({ force: true });
         cy.dataCy('from-qr-template').click({ force: true });
@@ -81,7 +81,7 @@ describe('Bot responses copy between languages', function() {
     });
 
     it('should allow copy from another language with a carousel response', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.dataCy('language-selector').click();
         cy.dataCy('add-bot-line').click({ force: true });
         cy.dataCy('from-carousel-template').click({ force: true });

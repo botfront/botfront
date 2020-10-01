@@ -38,7 +38,7 @@ describe('story tree navigation', function() {
 
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
     });
     
     it('should be possible to delete a story group', function() {
@@ -214,10 +214,10 @@ describe('story tree navigation', function() {
 
     it('should remember selected story', () => {
         populateMenu();
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Groupo (1)');
         cy.dataCy('incoming-sidebar-link').click({ force: true });
-        cy.dataCy('stories-sidebar-link').click({ force: true });
+        cy.dataCy('dialogue-sidebar-link').click({ force: true });
         cy.dataCy('story-title').should('have.value', 'Groupo (1)');
     });
 });

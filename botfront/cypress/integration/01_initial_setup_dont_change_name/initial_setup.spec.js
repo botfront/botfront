@@ -18,7 +18,7 @@ describe('intial setup', function () {
 
     it('Should create projects when completing the initial setup', () => {
         cy.visit('/');
-        cy.url().should('be', '/setup/welcome');
+        cy.url().should('include', '/setup/welcome');
         cy.get('[data-cy=start-setup]').click();
 
         cy.get('#uniforms-0001-0001').type('Testing');
@@ -53,7 +53,7 @@ describe('intial setup', function () {
         cy.get('[data-cy=email-refuse]').click();
 
         cy.wait(5000);
-        cy.url({ timeout: 30000 }).should('include', '/stories');
+        cy.url({ timeout: 30000 }).should('include', '/dialogue');
 
         // cy.url().then((url) => {
         // This gets the project id

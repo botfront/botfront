@@ -19,7 +19,7 @@ describe('Project Core Policy', function() {
 
     describe('Core Policy', function() {
         it('Can be saved', function() {
-            cy.visit('/project/bf/stories');
+            cy.visit('/project/bf/dialogue');
             cy.dataCy('policies-modal').click();
             cy.get('[data-cy=save-button]').click();
             cy.get('[data-cy=changes-saved]').should('be.visible');

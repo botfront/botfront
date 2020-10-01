@@ -3,7 +3,7 @@
 describe('branches', function() {
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.createStoryGroup();
         cy.createStoryInGroup();
     });
@@ -39,7 +39,7 @@ describe('branches', function() {
             .type('xxx', { force: true })
             .wait(100)
             .blur();
-        cy.visit('/project/bf/stories'); // reload page
+        cy.visit('/project/bf/dialogue'); // reload page
         cy.browseToStory();
         cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('branch-label').should('have.lengthOf', 2);
@@ -108,7 +108,7 @@ describe('branches', function() {
         cy.dataCy('add-branch').click({ force: true });
         cy.dataCy('branch-label').should('have.lengthOf', 3);
         cy.contains('NLU').click({ force: true });
-        cy.contains('Stories').click({ force: true });
+        cy.dataCy('dialogue-sidebar-link').click({ force: true });
         cy.browseToStory();
         cy.dataCy('branch-label').should('have.lengthOf', 3);
         cy.dataCy('branch-label')
