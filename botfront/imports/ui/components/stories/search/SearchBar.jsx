@@ -44,9 +44,18 @@ const SearchBar = (props) => {
             },
         });
         setSearching(false);
-        setResults(data.stories.map(story => ({
-            title: story.title, _id: story._id, description: story.storyGroupId,
-        })));
+        const { storiesSearch: { stories = [] } = {} } = data;
+        setResults({
+            ...data.storiesSearch,
+            // fixes a warning in the dev console
+            stories: stories.map(({
+                _id, storyGroupId, __typename, title,
+            }) => (
+                {
+                    _id, title, __typename, 'story-group-id': storyGroupId,
+                }
+            )),
+        });
     }, 500), [language, projectId]);
 
     const findPos = (originalElement) => {
@@ -125,7 +134,7 @@ const SearchBar = (props) => {
     };
 
     const renderSearchItem = (resultProps) => {
-        const { title, _id, description: storyGroupId } = resultProps;
+        const { title, _id, 'story-group-id': storyGroupId } = resultProps;
         const storyGroup = storyGroups.find(({ _id: gid }) => gid === storyGroupId);
         const isOpen = activeStories === _id || (Array.isArray(activeStories) && activeStories.includes(_id));
         return (
@@ -166,7 +175,9 @@ const SearchBar = (props) => {
         <>
             <Search
                 className={`story-search-bar ${queryString.length > 0 && 'has-text'}`}
-                results={results}
+                results={[
+                    ...((results && Array.isArray(results.stories)) ? results.stories : []),
+                ]}
                 value={queryString}
                 resultRenderer={renderSearchItem}
                 icon={{ name: 'search', 'data-cy': 'stories-search-icon' }}
