@@ -193,10 +193,12 @@ export const submitForm = async (args) => {
     const {
         sender_id: conversationId,
         latest_event_time: latestEventTime,
-        active_form: { name: formName } = {},
         latest_input_channel: latestInputChannel,
+        active_form: activeForm,
+        active_loop: activeLoop,
         slots,
     } = tracker;
+    const { name: formName } = activeForm || activeLoop || {};
 
     const form = await Forms.findOne({ projectId, name: formName }).lean();
     const results = {};
