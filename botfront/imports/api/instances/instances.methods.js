@@ -235,8 +235,7 @@ if (Meteor.isServer) {
                 timeout: 3 * 60 * 1000,
             });
 
-            const corePolicies = CorePolicies.findOne({ projectId }, { policies: 1 })
-                .policies;
+            const { policies: corePolicies, augmentationFactor } = CorePolicies.findOne({ projectId }, { policies: 1, augmentationFactor: 1 });
             const nlu = {};
             const config = {};
 
@@ -273,13 +272,13 @@ if (Meteor.isServer) {
                 };
                 config[lang] = `${configForLang}\n\n${corePolicies}`;
             }
-
             const payload = {
                 domain,
                 stories: joinStoryFiles ? stories.join('\n') : stories,
                 nlu,
                 config,
                 fixed_model_name: getProjectModelFileName(projectId),
+                augmentation_factor: augmentationFactor,
             };
             return payload;
         },
@@ -303,7 +302,6 @@ if (Meteor.isServer) {
                     timeout: process.env.TRAINING_TIMEOUT || 0,
                     responseType: 'arraybuffer',
                 });
-                const { augmentationFactor } = CorePolicies.findOne({ projectId }, { fields: { augmentationFactor: 1 } });
                 addLoggingInterceptors(trainingClient, appMethodLogger);
                 const trainingResponse = await trainingClient.post(
                     '/model/train',
