@@ -260,6 +260,7 @@ function Activity(props) {
 
     const renderActions = row => (
         <ActivityActionsColumn
+            outdated={isUtteranceOutdated(row.datum)}
             datum={row.datum}
             handleSetValidated={handleSetValidated}
             onDelete={handleDelete}
@@ -318,7 +319,7 @@ function Activity(props) {
         if (key === 'Escape') setSelection([]);
         if (key.toLowerCase() === 'd') handleDelete(selectionWithFullData);
         if (key.toLowerCase() === 'v') {
-            if (selectionWithFullData.some(d => !d.intent)) return;
+            if (selectionWithFullData.some(d => !d.intent || isUtteranceOutdated(d))) return;
             handleSetValidated(
                 selectionWithFullData,
                 selectionWithFullData.some(d => !d.validated),
