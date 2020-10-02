@@ -74,7 +74,7 @@ export const TrainingDataSchema = new SimpleSchema({
     },
     regex_features: { type: Array, defaultValue: [] },
     'regex_features.$': Object,
-    'regex_features.$._id': { type: String, autoValue: () => uuidv4() },
+    'regex_features.$._id': { type: String },
     'regex_features.$.name': { type: String, regEx: /.*\S.*/ },
     'regex_features.$.pattern': String,
 });

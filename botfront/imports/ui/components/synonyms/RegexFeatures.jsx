@@ -5,39 +5,40 @@ import { withTracker } from 'meteor/react-meteor-data';
 import LookupTable from './LookupTable';
 import { wrapMeteorCallback } from '../utils/Errors';
 
-class SynonymsEditor extends React.Component {
-    onItemChanged = (synonym, callback) => {
+class RegexFeatures extends React.Component {
+    onItemChanged = (regexFeature, callback) => {
         const { model } = this.props;
-        Meteor.call('nlu.upsertEntitySynonym', model._id, synonym, wrapMeteorCallback(callback));
+        Meteor.call('nlu.upsertRegexFeature', model._id, regexFeature, wrapMeteorCallback(callback));
     };
 
     onItemDeleted = (synonym, callback) => {
         const { model } = this.props;
-        Meteor.call('nlu.deleteEntitySynonym', model._id, synonym._id, wrapMeteorCallback(callback));
+        Meteor.call('nlu.deleteRegexFeature', model._id, synonym._id, wrapMeteorCallback(callback));
     };
 
     render() {
         const { model } = this.props;
         return (
             <LookupTable
-                data={model.training_data.entity_synonyms}
-                keyHeader='Value'
-                keyAttribute='value'
-                listHeader='Synonyms'
-                listAttribute='synonyms'
+                data={model.training_data.regex_features}
+                keyAttribute='name'
+                keyHeader='Name'
+                listHeader='Regex'
+                listAttribute='pattern'
                 onItemChanged={this.onItemChanged}
                 onItemDeleted={this.onItemDeleted}
-                valuePlaceholder='entity value'
-                listPlaceholder='synonym1, synonym2, ...'
+                valuePlaceholder='name'
+                listPlaceholder='Enter a regular expression'
+                multiple={false}
             />
         );
     }
 }
 
-SynonymsEditor.propTypes = {
+RegexFeatures.propTypes = {
     model: PropTypes.object.isRequired,
 };
 
 export default withTracker(props => ({
     model: props.model,
-}))(SynonymsEditor);
+}))(RegexFeatures);

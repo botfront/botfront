@@ -32,10 +32,10 @@ describe('synonym', function() {
     describe('adding a synonym', function() {
         it('should create a synonym with supplied parameters', function() {
             visitSynonyms('bf');
-            cy.get('.input.entity-synonym input').type(synonymName);
+            cy.get('.input.lookup-table-key-input input').type(synonymName);
             cy.contains('Add').should('have.class', 'disabled');
-            cy.get('textarea.entity-synonym-values').type(`${synonymValues},{backspace},,`);
-            cy.get('textarea.entity-synonym-values').should('have.value', `${synonymValues}, , `);
+            cy.get('textarea.lookup-table-values').type(`${synonymValues},{backspace},,`);
+            cy.get('textarea.lookup-table-values').should('have.value', `${synonymValues}, , `);
             cy.contains('Add').click();
             getSynonymRow()
                 .children()

@@ -18,6 +18,7 @@ import Evaluation from '../evaluation/Evaluation';
 import ChitChat from './ChitChat';
 import Synonyms from '../../synonyms/Synonyms';
 import Gazette from '../../synonyms/Gazette';
+import RegexFeatures from '../../synonyms/RegexFeatures';
 import NLUPipeline from './settings/NLUPipeline';
 import Statistics from './Statistics';
 import DeleteModel from './DeleteModel';
@@ -195,7 +196,7 @@ function NLUModel(props) {
     return (
         <>
             {renderTopMenu()}
-            <Container>
+            <Container data-cy='nlu-page'>
                 {['Training Data', 'Evaluation'].includes(activeItem) && (
                     <>
                         {renderWarningMessageIntents()}
@@ -251,6 +252,10 @@ function NLUModel(props) {
                             {
                                 menuItem: 'Gazette',
                                 render: () => <Gazette model={model} />,
+                            },
+                            {
+                                menuItem: 'Regex',
+                                render: () => <RegexFeatures model={model} />,
                             },
                             {
                                 menuItem: 'API',

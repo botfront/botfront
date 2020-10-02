@@ -31,8 +31,8 @@ describe('gazette', function() {
     describe('adding a gazette', function() {
         it('should create a gazette with supplied parameters', function() {
             visitGazette('bf');
-            cy.get('.input.entity-synonym input').type(gazetteName);
-            cy.get('textarea.entity-synonym-values').type(gazetteValues);
+            cy.get('.input.lookup-table-key-input input').type(gazetteName);
+            cy.get('textarea.lookup-table-values').type(gazetteValues);
             cy.contains('Add').click();
             getGazetteRow()
                 .children()

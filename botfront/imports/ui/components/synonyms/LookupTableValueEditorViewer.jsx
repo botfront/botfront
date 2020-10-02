@@ -24,11 +24,11 @@ export default class LookupTableValueEditorViewer extends React.Component {
 
     render() {
         const { edit } = this.state;
-        const { entitySynonym, listAttribute } = this.props;
+        const { entitySynonym, keyAttribute } = this.props;
         return (
             <div onClick={this.setEditMode}>
-                {edit && <LookupTableValueEditor listAttribute={listAttribute} entitySynonym={entitySynonym} onDone={this.onEditDone} />}
-                {!edit && <LookupTableValueViewer value={entitySynonym.value} />}
+                {edit && <LookupTableValueEditor keyAttribute={keyAttribute} entitySynonym={entitySynonym} onDone={this.onEditDone} />}
+                {!edit && <LookupTableValueViewer value={entitySynonym[keyAttribute]} />}
             </div>
         );
     }
@@ -38,6 +38,7 @@ LookupTableValueEditorViewer.propTypes = {
     entitySynonym: PropTypes.object,
     onEdit: PropTypes.func.isRequired,
     listAttribute: PropTypes.string.isRequired,
+    keyAttribute: PropTypes.string.isRequired,
 };
 
 LookupTableValueEditorViewer.defaultProps = {
