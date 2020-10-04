@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.27.0](https://github.com/botfront/botfront/compare/v0.26.0...v0.27.0) (2020-10-04)
+
+
+### Features
+
+* allow role and group for entities in training data ([6294dbc](https://github.com/botfront/botfront/commit/6294dbc206bc8eb2dcb310feb6ca650437d4516f))
+* nlu regex  ([dd8e7ae](https://github.com/botfront/botfront/commit/dd8e7ae0ae99d79467e02ba53b6f0c78c1246281))
+* unlimited training time ([0574df7](https://github.com/botfront/botfront/commit/0574df7bcaf8033f0b7f01ab85e8ba9aaf9bf488))
+
+
+### Bug Fixes
+
+* advanced entity editing not possible in data table ([f05f766](https://github.com/botfront/botfront/commit/f05f766b6046c15942ec3b8c8b832542af030754))
+* auto redirect to login when logged out ([c96dd08](https://github.com/botfront/botfront/commit/c96dd08ee22350a58c181b77ebe7ebd9c371a486))
+* bug with action popup disappearing onscroll ([c78861c](https://github.com/botfront/botfront/commit/c78861cb0fb476f4b9ae88aae1456bb7f714c4f8))
+* concat story on branch delete  ([f9dbb5f](https://github.com/botfront/botfront/commit/f9dbb5fef8cbc3a3480edc749e05d24d7aa6ec99))
+* new chitchat examples were not displayed in the examples table ([533b46c](https://github.com/botfront/botfront/commit/533b46c81d264d5ce885fb5ada6b6d7c1dfccfef))
+* rasa domain import (backport) ([84a35a0](https://github.com/botfront/botfront/commit/84a35a0606b45c8107503e885fb745bde1395c94))
+
 ## [0.26.0](https://github.com/botfront/botfront/compare/v0.26.0-rc.3...v0.26.0) (2020-08-28)
 
 ## [0.26.0](https://github.com/botfront/botfront/compare/v0.26.0-rc.3...v0.26.0) (2020-08-28)
