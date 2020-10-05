@@ -310,7 +310,7 @@ const ProjectContainer = withTracker((props) => {
     const projectLanguages = ready ? (project.languages || []).map(value => ({ text: languageOptions[value].name, value })) : [];
 
     // update working language
-    if (ready && defaultLanguage && !project.languages.includes(workingLanguage)) {
+    if (ready && defaultLanguage && !projectLanguages.some(({ value }) => value === workingLanguage)) {
         changeWorkingLanguage(defaultLanguage);
     }
 
