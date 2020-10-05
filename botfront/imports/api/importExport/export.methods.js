@@ -7,6 +7,7 @@ import { Endpoints } from '../endpoints/endpoints.collection';
 import { Credentials } from '../credentials';
 
 import { generateErrorText } from './importExport.utils';
+import { ZipFolder } from './ZipFolder';
 
 if (Meteor.isServer) {
     import {
@@ -75,7 +76,33 @@ if (Meteor.isServer) {
                         : { [language]: rasaData.nlu[language] },
                 stories: rasaData.stories,
             };
-            return exportData;
+
+
+            const rasaZip = new ZipFolder();
+            if (exportData.stories.length > 1) {
+                exportData.stories.forEach(s => rasaZip.addFile(
+                    s,
+                    `data/stories/${s
+                        .split('\n')[0]
+                        .replace(/^# /, '')
+                        .replace(/ /g, '_')
+                        .toLowerCase()}.md`,
+                ));
+            } else {
+                rasaZip.addFile(exportData.stories, 'data/stories.md');
+            }
+            if (passedLang === 'all') {
+                Object.keys(exportData.config).forEach(k => rasaZip.addFile(exportData.config[k], `config-${k}.yml`));
+                Object.keys(exportData.nlu).forEach(k => rasaZip.addFile(exportData.nlu[k].data, `data/nlu/${k}.md`));
+            } else {
+                rasaZip.addFile(exportData.config[language], 'config.yml');
+                rasaZip.addFile(exportData.nlu[language].data, 'data/nlu.md');
+            }
+            rasaZip.addFile(exportData.endpoints, 'endpoints.yml');
+            rasaZip.addFile(exportData.credentials, 'credentials.yml');
+            rasaZip.addFile(exportData.domain, 'domain.yml');
+
+            return rasaZip.generateBlob();
         },
     });
 }

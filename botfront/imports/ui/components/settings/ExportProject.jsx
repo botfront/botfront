@@ -5,6 +5,7 @@ import { saveAs } from 'file-saver';
 import {
     Dropdown, Button, Message, Icon, Checkbox,
 } from 'semantic-ui-react';
+import JSZIP from 'jszip';
 import { ProjectContext } from '../../layouts/context';
 
 const ExportProject = ({
@@ -136,49 +137,23 @@ const ExportProject = ({
 
     const exportForRasa = () => {
         setLoading(true);
-        Meteor.call('exportRasa', projectId, exportLanguage, (err, rasaData) => {
+        Meteor.call('exportRasa', projectId, exportLanguage, (err, rasaDataZip) => {
             if (err) {
                 setErrorMessage({ header: 'Rasa Export Failed!', text: err.message });
                 setExportSuccessful(false);
                 setLoading(false);
-                return;
-            }
-            import('../utils/ZipFolder').then(({ ZipFolder }) => {
-                const rasaZip = new ZipFolder();
-                if (rasaData.stories.length > 1) {
-                    rasaData.stories.forEach(s => rasaZip.addFile(
-                        s,
-                        `data/stories/${s
-                            .split('\n')[0]
-                            .replace(/^# /, '')
-                            .replace(/ /g, '_')
-                            .toLowerCase()}.md`,
-                    ));
-                } else {
-                    rasaZip.addFile(rasaData.stories, 'data/stories.md');
-                }
-                if (exportLanguage === 'all') {
-                    Object.keys(rasaData.config).forEach(k => rasaZip.addFile(rasaData.config[k], `config-${k}.yml`));
-                    Object.keys(rasaData.nlu).forEach(k => rasaZip.addFile(rasaData.nlu[k].data, `data/nlu/${k}.md`));
-                } else {
-                    rasaZip.addFile(rasaData.config[exportLanguage], 'config.yml');
-                    rasaZip.addFile(rasaData.nlu[exportLanguage].data, 'data/nlu.md');
-                }
-                rasaZip.addFile(rasaData.endpoints, 'endpoints.yml');
-                rasaZip.addFile(rasaData.credentials, 'credentials.yml');
-                rasaZip.addFile(rasaData.domain, 'domain.yml');
-
-                // prevents the file from being downloaded durring cypress tests
-                if (window.Cypress) {
-                    setExportSuccessful(true);
-                    setLoading(false);
-                    return;
-                }
-                rasaZip.downloadAs(`${projectId}_RasaExport.zip`, () => {
-                    setExportSuccessful(true);
-                    setLoading(false);
+            } else {
+                const zip = new JSZIP();
+                zip.loadAsync(rasaDataZip, { base64: true }).then((newZip) => {
+                    newZip.generateAsync({ type: 'blob' })
+                        .then((blob) => {
+                            saveAs(blob, `${projectId}_RasaExport.zip`);
+                        });
                 });
-            });
+              
+                setExportSuccessful(true);
+                setLoading(false);
+            }
         });
     };
 
