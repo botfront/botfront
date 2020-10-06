@@ -18,21 +18,33 @@ export const createDefaultStoryGroup = (projectId) => {
         (err, storyGroupId) => {
             if (!err) {
                 Meteor.call('stories.insert', {
-                    story: '* chitchat.greet\n    - utter_hi',
+                    type: 'rule',
+                    steps: [
+                        { intent: 'chitchat.greet' },
+                        { action: 'utter_hi' },
+                    ],
                     title: 'Greetings',
                     storyGroupId,
                     projectId,
                     events: ['utter_hi'],
                 });
                 Meteor.call('stories.insert', {
-                    story: '* chitchat.bye\n    - utter_bye',
+                    type: 'rule',
+                    steps: [
+                        { intent: 'chitchat.bye' },
+                        { action: 'utter_bye' },
+                    ],
                     title: 'Farewells',
                     storyGroupId,
                     projectId,
                     events: ['utter_bye'],
                 });
                 Meteor.call('stories.insert', {
-                    story: '* get_started\n    - utter_get_started',
+                    type: 'rule',
+                    steps: [
+                        { intent: 'get_started' },
+                        { action: 'utter_get_started' },
+                    ],
                     title: 'Get started',
                     storyGroupId,
                     projectId,

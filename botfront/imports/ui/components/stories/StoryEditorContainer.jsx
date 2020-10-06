@@ -49,6 +49,7 @@ const StoryEditorContainer = ({
 }) => {
     const { stories, getResponseLocations, reloadStories } = useContext(ConversationOptionsContext);
     const { slots } = useContext(ProjectContext);
+    const isLegacy = 'story' in story; // legacy (Md) stories use the Ace Editor
     
     // Used to store ace editors instance to dynamically set annotations
     // the ace edtior react component has a bug where it does not set properly
@@ -363,7 +364,7 @@ const StoryEditorContainer = ({
                 className='single-story-container'
                 data-cy='single-story-editor'
             >
-                {storyMode !== 'visual'
+                {storyMode !== 'visual' || isLegacy
                     ? renderAceEditor(pathToRender)
                     : renderVisualEditor(pathToRender)}
                 {branches.length > 0 && (
