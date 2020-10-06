@@ -16,7 +16,7 @@ import { setStoriesCurrent } from '../../../store/actions/actions';
 import { StoryGroups } from '../../../../api/storyGroups/storyGroups.collection';
 
 
-import { SEARCH_STORIES } from './queries';
+import { SEARCH_FRAGMENTS } from './queries';
 
 const SearchBar = (props) => {
     const {
@@ -36,7 +36,7 @@ const SearchBar = (props) => {
 
     const searchStories = useCallback(debounce(async (searchInputValue) => {
         const { data } = await apolloClient.query({
-            query: SEARCH_STORIES,
+            query: SEARCH_FRAGMENTS,
             variables: {
                 projectId,
                 language,

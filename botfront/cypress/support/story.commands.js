@@ -186,18 +186,18 @@ Cypress.Commands.add('createCustomStoryGroup', (projectId, storyGroupId, name) =
 
 Cypress.Commands.add('createCustomStory', (projectId, storyGroupId, storyId, options = {}) => {
     const {
-        title = storyId, story = '', branches = [], triggerIntent, rules,
+        title = storyId, steps = [], branches = [], triggerIntent,
     } = options;
     const storyData = {
         title,
-        story,
+        steps,
+        type: 'story',
         _id: storyId,
         storyGroupId,
         projectId,
         status: 'published',
         branches,
         ...(triggerIntent ? { triggerIntent } : {}),
-        rules,
     };
     cy.MeteorCall('stories.insert', [storyData]);
 });

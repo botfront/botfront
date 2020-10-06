@@ -164,9 +164,10 @@ function Stories(props) {
         (story, f) => Meteor.call(
             'stories.insert',
             {
-                story: '',
+                type: 'story',
                 projectId,
                 branches: [],
+                steps: [],
                 ...story,
             },
             wrapMeteorCallback(f),

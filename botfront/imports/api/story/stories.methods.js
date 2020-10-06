@@ -59,6 +59,7 @@ Meteor.methods({
                 {
                     $set: {
                         ...rest,
+                        type: (originStories.find(({ _id: sid }) => sid === _id) || {}).type,
                         ...indexStory(originStories.find(({ _id: sid }) => sid === _id) || {}, { includeEventsField: true, update: { ...rest, _id } }),
                     },
                 },
@@ -71,6 +72,7 @@ Meteor.methods({
             return Stories.update({ _id }, {
                 $set: {
                     ...rest,
+                    type: originStory.type,
                     ...indexStory(originStory, { includeEventsField: true, update: { ...rest, _id } }),
                 },
             });
@@ -90,7 +92,11 @@ Meteor.methods({
                 })),
             )
             : rest;
-        const result = await Stories.update({ _id }, { $set: { ...update, events: newEvents, textIndex } });
+        const result = await Stories.update({ _id }, {
+            $set: {
+                type: originStory.type, ...update, events: newEvents, textIndex,
+            },
+        });
 
         if (!noClean) {
             // check if a response was removed
@@ -119,7 +125,7 @@ Meteor.methods({
         check(destinationStory, String);
         check(branchPath, Array);
         return Stories.update(
-            { _id: destinationStory },
+            { _id: destinationStory, type: 'story' },
             { $addToSet: { checkpoints: branchPath } },
         );
     },
@@ -127,7 +133,7 @@ Meteor.methods({
         check(destinationStory, String);
         check(branchPath, Array);
         return Stories.update(
-            { _id: destinationStory },
+            { _id: destinationStory, type: 'story' },
             { $pullAll: { checkpoints: [branchPath] } },
         );
     },
