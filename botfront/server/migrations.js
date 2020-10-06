@@ -453,23 +453,29 @@ Migrations.add({
                 'Could not find Rasa instance to convert stories to Rasa 2.0 format. Please set env var RASA_MIGRATION_INSTANCE_URL.',
             );
         }
-        const stories = Stories.find(
-            { story: { $exists: true } },
-            { story: 1, _id: 1, branches: 1 },
-        ).fetch();
-        const storiesFlattened = flattenStoriesForConversion(stories).join('\n');
-        const axiosClient = axios.create();
-        const { data: { data = '' } = {} } = await axiosClient.post(
-            `${host}/data/convert/core`,
-            {
-                data: storiesFlattened,
-                input_format: 'md',
-                output_format: 'yaml',
-            },
-        );
-        const { stories: parsedStories } = safeLoad(data);
-        const storyUpdates = generateStoryUpdates(parsedStories);
-        Object.keys(storyUpdates).forEach(_id => Stories.update({ _id }, storyUpdates[_id]));
+        try {
+            const stories = Stories.find(
+                { story: { $exists: true } },
+                { story: 1, _id: 1, branches: 1 },
+            ).fetch();
+            const storiesFlattened = flattenStoriesForConversion(stories).join('\n');
+            const axiosClient = axios.create();
+            const { data: { data = '' } = {} } = await axiosClient.post(
+                `${host}/data/convert/core`,
+                {
+                    data: storiesFlattened,
+                    input_format: 'md',
+                    output_format: 'yaml',
+                },
+            );
+            const { stories: parsedStories } = safeLoad(data);
+            const storyUpdates = generateStoryUpdates(parsedStories);
+            Object.keys(storyUpdates).forEach(_id => Stories.update({ _id }, storyUpdates[_id]));
+        } catch (e) {
+            Migrations.migrateTo(11);
+            Migrations.lock();
+            throw new Error(e);
+        }
     },
 });
 
