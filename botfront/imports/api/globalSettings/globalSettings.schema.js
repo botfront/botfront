@@ -38,7 +38,6 @@ export const publicSettingsSchema = new SimpleSchema({
     'backgroundImages.$': { type: String },
     logoUrl: { type: String, optional: true },
     smallLogoUrl: { type: String, optional: true },
-    intercomAppId: { type: String, optional: true },
 });
 
 export const GlobalSettingsSchema = new SimpleSchema(

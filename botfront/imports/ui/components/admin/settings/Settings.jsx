@@ -206,7 +206,6 @@ class Settings extends React.Component {
                     <AutoField name='settings.private.bfApiHost' label='Botfront API host' data-cy='docker-api-host' />
                     <AutoField name='settings.public.chitChatProjectId' label='Chitchat project Id' info='ID of project containing chitchat NLU training data' />
                     <AutoField name='settings.public.docUrl' />
-                    <AutoField name='settings.public.intercomAppId' />
                     {this.renderSubmitButton()}
                 </Segment>
                 {can('global-admin') && (

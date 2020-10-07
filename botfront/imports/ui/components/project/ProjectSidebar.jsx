@@ -19,7 +19,6 @@ class ProjectSidebar extends React.Component {
         const {
             projectName, projectId, handleChangeProject, settingsReady, settings, triggerIntercom,
         } = this.props;
-        const intercomId = settingsReady ? settings.settings.public.intercomAppId : null;
 
         return (
             <DocumentTitle title={projectName}>
@@ -61,11 +60,6 @@ class ProjectSidebar extends React.Component {
                     <a href={settingsReady ? settings.settings.public.docUrl : ''} target='_blank' rel='noopener noreferrer'>
                         <Menu.Item name='documentation' icon='question' />
                     </a>
-                    {intercomId && (
-                        <span>
-                            <Menu.Item name='Support' onClick={() => triggerIntercom(intercomId)} icon='bell' />
-                        </span>
-                    )}
                     <Divider inverted />
                     {(can('roles:r', { anyScope: true })
                     || can('users:r', { anyScope: true })
