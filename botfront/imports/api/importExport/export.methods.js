@@ -56,14 +56,45 @@ if (Meteor.isServer) {
             check(language, String);
 
             const passedLang = language === 'all' ? {} : { language };
-            const credentials = await Credentials.findOne(
-                { projectId },
-                { fields: { credentials: 1 } },
-            );
-            const endpoints = await Endpoints.findOne(
-                { projectId },
-                { fields: { endpoints: 1 } },
-            );
+
+            const project = Projects.findOne({ _id: projectId });
+            const hasEnvs = project.deploymentEnvironments && project.deploymentEnvironments.length !== 0;
+            let credentials;
+            let endpoints;
+
+            if (hasEnvs) {
+                credentials = await Promise.all(project.deploymentEnvironments.map(async (environment) => {
+                    const creds = await Credentials.findOne(
+                        { projectId, environment },
+                        { fields: { credentials: 1 } },
+                    );
+                    return {
+                        environment,
+                        credentials: creds.credentials,
+                    };
+                }));
+
+                endpoints = await Promise.all(project.deploymentEnvironments.map(async (environment) => {
+                    const endpoint = await Endpoints.findOne(
+                        { projectId, environment },
+                        { fields: { endpoints: 1 } },
+                    );
+                    return {
+                        environment,
+                        endpoints: endpoint.endpoints,
+                    };
+                }));
+            } else {
+                credentials = await Credentials.findOne(
+                    { projectId },
+                    { fields: { credentials: 1 } },
+                ).credentials;
+                endpoints = await Endpoints.findOne(
+                    { projectId },
+                    { fields: { endpoints: 1 } },
+                ).endpoints;
+            }
+          
             const rasaData = await Meteor.callWithPromise(
                 'rasa.getTrainingPayload',
                 projectId,
@@ -75,9 +106,7 @@ if (Meteor.isServer) {
                     language === 'all'
                         ? rasaData.config
                         : { [language]: rasaData.config[language] },
-                credentials: credentials.credentials,
                 domain: rasaData.domain,
-                endpoints: endpoints.endpoints,
                 nlu:
                     language === 'all'
                         ? rasaData.nlu
@@ -85,8 +114,7 @@ if (Meteor.isServer) {
                 stories: rasaData.stories,
             };
 
-
-            const project = Projects.findOne({ _id: projectId });
+            
             const instances = Instances.findOne({ projectId });
             const conversations = Conversations.findOne({ projectId });
             const slots = Slots.findOne({ projectId });
@@ -120,8 +148,15 @@ if (Meteor.isServer) {
                 rasaZip.addFile(rasaExportData.config[language], 'config.yml');
                 rasaZip.addFile(rasaExportData.nlu[language].data, 'data/nlu.md');
             }
-            rasaZip.addFile(rasaExportData.endpoints, 'endpoints.yml');
-            rasaZip.addFile(rasaExportData.credentials, 'credentials.yml');
+
+            if (hasEnvs) {
+                endpoints.forEach((endpoint) => { rasaZip.addFile(endpoint.endpoints, `endpoints.${endpoint.environment}.yml`); });
+                credentials.forEach((credential) => { rasaZip.addFile(credential.credentials, `credentials.${credential.environment}.yml`); });
+            } else {
+                rasaZip.addFile(endpoints, 'endpoints.yml');
+                rasaZip.addFile(credentials, 'credentials.yml');
+            }
+            
             rasaZip.addFile(rasaExportData.domain, 'domain.yml');
             rasaZip.addFile(bontfrontYaml, 'botfront.yml');
 
