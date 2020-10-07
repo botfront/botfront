@@ -12,6 +12,7 @@ if (Meteor.isServer) {
 
     import '../../project/project.methods';
     import '../../nlu_model/nlu_model.methods';
+    import { NLUModels } from '../../nlu_model/nlu_model.collection';
     import '../../importExport/import.methods';
     import '../../importExport/export.methods';
     import '../../endpoints/endpoints.methods';
@@ -32,6 +33,7 @@ if (Meteor.isServer) {
     const projectId = 'bf';
     const modelId = 'bfModel';
     const userId = 'testuserid';
+    const language = 'en';
 
     const projectData = {
         _id: projectId,
@@ -60,6 +62,10 @@ if (Meteor.isServer) {
         {
             name: 'conversations.markAsRead',
             roles: readers.incoming,
+            before: async (done) => {
+                await NLUModels.remove({ _id: modelId });
+                done();
+            },
             args: ['senderId'],
         },
         {
@@ -141,47 +147,92 @@ if (Meteor.isServer) {
         {
             name: 'rasa.evaluate.nlu',
             roles: otherRoles.nluDataX,
-            args: [null, projectId],
+            args: [projectId, null, null],
         },
         {
             name: 'nlu.upsertEntitySynonym',
             roles: writers.nluData,
+            before: async (done) => {
+                await NLUModels.remove({ _id: modelId });
+                await NLUModels.insert({ _id: modelId, projectId, language });
+                done();
+            },
+            after: async (done) => {
+                await NLUModels.remove({ _id: modelId });
+                done();
+            },
             args: [modelId],
         },
         {
             name: 'nlu.deleteEntitySynonym',
             roles: writers.nluData,
+            before: async (done) => {
+                await NLUModels.remove({ _id: modelId });
+                await NLUModels.insert({ _id: modelId, projectId, language });
+                done();
+            },
+            after: async (done) => {
+                await NLUModels.remove({ _id: modelId });
+                done();
+            },
             args: [modelId],
         },
         {
             name: 'nlu.upsertEntityGazette',
             roles: writers.nluData,
+            before: async (done) => {
+                await NLUModels.remove({ _id: modelId });
+                await NLUModels.insert({ _id: modelId, projectId, language });
+                done();
+            },
+            after: async (done) => {
+                await NLUModels.remove({ _id: modelId });
+                done();
+            },
             args: [modelId],
         },
         {
             name: 'nlu.deleteEntityGazette',
             roles: writers.nluData,
+            before: async (done) => {
+                await NLUModels.remove({ _id: modelId });
+                await NLUModels.insert({ _id: modelId, projectId, language });
+                done();
+            },
+            after: async (done) => {
+                await NLUModels.remove({ _id: modelId });
+                done();
+            },
             args: [modelId],
         },
         {
             name: 'nlu.insert',
             roles: writers.nluData,
-            args: [null, projectId],
+            args: [projectId, null],
         },
         {
             name: 'nlu.update.general',
-            roles: otherRoles.nluDataX,
+            roles: writers.nluData,
+            before: async (done) => {
+                await NLUModels.remove({ _id: modelId });
+                await NLUModels.insert({ _id: modelId, projectId, language });
+                done();
+            },
+            after: async (done) => {
+                await NLUModels.remove({ _id: modelId });
+                done();
+            },
             args: [modelId],
         },
         {
             name: 'nlu.remove',
             roles: writers.nluData,
-            args: [modelId],
+            args: [projectId],
         },
         {
             name: 'nlu.addChitChatToTrainingData',
             roles: writers.nluData,
-            args: [modelId],
+            args: [projectId],
         },
         {
             name: 'nlu.import',
@@ -197,7 +248,8 @@ if (Meteor.isServer) {
         {
             name: 'nlu.saveExampleChanges',
             roles: writers.nluData,
-            args: [modelId],
+            
+            args: [projectId, language],
         },
         {
             name: 'project.insert',
@@ -461,6 +513,7 @@ if (Meteor.isServer) {
     const createProject = async () => {
         await Projects.insert(projectData);
     };
+
     const deleteProject = async () => {
         await Projects.remove({ _id: 'bf' });
     };

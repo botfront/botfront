@@ -20,11 +20,11 @@ if (Meteor.isServer) {
 
     setUpRoles();
 
-    const userId = 'storiesSearchTest';
+    const userId = 'testuserid';
 
     const cleanup = async () => {
-        await createTestUser(userId);
         await Stories.remove({});
+        await Examples.remove({});
         await BotResponses.deleteMany(({ projectId }));
         await Projects.remove({ _id: projectId });
         await NLUModels.remove({ _id: enModelId });
@@ -43,7 +43,9 @@ if (Meteor.isServer) {
 
     const insertDataAndIndex = async (done) => {
         await cleanup();
+        await removeTestUser();
         await addData();
+        await createTestUser();
         done();
     };
 
@@ -51,12 +53,13 @@ if (Meteor.isServer) {
         await cleanup();
         await createResponses(projectId, [botResponsesFixtureWithCustomCss, botResponsesFixtureWithHighlight, botResponseFixtureWithObserve]);
         await addData();
+        await createTestUser();
         done();
     };
 
     const removeTestData = async (done) => {
         await cleanup();
-        await removeTestUser(userId);
+        await removeTestUser();
         done();
     };
     

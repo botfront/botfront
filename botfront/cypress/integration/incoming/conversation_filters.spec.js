@@ -410,7 +410,7 @@ describe('filters', function () {
         // wait for the page to load so the filters are added to redux
         cy.dataCy('id-filter').find('input').should('have.value', 'test');
         // navigate away from the page and back to check that the filters can be laoded from redux
-        cy.dataCy('stories-sidebar-link').click({ force: true });
+        cy.dataCy('dialogue-sidebar-link').click({ force: true });
         cy.dataCy('story-group-menu-item').should('exist');
         cy.dataCy('incoming-sidebar-link').click({ force: true });
         cy.dataCy('conversations').click();

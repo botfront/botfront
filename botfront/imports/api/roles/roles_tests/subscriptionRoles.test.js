@@ -8,7 +8,7 @@ if (Meteor.isServer) {
     import { Conversations } from '../../conversations';
 
     import {
-        roles, readers, writers, formatRoles,
+        roles, readers, formatRoles,
     } from './roleTestUtils';
 
     import { CorePolicies } from '../../core_policies';
@@ -34,6 +34,7 @@ if (Meteor.isServer) {
     const projectId = 'bf';
     const modelId = 'bfModel';
     const userId = 'testuserid';
+    const language = 'en';
 
     const projectData = {
         _id: projectId,
@@ -163,6 +164,7 @@ if (Meteor.isServer) {
 
     const nluModelData = {
         _id: modelId,
+        projectId: 'bf',
         name: 'Default Model',
         language: 'en',
         config:
@@ -227,6 +229,8 @@ if (Meteor.isServer) {
             response_selection_evaluation: null,
         },
         modelId,
+        projectId,
+        language,
         timestamp: '2020-02-25T19:41:56.520Z',
     };
     const globalUserTestData = {
@@ -394,7 +398,7 @@ the tests are created by iterating over subscriptions. the test params are as fo
                 await Evaluations.remove({ _id: 'testNluEvaluation' });
                 done();
             },
-            args: [modelId],
+            args: [projectId, language],
             acceptedRoles: readers.nluData,
         },
         {
@@ -407,7 +411,7 @@ the tests are created by iterating over subscriptions. the test params are as fo
                 await NLUModels.remove({ _id: modelId });
                 done();
             },
-            args: [modelId],
+            args: [projectId],
             acceptedRoles: readers.nluData,
         },
         {
@@ -496,6 +500,7 @@ the tests are created by iterating over subscriptions. the test params are as fo
             name: 'stories.selected',
             collectionName: 'stories',
             testDataInsert: async () => {
+                await Stories.remove({});
                 await Stories.insert(storyData);
             },
             testDataRemove: async (done) => {
@@ -509,13 +514,14 @@ the tests are created by iterating over subscriptions. the test params are as fo
             name: 'stories.light',
             collectionName: 'stories',
             testDataInsert: async () => {
+                await Stories.remove({});
                 await Stories.insert(storyData);
             },
             testDataRemove: async (done) => {
                 await Stories.remove({ _id: 'testStory' });
                 done();
             },
-            args: [projectId, 'testStoryGroup'],
+            args: [projectId],
             acceptedRoles: readers.stories,
             allowed: (result, done) => {
                 expect(['title', 'checkpoints', 'storyGroupId', '_id', 'rules', 'status']).to.include.members(Object.keys(result.stories[0]));
@@ -532,6 +538,7 @@ the tests are created by iterating over subscriptions. the test params are as fo
             name: 'stories.events',
             collectionName: 'stories',
             testDataInsert: async () => {
+                await Stories.remove({});
                 await Stories.insert(storyData);
             },
             testDataRemove: async (done) => {
@@ -589,7 +596,6 @@ the tests are created by iterating over subscriptions. the test params are as fo
             args: [],
             acceptedRoles: readers.users,
         },
-     
     ];
 
     const setUserScopes = async (userRoles, scope) => {
@@ -648,6 +654,7 @@ the tests are created by iterating over subscriptions. the test params are as fo
             const collector = new PublicationCollector({ userId });
             await collector.collect(name, ...args, callback);
         } catch (e) {
+            // eslint-disable-next-line no-console
             if (e.error !== '403') console.log(e);
             expect(e.error).to.be.equal('403');
             done();

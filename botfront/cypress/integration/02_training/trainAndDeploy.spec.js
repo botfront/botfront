@@ -23,7 +23,7 @@ describe('Training and deploy', function() {
         cy.visit('/admin/settings');
         cy.contains('Webhooks').click();
         cy.dataCy('DeployProject').should('have.value', '');
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.dataCy('train-and-deploy').should('not.exist');
     });
 
@@ -40,7 +40,7 @@ describe('Training and deploy', function() {
             .contains('staging')
             .click();
         cy.dataCy('save-changes').click();
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.dataCy('train-and-deploy').click();
         cy.dataCy('train-and-deploy').should('have.text', 'Deploy to staging');
 
@@ -52,7 +52,7 @@ describe('Training and deploy', function() {
             .click();
         cy.dataCy('save-changes').click();
 
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.dataCy('train-and-deploy').click();
         cy.dataCy('train-and-deploy').should('have.text', 'Deploy to stagingDeploy to production');
     });

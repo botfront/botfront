@@ -220,4 +220,33 @@ describe('story tree navigation', function() {
         cy.dataCy('dialogue-sidebar-link').click({ force: true });
         cy.dataCy('story-title').should('have.value', 'Groupo (1)');
     });
+    it('should be able to add and delete forms', () => {
+        cy.dataCy('story-group-menu-item', null, '[type="form"]').should('not.exist');
+        cy.createFormInGroup({ groupName: 'Default stories' });
+        cy.wait(1000);
+        cy.dataCy('story-group-menu-item', null, '[type="form"]').should('exist');
+        cy.deleteStoryOrGroup('Defaultstories_form');
+        cy.dataCy('story-group-menu-item', null, '[type="form"]').should('not.exist');
+    });
+    
+    it('should not be able to select multiple forms', () => {
+        cy.createCustomStoryGroup('bf', 'FORM_GROUP', 'Form group');
+        cy.dataCy('story-group-menu-item').should('include.text', 'Form group');
+        cy.createForm('bf', 'test_1_form', { groupId: 'FORM_GROUP', _id: 'form1' });
+        cy.createForm('bf', 'test_2_form', { groupId: 'FORM_GROUP', _id: 'form2' });
+        cy.dataCy('story-group-menu-item').should('include.text', 'test_2_form');
+        cy.visit('/project/bf/dialogue?ids%5B%5D=form1&ids%5B%5D=form2');
+        cy.get('.form-graph-wrapper').should('have.length', 1);
+    });
+    it('should be able to move a form between story groups', () => {
+        cy.createCustomStoryGroup('bf', 'FORM_GROUP', 'Form group');
+        cy.createCustomStoryGroup('bf', 'DEST_GROUP', 'Dest group');
+        cy.dataCy('story-group-menu-item').should('include.text', 'Form group');
+        cy.createForm('bf', 'test_1_form', { groupId: 'FORM_GROUP', _id: 'form1' });
+        cy.dataCy('story-group-menu-item').should('include.text', 'test_1_form');
+        cy.moveStoryOrGroup({ name: 'test_1_form' });
+        cy.checkMenuItemAtIndex(2, 'test_1_form');
+        cy.moveStoryOrGroup({ name: 'test_1_form' }, { name: 'Dest group' });
+        cy.checkMenuItemAtIndex(1, 'test_1_form');
+    });
 });

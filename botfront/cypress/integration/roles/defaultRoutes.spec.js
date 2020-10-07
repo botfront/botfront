@@ -42,7 +42,7 @@ describe('should not get 404s for default routes', () => {
         cy.visit('/');
         cy.get('.ui.top-menu').should('exist');
         cy.get('.header').contains('Stories').should('exist');
-        cy.url().should('include', '/project/bf/stories');
+        cy.url().should('include', '/project/bf/dialogue');
     });
     it('global-settings:r/w global default', () => {
         cy.createDummyRoleAndUser({ permission: ['global-settings:r'] });
@@ -58,7 +58,7 @@ describe('should not get 404s for default routes', () => {
         cy.visit('/');
         cy.get('.ui.top-menu').should('exist');
         cy.get('.header').contains('Stories').should('exist');
-        cy.url().should('include', '/project/bf/stories');
+        cy.url().should('include', '/project/bf/dialogue');
     });
     it('responses:r/w global default', () => {
         cy.createDummyRoleAndUser({ permission: ['responses:r'] });
@@ -81,7 +81,7 @@ describe('should not get 404s for default routes', () => {
         cy.visit('/');
         cy.get('.ui.top-menu').should('exist');
         cy.get('.header').contains('Stories').should('exist');
-        cy.url().should('include', '/project/bf/stories');
+        cy.url().should('include', '/project/bf/dialogue');
     });
     it('incoming:r default', () => {
         cy.createDummyRoleAndUser({ permission: ['incoming:r'] });
@@ -89,6 +89,6 @@ describe('should not get 404s for default routes', () => {
         cy.visit('/');
         cy.get('.ui.top-menu').should('exist');
         cy.get('.header').contains('Stories').should('exist');
-        cy.url().should('include', '/project/bf/stories');
+        cy.url().should('include', '/project/bf/dialogue');
     });
 });

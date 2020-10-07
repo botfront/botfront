@@ -34,7 +34,7 @@ describe('test forms end to end', () => {
         const benchmarkDate = new Date();
         cy.setPolicies('bf', policices);
 
-        cy.visit('project/bf/stories');
+        cy.visit('project/bf/dialogue');
         cy.createFormInGroup({ groupName: 'Default stories' });
         cy.createFormInGroup({ groupName: 'Default stories' });
         cy.selectForm(newFormName);

@@ -39,7 +39,6 @@ if (Meteor.isServer) {
     setUpRoles();
     const userId = 'testuserid';
     const projectId = 'bf';
-    const modelId = 'bfModel';
     const projectData = {
         _id: projectId,
         disabled: false,
@@ -116,37 +115,37 @@ if (Meteor.isServer) {
         {
             name: 'getActivity from oos',
             query: activityResolver.Query.getActivity,
-            args: { modelId, ooS: true },
+            args: { projectId, ooS: true },
             acceptedRoles: readers.nluData,
         },
         {
             name: 'getActivity from incoming',
             query: activityResolver.Query.getActivity,
-            args: { modelId },
+            args: { projectId },
             acceptedRoles: readers.incoming,
         },
         {
             name: 'upsert activity from oos',
             query: activityResolver.Mutation.upsertActivity,
-            args: { modelId, data: [], isOoS: true },
+            args: { projectId, data: [], isOoS: true },
             acceptedRoles: writers.nluData,
         },
         {
             name: 'upsert activity from incoming',
             query: activityResolver.Mutation.upsertActivity,
-            args: { modelId, data: [] },
+            args: { projectId, data: [] },
             acceptedRoles: writers.incoming,
         },
         {
             name: 'deleteActivity from oos',
             query: activityResolver.Mutation.deleteActivity,
-            args: { modelId, ids: [], isOoS: true },
+            args: { projectId, ids: [], isOoS: true },
             acceptedRoles: writers.nluData,
         },
         {
             name: 'deleteActivity from incoming',
             query: activityResolver.Mutation.deleteActivity,
-            args: { modelId, ids: [] },
+            args: { projectId, ids: [] },
             acceptedRoles: writers.incoming,
         },
         {

@@ -4,7 +4,7 @@ describe('story permissions', function() {
     before(() => {
         cy.removeDummyRoleAndUser();
         cy.createProject('bf', 'My Project', 'en');
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Get started');
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('slots-modal').click();
@@ -35,7 +35,7 @@ describe('story permissions', function() {
     });
 
     it('Editing buttons/icons should not exist', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Get started');
         cy.dataCy('story-title').should('exist'); // check that the page was properly loaded
         cy.dataCy('single-story-editor').first().trigger('mouseover');
@@ -50,13 +50,13 @@ describe('story permissions', function() {
     });
 
     it('should not be able to edit story title', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Get started');
         cy.dataCy('story-title').should('be.disabled');
     });
 
     it('should not be able to edit branch name', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Get started');
         cy.dataCy('story-title').should('exist'); // check that the page was properly loaded
         cy.dataCy('branch-label')
@@ -69,7 +69,7 @@ describe('story permissions', function() {
     });
 
     it('should not be able to edit slots', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Get started');
         cy.dataCy('story-title').should('exist'); // check that the page was properly loaded
         cy.dataCy('slots-modal').click();
@@ -81,7 +81,7 @@ describe('story permissions', function() {
     });
 
     it('should not be able to edit story markdown', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Get started');
         cy.dataCy('toggle-md').click();
         cy.dataCy('story-editor')
@@ -97,7 +97,7 @@ describe('story permissions', function() {
             .should('not.have.text', 'Test');
     });
     it('should not be able to edit nlu data from the modal', () => {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Greetings');
         cy.dataCy('utterance-text').click();
         cy.dataCy('close-nlu-modal').should('exist');

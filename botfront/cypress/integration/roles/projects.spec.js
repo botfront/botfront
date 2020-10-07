@@ -76,9 +76,9 @@ describe('projects:r can access but not edit settings', () => {
         cy.createDummyRoleAndUser({ permission: ['stories:r'], scope: 'bf' });
         cy.wait(2000);
         cy.login({ admin: false });
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         // check non authorized users cannot see the projects tab
-        cy.dataCy('stories-sidebar-link').should('exist');
+        cy.dataCy('dialogue-sidebar-link').should('exist');
         cy.dataCy('settings-sidebar-link').should('not.exist');
         cy.removeDummyRoleAndUser();
     });

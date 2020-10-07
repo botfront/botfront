@@ -12,7 +12,7 @@ describe('publish and unpublish stories', function() {
 
    
     it('should have all stories published by default when there only the dev environement', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.get('.toggle').should('not.exist');
         cy.dataCy('story-group-menu-item', 'Greetings').find('span').should('not.have.class', 'grey');
         cy.dataCy('story-group-menu-item', 'Farewells').find('span').should('not.have.class', 'grey');
@@ -25,7 +25,7 @@ describe('publish and unpublish stories', function() {
         cy.get('[data-cy=deployment-environments]')
             .children().contains('production').click();
         cy.get('[data-cy=save-changes]').click();
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.get('div:not(.hidden) > .toggle.on').should('have.length', 3);
         cy.dataCy('story-group-menu-item', 'Greetings').find('div:not(.hidden) > .toggle').click({ force: true });
         cy.dataCy('story-group-menu-item', 'Greetings').find('div:not(.hidden) > .toggle').should('have.class', 'off');
@@ -43,7 +43,7 @@ describe('publish and unpublish stories', function() {
         cy.get('[data-cy=deployment-environments]')
             .children().contains('production').click();
         cy.get('[data-cy=save-changes]').click();
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.get('div:not(.hidden) > .toggle.on').should('have.length', 3);
         cy.dataCy('story-group-menu-item', 'Greetings').find('div:not(.hidden) > .toggle').click({ force: true });
         cy.dataCy('story-group-menu-item', 'Greetings').find('div:not(.hidden) > .toggle').should('have.class', 'off');
@@ -53,7 +53,7 @@ describe('publish and unpublish stories', function() {
         cy.get('[data-cy=deployment-environments]')
             .children().contains('production').click();
         cy.get('[data-cy=save-changes]').click();
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.dataCy('story-group-menu-item', 'Greetings').find('span').should('not.have.class', 'grey');
     });
 });

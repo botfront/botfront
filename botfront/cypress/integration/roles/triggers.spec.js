@@ -15,7 +15,7 @@ describe('Permission on the trigger rules modal', function() {
     it('should not be abe able to edit triggers', function() {
         cy.createDummyRoleAndUser({ permission: ['triggers:r'] });
         cy.login({ admin: false });
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Get started');
         cy.dataCy('edit-trigger-rules').click();
         cy.get('div.modal div.grouped.fields').should('have.class', 'disabled');

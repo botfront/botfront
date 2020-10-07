@@ -11,7 +11,7 @@ describe('Smart story trigger rules', function() {
         cy.createProject('bf', 'My Project', 'en').then(() => cy.login());
     });
     it('should edit and save the trigger rules', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Get started');
         cy.get('.utterances-container').first().findCy('icon-trash').click({ force: true });
         cy.dataCy('edit-trigger-rules').click();
@@ -50,7 +50,7 @@ describe('Smart story trigger rules', function() {
     });
 
     it('should delete trigger rules with the delete button', () => {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Get started');
         cy.dataCy('edit-trigger-rules').click();
         // add trigger rules
@@ -75,7 +75,7 @@ describe('Smart story trigger rules', function() {
     });
     
     it('should clear disabled fields on close', function() {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Get started');
         cy.get('.utterances-container').first().findCy('icon-trash').click({ force: true });
         cy.dataCy('edit-trigger-rules').click();
@@ -106,7 +106,7 @@ describe('Smart story trigger rules', function() {
     });
 
     it('should not allow a destination story to have rules', () => {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Get started');
         cy.createStoryInGroup({ groupName: 'Default stories', storyName: 'like woah' });
         cy.linkStory('like woah', 'Get started');
@@ -118,7 +118,7 @@ describe('Smart story trigger rules', function() {
     });
 
     it('should not allow linking to a story with rules', () => {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         // add rules to the first story
         cy.browseToStory('Get started');
         cy.dataCy('edit-trigger-rules').click();
@@ -134,7 +134,7 @@ describe('Smart story trigger rules', function() {
         cy.browseToStory('Farewells');
         // try to link the new story to the first story
         cy.dataCy('stories-linker').last().click();
-        cy.dataCy('link-to').last().find('span').should('have.text', 'Greetings')
+        cy.dataCy('link-to').last().find('span').should('have.text', 'Greetings');
     });
 
     it('should trigger a story with the rules payload', () => {
@@ -157,7 +157,7 @@ describe('Smart story trigger rules', function() {
         ]);
         cy.logout();
         cy.login();
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Test Story');
         // add trigger rules to the story
         cy.dataCy('edit-trigger-rules').click();

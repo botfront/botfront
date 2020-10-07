@@ -49,7 +49,7 @@ describe('Story play button', function() {
         cy.dataCy('chat-pane').should('not.exist');
     });
     it('trigger a smart story with query string entities using the play button', () => {
-        cy.visit('/project/bf/stories');
+        cy.visit('/project/bf/dialogue');
         cy.browseToStory('Test Story', 'Test Group');
         cy.get('.story-line').should('have.length', 2);
         cy.get('.utterances-container').first().findCy('icon-trash').click({ force: true });

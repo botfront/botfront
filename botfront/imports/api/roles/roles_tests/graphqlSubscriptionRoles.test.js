@@ -95,7 +95,7 @@ if (Meteor.isServer) {
             checkResult(e);
         }
     };
-    describe.only('graphQL subscription roles', () => {
+    describe('graphQL subscription roles', () => {
         testCases.forEach((testCase) => {
             roles.forEach((role) => {
                 it(`subscribe to ${testCase.name} as ${role} with a global scope`, (done) => {

@@ -86,7 +86,7 @@ describe('use the main form editor interface to', () => {
     };
 
     it('should edit the form name, description, slots, and collect in botfront status', () => {
-        cy.visit('project/bf/stories');
+        cy.visit('project/bf/dialogue');
         cy.createFormInGroup({ groupName: 'Default stories' });
         cy.createFormInGroup({ groupName: 'Default stories' });
         cy.selectForm(newFormName);
@@ -108,10 +108,10 @@ describe('use the main form editor interface to', () => {
     });
 
     it('should change the response type via the dropdown', () => {
-        cy.visit('project/bf/stories');
+        cy.visit('project/bf/dialogue');
         cy.createCustomStoryGroup('bf', 'test_group_A', 'group A');
         cy.createForm('bf', 'test1_form', form);
-        cy.visit('project/bf/stories');
+        cy.visit('project/bf/dialogue');
         cy.get('.loader').should('not.exist');
         cy.selectForm(newFormName);
 
@@ -150,11 +150,11 @@ describe('use the main form editor interface to', () => {
         cy.selectForm(newFormName);
         cy.dataCy('slot-node-wrapper-slot1').find('[data-cy=bot-response-input]').find('textarea').should('have.text', 'categorical slot');
     });
-
+    // to fix
     // it('should change the response languages', () => {
-    //     cy.visit('project/bf/stories');
+    //     cy.visit('project/bf/dialogue');
     //     cy.createNLUModelProgramatically('bf', 'testModel', 'fr', 'multi lingual test model');
-    //     cy.visit('project/bf/stories');
+    //     cy.visit('project/bf/dialogue');
     //     cy.meteorAddSlot('catSlot', 'categorical');
     //     cy.createForm('bf', 'test1_form', {
     //         slots: [catSlot],
@@ -169,9 +169,9 @@ describe('use the main form editor interface to', () => {
     //     cy.dataCy('language-selector').find('span.text').contains('English').click();
     //     cy.get('[data-cy=bot-response-input] > div >textarea').should('have.value', 'test');
     // });
-    
+    // to fix
     // it('set all slot types', () => {
-    //     cy.visit('project/bf/stories');
+    //     cy.visit('project/bf/dialogue');
     //     cy.importNluData('bf', 'nlu_entity_sample.json', 'en');
     //     cy.meteorAddSlot('catSlot', 'categorical');
     //     cy.createForm('bf', 'test1_form', {
