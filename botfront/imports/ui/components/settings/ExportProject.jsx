@@ -17,7 +17,7 @@ const ExportProject = ({
     const [ExportSuccessful, setExportSuccessful] = useState(undefined);
     const [errorMessage, setErrorMessage] = useState({
         header: 'Export Failed',
-        text: 'There was an unexpected error in the api request.',
+        text: 'There was an unexpected error during the export.',
     });
 
 
@@ -37,7 +37,7 @@ const ExportProject = ({
         setLoading(true);
         Meteor.call('exportRasa', projectId, exportLanguage, (err, rasaDataZip) => {
             if (err) {
-                setErrorMessage({ header: 'Rasa Export Failed!', text: err.message });
+                setErrorMessage({ header: 'Export Failed!', text: err.message });
                 setExportSuccessful(false);
                 setLoading(false);
             } else {
@@ -84,9 +84,13 @@ const ExportProject = ({
             <>
                 <Message
                     info
-                    header='A few things to keep in mind when exporting for Rasa'
+                    header='A few things to keep in mind when exporting in order to use the project with Rasa'
                     content={(
                         <>
+                            <h5>Languages</h5>
+                            <p>
+                                 Rasa only supports one language, You will have to handpick the files for a dedicated language if you export for all languages.
+                            </p>
                             <h5>NLU pipeline</h5>
                             <p>
                                     Consider removing Botfront specific NLU components,
@@ -132,7 +136,7 @@ const ExportProject = ({
                 data-cy='export-button'
             >
                 <Icon name='download' />
-                    Export project for Rasa/Rasa X
+                    Export project for Rasa or Botfront
             </Button>
             
            

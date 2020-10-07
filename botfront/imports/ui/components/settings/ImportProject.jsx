@@ -21,14 +21,14 @@ const ImportProject = ({
     const importTypeOptions = [
         {
             key: 'botfront',
-            text: ' Import Botfront project',
+            text: ' Import Botfront project (Legacy)',
             value: 'botfront',
             successText: 'Your current project has been overwritten.',
             successHeader: 'Botfront import successful!',
         },
         {
             key: 'rasa',
-            text: 'Import Rasa/Rasa X project',
+            text: 'Import Botfront or Rasa project',
             value: 'rasa',
         },
     ];
