@@ -12,9 +12,10 @@ import { ZipFolder } from './ZipFolder';
 import { Projects } from '../project/project.collection';
 // import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { Instances } from '../instances/instances.collection';
-import { Conversations } from '../conversations';
+import Conversations from '../graphql/conversations/conversations.model';
+import Activity from '../graphql/activity/activity.model';
+
 // import { StoryGroups } from '../storyGroups/storyGroups.collection';
-import { Slots } from '../slots/slots.collection';
 
 
 if (Meteor.isServer) {
@@ -115,14 +116,11 @@ if (Meteor.isServer) {
             };
 
             
-            const instances = Instances.findOne({ projectId });
-            const conversations = Conversations.findOne({ projectId });
-            const slots = Slots.findOne({ projectId });
+            const instances = await Instances.findOne({ projectId });
+            const conversations = await Conversations.find({ projectId }).lean();
+            const incoming = await Activity.find({ projectId }).lean();
             
-            
-            const BotfrontData = {
-                project, instances, conversations, slots,
-            };
+            const BotfrontData = { project, instances };
             const bontfrontYaml = yaml.safeDump(BotfrontData);
 
 
@@ -158,7 +156,9 @@ if (Meteor.isServer) {
             }
             
             rasaZip.addFile(rasaExportData.domain, 'domain.yml');
-            rasaZip.addFile(bontfrontYaml, 'botfront.yml');
+            rasaZip.addFile(bontfrontYaml, 'botfront/botfront-config.yml');
+            rasaZip.addFile(JSON.stringify(conversations, null, 2), 'botfront/conversation.json');
+            rasaZip.addFile(JSON.stringify(incoming, null, 2), 'botfront/incoming.json');
 
 
             return rasaZip.generateBlob();
