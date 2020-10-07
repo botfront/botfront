@@ -321,6 +321,23 @@ const ImportRasaFiles = (props) => {
                 </>
             ),
         },
+        {
+            title: 'BotfrontFiles',
+            fileReader: storyFileReader,
+            ...dropStoryFilesIndicators,
+            drop: dropStoryFiles,
+            fileField: useRef(),
+            onImport: handleImportStoryGroups,
+            importingState: storiesImporting,
+            setImportingState: setStoriesImporting,
+            icon: 'copy',
+            tooltip: (
+                <p>
+                    Import stories, one story group per file. The contents of existing
+                    story groups is never overwritten.
+                </p>
+            ),
+        },
     ];
     const valid = (reader, filter = () => true) => reader[0].filter(f => !f.errors && filter(f));
 
