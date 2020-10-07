@@ -3,11 +3,19 @@ import axios from 'axios';
 
 import { check } from 'meteor/check';
 
+import yaml from 'js-yaml';
 import { Endpoints } from '../endpoints/endpoints.collection';
 import { Credentials } from '../credentials';
 
 import { generateErrorText } from './importExport.utils';
 import { ZipFolder } from './ZipFolder';
+import { Projects } from '../project/project.collection';
+// import { NLUModels } from '../nlu_model/nlu_model.collection';
+import { Instances } from '../instances/instances.collection';
+import { Conversations } from '../conversations';
+// import { StoryGroups } from '../storyGroups/storyGroups.collection';
+import { Slots } from '../slots/slots.collection';
+
 
 if (Meteor.isServer) {
     import {
@@ -62,7 +70,7 @@ if (Meteor.isServer) {
                 { ...passedLang, joinStoryFiles: false },
             );
 
-            const exportData = {
+            const rasaExportData = {
                 config:
                     language === 'all'
                         ? rasaData.config
@@ -78,9 +86,21 @@ if (Meteor.isServer) {
             };
 
 
+            const project = Projects.findOne({ _id: projectId });
+            const instances = Instances.findOne({ projectId });
+            const conversations = Conversations.findOne({ projectId });
+            const slots = Slots.findOne({ projectId });
+            
+            
+            const BotfrontData = {
+                project, instances, conversations, slots,
+            };
+            const bontfrontYaml = yaml.safeDump(BotfrontData);
+
+
             const rasaZip = new ZipFolder();
-            if (exportData.stories.length > 1) {
-                exportData.stories.forEach(s => rasaZip.addFile(
+            if (rasaExportData.stories.length > 1) {
+                rasaExportData.stories.forEach(s => rasaZip.addFile(
                     s,
                     `data/stories/${s
                         .split('\n')[0]
@@ -89,18 +109,22 @@ if (Meteor.isServer) {
                         .toLowerCase()}.md`,
                 ));
             } else {
-                rasaZip.addFile(exportData.stories, 'data/stories.md');
+                rasaZip.addFile(rasaExportData.stories, 'data/stories.md');
             }
-            if (passedLang === 'all') {
-                Object.keys(exportData.config).forEach(k => rasaZip.addFile(exportData.config[k], `config-${k}.yml`));
-                Object.keys(exportData.nlu).forEach(k => rasaZip.addFile(exportData.nlu[k].data, `data/nlu/${k}.md`));
+            if (language === 'all') {
+                // rasaZip.addFile(exportData.config, 'config.yml');
+                // rasaZip.addFile(exportData.nlu[language].data, 'data/nlu.md');
+                Object.keys(rasaExportData.config).forEach(k => rasaZip.addFile(rasaExportData.config[k], `config-${k}.yml`));
+                Object.keys(rasaExportData.nlu).forEach(k => rasaZip.addFile(rasaExportData.nlu[k].data, `data/nlu/${k}.md`));
             } else {
-                rasaZip.addFile(exportData.config[language], 'config.yml');
-                rasaZip.addFile(exportData.nlu[language].data, 'data/nlu.md');
+                rasaZip.addFile(rasaExportData.config[language], 'config.yml');
+                rasaZip.addFile(rasaExportData.nlu[language].data, 'data/nlu.md');
             }
-            rasaZip.addFile(exportData.endpoints, 'endpoints.yml');
-            rasaZip.addFile(exportData.credentials, 'credentials.yml');
-            rasaZip.addFile(exportData.domain, 'domain.yml');
+            rasaZip.addFile(rasaExportData.endpoints, 'endpoints.yml');
+            rasaZip.addFile(rasaExportData.credentials, 'credentials.yml');
+            rasaZip.addFile(rasaExportData.domain, 'domain.yml');
+            rasaZip.addFile(bontfrontYaml, 'botfront.yml');
+
 
             return rasaZip.generateBlob();
         },
