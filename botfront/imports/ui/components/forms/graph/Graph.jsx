@@ -292,7 +292,7 @@ const SlotsGraph = (props) => {
                 shiftKey,
                 settingEdge,
                 elements,
-                slotsUsed: elements.filter(elm => elm.type === 'slot').map(elm => elm.id),
+                slotsUsed: elements.filter(elm => (elm.type === 'slot' || elm.type === 'start')).map(elm => elm.id),
                 selectedNode,
                 slotChoiceModalOpen,
                 setSlotChoiceModalOpen,

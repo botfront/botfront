@@ -31,7 +31,7 @@ const SlotChoiceModal = (props) => {
 
     const nameIsValid = useMemo(() => {
         const formSlots = elements.reduce((acc, val) => {
-            if (val.type === 'slot') return [...acc, val.id];
+            if (val.type === 'slot' || val.type === 'start') return [...acc, val.id];
             return acc;
         }, []);
         const projectSlots = slots.map(({ name }) => name);
