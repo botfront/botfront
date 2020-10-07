@@ -107,6 +107,6 @@ export const loadDomain = ({
     });
 
     return {
-        rawText, warnings, slots, bfForms, responses,
+        dataType: 'domain', rawText, warnings, slots, bfForms, responses,
     };
 };

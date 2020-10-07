@@ -24,7 +24,7 @@ const handleImportResponse = (responses, projectId) => new Promise(resolve => ap
         resolve(true);
     }));
 
-export const handleImportStoryGroups = (files, {
+const handleImportStoryGroups = (files, {
     projectId, fileReader: [, setFileList], setImportingState, wipeCurrent, existingStoryGroups,
 }) => {
     if (!files.length) return;
@@ -73,7 +73,7 @@ const wipeDomain = async (projectId, existingSlots) => {
     return true;
 };
 
-export const handleImportDomain = (files, {
+const handleImportDomain = (files, {
     projectId, fileReader: [, setFileList], setImportingState, wipeCurrent, existingSlots, existingStoryGroups,
 }) => {
     if (!files.length) return;
@@ -109,7 +109,7 @@ export const handleImportDomain = (files, {
     } else insert();
 };
 
-export const handleImportDataset = (files, {
+const handleImportDataset = (files, {
     projectId, fileReader: [, setFileList], setImportingState, wipeCurrent,
 }) => {
     if (!files.length) return;
@@ -135,4 +135,10 @@ export const handleImportDataset = (files, {
             }),
         );
     });
+};
+
+export const handleImportAll = (files, params) => {
+    handleImportStoryGroups(files.filter(f => f.dataType === 'stories'), params);
+    handleImportDomain(files.filter(f => f.dataType === 'domain'), params);
+    handleImportDataset(files.filter(f => f.dataType === 'nlu'), params);
 };
