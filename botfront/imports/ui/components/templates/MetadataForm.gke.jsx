@@ -106,6 +106,8 @@ function ResponseMetadataForm({
         selector: String
         css: String
         tooltipPlacement: String
+        tooltipClose: String
+        tooltipCloseEnabled: Boolean
     }
 
     type CustomCss {
@@ -205,6 +207,10 @@ function ResponseMetadataForm({
                                 <LongTextField className='monospaced' name='domHighlight.css' label='Custom css' />
                             </DisplayIf>
                             <ButtonSelectField name='domHighlight.tooltipPlacement' />
+                            <ToggleField name='domHighlight.tooltipCloseEnabled' className='toggle' label='Send intent on tooltip close' />
+                            <DisplayIf condition={context => context.model.domHighlight && context.model.domHighlight.tooltipCloseEnabled}>
+                                <IntentField  name='domHighlight.tooltipClose' />
+                            </DisplayIf>
                         </>
                     </DisplayIf>
                 </div>
@@ -309,6 +315,14 @@ function ResponseMetadataForm({
         if (newModel.pageEventCallbacks && !newModel.pageEventCallbacks.enabled) delete newModel.pageEventCallbacks;
         // Remove enabled fields
         if (newModel.domHighlight && newModel.domHighlight.enabled) delete newModel.domHighlight.enabled;
+        
+        if (newModel.domHighlight && !newModel.domHighlight.tooltipCloseEnabled) {
+            delete newModel.domHighlight.tooltipClose
+        }
+        if (newModel.domHighlight) {
+            delete newModel.domHighlight.tooltipCloseEnabled
+        }
+        
         if (newModel.customCss && newModel.customCss.enabled) delete newModel.customCss.enabled;
         if (newModel.pageChangeCallbacks && newModel.pageChangeCallbacks.enabled) {
             delete newModel.pageChangeCallbacks.enabled;
@@ -392,6 +406,7 @@ function ResponseMetadataForm({
     const preprocessModel = (model) => {
         const newModel = cloneDeep(model);
         if (newModel.domHighlight && (newModel.domHighlight.selector)) newModel.domHighlight.enabled = true;
+        if (newModel.domHighlight && (newModel.domHighlight.tooltipClose)) newModel.domHighlight.tooltipCloseEnabled = true;
         if (newModel.pageChangeCallbacks && (newModel.pageChangeCallbacks.pageChanges.length > 0)) {
             newModel.pageChangeCallbacks.enabled = true;
             newModel.pageChangeCallbacks.errorIntent = removeSlashIfNeeded(newModel.pageChangeCallbacks.errorIntent);
