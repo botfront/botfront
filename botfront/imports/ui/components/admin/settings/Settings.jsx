@@ -101,6 +101,22 @@ class Settings extends React.Component {
         </Tab.Pane>
     );
 
+    renderDefaultPolicies = () => (
+        <Tab.Pane>
+            <Message
+                info
+                icon='question circle'
+                content='Default policies for new projects'
+            />
+            <AceField
+                name='settings.private.defaultPolicies'
+                label=''
+                convertYaml
+            />
+            {this.renderSubmitButton()}
+        </Tab.Pane>
+    );
+
     renderDefaultEndpoints = () => (
         <Tab.Pane>
             <Message
@@ -260,6 +276,7 @@ class Settings extends React.Component {
         const { settings } = this.props;
         const panes = [
             { name: 'default-nlu-pipeline', menuItem: 'Default NLU Pipeline', render: this.renderDefaultNLUPipeline },
+            { name: 'default-policies', menuItem: 'Default policies', render: this.renderDefaultPolicies },
             { name: 'default-credentials', menuItem: 'Default credentials', render: this.renderDefaultCredentials },
             { name: 'default-endpoints', menuItem: 'Default endpoints', render: this.renderDefaultEndpoints },
             {
