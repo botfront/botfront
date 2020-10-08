@@ -14,6 +14,9 @@ import {
 } from '../../../lib/importers/loadStories';
 import { loadDomain } from '../../../lib/importers/loadDomain';
 import { addNluFile, getLanguage } from '../../../lib/importers/loadNlu';
+import { addBotfrontConfig } from '../../../lib/importers/loadBotfrontConfig.js';
+import { addRasaConfig } from '../../../lib/importers/loadRasaConfig.js';
+
 
 const validateFiles = files => validateStories(files);
 
@@ -28,11 +31,35 @@ const addFileAccordingToHeuristic = (f, rawText, params) => {
     if (dataType === 'nlu') {
         return addNluFile({ f, rawText, ...params });
     }
+    if (dataType === 'conversation') {
+        return null;
+        // return addConversations({ f, rawText, ...params });
+    }
+    if (dataType === 'incoming') {
+        return null;
+        // return addIncoming({ f, rawText, ...params });
+    }
+    if (dataType === 'bfconfig') {
+        return addBotfrontConfig({ f, rawText, ...params });
+    }
+    if (dataType === 'rasaconfig') {
+        return addRasaConfig({ f, rawText, ...params });
+    }
+    if (dataType === 'endpoints') {
+        return null;
+        // return addIncoming({ f, rawText, ...params });
+    }
+    if (dataType === 'credentials') {
+        return null;
+        // return addIncoming({ f, rawText, ...params });
+    }
     return update(params.setFileList, f, { errors: ['unknown file format'] });
 };
 
+
 export const useFileReader = (params) => {
     const reducer = (fileList, instruction) => {
+        console.log(instruction);
         // eslint-disable-next-line no-use-before-define
         const setFileList = ins => fileReader[1](ins);
         const {
@@ -59,22 +86,29 @@ export const useFileReader = (params) => {
                     return { ...f, name };
                 });
             }
+            // eslint-disable-next-line consistent-return
             addInstruction.forEach((f) => {
-                const reader = new FileReader();
-                reader.readAsText(f);
-                reader.onload = () => {
-                    if (/\ufffd/.test(reader.result)) {
-                        // out of range char test
-                        return update(setFileList, f, {
-                            errors: ['file is not parseable text'],
+                if (f.name.match(/\.(yml|json|md)/)) {
+                    const reader = new FileReader();
+                    reader.readAsText(f);
+                    reader.onload = () => {
+                        if (/\ufffd/.test(reader.result)) {
+                            // out of range char test
+                            return update(setFileList, f, {
+                                errors: ['file is not parseable text'],
+                            });
+                        }
+                        return addFileAccordingToHeuristic(f, reader.result, {
+                            ...params,
+                            fileList,
+                            setFileList,
                         });
-                    }
-                    return addFileAccordingToHeuristic(f, reader.result, {
-                        ...params,
-                        fileList,
-                        setFileList,
+                    };
+                } else {
+                    return update(setFileList, f, {
+                        errors: ['file is neither .zip, .json or.yaml'],
                     });
-                };
+                }
             });
             return [...fileList, ...addInstruction.map(f => base(f))];
         }
