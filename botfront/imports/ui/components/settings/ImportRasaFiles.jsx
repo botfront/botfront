@@ -26,6 +26,9 @@ import { getDefaultDomainAndLanguage } from '../../../lib/story.utils';
 import { useFileReader } from './fileReaders';
 import { handleImportAll } from './fileImporters';
 import { ProjectContext } from '../../layouts/context';
+import {
+    unZipFile,
+} from '../../../lib/importers/common';
 
 const ImportRasaFiles = (props) => {
     const {
@@ -44,7 +47,17 @@ const ImportRasaFiles = (props) => {
                     cf => cf.lastModified === f.lastModified && cf.filename === f.name,
                 ),
         );
-        setFileList({ add: newValidFiles });
+        
+        const filesWithUnziped = await newValidFiles.reduce(async (newFiles, currFile) => {
+            if (currFile.name.match(/\.zip$/)) {
+                const filesFromZip = await unZipFile(currFile);
+                return [...newFiles, ...filesFromZip];
+            }
+            
+            return [...newFiles, currFile];
+        }, []);
+       
+        setFileList({ add: filesWithUnziped });
     };
 
     const useFileDrop = fileReader => useDrop({
