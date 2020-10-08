@@ -116,11 +116,11 @@ if (Meteor.isServer) {
             };
 
             
-            const instances = await Instances.findOne({ projectId });
+            const instance = await Instances.findOne({ projectId });
             const conversations = await Conversations.find({ projectId }).lean();
             const incoming = await Activity.find({ projectId }).lean();
             
-            const BotfrontData = { project, instances };
+            const BotfrontData = { project, instance };
             const bontfrontYaml = yaml.safeDump(BotfrontData);
 
 
