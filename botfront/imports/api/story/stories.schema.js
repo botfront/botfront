@@ -9,6 +9,7 @@ const topLevelFields = {
     'textIndex.contents': { type: String, optional: true },
     events: { type: Array, optional: true },
     'events.$': { type: String },
+    metadata: { type: Object, blackbox: true, optional: true },
 };
 
 const commonFields = {
