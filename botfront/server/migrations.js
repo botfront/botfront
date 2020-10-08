@@ -1,5 +1,6 @@
 import { sortBy, isEqual } from 'lodash';
 import { safeDump, safeLoad } from 'js-yaml';
+import { Log } from 'meteor/logging';
 import axios from 'axios';
 import shortid from 'shortid';
 import { GlobalSettings } from '../imports/api/globalSettings/globalSettings.collection';
@@ -472,9 +473,11 @@ Migrations.add({
             const storyUpdates = generateStoryUpdates(parsedStories);
             Object.keys(storyUpdates).forEach(_id => Stories.update({ _id }, storyUpdates[_id]));
         } catch (e) {
-            Migrations.migrateTo(11);
-            Migrations.lock();
-            throw new Error(e);
+            Migrations._collection._collection.update(
+                { _id: 'control' },
+                { $set: { version: 11, locked: true, lockedAt: new Date() } },
+            ); // this is not a downgrade, just an incomplete migration
+            Log.error({ message: `Migrations: Locking at version 11 because: ${e.message}.` });
         }
     },
 });
