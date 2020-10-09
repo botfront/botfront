@@ -16,6 +16,10 @@ import { loadDomain } from '../../../lib/importers/loadDomain';
 import { addNluFile, getLanguage } from '../../../lib/importers/loadNlu';
 import { addBotfrontConfig } from '../../../lib/importers/loadBotfrontConfig.js';
 import { addRasaConfig } from '../../../lib/importers/loadRasaConfig.js';
+import { addConversations } from '../../../lib/importers/loadConversations.js';
+import { addIncoming } from '../../../lib/importers/loadIncoming.js';
+import { addEndpoints } from '../../../lib/importers/loadEndpoints.js';
+import { addCredentials } from '../../../lib/importers/loadCredentials.js';
 
 
 const validateFiles = files => validateStories(files);
@@ -31,13 +35,11 @@ const addFileAccordingToHeuristic = (f, rawText, params) => {
     if (dataType === 'nlu') {
         return addNluFile({ f, rawText, ...params });
     }
-    if (dataType === 'conversation') {
-        return null;
-        // return addConversations({ f, rawText, ...params });
+    if (dataType === 'conversations') {
+        return addConversations({ f, rawText, ...params });
     }
     if (dataType === 'incoming') {
-        return null;
-        // return addIncoming({ f, rawText, ...params });
+        return addIncoming({ f, rawText, ...params });
     }
     if (dataType === 'bfconfig') {
         return addBotfrontConfig({ f, rawText, ...params });
@@ -46,12 +48,10 @@ const addFileAccordingToHeuristic = (f, rawText, params) => {
         return addRasaConfig({ f, rawText, ...params });
     }
     if (dataType === 'endpoints') {
-        return null;
-        // return addIncoming({ f, rawText, ...params });
+        return addEndpoints({ f, rawText, ...params });
     }
     if (dataType === 'credentials') {
-        return null;
-        // return addIncoming({ f, rawText, ...params });
+        return addCredentials({ f, rawText, ...params });
     }
     return update(params.setFileList, f, { errors: ['unknown file format'] });
 };
@@ -59,7 +59,6 @@ const addFileAccordingToHeuristic = (f, rawText, params) => {
 
 export const useFileReader = (params) => {
     const reducer = (fileList, instruction) => {
-        console.log(instruction);
         // eslint-disable-next-line no-use-before-define
         const setFileList = ins => fileReader[1](ins);
         const {

@@ -5,7 +5,12 @@ export const addBotfrontConfig = ({
     f, rawText, setFileList,
 }) => {
     const errors = [];
-    const bfConfig = yaml.safeLoad(rawText);
+    let bfConfig;
+    try {
+        bfConfig = yaml.safeLoad(rawText);
+    } catch (e) {
+        return update(setFileList, f, { dataType: 'bfconfig', errors: ['Not valid yaml'] });
+    }
     Object.keys(bfConfig).forEach((key) => {
         if (!['project', 'instance'].includes(key)) {
             errors.push(`${key} is not valid botfront data`);
