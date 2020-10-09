@@ -13,7 +13,6 @@ import { createResponses } from '../api/graphql/botResponses/mongo/botResponses'
 /* to do:
 extractDomain
 getStoriesAndDomain
-accumulateExceptions
 */
 
 const responseFixture = [

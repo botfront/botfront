@@ -17,16 +17,13 @@ const StoryTopMenu = ({
     title,
     collapsed,
     collapseStory,
-    warnings: warningDetails,
-    errors: errorDetails,
+    warnings,
+    errors,
     isDestinationStory,
     originStories,
     initPayload,
     collapseAllStories,
 }) => {
-    const errors = errorDetails.length;
-    const warnings = warningDetails.length;
-
     const [newTitle, setNewTitle] = useState(title);
     useEffect(() => setNewTitle(title), [title]);
 
@@ -169,8 +166,8 @@ StoryTopMenu.propTypes = {
     storyId: PropTypes.string.isRequired,
     collapsed: PropTypes.bool.isRequired,
     collapseStory: PropTypes.func.isRequired,
-    warnings: PropTypes.array.isRequired,
-    errors: PropTypes.array.isRequired,
+    warnings: PropTypes.number.isRequired,
+    errors: PropTypes.number.isRequired,
     isDestinationStory: PropTypes.bool,
     originStories: PropTypes.array,
     initPayload: PropTypes.string,

@@ -55,34 +55,6 @@ export const traverseStory = (story, path) => path
         },
     );
 
-export function getSubBranchesForPath(story, path) {
-    if (!path.length) {
-        throw new Error('path should be at least of length 1');
-    } else if (path.length === 1) {
-        return story.branches || [];
-    } else {
-        const deepPath = [...path].slice(1, path.length);
-        let deepStory = { ...story };
-        let branches = [...deepStory.branches];
-        try {
-            deepPath.forEach((id) => {
-                let found = false;
-                branches.forEach((branch) => {
-                    if (branch._id === id) {
-                        found = true;
-                        deepStory = { ...branch };
-                        branches = [...deepStory.branches];
-                    }
-                });
-                if (!found) throw new Error();
-            });
-            return branches;
-        } catch (e) {
-            throw new Error('the story did not match the given path');
-        }
-    }
-}
-
 export const appendBranchCheckpoints = (nLevelStory, remainder = '') => ({
     /*  this adds trailing and leading checkpoints to a story with a branch structure of arbitrary shape.
         {Parent body} turns into {Parent body\n> Parent title__branches} and {Child body} turns into
@@ -394,59 +366,6 @@ export const getStoriesAndDomain = async (projectId, language) => {
         domain,
         wasPartial: selectedStoryGroups.length !== 0,
     };
-};
-
-export const accumulateExceptions = (
-    story,
-    slots,
-    storyControllers,
-    setStoryControllers,
-    saveStoryMethod,
-    setLastMdTypeMethod,
-) => {
-    const exceptions = {};
-    const newStoryControllers = {};
-
-    const traverseBranch = (currentStory, currentPath, isABranch = false) => {
-        const currentPathAsString = currentPath.join();
-        let currentController = null;
-        if (!storyControllers[currentPathAsString]) {
-            newStoryControllers[currentPathAsString] = new StoryController({
-                story: currentStory.story || '',
-                slots,
-                onUpdate: content => saveStoryMethod(currentPath, { story: content }),
-                onMdType: setLastMdTypeMethod,
-                isABranch,
-            });
-            currentController = newStoryControllers[currentPathAsString];
-        } else {
-            currentController = storyControllers[currentPathAsString];
-        }
-        const currentErrors = currentController.getErrors();
-        const currrentWarnings = currentController.getWarnings();
-        let errors = [...currentErrors];
-        let warnings = [...currrentWarnings];
-        if (currentStory.branches) {
-            currentStory.branches.forEach((branchStory) => {
-                const childBranch = traverseBranch(
-                    branchStory,
-                    [...currentPath, branchStory._id],
-                    true,
-                );
-                errors = [...errors, ...childBranch.errors];
-                warnings = [...warnings, ...childBranch.warnings];
-            });
-        }
-        exceptions[currentPathAsString] = { errors, warnings };
-        return { errors, warnings };
-    };
-
-    traverseBranch(story, [story._id], false);
-    setStoryControllers({
-        ...storyControllers,
-        ...newStoryControllers,
-    });
-    return exceptions;
 };
 
 export const getStoryEvents = (md) => {

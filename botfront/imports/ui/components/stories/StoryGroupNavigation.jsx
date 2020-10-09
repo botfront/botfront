@@ -115,7 +115,7 @@ class StoryGroupNavigation extends React.Component {
                         >
                             <Icon name={storyMode === 'visual' ? 'code' : 'commenting'} />
                         </Button>,
-                        storyMode === 'visual' ? 'Switch to Markdown edit mode' : 'Switch to visual edit mode',
+                        storyMode === 'visual' ? 'Switch to YAML edit mode' : 'Switch to visual edit mode',
                     )}
                 </Button.Group>
             </div>
