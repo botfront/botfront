@@ -27,24 +27,29 @@ export const deleteAtIndex = (fileList, index) => [
 
 export const determineDataType = (f, rawText) => {
     const { dataType, name } = f;
-    if (dataType) return dataType;
-    if (name === 'botfront-config.yml') return 'bfconfig';
-    if ((/^config-[a-z]{2}.yml$/.test(name))) return 'rasaconfig';
-    if ((/^endpoints(\.[a-z]+)?.yml$/.test(name))) return 'endpoints';
-    if ((/^credentials(\.[a-z]+)?.yml$/.test(name))) return 'credentials';
-    if (name === 'domain.yml') return 'domain';
-    if (name.match(/\.md$/) && rawText.match(/## (?:intent|synonym|gazette|regex):/)) { return 'nlu'; } // need to be checked
-    if (name.match(/\.md$/)) return 'stories'; // need to be checked
-    if (name.match(/\.json$/)) {
-        const data = JSON.parse(rawText);
-        if ('rasa_nlu_data' in data) return 'nlu'; // need to be checked
-        if (Array.isArray(data) && data.length > 0) {
-            // might need improving at some point
-            if (data[0].tracker) return 'conversation';
-            if (data[0].text) return 'incoming';
+    try {
+        if (dataType) return dataType;
+        if (name === 'botfront-config.yml') return 'bfconfig';
+        if ((/^config-[a-z]{2}.yml$/.test(name))) return 'rasaconfig';
+        if ((/^endpoints(\.[a-z]+)?.yml$/.test(name))) return 'endpoints';
+        if ((/^credentials(\.[a-z]+)?.yml$/.test(name))) return 'credentials';
+        if (name === 'domain.yml') return 'domain';
+        if (name.match(/\.md$/) && rawText.match(/## (?:intent|synonym|gazette|regex):/)) { return 'nlu'; } // need to be checked
+        if (name.match(/\.md$/)) return 'stories'; // need to be checked
+        if (name.match(/\.json$/)) {
+            const data = JSON.parse(rawText);
+            if ('rasa_nlu_data' in data) return 'nlu'; // need to be checked
+            if (Array.isArray(data) && data.length > 0) {
+                // might need improving at some point
+                if (data[0].tracker) return 'conversations';
+                if (data[0].text) return 'incoming';
+            }
         }
+        return 'unknown';
+    } catch (e) {
+        console.log(e);
+        return 'unknown';
     }
-    return 'unknown';
 };
 
 
