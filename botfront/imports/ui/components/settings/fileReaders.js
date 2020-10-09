@@ -14,12 +14,9 @@ import {
 } from '../../../lib/importers/loadStories';
 import { loadDomain } from '../../../lib/importers/loadDomain';
 import { addNluFile, getLanguage } from '../../../lib/importers/loadNlu';
-import { addBotfrontConfig } from '../../../lib/importers/loadBotfrontConfig.js';
-import { addRasaConfig } from '../../../lib/importers/loadRasaConfig.js';
-import { addConversations } from '../../../lib/importers/loadConversations.js';
-import { addIncoming } from '../../../lib/importers/loadIncoming.js';
-import { addEndpoints } from '../../../lib/importers/loadEndpoints.js';
-import { addCredentials } from '../../../lib/importers/loadCredentials.js';
+import {
+    addBotfrontConfig, addRasaConfig, addConversations, addIncoming, addEndpoints, addCredentials,
+} from '../../../lib/importers/loadMisc.js';
 
 
 const validateFiles = files => validateStories(files);
