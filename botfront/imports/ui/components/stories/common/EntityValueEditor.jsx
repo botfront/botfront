@@ -8,6 +8,7 @@ function EntityValueEditor({
     onChange,
     disallowAdvancedEditing,
     disallowValueEditing,
+    disabled,
 }) {
     const exists = field => field in entity && entity[field] !== null;
     const capitalize = key => key.charAt(0).toUpperCase() + key.slice(1);
@@ -15,6 +16,7 @@ function EntityValueEditor({
     const renderField = key => (
         <div className='side-by-side middle entity-value-input-container'>
             <Input
+                disabled={disabled}
                 data-cy={`entity-${key}-input`}
                 value={entity[key]}
                 onChange={(_, { value }) => onChange(
@@ -28,7 +30,7 @@ function EntityValueEditor({
                 <Label>{capitalize(key)}</Label>
                 <input />
             </Input>
-            {(key !== 'value' || exists('text')) && (
+            {(key !== 'value' || exists('text')) && !disabled && (
                 <div>
                     <IconButton
                         color='grey'
@@ -48,6 +50,7 @@ function EntityValueEditor({
             onClick={() => onChange({ ...entity, [key]: '' })}
             content={capitalize(key)}
             icon='add'
+            disabled={disabled}
         />
     );
 
@@ -82,11 +85,14 @@ EntityValueEditor.propTypes = {
     onChange: PropTypes.func.isRequired,
     disallowAdvancedEditing: PropTypes.bool,
     disallowValueEditing: PropTypes.bool,
+    disabled: PropTypes.bool,
 };
 
 EntityValueEditor.defaultProps = {
     disallowAdvancedEditing: false,
     disallowValueEditing: false,
+    disabled: false,
 };
+
 
 export default EntityValueEditor;

@@ -90,7 +90,8 @@ function Activity(props) {
     const singleSelectedIntentLabelRef = useRef();
     const activityCommandBarRef = useRef();
     const tableRef = useRef();
-
+    const canEdit = useMemo(() => can('incoming:w', projectId), [projectId]);
+    
     // always refetch on first page load and sortType change
     useEffect(() => {
         if (refetch) refetch();
@@ -265,7 +266,7 @@ function Activity(props) {
                     <IntentLabel
                         disabled={isUtteranceOutdated(datum)}
                         value={datum.intent ? datum.intent : ''}
-                        allowEditing={can('incoming:w', projectId) && !isUtteranceOutdated(datum)}
+                        allowEditing={canEdit && !isUtteranceOutdated(datum)}
                         allowAdditions
                         onChange={intent => handleSetIntent([{ _id: datum._id }], intent)}
                         enableReset
@@ -284,7 +285,7 @@ function Activity(props) {
                 onChange={({ _id, entities: ents }) => handleUpdate([{ _id, entities: ents }])}
                 projectId={projectId}
                 disabled={isUtteranceOutdated(datum)}
-                disableEditing={isUtteranceOutdated(datum)}
+                disableEditing={isUtteranceOutdated(datum) || !canEdit}
                 showIntent={false}
             />
         );

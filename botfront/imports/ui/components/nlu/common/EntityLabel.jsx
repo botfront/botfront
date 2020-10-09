@@ -27,7 +27,6 @@ function Entity({
     const [newValue, setNewValue] = useState(value);
     const [toBeDeleted, setToBeDeleted] = useState(false);
     const [createdAt] = useState(new Event('click').timeStamp);
-
     useEffect(() => {
         if (openInitially) setPopupOpen(true);
     }, []);
@@ -47,7 +46,7 @@ function Entity({
     };
 
     const handleClose = () => {
-        if (!toBeDeleted) commitChanges();
+        if (!toBeDeleted && allowEditing) commitChanges();
         setShowDeleteConfirmation(false);
         if (onClose) onClose();
     };
@@ -61,7 +60,7 @@ function Entity({
     const renderAdvancedEditing = () => (
         <>
             {!disallowAdvancedEditing && newValue.entity && (
-                <EntityValueEditor entity={newValue} onChange={handleChange} />
+                <EntityValueEditor entity={newValue} onChange={handleChange} disabled={!allowEditing} />
             )}
         </>
     );
@@ -83,6 +82,7 @@ function Entity({
                             ? () => setShowDeleteConfirmation(true)
                             : null
                     }
+                    disabled={!allowEditing}
                 />
             </Grid.Row>
             <Grid.Row centered>
@@ -118,7 +118,7 @@ function Entity({
     };
     return (
         <>
-            {popupOpen && allowEditing && (
+            {popupOpen && (
                 <Popup
                     open
                     basic
@@ -180,5 +180,6 @@ Entity.defaultProps = {
     openInitially: false,
     disallowAdvancedEditing: false,
 };
+
 
 export default Entity;

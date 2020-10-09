@@ -101,6 +101,7 @@ function OutOfScope() {
             editable
             projectId={projectId}
             showIntent={false}
+            disableEditing={!can('nlu-data:w', projectId)}
         />
     );
 
