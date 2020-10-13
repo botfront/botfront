@@ -112,7 +112,7 @@ if (Meteor.isServer) {
         {
             name: 'exportProject',
             roles: readers.projects,
-            args: [null, projectId, null],
+            args: [projectId, null],
         },
         {
             name: 'exportRasa',
@@ -122,7 +122,7 @@ if (Meteor.isServer) {
         {
             name: 'importProject',
             roles: writers.projects,
-            args: [null, null, projectId],
+            args: [null, projectId],
         },
         {
             name: 'instance.update',

@@ -4,6 +4,7 @@ import axios from 'axios';
 import { check } from 'meteor/check';
 
 import { Endpoints } from '../endpoints/endpoints.collection';
+import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { Credentials } from '../credentials';
 
 import { generateErrorText } from './importExport.utils';
@@ -19,11 +20,14 @@ if (Meteor.isServer) {
     const exportAppLogger = getAppLoggerForFile(__filename);
 
     Meteor.methods({
-        exportProject(apiHost, projectId, options) {
+        exportProject(projectId, options) {
             checkIfCan('projects:r', projectId);
-            check(apiHost, String);
             check(projectId, String);
             check(options, Object);
+
+            const apiHost = GlobalSettings
+                .findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.bfApiHost': 1 } })
+                .settings.private.bfApiHost;
 
             const appMethodLogger = getAppLoggerForMethod(
                 exportAppLogger,
