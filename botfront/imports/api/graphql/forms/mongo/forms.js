@@ -148,8 +148,10 @@ export const upsertForm = async (data, user) => {
                 utter_on_new_valid_slot: elm.data.utter_on_new_valid_slot,
             }));
         update.slots = chartSlots;
+        // We only want to do that if we have graph elements already, if we don't
+        // it means it's a form creation or a renaming
+        await deleteUnusedSlots(_id, projectId, chartSlots, user);
     }
-    await deleteUnusedSlots(_id, projectId, chartSlots, user);
 
     const nonDuplicateName = update.name && (await checkNewAndDuplicateName(_id, update.name))
         ? await getSafeFormName(projectId, update.name)
