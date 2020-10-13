@@ -41,15 +41,21 @@ const CrashReportButton = (props) => {
         error, pathname: path, setReported, reported,
     } = props;
 
+    /*  https://reactjs.org/blog/2020/08/10/react-v17-rc.html#native-component-stacks
+        Until React 17, componentStack will be unhelpful in production. Best we can do
+        is make sure top JS error location is dumped, as that one can be decoded using
+        source map. This error location is first line of stack in dev, but second line
+        is production, so we include first two lines.
+    */
     const generateReport = (text = true) => {
         const [err, info] = error;
-        const method = err.stack.split('\n')[0].replace(/@.*/, '').replace(/.*\//, '');
+        const firstTwoLinesOfStack = err.stack.split('\n').slice(0, 2).join('\n    in ');
         if (text) {
             return (
                 `Version: ${version}\n`
                 + `${path ? `Path: ${path}\n` : ''}`
-                + `Trace: ${err.toString()}\n`
-                + `    in ${method}`
+                + 'Info:\n'
+                + `${err.toString()}\n    in ${firstTwoLinesOfStack}`
                 + `${info.componentStack || ''}`
             );
         }
@@ -58,7 +64,7 @@ const CrashReportButton = (props) => {
             path,
             error: err.toString().replace(/\n/g, ' '),
             trace:
-                (`${method}${info.componentStack || ''}`)
+                (`${firstTwoLinesOfStack}${info.componentStack || ''}`)
                     .replace(/\n\s{3,4}in\s/g, ' >> ')
                     .split(' >> '),
         };
