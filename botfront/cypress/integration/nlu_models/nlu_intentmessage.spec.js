@@ -2,12 +2,8 @@
 /* global cy:true */
 
 describe('NLU Intent warning message displays', function() {
-    before(function() {
-        cy.createProject('bf', 'My Project', 'en');
-    });
-
     beforeEach(function() {
-        cy.visit('/login');
+        cy.createProject('bf', 'My Project', 'en');
         cy.login();
     });
 
