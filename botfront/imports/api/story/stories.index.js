@@ -1,5 +1,34 @@
 import { Stories } from './stories.collection';
-import { getStoryContent } from '../../lib/storyMd.utils';
+
+const RESERVED_KEYS = [
+    '_id',
+    'branches',
+    'steps',
+    'condition',
+    'title',
+    'intent',
+    'entities',
+    'user',
+    'action',
+    'slot_was_set',
+    'or',
+    'active_loop',
+];
+
+const scrapeStory = (el) => {
+    if (Array.isArray(el)) return el.flatMap(scrapeStory);
+    if (el && typeof el === 'object') {
+        return Object.keys(el).flatMap(k => [
+            ...(!RESERVED_KEYS.includes(k) ? [{ type: 'other', value: k }] : []),
+            ...(typeof el[k] === 'string'
+                ? k === 'action'
+                    ? [{ type: 'action', value: el[k] }]
+                    : [{ type: 'other', value: el[k] }]
+                : scrapeStory(el[k])),
+        ]);
+    }
+    return [];
+};
 
 export const indexStory = (storyToIndex, options = {}) => {
     /* options is an object with optional properties:
@@ -7,34 +36,23 @@ export const indexStory = (storyToIndex, options = {}) => {
         update: Object (optional), is combined with the
                 story or branch object using {...story/branch, ...update}
                 when update._id equals branch._id or story._id
-
-        includeEventsField: Bool (optional) adds a list of all
-                bot responses and actions to the object returned by
-                this function.
-                used to update the Story collection "events" field
     */
-    const { includeEventsField, update = {} } = options;
-    const story = typeof storyToIndex === 'string'
+    const { update = {} } = options;
+    const storyPreupdate = typeof storyToIndex === 'string'
         ? Stories.findOne({ _id: storyToIndex })
         : storyToIndex;
+    const story = storyPreupdate._id === update._id
+        ? { ...storyPreupdate, ...update }
+        : storyPreupdate;
     const {
-        userUtterances = [], botResponses = [], actions = [], slots = [],
-    } = getStoryContent(story, options);
-    const storyContentIndex = [
-        ...userUtterances.map(({ name, entities }) => {
-            const utteranceIndex = [name];
-            entities.forEach(entity => utteranceIndex.push(entity));
-            return utteranceIndex.join(' ');
-        }),
-        ...botResponses,
-        ...actions,
-        ...slots,
-    ].join(' \n ');
+        title, steps, condition, branches,
+    } = story;
+    const els = scrapeStory([title, condition, steps, branches]);
     const result = {};
-    result.textIndex = { contents: storyContentIndex, info: update.title || story.title };
-    if (includeEventsField) {
-        const events = Array.from(new Set([...botResponses, ...actions]));
-        result.events = events;
-    }
+    result.textIndex = els.map(el => el.value).join(' ');
+    const events = Array.from(
+        new Set(els.filter(el => el.type === 'action').map(el => el.value)),
+    );
+    result.events = events;
     return result;
 };

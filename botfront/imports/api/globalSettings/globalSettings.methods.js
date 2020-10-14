@@ -32,8 +32,8 @@ if (Meteor.isServer) {
                 });
             const allStories = Stories.find().fetch();
             allStories.forEach((story) => {
-                const { textIndex } = indexStory(story);
-                Stories.update({ _id: story._id }, { $set: { textIndex } });
+                const { textIndex, events } = indexStory(story);
+                Stories.update({ _id: story._id }, { $set: { type: story.type, textIndex, events } });
             });
         },
         'settings.getMigrationStatus'() {

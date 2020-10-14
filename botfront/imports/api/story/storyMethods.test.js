@@ -39,7 +39,7 @@ export const storyFixtureA = {
                 { intent: 'mood', entities: [{ positive: 'good' }] },
                 { action: 'utter_hwZIDQ5P' },
                 { action: 'utter_0H5XEC9h' },
-                { slot_was_set: 'mood', value: 'set' },
+                { slot_was_set: [{ mood: 'set' }] },
             ],
         },
     ],

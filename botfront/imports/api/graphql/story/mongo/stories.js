@@ -30,7 +30,7 @@ export const searchStories = async (projectId, language, search) => {
     const fullSearch = combineSearches(escapedSearch, responseKeys, intents);
     const storiesFilter = {
         projectId,
-        $or: [{ 'textIndex.info': { $regex: escapedSearch, $options: 'i' } }, { 'textIndex.contents': { $regex: fullSearch, $options: 'i' } }],
+        textIndex: { $regex: fullSearch, $options: 'i' },
     };
     const matched = Stories.find(
         storiesFilter,
@@ -64,7 +64,7 @@ export const replaceStoryLines = (projectId, lineToReplace, newLine) => {
     const matchingStories = Stories.find(
         {
             projectId,
-            $or: [{ 'textIndex.contents': { $regex: escape(lineToReplace) } }],
+            textIndex: { $regex: escape(lineToReplace) },
 
         },
         { fields: { _id: 1 } },
@@ -72,6 +72,6 @@ export const replaceStoryLines = (projectId, lineToReplace, newLine) => {
     return Promise.all(matchingStories.map(({ _id }) => {
         const story = Stories.findOne({ _id });
         const { _id: excludeId, ...rest } = traverseReplaceLine(story, lineToReplace, newLine);
-        return Stories.update({ _id }, { $set: { ...rest, ...indexStory(rest, { includeEventsField: true }) } });
+        return Stories.update({ _id }, { $set: { ...rest, ...indexStory(rest) } });
     }));
 };

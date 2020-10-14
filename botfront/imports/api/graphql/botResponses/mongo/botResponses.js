@@ -5,9 +5,21 @@ import BotResponses from '../botResponses.model';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { Stories } from '../../../story/stories.collection';
 import { addTemplateLanguage, modifyResponseType } from '../../../../lib/botResponse.utils';
-import { parsePayload } from '../../../../lib/storyMd.utils';
 import { replaceStoryLines } from '../../story/mongo/stories';
 
+const getEntities = (storyLine) => {
+    const entitiesString = storyLine.split('{')[1];
+    if (!entitiesString) return [];
+    const entities = entitiesString.slice(0, entitiesString.length - 1).split(',');
+    return entities.map(entity => entity.split(':')[0].replace(/"/g, ''));
+};
+
+const parsePayload = (payload) => {
+    if (payload[0] !== '/') throw new Error('a payload must start with a "/"');
+    const intent = payload.slice(1).split('{')[0];
+    const entities = getEntities(payload.slice(1));
+    return { intent, entities };
+};
 
 const indexResponseContent = (input) => {
     if (Array.isArray(input)) return input.reduce((acc, curr) => [...acc, ...indexResponseContent(curr)], []);

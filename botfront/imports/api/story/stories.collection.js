@@ -22,7 +22,12 @@ Stories.deny({
 
 Meteor.startup(() => {
     if (Meteor.isServer) {
-        Stories._ensureIndex({ 'textIndex.contents': 'text', 'textIndex.info': 'text' });
+        try {
+            Stories._dropIndex('textIndex.contents_text_textIndex.info_text');
+        } catch {
+            // don't delete it if it doesn't exist
+        }
+        Stories._ensureIndex({ textIndex: 'text' });
     }
 });
 

@@ -472,6 +472,12 @@ Migrations.add({
             const { stories: parsedStories } = safeLoad(data);
             const storyUpdates = generateStoryUpdates(parsedStories);
             Object.keys(storyUpdates).forEach(_id => Stories.update({ _id }, storyUpdates[_id]));
+            // rebuild indices
+            const allStories = Stories.find().fetch();
+            allStories.forEach((story) => {
+                const { textIndex, events } = indexStory(story);
+                Stories.update({ _id: story._id }, { $set: { type: story.type, textIndex, events } });
+            });
         } catch (e) {
             Migrations._collection._collection.update(
                 { _id: 'control' },

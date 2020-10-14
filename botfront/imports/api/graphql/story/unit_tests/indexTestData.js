@@ -9,7 +9,7 @@ export const storyFixture = {
     steps: [
         { intent: 'get_started' },
         { action: 'utter_get_started' },
-        { slot_was_set: 'test_slot', value: true },
+        { slot_was_set: [{ test_slot: true }] },
         { action: 'action_testAction' },
         { intent: 'get_started', entities: [{ timeOfDay: 'morning' }] },
         { action: 'utter_TEST' },
