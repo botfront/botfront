@@ -44,11 +44,11 @@ const SearchBar = (props) => {
             },
         });
         setSearching(false);
-        const { storiesSearch: { stories = [] } = {} } = data;
+        const { dialogueSearch: { dialogueFragments = [] } = {} } = data;
         setResults({
-            ...data.storiesSearch,
+            ...data?.dialogueSearch,
             // fixes a warning in the dev console
-            stories: stories.map(({
+            dialogueFragments: dialogueFragments.map(({
                 _id, storyGroupId, __typename, title,
             }) => (
                 {

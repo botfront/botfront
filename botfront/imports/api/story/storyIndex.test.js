@@ -15,10 +15,10 @@ const update = {
 // ------ test suite -------
 describe('story indexing and events tests', () => {
     it('should index the story and get a list of events', () => {
-        const result = indexStory(storyFixtureA, { includeEventsField: true });
+        const result = indexStory(storyFixtureA);
         expect(result).to.be.deep.equal({
             textIndex: {
-                contents: 'hello \n helpOptions \n how_are_you \n mood positive \n utter_hello \n utter_tXd-Pm66 \n utter_Xywmv8uc \n utter_hwZIDQ5P \n utter_0H5XEC9h \n action_help \n mood',
+                contents: 'hello helpOptions how_are_you mood positive utter_hello utter_tXd-Pm66 utter_Xywmv8uc utter_hwZIDQ5P utter_0H5XEC9h action_help mood',
                 info: 'Welcome Story',
             },
             events: [
@@ -33,12 +33,11 @@ describe('story indexing and events tests', () => {
     });
     it('should index the story and get a list of events', () => {
         const result = indexStory(storyFixtureA, {
-            includeEventsField: true,
             update,
         });
         expect(result).to.be.deep.equal({
             textIndex: {
-                contents: 'hello \n helpOptions \n how_are_you \n mood positive \n utter_new_response \n utter_tXd-Pm66 \n utter_Xywmv8uc \n utter_hwZIDQ5P \n utter_0H5XEC9h \n action_help \n mood',
+                contents: 'hello helpOptions how_are_you mood positive utter_new_response utter_tXd-Pm66 utter_Xywmv8uc utter_hwZIDQ5P utter_0H5XEC9h action_help mood',
                 info: 'Welcome Story',
             },
             events: [
