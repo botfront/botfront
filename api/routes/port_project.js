@@ -193,10 +193,17 @@ const nativizeProject = function (projectId, projectName, backup) {
         const {
             forms: updatedForms,
             formMigrationGroup, // also indicates if a migration occured
-        } =  migrateForms(originalForms, nativizedBackup.storyGroups);
+        } =  migrateForms(originalForms, nativizedBackup.storyGroups, formMapping, storyGroupMapping);
+        nativizedBackup.forms = updatedForms;
+        
         if (formMigrationGroup) {
-            nativizedBackup.forms = updatedForms;
             nativizedBackup.storyGroups = [...nativizedBackup.storyGroups, formMigrationGroup];
+        } else {
+            originalForms.map((form) => ({
+                ...form,
+                _id: formMapping[form._id],
+                groupId: storyGroupMapping[form.groupId],
+            }))
         }
         // At the top level of the story object, create an array of events in a story and its branches
         nativizedBackup.stories = nativizedBackup.stories.map(aggregateEvents);
@@ -225,7 +232,6 @@ const nativizeProject = function (projectId, projectName, backup) {
                 .sort((a, b) => b.introStory - a.introStory)
                 .map(({ _id }) => _id)
         }
-
         nativizedBackup.project = {
             ...project,
             storyGroups: storyGroupOrder,

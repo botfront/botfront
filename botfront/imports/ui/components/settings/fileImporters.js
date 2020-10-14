@@ -21,10 +21,26 @@ const handleImportForms = async (bfForms = [], projectId, existingStoryGroups = 
                 : groupName;
             groupId = uuidv4();
             newGroupMapping[groupName] = groupId;
-            await Meteor.callWithPromise(
-                'storyGroups.insert',
-                { _id: groupId, name: newGroupName, projectId },
-            );
+            try {
+                await Meteor.callWithPromise(
+                    'storyGroups.insert',
+                    { _id: groupId, name: newGroupName, projectId },
+                );
+            } catch (err) {
+                // if a story group with the same name is imported it can
+                // cause a crash. this prevents that crash.
+                await Meteor.callWithPromise(
+                    'storyGroups.insert',
+                    {
+                        _id: groupId,
+                        name: `${groupName} (${new Date()
+                            .toISOString()
+                            .replace('T', ' ')
+                            .replace('Z', '')})`,
+                        projectId,
+                    },
+                );
+            }
         }
         const graphElements = getGraphElementsFromDomain(form.graph_elements, form.slots);
         return apolloClient

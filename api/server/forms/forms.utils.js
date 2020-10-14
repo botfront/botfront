@@ -49,14 +49,21 @@ const getSafeName = (groups)=> {
     return safeName
 }
 
-exports.migrateForms = (oldForms, storyGroups) => {
+exports.migrateForms = (oldForms, storyGroups, formMapping) => {
     let formMigrationGroup;
 
     const forms = oldForms.map((oldForm) => {
-        const form = { ...oldForm, _id: uuidv4() }
+        const form = { ...oldForm }
         let { groupId } = form;
-        // if the form has graph_elements it was migrated previously
-        if (form.graph_elements && form.graph_elements.length > 0) return form;
+        const newId = formMapping[form._id];
+        // if the form has graph_elements and a groupId it was migrated previously
+        if(form.graph_elements && form.graph_elements.length > 0 && groupId) {
+            return {
+                ...form,
+                _id: newId,
+                groupId: formMapping[oldForm.groupId],
+            }
+        }
         // eslint-disable-next-line camelcase
         form.graph_elements =  createGraphElements(form.slots)
         // add the form to a group
@@ -71,7 +78,7 @@ exports.migrateForms = (oldForms, storyGroups) => {
             };
         }
         groupId = formMigrationGroup._id;
-        formMigrationGroup.children.push(form._id);
+        formMigrationGroup.children.push(newId);
         form.groupId = groupId;
         return form
     });
