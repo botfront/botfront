@@ -137,8 +137,188 @@ const handleImportDataset = (files, {
     });
 };
 
+
+const handleImportEndpoints = (files, {
+    projectId, fileReader: [, setFileList], setImportingState, wipeCurrent,
+}) => {
+    if (files.length !== 1) return;
+    setImportingState(true);
+    files.forEach((f, idx) => {
+        Meteor.call(
+            'endpoints.save',
+            f.rasa_nlu_data,
+            projectId,
+            f.language,
+            wipeCurrent,
+            f.canonical,
+            wrapMeteorCallback((err) => {
+                if (!err) {
+                    setFileList({
+                        delete: {
+                            filename: f.filename,
+                            lastModified: f.lastModified,
+                        },
+                    });
+                }
+                if (err || idx === files.length - 1) setImportingState(false);
+            }),
+        );
+    });
+};
+
+
+const handleImportCredentials = (files, {
+    projectId, fileReader: [, setFileList], setImportingState, wipeCurrent,
+}) => {
+    if (!files.length) return;
+    setImportingState(true);
+    files.forEach((f, idx) => {
+        Meteor.call(
+            'nlu.import',
+            f.rasa_nlu_data,
+            projectId,
+            f.language,
+            wipeCurrent,
+            f.canonical,
+            wrapMeteorCallback((err) => {
+                if (!err) {
+                    setFileList({
+                        delete: {
+                            filename: f.filename,
+                            lastModified: f.lastModified,
+                        },
+                    });
+                }
+                if (err || idx === files.length - 1) setImportingState(false);
+            }),
+        );
+    });
+};
+
+
+const handleImportRasaConfig = (files, {
+    projectId, fileReader: [, setFileList], setImportingState, wipeCurrent,
+}) => {
+    if (!files.length) return;
+    setImportingState(true);
+    files.forEach((f, idx) => {
+        Meteor.call(
+            'nlu.import',
+            f.rasa_nlu_data,
+            projectId,
+            f.language,
+            wipeCurrent,
+            f.canonical,
+            wrapMeteorCallback((err) => {
+                if (!err) {
+                    setFileList({
+                        delete: {
+                            filename: f.filename,
+                            lastModified: f.lastModified,
+                        },
+                    });
+                }
+                if (err || idx === files.length - 1) setImportingState(false);
+            }),
+        );
+    });
+};
+
+
+const handleImportBotfrontConfig = (files, {
+    projectId, fileReader: [, setFileList], setImportingState, wipeCurrent,
+}) => {
+    if (!files.length) return;
+    setImportingState(true);
+    files.forEach((f, idx) => {
+        Meteor.call(
+            'nlu.import',
+            f.rasa_nlu_data,
+            projectId,
+            f.language,
+            wipeCurrent,
+            f.canonical,
+            wrapMeteorCallback((err) => {
+                if (!err) {
+                    setFileList({
+                        delete: {
+                            filename: f.filename,
+                            lastModified: f.lastModified,
+                        },
+                    });
+                }
+                if (err || idx === files.length - 1) setImportingState(false);
+            }),
+        );
+    });
+};
+
+
+const handleImportConversations = (files, {
+    projectId, fileReader: [, setFileList], setImportingState, wipeCurrent,
+}) => {
+    if (!files.length) return;
+    setImportingState(true);
+    files.forEach((f, idx) => {
+        Meteor.call(
+            'nlu.import',
+            f.rasa_nlu_data,
+            projectId,
+            f.language,
+            wipeCurrent,
+            f.canonical,
+            wrapMeteorCallback((err) => {
+                if (!err) {
+                    setFileList({
+                        delete: {
+                            filename: f.filename,
+                            lastModified: f.lastModified,
+                        },
+                    });
+                }
+                if (err || idx === files.length - 1) setImportingState(false);
+            }),
+        );
+    });
+};
+
+
+const handleImportIncoming = (files, {
+    projectId, fileReader: [, setFileList], setImportingState, wipeCurrent,
+}) => {
+    if (!files.length) return;
+    setImportingState(true);
+    files.forEach((f, idx) => {
+        Meteor.call(
+            'nlu.import',
+            f.rasa_nlu_data,
+            projectId,
+            f.language,
+            wipeCurrent,
+            f.canonical,
+            wrapMeteorCallback((err) => {
+                if (!err) {
+                    setFileList({
+                        delete: {
+                            filename: f.filename,
+                            lastModified: f.lastModified,
+                        },
+                    });
+                }
+                if (err || idx === files.length - 1) setImportingState(false);
+            }),
+        );
+    });
+};
+
 export const handleImportAll = (files, params) => {
     handleImportStoryGroups(files.filter(f => f.dataType === 'stories'), params);
     handleImportDomain(files.filter(f => f.dataType === 'domain'), params);
     handleImportDataset(files.filter(f => f.dataType === 'nlu'), params);
+    handleImportEndpoints(files.filter(f => f.dataType === 'endpoints'), params);
+    handleImportCredentials(files.filter(f => f.dataType === 'credentials'), params);
+    handleImportRasaConfig(files.filter(f => f.dataType === 'rasaconfig'), params);
+    handleImportBotfrontConfig(files.filter(f => f.dataType === 'bfconfig'), params);
+    handleImportConversations(files.filter(f => f.dataType === 'bfconfig'), params);
+    handleImportIncoming(files.filter(f => f.dataType === 'bfconfig'), params);
 };
