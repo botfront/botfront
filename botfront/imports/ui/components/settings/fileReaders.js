@@ -235,7 +235,6 @@ export const useDatasetFileReader = ({
                         // to do: non-lossy format for metadata e.g. canonical status
                         delete data.lookup_tables; // to do: gazette from look up tables,
                         // caveat: conversion route can't be used since tables are found in external text files
-                        delete data.regex_features; // to do: regex features
                         return update(setFileList, f, { language, rasa_nlu_data: data, canonical });
                     });
                     return update(setFileList, f, { language, rawText: reader.result, canonical });

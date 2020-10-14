@@ -18,6 +18,7 @@ import Evaluation from '../evaluation/Evaluation';
 import ChitChat from './ChitChat';
 import Synonyms from '../../synonyms/Synonyms';
 import Gazette from '../../synonyms/Gazette';
+import RegexFeatures from '../../synonyms/RegexFeatures';
 import NLUPipeline from './settings/NLUPipeline';
 import Statistics from './Statistics';
 import OutOfScope from './OutOfScope';
@@ -196,7 +197,7 @@ function NLUModel(props) {
     return (
         <>
             {renderTopMenu()}
-            <Container>
+            <Container data-cy='nlu-page'>
                 {['Training Data', 'Evaluation'].includes(activeItem) && (
                     <>
                         {renderWarningMessageIntents()}
@@ -208,6 +209,9 @@ function NLUModel(props) {
                 {activeItem === 'Training Data' && (
                     <Tab
                         menu={{ pointing: true, secondary: true }}
+                        // activeIndex === 0 is the example tab, we want to refetch data everytime we land on it
+                        // as it may have changed from the chitchat tab
+                        onTabChange={(e, { activeIndex }) => { if (activeIndex === 0) refetch(); }}
                         panes={[
                             {
                                 menuItem: 'Examples',
@@ -256,6 +260,10 @@ function NLUModel(props) {
                             {
                                 menuItem: 'Out Of Scope',
                                 render: () => <OutOfScope />,
+                            },
+                            {
+                                menuItem: 'Regex',
+                                render: () => <RegexFeatures model={model} />,
                             },
                             {
                                 menuItem: 'API',

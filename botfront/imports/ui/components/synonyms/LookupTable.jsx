@@ -7,46 +7,56 @@ import 'react-table-v6/react-table.css';
 import matchSorter from 'match-sorter';
 import AddLookupTableRow from './AddLookupTableRow';
 import LookupTableValueEditorViewer from './LookupTableValueEditorViewer';
-import LookupTableEditorViewer from './LookupTableListEditorViewer';
 import { can, Can } from '../../../lib/scopes';
+import LookupTableListEditorViewer from './LookupTableListEditorViewer';
 import IconButton from '../common/IconButton';
 
 export default class LookupTable extends React.Component {
     getColumns() {
         const {
-            listAttribute, header, onItemChanged, extraColumns, onItemDeleted, projectId,
+            listAttribute, keyHeader, listHeader, onItemChanged, extraColumns, onItemDeleted, multiple, keyAttribute, projectId,
         } = this.props;
         let columns = [
             {
-                id: 'value',
+                id: keyAttribute,
                 accessor: s => s,
-                Header: 'Value',
+                Header: keyHeader,
                 className: 'lookup-value',
                 filterMethod: (filter, rows) => matchSorter(rows, filter.value, { keys: ['value.value'] }),
-                sortMethod: (rowA, rowB) => rowA.value.localeCompare(rowB.value),
-                Cell: props => <LookupTableValueEditorViewer listAttribute={listAttribute} entitySynonym={props.value} onEdit={onItemChanged} projectId={projectId} />,
+                sortMethod: (rowA, rowB) => rowA[keyAttribute].localeCompare(rowB[keyAttribute]),
+                Cell: props => <LookupTableValueEditorViewer keyAttribute={keyAttribute} listAttribute={listAttribute} entitySynonym={props.value} onEdit={onItemChanged} projectId={projectId} />,
                 width: 200,
             },
             {
                 id: listAttribute,
                 accessor: s => s,
-                Header: header,
+                Header: listHeader,
                 filterMethod: (filter, rows) => matchSorter(rows, filter.value, { keys: ['text'] }),
-                sortMethod: (rowA, rowB) => rowA[listAttribute].join(' ').localeCompare(rowB[listAttribute].join(' ')),
+                sortMethod: (rowA, rowB) => {
+                    if (!multiple) return rowA[listAttribute];
+                    return rowA[listAttribute].join(' ').localeCompare(rowB[listAttribute].join(' '));
+                },
                 className: 'lookup-list',
                 Cell: ({ value }) => {
                     // eslint-disable-next-line no-param-reassign
-                    value[listAttribute] = sortBy(value[listAttribute]);
+                    if (multiple) value[listAttribute] = sortBy(value[listAttribute]);
                     return (
                         <div>
-                            <LookupTableEditorViewer listAttribute={listAttribute} entitySynonym={value} onEdit={onItemChanged} projectId={projectId} />
+                            <LookupTableListEditorViewer
+                                keyAttribute={keyAttribute}
+                                listAttribute={listAttribute}
+                                entitySynonym={value}
+                                onEdit={onItemChanged}
+                                multiple={multiple}
+                                projectId={projectId}
+                            />
                         </div>
                     );
                 },
             },
             {
                 id: 'text',
-                accessor: s => s[listAttribute].join(' '),
+                accessor: s => (multiple ? s[listAttribute].join(' ') : s[listAttribute]),
                 show: false,
             },
         ];
@@ -76,7 +86,7 @@ export default class LookupTable extends React.Component {
 
     render() {
         const {
-            listAttribute, data, onItemChanged, valuePlaceholder, listPlaceholder, projectId,
+            keyAttribute, listAttribute, data, onItemChanged, valuePlaceholder, listPlaceholder, multiple, projectId,
         } = this.props;
         const headerStyle = { textAlign: 'left', fontWeight: 800, paddingBottom: '10px' };
         return (
@@ -84,10 +94,12 @@ export default class LookupTable extends React.Component {
                 <Can I='nlu-data:w' projectId={projectId}>
                     <>
                         <AddLookupTableRow
+                            keyAttribute={keyAttribute}
                             listAttribute={listAttribute}
                             onAdd={onItemChanged}
                             valuePlaceholder={valuePlaceholder}
                             listPlaceholder={listPlaceholder}
+                            multiple={multiple}
                         />
                         <br />
                     </>
@@ -112,16 +124,20 @@ export default class LookupTable extends React.Component {
 
 LookupTable.propTypes = {
     data: PropTypes.array.isRequired,
-    header: PropTypes.string.isRequired,
+    keyHeader: PropTypes.string.isRequired,
+    listHeader: PropTypes.string.isRequired,
     listAttribute: PropTypes.string.isRequired,
+    keyAttribute: PropTypes.string.isRequired,
     extraColumns: PropTypes.array,
     onItemChanged: PropTypes.func.isRequired,
     onItemDeleted: PropTypes.func.isRequired,
     valuePlaceholder: PropTypes.string.isRequired,
     listPlaceholder: PropTypes.string.isRequired,
     projectId: PropTypes.string.isRequired,
+    multiple: PropTypes.bool,
 };
 
 LookupTable.defaultProps = {
     extraColumns: [],
+    multiple: true,
 };

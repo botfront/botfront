@@ -342,7 +342,7 @@ if (Meteor.isServer) {
                 addLoggingInterceptors(client, appMethodLogger);
                 const trainingClient = axios.create({
                     baseURL: instance.host,
-                    timeout: 30 * 60 * 1000,
+                    timeout: process.env.TRAINING_TIMEOUT || 0,
                     responseType: 'arraybuffer',
                 });
                 addLoggingInterceptors(trainingClient, appMethodLogger);

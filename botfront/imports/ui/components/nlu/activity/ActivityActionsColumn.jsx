@@ -9,6 +9,7 @@ export default function ActivityActionsColumn(props) {
         datum,
         data,
         getSmartTips,
+        outdated,
         handleSetValidated,
         onMarkOoS,
         onDelete,
@@ -140,14 +141,14 @@ export default function ActivityActionsColumn(props) {
         action = (
             <Popup
                 inverted
-                disabled={!datum.intent}
+                disabled={outdated || !datum.intent}
                 content='Mark this utterance valid'
                 trigger={(
                     <div>
                         <IconButton
                             basic
                             size={size}
-                            disabled={!datum.intent}
+                            disabled={outdated || !datum.intent}
                             onClick={() => handleSetValidated([datum], true)}
                             color='green'
                             icon='check'
@@ -181,6 +182,7 @@ ActivityActionsColumn.propTypes = {
     data: PropTypes.array.isRequired,
     getSmartTips: PropTypes.func.isRequired,
     onMarkOoS: PropTypes.func.isRequired,
+    outdated: PropTypes.bool.isRequired,
     handleSetValidated: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
 };

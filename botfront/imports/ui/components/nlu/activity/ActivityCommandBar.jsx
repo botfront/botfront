@@ -47,7 +47,7 @@ const ActivityCommandBar = React.forwardRef((props, ref) => {
                     size='mini'
                     inverted
                     content={someNotValidated ? 'Mark valid' : 'Mark invalid'}
-                    disabled={someLackingIntent}
+                    disabled={someLackingIntent || someOutdated}
                     trigger={(
                         <div>
                             <IconButton
@@ -55,7 +55,7 @@ const ActivityCommandBar = React.forwardRef((props, ref) => {
                                 basic={someNotValidated}
                                 color='green'
                                 icon={(someValidated && someNotValidated) ? 'minus' : 'check'}
-                                disabled={someLackingIntent}
+                                disabled={someLackingIntent || someOutdated}
                                 data-cy={someNotValidated ? 'validate-utterance' : 'invalidate-utterance'}
                                 onClick={() => onSetValidated(selection, someNotValidated)}
                             />

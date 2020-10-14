@@ -293,6 +293,7 @@ function Activity(props) {
 
     const renderActions = row => (
         <ActivityActionsColumn
+            outdated={isUtteranceOutdated(row.datum)}
             datum={row.datum}
             handleSetValidated={handleSetValidated}
             onDelete={handleDelete}
@@ -374,7 +375,7 @@ function Activity(props) {
             else setOpenConvPopup(selection[0] || -1);
         }
         if (key.toLowerCase() === 'v') {
-            if (selectionWithFullData.some(d => !d.intent)) return;
+            if (selectionWithFullData.some(d => !d.intent || isUtteranceOutdated(d))) return;
             handleSetValidated(
                 selectionWithFullData,
                 selectionWithFullData.some(d => !d.validated),
