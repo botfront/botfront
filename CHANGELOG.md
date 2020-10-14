@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.27.0-ee.1](https://github.com/botfront/botfront/compare/v0.26.0-ee.3...v0.27.0-ee.1) (2020-10-14)
+
+
+### Features
+
+* add field in metadata form to send paylaod on tooltip close ([84e0e4c](https://github.com/botfront/botfront/commit/84e0e4cb6c6d76e3c8b1be3ff0cbabd89a992f02))
+* **default policies:** add missing default policies editor ([7e3b744](https://github.com/botfront/botfront/commit/7e3b744caccca7df5b3266d43207d48a4db3e39a))
+* nlu regex  ([dd8e7ae](https://github.com/botfront/botfront/commit/dd8e7ae0ae99d79467e02ba53b6f0c78c1246281))
+* unlimited training time ([0574df7](https://github.com/botfront/botfront/commit/0574df7bcaf8033f0b7f01ab85e8ba9aaf9bf488))
+
+
+### Bug Fixes
+
+* advanced entity editing not possible in data table ([f05f766](https://github.com/botfront/botfront/commit/f05f766b6046c15942ec3b8c8b832542af030754))
+* auto redirect to login when logged out ([c96dd08](https://github.com/botfront/botfront/commit/c96dd08ee22350a58c181b77ebe7ebd9c371a486))
+* broken conversation type filter ([356bd89](https://github.com/botfront/botfront/commit/356bd89c79a94d026c98a656c94a30c89d2b8998))
+* bug with action popup disappearing onscroll ([c78861c](https://github.com/botfront/botfront/commit/c78861cb0fb476f4b9ae88aae1456bb7f714c4f8))
+* concat story on branch delete  ([f9dbb5f](https://github.com/botfront/botfront/commit/f9dbb5fef8cbc3a3480edc749e05d24d7aa6ec99))
+* form submission compatibility with rasa 2 ([83b81ed](https://github.com/botfront/botfront/commit/83b81ed0eca88f11172d92ce03bdfa16df487988))
+* illegal slot name ([0f4dec0](https://github.com/botfront/botfront/commit/0f4dec008aa9a0d5a0a1dd94c38b5f0a95818ff0))
+* import export role bug ([a3c57fa](https://github.com/botfront/botfront/commit/a3c57fa2c3422aec9bdcf384dd4fb69a68e1c60b))
+* import forms ([5140da1](https://github.com/botfront/botfront/commit/5140da143dbcd63051274d60701ead16cf2bc9ce))
+* new chitchat examples were not displayed in the examples table ([533b46c](https://github.com/botfront/botfront/commit/533b46c81d264d5ce885fb5ada6b6d7c1dfccfef))
+* rasa domain import (backport) ([84a35a0](https://github.com/botfront/botfront/commit/84a35a0606b45c8107503e885fb745bde1395c94))
+* response deletion when renaming forms ([1337714](https://github.com/botfront/botfront/commit/133771468e8a462d1db6db61291eeb73940d2d4a))
+
 ## [0.26.0-ee.4](https://github.com/botfront/botfront/compare/v0.26.0-ee.3...v0.26.0-ee.4) (2020-09-28)
 
 
