@@ -144,7 +144,7 @@ function Entity({
                     data-cy='entity-label'
                     className={`entity-container ${colorToRender}`}
                 >
-                    <span className='float'>
+                    <span className='float entity-name'>
                         {(value.group || value.role || value.text !== value.value) && <>&#9733;</>}
                         {value.entity}
                     </span>
