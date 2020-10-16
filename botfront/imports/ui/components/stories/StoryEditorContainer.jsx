@@ -56,7 +56,7 @@ const StoryEditorContainer = ({
     collapsed,
 }) => {
     const {
-        stories, getResponseLocations, reloadStories, updateStory,
+        stories, getResponseLocations, updateStory,
     } = useContext(
         ConversationOptionsContext,
     );
@@ -72,11 +72,29 @@ const StoryEditorContainer = ({
         const path = priorPath ? `${priorPath},${_id}` : _id;
         return { ...acc, [path]: { ...rest, branches }, ...reducer(branches, path) };
     }, {});
-    const branches = useMemo(() => reducer([story]), [story]);
+    const branches = useMemo(() => reducer([story]), [JSON.stringify(story)]);
 
-    const [editorYaml, setEditorYaml] = useState({});
-    useEffect(
-        () => !isLegacy && setEditorYaml(
+    const validateYaml = (update) => {
+        const newAnnotations = Object.keys(update).reduce((acc, curr) => ({ ...acc, [curr]: new DialogueFragmentValidator().validateYamlFragment(update[curr]) }), {});
+        setAnnotations(prev => ({ ...prev, ...newAnnotations }));
+        Object.keys(newAnnotations).forEach((path) => {
+            const editor = editors.current[path];
+            if (editor) {
+                if (newAnnotations[path].length) editor.getSession().setAnnotations(newAnnotations[path]);
+                else editor.getSession().clearAnnotations();
+            }
+        });
+    };
+
+    const [editorYaml, doSetEditorYaml] = useState({});
+
+    const setEditorYaml = (update) => {
+        doSetEditorYaml(prev => ({ ...prev, ...update }));
+        validateYaml(update);
+    };
+    useEffect(() => {
+        if (isLegacy) return;
+        setEditorYaml(
             Object.keys(branches).reduce(
                 (acc, curr) => ({
                     ...acc,
@@ -84,15 +102,14 @@ const StoryEditorContainer = ({
                 }),
                 {},
             ),
-        ),
-        [],
-    );
+        );
+    }, [storyMode]);
 
     const saveStory = (path, content, { callback } = {}) => updateStory(
         { _id: story._id, ...content, path },
         () => {
             if (!isLegacy && Array.isArray(content.steps)) {
-                setEditorYaml(prev => ({ ...prev, [path.join()]: stepsToYaml(content.steps) }));
+                setEditorYaml({ [path.join()]: stepsToYaml(content.steps) });
             }
             if (typeof callback === 'function') callback();
         },
@@ -151,15 +168,6 @@ const StoryEditorContainer = ({
         />
     );
 
-    const validateYaml = (path, value) => {
-        const editor = editors.current[path.join()];
-        if (!editor) return;
-        const newAnnotations = new DialogueFragmentValidator().validateYamlFragment(value);
-        if (newAnnotations.length) editor.getSession().setAnnotations(newAnnotations);
-        else editor.getSession().clearAnnotations();
-        setAnnotations({ ...annotations, [path.join()]: newAnnotations });
-    };
-
     const saveWithAce = (path) => {
         if (!annotations[path.join()]?.some(({ type }) => type === 'error')) {
             saveStoryDebounced(path, { steps: safeLoad(editorYaml[path.join()] || '') });
@@ -181,22 +189,17 @@ const StoryEditorContainer = ({
                 isLegacy
                     ? undefined
                     : (instance) => {
-                        if (!editors.current?.[path.join()]) {
-                            editors.current = {
-                                ...editors.current,
-                                [path.join()]: instance,
-                            };
-                            validateYaml(path);
-                        }
+                        editors.current = {
+                            ...editors.current,
+                            [path.join()]: instance,
+                        };
+                        validateYaml({ [path.join()]: editorYaml[path.join()] });
                     }
             }
             onChange={
                 isLegacy
                     ? input => saveStoryDebounced(path, { story: input })
-                    : (input) => {
-                        setEditorYaml({ ...editorYaml, [path.join()]: input });
-                        validateYaml(path, input);
-                    }
+                    : input => setEditorYaml({ [path.join()]: input })
             }
             onBlur={isLegacy ? undefined : () => saveWithAce(path)}
             value={
@@ -221,9 +224,9 @@ const StoryEditorContainer = ({
         return (
             <StoryErrorBoundary>
                 <StoryVisualEditor
-                    story={branches[path.join()]}
+                    onSave={steps => saveStory(path, { steps })}
+                    story={branches[path.join()]?.steps || []}
                     getResponseLocations={getResponseLocations}
-                    reloadStories={reloadStories}
                 />
             </StoryErrorBoundary>
         );

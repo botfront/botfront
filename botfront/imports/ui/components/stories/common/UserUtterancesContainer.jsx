@@ -1,17 +1,22 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useContext } from 'react';
 import PropTypes from 'prop-types';
 
 import IconButton from '../../common/IconButton';
 import UserUtteranceContainer from './UserUtteranceContainer';
 import UserUtterancePopupContent from './UserUtterancePopupContent';
-import { NEW_INTENT } from '../../../../lib/story_controller';
+import { ProjectContext } from '../../../layouts/context';
 
 const UserUtterancesContainer = (props) => {
     const {
-        deletable, value, onChange, onDelete,
+        deletable, value, onChange: onChangeBare, onDelete,
     } = props;
+    const { addUtterancesToTrainingData } = useContext(ProjectContext);
 
     const somethingIsBeingInput = useMemo(() => value.some(disjunct => disjunct === null), [value]);
+
+    const onChange = data => addUtterancesToTrainingData(data, (err) => {
+        if (!err) onChangeBare(data);
+    });
 
     const handleDeleteDisjunct = (index) => {
         if (value.length > 1) {
@@ -37,7 +42,7 @@ const UserUtterancesContainer = (props) => {
     const handleInsertDisjunct = (index, payload) => {
         onChange([
             ...value.slice(0, index + 1),
-            payload || { intent: NEW_INTENT },
+            payload || { intent: null },
             ...value.slice(index + 1),
         ]);
     };

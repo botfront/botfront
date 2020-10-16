@@ -59,11 +59,7 @@ const AddStoryLine = React.forwardRef((props, ref) => {
             )}
             {action && (
                 <ActionPopupContent
-                    onSelect={a => onCreateGenericLine({
-                        type: 'action',
-                        data: { name: a },
-                    })
-                    }
+                    onSelect={a => onCreateGenericLine({ action: a })}
                     trigger={(
                         <DashedButton color='pink' size={size} data-cy='add-action-line'>
                             Action
@@ -74,7 +70,7 @@ const AddStoryLine = React.forwardRef((props, ref) => {
             )}
             {slot && (
                 <SlotPopupContent
-                    onSelect={s => onCreateGenericLine({ type: 'slot', data: s })}
+                    onSelect={({ name, slotValue }) => onCreateGenericLine({ slot_was_set: [{ [name]: slotValue }] })}
                     trigger={(
                         <DashedButton color='orange' size={size} data-cy='add-slot-line'>
                             Slot

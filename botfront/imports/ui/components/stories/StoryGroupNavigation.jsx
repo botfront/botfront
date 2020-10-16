@@ -111,7 +111,7 @@ class StoryGroupNavigation extends React.Component {
                         <Button
                             data-cy={storyMode === 'visual' ? 'toggle-md' : 'toggle-visual'}
                             icon
-                            onClick={() => onSwitchStoryMode(storyMode === 'visual' ? 'markdown' : 'visual')}
+                            onClick={() => onSwitchStoryMode(storyMode === 'visual' ? 'yaml' : 'visual')}
                         >
                             <Icon name={storyMode === 'visual' ? 'code' : 'commenting'} />
                         </Button>,

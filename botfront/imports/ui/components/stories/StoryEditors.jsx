@@ -1,8 +1,7 @@
 import { withTracker } from 'meteor/react-meteor-data';
 import React, {
-    useContext, useState, useEffect, useMemo, useCallback,
+    useContext, useState, useEffect, useMemo,
 } from 'react';
-import { debounce } from 'lodash';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Loading } from '../utils/Utils';
@@ -19,30 +18,24 @@ function StoryEditors(props) {
 
     const lastDate = useMemo(() => Date.now(), [stories.length, workingLanguage]);
 
-    const debouncedAddResponses = useCallback(
-        debounce(() => {
-            const responsesInFetchedStories = stories.reduce(
-                (acc, curr) => [
-                    ...acc,
-                    ...(curr.events || []).filter(
-                        event => event.match(/^utter_/) && !acc.includes(event),
-                    ),
-                ],
-                [],
-            );
-            if (responsesInFetchedStories.length) {
-                addResponses(responsesInFetchedStories).then((res) => {
-                    if (res) setLastUpdate(res);
-                    else setLastUpdate(lastDate);
-                });
-            } else setLastUpdate(lastDate);
-        }, 250),
-    );
+    const responsesInFetchedStories = useMemo(() => stories.reduce(
+        (acc, curr) => [
+            ...acc,
+            ...(curr.events || []).filter(
+                event => event.match(/^utter_/) && !acc.includes(event),
+            ),
+        ],
+        [],
+    ), [stories.length, workingLanguage]);
 
     useEffect(() => {
-        debouncedAddResponses();
-        return () => debouncedAddResponses.cancel();
-    }, [stories.length, workingLanguage]);
+        if (responsesInFetchedStories.length) {
+            addResponses(responsesInFetchedStories).then((res) => {
+                if (res) setLastUpdate(res);
+                else setLastUpdate(lastDate);
+            });
+        } else setLastUpdate(() => Date.now());
+    }, [stories.length, workingLanguage, JSON.stringify(responsesInFetchedStories)]);
 
     const editors = stories.map(story => (
         <StoryEditorContainer
