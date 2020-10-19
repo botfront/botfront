@@ -255,12 +255,20 @@ if (Meteor.isServer) {
             newItem.config = item.config;
             newItem.name = item.name;
             newItem.language = item.language;
-            newItem.logActivity = item.logActivity;
-            newItem.instance = item.instance;
             newItem.description = item.description;
 
             NLUModels.update({ _id: modelId }, { $set: newItem });
             return modelId;
+        },
+
+        'nlu.update.pipeline'(projectId, language, pipeline) {
+            checkIfCan('nlu-data:w', projectId);
+            check(language, String);
+            check(pipeline, String);
+            check(projectId, String);
+          
+
+            return NLUModels.update({ projectId, language }, { $set: { config: pipeline } });
         },
 
         'nlu.remove'(projectId, language) {

@@ -1,7 +1,9 @@
+import yaml from 'js-yaml';
 import { wrapMeteorCallback } from '../utils/Errors';
 import { CREATE_AND_OVERWRITE_RESPONSES as createResponses, DELETE_BOT_RESPONSE as deleteReponse } from '../templates/mutations';
 import { GET_BOT_RESPONSES as listResponses } from '../templates/queries';
 import apolloClient from '../../../startup/client/apollo';
+
 
 const handleImportForms = () => new Promise(resolve => resolve(true));
 
@@ -139,18 +141,14 @@ const handleImportDataset = (files, {
 
 
 const handleImportEndpoints = (files, {
-    projectId, fileReader: [, setFileList], setImportingState, wipeCurrent,
+    projectId, fileReader: [, setFileList], setImportingState,
 }) => {
     if (files.length !== 1) return;
     setImportingState(true);
     files.forEach((f, idx) => {
         Meteor.call(
             'endpoints.save',
-            f.rasa_nlu_data,
-            projectId,
-            f.language,
-            wipeCurrent,
-            f.canonical,
+            { projectId, endpoints: f.rawText },
             wrapMeteorCallback((err) => {
                 if (!err) {
                     setFileList({
@@ -168,18 +166,14 @@ const handleImportEndpoints = (files, {
 
 
 const handleImportCredentials = (files, {
-    projectId, fileReader: [, setFileList], setImportingState, wipeCurrent,
+    projectId, fileReader: [, setFileList], setImportingState,
 }) => {
-    if (!files.length) return;
+    if (files.length !== 1) return;
     setImportingState(true);
     files.forEach((f, idx) => {
         Meteor.call(
-            'nlu.import',
-            f.rasa_nlu_data,
-            projectId,
-            f.language,
-            wipeCurrent,
-            f.canonical,
+            'credentials.save',
+            { projectId, credentials: f.rawText },
             wrapMeteorCallback((err) => {
                 if (!err) {
                     setFileList({
@@ -202,13 +196,16 @@ const handleImportRasaConfig = (files, {
     if (!files.length) return;
     setImportingState(true);
     files.forEach((f, idx) => {
+        const { pipeline, policies, language } = f.rasaConfig;
+        if (idx === 0) {
+            Meteor.call(
+                'policies.save',
+                { policies: yaml.safeDump(policies), projectId },
+            );
+        }
         Meteor.call(
-            'nlu.import',
-            f.rasa_nlu_data,
-            projectId,
-            f.language,
-            wipeCurrent,
-            f.canonical,
+            'nlu.update.pipeline',
+            { projectId, language, config: yaml.safeDump(pipeline) },
             wrapMeteorCallback((err) => {
                 if (!err) {
                     setFileList({
@@ -226,18 +223,19 @@ const handleImportRasaConfig = (files, {
 
 
 const handleImportBotfrontConfig = (files, {
-    projectId, fileReader: [, setFileList], setImportingState, wipeCurrent,
+    projectId, fileReader: [, setFileList], setImportingState,
 }) => {
-    if (!files.length) return;
+    if (!files.length !== 1) return;
     setImportingState(true);
     files.forEach((f, idx) => {
+        const { project, instance } = f;
         Meteor.call(
-            'nlu.import',
-            f.rasa_nlu_data,
-            projectId,
-            f.language,
-            wipeCurrent,
-            f.canonical,
+            'instance.update',
+            { ...instance, projectId },
+        );
+        Meteor.call(
+            'project.update',
+            { ...project, _id: projectId, training: {} },
             wrapMeteorCallback((err) => {
                 if (!err) {
                     setFileList({
