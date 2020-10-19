@@ -20,6 +20,7 @@ import {
 import { get as _get } from 'lodash';
 import { NativeTypes } from 'react-dnd-html5-backend-cjs';
 import { useDrop } from 'react-dnd-cjs';
+import { useMutation } from '@apollo/react-hooks';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Slots } from '../../../api/slots/slots.collection';
 import { getDefaultDomainAndLanguage } from '../../../lib/story.utils';
@@ -29,17 +30,19 @@ import { ProjectContext } from '../../layouts/context';
 import {
     unZipFile,
 } from '../../../lib/importers/common';
+import { importFilesMutation } from './graphQL';
 
 const ImportRasaFiles = (props) => {
     const {
         existingStoryGroups, existingSlots, projectId, defaultDomain,
     } = props;
     const { projectLanguages, instance, language } = useContext(ProjectContext);
+    const [importFiles] = useMutation(importFilesMutation);
     const [fallbackImportLanguage, setFallbackImportLanguage] = useState();
     useEffect(() => setFallbackImportLanguage(language), [language]);
     const [wipeCurrent, setWipeCurrent] = useState(false);
 
-    const handleFileDrop = async (files, [fileList, setFileList]) => {
+    const handleFileDrop = async (files, fileList) => {
         const newValidFiles = Array.from(files).filter(
             f => f.size
                 && !fileList.some(
@@ -56,13 +59,13 @@ const ImportRasaFiles = (props) => {
             
             return [...newFiles, currFile];
         }, []);
-       
-        setFileList({ add: filesWithUnziped });
+        importFiles({ variables: { projectId, files: filesWithUnziped, onlyValidate: true } });
+        // gql call for validation
     };
 
     const useFileDrop = fileReader => useDrop({
         accept: [NativeTypes.FILE],
-        drop: item => handleFileDrop(item.files, fileReader),
+        drop: item => handleFileDrop(item.files, []),
         collect: monitor => ({
             isOver: monitor.isOver(),
             canDrop: monitor.canDrop(),
@@ -345,7 +348,7 @@ const ImportRasaFiles = (props) => {
     return (
         <>
             {renderImportSection()}
-            {renderBottom()}
+            {/* {renderBottom()} */}
         </>
     );
 };
