@@ -1,96 +1,123 @@
 import yaml from 'js-yaml';
 
-import { update } from './common';
 
-export const addIncoming = ({
-    f, rawText, setFileList,
+export const doValidation = params => !params.noValidate;
+
+
+export const loadIncoming = ({
+    file, rawText, params,
 }) => {
     const incoming = JSON.parse(rawText);
-   
-    if (!Array.isArray(incoming) || incoming.length < 1) {
-        return update(setFileList, f, { dataType: 'incoming', warnings: 'There are no incoming in this file' });
+    if (doValidation(params) && (!Array.isArray(incoming) || incoming.length < 1)) {
+        return { file, dataType: 'incoming', warnings: [...(file?.warnings || []), 'There are no incoming in this file'] };
     }
-    return update(setFileList, f, { dataType: 'incoming', rawText, incoming });
+    return {
+        file, dataType: 'incoming', rawText, incoming,
+    };
 };
 
 
-export const addConversations = ({
-    f, rawText, setFileList,
+export const loadConversations = ({
+    file, rawText, params,
 }) => {
     const conversations = JSON.parse(rawText);
-   
-    if (!Array.isArray(conversations) || conversations.length < 1) {
-        return update(setFileList, f, { dataType: 'conversations', warnings: 'There are no conversations in this file' });
+    if (doValidation(params) && (!Array.isArray(conversations) || conversations.length < 1)) {
+        return { file, dataType: 'conversations', warnings: [...(file?.warnings || []), 'There are no conversations in this file'] };
     }
-    return update(setFileList, f, { dataType: 'conversations', rawText, conversations });
+    return {
+        file, dataType: 'conversations', rawText, conversations,
+    };
 };
 
 
-export const addEndpoints = ({
-    f, rawText, setFileList,
+export const loadEndpoints = ({
+    file, rawText,
 }) => {
     let endpoints;
     try {
         endpoints = yaml.safeLoad(rawText);
     } catch (e) {
-        return update(setFileList, f, { dataType: 'endpoints', errors: ['Not valid yaml'] });
+        return {
+            file, dataType: 'endpoints', rawText, errors: [...(file?.errors || []), 'Not valid yaml'],
+        };
     }
-    return update(setFileList, f, { dataType: 'endpoints', rawText, endpoints });
+    return {
+        file, dataType: 'endpoints', rawText, endpoints,
+    };
 };
 
 
-export const addCredentials = ({
-    f, rawText, setFileList,
+export const loadCredentials = ({
+    file, rawText,
 }) => {
     let credentials;
     try {
         credentials = yaml.safeLoad(rawText);
     } catch (e) {
-        return update(setFileList, f, { dataType: 'credentials', errors: ['Not valid yaml'] });
+        return {
+            file, dataType: 'credentials', rawText, errors: [...(file?.errors || []), 'Not valid yaml'],
+        };
     }
-    return update(setFileList, f, { dataType: 'credentials', rawText, credentials });
+    return {
+        file, dataType: 'credentials', rawText, credentials,
+    };
 };
 
 
-export const addRasaConfig = ({
-    f, rawText, setFileList,
+export const loadRasaConfig = ({
+    file, rawText, params,
 }) => {
     const errors = [];
     let rasaConfig;
     try {
         rasaConfig = yaml.safeLoad(rawText);
     } catch (e) {
-        return update(setFileList, f, { dataType: 'rasaconfig', errors: ['Not valid yaml'] });
+        return {
+            file, dataType: 'rasaconfig', rawText, errors: [...(file?.errors || []), 'Not valid yaml'],
+        };
     }
-    Object.keys(rasaConfig).forEach((key) => {
-        if (!['pipeline', 'policies', 'language'].includes(key)) {
-            errors.push(`${key} is not a valid rasa config data`);
+    if (doValidation(params)) {
+        Object.keys(rasaConfig).forEach((key) => {
+            if (!['pipeline', 'policies', 'language'].includes(key)) {
+                errors.push(`${key} is not a valid rasa config data`);
+            }
+        });
+        if (errors.length > 0) {
+            return {
+                file, dataType: 'rasaconfig', rawText, errors: [...(file?.errors || []), ...errors],
+            };
         }
-    });
-    if (errors.length > 0) {
-        return update(setFileList, f, { dataType: 'rasaconfig', errors });
     }
-    return update(setFileList, f, { dataType: 'rasaconfig', rawText });
+    return {
+        file, dataType: 'rasaconfig', rawText, ...rasaConfig,
+    };
 };
 
 
-export const addBotfrontConfig = ({
-    f, rawText, setFileList,
+export const loadBotfrontConfig = ({
+    file, rawText, params,
 }) => {
     const errors = [];
     let bfConfig;
     try {
         bfConfig = yaml.safeLoad(rawText);
     } catch (e) {
-        return update(setFileList, f, { dataType: 'bfconfig', errors: ['Not valid yaml'] });
-    }
-    Object.keys(bfConfig).forEach((key) => {
-        if (!['project', 'instance'].includes(key)) {
-            errors.push(`${key} is not valid botfront data`);
+        return {
+            file, rawText, dataType: 'bfconfig', errors: [...(file?.errors || []), ['Not valid yaml']],
+        };
+    } if (doValidation(params)) {
+        Object.keys(bfConfig).forEach((key) => {
+            if (!['project', 'instance'].includes(key)) {
+                errors.push(`${key} is not valid botfront data`);
+            }
+        });
+        if (errors.length > 0) {
+            return {
+                file, rawText, dataType: 'bfconfig', errors: [...(file?.errors || []), ...errors],
+            };
         }
-    });
-    if (errors.length > 0) {
-        return update(setFileList, f, { dataType: 'bfconfig', errors });
     }
-    return update(setFileList, f, { dataType: 'bfconfig', rawText, ...bfConfig });
+    return {
+        file, rawText, dataType: 'bfconfig', ...bfConfig,
+    };
 };

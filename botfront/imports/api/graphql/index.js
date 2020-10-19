@@ -1,4 +1,5 @@
 import { mergeTypeDefs } from '@graphql-tools/merge';
+import gql from 'graphql-tag';
 import conversationsResolver from './conversations/resolvers/conversationsResolver';
 import conversationTypes from './conversations/schemas';
 import activityResolver from './activity/resolvers/activityResolver';
@@ -15,7 +16,10 @@ import trackerStoreResolver from './trackerStore/resolvers/trackerStoreResolver'
 import trackerStoreTypes from './trackerStore/schemas';
 import examplesResolver from './examples/resolvers/examplesResolver';
 import examplesTypes from './examples/schemas';
+import projectResolver from './project/projectResolver';
+import projectTypes from './project/project.types.graphql';
 
+const uploadType = gql` scalar Upload`;
 
 export const resolvers = [
     conversationsResolver,
@@ -26,6 +30,7 @@ export const resolvers = [
     storiesResolver,
     trackerStoreResolver,
     examplesResolver,
+    projectResolver,
 ];
 
 export const typeDefs = mergeTypeDefs([
@@ -37,6 +42,21 @@ export const typeDefs = mergeTypeDefs([
     commonTypes,
     configTypes,
     storiesTypes,
+    projectTypes,
+], { all: true });
+
+
+export const typeDefsWithUpload = mergeTypeDefs([
+    ...conversationTypes,
+    ...botResponsesTypes,
+    ...activityTypes,
+    ...trackerStoreTypes,
+    ...examplesTypes,
+    commonTypes,
+    configTypes,
+    storiesTypes,
+    projectTypes,
+    uploadType,
 ], { all: true });
 
 export const schemaDirectives = {

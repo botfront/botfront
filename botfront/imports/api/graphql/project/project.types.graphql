@@ -1,0 +1,23 @@
+
+type Mutation {
+    import(
+        projectId: String!,
+        files: [Upload]!, 
+        onlyValidate: Boolean, 
+        noValidate: Boolean 
+    ): Report
+}
+
+type Report {
+    fileMessages:fileMessages
+    summary:[String]
+   
+}
+
+type fileMessages{
+    errors:[String]
+    warnings:[String]
+    info:[String]
+    filename:String
+}
+
