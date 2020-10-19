@@ -192,7 +192,7 @@ export const insertExamples = async ({
 export const updateExamples = async ({ examples }) => {
     const updatesPromises = examples.map(async (example) => {
         const currentExample = clearEmojisFromExample(example);
-        if (!currentExample.text || currentExample.text.length < 1) return null;
+        if (currentExample.text && currentExample.text.length < 1) return null;
         const { metadata = {}, ...rest } = example;
         const metadataUpdate = Object.keys(metadata)
             .reduce((acc, k) => ({ ...acc, [`metadata.${k}`]: metadata[k] }), {});
