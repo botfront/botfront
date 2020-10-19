@@ -26,17 +26,17 @@ export const deleteAtIndex = (fileList, index) => [
 ];
 
 export const determineDataType = (f, rawText) => {
-    const { dataType, name } = f;
+    const { dataType, filename } = f;
     try {
         if (dataType) return dataType;
-        if (name === 'botfront-config.yml') return 'bfconfig';
-        if ((/^config-[a-z]{2}.yml$/.test(name))) return 'rasaconfig';
-        if ((/^endpoints(\.[a-z]+)?.yml$/.test(name))) return 'endpoints';
-        if ((/^credentials(\.[a-z]+)?.yml$/.test(name))) return 'credentials';
-        if (name === 'domain.yml') return 'domain';
-        if (name.match(/\.md$/) && rawText.match(/## (?:intent|synonym|gazette|regex):/)) { return 'nlu'; } // need to be checked
-        if (name.match(/\.md$/)) return 'stories'; // need to be checked
-        if (name.match(/\.json$/)) {
+        if (filename === 'botfront-config.yml') return 'bfconfig';
+        if ((/^config-[a-z]{2}.yml$/.test(filename))) return 'rasaconfig';
+        if ((/^endpoints(\.[a-z]+)?.yml$/.test(filename))) return 'endpoints';
+        if ((/^credentials(\.[a-z]+)?.yml$/.test(filename))) return 'credentials';
+        if (filename === 'domain.yml') return 'domain';
+        if (filename.match(/\.md$/) && rawText.match(/## (?:intent|synonym|gazette|regex):/)) { return 'nlu'; } // need to be checked
+        if (filename.match(/\.md$/)) return 'stories'; // need to be checked
+        if (filename.match(/\.json$/)) {
             const data = JSON.parse(rawText);
             if ('rasa_nlu_data' in data) return 'nlu'; // need to be checked
             if (Array.isArray(data) && data.length > 0) {
