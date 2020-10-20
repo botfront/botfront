@@ -47,6 +47,7 @@ input EntityInput {
     start: Int
     end: Int
     confidence: Float
+    confidence_entity: Float
     extractor: String
     processors: [String]
 }
