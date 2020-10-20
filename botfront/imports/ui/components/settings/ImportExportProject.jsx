@@ -60,3 +60,5 @@ class ImportExportProject extends React.Component {
 
 ImportExportProject.propTypes = {
 };
+
+export default ImportExportProject;
