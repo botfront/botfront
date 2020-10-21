@@ -9,7 +9,6 @@ import { Instances } from '../imports/api/instances/instances.collection';
 import { Stories } from '../imports/api/story/stories.collection';
 import { NLUModels } from '../imports/api/nlu_model/nlu_model.collection';
 import { StoryGroups } from '../imports/api/storyGroups/storyGroups.collection';
-import { aggregateEvents } from '../imports/lib/story.utils';
 import { indexBotResponse } from '../imports/api/graphql/botResponses/mongo/botResponses';
 import { insertExamples } from '../imports/api/graphql/examples/mongo/examples';
 import { indexStory } from '../imports/api/story/stories.index';
@@ -151,7 +150,7 @@ Migrations.add({
     up: () => {
         const allStories = Stories.find().fetch();
         allStories.forEach((story) => {
-            const events = aggregateEvents(story);
+            const events = [];
             Stories.update({ _id: story._id }, { $set: { events } });
         });
     },

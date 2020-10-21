@@ -126,24 +126,20 @@ const ExportProject = ({
             }
             import('../utils/ZipFolder').then(({ ZipFolder }) => {
                 const rasaZip = new ZipFolder();
-                if (rasaData.stories.length > 1) {
-                    rasaData.stories.forEach(s => rasaZip.addFile(
-                        s,
-                        `data/stories/${s
-                            .split('\n')[0]
-                            .replace(/^# /, '')
+                rasaData.fragments.forEach(f => rasaZip.addFile(
+                    f.fragments,
+                    rasaData.fragments.length > 1
+                        ? `data/stories/${f.group
                             .replace(/ /g, '_')
-                            .toLowerCase()}.md`,
-                    ));
-                } else {
-                    rasaZip.addFile(rasaData.stories, 'data/stories.md');
-                }
+                            .toLowerCase()}.yml`
+                        : 'data/stories.yml',
+                ));
                 if (exportLanguage === 'all') {
                     Object.keys(rasaData.config).forEach(k => rasaZip.addFile(rasaData.config[k], `config-${k}.yml`));
-                    Object.keys(rasaData.nlu).forEach(k => rasaZip.addFile(rasaData.nlu[k].data, `data/nlu/${k}.md`));
+                    Object.keys(rasaData.nlu).forEach(k => rasaZip.addFile(rasaData.nlu[k].data, `data/nlu/${k}.json`));
                 } else {
                     rasaZip.addFile(rasaData.config[exportLanguage], 'config.yml');
-                    rasaZip.addFile(rasaData.nlu[exportLanguage].data, 'data/nlu.md');
+                    rasaZip.addFile(rasaData.nlu[exportLanguage].data, 'data/nlu.json');
                 }
                 rasaZip.addFile(rasaData.endpoints, 'endpoints.yml');
                 rasaZip.addFile(rasaData.credentials, 'credentials.yml');
