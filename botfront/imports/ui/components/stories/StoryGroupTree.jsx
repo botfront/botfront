@@ -85,12 +85,14 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
             rootId: 'root',
             items: {},
         };
-        stories.forEach(({ _id, storyGroupId, ...n }) => {
+        stories.forEach(({
+            _id, storyGroupId, type, ...n
+        }) => {
             newTree.items[_id] = {
                 ...n,
                 id: _id,
                 parentId: storyGroupId,
-                type: 'story',
+                type,
             };
         });
         storyGroups.sort((a, b) => !!b.pinned - !!a.pinned).forEach(({ _id, name, ...n }) => {

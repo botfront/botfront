@@ -13,13 +13,13 @@ import {
 import { ConversationOptionsContext } from './Context';
 
 const StoryTopMenu = ({
+    type,
     storyId,
     title,
     collapsed,
     collapseStory,
     warnings,
     errors,
-    isDestinationStory,
     originStories,
     initPayload,
     collapseAllStories,
@@ -28,6 +28,7 @@ const StoryTopMenu = ({
     useEffect(() => setNewTitle(title), [title]);
 
     const { stories, updateStory } = useContext(ConversationOptionsContext);
+    const isDestinationStory = !!(originStories || []).length;
 
     const submitTitleInput = () => {
         if (title === newTitle) return null;
@@ -114,7 +115,7 @@ const StoryTopMenu = ({
                     {isDestinationStory ? (
                         <Icon name='arrow alternate circle right' color='green' fitted />
                     ) : (
-                        <span className='story-title-prefix'>##</span>
+                        <span className='story-title-prefix'>{type === 'rule' ? <>&gt;&gt;</> : '##'}</span>
                     )}
                     <input
                         data-cy='story-title'
@@ -122,7 +123,7 @@ const StoryTopMenu = ({
                         onChange={event => setNewTitle(event.target.value.replace('_', ''))}
                         onKeyDown={handleInputKeyDown}
                         onBlur={submitTitleInput}
-                        disabled // don't allow name change here, so we don't have to update left-hand tree
+                        // disabled // don't allow name change here, so we don't have to update left-hand tree
                     />
                 </Menu.Item>
                 <Menu.Item position='right'>
@@ -162,19 +163,18 @@ const StoryTopMenu = ({
 };
 
 StoryTopMenu.propTypes = {
+    type: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
     storyId: PropTypes.string.isRequired,
     collapsed: PropTypes.bool.isRequired,
     collapseStory: PropTypes.func.isRequired,
     warnings: PropTypes.number.isRequired,
     errors: PropTypes.number.isRequired,
-    isDestinationStory: PropTypes.bool,
     originStories: PropTypes.array,
     initPayload: PropTypes.string,
     collapseAllStories: PropTypes.func.isRequired,
 };
 StoryTopMenu.defaultProps = {
-    isDestinationStory: false,
     originStories: [],
     initPayload: null,
 };

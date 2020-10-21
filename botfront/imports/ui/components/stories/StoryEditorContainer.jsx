@@ -154,11 +154,11 @@ const StoryEditorContainer = ({
     const renderTopMenu = () => (
         <StoryTopMenu
             title={story.title}
+            type={story.type}
             storyId={story._id}
             disabled={disabled}
             errors={exceptions[story._id].filter(({ type }) => type === 'error').length}
             warnings={exceptions[story._id].filter(({ type }) => type === 'warning').length}
-            isDestinationStory={story.checkpoints && story.checkpoints.length > 0}
             originStories={story.checkpoints}
             initPayload={story.steps?.[0]?.intent}
         />
