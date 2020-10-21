@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-    Icon, Menu, Input, Popup,
+    Icon, Menu, Input, Popup, Dropdown,
 } from 'semantic-ui-react';
 import { formNameIsValid } from '../../../lib/client.safe.utils';
 
@@ -25,7 +25,7 @@ const StoryGroupTreeNode = (props) => {
         disabled,
         showPublish,
     } = props;
-    const { type = 'story' } = item;
+    const { type } = item;
     const [newTitle, setNewTitle] = useState('');
     const [renamingModalPosition, setRenamingModalPosition] = useState(null);
     const renamerRef = useRef();
@@ -102,6 +102,34 @@ const StoryGroupTreeNode = (props) => {
 
     const cleanStoryId = id => id.replace(/^.*_SMART_/, '');
 
+    const addStoryOrRule = fragmentType => (
+        <Dropdown.Item
+            content={(
+                <>
+                    <span className='small story-title-prefix'>{fragmentType === 'rule' ? <>&gt;&gt;</> : '##'}</span>
+                    {fragmentType === 'rule' ? 'Rule' : 'Story'}
+                </>
+            )}
+            data-cy={`add-${fragmentType}`}
+            {...(!somethingIsMutating
+                ? {
+                    onClick: () => handleAddStory(
+                        item.id,
+                        `${item.title} (${
+                            item.children.length + 1
+                        })`,
+                        showPublish ? 'unpublished' : 'published',
+                        fragmentType,
+                    ),
+                    onMouseDown: (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    },
+                }
+                : {})}
+        />
+    );
+
     const renderItemActions = () => (
         <div className={`item-actions ${disabled ? 'hidden' : ''}`}>
             {!disableEdit && !isBeingRenamed && (
@@ -128,27 +156,19 @@ const StoryGroupTreeNode = (props) => {
                                 'Focus story group',
                             )}
                             {tooltipWrapper(
-                                <Icon
-                                    className='cursor pointer'
-                                    data-cy='add-story-in-story-group'
-                                    name='plus'
-                                    {...(!somethingIsMutating
-                                        ? {
-                                            onClick: () => handleAddStory(
-                                                item.id,
-                                                `${item.title} (${
-                                                    item.children.length + 1
-                                                })`,
-                                                showPublish ? 'unpublished' : 'published',
-                                            ),
-                                            onMouseDown: (e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                            },
-                                        }
-                                        : {})}
-                                />,
-                                'Add new story to group',
+                                <Dropdown
+                                    icon='plus'
+                                    className='icon cursor pointer'
+                                    data-cy='add-child-to-group'
+                                    style={{ textAlign: 'center' }}
+                                    direction='left'
+                                >
+                                    <Dropdown.Menu>
+                                        {addStoryOrRule('story')}
+                                        {addStoryOrRule('rule')}
+                                    </Dropdown.Menu>
+                                </Dropdown>,
+                                'Add story or form',
                             )}
                         </>
                     )}
@@ -168,7 +188,7 @@ const StoryGroupTreeNode = (props) => {
                     />
                 </i>
             )}
-            {type === 'story' && showPublish && !disabled && (
+            {['story', 'rule'].includes(type) && showPublish && !disabled && (
                 <Popup
                     content={(
                         <p>
@@ -253,7 +273,7 @@ const StoryGroupTreeNode = (props) => {
                     ) : (
                         <span
                             className={`item-name ${
-                                !isPublished && type === 'story' && showPublish
+                                !isPublished && ['story', 'rule'].includes(type) && showPublish
                                     ? 'grey'
                                     : ''
                             } ${somethingIsMutating || disableEdit ? 'uneditable' : ''}`}

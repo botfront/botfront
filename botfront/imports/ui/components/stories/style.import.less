@@ -47,24 +47,26 @@
 
         .item-focus-holder {
             outline: none;
-            &[type='story-group'] {
-                .item-name {
-                    font-weight: bold;
+            .item-name{
+                font-weight: normal;
+                &:before {
+                    font-family: monospace;
+                    color: #666;
+                    padding-right: 0.75ch;
+                    letter-spacing: -2px;
                 }
             }
-            &[type='story'] {
-                .item-name {
-                    font-weight: normal;
-                }
+            &[type='story-group'] .item-name {
+                font-weight: bold;
             }
-            &[type='form'] {
-                .item-name {
-                    font-weight: bold;
-                    color: @botfront-blue;
-                    &:before {
-                        content: '\1F4DD\0020';
-                    }
-                }
+            &[type='story'] .item-name:before {
+                content: '##';
+            }
+            &[type='rule'] .item-name:before {
+                content: '>>';
+            }
+            &[type='form'] .item-name:before {
+                content: '\1F4DD\0020';
             }
             &[type='form-slot'] {
                 .item-name {
@@ -177,6 +179,19 @@
     }
 }
 
+.story-title-prefix {
+    color: #666;
+    font-family: monospace;
+    transform: scale(1.5);
+    letter-spacing: -2px;
+    font-style: normal;
+    font-weight: lighter;
+    padding-right: 1ch;
+    &.small {
+        transform: unset;
+    }
+}
+
 .count-tooltip {
     left: 30px;
     height: 30px;
@@ -281,11 +296,9 @@
                 background-color: #f9f9f9;
                 color: #212121;
                 outline: none;
-                // &:hover {
-                //     border-color: rgba(176, 176, 176, 0.4);
-                // }
-                &:focus {
-                    border-color: rgb(176, 176, 176);
+                &:hover, &:focus {
+                    border-color: rgba(176, 176, 176, 0.4);
+                    background-color: #fff;
                     color: rgba(0, 0, 0, 1);
                 }
             }
@@ -293,12 +306,6 @@
 
         .icon {
             margin-left: 8px;
-        }
-
-        .story-title-prefix {
-            opacity: 0.4;
-            margin-right: 0;
-            padding-bottom: 5px;
         }
 
         //removes borders b/w menu items
@@ -619,10 +626,6 @@
     .ui.header {
         margin-bottom: 4px;
         margin-top: 0em;
-    }
-    .story-title-prefix {
-        opacity: 0.4;
-        margin-right: 0.25em;
     }
     .title-list-elem {
         margin-top: 0px;
