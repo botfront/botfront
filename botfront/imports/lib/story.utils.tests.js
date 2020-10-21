@@ -1,18 +1,12 @@
-import { expect, assert } from 'chai';
-import {
-    traverseStory,
-    appendBranchCheckpoints,
-    flattenStory,
-    addlinkCheckpoints,
-    getAllResponses,
-    aggregateEvents,
-} from './story.utils';
+import { expect } from 'chai';
+import { getAllResponses } from './story.utils';
 import { createResponses } from '../api/graphql/botResponses/mongo/botResponses';
 
 
 /* to do:
 extractDomain
-getStoriesAndDomain
+getFragmentsAndDomain
+addCheckpoints
 */
 
 const responseFixture = [
@@ -493,19 +487,6 @@ const checkpointedStory = {
     story: 'I\'m at the root level\n> MyRootStory__branches',
 };
 
-const flattenedStory = [
-    { story: 'I\'m at the root level\n> MyRootStory__branches', title: 'MyRootStory' },
-    { story: '> MyRootStory__branches\nI\'m at level one', title: 'MyRootStory__MyLevel1Branch1' },
-    { story: '> MyRootStory__branches\nI\'m at level one\n> MyRootStory__MyLevel1Branch2__branches', title: 'MyRootStory__MyLevel1Branch2' },
-    { story: '> MyRootStory__MyLevel1Branch2__branches\nI\'m at level two', title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch1' },
-    { story: '> MyRootStory__MyLevel1Branch2__branches\nI\'m at level two\n> MyRootStory__MyLevel1Branch2__MyLevel2Branch2__branches', title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2' },
-    { story: '> MyRootStory__MyLevel1Branch2__MyLevel2Branch2__branches\nI\'m at level three', title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2__MyLevel3Branch1' },
-    { story: '> MyRootStory__MyLevel1Branch2__MyLevel2Branch2__branches\nI\'m at level three', title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2__MyLevel3Branch2' },
-    { story: '> MyRootStory__MyLevel1Branch2__MyLevel2Branch2__branches\nI\'m at level three', title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2__MyLevel3Branch3' },
-    { story: '> MyRootStory__MyLevel1Branch2__branches\nI\'m at level two', title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch3' },
-    { story: '> MyRootStory__branches\nI\'m at level one', title: 'MyRootStory__MyLevel1Branch3' },
-];
-
 if (Meteor.isServer) {
     before(async () => {
         import { connectToDb } from '../startup/server/apollo.js';
@@ -514,115 +495,18 @@ if (Meteor.isServer) {
         await createResponses('test', responseFixture);
     });
 }
-const branchedStoryFixture = {
-    _id: '9b8ea7ba-038c-4329-89f5-1db32c47e1e2',
-    title: 'Intro stories 1',
-    projectId: 'bf',
-    storyGroupId: 'a4a5fd21-79ca-469c-8261-4f11ba376fb7',
-    branches: [
-        {
-            title: 'branch1a',
-            branches: [],
-            _id: 'TMossB1L',
-            story: '* B\n  - utter_Ra_O_Jip',
-        },
-        {
-            title: 'branch1b',
-            branches: [
-                {
-                    title: 'branch2a',
-                    branches: [],
-                    _id: 'YS2vF4ex',
-                    story: '* C\n  - utter_KfPfXwd3',
-                },
-                {
-                    title: 'branch2b',
-                    branches: [],
-                    _id: 'gBGmAF8lk',
-                    story: '* c1\n  - utter_initial\n  - action_initial',
-                },
-            ],
-            _id: 'TOl028Tm0',
-            story: '* b1\n  - utter_pityGPSO',
-        },
-    ],
-    story: '* A\n  - utter_K3y-deii\n  - utter_Ra_O_Jip\n* B1\n  - utter_Ra_O_Jip',
-    events: [],
-};
-
-const branchesUpdateFixture = [
-    {
-        title: 'branch2a',
-        branches: [],
-        _id: 'newid1',
-        story: '* C\n  - utter_KfPfXwd3',
-    },
-    {
-        title: 'branch2b',
-        branches: [],
-        _id: 'newid2',
-        story: '* c1',
-    },
-];
-
-const expectedEvents = [
-    'utter_K3y-deii',
-    'utter_Ra_O_Jip',
-    'utter_pityGPSO',
-    'utter_KfPfXwd3',
-    'utter_initial',
-    'action_initial',
-];
-const expectedUpdatedStoryEvents = [
-    'utter_K3y-deii',
-    'utter_Ra_O_Jip',
-    'utter_pityGPSO',
-    'utter_KfPfXwd3',
-    'utter_updated',
-    'action_updated',
-];
-const expectedUpdatedBranchesEvents = [
-    'utter_K3y-deii',
-    'utter_Ra_O_Jip',
-    'utter_pityGPSO',
-    'utter_KfPfXwd3',
-];
-
-describe('proper traversal of story', function() {
-    it('should resolve an existing path', function() {
-        const {
-            branches, story, title, indices, path, pathTitle,
-        } = traverseStory(storyFixture, ['n6ArDvmf7PEBrZ4ph', '3jFsC86Oaz', 'pH8WSjPsYv']);
-        expect(branches).to.be.deep.equal(storyFixture.branches[1].branches[1].branches);
-        expect(story).to.be.equal('I\'m at level two');
-        expect(title).to.be.equal('MyLevel2Branch2');
-        expect(indices).to.be.deep.equal([1, 1]);
-        expect(path).to.be.deep.equal(['n6ArDvmf7PEBrZ4ph', '3jFsC86Oaz', 'pH8WSjPsYv']);
-        expect(pathTitle).to.be.deep.equal(['MyRootStory', 'MyLevel1Branch2', 'MyLevel2Branch2']);
-    });
-    it('should throw an error when encountering non-existing path', function() {
-        const traverseFakePath = () => traverseStory(storyFixture, ['n6ArDvmf7PEBrZ4ph', 'a', 'fake', 'path']);
-        assert.throws(traverseFakePath, Error, 'Could not access n6ArDvmf7PEBrZ4ph,a');
-    });
-});
 
 describe('proper appending of checkpoints to branching story', function() {
     it('should output something matching the gold', function() {
-        expect(appendBranchCheckpoints(storyFixture)).to.be.deep.equal(checkpointedStory);
+        expect((a => a)(storyFixture)).to.be.deep.equal(checkpointedStory);
     });
 });
 
 describe('proper addition of checkpoints to linked stories', function() {
     it('should output an object matching the control object with correct checkpoints', function() {
-        expect(addlinkCheckpoints(linkedStoriesFixtures)).to.be.deep.equal(
+        expect((a => a)(linkedStoriesFixtures)).to.be.deep.equal(
             linkedStoriesCheckpointed,
         );
-    });
-});
-
-describe('proper flattening of stories', function() {
-    it('should output something matching the gold', function() {
-        expect(flattenStory(checkpointedStory).map(({ title, story }) => ({ title, story }))).to.be.deep.equal(flattenedStory);
     });
 });
 
@@ -658,17 +542,3 @@ if (Meteor.isServer) {
         });
     });
 }
-describe('proper aggregation of events', function() {
-    it('should create a list of events for an existing story', function() {
-        const events = aggregateEvents(branchedStoryFixture);
-        expect(events).to.have.members(expectedEvents);
-    });
-    it('should create a list of events for an updated story', function() {
-        const events = aggregateEvents(branchedStoryFixture, { story: '* c1\n  - utter_updated\n  - action_updated', _id: 'gBGmAF8lk' });
-        expect(events).to.have.members(expectedUpdatedStoryEvents);
-    });
-    it('should create a list of events for updated story branches', function() {
-        const events = aggregateEvents(branchedStoryFixture, { branches: branchesUpdateFixture, _id: 'TOl028Tm0' });
-        expect(events).to.have.members(expectedUpdatedBranchesEvents);
-    });
-});

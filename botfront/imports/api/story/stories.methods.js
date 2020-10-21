@@ -1,7 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { check, Match } from 'meteor/check';
 import uuidv4 from 'uuid/v4';
-import { traverseStory } from '../../lib/story.utils';
 import { indexStory } from './stories.index';
 
 import { Stories } from './stories.collection';
@@ -80,8 +79,13 @@ Meteor.methods({
         const { textIndex, events: newEvents } = indexStory(originStory, {
             update: { ...rest, _id: path[path.length - 1] },
         });
-
-        const { indices } = traverseStory(originStory, path);
+        const { indices } = path.slice(1)
+            .reduce((acc, curr) => ({
+                branches: acc.branches.find(b => b._id === curr)?.branches || [],
+                indices: [...acc.indices, (acc.branches || []).findIndex(
+                    branch => branch._id === curr,
+                )],
+            }), { branches: originStory.branches || [], indices: [] });
         const update = indices.length
             ? Object.assign(
                 {},

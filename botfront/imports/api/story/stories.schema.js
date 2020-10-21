@@ -22,6 +22,7 @@ const commonFields = {
     },
     steps: {
         type: Array,
+        optional: true,
         defaultValue: [],
     },
     'steps.$': {

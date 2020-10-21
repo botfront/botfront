@@ -21,7 +21,7 @@ import { Instances } from './instances.collection';
 import { CorePolicies } from '../core_policies';
 import { Evaluations } from '../nlu_evaluation';
 import Activity from '../graphql/activity/activity.model';
-import { getStoriesAndDomain } from '../../lib/story.utils';
+import { getFragmentsAndDomain } from '../../lib/story.utils';
 import { Projects } from '../project/project.collection';
 
 const replaceMongoReservedChars = (input) => {
@@ -225,21 +225,18 @@ if (Meteor.isServer) {
 
         async 'rasa.getTrainingPayload'(
             projectId,
-            { language = '', joinStoryFiles = true } = {},
+            { language = '' } = {},
         ) {
             check(projectId, String);
             check(language, String);
-            const instance = await Instances.findOne({ projectId });
-            const client = axios.create({
-                baseURL: instance.host,
-                timeout: 3 * 60 * 1000,
-            });
 
             const { policies: corePolicies, augmentationFactor } = CorePolicies.findOne({ projectId }, { policies: 1, augmentationFactor: 1 });
             const nlu = {};
             const config = {};
 
-            const { stories, domain, wasPartial } = await getStoriesAndDomain(
+            const {
+                stories, rules, domain, wasPartial,
+            } = await getFragmentsAndDomain(
                 projectId,
                 language,
             );
@@ -256,25 +253,13 @@ if (Meteor.isServer) {
                     rasa_nlu_data,
                     config: configForLang,
                 } = await getNluDataAndConfig(projectId, lang, selectedIntents);
-                const { data: result } = await client.post('/data/convert/', {
-                    data: { rasa_nlu_data },
-                    output_format: 'md',
-                    language: lang,
-                });
-                const canonical = rasa_nlu_data.common_examples
-                    .filter(e => e.canonical)
-                    .map(e => e.text);
-                const canonicalText = canonical.length
-                    ? `\n\n# canonical\n- ${canonical.join('\n- ')}`
-                    : '';
-                nlu[lang] = {
-                    data: `# lang:${lang}${canonicalText}\n\n${result.data}`,
-                };
+                nlu[lang] = { rasa_nlu_data };
                 config[lang] = `${configForLang}\n\n${corePolicies}`;
             }
             const payload = {
-                domain,
-                stories: joinStoryFiles ? stories.join('\n') : stories,
+                domain: yaml.safeDump(domain),
+                stories,
+                rules,
                 nlu,
                 config,
                 fixed_model_name: getProjectModelFileName(projectId),
@@ -295,7 +280,9 @@ if (Meteor.isServer) {
             appMethodLogger.debug(`Training project ${projectId}...`);
             const t0 = performance.now();
             try {
-                const payload = await Meteor.call('rasa.getTrainingPayload', projectId);
+                const { stories, rules, ...payload } = await Meteor.call('rasa.getTrainingPayload', projectId);
+                payload.fragments = yaml.safeDump({ stories, rules });
+                
                 const instance = await Instances.findOne({ projectId });
                 const trainingClient = axios.create({
                     baseURL: instance.host,

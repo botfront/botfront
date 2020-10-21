@@ -19,7 +19,7 @@ import 'brace/theme/github';
 import 'brace/mode/text';
 import 'brace/mode/yaml';
 
-import { traverseStory } from '../../../lib/story.utils';
+import { storyReducer } from '../../../lib/story.utils';
 import { DialogueFragmentValidator } from '../../../lib/dialogue_fragment_validator';
 import { ConversationOptionsContext } from './Context';
 import { ProjectContext } from '../../layouts/context';
@@ -68,11 +68,7 @@ const StoryEditorContainer = ({
     const [destinationStory, setDestinationStory] = useState(null);
     const [destinationStories, setDestinationStories] = useState([]);
 
-    const reducer = (input, priorPath = '') => input.reduce((acc, { _id, branches = [], ...rest }) => {
-        const path = priorPath ? `${priorPath},${_id}` : _id;
-        return { ...acc, [path]: { ...rest, branches }, ...reducer(branches, path) };
-    }, {});
-    const branches = useMemo(() => reducer([story]), [JSON.stringify(story)]);
+    const branches = useMemo(() => storyReducer([story]), [JSON.stringify(story)]);
 
     const validateYaml = (update) => {
         const newAnnotations = Object.keys(update).reduce((acc, curr) => ({ ...acc, [curr]: new DialogueFragmentValidator().validateYamlFragment(update[curr]) }), {});
@@ -380,13 +376,6 @@ const StoryEditorContainer = ({
         );
     };
 
-    function getStoryPath() {
-        try {
-            return traverseStory(story, branchPath).pathTitle;
-        } catch (e) {
-            return [story.title];
-        }
-    }
     return (
         <div className='story-editor' data-cy='story-editor'>
             {renderTopMenu()}
@@ -399,7 +388,7 @@ const StoryEditorContainer = ({
                     onDestinationStorySelection={onDestinationStorySelection}
                     destinationStory={destinationStory}
                     canBranch={!branches[branchPath.join()]?.branches.length}
-                    storyPath={getStoryPath()}
+                    storyPath={branchPath.map((_, i, src) => branches[src.slice(0, i + 1).join()]?.title)}
                     currentStoryId={story._id}
                     disableContinue
                 />

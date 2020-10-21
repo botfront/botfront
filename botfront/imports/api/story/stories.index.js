@@ -15,8 +15,8 @@ const RESERVED_KEYS = [
     'active_loop',
 ];
 
-const scrapeStory = (el) => {
-    if (Array.isArray(el)) return el.flatMap(scrapeStory);
+const scrapeStoryTextAndActions = (el) => {
+    if (Array.isArray(el)) return el.flatMap(scrapeStoryTextAndActions);
     if (el && typeof el === 'object') {
         return Object.keys(el).flatMap(k => [
             ...(!RESERVED_KEYS.includes(k) ? [{ type: 'other', value: k }] : []),
@@ -24,7 +24,7 @@ const scrapeStory = (el) => {
                 ? k === 'action'
                     ? [{ type: 'action', value: el[k] }]
                     : [{ type: 'other', value: el[k] }]
-                : scrapeStory(el[k])),
+                : scrapeStoryTextAndActions(el[k])),
         ]);
     }
     return [];
@@ -47,7 +47,7 @@ export const indexStory = (storyToIndex, options = {}) => {
     const {
         title, steps, condition, branches,
     } = story;
-    const els = scrapeStory([title, condition, steps, branches]);
+    const els = scrapeStoryTextAndActions([title, condition, steps, branches]);
     const result = {};
     result.textIndex = els.map(el => el.value).join(' ');
     const events = Array.from(

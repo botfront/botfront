@@ -70,7 +70,7 @@ class DeleteModel extends React.Component {
                     [language]: { data },
                 } = res.nlu;
                 const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
-                const filename = `${projectId.toLowerCase()}-${language}-${moment().toISOString()}.md`;
+                const filename = `${projectId.toLowerCase()}-${language}-${moment().toISOString()}.yml`;
                 saveAs(blob, filename);
                 this.setState({ backupDownloaded: true });
             }),
