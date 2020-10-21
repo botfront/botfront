@@ -1,7 +1,10 @@
 import JSZIP from 'jszip';
 
 
-export const base = f => ({ filename: f.name, name: f.name, lastModified: f.lastModified });
+export const base = (f) => {
+    const newfile = new File([f], f.name);
+    return newfile;
+};
 
 export const update = (updater, file, content) => updater({
     update: {

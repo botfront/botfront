@@ -15,9 +15,13 @@ mutation (
         onlyValidate: $onlyValidate
     ) {
         fileMessages {
+            errors
+            warnings
             info
+            conflicts
+            filename        
         }
-        filename    
+       summary
     }
 }
 `;

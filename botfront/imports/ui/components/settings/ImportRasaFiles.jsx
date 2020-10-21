@@ -42,7 +42,34 @@ const ImportRasaFiles = (props) => {
     useEffect(() => setFallbackImportLanguage(language), [language]);
     const [wipeCurrent, setWipeCurrent] = useState(false);
 
-    const handleFileDrop = async (files, fileList) => {
+    const validateFunction = async (files) => {
+        // we don't want to send files with errors already so we filter those out
+        // but we keep their index so it easy to
+        const filesNotSentIndexes = [];
+        const filesToSend = files.filter((file, index) => {
+            if (file.errors && file.errors.length > 0) {
+                filesNotSentIndexes.push(index);
+                return false;
+            }
+            return true;
+        });
+        const validationResult = await importFiles({ variables: { projectId, files: filesToSend, onlyValidate: true } });
+        const validationData = validationResult?.data?.import?.fileMessages;
+        if (validationData.length !== files.length) { // that means some files were not sent
+            filesNotSentIndexes.forEach((index) => {
+                validationData.splice(index, 0, files[index]); // so we re-insert those
+            });
+        }
+        return validationData;
+    };
+
+
+    const importFunction = async (files) => {
+        const importResult = await importFiles({ variables: { projectId, files, noValidate: true } });
+        console.log(importResult);
+    };
+
+    const handleFileDrop = async (files, [fileList, setFileList]) => {
         const newValidFiles = Array.from(files).filter(
             f => f.size
                 && !fileList.some(
@@ -59,13 +86,12 @@ const ImportRasaFiles = (props) => {
             
             return [...newFiles, currFile];
         }, []);
-        importFiles({ variables: { projectId, files: filesWithUnziped, onlyValidate: true } });
-        // gql call for validation
+        setFileList({ add: filesWithUnziped });
     };
 
     const useFileDrop = fileReader => useDrop({
         accept: [NativeTypes.FILE],
-        drop: item => handleFileDrop(item.files, []),
+        drop: item => handleFileDrop(item.files, fileReader),
         collect: monitor => ({
             isOver: monitor.isOver(),
             canDrop: monitor.canDrop(),
@@ -78,22 +104,20 @@ const ImportRasaFiles = (props) => {
         const colorOfLabel = (f) => {
             if (f.errors && f.errors.length) return { color: 'red' };
             if (f.warnings && f.warnings.length) return { color: 'yellow' };
+            if (!f.validated) return { color: 'grey' };
             return { color: 'green' };
         };
         return (
             <div>
                 {fileList.map(f => (
                     <Label
-                        key={`${f.filename}${f.lastModified}`}
+                        key={`${f.name}${f.lastModified}`}
                         className='file-label'
                         {...colorOfLabel(f)}
                         as='a'
                         onClick={e => e.stopPropagation()}
                     >
                         {f.name}
-                        {f.name !== f.filename && (
-                            <Label.Detail>({f.filename})</Label.Detail>
-                        )}
                         <Icon
                             name='delete'
                             onClick={() => setFileList({
@@ -141,12 +165,12 @@ const ImportRasaFiles = (props) => {
         fallbackImportLanguage,
         projectLanguages: projectLanguages.map(l => l.value),
         instanceHost: instance.host,
+        validateFunction,
     });
     const [fileList, setFileList] = fileReader;
     const [filesImporting, setFilesImporting] = useState(false);
     useEffect(() => {
-        // rerun add instruction to change storygroup name as needed
-        if (typeof setFileList === 'function') { setFileList({ add: fileList }); }
+        if (typeof setFileList === 'function') { setFileList({ wipe: fileList }); }
     }, [wipeCurrent]);
     const [{ canDrop, isOver }, drop] = useFileDrop(fileReader);
     const fileField = useRef();

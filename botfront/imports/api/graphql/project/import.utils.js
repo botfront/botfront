@@ -1,7 +1,7 @@
 
 import { determineDataType } from '../../../lib/importers/common';
 import {
-    loadBotfrontConfig, loadRasaConfig, loadConversations, loadIncoming, loadEndpoints, loadCredentials,
+    loadBotfrontConfig, loadRasaConfig, loadConversations, loadIncoming, loadEndpoints, loadCredentials, doValidation,
 } from '../../../lib/importers/loadMisc.js';
 
 function streamToString (stream) {
@@ -11,6 +11,14 @@ function streamToString (stream) {
         stream.on('error', reject);
         stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
     });
+}
+
+
+// generate a array of info messages that says what will be imported
+// the number of stories, of storiy-groups etc
+export function generateSummary(files) {
+    // TODO
+    return null;
 }
 // dispatch file to correct loader and check for errors
 export function loadFile(file, rawText, params) {
@@ -47,6 +55,14 @@ export function loadFile(file, rawText, params) {
 
 
 export async function readAndValidate(files, params) {
+    // conflictsTracker, keep track of the file that should be unique, or in limited number
+    // keyed on the dataType that correspond to an array of filename,
+    // e.g {'credentials': [credentials.yaml, credentials.production.yaml]}
+    const conflictsTracker = {
+        credentials: [], endpoints: [], rasaconfig: [], botfrontconfig: [],
+    };
+    // the dataTypes that are sensible to conflicts
+    const conflictsSensiblesType = ['credentials', 'endpoints', 'rasaconfig', 'botfrontconfig'];
     const fileWithMessages = await Promise.all(files.map(async (file) => {
         const { filename } = file;
         if (file.filename.match(/\.(yml|json|md)/)) {
@@ -57,11 +73,20 @@ export async function readAndValidate(files, params) {
                     errors: ['file is not parseable text'],
                 };
             }
-                
-            return {
+            const newFileData = {
                 filename,
-                ...loadFile(files, file, rawText, params),
+                ...loadFile(file, rawText, params),
             };
+            const { dataType } = newFileData;
+            if (doValidation(params) && conflictsSensiblesType.includes(dataType)) {
+                if (conflictsTracker[dataType] && conflictsTracker[dataType].length === 1) {
+                    newFileData.warnings = [...(newFileData.warnings || []), `Conflicts with ${conflictsTracker[dataType][0]}, and thus won't be used in the import`];
+                    newFileData.conflicts = true;
+                } else {
+                    conflictsTracker[dataType].push(filename);
+                }
+            }
+            return newFileData;
         }
         return {
             filename,
@@ -76,22 +101,22 @@ export async function readAndValidate(files, params) {
         summary = generateSummary(fileWithMessages);
     }
     return {
-        fileWithMessages, summary,
+        fileMessages: fileWithMessages, summary,
     };
 }
 
-
+// import all file in the array of files
+// the files should have been processed before by the validation step
 export function importAll(files) {
-    // files.map((file) => {
-    //     type = determineDataType();
-    // });
+    // TODO
+    return null;
 }
 
 
 export function hasErrors(messages) {
     let containsErrors = false;
     messages.forEach((message) => {
-        if (message.errors.length > 0) containsErrors = true;
+        if (message.errors && message.errors.length > 0) containsErrors = true;
     });
     return containsErrors;
 }
@@ -100,7 +125,7 @@ export function hasErrors(messages) {
 // onlyValidate, noValidate are boolean switches to alter the steps of the validation
 export async function importSteps(projectId, files, onlyValidate, noValidate) {
     const filesAndValidationData = await readAndValidate(files, { onlyValidate, noValidate, projectId });
-    if (onlyValidate || hasErrors(filesAndValidationData)) return filesAndValidationData;
+    if (onlyValidate || hasErrors(filesAndValidationData.fileWithMessages)) return filesAndValidationData;
     const filesToImport = filesAndValidationData.filter();
     const importResult = importAll(filesToImport);
     return importResult;

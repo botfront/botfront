@@ -10,21 +10,21 @@ export default {
                 files, noValidate, onlyValidate, projectId,
             } = args;
             checkIfCan('projects:w', projectId, context.user._id);
-
             // files is a list of promises as the files gets uploaded to the server
             const filesData = await Promise.all(files);
-            return importSteps(projectId, filesData, noValidate, onlyValidate);
+            return importSteps(projectId, filesData, onlyValidate, noValidate);
         },
     },
     Report: {
         fileMessages: parent => parent.fileMessages,
-        info: parent => parent.info,
-        filename: parent => parent.filename,
+        summary: parent => parent.summary,
     },
 
     fileMessages: {
         errors: parent => parent.errors,
         warnings: parent => parent.warnings,
         info: parent => parent.info,
+        filename: parent => parent.filename,
+        conflicts: parent => parent.conflicts,
     },
 };
