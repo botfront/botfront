@@ -55,7 +55,7 @@ describe('Importing a project', function() {
             });
             cy.dataCy('export-with-conversations')
                 .click();
-            cy.dataCy('backup-link').should('exist');
+            cy.dataCy('backup-message').should('exist');
         });
         it('should display the correct API link after downloading a backup without conversations', function() {
             cy.visit('/project/test_project/settings');

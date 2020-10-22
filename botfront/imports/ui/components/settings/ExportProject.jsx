@@ -8,7 +8,7 @@ import {
 import { ProjectContext } from '../../layouts/context';
 
 const ExportProject = ({
-    setLoading, apiHost,
+    setLoading,
 }) => {
     const { projectLanguages, language, project: { _id: projectId } } = useContext(ProjectContext);
 
@@ -71,24 +71,6 @@ const ExportProject = ({
         };
     }, {});
 
-    const getSuccessMessageContent = () => {
-        if (exportType.value === 'botfront') {
-            return (
-                <p>
-                    If your download does not start within 5 seconds click{' '}
-                    <a
-                        href={`${apiHost}/project/${projectId}/export?output=json${generateParamString()}`}
-                        data-cy='export-link'
-                    >
-                        here{' '}
-                    </a>
-                    to retry.
-                </p>
-            );
-        }
-        return <></>;
-    };
-
     const getLanguageOptions = () => [
         ...(projectLanguages.length > 1
             ? [{ value: 'all', text: 'All languages' }]
@@ -105,7 +87,6 @@ const ExportProject = ({
         const exportOptions = paramsFromString(generateParamString());
         Meteor.call(
             'exportProject',
-            apiHost,
             projectId,
             exportOptions,
             (err, { data, error }) => {
@@ -211,7 +192,6 @@ const ExportProject = ({
                 positive
                 icon='check circle'
                 header={exportType.successText}
-                content={getSuccessMessageContent()}
             />
         );
     }
@@ -321,7 +301,6 @@ const ExportProject = ({
 
 ExportProject.propTypes = {
     setLoading: PropTypes.func.isRequired,
-    apiHost: PropTypes.string.isRequired,
 };
 
 export default ExportProject;
