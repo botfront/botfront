@@ -149,7 +149,7 @@ const ImportProject = ({
                 />
             )}
             {backupSuccess === true && (
-                <p className='plain-text-message'>
+                <p className='plain-text-message' data-cy='backup-message'>
                     <br />Please verify that the backup has downloaded before continuing.
                 </p>
             )}
