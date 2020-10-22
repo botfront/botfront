@@ -78,21 +78,28 @@ export default class StoryVisualEditor extends React.Component {
 
     renderAddLine = (rawIndex) => {
         const { lineInsertIndex } = this.state;
-        const { story } = this.props;
+        const { story, mode } = this.props;
         let index = rawIndex;
         const [currentLine, nextLine] = [story[index], story[index + 1]];
         if (this.loopLinesMatch(currentLine, nextLine)) index += 1;
+        const hasIntent = story.some(l => 'intent' in l || 'or' in l); // max one intent per rule step body
+        const hasSlot = story.some(l => 'slot_was_set' in l);
+        const loop = [];
+        if (mode !== 'rule_condition' || !story.some(l => 'active_loop' in l)) loop.push('active');
+        if (mode !== 'rule_condition') loop.push('activate');
 
         const options = {
             userUtterance:
-                !('intent' in (story[index] || {}))
+                mode !== 'rule_condition'
+                && (mode !== 'rule_steps' || !hasIntent)
+                && !('intent' in (story[index] || {}))
                 && !('or' in (story[index] || {}))
                 && !('intent' in (story[index + 1] || {}))
                 && !('or' in (story[index + 1] || {})),
-            botUtterance: true,
-            action: true,
-            slot: true,
-            form: true,
+            botUtterance: mode !== 'rule_condition',
+            action: mode !== 'rule_condition',
+            slot: mode !== 'rule_condition' || !hasSlot,
+            loop,
         };
 
         if (!Object.keys(options).length) return null;
@@ -333,6 +340,9 @@ StoryVisualEditor.propTypes = {
     onSave: PropTypes.func.isRequired,
     story: PropTypes.array.isRequired,
     getResponseLocations: PropTypes.func.isRequired,
+    mode: PropTypes.oneOf(['story', 'rule_steps', 'rule_condition']),
 };
 
-StoryVisualEditor.defaultProps = {};
+StoryVisualEditor.defaultProps = {
+    mode: 'story',
+};

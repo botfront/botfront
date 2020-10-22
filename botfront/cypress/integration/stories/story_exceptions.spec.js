@@ -58,7 +58,7 @@ describe('story exceptions', function() {
         cy.dataCy('top-menu-warning-alert').should('exist');
         cy.linkStory('Farewells', 'Exception test story');
         cy.browseToStory('Exception test story', 'Exception test group');
-        cy.get('.connected-story-alert').should('exist');
+        cy.get('.top-menu-yellow-banner').should('exist');
         cy.dataCy('top-menu-warning-alert').should('not.exist');
     });
 });

@@ -29,6 +29,10 @@ const getSlotsInRasaFormat = (slots = []) => {
     return slotsToAdd;
 };
 
+export const stepsToYaml = steps => yaml.safeDump(steps || [])
+    .replace(/^\[\]/, '')
+    .replace(/\n$/, '');
+
 export const storyReducer = (input, priorPath = '') => input.reduce((acc, { _id, branches = [], ...rest }) => {
     const path = priorPath ? `${priorPath},${_id}` : _id;
     return { ...acc, [path]: { ...rest, branches }, ...storyReducer(branches, path) };

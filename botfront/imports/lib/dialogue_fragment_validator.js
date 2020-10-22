@@ -4,7 +4,7 @@ const INTENT_KEYS = ['intent', 'entities', 'user'];
 
 export class DialogueFragmentValidator {
     constructor({
-        mode = 'story', // story, linked_story, rule_steps, rule_condition
+        mode = 'story', // story, rule_steps, rule_condition
     } = {}) {
         this.mode = mode;
         this.annotations = [];
