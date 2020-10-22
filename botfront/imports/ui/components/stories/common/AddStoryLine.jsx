@@ -9,7 +9,7 @@ import UserUtterancePopupContent from './UserUtterancePopupContent';
 const AddStoryLine = React.forwardRef((props, ref) => {
     const {
         availableActions: {
-            userUtterance, botUtterance, action, slot,
+            userUtterance, botUtterance, action, slot, '...': ellipsis,
         },
         noButtonResponse,
         onSelectResponse,
@@ -78,6 +78,16 @@ const AddStoryLine = React.forwardRef((props, ref) => {
                     )}
                     trackOpenMenu={trackOpenMenu}
                 />
+            )}
+            {ellipsis && (
+                <DashedButton
+                    color='light-grey'
+                    size={size}
+                    data-cy='add-...-line'
+                    onClick={() => onCreateGenericLine('...')}
+                >
+                    ...
+                </DashedButton>
             )}
         </div>
     );

@@ -394,7 +394,7 @@ const StoryEditorContainer = ({
                     destinationStory={destinationStory}
                     canBranch={!branches[branchPath.join()]?.branches.length}
                     storyPath={branchPath.map((_, i, src) => branches[src.slice(0, i + 1).join()]?.title)}
-                    currentStoryId={story._id}
+                    fragment={story}
                     disableContinue
                 />
             )}
