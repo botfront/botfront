@@ -35,17 +35,17 @@ const isDeletionPossible = (node = {}, nodes, tree) => {
     const isDestinationOrOrigin = s => isDestination(s) || isOrigin(s);
     let deletable = false;
     let message = null;
-    if (node.type === 'story') {
+    if (['story', 'rule'].includes(node.type)) {
         deletable = !isDestinationOrOrigin(node);
         message = deletable
-            ? `The story ${node.title} will be deleted. This action cannot be undone.`
-            : `The story ${node.title} cannot be deleted as it is linked to another story.`;
+            ? `'${node.title}' will be deleted. This action cannot be undone.`
+            : `'${node.title}' cannot be deleted as it is linked to another story.`;
     }
     if (node.type === 'story-group') {
         deletable = !(node.children || []).some(c => isDestinationOrOrigin(tree.items[c]));
         message = deletable
-            ? `The story group ${node.title} and all its stories in it will be deleted. This action cannot be undone.`
-            : `The story group ${node.title} cannot be deleted as it contains links.`;
+            ? `The group ${node.title} and all its stories in it will be deleted. This action cannot be undone.`
+            : `The group ${node.title} cannot be deleted as it contains links.`;
     }
     if (node.type === 'form') {
         deletable = true;
