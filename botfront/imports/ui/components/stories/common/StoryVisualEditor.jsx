@@ -80,26 +80,25 @@ export default class StoryVisualEditor extends React.Component {
         const { lineInsertIndex } = this.state;
         const { story, mode } = this.props;
         let index = rawIndex;
-        const [currentLine, nextLine] = [story[index], story[index + 1]];
+        const [currentLine, nextLine] = [story[index] || {}, story[index + 1] || {}];
         if (this.loopLinesMatch(currentLine, nextLine)) index += 1;
-        const hasIntent = story.some(l => 'intent' in l || 'or' in l); // max one intent per rule step body
-        const hasSlot = story.some(l => 'slot_was_set' in l);
+        const lineIsIntent = l => l !== '...' && ('intent' in l || 'or' in l);
         const loop = [];
-        if (mode !== 'rule_condition' || !story.some(l => 'active_loop' in l)) loop.push('active');
+        if (mode !== 'rule_condition' || !story.some(l => l !== '...' && 'active_loop' in l)) loop.push('active');
         if (mode !== 'rule_condition') loop.push('activate');
+        const hasSlot = story.some(l => l !== '...' && 'slot_was_set' in l);
 
         const options = {
             userUtterance:
                 mode !== 'rule_condition'
-                && (mode !== 'rule_steps' || !hasIntent)
-                && !('intent' in (story[index] || {}))
-                && !('or' in (story[index] || {}))
-                && !('intent' in (story[index + 1] || {}))
-                && !('or' in (story[index + 1] || {})),
+                && (mode !== 'rule_steps' || !story.some(lineIsIntent))
+                && !lineIsIntent(currentLine)
+                && !lineIsIntent(nextLine),
             botUtterance: mode !== 'rule_condition',
             action: mode !== 'rule_condition',
             slot: mode !== 'rule_condition' || !hasSlot,
             loop,
+            '...': mode === 'rule_steps',
         };
 
         if (!Object.keys(options).length) return null;
@@ -136,6 +135,7 @@ export default class StoryVisualEditor extends React.Component {
         return (
             <Icon
                 name='ellipsis horizontal'
+                className='line-insert'
                 onClick={() => this.setState({ lineInsertIndex: index })}
             />
         );
@@ -165,6 +165,21 @@ export default class StoryVisualEditor extends React.Component {
                     onChange={slot_was_set => this.handleReplaceLine(i, { slot_was_set })}
                     onDelete={() => this.handleDeleteLine(i)}
                 />
+            </ExceptionWrapper>
+            {this.renderAddLine(i)}
+        </React.Fragment>
+    );
+
+    renderEllipsisLine = (i, l, exceptions) => (
+        <React.Fragment key={`ellipsis${i}`}>
+            <ExceptionWrapper exceptions={exceptions}>
+                <div data-cy='ellipsis' className='story-line'>
+                    <GenericLabel
+                        label={<Icon name='ellipsis horizontal' style={{ margin: '0 10px' }} />}
+                        color='light-grey'
+                    />
+                    <IconButton onClick={() => this.handleDeleteLine(i)} icon='trash' />
+                </div>
             </ExceptionWrapper>
             {this.renderAddLine(i)}
         </React.Fragment>
@@ -257,6 +272,9 @@ export default class StoryVisualEditor extends React.Component {
         const { responseLocations, loadingResponseLocations } = this.state;
         const exceptions = [];
 
+        if (line === '...') {
+            return this.renderEllipsisLine(index, line, exceptions);
+        }
         if ('active_loop' in line) {
             return this.renderLoopLine(index, line, exceptions);
         }

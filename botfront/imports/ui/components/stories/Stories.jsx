@@ -111,6 +111,7 @@ function Stories(props) {
     );
 
     const reshapeStories = () => stories
+        .filter(story => story.type === 'story') // no rules
         .map(story => ({ ...story, text: story.title, value: story._id }))
         .sort((storyA, storyB) => {
             if (storyA.text < storyB.text) return -1;
