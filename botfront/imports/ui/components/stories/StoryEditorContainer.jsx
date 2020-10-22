@@ -12,14 +12,14 @@ import PropTypes from 'prop-types';
 import AceEditor from 'react-ace';
 import { debounce } from 'lodash';
 import { List as IList } from 'immutable';
-import { safeLoad, safeDump } from 'js-yaml';
+import { safeLoad } from 'js-yaml';
 import shortid from 'shortid';
 import 'brace/theme/kuroir';
 import 'brace/theme/github';
 import 'brace/mode/text';
 import 'brace/mode/yaml';
 
-import { storyReducer } from '../../../lib/story.utils';
+import { stepsToYaml, storyReducer } from '../../../lib/story.utils';
 import { DialogueFragmentValidator } from '../../../lib/dialogue_fragment_validator';
 import { ConversationOptionsContext } from './Context';
 import { ProjectContext } from '../../layouts/context';
@@ -43,10 +43,6 @@ function getDefaultPath(story) {
     return newPath;
 }
 
-const stepsToYaml = steps => safeDump(steps || [])
-    .replace(/^\[\]/, '')
-    .replace(/\n$/, '');
-
 const StoryEditorContainer = ({
     story,
     disabled,
@@ -67,11 +63,21 @@ const StoryEditorContainer = ({
     const [annotations, setAnnotations] = useState({});
     const [destinationStory, setDestinationStory] = useState(null);
     const [destinationStories, setDestinationStories] = useState([]);
+    const defaultMode = story.type === 'rule' ? 'rule_steps' : 'story';
 
-    const branches = useMemo(() => storyReducer([story]), [JSON.stringify(story)]);
+    const branches = useMemo(() => ({
+        ...storyReducer([story]),
+        // we also include a special path for rule condition
+        ...(story.condition ? { [`${story._id},condition`]: { steps: story.condition } } : {}),
+    }), [JSON.stringify(story)]);
 
     const validateYaml = (update) => {
-        const newAnnotations = Object.keys(update).reduce((acc, curr) => ({ ...acc, [curr]: new DialogueFragmentValidator().validateYamlFragment(update[curr]) }), {});
+        const newAnnotations = Object.keys(update).reduce((acc, curr) => ({
+            ...acc,
+            [curr]: new DialogueFragmentValidator(
+                { mode: curr === `${story._id},condition` ? 'rule_condition' : defaultMode },
+            ).validateYamlFragment(update[curr]),
+        }), {});
         setAnnotations(prev => ({ ...prev, ...newAnnotations }));
         Object.keys(newAnnotations).forEach((path) => {
             const editor = editors.current[path];
@@ -100,6 +106,14 @@ const StoryEditorContainer = ({
             ),
         );
     }, [storyMode]);
+
+    const exceptions = useMemo(() => Object.keys(branches).sort((a, b) => (a.match(/,/g) || []).length < (b.match(/,/g) || []).length).reduce((acc, curr) => ({
+        ...acc,
+        [curr]: [
+            ...(annotations[curr] || []),
+            ...((branches[curr].branches || []).reduce((acc2, { _id }) => acc2.concat(acc[`${curr},${_id}`] || []), [])),
+        ],
+    }), {}), [annotations]);
 
     const saveStory = (path, content, { callback } = {}) => updateStory(
         { _id: story._id, ...content, path },
@@ -143,30 +157,11 @@ const StoryEditorContainer = ({
         }
     }
 
-    const exceptions = useMemo(() => Object.keys(branches).sort((a, b) => (a.match(/,/g) || []).length < (b.match(/,/g) || []).length).reduce((acc, curr) => ({
-        ...acc,
-        [curr]: [
-            ...(annotations[curr] || []),
-            ...((branches[curr].branches || []).reduce((acc2, { _id }) => acc2.concat(acc[`${curr},${_id}`] || []), [])),
-        ],
-    }), {}), [annotations]);
-
-    const renderTopMenu = () => (
-        <StoryTopMenu
-            title={story.title}
-            type={story.type}
-            storyId={story._id}
-            disabled={disabled}
-            errors={exceptions[story._id].filter(({ type }) => type === 'error').length}
-            warnings={exceptions[story._id].filter(({ type }) => type === 'warning').length}
-            originStories={story.checkpoints}
-            initPayload={story.steps?.[0]?.intent}
-        />
-    );
-
     const saveWithAce = (path) => {
         if (!annotations[path.join()]?.some(({ type }) => type === 'error')) {
-            saveStoryDebounced(path, { steps: safeLoad(editorYaml[path.join()] || '') });
+            if (path[1] === 'condition') {
+                saveStoryDebounced(undefined, { condition: safeLoad(editorYaml[path.join()] || '') || [] });
+            } else saveStoryDebounced(path, { steps: safeLoad(editorYaml[path.join()] || '') || [] });
         }
     };
 
@@ -178,7 +173,7 @@ const StoryEditorContainer = ({
             width='100%'
             name='story'
             mode={isLegacy ? 'text' : 'yaml'}
-            minLines={5}
+            minLines={path[1] === 'condition' ? 2 : 5}
             maxLines={Infinity}
             fontSize={14}
             onLoad={
@@ -223,10 +218,20 @@ const StoryEditorContainer = ({
                     onSave={steps => saveStory(path, { steps })}
                     story={branches[path.join()]?.steps || []}
                     getResponseLocations={getResponseLocations}
+                    mode={story.type === 'rule' ? 'rule_steps' : 'story'}
                 />
             </StoryErrorBoundary>
         );
     };
+
+    const renderTopMenu = () => (
+        <StoryTopMenu
+            fragment={story}
+            errors={exceptions[story._id].filter(({ type }) => type === 'error').length}
+            warnings={exceptions[story._id].filter(({ type }) => type === 'warning').length}
+            renderAceEditor={() => renderAceEditor([story._id, 'condition'])}
+        />
+    );
 
     const getNewBranchName = (inputBranches, offset = 0) => {
         const branchNums = inputBranches.map((branch) => {
