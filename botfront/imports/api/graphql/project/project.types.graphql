@@ -4,7 +4,8 @@ type Mutation {
         projectId: String!,
         files: [Upload]!, 
         onlyValidate: Boolean, 
-        noValidate: Boolean 
+        noValidate: Boolean, 
+        wipeCurrent: Boolean = False,
     ): Report
 }
 

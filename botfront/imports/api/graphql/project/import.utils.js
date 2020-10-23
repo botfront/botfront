@@ -107,8 +107,8 @@ export async function readAndValidate(files, params) {
 
 // import all file in the array of files
 // the files should have been processed before by the validation step
-export function importAll(files) {
-    // TODO
+export async function importAll(files, params) {
+    await handleImportAll(files, params);
     return null;
 }
 
@@ -123,10 +123,10 @@ export function hasErrors(messages) {
 
 // this function validate then import the files if there is not errors
 // onlyValidate, noValidate are boolean switches to alter the steps of the validation
-export async function importSteps(projectId, files, onlyValidate, noValidate) {
+export async function importSteps(projectId, files, onlyValidate, noValidate, wipeCurrent) {
     const filesAndValidationData = await readAndValidate(files, { onlyValidate, noValidate, projectId });
-    if (onlyValidate || hasErrors(filesAndValidationData.fileWithMessages)) return filesAndValidationData;
-    const filesToImport = filesAndValidationData.filter();
-    const importResult = importAll(filesToImport);
+    if (onlyValidate || hasErrors(filesAndValidationData.fileMessages)) return filesAndValidationData;
+    const filesToImport = filesAndValidationData.fileMessages;
+    const importResult = await importAll(filesToImport, { wipeCurrent, projectId });
     return importResult;
 }

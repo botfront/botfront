@@ -64,11 +64,6 @@ const ImportRasaFiles = (props) => {
     };
 
 
-    const importFunction = async (files) => {
-        const importResult = await importFiles({ variables: { projectId, files, noValidate: true } });
-        console.log(importResult);
-    };
-
     const handleFileDrop = async (files, [fileList, setFileList]) => {
         const newValidFiles = Array.from(files).filter(
             f => f.size
@@ -240,15 +235,18 @@ const ImportRasaFiles = (props) => {
     );
 
     const valid = (filter = () => true) => fileList.filter(f => !f.errors && filter(f));
-
-    const handleImport = () => handleImportAll(valid(), {
-        projectId,
-        fileReader,
-        setImportingState: setFilesImporting,
-        wipeCurrent,
-        existingStoryGroups,
-        existingSlots,
-    });
+    
+    const handleImport = async () => {
+        const files = fileReader[0];
+        console.log(files);
+        const filesToImport = files.filter(file => !(file.errors && file.errors.length));
+        const importResult = await importFiles({
+            variables: {
+                projectId, files: filesToImport, noValidate: true, wipeCurrent,
+            },
+        });
+        console.log(importResult);
+    };
 
     const renderTotals = () => {
         const checkUniques = () => {
@@ -312,67 +310,65 @@ const ImportRasaFiles = (props) => {
             .join(', ');
     };
 
+    // to update with new stories
     const counts = useMemo(renderTotals, fileReader);
 
-    const renderBottom = () => {
-        if (!counts) return null;
-        return (
-            <>
+    const renderBottom = () => (
+        <>
                
-                <Message info>
-                    <div>Importing {counts}.</div>
-                    <div className='side-by-side middle'>
-                        <div className='side-by-side narrow left middle'>
-                            <Popup
-                                content={(
-                                    <>
-                                        <p>
+            <Message info>
+                <div>Importing.</div>
+                <div className='side-by-side middle'>
+                    <div className='side-by-side narrow left middle'>
+                        <Popup
+                            content={(
+                                <>
+                                    <p>
                                         Bot responses found in domain files will use the
                                         &apos;language&apos; attribute if it exists; if
                                         not, the fallback import language will be used.
-                                        </p>
+                                    </p>
 
-                                        <p>
+                                    <p>
                                         Likewise, the language of a NLU file can be
                                         specified in its first line; if it isn&apos;t, the
                                         fallback import language will be used.
-                                        </p>
+                                    </p>
 
-                                        <p>For more information, read the docs.</p>
-                                    </>
-                                )}
-                                inverted
-                                trigger={(
-                                    <div>
-                                        <Icon name='question circle' />
-                                        <strong>Fallback import language: </strong>
-                                    </div>
-                                )}
-                            />
-                            <Dropdown
-                                className='export-option'
-                                options={projectLanguages}
-                                selection
-                                value={fallbackImportLanguage}
-                                onChange={(_e, { value }) => {
-                                    setFileList({ changeLang: value });
-                                    setFallbackImportLanguage(value);
-                                }}
-                            />
-                        </div>
-                        <div>
-                            <Button content='Import' data-cy='import-rasa-files' primary onClick={handleImport} />
-                        </div>
+                                    <p>For more information, read the docs.</p>
+                                </>
+                            )}
+                            inverted
+                            trigger={(
+                                <div>
+                                    <Icon name='question circle' />
+                                    <strong>Fallback import language: </strong>
+                                </div>
+                            )}
+                        />
+                        <Dropdown
+                            className='export-option'
+                            options={projectLanguages}
+                            selection
+                            value={fallbackImportLanguage}
+                            onChange={(_e, { value }) => {
+                                setFileList({ changeLang: value });
+                                setFallbackImportLanguage(value);
+                            }}
+                        />
                     </div>
-                </Message>
-            </>
-        );
-    };
+                    <div>
+                        <Button content='Import' data-cy='import-rasa-files' primary onClick={() => handleImport()} />
+                    </div>
+                </div>
+            </Message>
+        </>
+    );
 
     return (
         <>
             {renderImportSection()}
-            {/* {renderBottom()} */}
+            {renderBottom()}
         </>
     );
 };
