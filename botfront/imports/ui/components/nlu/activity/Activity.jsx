@@ -117,16 +117,23 @@ function Activity(props) {
     };
 
     const handleUpdate = async (newData) => {
+        const possiblyValidated = newData.filter(utterance => utterance.validated !== false).map(utterance => utterance._id);
         const dataUpdated = clearTypenameField(
             data
                 .filter(d1 => newData.map(d2 => d2._id).includes(d1._id))
                 .map(d1 => ({ ...d1, ...newData.find(d2 => d2._id === d1._id) })),
         );
+        
+        const toInsert = dataUpdated.map((utterance) => {
+            if (possiblyValidated.includes(utterance._id) && utterance.intent && utterance.validated !== undefined) return { ...utterance, validated: true };
+            return utterance;
+        });
+       
         return upsertActivity({
-            variables: { data: dataUpdated },
+            variables: { data: toInsert },
             optimisticResponse: {
                 __typename: 'Mutation',
-                upsertActivity: dataUpdated.map(d => ({
+                upsertActivity: toInsert.map(d => ({
                     __typename: 'Activity',
                     ...d,
                 })),

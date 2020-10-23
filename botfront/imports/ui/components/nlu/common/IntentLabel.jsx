@@ -231,6 +231,7 @@ const Intent = React.forwardRef((props, ref) => {
             {showReset && (
                 <Icon
                     name='x'
+                    data-cy='remove-intent'
                     className='action-on-label'
                     onClick={() => handleChange('')}
                 />
