@@ -12,7 +12,8 @@ export const activityFields = gql`
             role,
             start,
             end,
-            confidence
+            confidence,
+            extractor
         },
         confidence,
         validated,

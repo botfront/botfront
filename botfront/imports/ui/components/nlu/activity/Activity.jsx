@@ -17,6 +17,7 @@ import Filters from '../models/Filters';
 import DataTable from '../../common/DataTable';
 import ActivityActionsColumn from './ActivityActionsColumn';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
+import { cleanDucklingFromExamples } from '../../../../lib/utils';
 import { isTraining } from '../../../../api/nlu_model/nlu_model.utils';
 import { can, Can } from '../../../../lib/scopes';
 import { useEventListener } from '../../utils/hooks';
@@ -126,9 +127,9 @@ function Activity(props) {
 
     const handleAddToTraining = async (utterances) => {
         const fallbackUtterance = getFallbackUtterance(utterances.map(u => u._id));
-        const toAdd = clearTypenameField(
+        const toAdd = cleanDucklingFromExamples(clearTypenameField(
             utterances.map(({ text, intent, entities: ents }) => ({ text, intent, entities: ents })),
-        );
+        ));
         insertExamples({ variables: { examples: toAdd } });
         const result = await deleteActivity({
             variables: { ids: utterances.map(u => u._id) },
@@ -137,16 +138,23 @@ function Activity(props) {
     };
 
     const handleUpdate = async (newData) => {
+        const possiblyValidated = newData.filter(utterance => utterance.validated !== false).map(utterance => utterance._id);
         const dataUpdated = clearTypenameField(
             data
                 .filter(d1 => newData.map(d2 => d2._id).includes(d1._id))
                 .map(d1 => ({ ...d1, ...newData.find(d2 => d2._id === d1._id) })),
         );
+        
+        const toInsert = dataUpdated.map((utterance) => {
+            if (possiblyValidated.includes(utterance._id) && utterance.intent && utterance.validated !== undefined) return { ...utterance, validated: true };
+            return utterance;
+        });
+       
         return upsertActivity({
-            variables: { data: dataUpdated },
+            variables: { data: toInsert },
             optimisticResponse: {
                 __typename: 'Mutation',
-                upsertActivity: dataUpdated.map(d => ({
+                upsertActivity: toInsert.map(d => ({
                     __typename: 'Activity',
                     ...d,
                 })),

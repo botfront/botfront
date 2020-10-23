@@ -9,7 +9,6 @@ import ImportProject from './ImportProject.jsx';
 import ExportProject from './ExportProject.jsx';
 import { can } from '../../../lib/scopes';
 
-
 class ImportExportProject extends React.Component {
     constructor (props) {
         super(props);

@@ -291,3 +291,14 @@ export function f1() { return ('-----BEGIN PUBLIC KEY-----'); }
 export function f4() { return ('XWujqLdlgGXjT6Zl6XUh678gtQgdblqzb9PAbh8mCndxMawoXEidc1WyTfY9jCKI'); }
 
 export function f9() { return ('-----END PUBLIC KEY-----'); }
+
+export function cleanDucklingFromExamples(examples) {
+    return examples.map((example) => {
+        if (!example.entities) return example;
+        const duckling = new RegExp('duckling', 'i');
+        return {
+            ...example,
+            entities: example.entities.filter(entity => !duckling.test(entity.extractor)),
+        };
+    });
+}

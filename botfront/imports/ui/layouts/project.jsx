@@ -32,7 +32,7 @@ import { Slots } from '../../api/slots/slots.collection';
 import 'semantic-ui-css/semantic.min.css';
 import { GlobalSettings } from '../../api/globalSettings/globalSettings.collection';
 import { ProjectContext } from './context';
-import { setsAreIdentical } from '../../lib/utils';
+import { setsAreIdentical, cleanDucklingFromExamples } from '../../lib/utils';
 import { INSERT_EXAMPLES } from '../components/nlu/models/graphql';
 import apolloClient from '../../startup/client/apollo';
 import { useResponsesContext } from './response.hooks';
@@ -114,11 +114,12 @@ function Project(props) {
 
     const addUtterancesToTrainingData = (utterances, callback = () => {}) => {
         if (!(utterances || []).filter(u => u.text).length) callback(null, { success: true });
+        const cleanedUtterances = cleanDucklingFromExamples(utterances);
         apolloClient
             .mutate({
                 mutation: INSERT_EXAMPLES,
                 variables: {
-                    examples: utterances.filter(u => u.text),
+                    examples: cleanedUtterances.filter(u => u.text),
                     projectId,
                     language: workingLanguage,
                 },
