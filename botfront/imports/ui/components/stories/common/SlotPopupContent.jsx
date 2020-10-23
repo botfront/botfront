@@ -66,7 +66,8 @@ const SlotPopupContent = (props) => {
         if (type === 'text') return ['set', null];
         if (type === 'float') return [1.0, null];
         if (type === 'list') return [['not-empty'], []];
-        return [...slot.categories, null];
+        if (type === 'categorical') return [...slot.categories, null];
+        return [null];
     }
 
     return (
@@ -109,6 +110,7 @@ const SlotPopupContent = (props) => {
                                         // This onclick prevents closing the dropdown
                                         // when you click above or below the text
                                         onClick={(e) => {
+                                            if (chooseSlotWithoutValue) onSelect({ ...s });
                                             e.preventDefault();
                                             e.stopPropagation();
                                         }}
@@ -118,14 +120,12 @@ const SlotPopupContent = (props) => {
                                             fluid
                                             // The upward here prevents a visual bug
                                             upward={false}
+                                            onClick={() => {
+                                                if (chooseSlotWithoutValue) onSelect({ ...s });
+                                            }}
                                         >
                                             <Dropdown.Menu>
-                                                {chooseSlotWithoutValue ? (
-                                                    <Dropdown.Item
-                                                        text='Choose this slot'
-                                                        onClick={() => onSelect({ ...s })}
-                                                    />
-                                                ) : getSlotValue(s).map(content => (
+                                                {getSlotValue(s).map(content => (
                                                     <Dropdown.Item
                                                         onClick={() => onSelect({
                                                             ...s,

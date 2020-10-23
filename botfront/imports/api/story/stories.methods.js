@@ -78,10 +78,9 @@ Meteor.methods({
         check(newStatus, String);
         const storiesToUpdate = Stories.find({ projectId, status: oldStatus }, { fields: { projectId: 1, status: 1 } }).fetch();
         const updatedStories = storiesToUpdate.map(story => ({ ...story, status: newStatus }));
-        if( (Array.isArray(updatedStories) && updatedStories.length>0)) {
+        if ((Array.isArray(updatedStories) && updatedStories.length > 0)) {
             return Meteor.call('stories.update', updatedStories);
         }
-        return 
     },
 
     async 'stories.update'(story, options = {}) {
@@ -139,7 +138,7 @@ Meteor.methods({
             const removedEvents = (oldEvents || []).filter(
                 event => event.match(/^utter_/) && !newEvents.includes(event),
             );
-            deleteResponsesRemovedFromStories(removedEvents, projectId);
+            await deleteResponsesRemovedFromStories(removedEvents, projectId, Meteor.user());
         }
         logStoryUpdate(story, projectId, originStory);
         return result;
@@ -154,7 +153,7 @@ Meteor.methods({
             { $pull: { children: story._id } },
         );
         Stories.remove(story);
-        deleteResponsesRemovedFromStories(storyInDb.events, story.projectId);
+        await deleteResponsesRemovedFromStories(storyInDb.events, story.projectId, Meteor.user());
         auditLogIfOnServer('Story deleted', {
             resId: story._id,
             user: Meteor.user(),

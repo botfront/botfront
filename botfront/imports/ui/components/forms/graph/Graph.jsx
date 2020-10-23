@@ -310,7 +310,7 @@ const SlotsGraph = (props) => {
                 onConnectStop={() => setSettingEdge(false)}
                 onSelectionChange={handleSelectionChange}
                 selectNodesOnDrag={false}
-                selectionKeyCode={420}
+                selectionKeyCode={18}
                 arrowHeadColor='#747474'
             >
                 <MiniMap

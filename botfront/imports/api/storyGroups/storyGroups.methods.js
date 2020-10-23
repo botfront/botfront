@@ -106,7 +106,7 @@ Meteor.methods({
         StoryGroups.remove({ _id: storyGroup._id });
         Forms.deleteMany({ groupId: storyGroup._id }).exec();
         const result = Stories.remove({ storyGroupId: storyGroup._id });
-        deleteResponsesRemovedFromStories(eventstoRemove, storyGroup.projectId);
+        await deleteResponsesRemovedFromStories(eventstoRemove, storyGroup.projectId, Meteor.user());
         auditLogIfOnServer('Story group deleted', {
             resId: storyGroup._id,
             user: Meteor.user(),

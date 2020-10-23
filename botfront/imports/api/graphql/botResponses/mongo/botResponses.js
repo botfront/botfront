@@ -1,11 +1,12 @@
 import { safeDump, safeLoad } from 'js-yaml/lib/js-yaml';
 import shortid from 'shortid';
 import BotResponses from '../botResponses.model';
+import Forms from '../../forms/forms.model';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { Stories } from '../../../story/stories.collection';
 import { addTemplateLanguage, modifyResponseType } from '../../../../lib/botResponse.utils';
 import { parsePayload } from '../../../../lib/storyMd.utils';
-import { getWebhooks, deleteImages } from '../../../../lib/utils';
+import { getWebhooks, deleteImages, auditLogIfOnServer } from '../../../../lib/utils';
 import { replaceStoryLines } from '../../story/mongo/stories';
 
 
@@ -321,14 +322,35 @@ export const newGetBotResponses = async ({
     return templates;
 };
 
-export const deleteResponsesRemovedFromStories = (removedResponses, projectId) => {
-    const sharedResponses = Stories.find({ projectId, events: { $in: removedResponses } }, { fields: { events: true } }).fetch();
+export const deleteResponsesRemovedFromStories = async (removedResponses, projectId, user) => {
+    const sharedResponsesInStories = Stories.find({ projectId, events: { $in: removedResponses } }, { fields: { events: true } }).fetch();
+    const formsInProject = await Forms.find({ projectId }).lean();
+    const responsesInForms = formsInProject.reduce((acc, value) => [
+        ...acc,
+        ...value.slots.reduce((allSlots, slot) => [
+            ...allSlots,
+            `utter_ask_${slot.name}`,
+            `utter_valid_${slot.name}`,
+            `utter_invalid_${slot.name}`,
+        ], [])], []);
     if (removedResponses && removedResponses.length > 0) {
         const deleteResponses = removedResponses.filter((event) => {
-            if (!sharedResponses) return true;
-            return !sharedResponses.find(({ events }) => events.includes(event));
+            if (sharedResponsesInStories.find(({ events }) => events.includes(event))) return false;
+            if (responsesInForms.some(response => response === event)) return false;
+            return true;
         });
         deleteResponses.forEach(event => deleteResponse(projectId, event));
+        deleteResponses.forEach((response) => {
+            auditLogIfOnServer('Deleted response', {
+                resId: response._id,
+                user,
+                projectId,
+                type: 'deleted',
+                operation: 'response-deleted',
+                before: { response },
+                resType: 'response',
+            });
+        });
     }
 };
 
