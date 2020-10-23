@@ -24,10 +24,12 @@ const StoryGroupTreeNode = (props) => {
         selectionIsNonContiguous,
         disabled,
         showPublish,
+        setRenamingModalPosition,
+        renamingModalPosition,
     } = props;
     const { type } = item;
     const [newTitle, setNewTitle] = useState('');
-    const [renamingModalPosition, setRenamingModalPosition] = useState(null);
+    const [selectAllNext, setSelectAllNext] = useState(false);
     const renamerRef = useRef();
 
     const isSmartNode = !!item.id.match(/^.*_SMART_/);
@@ -76,9 +78,22 @@ const StoryGroupTreeNode = (props) => {
     const isHoverTarget = combineTargetFor && type === 'story-group';
 
     useEffect(() => {
-        if (!renamingModalPosition) setNewTitle('');
-        if (!!renamingModalPosition) setNewTitle(renamingModalPosition.title);
-    }, [!!renamingModalPosition]);
+        if (!isBeingRenamed) {
+            if (newTitle) setNewTitle('');
+            return;
+        }
+        setNewTitle(renamingModalPosition.title);
+        setSelectAllNext(true);
+    }, [isBeingRenamed]);
+
+    useEffect(() => {
+        if (selectAllNext) {
+            setSelectAllNext(false);
+            const inputEl = Array.from(renamerRef.current?.childNodes || [])
+                .find(n => n.classList.contains('input'))?.childNodes[0];
+            inputEl?.select(); // eslint-disable-line no-unused-expressions
+        }
+    }, [selectAllNext]);
 
     const handleProps = !somethingIsMutating && !disableDrag
         ? {
@@ -309,11 +324,14 @@ StoryGroupTreeNode.propTypes = {
     selectionIsNonContiguous: PropTypes.bool.isRequired,
     disabled: PropTypes.bool,
     showPublish: PropTypes.bool,
+    setRenamingModalPosition: PropTypes.func.isRequired,
+    renamingModalPosition: PropTypes.object,
 };
 
 StoryGroupTreeNode.defaultProps = {
     disabled: false,
     showPublish: false,
+    renamingModalPosition: null,
 };
 
 const StoryGroupTreeNodeWrapped = props => <StoryGroupTreeNode {...props} />;

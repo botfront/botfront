@@ -52,7 +52,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         replace,
         togglePublish,
     } = instruction;
-    const { setSomethingIsMutating } = externalMutators;
+    const { setSomethingIsMutating, setRenamingModalPosition } = externalMutators;
     const fallbackFunction = (...args) => {
         const callback = args[args.length - 1];
         if (typeof callback === 'function') callback();
@@ -149,7 +149,10 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         setSomethingIsMutating(true);
         addStory(convertId({
             id, parentId, title, status,
-        }, type), () => setSomethingIsMutating(false));
+        }, type), () => {
+            setRenamingModalPosition({ id, title });
+            setSomethingIsMutating(false);
+        });
         return mutateTree({ ...tree, items }, parentId, { isExpanded: true }); // make sure destination is open
     }
     if (toggleFocus) {
@@ -303,7 +306,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
     return tree;
 };
 
-export const useStoryGroupTree = (treeFromProps, activeStories) => {
+export const useStoryGroupTree = (treeFromProps, activeStories, setRenamingModalPosition) => {
     const [somethingIsDragging, setSomethingIsDragging] = useState(false);
     const [somethingIsMutating, setSomethingIsMutating] = useState(false);
     const {
@@ -313,6 +316,7 @@ export const useStoryGroupTree = (treeFromProps, activeStories) => {
     const externalMutators = {
         ...useContext(ConversationOptionsContext),
         setSomethingIsMutating,
+        setRenamingModalPosition,
     };
     const reducer = useMemoOne(() => treeReducer(externalMutators), [projectId]);
 

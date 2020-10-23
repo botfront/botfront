@@ -161,21 +161,6 @@ function Stories(props) {
         [projectId],
     );
 
-    const handleNewStory = useCallback(
-        (story, f) => Meteor.call(
-            'stories.insert',
-            {
-                type: 'story',
-                projectId,
-                branches: [],
-                steps: [],
-                ...story,
-            },
-            wrapMeteorCallback(f),
-        ),
-        [projectId],
-    );
-
     const handleStoryDeletion = useCallback(
         (story, f) => Meteor.call(
             'stories.delete',
@@ -209,12 +194,29 @@ function Stories(props) {
         );
     };
 
-    const handleLinkToStory = (id) => {
+    const handleLinkToStory = useCallback((id) => {
         const { location: { pathname } } = router;
         const newSelection = [id, ...storyMenuSelection.filter(storyId => storyId !== id)];
         router.replace({ pathname, query: { 'ids[]': newSelection } });
         setStoryMenuSelection(newSelection);
-    };
+    }, [storyMenuSelection]);
+
+    const handleNewStory = useCallback(
+        (story, f) => Meteor.call(
+            'stories.insert',
+            {
+                projectId,
+                branches: [],
+                steps: [],
+                ...story,
+            },
+            wrapMeteorCallback(() => {
+                if (story._id) handleLinkToStory(story._id);
+                f();
+            }),
+        ),
+        [projectId],
+    );
 
     useEventListener('keydown', ({ key }) => {
         if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
