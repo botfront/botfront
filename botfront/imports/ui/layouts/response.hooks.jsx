@@ -100,8 +100,7 @@ export function useResponsesContext({ projectId, workingLanguage, projectLanguag
     };
 
     const upsertResponse = async (key, newResponse, index) => {
-        const { payload, key: newKey } = newResponse;
-        const { isNew, ...newPayload } = payload; // don't pass isNew to mutation
+        const { payload, key: newKey, isNew } = newResponse;
         let responseTypeVariable = {};
         // if the response type has changed; add newResponseType to the queryVariables
         if (responses[key] && responses[key].__typename !== payload.__typename) {
@@ -112,7 +111,7 @@ export function useResponsesContext({ projectId, workingLanguage, projectLanguag
         const variables = {
             projectId,
             language: workingLanguage,
-            newPayload,
+            newPayload: payload,
             key,
             newKey,
             index,
@@ -121,7 +120,7 @@ export function useResponsesContext({ projectId, workingLanguage, projectLanguag
         const result = await apolloClient.mutate({
             mutation: UPSERT_BOT_RESPONSE,
             variables,
-            update: () => setResponse(newKey || key, { isNew, ...newPayload }),
+            update: () => setResponse(newKey || key, { isNew, ...payload }),
         });
         return result;
     };
