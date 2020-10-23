@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.27.1-ee.1](https://github.com/botfront/botfront/compare/v0.27.0-ee.1...v0.27.1-ee.1) (2020-10-23)
+
+
+### Features
+
+* slightly better crash traces ([efd4174](https://github.com/botfront/botfront/commit/efd417400fbdbf835fd56eaaebc8c1a35f107103))
+
+
+### Bug Fixes
+
+* duckling entities and CRFExctractor ([a7fe180](https://github.com/botfront/botfront/commit/a7fe180b116724860451a831fb620bdcf72576ba))
+* emojis in examples ([c48742a](https://github.com/botfront/botfront/commit/c48742a6c99b720f32696a9188c395238c231a02))
+* endpoints saving when the document does not exist ([1e1d671](https://github.com/botfront/botfront/commit/1e1d67116d5316fe0f1e7ea4119a56f00d52cf82))
+* import export changes ([2de21a7](https://github.com/botfront/botfront/commit/2de21a72ad80711d68270630217f33867f46902b))
+
 ## [0.27.0-ee.1](https://github.com/botfront/botfront/compare/v0.26.0-ee.3...v0.27.0-ee.1) (2020-10-14)
 
 
