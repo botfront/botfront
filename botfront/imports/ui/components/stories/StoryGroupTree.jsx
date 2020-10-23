@@ -55,6 +55,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
     } = props;
 
     const [deletionModalVisible, setDeletionModalVisible] = useState(false);
+    const [renamingModalPosition, setRenamingModalPosition] = useState(null);
     const [mouseDown, setMouseDown] = useState(false);
 
     const {
@@ -143,7 +144,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
         handleRemoveItem,
         handleRenameItem,
         handleAddStory,
-    } = useStoryGroupTree(treeFromProps, storyMenuSelection);
+    } = useStoryGroupTree(treeFromProps, storyMenuSelection, setRenamingModalPosition);
     const menuRef = useRef();
     const lastFocusedItem = useRef(tree.items[storyMenuSelection[0]] || null);
     const draggingHandle = {
@@ -307,6 +308,8 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
             selectionIsNonContiguous={selectionIsNonContiguous}
             disabled={disableEdit}
             showPublish={showPublish}
+            renamingModalPosition={renamingModalPosition}
+            setRenamingModalPosition={setRenamingModalPosition}
         />
     );
 
