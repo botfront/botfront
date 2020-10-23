@@ -266,7 +266,7 @@ if (Meteor.isServer) {
                 config,
                 fixed_model_name: getProjectModelFileName(projectId),
             };
-            return payload;
+            return JSON.parse(JSON.stringify(payload)); // get rid of undefineds
         },
 
         async 'rasa.train'(projectId) {
@@ -281,7 +281,7 @@ if (Meteor.isServer) {
             appMethodLogger.debug(`Training project ${projectId}...`);
             const t0 = performance.now();
             try {
-                const { stories, rules, ...payload } = await Meteor.call('rasa.getTrainingPayload', projectId);
+                const { stories = [], rules = [], ...payload } = await Meteor.call('rasa.getTrainingPayload', projectId);
                 payload.fragments = yaml.safeDump({ stories, rules });
                 
                 const instance = await Instances.findOne({ projectId });
@@ -333,6 +333,7 @@ if (Meteor.isServer) {
                 }
                 Meteor.call('project.markTrainingStopped', projectId, 'success');
             } catch (e) {
+                console.log(e);
                 const error = `${e.message || e.reason} ${(
                     e.stack.split('\n')[2] || ''
                 ).trim()}`;
