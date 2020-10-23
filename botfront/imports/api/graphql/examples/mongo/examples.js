@@ -2,7 +2,7 @@ import shortid from 'shortid';
 import { escapeRegExp, intersectionBy } from 'lodash';
 import emojiTree from 'emoji-tree';
 import Examples from '../examples.model.js';
-import { setsAreIdentical } from '../../../../lib/utils';
+import { setsAreIdentical, cleanDucklingFromExamples } from '../../../../lib/utils';
 import { canonicalizeExamples } from '../../../nlu_model/nlu_model.utils';
 
 const checkNoEmojisInExamples = (example) => {
@@ -134,7 +134,8 @@ export const insertExamples = async ({
     if (!language || !projectId) throw new Error('Missing language or projectId.');
     if (!examples || !examples.length) return [];
     const { autoAssignCanonical = true, overwriteOnSameText = false } = options;
-    let preparedExamples = examples.reduce((acc, curr) => {
+    let preparedExamples = cleanDucklingFromExamples(examples);
+    preparedExamples = examples.reduce((acc, curr) => {
         checkNoEmojisInExamples(curr);
         if (acc.some(ex => ex.text === curr.text)) return acc; // no duplicates
         return [
