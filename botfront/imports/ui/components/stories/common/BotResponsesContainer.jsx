@@ -11,13 +11,10 @@ import {
 import { useMutation } from '@apollo/react-hooks';
 import { safeLoad } from 'js-yaml';
 
-import { withRouter } from 'react-router';
-import { connect } from 'react-redux';
 import IconButton from '../../common/IconButton';
 import BotResponseEditor from '../../templates/templates-list/BotResponseEditor';
 import ButtonTypeToggle from '../../templates/common/ButtonTypeToggle';
 import BotResponseContainer from './BotResponseContainer';
-import { setStoriesCurrent } from '../../../store/actions/actions';
 import { ProjectContext } from '../../../layouts/context';
 import {
     checkMetadataSet, toggleButtonPersistence, parseContentType, checkContentEmpty,
@@ -37,10 +34,8 @@ const BotResponsesContainer = (props) => {
         deletable,
         enableEditPopup,
         tag,
-        setActiveStories,
         responseLocations,
         loadingResponseLocations,
-        router,
         isNew,
     } = props;
     const {
@@ -131,14 +126,6 @@ const BotResponsesContainer = (props) => {
 
     const handleNameChange = newName => onChange({ key: newName, payload: template });
 
-    const handleLinkToStory = (selectedId) => {
-        const { location: { pathname } } = router;
-        const storyIds = responseLocations.map(({ _id }) => _id);
-        const openStories = [selectedId, ...storyIds.filter(storyId => storyId !== selectedId)];
-        router.replace({ pathname, query: { 'ids[]': openStories } });
-        setActiveStories(openStories);
-    };
-
     useEffect(() => {
         if (toBeCreated || toBeCreated === 0) {
             handleCreateReponse(toBeCreated);
@@ -172,7 +159,6 @@ const BotResponsesContainer = (props) => {
             name={name}
             responseLocations={responseLocations}
             loading={loadingResponseLocations}
-            linkToStory={handleLinkToStory}
             onChange={handleNameChange}
         />
     );
@@ -269,10 +255,8 @@ BotResponsesContainer.propTypes = {
     onDeleteAllResponses: PropTypes.func,
     enableEditPopup: PropTypes.bool,
     tag: PropTypes.string,
-    setActiveStories: PropTypes.func.isRequired,
     responseLocations: PropTypes.array,
     loadingResponseLocations: PropTypes.bool,
-    router: PropTypes.object.isRequired,
     isNew: PropTypes.bool,
 };
 
@@ -289,4 +273,4 @@ BotResponsesContainer.defaultProps = {
     loadingResponseLocations: false,
 };
 
-export default connect(() => ({}), { setActiveStories: setStoriesCurrent })(withRouter(BotResponsesContainer));
+export default BotResponsesContainer;

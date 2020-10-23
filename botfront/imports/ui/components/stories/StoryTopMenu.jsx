@@ -1,5 +1,5 @@
 import {
-    Popup, Icon, Menu, Label, Message, Checkbox, Header,
+    Popup, Icon, Menu, Label, Message, Checkbox, Header, List,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import React, { useState, useContext, useEffect } from 'react';
@@ -39,7 +39,9 @@ const StoryTopMenu = ({
 
     useEffect(() => setNewTitle(title), [title]);
 
-    const { stories, updateStory, getResponseLocations } = useContext(ConversationOptionsContext);
+    const {
+        stories, updateStory, getResponseLocations, linkToStory,
+    } = useContext(ConversationOptionsContext);
     const isDestinationStory = !!(checkpoints || []).length;
 
     const submitTitleInput = () => {
@@ -101,11 +103,20 @@ const StoryTopMenu = ({
 
     const renderConnectedStories = () => {
         const connectedStories = stories.filter(({ _id: cId }) => checkpoints.some(originId => cId === originId[0]));
-        return connectedStories.map(({ _id: cId, title: connectedTitle }) => (
-            <p key={cId} className='title-list-elem'>
-                <span className='story-title-prefix'>##</span>{connectedTitle}
-            </p>
-        ));
+        return (
+            <List data-cy='response-locations-list' className='link-list'>
+                {connectedStories.map(({ _id: cId, title: connectedTitle }) => (
+                    <List.Item
+                        key={cId}
+                        onClick={() => linkToStory(cId)}
+                        data-cy='story-name-link'
+                    >
+                        <span className='story-title-prefix'>##</span>
+                        <span className='story-name-link'>{connectedTitle}</span>
+                    </List.Item>
+                ))}
+            </List>
+        );
     };
 
     const renderConvStartToggle = () => {
