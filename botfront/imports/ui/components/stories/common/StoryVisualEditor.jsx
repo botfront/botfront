@@ -253,12 +253,14 @@ export default class StoryVisualEditor extends React.Component {
         );
     };
 
-    handleSaveBotResponse = async (name, newResponse) => {
+    handleSaveBotResponse = async (i, name, newResponse) => {
         const { key: newName, payload } = newResponse;
         const { upsertResponse, responses } = this.context;
-        if (isEqual(responses[name], payload) && newName === name) { return new Promise(resolve => resolve()); }
-        const result = upsertResponse(name, newResponse, variationIndex);
-        return result;
+        if (isEqual(responses[name], payload) && newName === name) return;
+        const result = await upsertResponse(name, newResponse, variationIndex);
+        if (result?.data?.upsertResponse?.key === newName) {
+            this.handleReplaceLine(i, { action: newName });
+        }
     };
 
     handleSaveUserUtterance = (index, value) => {
@@ -289,7 +291,7 @@ export default class StoryVisualEditor extends React.Component {
                                 exceptions={exceptions}
                                 name={name}
                                 initialValue={responses[name]}
-                                onChange={newResponse => this.handleSaveBotResponse(name, newResponse)}
+                                onChange={newResponse => this.handleSaveBotResponse(index, name, newResponse)}
                                 onDeleteAllResponses={() => this.handleDeleteLine(index)}
                                 responseLocations={responseLocations[name]}
                                 loadingResponseLocations={loadingResponseLocations}

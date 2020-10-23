@@ -90,11 +90,10 @@ const BotResponseName = (props) => {
                     )}
                     content={(
                         <>
-                            <Header>This response is used in {responseLocations.length} stories</Header>
+                            <Header as='h4'>This response is used in {responseLocations.length} stories</Header>
                             <List data-cy='response-locations-list' className='response-locations-list'>
                                 {responseLocations.map(({ title, _id, storyGroupId }) => (
                                     <List.Item
-                                        className='story-name-link'
                                         key={_id}
                                         onClick={() => {
                                             setPopupOpen(false);
@@ -102,7 +101,8 @@ const BotResponseName = (props) => {
                                         }}
                                         data-cy='story-name-link'
                                     >
-                                    ##{title}
+                                        <span className='story-title-prefix'>##</span>
+                                        <span className='story-name-link'>{title}</span>
                                     </List.Item>
                                 ))}
                             </List>
