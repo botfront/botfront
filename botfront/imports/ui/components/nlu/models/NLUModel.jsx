@@ -12,6 +12,7 @@ import 'react-select/dist/react-select.css';
 import { connect } from 'react-redux';
 import { debounce } from 'lodash';
 import { PageMenu } from '../../utils/Utils';
+import { cleanDucklingFromExamples } from '../../../../lib/utils';
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
 import InsertNlu from '../../example_editor/InsertNLU';
 import Evaluation from '../evaluation/Evaluation';
@@ -152,9 +153,10 @@ function NLUModel(props) {
     };
 
     const handleInsert = (examples) => {
+        const cleanedExamples = cleanDucklingFromExamples(examples);
         insertExamples({
             variables: {
-                examples,
+                examples: cleanedExamples,
                 language: workingLanguage,
                 projectId,
             },

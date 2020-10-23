@@ -9,24 +9,23 @@ import {
 import { upsertActivity as upsertActivityMutation } from './mutations';
 import apolloClient from '../../../../startup/client/apollo';
 import { ProjectContext } from '../../../layouts/context';
+import { cleanDucklingFromExamples } from '../../../../lib/utils';
 
 export async function populateActivity(instance, examples, projectId, language, callback) {
     return Meteor.call('rasa.parse', instance, examples, async (err, activity) => {
         if (err) return;
-        const data = (Array.isArray(activity) ? activity : [activity]).map(a => ({
+        const cleanedActivity = cleanDucklingFromExamples(Array.isArray(activity) ? activity : [activity]);
+        const data = cleanedActivity.map(a => ({
             text: a.text,
             intent: (a.intent && a.intent.name) || null,
             confidence: (a.intent && a.intent.confidence) || null,
-            entities: a.entities.reduce((acc, cur) => {
-                if (cur.extractor === 'ner_duckling_http') return acc;
-                return [...acc, {
-                    entity: cur.entity,
-                    value: `${cur.value}`,
-                    start: cur.start,
-                    end: cur.end,
-                    extractor: cur.extractor,
-                }];
-            }, []),
+            entities: a.entities.reduce((acc, cur) => [...acc, {
+                entity: cur.entity,
+                value: `${cur.value}`,
+                start: cur.start,
+                end: cur.end,
+                extractor: cur.extractor,
+            }], []),
         }));
 
         await apolloClient.mutate({ mutation: upsertActivityMutation, variables: { projectId, language, data } });

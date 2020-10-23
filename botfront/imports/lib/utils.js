@@ -162,3 +162,14 @@ export function useMethod(methodName, { transform } = {}) {
         isLoading, data, error, call,
     };
 }
+
+export function cleanDucklingFromExamples(examples) {
+    return examples.map((example) => {
+        if (!example.entities) return example;
+        const duckling = new RegExp('duckling', 'i');
+        return {
+            ...example,
+            entities: example.entities.filter(entity => !duckling.test(entity.extractor)),
+        };
+    });
+}

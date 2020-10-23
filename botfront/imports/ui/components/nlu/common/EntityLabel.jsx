@@ -102,7 +102,7 @@ function Entity({
         if (value.text !== value.value) {
             return (
                 <span>
-                    {value.text} <span className='value-synonym'>&#8810;{value.value}&#8811;</span>
+                    {value.text} <span className='value-synonym'>&#8810;{value.value instanceof String ? value.value : JSON.stringify(value.value)}&#8811;</span>
                 </span>
             );
         }

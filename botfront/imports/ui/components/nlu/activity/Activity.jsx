@@ -15,6 +15,7 @@ import { populateActivity } from './ActivityInsertions';
 import DataTable from '../../common/DataTable';
 import ActivityActionsColumn from './ActivityActionsColumn';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
+import { cleanDucklingFromExamples } from '../../../../lib/utils';
 import { isTraining } from '../../../../api/nlu_model/nlu_model.utils';
 import { useEventListener } from '../../utils/hooks';
 import { useInsertExamples } from '../models/hooks';
@@ -105,9 +106,9 @@ function Activity(props) {
 
     const handleAddToTraining = async (utterances) => {
         const fallbackUtterance = getFallbackUtterance(utterances.map(u => u._id));
-        const examples = clearTypenameField(
+        const examples = cleanDucklingFromExamples(clearTypenameField(
             utterances.map(({ text, intent, entities }) => ({ text, intent, entities })),
-        );
+        ));
         insertExamples({ variables: { examples } });
         const result = await deleteActivity({
             variables: { ids: utterances.map(u => u._id) },
