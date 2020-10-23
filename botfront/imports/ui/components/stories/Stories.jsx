@@ -44,7 +44,7 @@ const isDeletionPossible = (node = {}, nodes, tree) => {
     if (node.type === 'story-group') {
         deletable = !(node.children || []).some(c => isDestinationOrOrigin(tree.items[c]));
         message = deletable
-            ? `The group ${node.title} and all its stories in it will be deleted. This action cannot be undone.`
+            ? `The group ${node.title} and all its content in it will be deleted. This action cannot be undone.`
             : `The group ${node.title} cannot be deleted as it contains links.`;
     }
     if (node.type === 'form') {
@@ -209,6 +209,13 @@ function Stories(props) {
         );
     };
 
+    const handleLinkToStory = (id) => {
+        const { location: { pathname } } = router;
+        const newSelection = [id, ...storyMenuSelection.filter(storyId => storyId !== id)];
+        router.replace({ pathname, query: { 'ids[]': newSelection } });
+        setStoryMenuSelection(newSelection);
+    };
+
     useEventListener('keydown', ({ key }) => {
         if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
         if (key === 'ArrowLeft') treeRef.current.focusMenu();
@@ -221,6 +228,7 @@ function Stories(props) {
                     browseToSlots: () => setSlotsModal(true),
                     stories: storiesReshaped,
                     storyGroups,
+                    linkToStory: handleLinkToStory,
                     addGroup: handleAddStoryGroup,
                     deleteGroup: handleDeleteGroup,
                     updateGroup: handleStoryGroupUpdate,
