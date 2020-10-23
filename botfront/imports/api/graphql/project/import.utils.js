@@ -3,6 +3,7 @@ import { determineDataType } from '../../../lib/importers/common';
 import {
     loadBotfrontConfig, loadRasaConfig, loadConversations, loadIncoming, loadEndpoints, loadCredentials, doValidation,
 } from '../../../lib/importers/loadMisc.js';
+import { handleImportAll } from './fileImporters';
 
 function streamToString (stream) {
     const chunks = [];
@@ -80,8 +81,12 @@ export async function readAndValidate(files, params) {
             const { dataType } = newFileData;
             if (doValidation(params) && conflictsSensiblesType.includes(dataType)) {
                 if (conflictsTracker[dataType] && conflictsTracker[dataType].length === 1) {
-                    newFileData.warnings = [...(newFileData.warnings || []), `Conflicts with ${conflictsTracker[dataType][0]}, and thus won't be used in the import`];
-                    newFileData.conflicts = true;
+                    if (conflictsTracker[dataType] === 'rasaconfig') {
+                        newFileData.warnings = [...(newFileData.warnings || []), `Policies from this file conflicts with policies from ${conflictsTracker[dataType][0]}, and thus they won't be used in the import`];
+                    } else {
+                        newFileData.warnings = [...(newFileData.warnings || []), `Conflicts with ${conflictsTracker[dataType][0]}, and thus won't be used in the import`];
+                        newFileData.conflicts = true;
+                    }
                 } else {
                     conflictsTracker[dataType].push(filename);
                 }

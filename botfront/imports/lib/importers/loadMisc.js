@@ -77,11 +77,16 @@ export const loadRasaConfig = ({
         };
     }
     if (doValidation(params)) {
-        Object.keys(rasaConfig).forEach((key) => {
+        const configsKeys = Object.keys(rasaConfig);
+        configsKeys.forEach((key) => {
             if (!['pipeline', 'policies', 'language'].includes(key)) {
                 errors.push(`${key} is not a valid rasa config data`);
             }
         });
+        if (configsKeys.length < 3) {
+            const missingKeys = ['pipeline', 'policies', 'language'].filter(key => !configsKeys.includes(key));
+            errors.push(`${missingKeys.join(', ')} missing in the rasa config data`);
+        }
         if (errors.length > 0) {
             return {
                 file, dataType: 'rasaconfig', rawText, errors: [...(file?.errors || []), ...errors],
@@ -106,11 +111,16 @@ export const loadBotfrontConfig = ({
             file, rawText, dataType: 'bfconfig', errors: [...(file?.errors || []), ['Not valid yaml']],
         };
     } if (doValidation(params)) {
-        Object.keys(bfConfig).forEach((key) => {
+        const configsKeys = Object.keys(bfConfig);
+        configsKeys.forEach((key) => {
             if (!['project', 'instance'].includes(key)) {
                 errors.push(`${key} is not valid botfront data`);
             }
         });
+        if (configsKeys.length < 2) {
+            const missingKeys = ['project', 'instance'].filter(key => !configsKeys.includes(key));
+            errors.push(`${missingKeys.join(', ')} missing in the rasa config data`);
+        }
         if (errors.length > 0) {
             return {
                 file, rawText, dataType: 'bfconfig', errors: [...(file?.errors || []), ...errors],
