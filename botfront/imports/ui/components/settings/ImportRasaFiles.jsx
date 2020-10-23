@@ -25,7 +25,6 @@ import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Slots } from '../../../api/slots/slots.collection';
 import { getDefaultDomainAndLanguage } from '../../../lib/story.utils';
 import { useFileReader } from './fileReaders';
-import { handleImportAll } from './fileImporters';
 import { ProjectContext } from '../../layouts/context';
 import {
     unZipFile,
@@ -72,14 +71,13 @@ const ImportRasaFiles = (props) => {
                     cf => cf.lastModified === f.lastModified && cf.filename === f.name,
                 ),
         );
-        
         const filesWithUnziped = await newValidFiles.reduce(async (newFiles, currFile) => {
             if (currFile.name.match(/\.zip$/)) {
                 const filesFromZip = await unZipFile(currFile);
                 return [...newFiles, ...filesFromZip];
             }
-            
-            return [...newFiles, currFile];
+            // since this reduce is async we need to await for the previous result
+            return [...(await newFiles), currFile];
         }, []);
         setFileList({ add: filesWithUnziped });
     };
