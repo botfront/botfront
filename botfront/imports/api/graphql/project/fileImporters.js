@@ -2,14 +2,11 @@ import yaml from 'js-yaml';
 // import { CREATE_AND_OVERWRITE_RESPONSES as createResponses, DELETE_BOT_RESPONSE as deleteReponse } from '../templates/mutations';
 // import { GET_BOT_RESPONSES as listResponses } from '../templates/queries';
 // import apolloClient from '../../../startup/client/apollo';
-import { uuidv4 } from 'uuid/v4';
-import {
-    upsertTrackerStore,
-} from '../trackerStore/mongo/trackerStore';
+
 import Conversations from '../conversations/conversations.model';
 import Activity from '../activity/activity.model';
 
-const handleImportForms = () => new Promise(resolve => resolve(true));
+// const handleImportForms = () => new Promise(resolve => resolve(true));
 
 // const handleImportResponse = (responses, projectId) => new Promise(resolve => apolloClient
 //     .mutate({
@@ -240,20 +237,13 @@ const handleImportConversations = async (files, {
     }
     const importResult = await Promise.all(files.map(async (f, idx) => {
         try {
-            const results = await Promise.all(f.conversations.map(conversation => upsertTrackerStore({
-                senderId: conversation.tracker.sender_id || conversation._id,
-                projectId,
-                tracker: conversation.tracker,
-                overwriteEvents: true,
-                importConversationsOnly: true,
-            })));
-            const notInserted = results.filter(({ status }) => status !== 'inserted');
-            const failed = notInserted.filter(({ status }) => status === 'failed');
-            if (notInserted.length > 0 || failed.length > 0) {
-                return `${notInserted.length + failed.length} conversations were not imported form ${f.filename}`;
-            }
+            const { conversations } = f;
+            await Conversations.insertMany(conversations);
             return null;
         } catch (e) {
+            if (e.code === 11000) {
+                return `error when importing conversations from ${f.filename}, it seems that some of the data you are trying to import already exists`;
+            }
             return `error when importing conversations form ${f.filename}`;
         }
     }));
@@ -270,19 +260,24 @@ const handleImportIncoming = async (files, {
         await Activity.delete({ projectId });
     }
     const importResult = await Promise.all(files.map(async (f) => {
-        const { incoming } = f;
         try {
-            const preparedIncoming = incoming.map(utterance => ({ ...utterance, _id: uuidv4() }));
-            await Activity.insertMany(preparedIncoming);
+            const { incoming } = f;
+            await Activity.insertMany(incoming);
             return null;
         } catch (e) {
-            return `error when importing incoming form ${f.filename}`;
+            if (e.code === 11000) {
+                return `error when importing incoming from ${f.filename}, it seems that some of the data you are trying to import already exists`;
+            }
+            return `error when importing incoming from ${f.filename}`;
         }
     }));
     // return only the results with data in it (if nothing bad happen it shoudl be and array of null)
     return importResult.filter(r => r);
 };
 
+
+// import all file in the array of files
+// the files should have been processed before by the validation step
 export const handleImportAll = async (files, params) => {
     const importers = [];
     // handleImportStoryGroups(files.filter(f => f.dataType === 'stories'), params);
