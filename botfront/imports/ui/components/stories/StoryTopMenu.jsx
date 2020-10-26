@@ -131,7 +131,10 @@ const StoryTopMenu = ({
                 content={(
                     <ConfirmPopup
                         title='Condition will be deleted!'
-                        onYes={() => updateStory({ _id, conversation_start: !convStart, condition: [] })}
+                        onYes={() => {
+                            setConfirmPopupOpen(false);
+                            updateStory({ _id, conversation_start: !convStart, condition: [] });
+                        }}
                         onNo={() => setConfirmPopupOpen(false)}
                     />
                 )}
