@@ -31,7 +31,7 @@ export const useFileReader = (params) => {
             add: addInstruction,
             update: updateInstruction,
             changeLang: changeLangInstruction,
-            wipe: wipeInstruction,
+            reset: resetInstruction,
         } = instruction;
 
         if (deleteInstruction) {
@@ -107,20 +107,9 @@ export const useFileReader = (params) => {
                 // }
                 f);
         }
-        if (wipeInstruction) {
-            // TO RE WORK WITH NEW STORIES
-            // if (addInstruction.some(f => f.dataType === 'stories' && f.firstLine)) {
-            //     // file already there, but data wiping toggled, so just need to change storygroup name
-            //     return fileList.map((f) => {
-            //         if (f.dataType !== 'stories' || !f.firstLine) return f;
-            //         const { name } = fileToStoryGroup(f.filename, f.firstLine, [
-            //             ...(params.existingStoryGroups || []),
-            //         ]);
-            //         return { ...f, name };
-            //     });
-            // }
+        if (resetInstruction) {
+            return [];
         }
-        return fileList;
     };
     const fileReader = useReducer(reducer, []);
     return fileReader;

@@ -38,12 +38,14 @@ const ImportRasaFiles = (props) => {
     const { projectLanguages, instance, language } = useContext(ProjectContext);
     const [importFiles] = useMutation(importFilesMutation);
     const [fallbackImportLanguage, setFallbackImportLanguage] = useState();
+    const [importResults, setImportResults] = useState([]);
     useEffect(() => setFallbackImportLanguage(language), [language]);
     const [wipeCurrent, setWipeCurrent] = useState(false);
+    const [filesImporting, setFilesImporting] = useState(false);
 
     const validateFunction = async (files) => {
         // we don't want to send files with errors already so we filter those out
-        // but we keep their index so it easy to
+        // but we keep their index so it easy to recontruct the list
         const filesNotSentIndexes = [];
         const filesToSend = files.filter((file, index) => {
             if (file.errors && file.errors.length > 0) {
@@ -52,7 +54,11 @@ const ImportRasaFiles = (props) => {
             }
             return true;
         });
-        const validationResult = await importFiles({ variables: { projectId, files: filesToSend, onlyValidate: true } });
+        const validationResult = await importFiles({
+            variables: {
+                projectId, files: filesToSend, onlyValidate: true, wipeCurrent,
+            },
+        });
         const validationData = validationResult?.data?.import?.fileMessages;
         if (validationData.length !== files.length) { // that means some files were not sent
             filesNotSentIndexes.forEach((index) => {
@@ -60,6 +66,21 @@ const ImportRasaFiles = (props) => {
             });
         }
         return validationData;
+    };
+
+
+    const handleImport = async ([files, setFileList]) => {
+        setFilesImporting(true);
+        const filesToImport = files.filter(file => !(file.errors && file.errors.length));
+        const importResult = await importFiles({
+            variables: {
+                projectId, files: filesToImport, noValidate: true, wipeCurrent,
+            },
+        });
+        setFilesImporting(false);
+        setFileList({ reset: true });
+        const importResultMessages = importResult?.data?.import?.summary;
+        setImportResults(importResultMessages);
     };
 
 
@@ -161,10 +182,6 @@ const ImportRasaFiles = (props) => {
         validateFunction,
     });
     const [fileList, setFileList] = fileReader;
-    const [filesImporting, setFilesImporting] = useState(false);
-    useEffect(() => {
-        if (typeof setFileList === 'function') { setFileList({ wipe: fileList }); }
-    }, [wipeCurrent]);
     const [{ canDrop, isOver }, drop] = useFileDrop(fileReader);
     const fileField = useRef();
 
@@ -234,17 +251,6 @@ const ImportRasaFiles = (props) => {
 
     const valid = (filter = () => true) => fileList.filter(f => !f.errors && filter(f));
     
-    const handleImport = async () => {
-        const files = fileReader[0];
-        console.log(files);
-        const filesToImport = files.filter(file => !(file.errors && file.errors.length));
-        const importResult = await importFiles({
-            variables: {
-                projectId, files: filesToImport, noValidate: true, wipeCurrent,
-            },
-        });
-        console.log(importResult);
-    };
 
     const renderTotals = () => {
         const checkUniques = () => {
@@ -309,7 +315,7 @@ const ImportRasaFiles = (props) => {
     };
 
     // to update with new stories
-    const counts = useMemo(renderTotals, fileReader);
+    // const counts = useMemo(renderTotals, fileReader);
 
     const renderBottom = () => (
         <>
@@ -356,17 +362,33 @@ const ImportRasaFiles = (props) => {
                         />
                     </div>
                     <div>
-                        <Button content='Import' data-cy='import-rasa-files' primary onClick={() => handleImport()} />
+                        <Button disabled={fileReader[0].some(f => !f.validated)} content='Import' data-cy='import-rasa-files' primary onClick={() => handleImport(fileReader)} />
                     </div>
                 </div>
             </Message>
         </>
     );
 
+    const renderImportResults = () => {
+        if (importResults && importResults.length !== 0) {
+            return (
+                <Message error>
+                    <Message.Header>Import Error</Message.Header>
+                    <Message.List>
+                        {importResults.map(message => (<Message.Item>{message}</Message.Item>))}
+                    </Message.List>
+                </Message>
+            );
+        }
+        return <></>;
+    };
+    
+
     return (
         <>
             {renderImportSection()}
             {renderBottom()}
+            {renderImportResults()}
         </>
     );
 };
