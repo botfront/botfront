@@ -235,10 +235,11 @@ const handleImportConversations = async (files, {
     if (wipeCurrent) {
         await Conversations.delete({ projectId });
     }
-    const importResult = await Promise.all(files.map(async (f, idx) => {
+    const importResult = await Promise.all(files.map(async (f) => {
         try {
             const { conversations } = f;
-            await Conversations.insertMany(conversations);
+            const preparedConversations = conversations.map(conv => ({ ...conv, projectId }));
+            await Conversations.insertMany(preparedConversations);
             return null;
         } catch (e) {
             if (e.code === 11000) {
@@ -262,7 +263,8 @@ const handleImportIncoming = async (files, {
     const importResult = await Promise.all(files.map(async (f) => {
         try {
             const { incoming } = f;
-            await Activity.insertMany(incoming);
+            const preparedIncoming = incoming.map(utterance => ({ ...utterance, projectId }));
+            await Activity.insertMany(preparedIncoming);
             return null;
         } catch (e) {
             if (e.code === 11000) {
