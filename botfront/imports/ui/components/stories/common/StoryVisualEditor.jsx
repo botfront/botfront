@@ -56,7 +56,8 @@ export default class StoryVisualEditor extends React.Component {
 
     handleInsertLine = (index, content) => {
         const { story, onSave } = this.props;
-        onSave([...story.slice(0, index + 1), content, ...story.slice(index + 1)]);
+        const contentAsArray = Array.isArray(content) ? content : [content];
+        onSave([...story.slice(0, index + 1), ...contentAsArray, ...story.slice(index + 1)]);
         this.setState({ lineInsertIndex: null });
     };
 
@@ -83,10 +84,8 @@ export default class StoryVisualEditor extends React.Component {
         const [currentLine, nextLine] = [story[index] || {}, story[index + 1] || {}];
         if (this.loopLinesMatch(currentLine, nextLine)) index += 1;
         const lineIsIntent = l => l !== '...' && ('intent' in l || 'or' in l);
-        const loop = [];
-        if (mode !== 'rule_condition' || !story.some(l => l !== '...' && 'active_loop' in l)) loop.push('active');
-        if (mode !== 'rule_condition') loop.push('activate');
         const hasSlot = story.some(l => l !== '...' && 'slot_was_set' in l);
+        const hasLoop = story.some(l => l !== '...' && 'active_loop' in l);
 
         const options = {
             userUtterance:
@@ -97,7 +96,8 @@ export default class StoryVisualEditor extends React.Component {
             botUtterance: mode !== 'rule_condition',
             action: mode !== 'rule_condition',
             slot: mode !== 'rule_condition' || !hasSlot,
-            loop,
+            loopActive: mode !== 'rule_condition' || !hasLoop,
+            loopActivate: mode !== 'rule_condition',
             '...': mode === 'rule_steps',
         };
 
