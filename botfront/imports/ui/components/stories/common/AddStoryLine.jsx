@@ -43,8 +43,7 @@ const AddStoryLine = React.forwardRef((props, ref) => {
     };
 
     const handleClosingKeyPress = activate => (e) => {
-        if (e.key !== 'Enter') return;
-        handleCreateLoopLines(actionName, activate);
+        if (e.key === 'Enter') handleCreateLoopLines(actionName, activate);
     };
 
     const renderLoopNameMenu = activate => (
@@ -80,6 +79,8 @@ const AddStoryLine = React.forwardRef((props, ref) => {
             {loopActivate && (
                 <Dropdown.Item className='dropdown'>
                     <Dropdown
+                        open={loopMenuOpen === 'activate'}
+                        onOpen={() => setLoopMenuOpen('activate')}
                         text='Activate loop'
                         fluid
                         data-cy='activate-loop'
@@ -92,6 +93,8 @@ const AddStoryLine = React.forwardRef((props, ref) => {
             )}
             <Dropdown.Item className='dropdown'>
                 <Dropdown
+                    open={loopMenuOpen === 'active'}
+                    onOpen={() => setLoopMenuOpen('active')}
                     text='Active loop'
                     fluid
                     data-cy='active-loop'
@@ -179,9 +182,9 @@ const AddStoryLine = React.forwardRef((props, ref) => {
                         </DashedButton>
                     )}
                     className='dropdown-button-trigger'
-                    open={loopMenuOpen}
+                    open={!!loopMenuOpen}
                     onOpen={() => {
-                        setLoopMenuOpen(true);
+                        setLoopMenuOpen('main');
                         trackOpenMenu(() => setLoopMenuOpen(false));
                     }}
                     onClose={() => setLoopMenuOpen(false)}
