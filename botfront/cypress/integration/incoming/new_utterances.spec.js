@@ -124,6 +124,6 @@ describe('incoming page', function() {
     it('should not automatically validate the utterance  when there is no intent', function() {
         cy.selectOrUnselectIncomingRow('apple');
         cy.dataCy('remove-intent').first().click({ force: true });
-        cy.get('.virtual-table').findCy('validate-utterance').should('have.length', 3);
+        cy.get('.virtual-table').findCy('invalidate-utterance').should('have.length', 0);
     });
 });
