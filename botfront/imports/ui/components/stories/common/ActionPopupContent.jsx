@@ -26,27 +26,20 @@ const ActionPopupContent = (props) => {
             }}
         >
             <p className='all-caps-header'>Enter an action name</p>
-            <div className='action-name-form'>
-                <form
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        setActionName('');
-                        setIsOpen(false);
-                        if (actionName && actionName !== 'action_') onSelect(actionName);
-                    }}
-                >
-                    <div className='action-name-prefix'>action_</div>
-                    <Input
-                        value={actionName.replace(/^(action_)*/, '')}
-                        onChange={e => setActionName(
-                            `action_${e.target.value
-                                .trim()
-                                .replace(/^(action_)*/, '')}`,
-                        )}
-                        autoFocus
-                    />
-                </form>
-            </div>
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    setActionName('');
+                    setIsOpen(false);
+                    if (actionName.trim()) onSelect(actionName);
+                }}
+            >
+                <Input
+                    value={actionName}
+                    onChange={e => setActionName(e.target.value.trim())}
+                    autoFocus
+                />
+            </form>
         </Popup>
     );
 };
