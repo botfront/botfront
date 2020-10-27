@@ -7,12 +7,14 @@ mutation (
     $files: [Upload]!
     $noValidate: Boolean, 
     $onlyValidate: Boolean, 
+    $wipeCurrent: Boolean,
 ) {
     import(
         projectId: $projectId
         files: $files
         noValidate: $noValidate
         onlyValidate: $onlyValidate
+        wipeCurrent: $wipeCurrent
     ) {
         fileMessages {
             errors
