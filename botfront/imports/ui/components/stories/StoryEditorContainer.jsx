@@ -105,7 +105,7 @@ const StoryEditorContainer = ({
                 {},
             ),
         );
-    }, [storyMode]);
+    }, [storyMode, Object.keys(branches).length]);
 
     const exceptions = useMemo(() => Object.keys(branches).sort((a, b) => (a.match(/,/g) || []).length < (b.match(/,/g) || []).length).reduce((acc, curr) => ({
         ...acc,

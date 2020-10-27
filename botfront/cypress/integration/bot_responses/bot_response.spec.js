@@ -142,7 +142,7 @@ describe('Bot responses', function() {
 
     it('be able to edit a response with the response editor in the visual story editor', function() {
         cy.visit('/project/bf/dialogue');
-        cy.createStoryInGroup({ groupName: 'Default stories', storyName: 'myTest' });
+        cy.createStoryInGroup({ groupName: 'Example group', storyName: 'myTest' });
         cy.dataCy('story-title').should('have.value', 'myTest');
         cy.dataCy('toggle-md').click();
         cy.get('.ace_content').click({ force: true });

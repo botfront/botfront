@@ -222,8 +222,8 @@ const BotResponsesContainer = (props) => {
                                     <ConfirmPopup
                                         title='Delete response?'
                                         description={responseLocations.length > 1
-                                            ? 'Remove this response from the current story'
-                                            : 'Remove this response from the current story and delete it'
+                                            ? 'Remove this response from the current fragment'
+                                            : 'Remove this response from the current fragment and delete it'
                                         }
                                         onYes={() => {
                                             setDeletePopupOpen(false);

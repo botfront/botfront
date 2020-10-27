@@ -274,7 +274,7 @@
         },
         {
             "_id": "6f63f733-898e-4090-8268-e81bdb9e5888",
-            "name": "Default stories",
+            "name": "Example group",
             "projectId": "bf",
             "updatedAt": "2019-10-09T15:06:34.709Z",
             "selected": false,
