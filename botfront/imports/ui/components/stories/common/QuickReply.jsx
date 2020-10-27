@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Popup } from 'semantic-ui-react';
 import { useDrag, useDrop } from 'react-dnd-cjs';
 import ResponseButtonEditor from './ResponseButtonEditor';
-import { stringPayloadToObject } from '../../../../lib/story_controller';
+import { stringPayloadToObject } from '../../../../lib/story.utils';
 
 export const isButtonValid = ({
     title = '',

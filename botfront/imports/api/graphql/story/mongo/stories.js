@@ -30,7 +30,10 @@ export const searchStories = async (projectId, language, search) => {
     const fullSearch = combineSearches(escapedSearch, responseKeys, intents);
     const storiesFilter = {
         projectId,
-        textIndex: { $regex: fullSearch, $options: 'i' },
+        $or: [
+            { title: { $regex: fullSearch, $options: 'i' } },
+            { textIndex: { $regex: fullSearch, $options: 'i' } },
+        ],
     };
     const matched = Stories.find(
         storiesFilter,
@@ -43,20 +46,12 @@ export const searchStories = async (projectId, language, search) => {
     return { stories: matched };
 };
 
-const replaceLine = (story, lineToReplace, newLine) => {
-    // regexp: [ ] = space; + = any number of the characters in the []; $ = end of string
-    const regex = new RegExp(`- *${escape(lineToReplace)}([ ]+\n|\n|[ ]+$|$)`, 'g');
-    return story.replace(regex, `- ${newLine}\n`);
-};
-
 const traverseReplaceLine = (story, lineToReplace, newLine) => {
     const updatedStory = story;
-    if (story.story) {
-        updatedStory.story = replaceLine(updatedStory.story, lineToReplace, newLine);
-    }
-    (updatedStory.branches || []).forEach((branch) => {
-        traverseReplaceLine(branch, lineToReplace, newLine);
+    (story.steps || []).forEach(({ action }, i) => {
+        if (action === lineToReplace) updatedStory.steps[i].action = newLine;
     });
+    (updatedStory.branches || []).forEach(branch => traverseReplaceLine(branch, lineToReplace, newLine));
     return updatedStory;
 };
 

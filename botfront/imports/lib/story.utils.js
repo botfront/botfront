@@ -29,13 +29,14 @@ const getSlotsInRasaFormat = (slots = []) => {
     return slotsToAdd;
 };
 
-export const stepsToYaml = steps => yaml.safeDump(steps || [])
+export const stepsToYaml = steps => yaml
+    .safeDump(steps || [])
     .replace(/^\[\]/, '')
     .replace(/\n$/, '');
 
 export const storyReducer = (input, priorPath = '') => input.reduce((acc, { _id, branches = [], ...rest }) => {
     const path = priorPath ? `${priorPath},${_id}` : _id;
-    return { ...acc, [path]: { ...rest, branches }, ...storyReducer(branches, path) };
+    return { ...acc, [path]: { ...rest, _id, branches }, ...storyReducer(branches, path) };
 }, {});
 
 export const addCheckpoints = (fragments) => {
@@ -54,27 +55,43 @@ export const addCheckpoints = (fragments) => {
                 ];
             });
         }
+        const resolvedPath = path
+            .split(',')
+            .map(
+                (_, i, src) => map[src.slice(0, i + 1).join()].originalTitle
+                    || map[src.slice(0, i + 1).join()].title,
+            );
         // change title
-        const title = path
-            .split()
-            .map((_, i, src) => map[src.slice(0, i + 1).join()].title)
-            .join('__');
-        map[path].title = title;
-        // add branch checkpoints
-        const branches = story.branches || [];
-        if (branches.length) {
-            const checkpoint = `${title.replace(/ /g, '_')}__branches`;
+        map[path].originalTitle = map[path].title;
+        map[path].title = resolvedPath.join('__');
+        // add branch origin checkpoints
+        if (resolvedPath.length > 1) {
+            const checkpoint = `${resolvedPath
+                .slice(0, resolvedPath.length - 1)
+                .join('__')
+                .replace(/ /g, '_')}__branches`;
+            map[path].steps = [{ checkpoint }, ...(story.steps || [])];
+        }
+        // add branch destination checkpoints
+        if ((story.branches || []).length) {
+            const checkpoint = `${resolvedPath.join('__').replace(/ /g, '_')}__branches`;
             map[path].steps = [...(story.steps || []), { checkpoint }];
         }
     });
-    return Object.values(map).map(({ branches: _, checkpoints: __, ...rest }) => rest);
+    return Object.values(map).map(
+        ({
+            branches: _, checkpoints: __, originalTitle: ___, _id: ____, ...rest
+        }) => rest,
+    );
 };
 
 const scrapeActionsIntentsAndEntities = (el) => {
     if (Array.isArray(el)) return el.flatMap(scrapeActionsIntentsAndEntities);
     if (el && typeof el === 'object') {
         return Object.keys(el).flatMap((k) => {
-            if (k === 'action' && el[k].indexOf('utter_') !== 0) { return [{ action: el[k] }]; }
+            if (k === 'action' && el[k].indexOf('utter_') !== 0) {
+                return [{ action: el[k] }];
+            }
             if (k === 'intent') return [{ intent: el[k] }];
             if (k === 'entities') {
                 return el[k].map(entity => ({ entity: Object.keys(entity)[0] }));
@@ -186,17 +203,49 @@ export const getFragmentsAndDomain = async (projectId, language) => {
             })),
         rules: fragmentsWithCheckpoints
             .filter(({ type }) => type === 'rule')
-            .map(({
-                storyGroupId, title: rule, condition, steps, conversation_start, wait_for_user_input,
-            }) => ({
-                rule,
-                condition,
-                steps,
-                ...(conversation_start ? { conversation_start } : {}),
-                ...(!wait_for_user_input ? { wait_for_user_input } : {}),
-                metadata: { group: groups.find(g => g._id === storyGroupId)?.name },
-            })),
+            .map(
+                ({
+                    storyGroupId,
+                    title: rule,
+                    condition,
+                    steps,
+                    conversation_start,
+                    wait_for_user_input,
+                }) => ({
+                    rule,
+                    condition,
+                    steps,
+                    ...(conversation_start ? { conversation_start } : {}),
+                    ...(!wait_for_user_input ? { wait_for_user_input } : {}),
+                    metadata: { group: groups.find(g => g._id === storyGroupId)?.name },
+                }),
+            ),
         domain,
         wasPartial: groups.length !== selectedGroups.length,
     };
+};
+
+export const stringPayloadToObject = function(stringPayload = '') {
+    const payloadRegex = /([^{]*) *({.*}|)/;
+    const matches = payloadRegex.exec(stringPayload.substring(1));
+    const intent = matches[1];
+    let entities = matches[2];
+    const objectPayload = {
+        intent,
+        entities: [],
+    };
+    if (entities && entities !== '') {
+        const parsed = JSON.parse(entities);
+        entities = Object.keys(parsed).map(key => ({ entity: key, value: parsed[key] }));
+    } else {
+        entities = [];
+    }
+    objectPayload.entities = entities;
+    return objectPayload;
+};
+
+export const objectPayloadToString = function({ intent, entities }) {
+    const entitiesMap = entities ? entities.reduce((map, obj) => (map[obj.entity] = obj.value, map), {}) : {};
+    const entitiesString = Object.keys(entitiesMap).length > 0 ? JSON.stringify(entitiesMap) : '';
+    return `/${intent}${entitiesString}`;
 };
