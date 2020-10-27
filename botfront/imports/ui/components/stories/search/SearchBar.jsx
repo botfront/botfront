@@ -44,18 +44,17 @@ const SearchBar = (props) => {
             },
         });
         setSearching(false);
-        const { dialogueSearch: { dialogueFragments = [] } = {} } = data;
-        setResults({
-            ...data?.dialogueSearch,
-            // fixes a warning in the dev console
-            dialogueFragments: dialogueFragments.map(({
+        const { dialogueSearch: { dialogueFragments = [], forms = [] } = {} } = data;
+        setResults([
+            ...dialogueFragments.map(({
                 _id, storyGroupId, __typename, title,
             }) => (
                 {
                     _id, title, __typename, 'story-group-id': storyGroupId,
                 }
             )),
-        });
+            ...forms.map(f => ({ ...f, type: 'form' })),
+        ]);
     }, 500), [language, projectId]);
 
     const findPos = (originalElement) => {
@@ -175,9 +174,7 @@ const SearchBar = (props) => {
         <>
             <Search
                 className={`story-search-bar ${queryString.length > 0 && 'has-text'}`}
-                results={[
-                    ...((results && Array.isArray(results.stories)) ? results.stories : []),
-                ]}
+                results={results}
                 value={queryString}
                 resultRenderer={renderSearchItem}
                 icon={{ name: 'search', 'data-cy': 'stories-search-icon' }}
