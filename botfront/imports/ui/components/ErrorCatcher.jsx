@@ -19,6 +19,32 @@ export default class ErrorBoundary extends React.Component {
         const {
             children: { props: { location: { pathname = '' } = {} } = {} } = {},
         } = this.props;
+        if (error && error[0] && error[0].message === 'Failed to fetch') {
+            /*
+                Users commonly forget to setup the ROOT_URL environment variable which
+                throws the "Failed to fetch" error.
+                To assist users during setup and prevent unnecessary error reports provide
+                the user with a infomative error screen.
+            */
+            return (
+                <Container style={{
+                    height: '100%', display: 'flex', alignItems: 'center',
+                }}
+                >
+                    <div>
+                        <Header
+                            as='h1'
+                            style={{ fontFamily: 'Hind, sans-serif', fontSize: '40px' }}
+                        >
+                            Please configure the ROOT_URL environment variable
+                            <Header.Subheader style={{ marginTop: '10px' }}>
+                            The ROOT_URL environment variable must be set to the public URL where your instance of Botfront can be reached
+                            </Header.Subheader>
+                        </Header>
+                    </div>
+                </Container>
+            );
+        }
         return (
             <Container style={{ height: '100%', display: 'flex', alignItems: 'center' }}>
                 <div>
