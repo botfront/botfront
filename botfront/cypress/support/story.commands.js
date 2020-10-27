@@ -61,6 +61,7 @@ Cypress.Commands.add('createStoryInGroup', ({ groupName = 'Groupo', storyName = 
         cy.dataCy('story-group-menu-item').should('have.length', len + 1);
 
         // rename if needed
+        cy.wait(150);
         cy.get('body').type(`${storyName || ''}{enter}`);
 
         // this part might execute before the add story complete, that why we are checking the length just above

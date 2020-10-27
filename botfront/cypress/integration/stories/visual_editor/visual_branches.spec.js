@@ -82,15 +82,15 @@ describe('story visual editor', function() {
             .findCy('branch-label')
             .last()
             .trigger('mouseover');
-        cy.dataCy('branch-label')
-            .last()
-            .trigger('mouseover');
-        cy.wait(250);
         cy.dataCy('delete-branch')
             .last()
             .click({ force: true });
+        cy.dataCy('confirm-yes')
+            .click({ force: true });
         cy.dataCy('delete-branch')
             .last()
+            .click({ force: true });
+        cy.dataCy('confirm-yes')
             .click({ force: true });
         cy.dataCy('delete-branch')
             .last()

@@ -72,13 +72,12 @@ describe('NLU canonical examples', function () {
         cy.dataCy('icon-gem', null, '.black').should('have.length', 6);
     });
     
-    
     it('should tag the first example for an intent created in the visual editor as canonical', function () {
         cy.visit('/project/bf/dialogue');
-        cy.browseToStory('Farewells');
+        cy.createStoryInGroup({ groupName: 'Example group', storyName: 'Hmm1' });
         cy.dataCy('add-user-line').click({ force: true });
         cy.dataCy('user-line-from-input').last().click({ force: true });
-        cy.addUserUtterance('this example should be canonical', 'intenttest', 1);
+        cy.addUserUtterance('this example should be canonical', 'intenttest');
         cy.visit('/project/bf/nlu/models');
         cy.dataCy('icon-gem').should('have.class', 'black');
     });
