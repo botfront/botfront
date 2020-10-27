@@ -1,8 +1,4 @@
-import {
-    Search,
-    Menu,
-    Icon,
-} from 'semantic-ui-react';
+import { Search, Menu, Icon } from 'semantic-ui-react';
 import { debounce } from 'lodash';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -14,7 +10,6 @@ import { wrapMeteorCallback } from '../../utils/Errors';
 import apolloClient from '../../../../startup/client/apollo';
 import { setStoriesCurrent } from '../../../store/actions/actions';
 import { StoryGroups } from '../../../../api/storyGroups/storyGroups.collection';
-
 
 import { SEARCH_FRAGMENTS } from './queries';
 
@@ -34,28 +29,29 @@ const SearchBar = (props) => {
     const [results, setResults] = useState([]);
     const [searching, setSearching] = useState(false);
 
-    const searchStories = useCallback(debounce(async (searchInputValue) => {
-        const { data } = await apolloClient.query({
-            query: SEARCH_FRAGMENTS,
-            variables: {
-                projectId,
-                language,
-                queryString: searchInputValue,
-            },
-        });
-        setSearching(false);
-        const { dialogueSearch: { dialogueFragments = [], forms = [] } = {} } = data;
-        setResults([
-            ...dialogueFragments.map(({
-                _id, storyGroupId, __typename, title,
-            }) => (
-                {
-                    _id, title, __typename, 'story-group-id': storyGroupId,
-                }
-            )),
-            ...forms.map(f => ({ ...f, type: 'form' })),
-        ]);
-    }, 500), [language, projectId]);
+    const searchStories = useCallback(
+        debounce(async (searchInputValue) => {
+            const { data } = await apolloClient.query({
+                query: SEARCH_FRAGMENTS,
+                variables: {
+                    projectId,
+                    language,
+                    queryString: searchInputValue,
+                },
+            });
+            setSearching(false);
+            const { dialogueSearch: { dialogueFragments = [], forms = [] } = {} } = data;
+            setResults([
+                // storyGroupId is made into gid because Search component throws React warning
+                ...dialogueFragments.map(({ storyGroupId: gid, ...frag }) => ({
+                    ...frag,
+                    gid,
+                })),
+                ...forms.map(f => ({ ...f, type: 'form' })),
+            ]);
+        }, 500),
+        [language, projectId],
+    );
 
     const findPos = (originalElement) => {
         let element = originalElement;
@@ -67,7 +63,8 @@ const SearchBar = (props) => {
             } while (
                 // the root element of this scrollbox is storygroup-tree
                 // once we reach it we have the correct scroll height
-                element.offsetParent && element.id !== 'storygroup-tree'
+                element.offsetParent
+                && element.id !== 'storygroup-tree'
             );
             return [position];
         }
@@ -83,27 +80,36 @@ const SearchBar = (props) => {
                 In this case the parent element is not the element
             with the scrollbar and it causes bugs
         */
-        activeElement.parentElement.parentElement.parentElement.scroll(0, findPos(activeElement));
+        activeElement.parentElement.parentElement.parentElement.scroll(
+            0,
+            findPos(activeElement),
+        );
         return true;
     };
 
     const scrollToStoryItem = (storyId, storyGroupId) => {
         const result = doScroll(storyId);
         if (result === true) return;
-        Meteor.call('storyGroups.setExpansion', { _id: storyGroupId, projectId, isExpanded: true }, wrapMeteorCallback(() => {
-            const secondAttemptResult = doScroll(storyId);
-            if (secondAttemptResult === true) return;
-            // retry scroll to active story until the story group is opened and the element exists
-            const scrollToInterval = setInterval(() => {
-                const intervalResult = doScroll(storyId);
-                if (intervalResult || storyId !== activeStories[0]) clearTimeout(scrollToInterval);
-            }, 100);
-            setTimeout(() => clearTimeout(scrollToInterval), 2500);
-        }));
+        Meteor.call(
+            'storyGroups.setExpansion',
+            { _id: storyGroupId, projectId, isExpanded: true },
+            wrapMeteorCallback(() => {
+                const secondAttemptResult = doScroll(storyId);
+                if (secondAttemptResult === true) return;
+                // retry scroll to active story until the story group is opened and the element exists
+                const scrollToInterval = setInterval(() => {
+                    const intervalResult = doScroll(storyId);
+                    if (intervalResult || storyId !== activeStories[0]) { clearTimeout(scrollToInterval); }
+                }, 100);
+                setTimeout(() => clearTimeout(scrollToInterval), 2500);
+            }),
+        );
     };
-    
+
     const toggleStorySelected = (_id) => {
-        const { location: { pathname } } = router;
+        const {
+            location: { pathname },
+        } = router;
         const nextActiveStories = new Set();
         const isSelected = activeStories.includes(_id);
         if (!isSelected) nextActiveStories.add(_id);
@@ -121,7 +127,9 @@ const SearchBar = (props) => {
 
     const linkToStory = (event, { result }) => {
         const { _id, description: storyGroupId } = result;
-        const { location: { pathname } } = router;
+        const {
+            location: { pathname },
+        } = router;
         scrollToStoryItem(_id, storyGroupId);
         if (event.shiftKey || event.target.id === 'push-story-icon') {
             toggleStorySelected(_id);
@@ -133,21 +141,28 @@ const SearchBar = (props) => {
     };
 
     const renderSearchItem = (resultProps) => {
-        const { title, _id, 'story-group-id': storyGroupId } = resultProps;
+        const {
+            title, _id, gid: storyGroupId, type,
+        } = resultProps;
         const storyGroup = storyGroups.find(({ _id: gid }) => gid === storyGroupId);
-        const isOpen = activeStories === _id || (Array.isArray(activeStories) && activeStories.includes(_id));
+        const isOpen = activeStories === _id
+            || (Array.isArray(activeStories) && activeStories.includes(_id));
+        let prefix = '##';
+        if (type === 'rule') prefix = <>&gt;&gt;</>;
+        if (type === 'form') prefix = <>📝</>;
         return (
             <Menu.Item
                 className='stories-search-result'
                 data-cy='stories-search-item'
                 fitted
             >
+                <span className='small story-title-prefix'>{prefix}</span>
                 <span className='story-name'>{title}</span>
-                <span className='story-group-name'>
-                    {storyGroup && storyGroup.name}
-                </span>
+                <span className='story-group-name'>{storyGroup && storyGroup.name}</span>
                 <Icon
-                    className={`push-story-icon ${isOpen ? 'story-open' : 'story-closed'}`}
+                    className={`push-story-icon ${
+                        isOpen ? 'story-open' : 'story-closed'
+                    }`}
                     floating='right'
                     name='eye'
                     id='push-story-icon'
@@ -216,15 +231,17 @@ SearchBar.propTypes = {
     activeStories: PropTypes.array.isRequired,
 };
 
-const SearchBarWithTracker = withRouter(withTracker((props) => {
-    const { projectId } = props;
-    const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
-    const storyGroups = StoryGroups.find().fetch();
-    return {
-        ready: storyGroupsHandler.ready(),
-        storyGroups,
-    };
-})(SearchBar));
+const SearchBarWithTracker = withRouter(
+    withTracker((props) => {
+        const { projectId } = props;
+        const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
+        const storyGroups = StoryGroups.find().fetch();
+        return {
+            ready: storyGroupsHandler.ready(),
+            storyGroups,
+        };
+    })(SearchBar),
+);
 
 const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
@@ -232,4 +249,6 @@ const mapStateToProps = state => ({
     activeStories: state.stories.get('storiesCurrent').toJS(),
 });
 
-export default connect(mapStateToProps, { setActiveStories: setStoriesCurrent })(SearchBarWithTracker);
+export default connect(mapStateToProps, { setActiveStories: setStoriesCurrent })(
+    SearchBarWithTracker,
+);
