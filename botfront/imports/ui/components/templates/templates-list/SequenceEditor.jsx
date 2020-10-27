@@ -89,13 +89,24 @@ const SequenceEditor = (props) => {
                     style={{ margin: '10px' }}
                     content={(
                         <>
-                            By convention, everything under the{' '}
-                            <b className='monospace'>custom</b> key will be dispatched by Rasa{' '}
-                            <i>as is</i>, while content under other top-level keys may be
-                            formatted according to rules specific to the output channel.
+                            The <b className='monospace'>custom</b> key must be an <b className='monospace'>object</b> and will be dispatched by rasa as is.
+                            Content under other top-level keys may be formatted according to rules
+                            specific to the output channel.
                         </>
                     )}
                 />
+                // <Message
+                //     info
+                //     style={{ margin: '10px' }}
+                //     content={(
+                //         <>
+                //             By convention, everything under the{' '}
+                //             <b className='monospace'>custom</b> key will be dispatched by Rasa{' '}
+                //             <i>as is</i>, while content under other top-level keys may be
+                //             formatted according to rules specific to the output channel.
+                //         </>
+                //     )}
+                // />
             )}
             {sequence.map(renderVariation)}
         </>
