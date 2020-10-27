@@ -10,6 +10,16 @@ export default class ErrorBoundary extends React.Component {
         this.state = { error: null, reported: false };
     }
 
+    isRootUrlError = () => {
+        const { error } = this.state;
+        // eslint-disable-next-line no-undef
+        const rootUrlRegex = new RegExp(__meteor_runtime_config__.ROOT_URL);
+        return (
+            (error && error[0] && error[0].message === 'Failed to fetch' && error[0].stack === 'TypeError: Failed to fetch')
+            && !rootUrlRegex.test(window.location.href)
+        );
+    }
+
     componentDidCatch(...error) {
         this.setState({ error });
     }
@@ -19,7 +29,7 @@ export default class ErrorBoundary extends React.Component {
         const {
             children: { props: { location: { pathname = '' } = {} } = {} } = {},
         } = this.props;
-        if (error && error[0] && error[0].message === 'Failed to fetch') {
+        if (this.isRootUrlError()) {
             /*
                 Users commonly forget to setup the ROOT_URL environment variable which
                 throws the "Failed to fetch" error.
