@@ -39,11 +39,11 @@ export const searchStories = async (projectId, language, search) => {
         storiesFilter,
         {
             fields: {
-                _id: 1, title: 1, storyGroupId: 1,
+                _id: 1, title: 1, storyGroupId: 1, type: 1,
             },
         },
     ).fetch();
-    return { stories: matched };
+    return { dialogueFragments: matched };
 };
 
 const traverseReplaceLine = (story, lineToReplace, newLine) => {
