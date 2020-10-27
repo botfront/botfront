@@ -1,5 +1,5 @@
 import JSZIP from 'jszip';
-
+import yaml from 'js-yaml';
 
 export const base = (f) => {
     const newfile = new File([f], f.name);
@@ -37,8 +37,6 @@ export const determineDataType = (f, rawText) => {
         if ((/^endpoints(\.[a-z]+)?.yml$/.test(filename))) return 'endpoints';
         if ((/^credentials(\.[a-z]+)?.yml$/.test(filename))) return 'credentials';
         if (filename === 'domain.yml') return 'domain';
-        if (filename.match(/\.md$/) && rawText.match(/## (?:intent|synonym|gazette|regex):/)) { return 'nlu'; } // need to be checked
-        if (filename.match(/\.md$/)) return 'stories'; // need to be checked
         if (filename.match(/\.json$/)) {
             const data = JSON.parse(rawText);
             if ('rasa_nlu_data' in data) return 'nlu'; // need to be checked
@@ -46,6 +44,18 @@ export const determineDataType = (f, rawText) => {
                 // might need improving at some point
                 if (data[0].tracker) return 'conversations';
                 if (data[0].text) return 'incoming';
+            }
+        }
+        if (filename.match(/\.yml$/)) {
+            const data = yaml.safeLoad(rawText);
+            const domainKeys = ['responses', 'templates', 'actions', 'session_config', 'slots'];
+            const trainingKeys = ['version', 'nlu', 'stories', 'rules'];
+          
+            if (Object.keys(data).some(key => domainKeys.includes(key))) {
+                return 'domain';
+            }
+            if (Object.keys(data).some(key => trainingKeys.includes(key))) {
+                return 'rasatrainingdata';
             }
         }
         return 'unknown';
