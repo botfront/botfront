@@ -29,7 +29,7 @@ import { ProjectContext } from '../../layouts/context';
 import {
     unZipFile,
 } from '../../../lib/importers/common';
-import { importFilesMutation } from './graphQL';
+import { importFilesMutation } from './graphql';
 
 const ImportRasaFiles = (props) => {
     const {
