@@ -1,9 +1,12 @@
 import { expect } from 'chai';
 import {
-    getAllResponses, addCheckpoints, extractDomain, stringPayloadToObject, objectPayloadToString,
+    getAllResponses,
+    addCheckpoints,
+    extractDomain,
+    stringPayloadToObject,
+    objectPayloadToString,
 } from './story.utils';
 import { createResponses } from '../api/graphql/botResponses/mongo/botResponses';
-
 
 const responseFixture = [
     {
@@ -184,7 +187,10 @@ const storyFixture = {
                     title: 'MyLevel2Branch1',
                     branches: [],
                     _id: 'VAcNydTIc',
-                    steps: [{ intent: 'greeting', entities: [{ name: 'joe' }] }, { action: 'utter_levelTwo' }],
+                    steps: [
+                        { intent: 'greeting', entities: [{ name: 'joe' }] },
+                        { action: 'utter_levelTwo' },
+                    ],
                 },
                 {
                     title: 'MyLevel2Branch2',
@@ -522,8 +528,17 @@ if (Meteor.isServer) {
     describe('domain extraction', function () {
         it('should extract domain', async function () {
             const responses = await getAllResponses('test', 'en');
-            expect(extractDomain({ fragments: checkpointedStories, responses })).to.be.deep.equal({
-                actions: [],
+            expect(
+                extractDomain({ fragments: checkpointedStories, responses }),
+            ).to.be.deep.equal({
+                actions: [
+                    'utter_XHEzYD8j',
+                    'utter_do_you_like_beans',
+                    'utter_levelZero',
+                    'utter_levelOne',
+                    'utter_levelTwo',
+                    'utter_levelThree',
+                ],
                 intents: ['greeting'],
                 entities: ['name'],
                 responses,
@@ -556,23 +571,22 @@ if (Meteor.isServer) {
         });
     });
 
-
-    describe('Story validation', function() {
-        it('should convert an intent string payload', function() {
+    describe('Story validation', function () {
+        it('should convert an intent string payload', function () {
             expect(stringPayloadToObject('/hello')).to.be.deep.equal({
                 intent: 'hello',
                 entities: [],
             });
         });
 
-        it('should convert an intent/entity string payload', function() {
+        it('should convert an intent/entity string payload', function () {
             expect(stringPayloadToObject('/hello{"ent1":"val1"}')).to.be.deep.equal({
                 intent: 'hello',
                 entities: [{ entity: 'ent1', value: 'val1' }],
             });
         });
 
-        it('should convert an intent/entities string payload', function() {
+        it('should convert an intent/entities string payload', function () {
             expect(
                 stringPayloadToObject('/hello{"ent1":"val1", "ent2":"val2"}'),
             ).to.be.deep.equal({
@@ -584,14 +598,14 @@ if (Meteor.isServer) {
             });
         });
 
-        it('should convert an empty payload', function() {
+        it('should convert an empty payload', function () {
             expect(stringPayloadToObject('')).to.be.deep.equal({
                 entities: [],
                 intent: '',
             });
         });
 
-        it('should convert an intent/entities string payload', function() {
+        it('should convert an intent/entities string payload', function () {
             expect(
                 stringPayloadToObject('/hello{"ent1":"val1", "ent2":"val2"}'),
             ).to.be.deep.equal({
@@ -603,7 +617,7 @@ if (Meteor.isServer) {
             });
         });
 
-        it('should convert an object to a string payload', function() {
+        it('should convert an object to a string payload', function () {
             expect(
                 objectPayloadToString({
                     intent: 'hello',
@@ -615,7 +629,7 @@ if (Meteor.isServer) {
             ).to.be.equal('/hello{"ent1":"val1","ent2":"val2"}');
         });
 
-        it('should convert an object to a string payload', function() {
+        it('should convert an object to a string payload', function () {
             expect(
                 objectPayloadToString({
                     intent: 'hello',
@@ -623,7 +637,7 @@ if (Meteor.isServer) {
             ).to.be.equal('/hello');
         });
 
-        it('should convert an object to a string payload', function() {
+        it('should convert an object to a string payload', function () {
             expect(
                 objectPayloadToString({
                     intent: 'hello',

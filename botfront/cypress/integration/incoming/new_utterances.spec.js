@@ -16,7 +16,7 @@ describe('incoming page', function() {
     });
 
     it('should assign populated data to the right language', function() {
-        cy.addNewProjectLanguage('French');
+        cy.createNLUModelProgramatically('bf', '', 'fr');
         cy.importNluData('bf', 'nlu_sample_fr.json', 'fr');
         cy.train();
 
