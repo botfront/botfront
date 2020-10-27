@@ -3,7 +3,15 @@ import { expect } from 'chai';
 import { Stories } from '../../../story/stories.collection';
 import Examples from '../../examples/examples.model.js';
 import {
-    projectFixture, storyFixture, examplesFixture, storyId, enModelId, frModelId, projectId, botResponseFixture, botResponsesFixture,
+    projectFixture,
+    storyFixture,
+    examplesFixture,
+    storyId,
+    enModelId,
+    frModelId,
+    projectId,
+    botResponseFixture,
+    botResponsesFixture,
 } from './indexTestData';
 import { indexStory } from '../../../story/stories.index';
 import { Projects } from '../../../project/project.collection';
@@ -16,7 +24,7 @@ import StoryResolver from '../resolvers/storiesResolver';
 if (Meteor.isServer) {
     const cleanup = async () => {
         await Stories.remove({});
-        await BotResponses.deleteMany(({ projectId }));
+        await BotResponses.deleteMany({ projectId });
         await Projects.remove({ _id: projectId });
         await NLUModels.remove({ _id: enModelId });
         await NLUModels.remove({ _id: frModelId });
@@ -42,7 +50,7 @@ if (Meteor.isServer) {
         await cleanup();
         done();
     };
-    
+
     const searchStories = async (language, queryString, reject) => {
         try {
             const searchResult = await StoryResolver.Query.dialogueSearch(null, {
@@ -51,12 +59,19 @@ if (Meteor.isServer) {
                 queryString,
             });
             if (!reject) {
-                expect(searchResult.dialogueFragments[0]).to.be.deep.equal({ _id: 'TEST_STORY', title: 'story fixture', storyGroupId: 'TEST_STORY_GROUP' });
+                expect(searchResult.dialogueFragments[0]).to.be.deep.equal({
+                    _id: 'TEST_STORY',
+                    title: 'story fixture',
+                    storyGroupId: 'TEST_STORY_GROUP',
+                    type: 'story',
+                });
             } else {
                 expect(searchResult.dialogueFragments[0]).to.be.equal(undefined);
             }
         } catch (e) {
-            throw new Error(`seaching stories for "${queryString}" did not return the expected results\n${e}`);
+            throw new Error(
+                `seaching stories for "${queryString}" did not return the expected results\n${e}`,
+            );
         }
     };
 
