@@ -7,25 +7,22 @@ describe('rename responses in the visual editor', () => {
         });
         cy.visit('project/bf/dialogue');
         cy.createStoryGroup();
-        cy.createStoryInGroup();
-        cy.createStoryInGroup();
-        // setup md
-        cy.browseToStory('Groupo (2)');
         cy.dataCy('toggle-md').click({ force: true });
+        cy.createStoryInGroup();
         cy.dataCy('single-story-editor').find('textarea').focus({ force: true });
-        cy.dataCy('single-story-editor').find('textarea').type('- utter_test_response', { force: true });
+        cy.dataCy('single-story-editor').find('textarea')
+            .type('- action: utter_test_response', { force: true });
         cy.dataCy('single-story-editor').find('textarea').blur({ force: true });
-        cy.dataCy('toggle-visual').click({ force: true });
-        cy.visit('project/bf/dialogue');
-        cy.browseToStory('Groupo (1)');
-        cy.dataCy('toggle-md').click({ force: true });
+        cy.createStoryInGroup();
         cy.dataCy('single-story-editor').find('textarea').focus({ force: true });
-        cy.dataCy('single-story-editor').find('textarea').type('- utter_test_response{enter}- utter_exists', { force: true });
+        cy.dataCy('single-story-editor').find('textarea')
+            .type('- action: utter_test_response{enter}- action: utter_exists', { force: true });
         cy.dataCy('single-story-editor').find('textarea').blur({ force: true });
-        cy.dataCy('toggle-visual').click({ force: true });
+        cy.wait(700);
+
         // check add responses
         cy.visit('project/bf/dialogue');
-        cy.browseToStory();
+        cy.browseToStory('Groupo (2)');
         cy.dataCy('bot-response-input').should('have.length', 2);
         cy.dataCy('bot-response-input').first().find('textarea').click();
         cy.dataCy('bot-response-input').first().find('textarea').type('red')
@@ -60,12 +57,19 @@ describe('rename responses in the visual editor', () => {
         cy.browseToStory('Groupo (2)');
         cy.dataCy('single-story-editor').trigger('mouseover');
         cy.get('.response-name.locations-link').should('exist');
-        cy.dataCy('bot-response-name-input').find('input').clear().type('utter_changed')
+        cy.dataCy('bot-response-name-input')
+            .first()
+            .find('input')
+            .clear()
+            .type('utter_changed')
             .blur();
         cy.wait(1000);
         cy.dataCy('single-story-editor').trigger('mouseover');
         cy.get('.locations-link').should('exist');
-        cy.dataCy('bot-response-name-input').find('input').clear().type('utter_exists')
+        cy.dataCy('bot-response-name-input')
+            .first()
+            .find('input').clear()
+            .type('utter_exists')
             .blur();
         cy.dataCy('bot-response-name-input').should('have.class', 'error');
     });

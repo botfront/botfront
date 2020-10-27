@@ -34,8 +34,8 @@ describe('branches', function() {
             .focus()
             .wait(50)
             .type('- intent: hey', { force: true })
-            .wait(200)
             .blur();
+        cy.wait(700);
         cy.visit('/project/bf/dialogue'); // reload page
         cy.browseToStory();
         cy.dataCy('toggle-md').click({ force: true });
@@ -43,11 +43,6 @@ describe('branches', function() {
         cy.dataCy('branch-label')
             .first()
             .click({ force: true });
-        cy.dataCy('create-branch').click({ force: true });
-        cy.dataCy('branch-title-input', null, '[value="New Branch 2"]')
-            .first()
-            .click({ force: true });
-        cy.dataCy('branch-title-input', null, '[value="New Branch 1"]').click({ force: true });
         cy.contains('- intent: hey').should('exist');
     });
 
@@ -136,14 +131,12 @@ describe('branches', function() {
             .first()
             .click();
         cy.wait(250);
-        cy.pause();
 
         cy.dataCy('delete-branch')
             .first()
             .click({ force: true });
         cy.dataCy('confirm-yes')
             .click({ force: true });
-        cy.pause();
         cy.dataCy('single-story-editor').should('have.length', 1);
         cy.dataCy('branch-label').first().click({ force: true });
         cy.dataCy('single-story-editor').should('have.length', 2);

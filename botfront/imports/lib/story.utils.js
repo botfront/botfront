@@ -89,7 +89,7 @@ const scrapeActionsIntentsAndEntities = (el) => {
     if (Array.isArray(el)) return el.flatMap(scrapeActionsIntentsAndEntities);
     if (el && typeof el === 'object') {
         return Object.keys(el).flatMap((k) => {
-            if (k === 'action' && el[k].indexOf('utter_') !== 0) {
+            if (k === 'action') {
                 return [{ action: el[k] }];
             }
             if (k === 'intent') return [{ intent: el[k] }];
@@ -110,7 +110,10 @@ export const extractDomain = ({
     defaultDomain = {},
 }) => {
     const initialDomain = {
-        actions: new Set(defaultDomain.actions || []),
+        actions: new Set([
+            ...(defaultDomain.actions || []),
+            ...Object.keys(responses),
+        ]),
         intents: new Set(defaultDomain.intents || []),
         entities: new Set(defaultDomain.entities || []),
         responses: { ...(defaultDomain.responses || {}), ...responses },

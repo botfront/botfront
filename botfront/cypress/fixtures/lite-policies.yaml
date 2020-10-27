@@ -1,0 +1,3 @@
+policies:
+    - name: RulePolicy
+    - name: MemoizationPolicy
