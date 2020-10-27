@@ -50,8 +50,7 @@ export default class API extends React.Component {
     handleChange = (e, { name, value }) => {
         const update = {};
         update[name] = value;
-        this.setState(update);
-        this.debouncedFunction();
+        this.setState(update, this.debouncedFunction);
     };
 
     handleDucklingOptionsChange = (e, { checked }) => {
@@ -59,13 +58,12 @@ export default class API extends React.Component {
             checked
                 ? { tz: moment.tz.guess(), reftime: moment().valueOf() }
                 : { tz: null, reftime: 0 },
+            this.debouncedFunction,
         );
-        this.debouncedFunction();
     };
 
-    handleTextChange = (e, { value }) => {
-        this.setState({ query: value });
-        this.debouncedFunction();
+    handleTextChange = (e) => {
+        this.setState({ query: e.target.value }, this.debouncedFunction);
     };
 
     parseNlu = () => {
