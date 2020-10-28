@@ -9,8 +9,23 @@ import { ProjectContext } from '../../../layouts/context';
 import UtteranceInput from '../../utils/UtteranceInput';
 import NluModalContent from './nlu_editor/NluModalContent';
 
-const convertUserToText = ({ user, ...payload } = {}) => ({ ...payload, ...(user ? { text: user } : {}) });
-const convertTextToUser = ({ text, ...payload } = {}) => ({ ...payload, ...(text ? { user: text } : {}) });
+const convertUserToText = ({ user, entities, ...payload } = {}) => ({
+    ...payload,
+    ...(user ? { text: user } : {}),
+    ...(entities
+        ? {
+            entities: entities.map(e => ({
+                entity: Object.keys(e)[0],
+                value: e[Object.keys(e)[0]],
+            })),
+        }
+        : {}),
+});
+const convertTextToUser = ({ text, entities, ...payload } = {}) => ({
+    ...payload,
+    ...(text ? { user: text } : {}),
+    ...(entities ? { entities: entities.map(({ entity: k, value: v }) => ({ [k]: v })) } : {}),
+});
 
 const UtteranceContainer = (props) => {
     const {
@@ -25,14 +40,19 @@ const UtteranceContainer = (props) => {
     const modalContentRef = useRef();
 
     useEffect(() => {
-        if (value.user || !value.intent) setStateValue(convertUserToText(value));
-        else setStateValue([...getCanonicalExamples(value), convertUserToText(value)][0]);
-    }, [value.intent]);
+        const converted = convertUserToText(value);
+        if (value.user || !value.intent) setStateValue(converted);
+        else setStateValue([...getCanonicalExamples(converted), converted][0]);
+    }, [JSON.stringify(value)]);
 
     const validateInput = async () => {
         try {
             const { intent, entities, text } = await parseUtterance(input);
-            setStateValue({ entities: entities.map(({ entity, value: v }) => ({ [entity]: v })), text, intent: intent.name || OOS_LABEL });
+            setStateValue({
+                entities,
+                text,
+                intent: intent?.name || OOS_LABEL,
+            });
         } catch (e) {
             // eslint-disable-next-line no-console
             console.log(e);

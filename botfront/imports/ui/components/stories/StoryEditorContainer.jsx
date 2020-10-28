@@ -22,7 +22,6 @@ import 'brace/mode/yaml';
 import { stepsToYaml, storyReducer } from '../../../lib/story.utils';
 import { DialogueFragmentValidator } from '../../../lib/dialogue_fragment_validator';
 import { ConversationOptionsContext } from './Context';
-import { ProjectContext } from '../../layouts/context';
 import { setStoryPath } from '../../store/actions/actions';
 import StoryVisualEditor from './common/StoryVisualEditor';
 import StoryErrorBoundary from './StoryErrorBoundary';
@@ -51,12 +50,9 @@ const StoryEditorContainer = ({
     changeStoryPath,
     collapsed,
 }) => {
-    const {
-        stories, getResponseLocations, updateStory,
-    } = useContext(
+    const { stories, getResponseLocations, updateStory } = useContext(
         ConversationOptionsContext,
     );
-    const { slots } = useContext(ProjectContext);
     const isLegacy = 'story' in story; // legacy (Md) stories use the Ace Editor
 
     const editors = useRef({});
@@ -65,25 +61,35 @@ const StoryEditorContainer = ({
     const [destinationStories, setDestinationStories] = useState([]);
     const defaultMode = story.type === 'rule' ? 'rule_steps' : 'story';
 
-    const branches = useMemo(() => ({
-        ...storyReducer([story]),
-        // we also include a special path for rule condition
-        ...(story.condition ? { [`${story._id},condition`]: { steps: story.condition } } : {}),
-    }), [JSON.stringify(story)]);
+    const branches = useMemo(
+        () => ({
+            ...storyReducer([story]),
+            // we also include a special path for rule condition
+            ...(story.condition
+                ? { [`${story._id},condition`]: { steps: story.condition } }
+                : {}),
+        }),
+        [JSON.stringify(story)],
+    );
 
     const validateYaml = (update) => {
-        const newAnnotations = Object.keys(update).reduce((acc, curr) => ({
-            ...acc,
-            [curr]: new DialogueFragmentValidator(
-                { mode: curr === `${story._id},condition` ? 'rule_condition' : defaultMode },
-            ).validateYamlFragment(update[curr]),
-        }), {});
+        const newAnnotations = Object.keys(update).reduce(
+            (acc, curr) => ({
+                ...acc,
+                [curr]: new DialogueFragmentValidator({
+                    mode:
+                        curr === `${story._id},condition`
+                            ? 'rule_condition'
+                            : defaultMode,
+                }).validateYamlFragment(update[curr]),
+            }),
+            {},
+        );
         setAnnotations(prev => ({ ...prev, ...newAnnotations }));
         Object.keys(newAnnotations).forEach((path) => {
             const editor = editors.current[path];
             if (editor) {
-                if (newAnnotations[path].length) editor.getSession().setAnnotations(newAnnotations[path]);
-                else editor.getSession().clearAnnotations();
+                if (newAnnotations[path].length) { editor.getSession().setAnnotations(newAnnotations[path]); } else editor.getSession().clearAnnotations();
             }
         });
     };
@@ -107,33 +113,39 @@ const StoryEditorContainer = ({
         );
     }, [storyMode, Object.keys(branches).length]);
 
-    const exceptions = useMemo(() => Object.keys(branches).sort((a, b) => (a.match(/,/g) || []).length < (b.match(/,/g) || []).length).reduce((acc, curr) => ({
-        ...acc,
-        [curr]: [
-            ...(annotations[curr] || []),
-            ...((branches[curr].branches || []).reduce((acc2, { _id }) => acc2.concat(acc[`${curr},${_id}`] || []), [])),
-        ],
-    }), {}), [annotations]);
-
-    const saveStory = (path, content, { callback } = {}) => updateStory(
-        { _id: story._id, ...content, path },
-        () => {
-            if (!isLegacy && Array.isArray(content.steps)) {
-                setEditorYaml({ [path.join()]: stepsToYaml(content.steps) });
-            }
-            if (typeof callback === 'function') callback();
-        },
+    const exceptions = useMemo(
+        () => Object.keys(branches)
+            .sort(
+                (a, b) => (b.match(/,/g) || []).length - (a.match(/,/g) || []).length,
+            )
+            .reduce(
+                (acc, curr) => ({
+                    ...acc,
+                    [curr]: [
+                        ...(annotations[curr] || []),
+                        ...(branches[curr].branches || []).reduce(
+                            (acc2, { _id }) => acc2.concat(acc[`${curr},${_id}`] || []),
+                            [],
+                        ),
+                    ],
+                }),
+                {},
+            ),
+        [annotations],
     );
+
+    const saveStory = (path, content, { callback } = {}) => updateStory({ _id: story._id, ...content, path }, () => {
+        if (!isLegacy && Array.isArray(content.steps)) {
+            setEditorYaml({ [path.join()]: stepsToYaml(content.steps) });
+        }
+        if (typeof callback === 'function') callback();
+    });
     const saveStoryDebounced = useCallback(debounce(saveStory, 500), []);
 
-    const isBranchLinked = branchId => destinationStories
-        .some(aStory => (aStory.checkpoints || [])
-            .some(checkpointPath => checkpointPath.includes(branchId)));
+    const isBranchLinked = branchId => destinationStories.some(aStory => (aStory.checkpoints || []).some(checkpointPath => checkpointPath.includes(branchId)));
 
     useEffect(() => {
-        const newDestinationStories = stories.filter(aStory => branchPath
-            .some(storyId => (aStory.checkpoints || [])
-                .some(checkpointPath => checkpointPath.includes(storyId))));
+        const newDestinationStories = stories.filter(aStory => branchPath.some(storyId => (aStory.checkpoints || []).some(checkpointPath => checkpointPath.includes(storyId))));
         const newDestinationStory = newDestinationStories.find(aStory => (aStory.checkpoints || []).some(
             checkpoint => checkpoint[checkpoint.length - 1]
                     === branchPath[branchPath.length - 1],
@@ -160,8 +172,14 @@ const StoryEditorContainer = ({
     const saveWithAce = (path) => {
         if (!annotations[path.join()]?.some(({ type }) => type === 'error')) {
             if (path[1] === 'condition') {
-                saveStoryDebounced(undefined, { condition: safeLoad(editorYaml[path.join()] || '') || [] });
-            } else saveStoryDebounced(path, { steps: safeLoad(editorYaml[path.join()] || '') || [] });
+                saveStoryDebounced(undefined, {
+                    condition: safeLoad(editorYaml[path.join()] || '') || [],
+                });
+            } else {
+                saveStoryDebounced(path, {
+                    steps: safeLoad(editorYaml[path.join()] || '') || [],
+                });
+            }
         }
     };
 
@@ -228,7 +246,9 @@ const StoryEditorContainer = ({
         <StoryTopMenu
             fragment={story}
             errors={exceptions[story._id].filter(({ type }) => type === 'error').length}
-            warnings={exceptions[story._id].filter(({ type }) => type === 'warning').length}
+            warnings={
+                exceptions[story._id].filter(({ type }) => type === 'warning').length
+            }
             renderAceEditor={() => renderAceEditor([story._id, 'condition'])}
         />
     );
@@ -352,10 +372,19 @@ const StoryEditorContainer = ({
                                         if (branchPath.indexOf(branch._id) !== -1) return;
                                         changeStoryPath(story._id, childPath);
                                     }}
-                                    onChangeName={newName => saveStory(childPath, { title: newName })}
+                                    onChangeName={newName => saveStory(childPath, { title: newName })
+                                    }
                                     onDelete={() => handleDeleteBranch(childPath, index)}
-                                    errors={exceptions[childPath.join()]?.filter(({ type }) => type === 'error').length}
-                                    warnings={exceptions[childPath.join()]?.filter(({ type }) => type === 'warning').length}
+                                    errors={
+                                        exceptions[childPath.join()]?.filter(
+                                            ({ type }) => type === 'error'
+                                        ).length
+                                    }
+                                    warnings={
+                                        exceptions[childPath.join()]?.filter(
+                                            ({ type }) => type === 'warning'
+                                        ).length
+                                    }
                                     siblings={localBranches}
                                     isLinked={isBranchLinked(branch._id)}
                                     isParentLinked={isBranchLinked(
@@ -393,7 +422,9 @@ const StoryEditorContainer = ({
                     onDestinationStorySelection={onDestinationStorySelection}
                     destinationStory={destinationStory}
                     canBranch={!branches[branchPath.join()]?.branches.length}
-                    storyPath={branchPath.map((_, i, src) => branches[src.slice(0, i + 1).join()]?.title)}
+                    storyPath={branchPath.map(
+                        (_, i, src) => branches[src.slice(0, i + 1).join()]?.title,
+                    )}
                     fragment={story}
                     disableContinue
                 />

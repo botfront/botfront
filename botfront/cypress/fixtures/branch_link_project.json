@@ -71,7 +71,7 @@
             "events": [
                 "utter_8KAdv0dy"
             ],
-            "story": "  - utter_8KAdv0dy"
+            "steps": [{"action": "utter_8KAdv0dy"}]
         },
         {
             "_id": "fb98c0be-9f54-4e74-8b39-cf1f2e0d866f",
@@ -88,7 +88,7 @@
                     "title": "yes",
                     "branches": [],
                     "_id": "LbaLiGUsi",
-                    "story": "* yes"
+                    "steps": [{"intent": "yes"}]
                 },
                 {
                     "title": "no",
@@ -97,20 +97,20 @@
                             "title": "yes",
                             "branches": [],
                             "_id": "ONehZcyHW",
-                            "story": "* yes"
+                            "steps": [{"intent": "yes"}]
                         },
                         {
                             "title": "no",
                             "branches": [],
                             "_id": "k1ZioQCilq",
-                            "story": "* no\n  - utter_q1HCNQhOE"
+                            "steps": [{"intent": "no"}, {"action": "utter_q1HCNQhOE"}]
                         }
                     ],
                     "_id": "r2LhQwIkCl",
-                    "story": "* no\n  - utter_tea"
+                    "steps": [{"intent": "no"}, {"action": "utter_tea"}]
                 }
             ],
-            "story": "* hi\n  - utter_coffee"
+            "steps": [{"intent": "hi"}, {"action": "utter_coffee"}]
         },
         {
             "_id": "9609a5f1-370a-4667-ab62-19b2a10a46b7",
@@ -122,13 +122,13 @@
                     "title": "yes",
                     "branches": [],
                     "_id": "LVHvnpPP3",
-                    "story": "* yes\n  - utter_ok"
+                    "steps": [{"intent": "yes"}, {"action": "utter_ok"}]
                 },
                 {
                     "title": "no",
                     "branches": [],
                     "_id": "IcJiEwRTVR",
-                    "story": "* no\n  - utter_oknosugar"
+                    "steps": [{"intent": "no"}, {"action": "utter_oknosugar"}]
                 }
             ],
             "events": [
@@ -147,7 +147,7 @@
                     "ONehZcyHW"
                 ]
             ],
-            "story": "  - utter_sugar"
+            "steps": [{"action": "utter_sugar"}]
         }
     ],
     "slots": [],

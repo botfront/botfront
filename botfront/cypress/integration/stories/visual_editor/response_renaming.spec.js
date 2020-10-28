@@ -83,9 +83,6 @@ describe('rename responses in the visual editor', () => {
         cy.dataCy('response-name-error').should('exist');
         cy.dataCy('response-name-input').find('input').clear().type('utter_changed')
             .blur();
-        cy.dataCy('response-name-error').should('not.exist');
-        cy.dataCy('response-name-input').find('input').should('have.value', 'utter_changed');
-        cy.escapeModal();
         cy.dataCy('single-story-editor').trigger('mouseover');
         cy.dataCy('bot-response-name-input').find('input').should('have.value', 'utter_changed');
     });

@@ -528,17 +528,19 @@ if (Meteor.isServer) {
     describe('domain extraction', function () {
         it('should extract domain', async function () {
             const responses = await getAllResponses('test', 'en');
-            expect(
-                extractDomain({ fragments: checkpointedStories, responses }),
-            ).to.be.deep.equal({
-                actions: [
+            const result = extractDomain({ fragments: checkpointedStories, responses });
+            expect({
+                ...result,
+                actions: new Set(result.actions),
+            }).to.be.deep.equal({
+                actions: new Set([
                     'utter_do_you_like_beans',
                     'utter_XHEzYD8j',
                     'utter_levelZero',
                     'utter_levelOne',
                     'utter_levelTwo',
                     'utter_levelThree',
-                ],
+                ]),
                 intents: ['greeting'],
                 entities: ['name'],
                 responses,

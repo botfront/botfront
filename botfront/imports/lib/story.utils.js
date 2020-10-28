@@ -183,22 +183,22 @@ export const getFragmentsAndDomain = async (projectId, language) => {
         storyGroupId: { $in: selectedGroups.map(({ _id }) => _id) },
     }).fetch();
 
+    appMethodLogger.debug('Adding checkpoints to stories');
+    const fragmentsWithCheckpoints = addCheckpoints(allFragments);
+
     appMethodLogger.debug('Generating domain');
     const responses = await getAllResponses(projectId, language);
     const slots = Slots.find({ projectId }).fetch();
     const domain = extractDomain({
-        fragments: allFragments,
+        fragments: fragmentsWithCheckpoints,
         slots,
         responses,
         defaultDomain,
     });
 
-    appMethodLogger.debug('Adding checkpoints to stories');
-    const fragmentsWithCheckpoints = addCheckpoints(allFragments);
-
     return {
         stories: fragmentsWithCheckpoints
-            .filter(({ type }) => type === 'story')
+            .filter(({ type }) => !type || type === 'story')
             .map(({ storyGroupId, title: story, steps }) => ({
                 story,
                 steps,
