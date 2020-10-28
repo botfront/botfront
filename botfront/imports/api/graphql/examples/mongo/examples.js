@@ -51,8 +51,8 @@ const createFilterObject = (
         // match all entities in the entities array by their name
         filters.entities = { $size: entities.length };
         if (entities.length) {
-            filters.entities.$all = entities.map(({ entity }) => ({
-                $elemMatch: { entity },
+            filters.entities.$all = entities.map(({ entity, value }) => ({
+                $elemMatch: { entity, value },
             }));
         }
     }
@@ -122,11 +122,14 @@ export const listIntentsAndEntities = async ({ projectId, language }) => {
         .sort({ 'metadata.canonical': -1 })
         .lean();
     examples.forEach((ex) => {
-        const exEntities = (ex.entities || []).map(en => en.entity);
-        entities = entities.concat(exEntities.filter(en => !entities.includes(en)));
+        const exEntities = (ex.entities || []);
+        entities = entities.concat(exEntities.map(e => e.entity).filter(en => !entities.includes(en)));
         if (!Object.keys(intents).includes(ex.intent)) intents[ex.intent] = [];
         if (
-            !intents[ex.intent].some(ex2 => setsAreIdentical(ex2.entities, exEntities))
+            !intents[ex.intent].some(ex2 => setsAreIdentical(
+                ex2.entities.map(e => `${e.entity}:${e.value}`),
+                exEntities.map(e => `${e.entity}:${e.value}`),
+            ))
         ) {
             intents[ex.intent].push({ entities: exEntities, example: ex });
         }

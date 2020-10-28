@@ -62,8 +62,8 @@ const NLUModalContent = React.forwardRef((props, forwardedRef) => {
     }, [refetch]);
 
     const checkPayloadsMatch = example => example.intent === payload.intent
-        && (example.entities || []).length === payload.entities.length
-        && (example.entities || []).every(entity => payload.entities.find(
+        && (example.entities || []).length === (payload.entities || []).length
+        && (example.entities || []).every(entity => (payload.entities || []).find(
             payloadEntity => payloadEntity.entity === entity.entity,
         ));
 
@@ -216,7 +216,7 @@ const NLUModalContent = React.forwardRef((props, forwardedRef) => {
 
     const saveAndExit = () => {
         Meteor.call('nlu.saveExampleChanges', projectId, language, examples, () => {
-            reloadStories();
+            setTimeout(() => reloadStories(), 400);
             closeModal();
         });
     };

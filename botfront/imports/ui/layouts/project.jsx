@@ -73,7 +73,10 @@ function Project(props) {
     }, [workingLanguage, projectId]);
 
     const findExactMatch = (canonicals, entities) => {
-        const exactMatch = canonicals.filter(ex => setsAreIdentical(ex.entities, entities))[0];
+        const exactMatch = canonicals.filter(ex => setsAreIdentical(
+            ex.entities.map(e => `${e.entity}:${e.value}`),
+            entities.map(e => `${e.entity}:${e.value}`),
+        ))[0];
         return exactMatch ? exactMatch.example : null;
     };
 
@@ -85,10 +88,7 @@ function Project(props) {
                 : {}
             : intentsList;
         return Object.keys(filtered).map(
-            i => findExactMatch(
-                filtered[i],
-                entities.map(e => e.entity),
-            ) || { intent: i },
+            i => findExactMatch(filtered[i], entities) || { intent: i },
         );
     };
 
@@ -97,7 +97,7 @@ function Project(props) {
     ]);
 
     const addUtterancesToTrainingData = (utterances, callback = () => {}) => {
-        if (!(utterances || []).filter(u => u.text).length) callback(null, { success: true });
+        if (!(utterances || []).filter(u => u.text).length) { callback(null, { success: true }); }
         const cleanedUtterances = cleanDucklingFromExamples(utterances);
         apolloClient
             .mutate({
@@ -133,7 +133,6 @@ function Project(props) {
         </Placeholder>
     );
 
-
     return (
         <div style={{ height: '100vh' }}>
             <div className='project-sidebar'>
@@ -147,7 +146,10 @@ function Project(props) {
                 {!loading && (
                     <ProjectSidebarComponent
                         projectId={projectId}
-                        handleChangeProject={pid => replace(pathname.replace(/\/project\/.*?\//, `/project/${pid}/`))}
+                        handleChangeProject={pid => replace(
+                            pathname.replace(/\/project\/.*?\//, `/project/${pid}/`),
+                        )
+                        }
                     />
                 )}
             </div>
@@ -267,7 +269,7 @@ const ProjectContainer = withTracker((props) => {
     if (!Meteor.userId()) {
         router.push('/login');
     }
-    
+
     if (!projectId) return browserHistory.replace({ pathname: '/404' });
     const projectHandler = Meteor.subscribe('projects', projectId);
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
@@ -307,10 +309,19 @@ const ProjectContainer = withTracker((props) => {
         changeProjectId(projectId);
     }
 
-    const projectLanguages = ready ? (project.languages || []).map(value => ({ text: languageOptions[value].name, value })) : [];
+    const projectLanguages = ready
+        ? (project.languages || []).map(value => ({
+            text: languageOptions[value].name,
+            value,
+        }))
+        : [];
 
     // update working language
-    if (ready && defaultLanguage && !projectLanguages.some(({ value }) => value === workingLanguage)) {
+    if (
+        ready
+        && defaultLanguage
+        && !projectLanguages.some(({ value }) => value === workingLanguage)
+    ) {
         changeWorkingLanguage(defaultLanguage);
     }
 
