@@ -34,9 +34,18 @@ export const stepsToYaml = steps => yaml
     .replace(/^\[\]/, '')
     .replace(/\n$/, '');
 
-export const storyReducer = (input, priorPath = '') => input.reduce((acc, { _id, branches = [], ...rest }) => {
+export const storyReducer = (input, priorPath = '', priorGroupId = '') => input.reduce((acc, {
+    _id, branches = [], storyGroupId: currentGid, ...rest
+}) => {
+    const storyGroupId = currentGid || priorGroupId;
     const path = priorPath ? `${priorPath},${_id}` : _id;
-    return { ...acc, [path]: { ...rest, _id, branches }, ...storyReducer(branches, path) };
+    return {
+        ...acc,
+        [path]: {
+            ...rest, _id, storyGroupId, branches,
+        },
+        ...storyReducer(branches, path, storyGroupId),
+    };
 }, {});
 
 export const addCheckpoints = (fragments) => {
