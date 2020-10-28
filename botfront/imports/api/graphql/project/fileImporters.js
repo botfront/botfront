@@ -2,30 +2,30 @@ import yaml from 'js-yaml';
 // import { CREATE_AND_OVERWRITE_RESPONSES as createResponses, DELETE_BOT_RESPONSE as deleteReponse } from '../templates/mutations';
 // import { GET_BOT_RESPONSES as listResponses } from '../templates/queries';
 // import apolloClient from '../../../startup/client/apollo';
+import botResponses from '../botResponses/botResponses.model';
 
 import Conversations from '../conversations/conversations.model';
 import Activity from '../activity/activity.model';
+import { indexBotResponse } from '../botResponses/mongo/botResponses';
 
-// const handleImportForms = () => new Promise(resolve => resolve(true));
+const handleImportForms = () => new Promise(resolve => resolve(true));
 
-// const handleImportResponse = (responses, projectId) => new Promise(resolve => apolloClient
-//     .mutate({
-//         mutation: createResponses,
-//         variables: { projectId, responses },
-//     }).then((res) => {
-//         if (!res || !res.data) resolve('Responses not inserted.');
-//         const notUpserted = responses.filter(
-//             ({ key }) => !res.data.createAndOverwriteResponses
-//                 .map(d => d.key)
-//                 .includes(key),
-//         );
-//         if (notUpserted.length) {
-//             resolve(
-//                 `Responses ${notUpserted.join(', ')} not inserted.`,
-//             );
-//         }
-//         resolve(true);
-//     }));
+
+const handleImportResponse = async (responses, projectId) => {
+    const prepareResponses = responses.map((response) => {
+        const index = indexBotResponse(response);
+        return { ...response, textIndex: index, projectId };
+    });
+    try {
+        await botResponses.insertMany(prepareResponses);
+    } catch (e) {
+        if (e.code === 11000) {
+            const alreadyExist = e?.result?.result?.writeErrors.map(err => `${err.err.op.key} already exist`).join(', ');
+            throw new Error(alreadyExist);
+        }
+        throw new Error('Error while importing responses');
+    }
+};
 
 // const handleImportStoryGroups = (files, {
 //     projectId, fileReader: [, setFileList], setImportingState, wipeCurrent, existingStoryGroups,
@@ -59,58 +59,67 @@ import Activity from '../activity/activity.model';
 //     } else insert();
 // };
 
-// const wipeDomain = async (projectId, existingSlots) => {
-//     const { data: { botResponses } = {} } = await apolloClient
-//         .query({
-//             query: listResponses,
-//             variables: { projectId },
-//         });
-//     if (!Array.isArray(botResponses)) throw new Error();
-//     const deletedResponses = await Promise.all(botResponses.map(r => apolloClient.mutate({
-//         mutation: deleteReponse,
-//         variables: { projectId, key: r.key },
-//     })));
-//     if (deletedResponses.some(p => !p.data.deleteResponse.success)) throw new Error();
-//     const deletedSlots = await Promise.all(existingSlots.map(slot => Meteor.callWithPromise('slots.delete', slot, projectId)));
-//     if (deletedSlots.some(p => !p)) throw new Error();
-//     return true;
-// };
+const wipeDomain = async (projectId, existingSlots) => {
+    try {
+        await botResponses.deleteMany({ projectId });
+    } catch (e) {
+        throw new Error('Could not wipe the old responses');
+    }
+    // const deletedSlots = await Promise.all(existingSlots.map(slot => Meteor.callWithPromise('slots.delete', slot, projectId)));
+    // if (deletedSlots.some(p => !p)) throw new Error();
+    return true;
+};
 
-// const handleImportDomain = (files, {
-//     projectId, fileReader: [, setFileList], setImportingState, wipeCurrent, existingSlots, existingStoryGroups,
-// }) => {
-//     if (!files.length) return;
-//     setImportingState(true);
-//     const insert = () => files.forEach(({
-//         slots, bfForms, responses, filename, lastModified,
-//     }, idx) => {
-//         const callback = wrapMeteorCallback((error) => {
-//             if (!error) setFileList({ delete: { filename, lastModified } });
-//             if (error || idx === files.length - 1) setImportingState(false);
-//         });
-//         Meteor.call(
-//             'slots.upsert',
-//             slots,
-//             projectId,
-//             (err) => {
-//                 if (err) return callback(err);
-//                 return Promise.all([
-//                     handleImportResponse(responses, projectId),
-//                     handleImportForms(bfForms, projectId, existingStoryGroups),
-//                 ]).then((res) => {
-//                     const messages = res.filter(r => r !== true);
-//                     if (messages.length) return callback({ message: messages.join('\n') });
-//                     return callback();
-//                 });
-//             },
-//         );
-//     });
-//     if (wipeCurrent) {
-//         wipeDomain(projectId, existingSlots).then(
-//             insert, () => setImportingState(false),
-//         );
-//     } else insert();
-// };
+const deduplicate = (listOfObjects, key) => {
+    const seen = new Set();
+    return listOfObjects.filter((obj) => {
+        const value = obj[key];
+        if (seen.has(value)) {
+            return false;
+        }
+        seen.add(value);
+        return true;
+    });
+};
+
+const handleImportDomain = async (files, {
+    projectId, wipeCurrent, existingSlots, existingStoryGroups,
+}) => {
+    if (!files.length) return [];
+    const allResponses = files.reduce((all, { responses }) => ([...all, ...responses]), []);
+    const allSlots = files.reduce((all, { slots }) => ([...all, ...slots]), []);
+    // const allForms = files.reduce((all, { bfForms }) => ([...all, ...bfForms]),[]);
+
+    const preparedResponses = deduplicate(allResponses, 'key');
+    const preparedSlots = deduplicate(allSlots, 'name');
+    // const preparedForms = deduplicate(allForms, 'key');
+    const errors = [];
+    const insert = async () => {
+        // const callback = wrapMeteorCallback((error) => {
+        //     if (!error) setFileList({ delete: { filename, lastModified } });
+        //     if (error || idx === files.length - 1) setImportingState(false);
+        // });
+      
+        try {
+            await handleImportResponse(preparedResponses, projectId);
+            // await handleImportForms(bfForms, projectId),
+        } catch (e) {
+            errors.push(`error when importing responses ${e.message}`);
+        }
+        try {
+            await Meteor.callWithPromise('slots.upsert', preparedSlots, projectId);
+            // await handleImportForms(bfForms, projectId),
+        } catch (e) {
+            errors.push(`error when importing slots ${e.message}`);
+        }
+    };
+        
+    if (wipeCurrent) {
+        await wipeDomain(projectId, existingSlots);
+    }
+    await insert();
+    return errors;
+};
 
 // const handleImportDataset = (files, {
 //     projectId, fileReader: [, setFileList], setImportingState, wipeCurrent,
@@ -153,7 +162,6 @@ const handleImportEndpoints = async (files, { projectId }) => {
             return `error when importing ${f.filename}`;
         }
     }));
-    w;
     return importResult.filter(r => r);
 };
 
@@ -283,7 +291,7 @@ const handleImportIncoming = async (files, {
 export const handleImportAll = async (files, params) => {
     const importers = [];
     // handleImportStoryGroups(files.filter(f => f.dataType === 'stories'), params);
-    // handleImportDomain(files.filter(f => f.dataType === 'domain'), params);
+    importers.push(handleImportDomain(files.filter(f => f.dataType === 'domain'), params));
     // handleImportDataset(files.filter(f => f.dataType === 'nlu'), params);
     importers.push(handleImportEndpoints(files.filter(f => f.dataType === 'endpoints'), params));
     importers.push(handleImportCredentials(files.filter(f => f.dataType === 'credentials'), params));

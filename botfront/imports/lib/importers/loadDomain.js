@@ -5,21 +5,22 @@ const INTERNAL_SLOTS = [
     'bf_forms',
     'fallback_language',
 ];
-
 export const loadDomain = ({
-    rawText,
-    defaultDomain = {},
-    projectLanguages,
-    fallbackImportLanguage,
+    file,
+    params: {
+        defaultDomain = {},
+        projectLanguages,
+        fallbackImportLanguage,
+    },
 }) => {
+    const { rawText } = file;
     let domain;
     try {
         domain = safeLoad(rawText);
-        if (!['templates', 'responses', 'slots'].some(k => k in domain)) {
-            throw new Error();
-        }
     } catch (e) {
-        return { errors: ['Domain could not be parsed from YAML.'] };
+        return {
+            file, dataType: 'domain', rawText, errors: [...(file?.errors || []), 'Not valid yaml'],
+        };
     }
     const {
         slots: slotsFromFile = {},
@@ -34,7 +35,7 @@ export const loadDomain = ({
         ...(legacyResponsesFromFile || {}),
         ...(modernResponsesFromFile || {}),
     };
-    // get forms
+    // get forms MIGHT NEED TO UPDATE WITH RASA 2
     const bfForms = 'bf_forms' in (slotsFromFile || {})
         ? slotsFromFile.bf_forms.initial_value
         : [];
@@ -91,7 +92,7 @@ export const loadDomain = ({
             });
         }
     });
-
+    // MIGHT NEED TO UPDATE WITH RASA 2
     Object.keys(slotsFromFile || {}).forEach((name) => {
         const slot = slotsFromFile[name];
         const options = {};
@@ -105,7 +106,6 @@ export const loadDomain = ({
             ...options,
         });
     });
-
     return {
         dataType: 'domain', rawText, warnings, slots, bfForms, responses,
     };
