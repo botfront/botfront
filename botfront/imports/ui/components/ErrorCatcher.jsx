@@ -48,9 +48,16 @@ export default class ErrorBoundary extends React.Component {
                         >
                             Please configure the ROOT_URL environment variable
                             <Header.Subheader style={{ marginTop: '10px' }}>
-                            The ROOT_URL environment variable must be set to the public URL where your instance of Botfront can be reached
+                                The ROOT_URL environment variable must be set to
+                                the public URL where your instance of Botfront can be reached.
                             </Header.Subheader>
                         </Header>
+                        <p>
+                            For more information visit the{' '}
+                            <a href='https://botfront.io/docs/installation/server-cluster#environment-variables'>
+                                documentation
+                            </a>
+                        </p>
                     </div>
                 </Container>
             );
