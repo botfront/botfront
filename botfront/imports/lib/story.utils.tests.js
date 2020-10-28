@@ -532,8 +532,8 @@ if (Meteor.isServer) {
                 extractDomain({ fragments: checkpointedStories, responses }),
             ).to.be.deep.equal({
                 actions: [
-                    'utter_XHEzYD8j',
                     'utter_do_you_like_beans',
+                    'utter_XHEzYD8j',
                     'utter_levelZero',
                     'utter_levelOne',
                     'utter_levelTwo',
