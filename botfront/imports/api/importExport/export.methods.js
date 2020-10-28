@@ -101,13 +101,12 @@ if (Meteor.isServer) {
                     { fields: { endpoints: 1 } },
                 ).endpoints;
             }
-          
+
             const rasaData = await Meteor.callWithPromise(
                 'rasa.getTrainingPayload',
                 projectId,
                 { ...passedLang },
             );
-           
 
             const fragmentsByGroup = _.chain([...rasaData.stories, ...rasaData.rules])
                 .groupBy(({ metadata: { group } } = {}) => group)
@@ -132,7 +131,6 @@ if (Meteor.isServer) {
                 fragments: fragmentsByGroup,
             };
 
-            
             const instance = await Instances.findOne({ projectId });
             const conversations = await Conversations.find({ projectId }).lean();
             const incoming = await Activity.find({ projectId }).lean();
@@ -155,10 +153,10 @@ if (Meteor.isServer) {
             }
             if (language === 'all') {
                 Object.keys(exportData.config).forEach(k => rasaZip.addFile(exportData.config[k], `config-${k}.yml`));
-                Object.keys(exportData.nlu).forEach(k => rasaZip.addFile(exportData.nlu[k].data, `data/nlu/${k}.json`));
+                Object.keys(exportData.nlu).forEach(k => rasaZip.addFile(JSON.stringify(exportData.nlu[k]), `data/nlu/${k}.json`));
             } else {
                 rasaZip.addFile(exportData.config[language], 'config.yml');
-                rasaZip.addFile(exportData.nlu[language].data, 'data/nlu.json');
+                rasaZip.addFile(JSON.stringify(exportData.nlu[language]), 'data/nlu.json');
             }
 
             if (hasEnvs) {
