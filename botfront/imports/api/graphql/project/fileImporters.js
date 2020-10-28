@@ -7,8 +7,9 @@ import botResponses from '../botResponses/botResponses.model';
 import Conversations from '../conversations/conversations.model';
 import Activity from '../activity/activity.model';
 import { indexBotResponse } from '../botResponses/mongo/botResponses';
+import { Slots } from '../../slots/slots.collection';
 
-const handleImportForms = () => new Promise(resolve => resolve(true));
+// const handleImportForms = () => new Promise(resolve => resolve(true));
 
 
 const handleImportResponse = async (responses, projectId) => {
@@ -59,14 +60,18 @@ const handleImportResponse = async (responses, projectId) => {
 //     } else insert();
 // };
 
-const wipeDomain = async (projectId, existingSlots) => {
+const wipeDomain = async (projectId) => {
     try {
         await botResponses.deleteMany({ projectId });
     } catch (e) {
         throw new Error('Could not wipe the old responses');
     }
-    // const deletedSlots = await Promise.all(existingSlots.map(slot => Meteor.callWithPromise('slots.delete', slot, projectId)));
-    // if (deletedSlots.some(p => !p)) throw new Error();
+  
+    try {
+        await Slots.remove({ projectId });
+    } catch (e) {
+        throw new Error('Could not wipe the slots responses');
+    }
     return true;
 };
 
@@ -83,7 +88,7 @@ const deduplicate = (listOfObjects, key) => {
 };
 
 const handleImportDomain = async (files, {
-    projectId, wipeCurrent, existingSlots, existingStoryGroups,
+    projectId, wipeCurrent, existingStoryGroups,
 }) => {
     if (!files.length) return [];
     const allResponses = files.reduce((all, { responses }) => ([...all, ...responses]), []);
@@ -115,7 +120,7 @@ const handleImportDomain = async (files, {
     };
         
     if (wipeCurrent) {
-        await wipeDomain(projectId, existingSlots);
+        await wipeDomain(projectId);
     }
     await insert();
     return errors;
@@ -169,7 +174,7 @@ const handleImportEndpoints = async (files, { projectId }) => {
 const handleImportCredentials = async (files, { projectId }) => {
     if (!files.length) return [];
     const toImport = [files[0]]; // there could only be one file os, but the map is there for ee
-    const importResult = await Promise.all(toImport.map(async (f, idx) => {
+    const importResult = await Promise.all(toImport.map(async (f) => {
         try {
             await Meteor.callWithPromise('credentials.save',
                 { projectId, credentials: f.rawText });

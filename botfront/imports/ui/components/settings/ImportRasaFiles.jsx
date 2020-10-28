@@ -22,7 +22,6 @@ import { NativeTypes } from 'react-dnd-html5-backend-cjs';
 import { useDrop } from 'react-dnd-cjs';
 import { useMutation } from '@apollo/react-hooks';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
-import { Slots } from '../../../api/slots/slots.collection';
 import { getDefaultDomainAndLanguage } from '../../../lib/story.utils';
 import { useFileReader } from './fileReaders';
 import { ProjectContext } from '../../layouts/context';
@@ -33,7 +32,7 @@ import { importFilesMutation } from './graphql';
 
 const ImportRasaFiles = (props) => {
     const {
-        existingStoryGroups, existingSlots, projectId, defaultDomain,
+        existingStoryGroups, projectId, defaultDomain,
     } = props;
     const { projectLanguages, instance, language } = useContext(ProjectContext);
     const [importFiles] = useMutation(importFilesMutation);
@@ -396,7 +395,6 @@ const ImportRasaFiles = (props) => {
 ImportRasaFiles.propTypes = {
     projectId: PropTypes.string.isRequired,
     existingStoryGroups: PropTypes.array.isRequired,
-    existingSlots: PropTypes.array.isRequired,
     defaultDomain: PropTypes.object.isRequired,
 };
 
@@ -404,13 +402,11 @@ ImportRasaFiles.defaultProps = {};
 
 const ImportRasaFilesContainer = withTracker(({ projectId }) => {
     const storyGroupHandler = Meteor.subscribe('storiesGroup', projectId);
-    const slotsHandler = Meteor.subscribe('slots', projectId);
     const existingStoryGroups = storyGroupHandler.ready()
         ? StoryGroups.find({ projectId }).fetch()
         : [];
-    const existingSlots = slotsHandler.ready() ? Slots.find({ projectId }).fetch() : [];
     const { defaultDomain } = getDefaultDomainAndLanguage(projectId);
-    return { existingStoryGroups, existingSlots, defaultDomain };
+    return { existingStoryGroups, defaultDomain };
 })(ImportRasaFiles);
 
 const mapStateToProps = state => ({
