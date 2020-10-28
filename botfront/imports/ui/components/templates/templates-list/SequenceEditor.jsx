@@ -38,7 +38,6 @@ const SequenceEditor = (props) => {
                             deleteable
                             initialValue={content}
                             onChange={value => onChange(value, index)}
-                            isNew={false}
                             enableEditPopup={false}
                             tag={`${name}-${index}`}
                         />

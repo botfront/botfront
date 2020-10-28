@@ -2,13 +2,20 @@ import shortid from 'shortid';
 import { escapeRegExp, intersectionBy } from 'lodash';
 import emojiTree from 'emoji-tree';
 import Examples from '../examples.model.js';
-import { setsAreIdentical } from '../../../../lib/utils';
+import { setsAreIdentical, cleanDucklingFromExamples } from '../../../../lib/utils';
 import { canonicalizeExamples } from '../../../nlu_model/nlu_model.utils';
 
-const checkNoEmojisInExamples = (example) => {
+const clearEmojisFromExample = (example) => {
+    let exampleText = '';
     if (emojiTree(example.text).some(c => c.type === 'emoji')) {
-        throw new Meteor.Error('400', 'Emojis not allowed.');
+        emojiTree(example.text).forEach((char) => {
+            if (char.type !== 'emoji') {
+                exampleText += char.text;
+            }
+        });
+        return { ...example, text: exampleText };
     }
+    return example;
 };
 
 const createSortObject = (fieldName = 'intent', order = 'ASC') => {
@@ -44,8 +51,8 @@ const createFilterObject = (
         // match all entities in the entities array by their name
         filters.entities = { $size: entities.length };
         if (entities.length) {
-            filters.entities.$all = entities.map(({ entity }) => ({
-                $elemMatch: { entity },
+            filters.entities.$all = entities.map(({ entity, value }) => ({
+                $elemMatch: { entity, value },
             }));
         }
     }
@@ -115,11 +122,14 @@ export const listIntentsAndEntities = async ({ projectId, language }) => {
         .sort({ 'metadata.canonical': -1 })
         .lean();
     examples.forEach((ex) => {
-        const exEntities = (ex.entities || []).map(en => en.entity);
-        entities = entities.concat(exEntities.filter(en => !entities.includes(en)));
+        const exEntities = (ex.entities || []);
+        entities = entities.concat(exEntities.map(e => e.entity).filter(en => !entities.includes(en)));
         if (!Object.keys(intents).includes(ex.intent)) intents[ex.intent] = [];
         if (
-            !intents[ex.intent].some(ex2 => setsAreIdentical(ex2.entities, exEntities))
+            !intents[ex.intent].some(ex2 => setsAreIdentical(
+                ex2.entities.map(e => `${e.entity}:${e.value}`),
+                exEntities.map(e => `${e.entity}:${e.value}`),
+            ))
         ) {
             intents[ex.intent].push({ entities: exEntities, example: ex });
         }
@@ -134,15 +144,17 @@ export const insertExamples = async ({
     if (!language || !projectId) throw new Error('Missing language or projectId.');
     if (!examples || !examples.length) return [];
     const { autoAssignCanonical = true, overwriteOnSameText = false } = options;
-    let preparedExamples = examples.reduce((acc, curr) => {
-        checkNoEmojisInExamples(curr);
-        if (acc.some(ex => ex.text === curr.text)) return acc; // no duplicates
+    let preparedExamples = cleanDucklingFromExamples(examples);
+    preparedExamples = examples.reduce((acc, curr) => {
+        const currentExample = clearEmojisFromExample(curr);
+        if (!currentExample.text || currentExample.text.length < 1) return acc; // no empty exemples.
+        if (acc.some(ex => ex.text === currentExample.text)) return acc; // no duplicates
         return [
             ...acc,
             {
-                ...curr,
+                ...currentExample,
                 projectId,
-                metadata: { ...(curr.metadata || {}), language },
+                metadata: { ...(currentExample.metadata || {}), language },
                 createdAt: new Date(),
                 updatedAt: new Date(),
                 _id: shortid.generate(),
@@ -183,7 +195,8 @@ export const insertExamples = async ({
 
 export const updateExamples = async ({ examples }) => {
     const updatesPromises = examples.map(async (example) => {
-        checkNoEmojisInExamples(example);
+        const currentExample = clearEmojisFromExample(example);
+        if (currentExample.text && currentExample.text.length < 1) return null;
         const { metadata = {}, ...rest } = example;
         const metadataUpdate = Object.keys(metadata)
             .reduce((acc, k) => ({ ...acc, [`metadata.${k}`]: metadata[k] }), {});

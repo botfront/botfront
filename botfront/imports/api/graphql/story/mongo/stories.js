@@ -30,33 +30,28 @@ export const searchStories = async (projectId, language, search) => {
     const fullSearch = combineSearches(escapedSearch, responseKeys, intents);
     const storiesFilter = {
         projectId,
-        $or: [{ 'textIndex.info': { $regex: escapedSearch, $options: 'i' } }, { 'textIndex.contents': { $regex: fullSearch, $options: 'i' } }],
+        $or: [
+            { title: { $regex: fullSearch, $options: 'i' } },
+            { textIndex: { $regex: fullSearch, $options: 'i' } },
+        ],
     };
     const matched = Stories.find(
         storiesFilter,
         {
             fields: {
-                _id: 1, title: 1, storyGroupId: 1,
+                _id: 1, title: 1, storyGroupId: 1, type: 1,
             },
         },
     ).fetch();
-    return { stories: matched };
-};
-
-const replaceLine = (story, lineToReplace, newLine) => {
-    // regexp: [ ] = space; + = any number of the characters in the []; $ = end of string
-    const regex = new RegExp(`- *${escape(lineToReplace)}([ ]+\n|\n|[ ]+$|$)`, 'g');
-    return story.replace(regex, `- ${newLine}\n`);
+    return { dialogueFragments: matched };
 };
 
 const traverseReplaceLine = (story, lineToReplace, newLine) => {
     const updatedStory = story;
-    if (story.story) {
-        updatedStory.story = replaceLine(updatedStory.story, lineToReplace, newLine);
-    }
-    (updatedStory.branches || []).forEach((branch) => {
-        traverseReplaceLine(branch, lineToReplace, newLine);
+    (story.steps || []).forEach(({ action }, i) => {
+        if (action === lineToReplace) updatedStory.steps[i].action = newLine;
     });
+    (updatedStory.branches || []).forEach(branch => traverseReplaceLine(branch, lineToReplace, newLine));
     return updatedStory;
 };
 
@@ -64,7 +59,7 @@ export const replaceStoryLines = (projectId, lineToReplace, newLine) => {
     const matchingStories = Stories.find(
         {
             projectId,
-            $or: [{ 'textIndex.contents': { $regex: escape(lineToReplace) } }],
+            textIndex: { $regex: escape(lineToReplace) },
 
         },
         { fields: { _id: 1 } },
@@ -72,6 +67,6 @@ export const replaceStoryLines = (projectId, lineToReplace, newLine) => {
     return Promise.all(matchingStories.map(({ _id }) => {
         const story = Stories.findOne({ _id });
         const { _id: excludeId, ...rest } = traverseReplaceLine(story, lineToReplace, newLine);
-        return Stories.update({ _id }, { $set: { ...rest, ...indexStory(rest, { includeEventsField: true }) } });
+        return Stories.update({ _id }, { $set: { ...rest, ...indexStory(rest) } });
     }));
 };

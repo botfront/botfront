@@ -15,7 +15,6 @@ const { version } = require('/package.json');
 
 const ImportProject = ({
     setLoading,
-    apiHost,
     projectId,
 }) => {
     const importTypeOptions = [
@@ -41,7 +40,6 @@ const ImportProject = ({
     const [importErrorMessage, setImportErrorMessage] = useState({ header: 'Import failed' });
     const [uploadedFiles, setUploadedFiles] = useState({ header: 'Import Failed', text: '' });
     const [confirmSkipOpen, setConfirmSkipOpen] = useState(false);
-    const [includeConvos, setIncludeConvos] = useState('conversations=true');
 
     const uploadedFileVersion = useMemo(() => {
         if (!uploadedFiles.botfront) return false;
@@ -58,7 +56,7 @@ const ImportProject = ({
 
     const importProject = () => {
         setLoading(true);
-        Meteor.call('importProject', uploadedFiles.botfront, apiHost, projectId, (err) => {
+        Meteor.call('importProject', uploadedFiles.botfront, projectId, (err) => {
             if (!err) {
                 setImportSuccessful(true);
             } else {
@@ -83,7 +81,7 @@ const ImportProject = ({
 
     const backupProject = (withConversations = true) => {
         const options = withConversations ? {} : { conversations: false };
-        Meteor.call('exportProject', apiHost, projectId, options, (err, { data, error }) => {
+        Meteor.call('exportProject', projectId, options, (err, { data, error }) => {
             if (data) {
                 const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
                 const filename = `BotfrontProjectBackup_${projectId}.json`;
@@ -151,13 +149,7 @@ const ImportProject = ({
                 />
             )}
             {backupSuccess === true && (
-                <p className='plain-text-message'>
-                    If the backup download did not automatically start after 10 seconds, click
-                    <a
-                        href={`${apiHost}/project/${projectId}/export?output=json&conversations=${includeConvos}`}
-                        data-cy='backup-link'
-                    > here
-                    </a> to retry.
+                <p className='plain-text-message' data-cy='backup-message'>
                     <br />Please verify that the backup has downloaded before continuing.
                 </p>
             )}
@@ -204,11 +196,11 @@ const ImportProject = ({
             {backupSuccess === undefined && botfrontFileSuccess && (
                 <>
                     <Button.Group>
-                        <Button onClick={() => { backupProject(true); setIncludeConvos(true); }} className='export-option' data-cy='export-with-conversations'>
+                        <Button onClick={() => { backupProject(true); }} className='export-option' data-cy='export-with-conversations'>
                             Download backup with conversations
                         </Button>
                         <Button.Or />
-                        <Button onClick={() => { backupProject(false); setIncludeConvos(false); }} className='export-option' data-cy='export-without-conversations'>
+                        <Button onClick={() => { backupProject(false); }} className='export-option' data-cy='export-without-conversations'>
                             Download backup without conversations
                         </Button>
                         <Button.Or />
@@ -265,7 +257,6 @@ const ImportProject = ({
 ImportProject.propTypes = {
     projectId: PropTypes.string.isRequired,
     setLoading: PropTypes.func.isRequired,
-    apiHost: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = state => ({

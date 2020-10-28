@@ -90,12 +90,6 @@ async function logUtterance(utterance, projectId, language, convId, env, callbac
     const { _id, ...newUtterance } = { ...new Activity(newData) }._doc;
     if (!parseData.intent) newUtterance.intent = null;
 
-    if (utterance.entities) {
-        newUtterance.entities = utterance.entities.filter(
-            e => e.extractor !== 'ner_duckling_http',
-        );
-    }
-
     Activity.updateOne(
         {
             projectId, language, text, env,

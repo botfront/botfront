@@ -1,5 +1,5 @@
 # The tag here should match the Meteor version of your app, per .meteor/release
-FROM geoffreybooth/meteor-base:1.10.1
+FROM geoffreybooth/meteor-base:1.10.2
 
 # Copy app package.json and package-lock.json into container
 COPY ./botfront/package*.json $APP_SOURCE_FOLDER/
@@ -17,7 +17,7 @@ COPY ./botfront $APP_SOURCE_FOLDER/
 RUN bash $SCRIPTS_FOLDER/build-meteor-bundle.sh
 
 
-# Meteor 1.10.1 require node 12
+# Meteor 1.10.2 require node 12
 FROM node:12-alpine
 
 ENV APP_BUNDLE_FOLDER /opt/bundle

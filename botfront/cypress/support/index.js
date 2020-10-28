@@ -190,10 +190,17 @@ Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', de
         languages: [],
     };
     cy.deleteProject(projectId);
-    return cy.visit('/')
-        .then(() => cy.window())
-        .then(({ Meteor }) => Meteor.callWithPromise('project.insert', project))
-        .then(() => cy.createNLUModelProgramatically(projectId, '', defaultLanguage));
+    cy.visit('/');
+    return cy.fixture('lite-policies.yaml')
+        .then(policies => cy.window()
+            .then(async ({ Meteor }) => {
+                await Meteor.callWithPromise('project.insert', project);
+                await Meteor.callWithPromise('policies.save', {
+                    projectId,
+                    policies,
+                });
+                return cy.createNLUModelProgramatically(projectId, '', defaultLanguage);
+            }));
 });
 
 Cypress.Commands.add('dataCy', (dataCySelector, content = null, filter = null) => {

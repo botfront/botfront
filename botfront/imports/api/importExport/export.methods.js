@@ -1,10 +1,13 @@
 import { Meteor } from 'meteor/meteor';
 import axios from 'axios';
+import _ from 'lodash';
 
 import { check } from 'meteor/check';
 
-import yaml from 'js-yaml';
+
+import { safeDump } from 'js-yaml';
 import { Endpoints } from '../endpoints/endpoints.collection';
+import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { Credentials } from '../credentials';
 
 import { generateErrorText } from './importExport.utils';
@@ -28,10 +31,13 @@ if (Meteor.isServer) {
     const exportAppLogger = getAppLoggerForFile(__filename);
 
     Meteor.methods({
-        exportProject(apiHost, projectId, options) {
-            check(apiHost, String);
+        exportProject(projectId, options) {
             check(projectId, String);
             check(options, Object);
+
+            const apiHost = GlobalSettings
+                .findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.bfApiHost': 1 } })
+                .settings.private.bfApiHost;
 
             const appMethodLogger = getAppLoggerForMethod(
                 exportAppLogger,
@@ -99,10 +105,21 @@ if (Meteor.isServer) {
             const rasaData = await Meteor.callWithPromise(
                 'rasa.getTrainingPayload',
                 projectId,
-                { ...passedLang, joinStoryFiles: false },
+                { ...passedLang },
             );
 
-            const rasaExportData = {
+            const fragmentsByGroup = _.chain([...rasaData.stories, ...rasaData.rules])
+                .groupBy(({ metadata: { group } } = {}) => group)
+                .map((fragments, group) => ({ group, fragments }))
+                .value()
+                .map(({ fragments, group }) => {
+                    const stories = fragments.filter(f => f.story);
+                    const rules = fragments.filter(f => f.rule);
+                    const fragmentsByType = safeDump({ stories, rules });
+                    return { group, fragments: fragmentsByType };
+                });
+
+            const exportData = {
                 config:
                     language === 'all'
                         ? rasaData.config
@@ -112,7 +129,7 @@ if (Meteor.isServer) {
                     language === 'all'
                         ? rasaData.nlu
                         : { [language]: rasaData.nlu[language] },
-                stories: rasaData.stories,
+                fragments: fragmentsByGroup,
             };
 
             
@@ -121,30 +138,28 @@ if (Meteor.isServer) {
             const incoming = await Activity.find({ projectId }).lean();
             
             const BotfrontData = { project, instance };
-            const bontfrontYaml = yaml.safeDump(BotfrontData);
+            const bontfrontYaml = safeDump(BotfrontData);
 
 
             const rasaZip = new ZipFolder();
-            if (rasaExportData.stories.length > 1) {
-                rasaExportData.stories.forEach(s => rasaZip.addFile(
-                    s,
-                    `data/stories/${s
-                        .split('\n')[0]
-                        .replace(/^# /, '')
-                        .replace(/ /g, '_')
-                        .toLowerCase()}.md`,
+            if (exportData.fragments.length > 1) {
+                exportData.fragments.forEach(f => rasaZip.addFile(
+                    f.fragments,
+                    exportData.fragments.length > 1
+                        ? `data/stories/${f.group
+                            .replace(/ /g, '_')
+                            .toLowerCase()}.yml`
+                        : 'data/stories.yml',
                 ));
             } else {
-                rasaZip.addFile(rasaExportData.stories, 'data/stories.md');
+                rasaZip.addFile(exportData.fragments, 'data/stories.yml');
             }
             if (language === 'all') {
-                // rasaZip.addFile(exportData.config, 'config.yml');
-                // rasaZip.addFile(exportData.nlu[language].data, 'data/nlu.md');
-                Object.keys(rasaExportData.config).forEach(k => rasaZip.addFile(rasaExportData.config[k], `config-${k}.yml`));
-                Object.keys(rasaExportData.nlu).forEach(k => rasaZip.addFile(rasaExportData.nlu[k].data, `data/nlu/${k}.md`));
+                Object.keys(exportData.config).forEach(k => rasaZip.addFile(exportData.config[k], `config-${k}.yml`));
+                Object.keys(exportData.nlu).forEach(k => rasaZip.addFile(exportData.nlu[k].data, `data/nlu/${k}.json`));
             } else {
-                rasaZip.addFile(rasaExportData.config[language], 'config.yml');
-                rasaZip.addFile(rasaExportData.nlu[language].data, 'data/nlu.md');
+                rasaZip.addFile(exportData.config[language], 'config.yml');
+                rasaZip.addFile(exportData.nlu[language].data, 'data/nlu.json');
             }
 
             if (hasEnvs) {
@@ -155,7 +170,7 @@ if (Meteor.isServer) {
                 rasaZip.addFile(credentials, 'credentials.yml');
             }
             
-            rasaZip.addFile(rasaExportData.domain, 'domain.yml');
+            rasaZip.addFile(exportData.domain, 'domain.yml');
             rasaZip.addFile(bontfrontYaml, 'botfront/botfront-config.yml');
             rasaZip.addFile(JSON.stringify(conversations, null, 2), 'botfront/conversation.json');
             rasaZip.addFile(JSON.stringify(incoming, null, 2), 'botfront/incoming.json');

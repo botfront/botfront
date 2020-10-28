@@ -20,7 +20,6 @@ const ExportProject = ({
         text: 'There was an unexpected error during the export.',
     });
 
-
     const getLanguageOptions = () => [
         ...(projectLanguages.length > 1
             ? [{ value: 'all', text: 'All languages' }]

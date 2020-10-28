@@ -18,9 +18,6 @@ describe('branches', function() {
     const clickFirstBranchTitle = () => {
         cy.dataCy('branch-label')
             .first()
-            .click({ force: true })
-            .wait(1000)
-            .find('span')
             .click({ force: true });
     };
 
@@ -36,9 +33,9 @@ describe('branches', function() {
             .eq(1)
             .focus()
             .wait(50)
-            .type('xxx', { force: true })
-            .wait(100)
+            .type('- intent: hey', { force: true })
             .blur();
+        cy.wait(700);
         cy.visit('/project/bf/dialogue'); // reload page
         cy.browseToStory();
         cy.dataCy('toggle-md').click({ force: true });
@@ -46,12 +43,7 @@ describe('branches', function() {
         cy.dataCy('branch-label')
             .first()
             .click({ force: true });
-        cy.dataCy('create-branch').click({ force: true });
-        cy.contains('New Branch 2')
-            .first()
-            .click({ force: true });
-        cy.contains('New Branch 1').click({ force: true });
-        cy.contains('xxx').should('exist');
+        cy.contains('- intent: hey').should('exist');
     });
 
     it('should be able to be create a third branch, and delete branches', function() {
@@ -67,15 +59,6 @@ describe('branches', function() {
         cy.dataCy('delete-branch')
             .first()
             .click({ force: true });
-        cy.wait(250);
-        cy.dataCy('delete-branch')
-            .first()
-            .click({ force: true });
-        cy.wait(250);
-        cy.dataCy('delete-branch')
-            .first()
-            .click({ force: true });
-        cy.wait(250);
         cy.dataCy('confirm-yes')
             .click({ force: true });
 
@@ -86,16 +69,10 @@ describe('branches', function() {
         cy.dataCy('delete-branch')
             .first()
             .click({ force: true });
-        cy.wait(250);
-        cy.dataCy('delete-branch')
-            .first()
-            .click({ force: true });
-        cy.wait(250);
         cy.dataCy('confirm-yes')
             .click({ force: true });
 
-
-        cy.dataCy('branch-label').should('not.exist', 2);
+        cy.dataCy('branch-label').should('not.exist');
         cy.dataCy('create-branch')
             .find('i')
             .should('not.have.class', 'disabled');
@@ -136,7 +113,7 @@ describe('branches', function() {
             .get('textarea')
             .eq(1)
             .focus()
-            .type('aaa', { force: true });
+            .type('- intent: aaa', { force: true });
 
         cy.dataCy('branch-label').should('have.lengthOf', 2);
         cy.dataCy('branch-label').eq(1).should('have.class', 'active');
@@ -148,7 +125,7 @@ describe('branches', function() {
             .get('textarea')
             .last()
             .focus()
-            .type('bbb', { force: true });
+            .type('- intent: bbb', { force: true });
 
         cy.dataCy('branch-label')
             .first()
@@ -158,11 +135,6 @@ describe('branches', function() {
         cy.dataCy('delete-branch')
             .first()
             .click({ force: true });
-        cy.wait(250);
-        cy.dataCy('delete-branch')
-            .first()
-            .click({ force: true });
-        cy.wait(250);
         cy.dataCy('confirm-yes')
             .click({ force: true });
         cy.dataCy('single-story-editor').should('have.length', 1);
@@ -170,8 +142,8 @@ describe('branches', function() {
         cy.dataCy('single-story-editor').should('have.length', 2);
         
         cy.dataCy('single-story-editor').should('have.length', 2);
-        cy.dataCy('single-story-editor').first().contains('aaa');
-        cy.dataCy('single-story-editor').last().contains('bbb');
+        cy.dataCy('single-story-editor').first().contains('- intent: aaa');
+        cy.dataCy('single-story-editor').last().contains('- intent: bbb');
     });
 
     it('should save branch title on blur and Enter, discard on esc', function() {
@@ -180,42 +152,24 @@ describe('branches', function() {
         // test Enter
         clickFirstBranchTitle();
         cy.dataCy('branch-label')
+            .first()
             .find('input')
             .click()
             .clear()
             .type(`${newBranchNameOne}{Enter}`);
-        cy.dataCy('branch-label')
-            .first()
-            .find('span')
-            .contains(newBranchNameOne)
+        cy.dataCy('branch-title-input', null, `[value="${newBranchNameOne}"]`)
             .should('exist');
 
         // test blur
         clickFirstBranchTitle();
         cy.dataCy('branch-label')
+            .first()
             .find('input')
             .click()
             .clear()
             .type(`${newBranchNameTwo}`)
             .blur();
-        cy.dataCy('branch-label')
-            .first()
-            .find('span')
-            .contains(newBranchNameTwo)
+        cy.dataCy('branch-title-input', null, `[value="${newBranchNameTwo}"]`)
             .should('exist');
-
-        // test esc
-        clickFirstBranchTitle();
-        cy.dataCy('branch-label')
-            .find('input')
-            .click()
-            .type('edited{esc}{Enter}');
-        cy.dataCy('branch-label')
-            .first()
-            .find('span')
-            .contains(newBranchNameTwo)
-            .should('exist')
-            .contains(`${newBranchNameTwo}edited`)
-            .should('not.exist');
     });
 });

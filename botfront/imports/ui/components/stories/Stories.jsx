@@ -35,17 +35,17 @@ const isDeletionPossible = (node = {}, nodes, tree) => {
     const isDestinationOrOrigin = s => isDestination(s) || isOrigin(s);
     let deletable = false;
     let message = null;
-    if (node.type === 'story') {
+    if (['story', 'rule'].includes(node.type)) {
         deletable = !isDestinationOrOrigin(node);
         message = deletable
-            ? `The story ${node.title} will be deleted. This action cannot be undone.`
-            : `The story ${node.title} cannot be deleted as it is linked to another story.`;
+            ? `'${node.title}' will be deleted. This action cannot be undone.`
+            : `'${node.title}' cannot be deleted as it is linked to another story.`;
     }
     if (node.type === 'story-group') {
         deletable = !(node.children || []).some(c => isDestinationOrOrigin(tree.items[c]));
         message = deletable
-            ? `The story group ${node.title} and all its stories in it will be deleted. This action cannot be undone.`
-            : `The story group ${node.title} cannot be deleted as it contains links.`;
+            ? `The group ${node.title} and all its content in it will be deleted. This action cannot be undone.`
+            : `The group ${node.title} cannot be deleted as it contains links.`;
     }
     if (node.type === 'form') {
         deletable = true;
@@ -111,6 +111,7 @@ function Stories(props) {
     );
 
     const reshapeStories = () => stories
+        .filter(story => story.type === 'story') // no rules
         .map(story => ({ ...story, text: story.title, value: story._id }))
         .sort((storyA, storyB) => {
             if (storyA.text < storyB.text) return -1;
@@ -160,20 +161,6 @@ function Stories(props) {
         [projectId],
     );
 
-    const handleNewStory = useCallback(
-        (story, f) => Meteor.call(
-            'stories.insert',
-            {
-                story: '',
-                projectId,
-                branches: [],
-                ...story,
-            },
-            wrapMeteorCallback(f),
-        ),
-        [projectId],
-    );
-
     const handleStoryDeletion = useCallback(
         (story, f) => Meteor.call(
             'stories.delete',
@@ -207,6 +194,30 @@ function Stories(props) {
         );
     };
 
+    const handleLinkToStory = useCallback((id) => {
+        const { location: { pathname } } = router;
+        const newSelection = [id, ...storyMenuSelection.filter(storyId => storyId !== id)];
+        router.replace({ pathname, query: { 'ids[]': newSelection } });
+        setStoryMenuSelection(newSelection);
+    }, [storyMenuSelection]);
+
+    const handleNewStory = useCallback(
+        (story, f) => Meteor.call(
+            'stories.insert',
+            {
+                projectId,
+                branches: [],
+                steps: [],
+                ...story,
+            },
+            wrapMeteorCallback(() => {
+                if (story._id) handleLinkToStory(story._id);
+                f();
+            }),
+        ),
+        [projectId],
+    );
+
     useEventListener('keydown', ({ key }) => {
         if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
         if (key === 'ArrowLeft') treeRef.current.focusMenu();
@@ -219,6 +230,7 @@ function Stories(props) {
                     browseToSlots: () => setSlotsModal(true),
                     stories: storiesReshaped,
                     storyGroups,
+                    linkToStory: handleLinkToStory,
                     addGroup: handleAddStoryGroup,
                     deleteGroup: handleDeleteGroup,
                     updateGroup: handleStoryGroupUpdate,

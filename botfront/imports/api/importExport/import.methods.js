@@ -3,6 +3,8 @@ import axios from 'axios';
 
 import { check } from 'meteor/check';
 
+import { GlobalSettings } from '../globalSettings/globalSettings.collection';
+
 import { generateErrorText, generateImportResponse } from './importExport.utils';
 
 if (Meteor.isServer) {
@@ -14,10 +16,14 @@ if (Meteor.isServer) {
 
     const importAppLogger = getAppLoggerForFile(__filename);
     Meteor.methods({
-        async importProject(projectFile, apiHost, projectId) {
+        async importProject(projectFile, projectId) {
             check(projectFile, Object);
-            check(apiHost, String);
             check(projectId, String);
+
+            const apiHost = GlobalSettings
+                .findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.bfApiHost': 1 } })
+                .settings.private.bfApiHost;
+
             const appMethodLogger = getAppLoggerForMethod(
                 importAppLogger,
                 'importProject',

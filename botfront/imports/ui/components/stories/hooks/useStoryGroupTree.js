@@ -18,9 +18,12 @@ const convertId = ({
 }, type) => {
     let parentField = {};
     let titleField = {};
+    let typeSpec = {};
     if (parentId) {
-        if (type === 'story') parentField = { storyGroupId: parentId };
-        else parentField = { parentId };
+        if (['rule', 'story'].includes(type)) {
+            parentField = { storyGroupId: parentId };
+            typeSpec = { type };
+        } else parentField = { parentId };
     }
     if (title) {
         if (type === 'story-group') titleField = { name: title };
@@ -29,6 +32,7 @@ const convertId = ({
     }
     return {
         _id: id,
+        ...typeSpec,
         ...parentField,
         ...titleField,
         ...rest,
@@ -48,7 +52,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         replace,
         togglePublish,
     } = instruction;
-    const { setSomethingIsMutating } = externalMutators;
+    const { setSomethingIsMutating, setRenamingModalPosition } = externalMutators;
     const fallbackFunction = (...args) => {
         const callback = args[args.length - 1];
         if (typeof callback === 'function') callback();
@@ -72,7 +76,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
             if (action === 'reorder') return updateGroup;
             if (action === 'delete') return deleteGroup;
         }
-        if (type === 'story') {
+        if (['rule', 'story'].includes(type)) {
             if (action === 'update') return updateStory;
             if (action === 'delete') return deleteStory;
         }
@@ -133,7 +137,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
     }
     if (newStory) {
         const { items } = tree;
-        const [parentId, title, status] = newStory;
+        const [parentId, title, status, type] = newStory;
         const id = uuidv4();
         if (items[parentId].smartGroup) return tree;
         items[parentId].children = [id, ...items[parentId].children];
@@ -145,7 +149,10 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         setSomethingIsMutating(true);
         addStory(convertId({
             id, parentId, title, status,
-        }, 'story'), () => setSomethingIsMutating(false));
+        }, type), () => {
+            setRenamingModalPosition({ id, title });
+            setSomethingIsMutating(false);
+        });
         return mutateTree({ ...tree, items }, parentId, { isExpanded: true }); // make sure destination is open
     }
     if (toggleFocus) {
@@ -182,7 +189,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         let destinationNode = getDestinationNode(tree, destination);
         const acceptanceCriterion = ['story-group', 'form'].includes(sourceNodes[0].type)
             ? candidateNode => candidateNode.id === tree.rootId // only move forms and groups to root
-            : sourceNodes[0].type === 'story'
+            : ['rule', 'story'].includes(sourceNodes[0].type)
                 ? candidateNode => candidateNode.type === 'story-group' // move stories to first group
                 : candidateNode => candidateNode.id === sourceNodes[0].parentId; // move slots only to their parent
         const identityCheck = candidateNode => c => c === candidateNode.id;
@@ -289,7 +296,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
                     children: newSource.children,
                 }, 'story-group'),
                 () => updateStory(
-                    sourceNodes.map(({ id }) => convertId({ id, parentId: newDestination.id }, 'story')),
+                    sourceNodes.map(({ id, type }) => convertId({ id, parentId: newDestination.id }, type)),
                     updateDestination,
                 ),
             );
@@ -299,7 +306,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
     return tree;
 };
 
-export const useStoryGroupTree = (treeFromProps, activeStories) => {
+export const useStoryGroupTree = (treeFromProps, activeStories, setRenamingModalPosition) => {
     const [somethingIsDragging, setSomethingIsDragging] = useState(false);
     const [somethingIsMutating, setSomethingIsMutating] = useState(false);
     const {
@@ -309,6 +316,7 @@ export const useStoryGroupTree = (treeFromProps, activeStories) => {
     const externalMutators = {
         ...useContext(ConversationOptionsContext),
         setSomethingIsMutating,
+        setRenamingModalPosition,
     };
     const reducer = useMemoOne(() => treeReducer(externalMutators), [projectId]);
 

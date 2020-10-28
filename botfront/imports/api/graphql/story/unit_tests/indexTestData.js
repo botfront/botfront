@@ -5,7 +5,18 @@ export const frModelId = 'TEST_MODEL_FR';
 
 export const storyFixture = {
     _id: storyId,
-    story: '* get_started\n    - utter_get_started\n  - slot{"test_slot":true}\n  - action_testAction\n* get_started{"timeOfDay": "morning"}\n    - utter_TEST\n    - utter_image\n    - utter_quick\n    - utter_custom',
+    type: 'story',
+    steps: [
+        { intent: 'get_started' },
+        { action: 'utter_get_started' },
+        { slot_was_set: [{ test_slot: true }] },
+        { action: 'action_testAction' },
+        { intent: 'get_started', entities: [{ timeOfDay: 'morning' }] },
+        { action: 'utter_TEST' },
+        { action: 'utter_image' },
+        { action: 'utter_quick' },
+        { action: 'utter_custom' },
+    ],
     title: 'story fixture',
     storyGroupId: 'TEST_STORY_GROUP',
     projectId: 'bf',

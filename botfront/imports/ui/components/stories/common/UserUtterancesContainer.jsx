@@ -1,15 +1,16 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useContext } from 'react';
 import PropTypes from 'prop-types';
 
 import IconButton from '../../common/IconButton';
 import UserUtteranceContainer from './UserUtteranceContainer';
 import UserUtterancePopupContent from './UserUtterancePopupContent';
-import { NEW_INTENT } from '../../../../lib/story_controller';
+import { ProjectContext } from '../../../layouts/context';
 
 const UserUtterancesContainer = (props) => {
     const {
         deletable, value, onChange, onDelete,
     } = props;
+    const { addUtterancesToTrainingData } = useContext(ProjectContext);
 
     const somethingIsBeingInput = useMemo(() => value.some(disjunct => disjunct === null), [value]);
 
@@ -31,13 +32,16 @@ const UserUtterancesContainer = (props) => {
                         || !(content.entities || []).length),
             );
         if (identicalPayload) return handleDeleteDisjunct(index);
-        return onChange([...value.slice(0, index), content, ...value.slice(index + 1)]);
+        const { user: text, ...contentWithoutUserKey } = content;
+        return addUtterancesToTrainingData([{ ...contentWithoutUserKey, text }], (err) => {
+            if (!err) onChange([...value.slice(0, index), content, ...value.slice(index + 1)]);
+        });
     };
 
     const handleInsertDisjunct = (index, payload) => {
         onChange([
             ...value.slice(0, index + 1),
-            payload || { intent: NEW_INTENT },
+            payload || { intent: null },
             ...value.slice(index + 1),
         ]);
     };

@@ -169,10 +169,25 @@
     position: relative;
     .float {
         position: absolute;
-        width: 100px;
-        bottom: ~"calc(100% - 1px)";
+        max-width: 200px;
+        bottom: ~"calc(100% - 5px)";
         font-size: small;
         user-select: none;
+        border-radius: 4px;
+        padding: 0px 2px 1px 2px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        z-index: 10;
+    }
+    .entity-name {
+        visibility: hidden;
+    }
+    &:hover {
+        .entity-name {
+            background-color: rgba(252, 252, 252, 0.863);
+            visibility: visible;
+        }
     }
 }
 

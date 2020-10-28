@@ -9,29 +9,50 @@ import { ProjectContext } from '../../../layouts/context';
 import UtteranceInput from '../../utils/UtteranceInput';
 import NluModalContent from './nlu_editor/NluModalContent';
 
+const convertUserToText = ({ user, entities, ...payload } = {}) => ({
+    ...payload,
+    ...(user ? { text: user } : {}),
+    ...(entities
+        ? {
+            entities: entities.map(e => ({
+                entity: Object.keys(e)[0],
+                value: e[Object.keys(e)[0]],
+            })),
+        }
+        : {}),
+});
+const convertTextToUser = ({ text, entities, ...payload } = {}) => ({
+    ...payload,
+    ...(text ? { user: text } : {}),
+    ...(entities ? { entities: entities.map(({ entity: k, value: v }) => ({ [k]: v })) } : {}),
+});
+
 const UtteranceContainer = (props) => {
     const {
         value, onInput, onAbort, onDelete,
     } = props;
-    const [mode, setMode] = useState(!value ? 'input' : 'view');
     const { parseUtterance, getCanonicalExamples } = useContext(ProjectContext);
-    const [stateValue, setStateValue] = useState(value);
-    const [input, setInput] = useState();
-    const [fetchedData, setFetchedData] = useState(value || null);
+    const [stateValue, setStateValue] = useState({});
+    const [input, setInput] = useState('');
     const [modalOpen, setModalOpen] = useState(false);
     const closeModal = useCallback(() => setModalOpen(false), []);
     const containerBody = useRef();
     const modalContentRef = useRef();
 
     useEffect(() => {
-        setMode(!value ? 'input' : 'view');
-        if (value) setFetchedData([...getCanonicalExamples(value), null][0]);
-    }, [value]);
+        const converted = convertUserToText(value);
+        if (value.user || !value.intent) setStateValue(converted);
+        else setStateValue([...getCanonicalExamples(converted), converted][0]);
+    }, [JSON.stringify(value)]);
 
     const validateInput = async () => {
         try {
             const { intent, entities, text } = await parseUtterance(input);
-            setStateValue({ entities, text, intent: intent.name || OOS_LABEL });
+            setStateValue({
+                entities,
+                text,
+                intent: intent?.name || OOS_LABEL,
+            });
         } catch (e) {
             // eslint-disable-next-line no-console
             console.log(e);
@@ -42,15 +63,14 @@ const UtteranceContainer = (props) => {
     const saveInput = () => {
         if (stateValue.intent !== OOS_LABEL) {
             containerBody.current.wasSaved = true;
-            onInput(stateValue);
+            onInput(convertTextToUser(stateValue));
         }
     };
 
     const handleClickOutside = (event) => {
         if (
             containerBody.current
-            && !!stateValue
-            && mode === 'input'
+            && stateValue.intent !== OOS_LABEL
             && !containerBody.current.contains(event.target)
             && ![
                 '.intent-popup',
@@ -68,7 +88,7 @@ const UtteranceContainer = (props) => {
     };
 
     useEffect(() => {
-        if (!!stateValue && mode === 'input') {
+        if (!value.intent) {
             document.removeEventListener('mousedown', handleClickOutside);
             document.addEventListener('mousedown', handleClickOutside);
         }
@@ -81,7 +101,7 @@ const UtteranceContainer = (props) => {
         () => () => {
             // as state update are async we're not sure mode have change already
             // that why we use  wasSaved to keep track of the save state
-            if (mode === 'input' && !containerBody.current.wasSaved) {
+            if (!value.intent && !containerBody.current.wasSaved) {
                 onDelete();
             }
         },
@@ -89,8 +109,8 @@ const UtteranceContainer = (props) => {
     );
 
     const render = () => {
-        if (mode === 'input') {
-            if (!stateValue) {
+        if (!value.intent) {
+            if (!stateValue.intent) {
                 return (
                     <UtteranceInput
                         placeholder='User says...'
@@ -118,7 +138,7 @@ const UtteranceContainer = (props) => {
         }
         return (
             <UserUtteranceViewer
-                value={fetchedData || value}
+                value={stateValue}
                 disableEditing
                 onClick={() => setModalOpen(true)}
             />
@@ -128,7 +148,7 @@ const UtteranceContainer = (props) => {
     return (
         <div
             className='utterance-container'
-            mode={!!stateValue ? 'view' : mode}
+            mode={value.intent ? 'view' : 'input'}
             agent='user'
             ref={containerBody}
         >
@@ -143,11 +163,11 @@ const UtteranceContainer = (props) => {
                     >
                         <Segment className='nlu-editor-modal' data-cy='nlu-editor-modal'>
                             <div className='nlu-editor-top-content'>
-                                <UserUtteranceViewer value={value} disableEditing />
+                                <UserUtteranceViewer value={stateValue} disableEditing />
                             </div>
                             <NluModalContent
                                 ref={modalContentRef}
-                                payload={value}
+                                payload={stateValue}
                                 closeModal={closeModal}
                             />
                         </Segment>

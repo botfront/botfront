@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import { Menu, Icon, Popup } from 'semantic-ui-react';
-import propTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import React from 'react';
 
 import ConfirmPopup from '../common/ConfirmPopup';
@@ -12,98 +12,54 @@ class BranchTabLabel extends React.Component {
         const { value } = this.props;
         this.state = {
             newTitle: value,
-            title: value,
-            titleHovered: false,
-            titleInputFocused: false,
-            blockEditOptions: false,
             deletePopupOpened: false,
-            popupTimer: null,
         };
-    }
-
-    componentWillUnmount() {
-        const { popupTimer } = this.state;
-        clearTimeout(popupTimer);
     }
 
     onTextInput = (event) => {
         this.setState({ newTitle: event.target.value.replace('_', '') });
     };
 
-    handleTitleMouseEnter = () => {
-        const { popupTimer } = this.state;
-        clearTimeout(popupTimer);
-        this.setState({ titleHovered: true });
-    };
-
-    handleTitleMouseLeave = () => {
-        const { titleInputFocused } = this.state;
-        if (!titleInputFocused) {
-            this.setState({
-                popupTimer: setTimeout(() => {
-                    this.setState({ titleHovered: false, deletePopupOpened: false });
-                }, 200),
-            });
-        }
-    };
-
-    handleOnFocusInput = () => {
-        this.setState({ titleInputFocused: true });
-    };
-
-    handleFocusTitleInput = () => {
-        const { active } = this.props;
-        if (active) {
-            this.setState({ titleInputFocused: true });
-        }
-    };
-
     submitNewTitle = () => {
-        const { newTitle, title } = this.state;
+        const { newTitle } = this.state;
         const {
-            onChangeName, active, onSelect, siblings,
+            onChangeName, active, onSelect, siblings, value,
         } = this.props;
-        this.setState({ titleHovered: false, titleInputFocused: false });
-        if (title === newTitle) return;
+        if (value === newTitle) return;
         if (
             !newTitle.replace(/\s/g, '').length
             || siblings.map(s => s.title).includes(newTitle)
         ) {
-            this.setState({ newTitle: title });
+            this.setState({ newTitle: value });
             return;
         }
         if (active) {
             onSelect(newTitle);
         }
-        this.setState({ title: newTitle });
         onChangeName(newTitle);
     };
 
     handleKeyDown = (event) => {
-        const { title } = this.state;
-
+        const { value } = this.props;
         if (event.key === 'Enter') {
             event.stopPropagation();
             event.preventDefault();
             this.submitNewTitle();
-            this.setState({ titleInputFocused: false, titleHovered: false });
             return;
         }
         if (event.key === 'Escape') {
             event.stopPropagation();
             event.preventDefault();
             this.setState({
-                newTitle: title,
-                titleInputFocused: false,
-                titleHovered: false,
+                newTitle: value,
             });
         }
     };
 
     renderAlertIcons = () => {
-        const { exceptions } = this.props;
+        const { errors, warnings } = this.props;
         const alertList = [];
-        if (exceptions.warnings && exceptions.warnings.length > 0) {
+        if (warnings) {
             alertList.push(
                 <Icon
                     key='warning-icon'
@@ -113,7 +69,7 @@ class BranchTabLabel extends React.Component {
                 />,
             );
         }
-        if (exceptions.errors && exceptions.errors.length > 0) {
+        if (errors) {
             alertList.push(
                 <Icon
                     key='error-icon'
@@ -134,37 +90,18 @@ class BranchTabLabel extends React.Component {
     };
 
     handleOnClick = () => {
-        const { title } = this.state;
-        const { onSelect, active } = this.props;
-        if (!active) {
-            this.setState({ blockEditOptions: true });
-            setTimeout(() => {
-                this.setState({ blockEditOptions: false });
-            }, 500);
-            onSelect(title);
-        }
-    };
-
-    renderTitlePlain = () => {
-        const { title } = this.state;
-        return (
-            <>
-                <span role='textbox' onClick={this.handleFocusTitleInput} tabIndex={0}>
-                    {title}
-                </span>
-                {this.renderDeleteButton()}
-            </>
-        );
+        const { onSelect, active, value } = this.props;
+        if (!active) onSelect(value);
     };
 
     renderDeletePopup = () => {
-        const { title, deletePopupOpened } = this.state;
+        const { deletePopupOpened } = this.state;
         const {
-            onDelete, siblings, isLinked, isParentLinked,
+            onDelete, siblings, isLinked, isParentLinked, value,
         } = this.props;
         const confirmMessage = {};
         if (siblings.length < 3) {
-            const strandedBranchName = siblings.filter(s => s.title !== title)[0].title;
+            const strandedBranchName = siblings.filter(s => s.title !== value)[0].title;
             confirmMessage.content = (
                 <>
                     The content of <strong>{strandedBranchName}</strong> will be added to
@@ -216,35 +153,7 @@ class BranchTabLabel extends React.Component {
         );
     };
 
-    renderTitleDecorated = () => {
-        const { title } = this.state;
-        const { siblings } = this.props;
-        const confirmMessage = {};
-        if (siblings.length < 3) {
-            const strandedBranchName = siblings.filter(s => s.title !== title)[0].title;
-            confirmMessage.content = (
-                <>
-                    The content of <strong>{strandedBranchName}</strong> will be added to
-                    the previous story.
-                </>
-            );
-        }
-        return (
-            <>
-                <span
-                    className='decorated'
-                    onClick={this.handleFocusTitleInput}
-                    role='textbox'
-                    tabIndex={0}
-                >
-                    {title}
-                </span>
-                {this.renderDeletePopup()}
-            </>
-        );
-    };
-
-    renderTitleInput = () => {
+    renderTitle = () => {
         const { newTitle } = this.state;
         return (
             <>
@@ -254,26 +163,11 @@ class BranchTabLabel extends React.Component {
                     onChange={this.onTextInput}
                     onBlur={this.submitNewTitle}
                     onKeyDown={this.handleKeyDown}
-                    // eslint-disable-next-line jsx-a11y/no-autofocus
-                    autoFocus
-                    onFocus={this.handleOnFocusInput}
                     style={{ width: `${Math.max(3, newTitle.length + 1)}ch` }}
                 />
-                {this.renderDeleteButton()}
+                {this.renderDeletePopup()}
             </>
         );
-    };
-
-    renderTitle = () => {
-        const { titleHovered, titleInputFocused, blockEditOptions } = this.state;
-        const { active } = this.props;
-        if (titleInputFocused) {
-            return this.renderTitleInput();
-        }
-        if (active && titleHovered && !blockEditOptions) {
-            return this.renderTitleDecorated();
-        }
-        return this.renderTitlePlain();
     };
 
     render() {
@@ -288,8 +182,6 @@ class BranchTabLabel extends React.Component {
                         {this.renderTitle()}
                     </>
                 )}
-                onMouseEnter={this.handleTitleMouseEnter}
-                onMouseLeave={this.handleTitleMouseLeave}
                 role='textbox'
                 data-cy='branch-label'
             />
@@ -298,21 +190,23 @@ class BranchTabLabel extends React.Component {
 }
 
 BranchTabLabel.propTypes = {
-    value: propTypes.string,
-    onChangeName: propTypes.func.isRequired,
-    onDelete: propTypes.func.isRequired,
-    exceptions: propTypes.object,
-    active: propTypes.bool,
-    onSelect: propTypes.func.isRequired,
-    siblings: propTypes.array.isRequired,
-    isLinked: propTypes.bool,
-    isParentLinked: propTypes.bool.isRequired,
+    value: PropTypes.string,
+    onChangeName: PropTypes.func.isRequired,
+    onDelete: PropTypes.func.isRequired,
+    warnings: PropTypes.number,
+    errors: PropTypes.number,
+    active: PropTypes.bool,
+    onSelect: PropTypes.func.isRequired,
+    siblings: PropTypes.array.isRequired,
+    isLinked: PropTypes.bool,
+    isParentLinked: PropTypes.bool.isRequired,
 };
 
 BranchTabLabel.defaultProps = {
     value: '',
     active: false,
-    exceptions: {},
+    warnings: 0,
+    errors: 0,
     isLinked: true,
 };
 export default BranchTabLabel;
