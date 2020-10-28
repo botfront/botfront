@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.27.2](https://github.com/botfront/botfront/compare/v0.27.1...v0.27.2) (2020-10-28)
+
+
+### Features
+
+* augmentation factor setting ([b879eef](https://github.com/botfront/botfront/commit/b879eef6386503dc85fe9c30109894b04b1302d0))
+
+
+### Bug Fixes
+
+* return of confidence in NLU playground ([2823ff8](https://github.com/botfront/botfront/commit/2823ff888714cc8435fe447fbd97badf2aa50433))
+
 ### [0.27.1](https://github.com/botfront/botfront/compare/v0.27.0...v0.27.1) (2020-10-23)
 
 
