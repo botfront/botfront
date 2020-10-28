@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { safeDump, safeLoad } from 'js-yaml';
 
 import PropTypes from 'prop-types';
@@ -14,9 +14,6 @@ const CustomResponseEditor = (props) => {
     } = props;
     const { __typename, metadata, ...contentMinusTypeNameAndMetadata } = content;
     const [value, setValue] = useState(contentMinusTypeNameAndMetadata ? safeDump(contentMinusTypeNameAndMetadata) : '');
-    useEffect(() => {
-        setValue(contentMinusTypeNameAndMetadata ? safeDump(contentMinusTypeNameAndMetadata) : '');
-    }, [content]);
 
     const handleSave = (e) => {
         try {
