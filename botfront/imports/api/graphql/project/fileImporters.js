@@ -322,7 +322,7 @@ export const handleImportAll = async (files, params) => {
     // this function is there to force the order of import: bfconfig then domain
     // bfconfig might replace the default domain and importing the domain might add some data to it (eg. forms)
     // that why we want this order
-    configAndDomainImport = async () => {
+    const configAndDomainImport = async () => {
         const configErrors = await handleImportBotfrontConfig(files.filter(f => f.dataType === 'bfconfig'), params);
         const domainErrors = await handleImportDomain(files.filter(f => f.dataType === 'domain'), params);
         return [...configErrors, ...domainErrors];
