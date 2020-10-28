@@ -107,6 +107,7 @@ if (Meteor.isServer) {
                 projectId,
                 { ...passedLang },
             );
+           
 
             const fragmentsByGroup = _.chain([...rasaData.stories, ...rasaData.rules])
                 .groupBy(({ metadata: { group } } = {}) => group)
@@ -118,7 +119,6 @@ if (Meteor.isServer) {
                     const fragmentsByType = safeDump({ stories, rules });
                     return { group, fragments: fragmentsByType };
                 });
-
             const exportData = {
                 config:
                     language === 'all'
@@ -145,14 +145,13 @@ if (Meteor.isServer) {
             if (exportData.fragments.length > 1) {
                 exportData.fragments.forEach(f => rasaZip.addFile(
                     f.fragments,
-                    exportData.fragments.length > 1
-                        ? `data/stories/${f.group
-                            .replace(/ /g, '_')
-                            .toLowerCase()}.yml`
-                        : 'data/stories.yml',
+                    `data/stories/${f.group
+                        .replace(/ /g, '_')
+                        .toLowerCase()}.yml`,
+                        
                 ));
             } else {
-                rasaZip.addFile(exportData.fragments, 'data/stories.yml');
+                rasaZip.addFile(exportData.fragments[0].fragments, 'data/stories.yml');
             }
             if (language === 'all') {
                 Object.keys(exportData.config).forEach(k => rasaZip.addFile(exportData.config[k], `config-${k}.yml`));
