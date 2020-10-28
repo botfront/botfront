@@ -12,10 +12,15 @@ export default class ErrorBoundary extends React.Component {
 
     isRootUrlError = () => {
         const { error } = this.state;
+        const possibleErrorMessages = [
+            'Could not connect to the server.',
+            'NetworkError when attempting to fetch resource.',
+            'Failed to fetch',
+        ];
         // eslint-disable-next-line no-undef
         const rootUrlRegex = new RegExp(__meteor_runtime_config__.ROOT_URL);
         return (
-            (error && error[0] && error[0].message === 'Failed to fetch' && error[0].stack === 'TypeError: Failed to fetch')
+            (error && error[0] && possibleErrorMessages.includes(error[0].message))
             && !rootUrlRegex.test(window.location.href)
         );
     }
