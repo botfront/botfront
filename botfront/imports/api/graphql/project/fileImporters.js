@@ -8,10 +8,24 @@ import Conversations from '../conversations/conversations.model';
 import Activity from '../activity/activity.model';
 import { indexBotResponse } from '../botResponses/mongo/botResponses';
 import { Slots } from '../../slots/slots.collection';
+import { Projects } from '../../project/project.collection';
 
-// const handleImportForms = () => new Promise(resolve => resolve(true));
 
-
+const handleImportForms = async (forms, projectId) => {
+    try {
+        const { defaultDomain } = Projects.findOne({ _id: projectId });
+        const parsedDomain = yaml.safeLoad(defaultDomain.content);
+        const newForms = { ...(parsedDomain?.forms || {}), ...forms };
+        parsedDomain.forms = newForms;
+        const newDomain = yaml.safeDump(parsedDomain);
+        await Meteor.callWithPromise(
+            'project.update',
+            { defaultDomain: { content: newDomain }, _id: projectId },
+        );
+    } catch (e) {
+        throw new Error('Error while importing forms');
+    }
+};
 const handleImportResponse = async (responses, projectId) => {
     const prepareResponses = responses.map((response) => {
         const index = indexBotResponse(response);
@@ -93,7 +107,9 @@ const handleImportDomain = async (files, {
     if (!files.length) return [];
     const allResponses = files.reduce((all, { responses }) => ([...all, ...responses]), []);
     const allSlots = files.reduce((all, { slots }) => ([...all, ...slots]), []);
-    // const allForms = files.reduce((all, { bfForms }) => ([...all, ...bfForms]),[]);
+    const allForms = files.reduce((all, { forms }) => ({ ...all, ...forms }), []);
+    const allBfForms = files.reduce((all, { bfForms }) => ([...all, ...bfForms]), []);
+
 
     const preparedResponses = deduplicate(allResponses, 'key');
     const preparedSlots = deduplicate(allSlots, 'name');
@@ -116,6 +132,12 @@ const handleImportDomain = async (files, {
             // await handleImportForms(bfForms, projectId),
         } catch (e) {
             errors.push(`error when importing slots ${e.message}`);
+        }
+
+        try {
+            await handleImportForms(allForms, projectId);
+        } catch (e) {
+            errors.push(`error when importing forms ${e.message}`);
         }
     };
         
@@ -296,12 +318,22 @@ const handleImportIncoming = async (files, {
 export const handleImportAll = async (files, params) => {
     const importers = [];
     // handleImportStoryGroups(files.filter(f => f.dataType === 'stories'), params);
-    importers.push(handleImportDomain(files.filter(f => f.dataType === 'domain'), params));
+
+    // this function is there to force the order of import: bfconfig then domain
+    // bfconfig might replace the default domain and importing the domain might add some data to it (eg. forms)
+    // that why we want this order
+    configAndDomainImport = async () => {
+        const configErrors = await handleImportBotfrontConfig(files.filter(f => f.dataType === 'bfconfig'), params);
+        const domainErrors = await handleImportDomain(files.filter(f => f.dataType === 'domain'), params);
+        return [...configErrors, ...domainErrors];
+    };
+  
+
+    importers.push(configAndDomainImport());
     // handleImportDataset(files.filter(f => f.dataType === 'nlu'), params);
     importers.push(handleImportEndpoints(files.filter(f => f.dataType === 'endpoints'), params));
     importers.push(handleImportCredentials(files.filter(f => f.dataType === 'credentials'), params));
     importers.push(handleImportRasaConfig(files.filter(f => f.dataType === 'rasaconfig'), params));
-    importers.push(handleImportBotfrontConfig(files.filter(f => f.dataType === 'bfconfig'), params));
     importers.push(handleImportConversations(files.filter(f => f.dataType === 'conversations'), params));
     importers.push(handleImportIncoming(files.filter(f => f.dataType === 'incoming'), params));
     // importers return a arrays of array of errors, we flaten it and remove the null values

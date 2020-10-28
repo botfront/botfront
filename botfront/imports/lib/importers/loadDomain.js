@@ -13,6 +13,7 @@ export const loadDomain = ({
         fallbackImportLanguage,
     },
 }) => {
+    const parsedDefaultDomain = safeLoad(defaultDomain.content);
     const { rawText } = file;
     let domain;
     try {
@@ -26,11 +27,13 @@ export const loadDomain = ({
         slots: slotsFromFile = {},
         templates: legacyResponsesFromFile = {},
         responses: modernResponsesFromFile = {},
+        forms: formsFromFile = {},
     } = domain;
     const {
         slots: defaultSlots = {},
         responses: defaultResponses = {},
-    } = defaultDomain;
+        forms: defaultForms = {},
+    } = parsedDefaultDomain;
     const responsesFromFile = {
         ...(legacyResponsesFromFile || {}),
         ...(modernResponsesFromFile || {}),
@@ -46,6 +49,10 @@ export const loadDomain = ({
     // do not import responses that are in current default domain
     Object.keys(defaultResponses).forEach((k) => {
         delete responsesFromFile[k];
+    });
+    // do not import forms that are in current default domain
+    Object.keys(defaultForms).forEach((k) => {
+        delete formsFromFile[k];
     });
 
     const warnings = [];
@@ -106,7 +113,12 @@ export const loadDomain = ({
             ...options,
         });
     });
+    if (Object.keys(formsFromFile).length > 0) {
+        warnings.push(
+            'forms defined in this file will be added to the default domain on import',
+        );
+    }
     return {
-        dataType: 'domain', rawText, warnings, slots, bfForms, responses,
+        dataType: 'domain', rawText, warnings, slots, bfForms, responses, forms: formsFromFile,
     };
 };
