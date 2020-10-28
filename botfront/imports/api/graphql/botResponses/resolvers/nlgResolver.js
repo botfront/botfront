@@ -47,7 +47,7 @@ export default {
                 ? specifiedLang
                 : slots.fallback_language;
             return resolveTemplate({
-                template, projectId, language, slots, channel,
+                template, projectId, language, channel,
             });
         },
         getResponses: async (_root, {
