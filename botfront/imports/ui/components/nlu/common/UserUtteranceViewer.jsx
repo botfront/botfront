@@ -1,6 +1,9 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, {
+    useState, useRef, useMemo, useContext,
+} from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { ProjectContext } from '../../../layouts/context';
 
 import IntentLabel from './IntentLabel';
 import EntityLabel from './EntityLabel';
@@ -14,7 +17,7 @@ function UserUtteranceViewer(props) {
     const mouseDown = useRef(false);
     const setMouseDown = (v) => { mouseDown.current = v; };
     const utteranceViewerRef = useRef();
-
+    const { hasNoWhitespace } = useContext(ProjectContext);
     const textContent = useMemo(() => {
         // We add the original index to entities for onChange and onDelete methods, then we sort them by order of appearance.
         const sortedEntities = entities
@@ -123,8 +126,8 @@ function UserUtteranceViewer(props) {
         if (/[\W.,?!;:]/.test(completeText.slice(anchor, anchor + 1))) {
             return adjustBeginning(completeText, anchor + 1);
         }
-        if (
-            /[\W.,?!;:][a-zA-Z\u00C0-\u017F0-9-]/.test(
+        if (!hasNoWhitespace
+            || /[\W.,?!;:][a-zA-Z\u00C0-\u017F0-9-]/.test(
                 completeText.slice(anchor - 1, anchor + 1),
             )
         ) {
@@ -139,8 +142,8 @@ function UserUtteranceViewer(props) {
         if (/[\W.,?!;:]/.test(completeText.slice(extent - 1, extent))) {
             return adjustEnd(completeText, extent - 1);
         }
-        if (
-            /[a-zA-Z\u00C0-\u017F0-9-][\W.,?!;:]/.test(
+        if (!hasNoWhitespace
+            || /[a-zA-Z\u00C0-\u017F0-9-][\W.,?!;:]/.test(
                 completeText.slice(extent - 1, extent + 1),
             )
         ) {
@@ -150,9 +153,8 @@ function UserUtteranceViewer(props) {
         return adjustEnd(completeText, extent + 1);
     }
 
-    function handleMouseUp({ shiftKey, ctrlKey, metaKey }, element, exited) {
+    function createEntity({ shiftKey, ctrlKey, metaKey }, element, exited, selection) {
         if (!element) return;
-        const selection = window.getSelection();
         let extraBound = [];
         if (exited) extraBound = exited === 'left' ? [0] : [(element.text || '').length];
         let bad = false;
@@ -204,6 +206,16 @@ function UserUtteranceViewer(props) {
         });
     }
 
+    function handleMouseUp({ shiftKey, ctrlKey, metaKey }, element, exited) {
+        const selection = window.getSelection();
+        createEntity({ shiftKey, ctrlKey, metaKey }, element, exited, selection);
+    }
+
+    if (window.Cypress) {
+        // allow cypress to spoof the input required to create an entity.
+        window.cypressCreateEntity = createEntity;
+    }
+
     const color = disabled ? { color: 'grey' } : {};
 
     return (
@@ -213,7 +225,6 @@ function UserUtteranceViewer(props) {
             {...(onClick ? { onClick } : {})}
             {...{
                 onMouseLeave: (e) => {
-                    // console.log(e);
                     if (
                         Array.from(document.querySelectorAll('.popup')).some(p => p.contains(e.target))
                     ) {

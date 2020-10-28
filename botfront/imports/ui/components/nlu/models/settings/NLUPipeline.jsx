@@ -1,4 +1,5 @@
 import {
+    AutoField,
     AutoForm, ErrorsField,
 } from 'uniforms-semantic';
 import 'react-select/dist/react-select.css';
@@ -20,6 +21,7 @@ export default class NLUPipeline extends React.Component {
         this.state = { saved: false, showConfirmation: false };
         this.schema = {
             config: { type: String },
+            hasNoWhitespace: { type: Boolean, optional: true },
             instance: { type: String, optional: true },
         };
     }
@@ -62,6 +64,7 @@ export default class NLUPipeline extends React.Component {
             <Tab.Pane>
                 <AutoForm schema={new SimpleSchema2Bridge(new SimpleSchema(this.schema))} model={this.sparseModel()} onSubmit={this.handleSave}>
                     <AceField name='config' label='NLU Pipeline' readOnly={!can('nlu-data:x', projectId)} />
+                    <AutoField name='hasNoWhitespace' label='Enable non-whitespace language mode' data-cy='whitespace-option' />
                     <ErrorsField />
                     {showConfirmation && (
                         <ChangesSaved

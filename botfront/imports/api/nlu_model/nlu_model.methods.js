@@ -166,7 +166,6 @@ Meteor.methods({
     'nlu.deleteRegexFeature'(modelId, itemId) {
         check(modelId, String);
         check(itemId, String);
-        console.log(itemId);
         return NLUModels.update(
             { _id: modelId },
             { $pull: { 'training_data.regex_features': { _id: itemId } } },
@@ -258,6 +257,7 @@ if (Meteor.isServer) {
             newItem.logActivity = item.logActivity;
             newItem.instance = item.instance;
             newItem.description = item.description;
+            newItem.hasNoWhitespace = item.hasNoWhitespace;
 
             NLUModels.update({ _id: modelId }, { $set: newItem });
             return modelId;

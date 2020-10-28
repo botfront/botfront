@@ -15,3 +15,11 @@ Cypress.Commands.add('addExamples', (examples = [], intent = null) => {
         cy.get('@texts').then((texts) => { if (texts.length > 1) cy.yesToConfirmation(); });
     }
 });
+
+Cypress.Commands.add('addEntity', (text, entityStart, entityEnd) => cy.window().invoke(
+    'cypressCreateEntity',
+    { shiftKey: false, ctrlKey: false, metaKey: false },
+    { text, start: 0 },
+    undefined,
+    { anchorOffset: entityEnd, focusOffset: entityStart, type: 'Range' },
+));
