@@ -183,7 +183,7 @@ export const getFragmentsAndDomain = async (projectId, language) => {
     ).fetch();
 
     const selectedGroups = groups.filter(g => g.selected).length
-        ? groups.filter(g => g.selected).length
+        ? groups.filter(g => g.selected)
         : groups;
 
     appMethodLogger.debug('Fetching fragments');
