@@ -249,8 +249,7 @@ if (Meteor.isServer) {
                 timeout: 3 * 60 * 1000,
             });
 
-            const corePolicies = CorePolicies.findOne({ projectId }, { policies: 1 })
-                .policies;
+            const { policies: corePolicies, augmentationFactor } = CorePolicies.findOne({ projectId }, { policies: 1, augmentationFactor: 1 });
             const nlu = {};
             const config = {};
 
@@ -288,13 +287,13 @@ if (Meteor.isServer) {
                 };
                 config[lang] = `${configForLang}\n\n${corePolicies}`;
             }
-
             const payload = {
                 domain,
                 stories: joinStoryFiles ? stories.join('\n') : stories,
                 nlu,
                 config,
                 fixed_model_name: getProjectModelFileName(projectId),
+                augmentation_factor: augmentationFactor,
             };
             auditLog('Retreived training payload for project', {
                 user: Meteor.user(),

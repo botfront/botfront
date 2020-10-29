@@ -81,7 +81,7 @@ export const defaultTemplate = (template) => {
             ],
         };
     case 'CustomPayload':
-        return { __typename: 'CustomPayload', custom: '' };
+        return { __typename: 'CustomPayload', custom: {} };
     case 'ImagePayload':
         return {
             image: '', __typename: 'ImagePayload',
