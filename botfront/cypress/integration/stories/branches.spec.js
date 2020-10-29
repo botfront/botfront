@@ -125,7 +125,9 @@ describe('branches', function() {
             .get('textarea')
             .last()
             .focus()
-            .type('- intent: bbb', { force: true });
+            .type('- intent: bbb', { force: true })
+            .blur();
+        cy.wait(250);
 
         cy.dataCy('branch-label')
             .first()
