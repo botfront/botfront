@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.27.3-ee.1](https://github.com/botfront/botfront/compare/v0.27.1-ee.1...v0.27.3-ee.1) (2020-10-29)
+
+
+### Features
+
+* augmentation factor setting ([b879eef](https://github.com/botfront/botfront/commit/b879eef6386503dc85fe9c30109894b04b1302d0))
+
+
+### Bug Fixes
+
+* fix infinite scrolling stuck on Loading ([1946261](https://github.com/botfront/botfront/commit/1946261c76ab7cfedcf980c49468e3da38acfacd))
+* redirect when login ([1191454](https://github.com/botfront/botfront/commit/11914541f67245af288689387b947c3bc14a7a46))
+* return of confidence in NLU playground ([2823ff8](https://github.com/botfront/botfront/commit/2823ff888714cc8435fe447fbd97badf2aa50433))
+
 ### [0.27.1-ee.1](https://github.com/botfront/botfront/compare/v0.27.0-ee.1...v0.27.1-ee.1) (2020-10-23)
 
 
