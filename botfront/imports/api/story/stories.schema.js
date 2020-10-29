@@ -25,13 +25,10 @@ const commonFields = {
         optional: true,
         defaultValue: [],
     },
-    'steps.$': SimpleSchema.oneOf({
+    'steps.$': {
         type: Object,
         blackbox: true,
-    }, {
-        type: String,
-        allowedValues: ['...'],
-    }),
+    },
 };
 
 const intermediateStorySchemas = [

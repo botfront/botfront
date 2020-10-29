@@ -83,9 +83,9 @@ export default class StoryVisualEditor extends React.Component {
         let index = rawIndex;
         const [currentLine, nextLine] = [story[index] || {}, story[index + 1] || {}];
         if (this.loopLinesMatch(currentLine, nextLine)) index += 1;
-        const lineIsIntent = l => l !== '...' && ('intent' in l || 'or' in l);
-        const hasSlot = story.some(l => l !== '...' && 'slot_was_set' in l);
-        const hasLoop = story.some(l => l !== '...' && 'active_loop' in l);
+        const lineIsIntent = l => 'intent' in l || 'or' in l;
+        const hasSlot = story.some(l => 'slot_was_set' in l);
+        const hasLoop = story.some(l => 'active_loop' in l);
 
         const options = {
             userUtterance:
@@ -98,7 +98,6 @@ export default class StoryVisualEditor extends React.Component {
             slot: mode !== 'rule_condition' || !hasSlot,
             loopActive: mode !== 'rule_condition' || !hasLoop,
             loopActivate: mode !== 'rule_condition',
-            '...': mode === 'rule_steps',
         };
 
         if (!Object.keys(options).length) return null;
@@ -274,9 +273,6 @@ export default class StoryVisualEditor extends React.Component {
         const { responseLocations, loadingResponseLocations } = this.state;
         const exceptions = [];
 
-        if (line === '...') {
-            return this.renderEllipsisLine(index, line, exceptions);
-        }
         if ('active_loop' in line) {
             return this.renderLoopLine(index, line, exceptions);
         }

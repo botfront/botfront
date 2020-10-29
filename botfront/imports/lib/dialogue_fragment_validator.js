@@ -170,7 +170,6 @@ export class DialogueFragmentValidator {
 
     validateStep = (step, index) => {
         if (!step || typeof step !== 'object' || Array.isArray(step)) {
-            if (step === '...' && this.mode === 'rule_steps') return; // exception to rule
             this.addAnnotation(index, 'Step not parsable');
             return; // fatal
         }
