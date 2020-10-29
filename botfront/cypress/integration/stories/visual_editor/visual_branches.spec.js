@@ -1,4 +1,4 @@
-/* global cy Cypress */
+/* global cy */
 
 const getBranchContainer = (depth) => {
     /*
@@ -31,9 +31,7 @@ const addBlock = (depth) => {
         .findCy('utterance-input')
         .find('input')
         .type('I love typing into boxes.{enter}');
-    cy.get('@intent-labels').then((prevLabels) => {
-        cy.dataCy('intent-label').should('have.length', prevLabels.length + 1);
-    });
+    cy.dataCy('intent-label').should('have.length', depth + 1);
     getBranchEditor(depth)
         .findCy('intent-label')
         .click({ force: true })
@@ -41,7 +39,6 @@ const addBlock = (depth) => {
     cy.dataCy('save-new-user-input')
         .click({ force: true });
     cy.dataCy('save-new-user-input').should('not.exist');
-    cy.dataCy('intent-label').as('intent-labels'); // update intent-labels
 };
 
 describe('story visual editor', function() {
@@ -92,32 +89,8 @@ describe('story visual editor', function() {
             .click({ force: true });
         cy.dataCy('confirm-yes')
             .click({ force: true });
-        cy.dataCy('delete-branch')
-            .last()
-            .click({ force: true });
-        cy.dataCy('confirm-yes')
-            .click({ force: true });
         // the branches at index 2 should have been removed
         cy.dataCy('branch-menu')
-            .eq(1)
             .should('not.exist');
-        // go to branch two
-        cy.dataCy('branch-label')
-            .last()
-            .click();
-        cy.dataCy('branch-label')
-            .last()
-            .should('have.class', 'active');
-        // go to branch one
-        cy.dataCy('branch-label')
-            .first()
-            .click();
-        cy.dataCy('branch-label')
-            .first()
-            .should('have.class', 'active');
-        // check the contents of branch one
-        getBranchEditor(1)
-            .find('.utterance-container')
-            .should('have.length', 2);
     });
 });

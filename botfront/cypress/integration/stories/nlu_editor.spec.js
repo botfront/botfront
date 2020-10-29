@@ -25,23 +25,19 @@ describe('nlu editor modal tests', () => {
         cy.visit('/project/bf/dialogue');
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
-        cy.dataCy('icon-gem').last().should('have.class', 'black');
-        cy.dataCy('icon-gem').first().should('have.class', 'black');
-        cy.dataCy('icon-gem').last().click({ force: true });
-        cy.dataCy('icon-gem').first().click({ force: true });
-        cy.dataCy('icon-gem').last().should('have.class', 'grey');
-        cy.dataCy('icon-gem').first().should('have.class', 'grey');
-        cy.dataCy('nlu-editor-modal').find('[data-cy=icon-trash]').last().click({ force: true });
-        cy.get('.row').first().trigger('mouseover');
+        cy.dataCy('icon-gem').should('have.class', 'black');
+        cy.dataCy('icon-gem').click({ force: true });
+        cy.dataCy('icon-gem').should('have.class', 'grey');
+        cy.get('.row').trigger('mouseover');
         cy.dataCy('icon-edit').should('exist'); // check appear on hover works correctly
-        cy.dataCy('icon-edit').first().click({ force: true });
+        cy.dataCy('icon-edit').click({ force: true });
         cy.dataCy('example-editor-container').find('[data-cy=example-text-editor-input]').type(' tonight{enter}');
         cy.dataCy('example-text-editor-input').click().type('I will go to costco{enter}');
-        cy.dataCy('nlu-modification-label').contains('deleted').should('exist');
         cy.dataCy('nlu-modification-label').contains('new').should('exist');
         cy.dataCy('nlu-modification-label').contains('edited').should('exist');
         cy.dataCy('save-nlu').click();
         cy.dataCy('nlu-editor-modal').should('not.exist');
+        cy.wait(400);
         cy.dataCy('utterance-text').click();
         cy.dataCy('nlu-editor-modal').find('[data-cy=utterance-text]').should('have.length', 3); // one extra from the header
         cy.dataCy('utterance-text').find('span').contains('I am going to').should('exist');
@@ -62,7 +58,7 @@ describe('nlu editor modal tests', () => {
         cy.browseToStory();
         cy.dataCy('utterance-text').click();
         cy.dataCy('example-text-editor-input').click().fill('Hello jim\nI will go to costco').type('{enter}');
-        cy.dataCy('nlu-editor-modal').find('[data-cy=intent-label]').should('have.length', 5);
+        cy.dataCy('nlu-editor-modal').find('[data-cy=intent-label]').should('have.length', 4);
         cy.dataCy('nlu-modification-label').contains('new').should('exist');
         cy.dataCy('nlu-modification-label').contains('invalid').should('exist');
     });

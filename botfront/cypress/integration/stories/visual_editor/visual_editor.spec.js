@@ -65,14 +65,14 @@ describe('story visual editor', function () {
         cy.dataCy('toggle-md').click({ force: true });
         cy.dataCy('story-editor')
             .find('.ace_line').eq(0)
-            .should('have.text', '* chitchat.greet');
+            .should('have.text', '- intent: chitchat.greet');
         cy.dataCy('story-editor').find('.ace_line')
-            .eq(2).invoke('text')
+            .eq(4).invoke('text')
             .then((response) => {
                 cy.visit('/project/bf/responses/');
                 cy.get('.rt-tbody > :nth-child(2)')
                     .find('[role=row]')
-                    .contains('[role=row]', response.replace('-', '').trim())
+                    .contains('[role=row]', response.replace('- action:', '').trim())
                     .should('exist') // there's a row with our text and response hash
                     .find('.icon.edit')
                     .click();
