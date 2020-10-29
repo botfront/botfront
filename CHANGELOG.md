@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.27.3](https://github.com/botfront/botfront/compare/v0.27.2...v0.27.3) (2020-10-29)
+
+
+### Bug Fixes
+
+* fix infinite scrolling stuck on Loading ([1946261](https://github.com/botfront/botfront/commit/1946261c76ab7cfedcf980c49468e3da38acfacd))
+* redirect when login ([1191454](https://github.com/botfront/botfront/commit/11914541f67245af288689387b947c3bc14a7a46))
+
 ### [0.27.2](https://github.com/botfront/botfront/compare/v0.27.1...v0.27.2) (2020-10-28)
 
 
