@@ -38,8 +38,8 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
         externallyControlledSelection,
     } = props;
 
-    const dataCount = hasNextPage ? data.length + bufferSize + 1 : data.length;
-    const isDataLoaded = index => !hasNextPage || index < data.length;
+    const dataCount = hasNextPage ? data.length + 1 : data.length;
+    const isDataLoaded = index => !hasNextPage || index < (data.length - bufferSize);
     const columns = useMemo(() => allColumns.filter(c => !c.hidden), [allColumns]);
     const selectionKey = (allColumns.filter(c => c.selectionKey)[0] || {}).key || allColumns[0].key;
     const isDatumSelected = datum => datum && selection.includes(datum[selectionKey]);
