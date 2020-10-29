@@ -4,7 +4,6 @@ import _ from 'lodash';
 
 import { check } from 'meteor/check';
 
-
 import { safeDump } from 'js-yaml';
 import { Endpoints } from '../endpoints/endpoints.collection';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';

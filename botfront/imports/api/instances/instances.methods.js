@@ -193,10 +193,10 @@ if (Meteor.isServer) {
             }
         },
 
-        async 'rasa.convertToJson'(file, language, outputFormat, host) {
+        async 'rasa.convertToJson'(file, language, inputFormat, host) {
             check(file, String);
             check(language, String);
-            check(outputFormat, String);
+            check(inputFormat, String);
             check(host, String);
             const appMethodLogger = getAppLoggerForMethod(
                 trainingAppLogger,
@@ -205,7 +205,7 @@ if (Meteor.isServer) {
                 {
                     file,
                     language,
-                    outputFormat,
+                    inputFormat,
                     host,
                 },
             );
@@ -215,9 +215,10 @@ if (Meteor.isServer) {
                 timeout: 100 * 1000,
             });
             addLoggingInterceptors(client, appMethodLogger);
-            const { data } = await client.post('/data/convert/', {
+            const { data } = await client.post('/data/convert/nlu', {
                 data: file,
-                output_format: outputFormat,
+                input_format: inputFormat,
+                output_format: 'json',
                 language,
             });
             return data;
@@ -230,8 +231,7 @@ if (Meteor.isServer) {
             check(projectId, String);
             check(language, String);
 
-            const corePolicies = CorePolicies.findOne({ projectId }, { policies: 1 })
-                .policies;
+            const { policies: corePolicies, augmentationFactor } = CorePolicies.findOne({ projectId }, { policies: 1, augmentationFactor: 1 });
             const nlu = {};
             const config = {};
 
@@ -257,7 +257,6 @@ if (Meteor.isServer) {
                 nlu[lang] = { rasa_nlu_data };
                 config[lang] = `${configForLang}\n\n${corePolicies}`;
             }
-
             const payload = {
                 domain: yaml.safeDump(domain),
                 stories,
@@ -265,6 +264,7 @@ if (Meteor.isServer) {
                 nlu,
                 config,
                 fixed_model_name: getProjectModelFileName(projectId),
+                augmentation_factor: augmentationFactor,
             };
             return JSON.parse(JSON.stringify(payload)); // get rid of undefineds
         },

@@ -15,7 +15,6 @@ const AddStoryLine = React.forwardRef((props, ref) => {
             botUtterance,
             action,
             slot,
-            '...': ellipsis,
             loopActive,
             loopActivate,
         },
@@ -191,16 +190,6 @@ const AddStoryLine = React.forwardRef((props, ref) => {
                 >
                     {renderLoopMenu()}
                 </Dropdown>
-            )}
-            {ellipsis && (
-                <DashedButton
-                    color='light-grey'
-                    size={size}
-                    data-cy='add-...-line'
-                    onClick={() => onCreateGenericLine('...')}
-                >
-                    ...
-                </DashedButton>
             )}
         </div>
     );

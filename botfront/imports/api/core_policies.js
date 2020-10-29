@@ -30,6 +30,7 @@ export const CorePolicySchema = new SimpleSchema({
         defaultValue: Meteor.isServer ? getDefaultPolicies() : '',
         custom: validateYaml,
     },
+    augmentationFactor: { type: Number, optional: true },
     projectId: { type: String },
     createdAt: {
         type: Date,
@@ -60,11 +61,15 @@ if (Meteor.isServer) {
     });
 
     Meteor.methods({
-        'policies.save'(policies) {
-            checkIfCan('stories:w', policies.projectId);
-            check(policies, Object);
+        'policies.save'(newPolicies) {
+            checkIfCan('stories:w', newPolicies.projectId);
+            check(newPolicies, Object);
             try {
-                return CorePolicies.upsert({ projectId: policies.projectId }, { $set: { policies: policies.policies } });
+                const { policies, augmentationFactor, projectId } = newPolicies;
+                return CorePolicies.upsert(
+                    { projectId },
+                    { $set: { policies, augmentationFactor } },
+                );
             } catch (e) {
                 throw formatError(e);
             }

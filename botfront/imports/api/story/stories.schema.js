@@ -25,6 +25,10 @@ const commonFields = {
         optional: true,
         defaultValue: [],
     },
+    'steps.$': {
+        type: Object,
+        blackbox: true,
+    },
     'steps.$': SimpleSchema.oneOf({
         type: Object,
         blackbox: true,

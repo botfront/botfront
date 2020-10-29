@@ -1,6 +1,7 @@
-import { AutoForm, ErrorsField } from 'uniforms-semantic';
+import { NumField, AutoForm, ErrorsField } from 'uniforms-semantic';
 import { withTracker } from 'meteor/react-meteor-data';
 import 'react-s-alert/dist/s-alert-default.css';
+import { Popup } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import PropTypes from 'prop-types';
@@ -60,7 +61,31 @@ class CorePolicy extends React.Component {
                     return newModel;
                 }}
             >
-                <AceField name='policies' mode='yaml' label={null} readOnly={!can('stories:w', projectId)} />
+                <Popup
+                    trigger={(
+                        <NumField
+                            data-cy='augmentation-factor'
+                            name='augmentationFactor'
+                            label='Augmentation factor'
+                            disabled={!can('stories:w', projectId)}
+                            defaultF
+                        />
+                    )}
+                    hoverable
+                    content={(
+                        <>
+                            <a
+                                href='https://rasa.com/docs/rasa/policies/#data-augmentation'
+                                target='_blank'
+                                rel='noopener noreferrer'
+                            >
+                                Click here
+                            </a>
+                            <span> for more information on this setting (if left empty, this will default to 20)</span>
+                        </>
+                    )}
+                />
+                <AceField data-cy='core-policies-yaml' name='policies' mode='yaml' label={null} readOnly={!can('stories:w', projectId)} />
                 <ErrorsField />
                 {showConfirmation && (
                     <ChangesSaved

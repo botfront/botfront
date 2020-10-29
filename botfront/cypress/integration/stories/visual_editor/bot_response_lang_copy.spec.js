@@ -61,9 +61,12 @@ describe('Bot responses copy between languages', function() {
         cy.dataCy('from-qr-template').click({ force: true });
         cy.dataCy('bot-response-input')
             .find('textarea')
-            .type('buttons test');
+            .type('buttons test')
+            .blur();
         cy.dataCy('button_title').click({ force: true });
         cy.dataCy('button_title').click({ force: true });
+        cy.dataCy('button_title').click({ force: true });
+        cy.wait(100);
 
         cy.dataCy('enter-button-title').find('input').type('button A');
         cy.dataCy('intent-label').should('exist').click();

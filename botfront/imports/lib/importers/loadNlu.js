@@ -19,6 +19,7 @@ const getCanonical = (rawText) => {
 export const addNluFile = ({
     f, rawText, setFileList, projectLanguages, fallbackImportLanguage, instanceHost,
 }) => {
+    const extension = ((f.filename || f.name).match(/\.([0-9a-z]{1,5})$/i) || [])[1];
     const language = getLanguage(rawText, fallbackImportLanguage);
     if (!projectLanguages.includes(language)) {
         return update(setFileList, f, {
@@ -33,7 +34,7 @@ export const addNluFile = ({
         'rasa.convertToJson',
         rawText,
         language,
-        'json',
+        extension,
         instanceHost,
         (err, res) => {
             if (err || !res.data || !res.data.rasa_nlu_data) {

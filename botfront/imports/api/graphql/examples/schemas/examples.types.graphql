@@ -81,6 +81,7 @@ input ExampleInput {
     text: String,
     intent: String,
     entities: [EntityInput],
-    metadata: Any
+    metadata: Any,
+    confidence: Float
 }
 
