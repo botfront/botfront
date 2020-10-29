@@ -33,7 +33,7 @@ export const determineDataType = (f, rawText) => {
     try {
         if (dataType) return dataType;
         if (filename === 'botfront-config.yml') return 'bfconfig';
-        if ((/^config(\.[a-z]+)?.yml$/.test(filename))) return 'rasaconfig';
+        if ((/^config(-[a-z]+)?.yml$/.test(filename))) return 'rasaconfig';
         if ((/^endpoints(\.[a-z]+)?.yml$/.test(filename))) return 'endpoints';
         if ((/^credentials(\.[a-z]+)?.yml$/.test(filename))) return 'credentials';
         if (filename === 'domain.yml') return 'domain';
