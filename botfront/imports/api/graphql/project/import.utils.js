@@ -1,13 +1,22 @@
 
 import { determineDataType } from '../../../lib/importers/common';
 import {
-    loadBotfrontConfig, loadRasaConfig, loadConversations, loadIncoming, loadEndpoints, loadCredentials, doValidation,
-} from '../../../lib/importers/loadMisc.js';
+    validateEndpoints,
+    validateCredentials,
+    validateIncoming,
+    validateConversations,
+    validateRasaConfig,
+    validateDefaultDomains,
+    validateInstances,
+} from '../../../lib/importers/validateMisc.js';
 import {
-    loadDomain,
-} from '../../../lib/importers/loadDomain.js';
+    validateDomain,
+} from '../../../lib/importers/validateDomain.js';
+import {
+    validateTrainingData,
+} from '../../../lib/importers/validateTrainingData.js';
 import { handleImportAll } from './fileImporters';
-import Project from './project.model';
+
 
 function streamToString (stream) {
     const chunks = [];
@@ -25,44 +34,10 @@ export function generateSummary(files) {
     // TODO
     return null;
 }
-// dispatch file to correct loader and check for errors
-export function loadFile(file, params) {
-    const { dataType } = file;
-    if (dataType === 'domain') {
-        return loadDomain({ file, params });
-    }
-    // if (dataType === 'stories') {
-    //     return addStoryFile({ file, ...params });
-    // }
-    // if (dataType === 'nlu') {
-    //     return addNluFile({ file, ...params });
-    // }
-    if (dataType === 'conversations') {
-        return loadConversations({ file, params });
-    }
-    if (dataType === 'incoming') {
-        return loadIncoming({ file, params });
-    }
-    if (dataType === 'bfconfig') {
-        return loadBotfrontConfig({ file, params });
-    }
-    if (dataType === 'rasaconfig') {
-        return loadRasaConfig({ file, params });
-    }
-    if (dataType === 'endpoints') {
-        return loadEndpoints({ file, params });
-    }
-    if (dataType === 'credentials') {
-        return loadCredentials({ file, params });
-    }
-    return { file, errors: ['unknown file format'] };
-}
-
 // extract the raw text from the files and infer types
 // if there is a bfconfig file it process it, because we need the data from that file for the validation later
 // (eg: the default domain, the project languages)
-export async function getRawTextAndType(files, params) {
-    const projectConfig = null;
+export async function getRawTextAndType(files) {
     const filesDataAndTypes = await Promise.all(files.map(async (file) => {
         const { filename } = file;
         if (file.filename.match(/\.(yml|json|md)/)) {
@@ -74,22 +49,12 @@ export async function getRawTextAndType(files, params) {
                     errors: ['file is not parseable text'],
                 };
             }
-            
-            const dataType = determineDataType(file, rawText);
-            if (dataType === 'bfconfig' && projectConfig === null) { // that way we take the first file if there are multiple project files
-                const bfconfig = loadBotfrontConfig({ file: { file, rawText }, params });
-                return {
-                    filename,
-                    rawText,
-                    dataType,
-                    ...bfconfig,
-                };
-            }
+
             return {
                 file,
                 filename,
                 rawText,
-                dataType,
+                dataType: determineDataType(file, rawText),
             };
         }
         return {
@@ -99,66 +64,40 @@ export async function getRawTextAndType(files, params) {
         };
     }));
 
-    return { filesDataAndTypes, projectConfig };
+    return filesDataAndTypes;
 }
 
 // validateFil
 function validateFiles(files, params) {
-    // conflictsTracker, keep track of the file that should be unique, or in limited number
-    // keyed on the dataType that correspond to an array of filename,
-    // e.g {'credentials': [credentials.yaml, credentials.production.yaml]}
-    const conflictsTracker = {
-        credentials: [], endpoints: [], rasaconfig: [], botfrontconfig: [], domain: [],
-    };
-    // the dataTypes that are sensible to conflicts
-
-    const conflictsSensiblesType = ['credentials', 'endpoints', 'rasaconfig', 'botfrontconfig', 'domain'];
-
-    const fileWithMessages = files.map((file) => {
-        const newFileData = loadFile(file, params);
-        const { dataType } = newFileData;
-        if (doValidation(params) && conflictsSensiblesType.includes(dataType)) {
-            if (conflictsTracker[dataType] && conflictsTracker[dataType].length === 1) {
-                if (conflictsTracker[dataType] === 'rasaconfig') {
-                    newFileData.warnings = [...(newFileData.warnings || []), `Policies from this file conflicts with policies from ${conflictsTracker[dataType][0]}, and thus they won't be used in the import`];
-                } else if (conflictsTracker[dataType] === 'domain') {
-                    newFileData.warnings = [...(newFileData.warnings || []), 'You have multiple domain files if some data conflicts, the one from the first file with that data will be used'];
-                } else {
-                    newFileData.warnings = [...(newFileData.warnings || []), `Conflicts with ${conflictsTracker[dataType][0]}, and thus won't be used in the import`];
-                    newFileData.conflicts = true;
-                }
-            } else {
-                conflictsTracker[dataType].push(file.filename);
-            }
-        }
-        return newFileData;
-    });
-    return fileWithMessages;
+    let filesWithMessages = files;
+    let newParams = params;
+    // this is the validation pipeline each step only add errors to the files it should validate
+    // each step can also add data to the params, eg : the default domain
+    ([filesWithMessages, newParams] = validateDefaultDomains(filesWithMessages, newParams));
+    ([filesWithMessages, newParams] = validateInstances(filesWithMessages, newParams));
+    ([filesWithMessages, newParams] = validateEndpoints(filesWithMessages, newParams));
+    ([filesWithMessages, newParams] = validateCredentials(filesWithMessages, newParams));
+   
+    ([filesWithMessages, newParams] = validateRasaConfig(filesWithMessages, newParams));
+    ([filesWithMessages, newParams] = validateDomain(filesWithMessages, newParams));
+    ([filesWithMessages, newParams] = validateConversations(filesWithMessages, newParams));
+    ([filesWithMessages, newParams] = validateIncoming(filesWithMessages, newParams));
+    ([filesWithMessages, newParams] = validateTrainingData(filesWithMessages, newParams));
+    return filesWithMessages;
 }
 
 
 export async function readAndValidate(files, params) {
-    let projectLanguages = null;
-    let defaultDomain = null;
+    // get raw text and type from every file,
+    const filesDataAndTypes = await getRawTextAndType(files, params);
 
-    // get raw text and type from every file, also check if there is project data in the import
-    const { filesDataAndTypes, projectConfig } = await getRawTextAndType(files, params);
-    if (projectConfig === null) {
-        const project = await Project.findOne({ _id: params.projectId }).lean();
-        projectLanguages = project.languages;
-        ({ defaultDomain } = project);
-    } else {
-        projectLanguages = projectConfig.languages;
-        ({ defaultDomain } = projectConfig);
-    }
-    const fileWithMessages = validateFiles(filesDataAndTypes, { ...params, defaultDomain, projectLanguages });
-  
+    // send all file to the validation pipeline
+    const fileWithMessages = validateFiles(filesDataAndTypes, params);
+    
     let summary = {};
-    if (!params.noValidate) {
-        // generateSummary generate the summary of what will be imported
-        // eg: 50 stories...
-        summary = generateSummary(fileWithMessages);
-    }
+    // generateSummary generate the summary of what will be imported
+    // eg: 50 stories...
+    summary = generateSummary(fileWithMessages);
     return {
         fileMessages: fileWithMessages, summary,
     };
@@ -174,8 +113,8 @@ export function hasErrors(messages) {
 
 // this function validate then import the files if there is not errors
 // onlyValidate, noValidate are boolean switches to alter the steps of the validation
-export async function importSteps(projectId, files, onlyValidate, noValidate, wipeCurrent) {
-    const filesAndValidationData = await readAndValidate(files, { onlyValidate, noValidate, projectId });
+export async function importSteps(projectId, files, onlyValidate, wipeCurrent) {
+    const filesAndValidationData = await readAndValidate(files, { onlyValidate, projectId });
     if (onlyValidate || hasErrors(filesAndValidationData.fileMessages)) return filesAndValidationData;
     const filesToImport = filesAndValidationData.fileMessages;
     const importResult = await handleImportAll(filesToImport, { wipeCurrent, projectId });

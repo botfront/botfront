@@ -1,83 +1,124 @@
 import yaml from 'js-yaml';
 
-
 export const doValidation = params => !params.noValidate;
 
-
-export const loadIncoming = ({
-    file, params,
-}) => {
-    const incoming = JSON.parse(file.rawText);
-    if (doValidation(params) && (!Array.isArray(incoming) || incoming.length < 1)) {
-        return { file, warnings: [...(file?.warnings || []), 'There are no incoming in this file'] };
+export const validateSimpleYamlFiles = (files, type) => {
+    let filesToValid = files.filter(f => f?.dataType === type);
+    if (filesToValid.length > 1) {
+        filesToValid = filesToValid.map((file, idx) => {
+            if (idx === 0) {
+                return file;
+            }
+            return {
+                ...file,
+                warnings: [
+                    ...(file.warnings || []),
+                    `Conflicts with ${file[0].filename}, and thus won't be used in the import`,
+                ],
+            };
+        });
     }
-    return {
-        ...file, incoming,
-    };
-};
-
-
-export const loadConversations = ({
-    file, params,
-}) => {
-    const conversations = JSON.parse(file.rawText);
-    if (doValidation(params) && (!Array.isArray(conversations) || conversations.length < 1)) {
-        return { ...file, warnings: [...(file?.warnings || []), 'There are no conversations in this file'] };
-    }
-    return {
-        ...file, conversations,
-    };
-};
-
-
-export const loadEndpoints = ({
-    file,
-}) => {
-    let endpoints;
-    try {
-        endpoints = yaml.safeLoad(file.rawText);
-    } catch (e) {
+    filesToValid = filesToValid.map((file) => {
+        let parsed;
+        try {
+            parsed = yaml.safeLoad(file.rawText);
+        } catch (e) {
+            return {
+                ...file,
+                errors: [...(file?.errors || []), 'Not valid yaml'],
+            };
+        }
         return {
-            ...file, errors: [...(file?.errors || []), 'Not valid yaml'],
+            ...file,
+            [type]: parsed,
         };
-    }
-    return {
-        ...file, endpoints,
-    };
+    });
+    return files.map((file) => {
+        if (file?.dataType !== type) return file;
+        return filesToValid.shift();
+    });
 };
 
-
-export const loadCredentials = ({
-    file,
-}) => {
-    let credentials;
-    try {
-        credentials = yaml.safeLoad(file.rawText);
-    } catch (e) {
+export const validateSimpleJsonFiles = (files, type) => {
+    let filesToValid = files.filter(f => f?.dataType === type);
+    filesToValid = filesToValid.map((file) => {
+        let parsed;
+        try {
+            parsed = JSON.parse(file.rawText);
+        } catch (e) {
+            return {
+                ...file,
+                errors: [...(file?.errors || []), 'Not valid json'],
+            };
+        }
+        if (!Array.isArray(parsed) || parsed.length < 1) {
+            return {
+                file,
+                warnings: [
+                    ...(file?.warnings || []),
+                    `There are no ${type} in this file`,
+                ],
+            };
+        }
         return {
-            ...file, errors: [...(file?.errors || []), 'Not valid yaml'],
+            ...file,
+            [type]: parsed,
         };
-    }
-    return {
-        ...file, credentials,
-    };
+    });
+    return files.map((file) => {
+        if (file?.dataType !== type) return file;
+        return filesToValid.shift();
+    });
 };
 
+export const validateEndpoints = (files, params) => [
+    validateSimpleYamlFiles(files, 'endpoints'),
+    params,
+];
 
-export const loadRasaConfig = ({
-    file, params,
-}) => {
-    const errors = [];
-    const { rawText } = file;
-    let rasaConfig;
-    try {
-        rasaConfig = yaml.safeLoad(rawText);
-    } catch (e) {
-        return {
-            ...file, errors: [...(file?.errors || []), 'Not valid yaml'],
-        };
+export const validateCredentials = (files, params) => [
+    validateSimpleYamlFiles(files, 'credentials'),
+    params,
+];
+
+export const validateIncoming = (files, params) => [
+    validateSimpleJsonFiles(files, 'incoming'),
+    params,
+];
+
+export const validateConversations = (files, params) => [
+    validateSimpleJsonFiles(files, 'incoming'),
+    params,
+];
+
+export const validateRasaConfig = (files, params) => {
+    let rasaConfigFiles = files.filter(f => f?.dataType === 'rasaconfig');
+    if (rasaConfigFiles.length > 1) {
+        rasaConfigFiles = rasaConfigFiles.map((rasaConfigFile, idx) => {
+            if (idx === 0) {
+                return rasaConfigFile;
+            }
+            return {
+                ...rasaConfigFile,
+                warnings: [
+                    ...(rasaConfigFile.warnings || []),
+                    `Policies from this file conflicts with policies from ${rasaConfigFiles[0].filename}, and thus they won't be used in the import`,
+                ],
+            };
+        });
     }
-    if (doValidation(params)) {
+    rasaConfigFiles = rasaConfigFiles.map((rasaConfigFile) => {
+        let rasaConfig;
+        const errors = [];
+        try {
+            rasaConfig = yaml.safeLoad(rasaConfigFile.rawText);
+        } catch (e) {
+            return {
+                ...rasaConfigFile,
+                errors: [...(rasaConfigFile?.errors || []), 'Not valid yaml'],
+            };
+        }
+
         const configsKeys = Object.keys(rasaConfig);
         configsKeys.forEach((key) => {
             if (!['pipeline', 'policies', 'language'].includes(key)) {
@@ -85,52 +126,81 @@ export const loadRasaConfig = ({
             }
         });
         if (configsKeys.length < 3) {
-            const missingKeys = ['pipeline', 'policies', 'language'].filter(key => !configsKeys.includes(key));
+            const missingKeys = ['pipeline', 'policies', 'language'].filter(
+                key => !configsKeys.includes(key),
+            );
             errors.push(`${missingKeys.join(', ')} missing in the rasa config data`);
         }
         if (errors.length > 0) {
             return {
-                ...file, errors: [...(file?.errors || []), ...errors],
+                ...rasaConfigFile,
+                errors: [...(rasaConfigFile?.errors || []), ...errors],
             };
         }
-    }
-    return {
-        ...file, ...rasaConfig,
-    };
-};
-
-
-export const loadBotfrontConfig = ({
-    file, params,
-}) => {
-    const errors = [];
-    const { rawText } = file;
-
-    let bfConfig;
-    try {
-        bfConfig = yaml.safeLoad(rawText);
-    } catch (e) {
         return {
-            ...file, errors: [...(file?.errors || []), ['Not valid yaml']],
+            ...rasaConfigFile, ...rasaConfig,
         };
-    } if (doValidation(params)) {
-        const configsKeys = Object.keys(bfConfig);
-        configsKeys.forEach((key) => {
-            if (!['project', 'instance'].includes(key)) {
-                errors.push(`${key} is not valid botfront data`);
-            }
-        });
-        if (configsKeys.length < 2) {
-            const missingKeys = ['project', 'instance'].filter(key => !configsKeys.includes(key));
-            errors.push(`${missingKeys.join(', ')} missing in the rasa config data`);
-        }
-        if (errors.length > 0) {
-            return {
-                ...file, errors: [...(file?.errors || []), ...errors],
-            };
-        }
-    }
-    return {
-        ...file, ...bfConfig,
-    };
+    });
+   
+    const newFiles = files.map((file) => {
+        if (file?.dataType !== 'rasaconfig') return file;
+        const a = rasaConfigFiles.shift();
+        return a;
+    });
+    return [
+        newFiles,
+        params,
+    ];
 };
+
+// if (projectConfig === null) {
+//     const project = await Project.findOne({ _id: params.projectId }).lean();
+//     projectLanguages = project.languages;
+//     ({ defaultDomain } = project);
+// } else {
+//     projectLanguages = projectConfig.languages;
+//     ({ defaultDomain } = projectConfig);
+// }
+
+export const validateDefaultDomains = (files, params) => [files, params];
+
+export const validateInstances = (files, params) => [files, params];
+
+// export const validateDefaultDomain= (files, params) {
+//     file, params,
+// }) => {
+
+//     let filesWithMessages = files
+
+//     const errors = [];
+//     const { rawText } = file;
+
+//     let bfConfig;
+//     try {
+//         bfConfig = yaml.safeLoad(rawText);
+//     } catch (e) {
+//         return {
+//             ...file, errors: [...(file?.errors || []), ['Not valid yaml']],
+//         };
+//     } if (doValidation(params)) {
+//         const configsKeys = Object.keys(bfConfig);
+//         configsKeys.forEach((key) => {
+//             if (!['project', 'instance'].includes(key)) {
+//                 errors.push(`${key} is not valid botfront data`);
+//             }
+//         });
+//         if (configsKeys.length < 2) {
+//             const missingKeys = ['project', 'instance'].filter(key => !configsKeys.includes(key));
+//             errors.push(`${missingKeys.join(', ')} missing in the rasa config data`);
+//         }
+//         if (errors.length > 0) {
+//             return {
+//                 ...file, errors: [...(file?.errors || []), ...errors],
+//             };
+//         }
+//     }
+
+//     return {
+//         ...file, ...bfConfig,
+//     };
+// };

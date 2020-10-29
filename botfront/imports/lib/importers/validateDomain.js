@@ -5,15 +5,16 @@ const INTERNAL_SLOTS = [
     'bf_forms',
     'fallback_language',
 ];
-export const loadDomain = ({
+
+
+const validateADomain = (
     file,
-    params: {
+    {
         defaultDomain = {},
-        projectLanguages,
+        projectLanguages = [],
         fallbackImportLanguage,
     },
-}) => {
-    const parsedDefaultDomain = safeLoad(defaultDomain.content);
+) => {
     const { rawText } = file;
     let domain;
     try {
@@ -33,7 +34,7 @@ export const loadDomain = ({
         slots: defaultSlots = {},
         responses: defaultResponses = {},
         forms: defaultForms = {},
-    } = parsedDefaultDomain;
+    } = defaultDomain;
     const responsesFromFile = {
         ...(legacyResponsesFromFile || {}),
         ...(modernResponsesFromFile || {}),
@@ -121,4 +122,33 @@ export const loadDomain = ({
     return {
         dataType: 'domain', rawText, warnings, slots, bfForms, responses, forms: formsFromFile,
     };
+};
+
+
+export const validateDomain = (
+    files,
+    params,
+) => {
+    let domainFiles = files.filter(file => file?.dataType === 'domain');
+    if ((domainFiles.length) > 1) {
+        domainFiles = domainFiles.map((domainFile, idx) => {
+            if (idx === 0) {
+                return domainFile;
+            }
+            return {
+                ...domainFile,
+                warnings: [...(domainFile?.warnings || []),
+                    'You have multiple domain files if some data conflicts, the one from the first file with that data will be used (same ways has rasa merges domains)'],
+            };
+        });
+    }
+    domainFiles = domainFiles.map(domainFile => validateADomain(domainFile, params));
+
+    return [
+        files.map((file) => {
+            if (file?.dataType !== 'domain') return file;
+            return domainFiles.shift();
+        }),
+        params,
+    ];
 };
