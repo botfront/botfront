@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import {
-    Container, Icon, Menu, Dropdown,
+    Container, Menu, Dropdown,
 } from 'semantic-ui-react';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, { useState, useEffect, useContext } from 'react';
@@ -132,7 +132,7 @@ const TemplatesContainer = ({ params, events, ready }) => {
         if (!loading && !error) {
             setTemplates(data.botResponses);
         }
-    }, [data]);
+    }, [data, loading, error]);
 
     useEffect(() => {
         refetch();
