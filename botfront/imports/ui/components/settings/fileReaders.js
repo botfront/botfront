@@ -222,12 +222,13 @@ export const useDatasetFileReader = ({
                         return update(setFileList, f, { errors: ['file is not parseable text'] });
                     }
                     const language = getLanguage(reader.result);
+                    const extension = ((f.filename || f.name).match(/\.([0-9a-z]{1,5})$/i) || [])[1];
                     if (!projectLanguages.includes(language)) {
                         return update(setFileList, f, { errors: [`Dataset detected for language ${language}, but no such language used by project.`] });
                     }
                     const canonical = getCanonical(reader.result);
                     
-                    Meteor.call('rasa.convertToJson', reader.result, language, 'json', instanceHost, (err, res) => {
+                    Meteor.call('rasa.convertToJson', reader.result, language, extension, instanceHost, (err, res) => {
                         if (err || !res.data || !res.data.rasa_nlu_data) {
                             return update(setFileList, f, { errors: [`File could not be parsed by Rasa at ${instanceHost}.`] });
                         }

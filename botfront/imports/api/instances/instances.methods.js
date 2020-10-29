@@ -193,10 +193,10 @@ if (Meteor.isServer) {
             }
         },
 
-        async 'rasa.convertToJson'(file, language, outputFormat, host) {
+        async 'rasa.convertToJson'(file, language, inputFormat, host) {
             check(file, String);
             check(language, String);
-            check(outputFormat, String);
+            check(inputFormat, String);
             check(host, String);
             const appMethodLogger = getAppLoggerForMethod(
                 trainingAppLogger,
@@ -205,7 +205,7 @@ if (Meteor.isServer) {
                 {
                     file,
                     language,
-                    outputFormat,
+                    inputFormat,
                     host,
                 },
             );
@@ -215,9 +215,10 @@ if (Meteor.isServer) {
                 timeout: 100 * 1000,
             });
             addLoggingInterceptors(client, appMethodLogger);
-            const { data } = await client.post('/data/convert/', {
+            const { data } = await client.post('/data/convert/nlu', {
                 data: file,
-                output_format: outputFormat,
+                input_format: inputFormat,
+                output_format: 'json',
                 language,
             });
             return data;
