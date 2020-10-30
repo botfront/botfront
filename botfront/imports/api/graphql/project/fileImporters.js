@@ -1,4 +1,4 @@
-import yaml from 'js-yaml';
+import { safeLoad, safeDump } from 'js-yaml';
 // import { CREATE_AND_OVERWRITE_RESPONSES as createResponses, DELETE_BOT_RESPONSE as deleteReponse } from '../templates/mutations';
 // import { GET_BOT_RESPONSES as listResponses } from '../templates/queries';
 // import apolloClient from '../../../startup/client/apollo';
@@ -9,15 +9,15 @@ import Activity from '../activity/activity.model';
 import { indexBotResponse } from '../botResponses/mongo/botResponses';
 import { Slots } from '../../slots/slots.collection';
 import { Projects } from '../../project/project.collection';
-
+import { mergeDomains } from '../../../lib/importers/validateDomain';
 
 const handleImportForms = async (forms, projectId) => {
     try {
         const { defaultDomain } = Projects.findOne({ _id: projectId });
-        const parsedDomain = yaml.safeLoad(defaultDomain.content);
+        const parsedDomain = safeLoad(defaultDomain.content);
         const newForms = { ...(parsedDomain?.forms || {}), ...forms };
         parsedDomain.forms = newForms;
-        const newDomain = yaml.safeDump(parsedDomain);
+        const newDomain = safeDump(parsedDomain);
         await Meteor.callWithPromise(
             'project.update',
             { defaultDomain: { content: newDomain }, _id: projectId },
@@ -109,7 +109,7 @@ const handleImportDomain = async (files, {
     const allSlots = files.reduce((all, { slots }) => ([...all, ...slots]), []);
     const allForms = files.reduce((all, { forms }) => ({ ...all, ...forms }), []);
     const allBfForms = files.reduce((all, { bfForms }) => ([...all, ...bfForms]), []);
-
+   
 
     const preparedResponses = deduplicate(allResponses, 'key');
     const preparedSlots = deduplicate(allSlots, 'name');
@@ -148,33 +148,41 @@ const handleImportDomain = async (files, {
     return errors;
 };
 
-// const handleImportDataset = (files, {
-//     projectId, fileReader: [, setFileList], setImportingState, wipeCurrent,
-// }) => {
-//     if (!files.length) return;
-//     setImportingState(true);
-//     files.forEach((f, idx) => {
-//         Meteor.call(
-//             'nlu.import',
-//             f.rasa_nlu_data,
-//             projectId,
-//             f.language,
-//             wipeCurrent,
-//             f.canonical,
-//             wrapMeteorCallback((err) => {
-//                 if (!err) {
-//                     setFileList({
-//                         delete: {
-//                             filename: f.filename,
-//                             lastModified: f.lastModified,
-//                         },
-//                     });
-//                 }
-//                 if (err || idx === files.length - 1) setImportingState(false);
-//             }),
-//         );
-//     });
-// };
+
+const handleImportDefaultDomain = async (files, {
+    projectId, defaultDomain: jsDefaultDomain,
+}) => {
+    if (!files.length) return [];
+    const defaultDomain = { content: safeDump(jsDefaultDomain) };
+    try {
+        await Meteor.callWithPromise(
+            'project.update',
+            { defaultDomain, _id: projectId },
+        );
+        return [null];
+    } catch (e) {
+        const nameList = files.map(f => f.filename).join(', ');
+        return [`error when import default domain from ${nameList}`];
+    }
+};
+
+
+const handleImportInstance = async (files, {
+    projectId,
+}) => {
+    if (!files.length) return [];
+    const toImport = files[0]; // we use the first file, as there could be only one instance
+    const { instance } = toImport;
+    try {
+        await Meteor.callWithPromise(
+            'instance.update',
+            { ...instance, projectId },
+        );
+        return [null];
+    } catch (e) {
+        return [`error when importing instance from ${toImport.filename}`];
+    }
+};
 
 
 const handleImportEndpoints = async (files, { projectId }) => {
@@ -221,7 +229,7 @@ const handleImportRasaConfig = async (files, { projectId }) => {
                 try {
                     await Meteor.callWithPromise(
                         'policies.save',
-                        { policies: yaml.safeDump(policies), projectId },
+                        { policies: safeDump(policies), projectId },
                     );
                 } catch (e) {
                     return `error when importing policies from ${f.filename}`;
@@ -230,7 +238,7 @@ const handleImportRasaConfig = async (files, { projectId }) => {
             try {
                 await Meteor.callWithPromise(
                     'nlu.update.pipeline',
-                    projectId, language, yaml.safeDump(pipeline),
+                    projectId, language, safeDump(pipeline),
                 );
                 return null;
             } catch (e) {
@@ -243,32 +251,12 @@ const handleImportRasaConfig = async (files, { projectId }) => {
 };
 
 
-const handleImportBotfrontConfig = async (files, { projectId }) => {
-    if (!files.length) return [];
-    const toImport = files[0]; // we use the first file, as there could be only one project config
-    const { project, instance } = toImport;
-    try {
-        await Meteor.callWithPromise(
-            'instance.update',
-            { ...instance, projectId },
-        );
-        await Meteor.callWithPromise(
-            'project.update',
-            { ...project, _id: projectId, training: {} },
-        );
-        return [null];
-    } catch (e) {
-        return [`error when project configuration from ${toImport.filename}`];
-    }
-};
-
-
 const handleImportConversations = async (files, {
     projectId, wipeCurrent,
 }) => {
     if (!files.length) return [];
     if (wipeCurrent) {
-        await Conversations.delete({ projectId });
+        await Conversations.deleteMany({ projectId });
     }
     const importResult = await Promise.all(files.map(async (f) => {
         try {
@@ -293,7 +281,7 @@ const handleImportIncoming = async (files, {
 }) => {
     if (!files.length) return [];
     if (wipeCurrent) {
-        await Activity.delete({ projectId });
+        await Activity.deleteMany({ projectId });
     }
     const importResult = await Promise.all(files.map(async (f) => {
         try {
@@ -323,14 +311,14 @@ export const handleImportAll = async (files, params) => {
     // bfconfig might replace the default domain and importing the domain might add some data to it (eg. forms)
     // that why we want this order
     const configAndDomainImport = async () => {
-        const configErrors = await handleImportBotfrontConfig(files.filter(f => f.dataType === 'bfconfig'), params);
+        const configErrors = await handleImportDefaultDomain(files.filter(f => f.dataType === 'defaultdomain'), params);
         const domainErrors = await handleImportDomain(files.filter(f => f.dataType === 'domain'), params);
         return [...configErrors, ...domainErrors];
     };
   
 
     importers.push(configAndDomainImport());
-    // handleImportDataset(files.filter(f => f.dataType === 'nlu'), params);
+    importers.push(handleImportInstance(files.filter(f => f.dataType === 'instance'), params));
     importers.push(handleImportEndpoints(files.filter(f => f.dataType === 'endpoints'), params));
     importers.push(handleImportCredentials(files.filter(f => f.dataType === 'credentials'), params));
     importers.push(handleImportRasaConfig(files.filter(f => f.dataType === 'rasaconfig'), params));
