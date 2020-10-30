@@ -38,8 +38,9 @@ export const validateARasaConfig = (file) => {
 };
 
 const langSummary = (rasaConfigFile, projectLangs) => {
-    if (!rasaConfigFile) return [];
-    if (projectLangs.has(rasaConfigFile.language)) {
+    if (!rasaConfigFile) return null;
+    if (rasaConfigFile.errors && rasaConfigFile.errors.length > 0) return null;
+    if (projectLangs.has(rasaConfigFile.language) && rasaConfigFile.pipeline) {
         return `The pipeline for the language "${rasaConfigFile.language}" will be remplace by the one from the file ${rasaConfigFile.filename}`;
     }
     return `${rasaConfigFile.filename} will add the support for the language "${rasaConfigFile.language}"`;
@@ -78,7 +79,9 @@ const validateRasaConfigTogether = (files, projectId) => {
             };
         });
     } else {
-        summary.push(langSummary(configFiles[0], languagesFromProject));
+        const configFile = configFiles[0];
+        const langMessage = langSummary(configFile, languagesFromProject);
+        if (langMessage) summary.push(langMessage);
     }
     const projectLanguages = Array.from([...languagesFromProject, ...languagesFromFiles]);
     return [configFiles, summary, projectLanguages];
