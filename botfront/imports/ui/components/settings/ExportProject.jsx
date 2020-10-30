@@ -11,7 +11,7 @@ import { ProjectContext } from '../../layouts/context';
 const ExportProject = ({
     setLoading,
 }) => {
-    const { projectLanguages, language, project: { _id: projectId } } = useContext(ProjectContext);
+    const { projectLanguages, language, project: { _id: projectId, name: projectName } } = useContext(ProjectContext);
 
     const [exportLanguage, setExportLanguage] = useState(projectLanguages.length > 1 ? 'all' : language);
     const [ExportSuccessful, setExportSuccessful] = useState(undefined);
@@ -34,6 +34,7 @@ const ExportProject = ({
 
     const exportForRasa = () => {
         setLoading(true);
+        const noSpaceName = projectName.replace(/ +/g, '_');
         Meteor.call('exportRasa', projectId, exportLanguage, (err, rasaDataZip) => {
             if (err) {
                 setErrorMessage({ header: 'Export Failed!', text: err.message });
@@ -41,10 +42,11 @@ const ExportProject = ({
                 setLoading(false);
             } else {
                 const zip = new JSZIP();
+                const date = (new Date()).toISOString();
                 zip.loadAsync(rasaDataZip, { base64: true }).then((newZip) => {
                     newZip.generateAsync({ type: 'blob' })
                         .then((blob) => {
-                            saveAs(blob, `${projectId}_RasaExport.zip`);
+                            saveAs(blob, `${noSpaceName}_${date}.zip`);
                         });
                 });
               
