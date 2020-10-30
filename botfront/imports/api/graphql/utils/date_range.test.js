@@ -38,7 +38,7 @@ const results = [
 ];
 
 
-describe.only('test bucket fill functions', () => {
+describe('test bucket fill functions', () => {
     it('buckets with a duration of 7 or more days should start and end at midnight', () => {
         const cutoffs = generateCuttoffs(from, to, nBuckets);
         cutoffs.forEach((cutoff, i) => {
