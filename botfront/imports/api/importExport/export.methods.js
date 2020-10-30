@@ -130,12 +130,10 @@ if (Meteor.isServer) {
                 fragments: fragmentsByGroup,
             };
 
-            const instance = await Instances.findOne({ projectId });
+            const instance = safeDump(await Instances.findOne({ projectId }));
             const conversations = await Conversations.find({ projectId }).lean();
             const incoming = await Activity.find({ projectId }).lean();
-            
-            const BotfrontData = { project, instance };
-            const bontfrontYaml = safeDump(BotfrontData);
+            const defaultDomain = project?.defaultDomain?.content || '';
 
 
             const rasaZip = new ZipFolder();
@@ -167,7 +165,8 @@ if (Meteor.isServer) {
             }
             
             rasaZip.addFile(exportData.domain, 'domain.yml');
-            rasaZip.addFile(bontfrontYaml, 'botfront/botfront-config.yml');
+            rasaZip.addFile(instance, 'botfront/instance.yml');
+            rasaZip.addFile(defaultDomain, 'botfront/default-domain.yml');
             rasaZip.addFile(JSON.stringify(conversations, null, 2), 'botfront/conversation.json');
             rasaZip.addFile(JSON.stringify(incoming, null, 2), 'botfront/incoming.json');
 
