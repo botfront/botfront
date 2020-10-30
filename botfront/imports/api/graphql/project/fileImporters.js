@@ -89,31 +89,12 @@ const wipeDomain = async (projectId) => {
     return true;
 };
 
-const deduplicate = (listOfObjects, key) => {
-    const seen = new Set();
-    return listOfObjects.filter((obj) => {
-        const value = obj[key];
-        if (seen.has(value)) {
-            return false;
-        }
-        seen.add(value);
-        return true;
-    });
-};
-
 const handleImportDomain = async (files, {
-    projectId, wipeCurrent, existingStoryGroups,
+    projectId, wipeCurrent,
 }) => {
     if (!files.length) return [];
-    const allResponses = files.reduce((all, { responses }) => ([...all, ...responses]), []);
-    const allSlots = files.reduce((all, { slots }) => ([...all, ...slots]), []);
-    const allForms = files.reduce((all, { forms }) => ({ ...all, ...forms }), []);
-    const allBfForms = files.reduce((all, { bfForms }) => ([...all, ...bfForms]), []);
+    const { slots, responses, forms } = mergeDomains(files);
    
-
-    const preparedResponses = deduplicate(allResponses, 'key');
-    const preparedSlots = deduplicate(allSlots, 'name');
-    // const preparedForms = deduplicate(allForms, 'key');
     const errors = [];
     const insert = async () => {
         // const callback = wrapMeteorCallback((error) => {
@@ -122,20 +103,20 @@ const handleImportDomain = async (files, {
         // });
       
         try {
-            await handleImportResponse(preparedResponses, projectId);
+            await handleImportResponse(responses, projectId);
             // await handleImportForms(bfForms, projectId),
         } catch (e) {
             errors.push(`error when importing responses ${e.message}`);
         }
         try {
-            await Meteor.callWithPromise('slots.upsert', preparedSlots, projectId);
+            await Meteor.callWithPromise('slots.upsert', slots, projectId);
             // await handleImportForms(bfForms, projectId),
         } catch (e) {
             errors.push(`error when importing slots ${e.message}`);
         }
 
         try {
-            await handleImportForms(allForms, projectId);
+            await handleImportForms(forms, projectId);
         } catch (e) {
             errors.push(`error when importing forms ${e.message}`);
         }
