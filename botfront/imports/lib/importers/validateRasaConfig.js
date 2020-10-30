@@ -38,6 +38,7 @@ export const validateARasaConfig = (file) => {
 };
 
 const langSummary = (rasaConfigFile, projectLangs) => {
+    if (!rasaConfigFile) return [];
     if (projectLangs.has(rasaConfigFile.language)) {
         return `The pipeline for the language "${rasaConfigFile.language}" will be remplace by the one from the file ${rasaConfigFile.filename}`;
     }
