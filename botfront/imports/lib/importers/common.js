@@ -32,13 +32,19 @@ export const determineDataType = (f, rawText) => {
     const { dataType, filename } = f;
     try {
         if (dataType) return dataType;
-        if (filename === 'botfront-config.yml') return 'bfconfig';
-        if ((/^config(-[a-z]+)?.yml$/.test(filename))) return 'rasaconfig';
-        if ((/^endpoints(\.[a-z]+)?.yml$/.test(filename))) return 'endpoints';
-        if ((/^credentials(\.[a-z]+)?.yml$/.test(filename))) return 'credentials';
-        if (filename === 'domain.yml') return 'domain';
+        if ((/^default-domain(-[a-z]+)?.ya?ml$/.test(filename))) return 'defaultdomain';
+        if ((/^instance(-[a-z]+)?.ya?ml$/.test(filename))) return 'instance';
+        if ((/^domain(-[a-z]+)?.ya?ml$/.test(filename))) return 'domain';
+        if ((/^config(-[a-z]+)?.ya?ml$/.test(filename))) return 'rasaconfig';
+        if ((/^endpoints(\.[a-z]+)?.ya?ml$/.test(filename))) return 'endpoints';
+        if ((/^credentials(\.[a-z]+)?.ya?ml$/.test(filename))) return 'credentials';
         if (filename.match(/\.json$/)) {
-            const data = JSON.parse(rawText);
+            let data;
+            try {
+                data = JSON.parse(rawText);
+            } catch (e) {
+                return 'unknown';
+            }
             if ('rasa_nlu_data' in data) return 'nlu'; // need to be checked
             if (Array.isArray(data) && data.length > 0) {
                 // might need improving at some point
@@ -47,7 +53,12 @@ export const determineDataType = (f, rawText) => {
             }
         }
         if (filename.match(/\.yml$/)) {
-            const data = yaml.safeLoad(rawText);
+            let data;
+            try {
+                data = yaml.safeLoad(rawText);
+            } catch (e) {
+                return 'unknown';
+            }
             const domainKeys = ['responses', 'templates', 'actions', 'session_config', 'slots'];
             const trainingKeys = ['version', 'nlu', 'stories', 'rules'];
           
