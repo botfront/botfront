@@ -50,7 +50,7 @@ export const useFileReader = (params) => {
         if (addInstruction) {
             // eslint-disable-next-line consistent-return
             const addFileNameCheck = addInstruction.map((f) => {
-                if (f.name.match(/\.(yml|json|md)/)) {
+                if (f.name.match(/\.(yaml|yml|json|md)/)) {
                     return (f);
                 }
                 return addDataToFile(f, { errors: ['file is neither .zip, .json or.yaml'] });
