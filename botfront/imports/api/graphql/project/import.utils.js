@@ -77,6 +77,8 @@ function validateFiles(files, params) {
     ([filesWithMessages, newParams] = validateConversations(filesWithMessages, newParams));
     ([filesWithMessages, newParams] = validateIncoming(filesWithMessages, newParams));
     ([filesWithMessages, newParams] = validateTrainingData(filesWithMessages, newParams));
+
+
     return [filesWithMessages, newParams];
 }
 
@@ -90,7 +92,7 @@ export async function readAndValidate(files, params) {
     
    
     return {
-        fileMessages: fileWithMessages, summary: finalParams.summary,
+        fileMessages: fileWithMessages, summary: finalParams.summary, params: finalParams,
     };
 }
 
@@ -105,9 +107,9 @@ export function hasErrors(messages) {
 // this function validate then import the files if there is not errors
 // onlyValidate, noValidate are boolean switches to alter the steps of the validation
 export async function importSteps(projectId, files, onlyValidate, wipeCurrent) {
-    const filesAndValidationData = await readAndValidate(files, { onlyValidate, projectId });
+    const filesAndValidationData = await readAndValidate(files, { onlyValidate, projectId, wipeCurrent });
     if (onlyValidate || hasErrors(filesAndValidationData.fileMessages)) return filesAndValidationData;
-    const filesToImport = filesAndValidationData.fileMessages;
-    const importResult = await handleImportAll(filesToImport, { wipeCurrent, projectId });
+    const { fileMessages: filesToImport, params } = filesAndValidationData;
+    const importResult = await handleImportAll(filesToImport, params);
     return { summary: importResult };
 }
