@@ -20,22 +20,24 @@ const addBlock = (depth) => {
     adds a user utterance to a story at a branch depth
     (depth = 0 creates an utterance in the origin story)
     */
-    getBranchEditor(depth)
-        .findCy('add-user-line')
-        .click({ force: true });
-    getBranchEditor(depth)
-        .findCy('user-line-from-input')
-        .last()
-        .click({ force: true });
-    getBranchEditor(depth)
-        .findCy('utterance-input')
-        .find('input')
-        .type('I love typing into boxes.{enter}');
-    cy.dataCy('intent-label').should('have.length', depth + 1);
-    getBranchEditor(depth)
-        .findCy('intent-label')
-        .click({ force: true })
-        .type('myTestIntent{enter}');
+    getBranchEditor(depth).then((editor) => {
+        cy.wrap(editor)
+            .findCy('add-user-line')
+            .click({ force: true });
+        cy.wrap(editor)
+            .findCy('user-line-from-input')
+            .last()
+            .click({ force: true });
+        cy.wrap(editor)
+            .findCy('utterance-input')
+            .find('input')
+            .type('I love typing into boxes.{enter}');
+        cy.dataCy('intent-label').should('have.length', depth + 1);
+        cy.wrap(editor)
+            .findCy('intent-label')
+            .click({ force: true })
+            .type('myTestIntent{enter}');
+    });
     cy.dataCy('save-new-user-input')
         .click({ force: true });
     cy.dataCy('save-new-user-input').should('not.exist');

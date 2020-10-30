@@ -325,13 +325,15 @@ Cypress.Commands.add('graphQlQuery', (query, variables) => cy.get('@loginToken')
     });
 }));
 
-Cypress.Commands.add('insertNluExamples', (projectId, language = 'en', examples) => cy.graphQlQuery(
-    `mutation insertExamples($projectId: String!, $language: String!, $examples: [ExampleInput]!) {
-        insertExamples(projectId: $projectId, language: $language, examples: $examples) {  
+Cypress.Commands.add('insertNluExamples', (projectId, language = 'en', examples, autoAssignCanonical = true) => cy.graphQlQuery(
+    `mutation insertExamples($projectId: String!, $language: String!, $examples: [ExampleInput]!, $autoAssignCanonical: Boolean) {
+        insertExamples(projectId: $projectId, language: $language, examples: $examples, autoAssignCanonical: $autoAssignCanonical) {  
             _id
         }
     }`,
-    { projectId, language, examples },
+    {
+        projectId, language, examples, autoAssignCanonical,
+    },
 ));
 
 Cypress.Commands.add('addConversation', (projectId, id, conversation, env = 'development') => cy.graphQlQuery(

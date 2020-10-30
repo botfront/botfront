@@ -196,38 +196,14 @@ describe('stories', function() {
         cy.dataCy('single-story-editor').should('have.length', 3);
         cy.dataCy('story-footer').should('contain.text', 'Hmm2>New Branch 1>New Branch 1');
         cy.wait(1000); // out of options
+        cy.get('.trash.small')
+            .should('have.length', 4)
+            .filter('.disabled')
+            .should('have.length', 0);
         cy.linkStory('Hmm2', 'Hmm1');
-        cy.dataCy('branch-label')
-            .find('.trash.small.disabled');
-        cy.dataCy('single-story-editor')
-            .last()
-            .dataCy('branch-label')
-            .find('.trash.small.disabled')
-            .should('exist');
-        cy.dataCy('single-story-editor')
-            .last()
-            .dataCy('branch-label')
-            .last()
-            .click();
-        cy.dataCy('single-story-editor')
-            .last()
-            .dataCy('branch-label')
-            .last()
-            .find('.trash.small.disabled');
-        cy.dataCy('single-story-editor')
-            .eq(1)
-            .dataCy('branch-label')
-            .first()
-            .find('.trash.small.disabled');
-        cy.dataCy('single-story-editor')
-            .eq(1)
-            .dataCy('branch-label')
-            .last()
-            .click();
-        cy.dataCy('single-story-editor')
-            .eq(1)
-            .dataCy('branch-label')
-            .last()
-            .find('.trash.small.disabled');
+        cy.get('.trash.small')
+            .should('have.length', 4)
+            .filter('.disabled')
+            .should('have.length', 4);
     });
 });

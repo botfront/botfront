@@ -246,10 +246,12 @@ const checkpointedStories = [
     },
     {
         title: 'MyRootStory__MyLevel1Branch1',
+        storyGroupId: 'vWibRMnEe6B6nSWMm',
         steps: [{ checkpoint: 'MyRootStory__branches' }, { action: 'utter_levelOne' }],
     },
     {
         title: 'MyRootStory__MyLevel1Branch2',
+        storyGroupId: 'vWibRMnEe6B6nSWMm',
         steps: [
             { checkpoint: 'MyRootStory__branches' },
             { action: 'utter_levelOne' },
@@ -258,6 +260,7 @@ const checkpointedStories = [
     },
     {
         title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch1',
+        storyGroupId: 'vWibRMnEe6B6nSWMm',
         steps: [
             { checkpoint: 'MyRootStory__MyLevel1Branch2__branches' },
             { intent: 'greeting', entities: [{ name: 'joe' }] },
@@ -266,6 +269,7 @@ const checkpointedStories = [
     },
     {
         title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2',
+        storyGroupId: 'vWibRMnEe6B6nSWMm',
         steps: [
             { checkpoint: 'MyRootStory__MyLevel1Branch2__branches' },
             { action: 'utter_levelTwo' },
@@ -276,6 +280,7 @@ const checkpointedStories = [
     },
     {
         title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2__MyLevel3Branch1',
+        storyGroupId: 'vWibRMnEe6B6nSWMm',
         steps: [
             {
                 checkpoint: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2__branches',
@@ -285,6 +290,7 @@ const checkpointedStories = [
     },
     {
         title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2__MyLevel3Branch2',
+        storyGroupId: 'vWibRMnEe6B6nSWMm',
         steps: [
             {
                 checkpoint: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2__branches',
@@ -294,6 +300,7 @@ const checkpointedStories = [
     },
     {
         title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2__MyLevel3Branch3',
+        storyGroupId: 'vWibRMnEe6B6nSWMm',
         steps: [
             {
                 checkpoint: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2__branches',
@@ -303,6 +310,7 @@ const checkpointedStories = [
     },
     {
         title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch3',
+        storyGroupId: 'vWibRMnEe6B6nSWMm',
         steps: [
             { checkpoint: 'MyRootStory__MyLevel1Branch2__branches' },
             { action: 'utter_levelTwo' },
@@ -310,6 +318,7 @@ const checkpointedStories = [
     },
     {
         title: 'MyRootStory__MyLevel1Branch3',
+        storyGroupId: 'vWibRMnEe6B6nSWMm',
         steps: [{ checkpoint: 'MyRootStory__branches' }, { action: 'utter_levelOne' }],
     },
 ];
@@ -431,6 +440,7 @@ const linkedStoriesCheckpointed = [
     },
     {
         title: 'story1__New Branch 1',
+        storyGroupId: '92xatZa5PLBwq2tuT',
         steps: [
             { checkpoint: 'story1__branches' },
             { action: 'utter_nothing' },
@@ -439,6 +449,7 @@ const linkedStoriesCheckpointed = [
     },
     {
         title: 'story1__New Branch 1__New Branch 1',
+        storyGroupId: '92xatZa5PLBwq2tuT',
         steps: [
             { checkpoint: 'story1__New_Branch_1__branches' },
             { action: 'utter_nothing' },
@@ -446,6 +457,7 @@ const linkedStoriesCheckpointed = [
     },
     {
         title: 'story1__New Branch 1__New Branch 2',
+        storyGroupId: '92xatZa5PLBwq2tuT',
         steps: [
             { checkpoint: 'story1__New_Branch_1__branches' },
             { action: 'utter_to2' },
@@ -454,6 +466,7 @@ const linkedStoriesCheckpointed = [
     },
     {
         title: 'story1__New Branch 2',
+        storyGroupId: '92xatZa5PLBwq2tuT',
         steps: [{ checkpoint: 'story1__branches' }, { action: 'utter_nothing' }],
     },
     {
@@ -468,6 +481,7 @@ const linkedStoriesCheckpointed = [
     },
     {
         title: 'story2__New Branch 1',
+        storyGroupId: '92xatZa5PLBwq2tuT',
         steps: [
             { checkpoint: 'story2__branches' },
             { action: 'utter_to0' },
@@ -476,6 +490,7 @@ const linkedStoriesCheckpointed = [
     },
     {
         title: 'story2__New Branch 2',
+        storyGroupId: '92xatZa5PLBwq2tuT',
         steps: [
             { checkpoint: 'story2__branches' },
             { action: 'utter_to3' },
@@ -494,10 +509,12 @@ const linkedStoriesCheckpointed = [
     },
     {
         title: 'story3__New Branch 1',
+        storyGroupId: '69PLEAAXxxQfekhsS',
         steps: [{ checkpoint: 'story3__branches' }, { action: 'utter_nothing' }],
     },
     {
         title: 'story3__New Branch 2',
+        storyGroupId: '69PLEAAXxxQfekhsS',
         steps: [
             { checkpoint: 'story3__branches' },
             { action: 'utter_to0' },
