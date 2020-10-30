@@ -5,12 +5,13 @@ import {
     validateCredentials,
     validateIncoming,
     validateConversations,
-    validateRasaConfig,
-    validateDefaultDomains,
     validateInstances,
 } from '../../../lib/importers/validateMisc.js';
 import {
-    validateDomain,
+    validateRasaConfig,
+} from '../../../lib/importers/validateRasaConfig.js';
+import {
+    validateDomain, validateDefaultDomains,
 } from '../../../lib/importers/validateDomain.js';
 import {
     validateTrainingData,
@@ -28,12 +29,6 @@ function streamToString (stream) {
 }
 
 
-// generate a array of info messages that says what will be imported
-// the number of stories, of storiy-groups etc
-export function generateSummary(files) {
-    // TODO
-    return null;
-}
 // extract the raw text from the files and infer types
 // if there is a bfconfig file it process it, because we need the data from that file for the validation later
 // (eg: the default domain, the project languages)
@@ -70,20 +65,19 @@ export async function getRawTextAndType(files) {
 // validateFil
 function validateFiles(files, params) {
     let filesWithMessages = files;
-    let newParams = params;
+    let newParams = { ...params, summary: [] };
     // this is the validation pipeline each step only add errors to the files it should validate
-    // each step can also add data to the params, eg : the default domain
+    // each step can also add data to the params, eg : the default domain, the summary of changes etc,
     ([filesWithMessages, newParams] = validateDefaultDomains(filesWithMessages, newParams));
+    ([filesWithMessages, newParams] = validateRasaConfig(filesWithMessages, newParams));
     ([filesWithMessages, newParams] = validateInstances(filesWithMessages, newParams));
     ([filesWithMessages, newParams] = validateEndpoints(filesWithMessages, newParams));
     ([filesWithMessages, newParams] = validateCredentials(filesWithMessages, newParams));
-   
-    ([filesWithMessages, newParams] = validateRasaConfig(filesWithMessages, newParams));
     ([filesWithMessages, newParams] = validateDomain(filesWithMessages, newParams));
     ([filesWithMessages, newParams] = validateConversations(filesWithMessages, newParams));
     ([filesWithMessages, newParams] = validateIncoming(filesWithMessages, newParams));
     ([filesWithMessages, newParams] = validateTrainingData(filesWithMessages, newParams));
-    return filesWithMessages;
+    return [filesWithMessages, newParams];
 }
 
 
@@ -92,14 +86,11 @@ export async function readAndValidate(files, params) {
     const filesDataAndTypes = await getRawTextAndType(files, params);
 
     // send all file to the validation pipeline
-    const fileWithMessages = validateFiles(filesDataAndTypes, params);
+    const [fileWithMessages, finalParams] = validateFiles(filesDataAndTypes, params);
     
-    let summary = {};
-    // generateSummary generate the summary of what will be imported
-    // eg: 50 stories...
-    summary = generateSummary(fileWithMessages);
+   
     return {
-        fileMessages: fileWithMessages, summary,
+        fileMessages: fileWithMessages, summary: finalParams.summary,
     };
 }
 
