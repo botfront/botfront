@@ -39,8 +39,9 @@ export const validateSimpleYamlFiles = (files, type) => {
     });
 };
 
-export const validateSimpleJsonFiles = (files, type) => {
+export const validateSimpleJsonFiles = (files, params, type) => {
     let filesToValid = files.filter(f => f?.dataType === type);
+    let count = 0;
     filesToValid = filesToValid.map((file) => {
         let parsed;
         try {
@@ -60,15 +61,22 @@ export const validateSimpleJsonFiles = (files, type) => {
                 ],
             };
         }
+        count += parsed.length;
+        
         return {
             ...file,
             [type]: parsed,
         };
     });
-    return files.map((file) => {
+    
+    const newSummary = params.summary;
+    if (count > 0) newSummary.push(`You will add ${count} ${type}`);
+
+    const newFiles = files.map((file) => {
         if (file?.dataType !== type) return file;
         return filesToValid.shift();
     });
+    return [newFiles, { ...params, summary: newSummary }];
 };
 
 export const validateEndpoints = (files, params) => [
@@ -81,14 +89,10 @@ export const validateCredentials = (files, params) => [
     params,
 ];
 
-export const validateIncoming = (files, params) => [
-    validateSimpleJsonFiles(files, 'incoming'),
-    params,
-];
+export const validateIncoming = (files, params) => validateSimpleJsonFiles(files, params, 'incoming');
+ 
 
-export const validateConversations = (files, params) => [
-    validateSimpleJsonFiles(files, 'incoming'),
-    params,
-];
+export const validateConversations = (files, params) => validateSimpleJsonFiles(files, params, 'conversations');
+
 
 export const validateInstances = (files, params) => [validateSimpleYamlFiles(files, 'instance'), params];
