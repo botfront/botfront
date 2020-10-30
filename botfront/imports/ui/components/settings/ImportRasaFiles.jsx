@@ -1,5 +1,5 @@
 import React, {
-    useRef, useState, useContext, useMemo, useEffect,
+    useRef, useState, useContext, useEffect,
 } from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
@@ -40,6 +40,8 @@ const ImportRasaFiles = (props) => {
     const [importResults, setImportResults] = useState([]);
     useEffect(() => setFallbackImportLanguage(language), [language]);
     const [wipeCurrent, setWipeCurrent] = useState(false);
+    const [importSummary, setImportSummary] = useState([]);
+
     const [filesImporting, setFilesImporting] = useState(false);
 
     const validateFunction = async (files) => {
@@ -59,6 +61,8 @@ const ImportRasaFiles = (props) => {
             },
         });
         const validationData = validationResult?.data?.import?.fileMessages;
+        const summary = validationResult?.data?.import?.summary;
+        setImportSummary(summary);
         if (validationData.length !== files.length) { // that means some files were not sent
             filesNotSentIndexes.forEach((index) => {
                 validationData.splice(index, 0, files[index]); // so we re-insert those
@@ -76,6 +80,7 @@ const ImportRasaFiles = (props) => {
                 projectId, files: filesToImport, noValidate: true, wipeCurrent,
             },
         });
+        setImportSummary([]);
         setFilesImporting(false);
         setFileList({ reset: true });
         const importResultMessages = importResult?.data?.import?.summary;
@@ -111,6 +116,7 @@ const ImportRasaFiles = (props) => {
             canDrop: monitor.canDrop(),
         }),
     });
+
 
     const renderFileList = ([fileList, setFileList]) => {
         const filesWithErrors = fileList.filter(f => (f.errors || []).length);
@@ -314,14 +320,15 @@ const ImportRasaFiles = (props) => {
             .join(', ');
     };
 
-    // to update with new stories
-    // const counts = useMemo(renderTotals, fileReader);
-
+    
     const renderBottom = () => (
         <>
-               
             <Message info>
-                <div>Importing.</div>
+                <Message.Header>Import summary</Message.Header>
+                <Message.List>
+                    {importSummary.map(message => (<Message.Item>{message}</Message.Item>))}
+                </Message.List>
+            
                 <div className='side-by-side middle'>
                     <div className='side-by-side narrow left middle'>
                         <Popup
