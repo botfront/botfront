@@ -1,19 +1,45 @@
 import { safeLoad, safeDump } from 'js-yaml';
 import { isEqual } from 'lodash';
+import { Projects } from '../../api/project/project.collection';
 
-const INTERNAL_SLOTS = [
-    'bf_forms',
-    'fallback_language',
-];
+const INTERNAL_SLOTS = ['bf_forms', 'fallback_language'];
 
+const deduplicate = (listOfObjects, key) => {
+    const seen = new Set();
+    return listOfObjects.filter((obj) => {
+        const value = obj[key];
+        if (seen.has(value)) {
+            return false;
+        }
+        seen.add(value);
+        return true;
+    });
+};
+
+const mergeDomains = (files) => {
+    if (!files.length) return [];
+    const allResponses = files.reduce(
+        (all, { responses = [] }) => [...all, ...responses],
+        [],
+    );
+    const allSlots = files.reduce((all, { slots = [] }) => [...all, ...slots], []);
+    const allForms = files.reduce((all, { forms = {} }) => ({ ...forms, ...all }), []);
+    const allAction = files.reduce((all, { actions = [] }) => [...actions, ...all], []);
+    const mergedResponses = deduplicate(allResponses, 'key');
+    const mergedSlots = deduplicate(allSlots, 'name');
+    const mergedActions = Array.from(new Set(allAction));
+    return {
+        slots: mergedSlots,
+        responses: mergedResponses,
+        forms: allForms,
+        actions: mergedActions,
+    };
+};
 
 const validateADomain = (
     file,
-    {
-        defaultDomain = {},
-        projectLanguages = [],
-        fallbackImportLanguage,
-    },
+    { defaultDomain = {}, projectLanguages = [], fallbackImportLanguage },
+    isDefaultDomain = false, // we validate domain and default domain with the same function
 ) => {
     const { rawText } = file;
     let domain;
@@ -21,7 +47,8 @@ const validateADomain = (
         domain = safeLoad(rawText);
     } catch (e) {
         return {
-            file, dataType: 'domain', rawText, errors: [...(file?.errors || []), 'Not valid yaml'],
+            ...file,
+            errors: [...(file?.errors || []), 'Not valid yaml'],
         };
     }
     const {
@@ -29,6 +56,7 @@ const validateADomain = (
         templates: legacyResponsesFromFile = {},
         responses: modernResponsesFromFile = {},
         forms: formsFromFile = {},
+        actions: actionsFromFile = {},
     } = domain;
     const {
         slots: defaultSlots = {},
@@ -40,9 +68,7 @@ const validateADomain = (
         ...(modernResponsesFromFile || {}),
     };
     // get forms MIGHT NEED TO UPDATE WITH RASA 2
-    const bfForms = 'bf_forms' in (slotsFromFile || {})
-        ? slotsFromFile.bf_forms.initial_value
-        : [];
+    const bfForms = 'bf_forms' in (slotsFromFile || {}) ? slotsFromFile.bf_forms.initial_value : [];
     // do not import slots that are in current default domain or are programmatically generated
     [...Object.keys(defaultSlots), ...INTERNAL_SLOTS].forEach((k) => {
         delete slotsFromFile[k];
@@ -66,9 +92,7 @@ const validateADomain = (
         let firstMetadataFound;
         response.forEach((item) => {
             const { language, metadata, ...rest } = item;
-            const content = typeof item === 'string'
-                ? safeDump({ text: item })
-                : safeDump(rest);
+            const content = typeof item === 'string' ? safeDump({ text: item }) : safeDump(rest);
             const lang = language || fallbackImportLanguage;
             if (!firstMetadataFound && metadata) firstMetadataFound = metadata;
             if (firstMetadataFound && !isEqual(firstMetadataFound, metadata)) {
@@ -114,31 +138,72 @@ const validateADomain = (
             ...options,
         });
     });
-    if (Object.keys(formsFromFile).length > 0) {
+    if (!isDefaultDomain && Object.keys(formsFromFile).length > 0) {
         warnings.push(
             'forms defined in this file will be added to the default domain on import',
         );
     }
     return {
-        dataType: 'domain', rawText, warnings, slots, bfForms, responses, forms: formsFromFile,
+        ...file,
+        warnings: [...(file?.warnings || []), warnings],
+        slots,
+        bfForms,
+        responses,
+        actions: actionsFromFile,
+        forms: formsFromFile,
     };
 };
 
+export const validateDefaultDomains = (files, params) => {
+    const { projectId } = params;
+    let defaultDomain = {};
+    let defaultDomainFiles = files.filter(file => file?.dataType === 'defaultdomain');
+    if (defaultDomainFiles.length > 1) {
+        defaultDomainFiles = defaultDomainFiles.map((domainFile, idx) => {
+            if (idx === 0) {
+                return domainFile;
+            }
+            return {
+                ...domainFile,
+                warnings: [
+                    ...(domainFile?.warnings || []),
+                    'You have multiple default domain files if some data conflicts, the one from the first file with that data will be used (same ways has rasa merges domains)',
+                ],
+            };
+        });
+    }
 
-export const validateDomain = (
-    files,
-    params,
-) => {
+    defaultDomainFiles = defaultDomainFiles.map(domainFile => validateADomain(domainFile, params, true));
+
+    if (defaultDomainFiles.length === 0) {
+        defaultDomain = safeLoad(
+            Projects.findOne({ _id: projectId }).defaultDomain.content,
+        );
+    } else {
+        defaultDomain = mergeDomains(defaultDomainFiles);
+    }
+    return [
+        files.map((file) => {
+            if (file?.dataType !== 'domain') return file;
+            return defaultDomainFiles.shift();
+        }),
+        { ...params, defaultDomain },
+    ];
+};
+
+export const validateDomain = (files, params) => {
     let domainFiles = files.filter(file => file?.dataType === 'domain');
-    if ((domainFiles.length) > 1) {
+    if (domainFiles.length > 1) {
         domainFiles = domainFiles.map((domainFile, idx) => {
             if (idx === 0) {
                 return domainFile;
             }
             return {
                 ...domainFile,
-                warnings: [...(domainFile?.warnings || []),
-                    'You have multiple domain files if some data conflicts, the one from the first file with that data will be used (same ways has rasa merges domains)'],
+                warnings: [
+                    ...(domainFile?.warnings || []),
+                    'You have multiple domain files if some data conflicts, the one from the first file with that data will be used (same ways has rasa merges domains)',
+                ],
             };
         });
     }
