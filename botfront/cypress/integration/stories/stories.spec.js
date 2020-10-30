@@ -191,6 +191,7 @@ describe('stories', function() {
         cy.createStoryInGroup({ groupName: 'Example group', storyName: 'Hmm1' });
         cy.createStoryInGroup({ groupName: 'Example group', storyName: 'Hmm2' });
         cy.dataCy('create-branch').click({ force: true });
+        cy.dataCy('branch-label').should('have.length', 2);
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('branch-label').should('have.length', 4);
         cy.dataCy('single-story-editor').should('have.length', 3);
