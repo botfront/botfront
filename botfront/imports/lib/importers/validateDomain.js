@@ -16,14 +16,14 @@ const deduplicate = (listOfObjects, key) => {
     });
 };
 
-const mergeDomains = (files) => {
+export const mergeDomains = (files) => {
     if (!files.length) return [];
     const allResponses = files.reduce(
         (all, { responses = [] }) => [...all, ...responses],
         [],
     );
     const allSlots = files.reduce((all, { slots = [] }) => [...all, ...slots], []);
-    const allForms = files.reduce((all, { forms = {} }) => ({ ...forms, ...all }), []);
+    const allForms = files.reduce((all, { forms = {} }) => ({ ...forms, ...all }), {});
     const allAction = files.reduce((all, { actions = [] }) => [...actions, ...all], []);
     const mergedResponses = deduplicate(allResponses, 'key');
     const mergedSlots = deduplicate(allSlots, 'name');
@@ -145,7 +145,7 @@ const validateADomain = (
     }
     return {
         ...file,
-        warnings: [...(file?.warnings || []), warnings],
+        warnings: [...(file?.warnings || []), ...warnings],
         slots,
         bfForms,
         responses,
@@ -167,7 +167,7 @@ export const validateDefaultDomains = (files, params) => {
                 ...domainFile,
                 warnings: [
                     ...(domainFile?.warnings || []),
-                    'You have multiple default domain files if some data conflicts, the one from the first file with that data will be used (same ways has rasa merges domains)',
+                    'You have multiple default domain files. if some data conflicts, the one from the first file with that data will be used (same way has rasa merges domains)',
                 ],
             };
         });
@@ -182,12 +182,20 @@ export const validateDefaultDomains = (files, params) => {
     } else {
         defaultDomain = mergeDomains(defaultDomainFiles);
     }
+  
+    const newSummary = params.summary;
+
+    if (defaultDomainFiles.length > 0) {
+        const nameList = defaultDomainFiles.map(file => file.filename).join(', ');
+        newSummary.push(`You will remplace the default domain by ${nameList}`);
+    }
+    const newFiles = files.map((file) => {
+        if (file?.dataType !== 'defaultdomain') return file;
+        return defaultDomainFiles.shift();
+    });
     return [
-        files.map((file) => {
-            if (file?.dataType !== 'domain') return file;
-            return defaultDomainFiles.shift();
-        }),
-        { ...params, defaultDomain },
+        newFiles,
+        { ...params, defaultDomain, summary: newSummary },
     ];
 };
 
@@ -208,7 +216,6 @@ export const validateDomain = (files, params) => {
         });
     }
     domainFiles = domainFiles.map(domainFile => validateADomain(domainFile, params));
-
     return [
         files.map((file) => {
             if (file?.dataType !== 'domain') return file;
