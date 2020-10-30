@@ -84,13 +84,7 @@ const ImportRasaFiles = (props) => {
 
 
     const handleFileDrop = async (files, [fileList, setFileList]) => {
-        const newValidFiles = Array.from(files).filter(
-            f => f.size
-                && !fileList.some(
-                    // index on lastModified and filename
-                    cf => cf.lastModified === f.lastModified && cf.filename === f.name,
-                ),
-        );
+        const newValidFiles = Array.from(files);
         const filesWithUnziped = await newValidFiles.reduce(async (newFiles, currFile) => {
             if (currFile.name.match(/\.zip$/)) {
                 const filesFromZip = await unZipFile(currFile);
@@ -99,7 +93,14 @@ const ImportRasaFiles = (props) => {
             // since this reduce is async we need to await for the previous result
             return [...(await newFiles), currFile];
         }, []);
-        setFileList({ add: filesWithUnziped });
+        const filesToAdd = filesWithUnziped.filter(
+            f => f.size
+                && !fileList.some(
+                    // index on lastModified and filename
+                    cf => cf.lastModified === f.lastModified && cf.filename === f.name,
+                ),
+        );
+        setFileList({ add: filesToAdd });
     };
 
     const useFileDrop = fileReader => useDrop({
