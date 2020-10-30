@@ -5,9 +5,6 @@ import {
     updateAtIndex,
     deleteAtIndex,
 } from '../../../lib/importers/common';
-import {
-    validateStories,
-} from '../../../lib/importers/loadStories';
 
 
 const addDataToFile = (file, data) => {
@@ -17,9 +14,6 @@ const addDataToFile = (file, data) => {
     });
     return newFile;
 };
-
-// TO RE WORK WITH NEW STORIES
-const validateFiles = files => validateStories(files);
 
 
 export const useFileReader = (params) => {
@@ -55,19 +49,20 @@ export const useFileReader = (params) => {
                 }
                 return addDataToFile(f, { errors: ['file is neither .zip, .json or.yaml'] });
             });
-            params.validateFunction(addFileNameCheck).then((data) => {
-                addFileNameCheck.forEach((file, index) => {
+            const newFileList = [...fileList, ...addFileNameCheck].map(f => (addDataToFile(f, { validated: false })));
+            params.validateFunction(newFileList).then((data) => {
+                newFileList.forEach((file, index) => {
                     const warnings = data[index].warnings || [];
                     // file.errors are errors that are detected on the client side
                     // data[index].errors are errros that are detected on the server side
                     // file that have errors in the client are not sent to the server
-                    // that why we use the server error then, the client error
+                    // that why we use the server error and then, the client error
                     const errors = data[index].errors || file.errors || [];
                     update(setFileList, addDataToFile(file, { validated: true, errors, warnings }));
                 });
             });
            
-            return [...fileList, ...addFileNameCheck.map(f => (addDataToFile(f, { validated: false })))];
+            return newFileList;
         }
         if (updateInstruction) {
             // callback for 'add' method
@@ -83,8 +78,7 @@ export const useFileReader = (params) => {
                     'Another file was uploaded with same name.',
                 ];
             }
-            // TO RE WORK WITH NEW STORIES
-            return validateFiles(updateAtIndex(fileList, index, updateInstruction));
+            return updateAtIndex(fileList, index, updateInstruction);
         }
         if (changeLangInstruction) {
             // TO RE WORK WITH NEW STORIES
