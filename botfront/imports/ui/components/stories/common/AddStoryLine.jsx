@@ -52,6 +52,7 @@ const AddStoryLine = React.forwardRef((props, ref) => {
                 <Input
                     autoFocus
                     placeholder='Type in loop action name...'
+                    data-cy='enter-loop-name'
                     onClick={e => e.stopPropagation()}
                     value={actionName}
                     onChange={({ target }) => setActionName(target.value.trim())}

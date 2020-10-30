@@ -121,7 +121,7 @@ const StoryTopMenu = ({
                 onClose={() => setConfirmPopupOpen(false)}
                 content={(
                     <ConfirmPopup
-                        title='Condition will be deleted!'
+                        title='Conditions will be deleted!'
                         onYes={() => {
                             setConfirmPopupOpen(false);
                             updateStory({ _id, conversation_start: !convStart, condition: [] });
@@ -134,6 +134,7 @@ const StoryTopMenu = ({
                         toggle
                         label='conversation start'
                         checked={convStart}
+                        data-cy='toggle-conversation-start'
                         onClick={(e) => {
                             e.preventDefault();
                             if (!condition.length || !!convStart) updateStory({ _id, conversation_start: !convStart });
@@ -146,7 +147,7 @@ const StoryTopMenu = ({
 
     const renderConditionSection = () => (
         <>
-            <Header as='h5' dividing>Condition</Header>
+            <Header as='h5' dividing>&nbsp;Conditions</Header>
             {storyMode !== 'visual'
                 ? renderAceEditor()
                 : (
