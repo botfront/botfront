@@ -20,8 +20,7 @@ const clearEmojisFromExample = (example) => {
 
 const createSortObject = (fieldName = 'intent', order = 'ASC') => {
     const orderMongo = order === 'ASC' ? 1 : -1;
-    const sortObject = { 'metadata.draft': -1, [fieldName]: orderMongo };
-    return { sort: sortObject };
+    return { 'metadata.draft': -1, [fieldName]: orderMongo };
 };
 
 const createFilterObject = (
@@ -88,7 +87,17 @@ export const getExamples = async ({
         options,
     );
     const sortObject = createSortObject(sortKey, order);
-    const data = await Examples.find(filtersObject, null, sortObject).lean();
+    const data = await Examples.aggregate([
+        { $match: filtersObject },
+        {
+            $addFields: {
+                'metadata.draft': { // otherwise undefined and false don't get ordered the same
+                    $cond: [{ $eq: ['$metadata.draft', true] }, true, false],
+                },
+            },
+        },
+        { $sort: sortObject },
+    ]);
 
     const cursorIndex = !cursor
         ? 0
