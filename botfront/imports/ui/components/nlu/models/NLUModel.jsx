@@ -118,14 +118,6 @@ function NLUModel(props) {
     useEffect(() => {
         if (refetch) refetch();
     }, [variables]);
-    // always refetch first
-    const hasRefetched = useRef(false);
-    useEffect(() => {
-        if (!hasRefetched.current && typeof refetch === 'function') {
-            refetch();
-            hasRefetched.current = true;
-        }
-    }, [refetch]);
 
     const handleLanguageChange = (value) => {
         changeWorkingLanguage(value);
