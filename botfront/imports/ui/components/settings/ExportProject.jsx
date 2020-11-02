@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { saveAs } from 'file-saver';
 import {
-    Dropdown, Button, Message, Icon,
+    Dropdown, Button, Message, Icon, Checkbox,
 } from 'semantic-ui-react';
 import JSZIP from 'jszip';
 import { ProjectContext } from '../../layouts/context';
@@ -14,6 +14,9 @@ const ExportProject = ({
     const { projectLanguages, language, project: { _id: projectId, name: projectName } } = useContext(ProjectContext);
 
     const [exportLanguage, setExportLanguage] = useState(projectLanguages.length > 1 ? 'all' : language);
+    const [exportConversations, setExportConversations] = useState(false);
+    const [exportIncoming, setExportIncoming] = useState(false);
+
     const [ExportSuccessful, setExportSuccessful] = useState(undefined);
     const [errorMessage, setErrorMessage] = useState({
         header: 'Export Failed',
@@ -35,7 +38,8 @@ const ExportProject = ({
     const exportForRasa = () => {
         setLoading(true);
         const noSpaceName = projectName.replace(/ +/g, '_');
-        Meteor.call('exportRasa', projectId, exportLanguage, (err, rasaDataZip) => {
+        const options = { conversations: exportConversations, incoming: exportIncoming };
+        Meteor.call('exportRasa', projectId, exportLanguage, options, (err, rasaDataZip) => {
             if (err) {
                 setErrorMessage({ header: 'Export Failed!', text: err.message });
                 setExportSuccessful(false);
@@ -125,8 +129,25 @@ const ExportProject = ({
                     onChange={(x, { value }) => {
                         setExportLanguage(value);
                     }}
+                />  <br />
+                <Checkbox
+                    toggle
+                    checked={exportConversations}
+                    onChange={() => setExportConversations(!exportConversations)}
+                    label='Export Conversations'
+                    className='export-option'
+                    key='exportConversations'
                 />
                 <br />
+                <Checkbox
+                    toggle
+                    checked={exportIncoming}
+                    onChange={() => setExportIncoming(!exportIncoming)}
+                    label='Export Incoming'
+                    className='export-option'
+                    key='exportIncoming'
+                />
+              
             </>
             
             <br />

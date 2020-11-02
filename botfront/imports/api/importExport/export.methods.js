@@ -57,10 +57,10 @@ if (Meteor.isServer) {
 
             return exportRequest;
         },
-        async exportRasa(projectId, language) {
+        async exportRasa(projectId, language, options) {
             check(projectId, String);
             check(language, String);
-
+            check(options, Object);
             const passedLang = language === 'all' ? {} : { language };
 
             const project = Projects.findOne({ _id: projectId });
@@ -131,8 +131,6 @@ if (Meteor.isServer) {
             };
 
             const instance = safeDump(await Instances.findOne({ projectId }));
-            const conversations = await Conversations.find({ projectId }).lean();
-            const incoming = await Activity.find({ projectId }).lean();
             const defaultDomain = project?.defaultDomain?.content || '';
 
 
@@ -167,8 +165,15 @@ if (Meteor.isServer) {
             rasaZip.addFile(exportData.domain, 'domain.yml');
             rasaZip.addFile(instance, 'botfront/instance.yml');
             rasaZip.addFile(defaultDomain, 'botfront/default-domain.yml');
-            rasaZip.addFile(JSON.stringify(conversations, null, 2), 'botfront/conversation.json');
-            rasaZip.addFile(JSON.stringify(incoming, null, 2), 'botfront/incoming.json');
+            
+            if (options.conversations) {
+                const conversations = await Conversations.find({ projectId }).lean();
+                rasaZip.addFile(JSON.stringify(conversations, null, 2), 'botfront/conversation.json');
+            }
+            if (options.incoming) {
+                const incoming = await Activity.find({ projectId }).lean();
+                rasaZip.addFile(JSON.stringify(incoming, null, 2), 'botfront/incoming.json');
+            }
 
 
             return rasaZip.generateBlob();
