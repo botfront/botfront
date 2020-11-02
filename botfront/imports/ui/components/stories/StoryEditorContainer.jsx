@@ -123,7 +123,10 @@ const StoryEditorContainer = ({
                     ...acc,
                     [curr]: [
                         ...(annotations[curr] || []),
-                        ...(branches[curr].branches || []).reduce(
+                        ...[
+                            ...(branches[curr].branches || []),
+                            ...(curr === story._id ? [{ _id: 'condition' }] : []),
+                        ].reduce(
                             (acc2, { _id }) => acc2.concat(acc[`${curr},${_id}`] || []),
                             [],
                         ),

@@ -36,26 +36,9 @@ describe('stories', function() {
         cy.contains('NLU').click({ force: true });
         cy.dataCy('dialogue-sidebar-link').click({ force: true });
         cy.dataCy('single-story-editor').should('not.exist');
+        cy.dataCy('collapse-story-button').click({ force: true });
+        cy.dataCy('single-story-editor').should('exist');
     });
-
-    // it('should be able to collapse and expand all stories', function() {
-    //     cy.visit('/project/bf/dialogue');
-    //     cy.dataCy('toggle-md').click({ force: true });
-    //     cy.dataCy('single-story-editor').should('have.length', 2); // wait for the second story to be added
-    //     cy.dataCy('collapse-story-button').first().dblclick({ force: true });
-    //     cy.dataCy('single-story-editor').should('not.exist');
-    //     cy.contains('NLU').click({ force: true });
-    //     cy.contains('Stories').click({ force: true });
-    //     cy.dataCy('single-story-editor').should('not.exist');
-    //     cy.dataCy('collapse-story-button').first().click({ force: true });
-    //     cy.dataCy('single-story-editor').should('have.length', 1);
-    //     cy.dataCy('collapse-story-button').first().dblclick({ force: true });
-    //     cy.dataCy('single-story-editor').should('have.length', 0);
-    //     cy.dataCy('collapse-story-button').last().click({ force: true });
-    //     cy.dataCy('single-story-editor').should('have.length', 1);
-    //     cy.dataCy('collapse-story-button').first().dblclick({ force: true });
-    //     cy.dataCy('single-story-editor').should('have.length', 2);
-    // });
 
     it('should list all linkable stories', function() {
         cy.visit('/project/bf/dialogue');
@@ -191,43 +174,20 @@ describe('stories', function() {
         cy.createStoryInGroup({ groupName: 'Example group', storyName: 'Hmm1' });
         cy.createStoryInGroup({ groupName: 'Example group', storyName: 'Hmm2' });
         cy.dataCy('create-branch').click({ force: true });
+        cy.dataCy('branch-label').should('have.length', 2);
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('branch-label').should('have.length', 4);
         cy.dataCy('single-story-editor').should('have.length', 3);
         cy.dataCy('story-footer').should('contain.text', 'Hmm2>New Branch 1>New Branch 1');
         cy.wait(1000); // out of options
+        cy.get('.trash.small')
+            .should('have.length', 4)
+            .filter('.disabled')
+            .should('have.length', 0);
         cy.linkStory('Hmm2', 'Hmm1');
-        cy.dataCy('branch-label')
-            .find('.trash.small.disabled');
-        cy.dataCy('single-story-editor')
-            .last()
-            .dataCy('branch-label')
-            .find('.trash.small.disabled')
-            .should('exist');
-        cy.dataCy('single-story-editor')
-            .last()
-            .dataCy('branch-label')
-            .last()
-            .click();
-        cy.dataCy('single-story-editor')
-            .last()
-            .dataCy('branch-label')
-            .last()
-            .find('.trash.small.disabled');
-        cy.dataCy('single-story-editor')
-            .eq(1)
-            .dataCy('branch-label')
-            .first()
-            .find('.trash.small.disabled');
-        cy.dataCy('single-story-editor')
-            .eq(1)
-            .dataCy('branch-label')
-            .last()
-            .click();
-        cy.dataCy('single-story-editor')
-            .eq(1)
-            .dataCy('branch-label')
-            .last()
-            .find('.trash.small.disabled');
+        cy.get('.trash.small')
+            .should('have.length', 4)
+            .filter('.disabled')
+            .should('have.length', 4);
     });
 });

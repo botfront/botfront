@@ -39,6 +39,8 @@ type Mutation {
         examples: [ExampleInput]!
         language: String!
         projectId: String!
+        autoAssignCanonical: Boolean = true
+        overwriteOnSameText: Boolean = false
     ):  [Example]
     deleteExamples(ids: [String]!): [String]
     switchCanonical( projectId:String, language: String, example: ExampleInput!): [Example]

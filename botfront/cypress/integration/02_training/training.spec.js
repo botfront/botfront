@@ -65,7 +65,8 @@ describe('Training', function() {
         cy.get('.eye.icon.focused').should('have.length', 1);
         cy.train();
         cy.newChatSesh();
-        cy.testChatInput('/get_started', 'utter_hi');
+        cy.typeChatMessage('/get_started');
+        cy.get('.rw-message').should('have.length', 1); // no response
         cy.testChatInput('/chitchat.greet', 'utter_hi');
         cy.toggleStoryGroupFocused();
         cy.get('.eye.icon.focused').should('have.length', 0);
@@ -74,8 +75,9 @@ describe('Training', function() {
         cy.get('.eye.icon.focused').should('have.length', 1);
         cy.train();
         cy.newChatSesh();
+        cy.typeChatMessage('/chitchat.greet');
+        cy.get('.rw-message').should('have.length', 2); // no response
         cy.testChatInput('/get_started', 'utter_get_started');
-        cy.testChatInput('/chitchat.greet', 'utter_get_started');
     });
     
     it('Should train and serve a model containing branches and links', function() {

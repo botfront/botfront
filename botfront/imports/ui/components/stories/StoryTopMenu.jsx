@@ -8,9 +8,7 @@ import 'brace/theme/github';
 import 'brace/mode/text';
 import StoryPlayButton from './StoryPlayButton';
 import ConfirmPopup from '../common/ConfirmPopup';
-import {
-    setStoryCollapsed, setStoriesCollapsed,
-} from '../../store/actions/actions';
+import { setStoryCollapsed } from '../../store/actions/actions';
 import StoryVisualEditor from './common/StoryVisualEditor';
 import { ConversationOptionsContext } from './Context';
 
@@ -20,7 +18,6 @@ const StoryTopMenu = ({
     collapseStory,
     warnings,
     errors,
-    collapseAllStories,
     storyMode,
     renderAceEditor,
 }) => {
@@ -63,12 +60,6 @@ const StoryTopMenu = ({
             event.target.blur();
             updateStory({ _id, title });
         }
-    };
-
-    const handleCollapseAllStories = () => {
-        const storiesCollapsed = {};
-        stories.forEach(({ _id: sid }) => { storiesCollapsed[sid] = !collapsed; });
-        collapseAllStories(storiesCollapsed);
     };
 
     const renderWarnings = () => {
@@ -130,7 +121,7 @@ const StoryTopMenu = ({
                 onClose={() => setConfirmPopupOpen(false)}
                 content={(
                     <ConfirmPopup
-                        title='Condition will be deleted!'
+                        title='Conditions will be deleted!'
                         onYes={() => {
                             setConfirmPopupOpen(false);
                             updateStory({ _id, conversation_start: !convStart, condition: [] });
@@ -143,6 +134,7 @@ const StoryTopMenu = ({
                         toggle
                         label='conversation start'
                         checked={convStart}
+                        data-cy='toggle-conversation-start'
                         onClick={(e) => {
                             e.preventDefault();
                             if (!condition.length || !!convStart) updateStory({ _id, conversation_start: !convStart });
@@ -155,7 +147,7 @@ const StoryTopMenu = ({
 
     const renderConditionSection = () => (
         <>
-            <Header as='h5' dividing>Condition</Header>
+            <Header as='h5' dividing>&nbsp;Conditions</Header>
             {storyMode !== 'visual'
                 ? renderAceEditor()
                 : (
@@ -182,7 +174,6 @@ const StoryTopMenu = ({
                         className={`${collapsed ? '' : 'opened'}`}
                         link
                         onClick={() => collapseStory(_id, !collapsed)}
-                        onDoubleClick={() => handleCollapseAllStories()}
                         data-cy='collapse-story-button'
                     />
                     {isDestinationStory ? (
@@ -252,20 +243,18 @@ StoryTopMenu.propTypes = {
     collapseStory: PropTypes.func.isRequired,
     warnings: PropTypes.number.isRequired,
     errors: PropTypes.number.isRequired,
-    collapseAllStories: PropTypes.func.isRequired,
     storyMode: PropTypes.string.isRequired,
     renderAceEditor: PropTypes.func.isRequired,
 };
 StoryTopMenu.defaultProps = {};
 
 const mapStateToProps = (state, ownProps) => ({
-    collapsed: state.stories.getIn(['storiesCollapsed', ownProps.storyId], false),
+    collapsed: state.stories.getIn(['storiesCollapsed', ownProps.fragment?._id], false),
     storyMode: state.stories.get('storyMode'),
 });
 
 const mapDispatchToProps = {
     collapseStory: setStoryCollapsed,
-    collapseAllStories: setStoriesCollapsed,
 };
 
 export default connect(

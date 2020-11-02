@@ -67,9 +67,9 @@ export default {
             publishIntentsOrEntitiesChanged(projectId, language);
             return response;
         },
-        async insertExamples(_, args, context) {
+        async insertExamples(_, { autoAssignCanonical, overwriteOnSameText, ...args }, context) {
             checkIfCan('nlu-data:w', args.projectId, context.user._id);
-            const response = await insertExamples(args);
+            const response = await insertExamples({ ...args, options: { autoAssignCanonical, overwriteOnSameText } });
             if ((response || []).length > 0) {
                 const { projectId, language } = args;
                 publishIntentsOrEntitiesChanged(projectId, language);

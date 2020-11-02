@@ -119,7 +119,7 @@ export const listIntentsAndEntities = async ({ projectId, language }) => {
             text: 1,
             'metadata.canonical': 1,
         })
-        .sort({ 'metadata.canonical': -1 })
+        .sort({ 'metadata.canonical': -1, createdAt: -1 })
         .lean();
     examples.forEach((ex) => {
         const exEntities = (ex.entities || []);
