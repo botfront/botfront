@@ -50,5 +50,10 @@ describe('training data import', function() {
         cy.visit('/project/bf/nlu/models/');
         cy.get('.row-wrapper').should('exist');
         cy.dataCy('loading-row').should('not.exist');
+        // test the same with a very tall height viewport
+        cy.viewport(1000, 2000);
+        cy.visit('/project/bf/nlu/models/');
+        cy.get('.row-wrapper').should('exist');
+        cy.dataCy('loading-row').should('not.exist');
     });
 });
