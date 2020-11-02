@@ -50,6 +50,7 @@ describe('link from analytics to conversations and apply filters', () => {
         cy.dataCy('date-picker-container')
             .find('button')
             .contains(`${moment().format('DD/MM/YYYY')} - ${moment().format('DD/MM/YYYY')}`); // the date range should only include the current day
+        cy.dataCy('conversation-item').contains('intenttest').should('exist');
     });
 
     it('should link from the conversations card in production', () => {
@@ -85,6 +86,8 @@ describe('link from analytics to conversations and apply filters', () => {
         cy.get('.label').contains('intent_test').should('exist');
         cy.dataCy('conversation-item').should('have.length', 1);
         cy.dataCy('env-selector').find('div.text').should('exist').should('have.text', 'production');
+        cy.dataCy('conversation-item').contains('intenttest').should('exist');
+        cy.dataCy('conversation-item').contains('actiontest').should('not.exist');
     });
 
     it('should link from the actions card', () => {
@@ -114,6 +117,7 @@ describe('link from analytics to conversations and apply filters', () => {
         cy.dataCy('date-picker-container')
             .find('button')
             .contains(`${moment().format('DD/MM/YYYY')} - ${moment().format('DD/MM/YYYY')}`); // the date range should only include the current day
+        cy.dataCy('conversation-item').contains('actiontest').should('exist');
     });
     it('should link with conversation duration, > 180', () => {
         cy.addConversationFromTemplate('bf', 'default', 'default', { duration: 181 });
@@ -123,6 +127,7 @@ describe('link from analytics to conversations and apply filters', () => {
             .click();
         cy.dataCy('conversation-item').should('exist'); // wait for the page to load
         cy.dataCy('duration-filter-from').find('input').should('have.value', '180');
+        cy.dataCy('conversation-item').contains('default').should('exist');
     });
     it('should link with conversation duration, < 30', () => {
         cy.addConversationFromTemplate('bf', 'default', 'default', { duration: 10 });
@@ -132,6 +137,7 @@ describe('link from analytics to conversations and apply filters', () => {
             .click();
         cy.dataCy('conversation-item').should('exist'); // wait for the page to load
         cy.dataCy('duration-filter-to').find('input').should('have.value', '30');
+        cy.dataCy('conversation-item').contains('default').should('exist');
     });
     it('should link with conversation duration 30 to 60', () => {
         cy.addConversationFromTemplate('bf', 'default', 'default', { duration: 31 });
@@ -142,6 +148,7 @@ describe('link from analytics to conversations and apply filters', () => {
         cy.dataCy('conversation-item').should('exist'); // wait for the page to load
         cy.dataCy('duration-filter-from').find('input').should('have.value', '30');
         cy.dataCy('duration-filter-to').find('input').should('have.value', '60');
+        cy.dataCy('conversation-item').contains('default').should('exist');
     });
     it('should link with conversation length from the conversation length card', () => {
         cy.addConversationFromTemplate('bf', 'len_3', 'len3');
@@ -152,6 +159,7 @@ describe('link from analytics to conversations and apply filters', () => {
         cy.dataCy('conversation-item').should('exist'); // wait for the page to load
         cy.dataCy('length-filter').find('input').should('have.value', '3');
         cy.dataCy('length-filter').find('.text').contains('=').should('exist');
+        cy.dataCy('conversation-item').contains('len3').should('exist');
     });
     it('should link with an intent from top 10 intents', () => {
         cy.addConversationFromTemplate('bf', 'intent_test', 'intenttest');
@@ -162,6 +170,7 @@ describe('link from analytics to conversations and apply filters', () => {
         cy.dataCy('conversation-item').should('exist'); // wait for the page to load
         cy.dataCy('intents-actions-filter').find('.label').should('have.length', 1); // wait for page to load
         cy.get('.label').contains('intent_dummy').should('exist');
+        cy.dataCy('conversation-item').contains('intenttest').should('exist');
     });
     it('should set the date when linking from an analytics card', () => {
         cy.visit('/project/bf/analytics');
@@ -181,6 +190,7 @@ describe('link from analytics to conversations and apply filters', () => {
         cy.dataCy('conversation-item').should('exist'); // wait for the page to load
         cy.dataCy('date-picker-container').find('button')
             .contains(`${moment().subtract(29, 'days').startOf('day').format('DD/MM/YYYY')} - ${moment().format('DD/MM/YYYY')}`);
+        cy.dataCy('conversation-item').contains('intenttest').should('exist');
     });
 
     it('should set the correct order from a funnel', () => {
@@ -252,5 +262,6 @@ describe('link from analytics to conversations and apply filters', () => {
         cy.dataCy('conversation-item').should('exist'); // wait for the page to load
         cy.dataCy('intents-actions-filter').find('.label').should('have.length', 1); // wait for page to load
         cy.get('.label').contains('intent_dummy').should('exist');
+        cy.dataCy('conversation-item').contains('intenttest').should('exist');
     });
 });

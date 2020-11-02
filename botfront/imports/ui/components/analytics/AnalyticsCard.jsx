@@ -121,9 +121,9 @@ function AnalyticsCard(props) {
         return undefined;
     };
 
-    const reshapeIntentOrActionArray = (array, exclude, type) => {
+    const reshapeIntentOrActionArray = (array, exclude, eventType) => {
         if (array) {
-            return array.map(elm => ({ name: elm, excluded: exclude, type }));
+            return array.map(elm => ({ name: elm, excluded: exclude, type: eventType }));
         }
         return [];
     };
@@ -179,8 +179,9 @@ function AnalyticsCard(props) {
         let conversationFunnelIndex;
         switch (type) {
         case 'triggerFrequencies':
-            eventFilter.push(...reshapeIntentOrActionArray([await getTriggerIntentFromStory(selectedData.name)], false));
-            filters.eventFilter = eventFilter;
+            filters.eventFilter = [{ name: await getTriggerIntentFromStory(selectedData.name), type: 'intent', excluded: false }];
+            filters.triggeredConversations = true;
+            filters.userInitiatedConversations = false;
             break;
         case 'intentFrequencies':
             eventsToFilter.push(...reshapeIntentOrActionArray([selectedData.name], false, 'intent'));
@@ -209,8 +210,8 @@ function AnalyticsCard(props) {
             filters.eventFilterOperator = eventFilterOperator;
             break;
         case 'actionCounts':
-            eventsToFilter.push(...reshapeIntentOrActionArray(includeActions, false));
-            eventsToFilter.push(...reshapeIntentOrActionArray(excludeActions, true));
+            eventsToFilter.push(...reshapeIntentOrActionArray(includeActions, false, 'action'));
+            eventsToFilter.push(...reshapeIntentOrActionArray(excludeActions, true, 'action'));
             filters.eventFilter = clearTypenameField(eventsToFilter);
             filters.eventFilterOperator = 'or';
             break;
@@ -364,7 +365,6 @@ AnalyticsCard.propTypes = {
     onChangeSettings: PropTypes.func.isRequired,
     onReorder: PropTypes.func,
     type: PropTypes.string,
-    downloadAll: PropTypes.func.isRequired,
 };
 
 AnalyticsCard.defaultProps = {
