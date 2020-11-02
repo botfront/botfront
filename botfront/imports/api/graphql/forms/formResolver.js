@@ -74,7 +74,7 @@ export default {
                     projectId: args.form.projectId,
                     [key]: value,
                 });
-                return { _id: value._id };
+                return { _id: value._id, updatedAt: value.updatedAt };
             }
             return {};
         },

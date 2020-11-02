@@ -1,5 +1,6 @@
 import React, {
     useMemo,
+    useState,
 } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -22,14 +23,24 @@ const CreateForm = (props) => {
         // eslint-disable-next-line camelcase
         collect_in_botfront,
         _id,
+        updatedAt: dbUpdatedAt,
     } = useMemo(() => initialModel || {}, [initialModel]);
+    const [updatedAt, setUpdatedAt] = useState(dbUpdatedAt);
+    const [graphKey, setGraphKey] = useState(dbUpdatedAt);
 
     const handleSubmit = (incomingModel) => {
         onSubmit(clearTypenameField(incomingModel));
     };
 
     const handleGraphSave = (elements, settings) => {
-        onSubmit(clearTypenameField({ ...initialModel, graph_elements: elements, ...settings }));
+        if (updatedAt !== dbUpdatedAt && Date.now() - dbUpdatedAt > 2000) {
+            setUpdatedAt(dbUpdatedAt);
+            setGraphKey(dbUpdatedAt);
+            return;
+        }
+        onSubmit(clearTypenameField({ ...initialModel, graph_elements: elements, ...settings }), (res) => {
+            setUpdatedAt(res.data.upsertForm.updatedAt);
+        });
     };
 
     return (
@@ -37,6 +48,7 @@ const CreateForm = (props) => {
             className='form-graph-wrapper'
         >
             <Graph
+                key={graphKey}
                 formName={formName}
                 onSave={handleGraphSave}
                 onSettingsSave={handleSubmit}

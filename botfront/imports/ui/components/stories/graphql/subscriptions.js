@@ -28,6 +28,7 @@ export const FORMS_MODIFIED = gql`
             pinned
             graph_elements
             groupId
+            updatedAt
         }
     }
 `;
@@ -60,6 +61,7 @@ export const FORMS_CREATED = gql`
             pinned
             graph_elements
             groupId
+            updatedAt
         }
     }
 `;

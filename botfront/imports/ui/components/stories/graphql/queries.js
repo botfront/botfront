@@ -3,7 +3,10 @@ import gql from 'graphql-tag';
 
 export const UPSERT_FORM = gql`
     mutation upsertForm($form: FormInput) {
-        upsertForm(form: $form) { _id }
+        upsertForm(form: $form) {
+            _id
+            updatedAt
+        }
     }`;
 
 export const DELETE_FORMS = gql`
@@ -43,6 +46,7 @@ export const GET_FORMS = gql`
             pinned
             graph_elements
             groupId
+            updatedAt
         }
     }
 `;

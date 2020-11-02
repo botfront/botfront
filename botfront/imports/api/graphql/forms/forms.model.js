@@ -85,7 +85,8 @@ if (Meteor.isServer) {
         pinned: { type: Boolean, defaultValue: true },
         graph_elements: { type: Mixed },
         groupId: { type: String },
-    }, { versionKey: false });
+        updatedAt: { type: Number, optional: true },
+    }, { versionKey: false, timestamps: { updatedAt: 'updatedAt', createdAt: false } });
     forms.index({ name: 1, projectId: 1 }, { unique: true });
     module.exports = mongoose.model('Forms', forms, 'forms');
 }

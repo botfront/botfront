@@ -39,6 +39,7 @@ type Form {
     isExpanded: Boolean
     pinned: Boolean
     graph_elements: Any
+    updatedAt: Float
 }
 
 type SlotToFill {
@@ -125,6 +126,7 @@ input FormInput {
     isExpanded: Boolean
     pinned: Boolean = false
     graph_elements: Any
+    updatedAt: Float
 }
 
 input SlotToFillInput {
