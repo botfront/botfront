@@ -33,4 +33,22 @@ describe('training data import', function() {
             .siblings('.value')
             .should('contain', '1');
     });
+
+    it('should import chitchat data', function() {
+        cy.visit('/project/bf/nlu/models/');
+        cy.contains('Chit Chat').click();
+        cy.dataCy('select-chit-chat').type(
+            'basics.time{enter}chitchat.this_is_bad{enter}chitchat.this_is_frustrating{enter}chitchat.i_need_help{enter}chitchat.i_am_sorry{enter}{esc}',
+        );
+        cy.dataCy('add-chit-chat').click();
+        cy.contains('OK').click();
+        cy.visit('/project/bf/nlu/models/');
+        cy.get('.row-wrapper').should('exist');
+        cy.dataCy('loading-row').should('not.exist');
+        // test the same with a very low height viewport
+        cy.viewport(1000, 350);
+        cy.visit('/project/bf/nlu/models/');
+        cy.get('.row-wrapper').should('exist');
+        cy.dataCy('loading-row').should('not.exist');
+    });
 });
