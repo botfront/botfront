@@ -17,8 +17,7 @@ const addBlock = (depth) => {
             .findCy('user-line-from-input')
             .last()
             .click({ force: true });
-        cy.wrap(editor)
-            .findCy('utterance-input')
+        cy.dataCy('utterance-input')
             .find('input')
             .type('I love typing into boxes.{enter}');
         cy.dataCy('intent-label').should('have.length', depth + 1);
@@ -208,7 +207,6 @@ describe('branches', function() {
     });
 
     it('should append the contents of the last branch when the second last branch is deleted', function () {
-        cy.wrap([]).as('intent-labels'); // initial intent-labels
         // create 2 levels of branches
         cy.dataCy('create-branch')
             .click();

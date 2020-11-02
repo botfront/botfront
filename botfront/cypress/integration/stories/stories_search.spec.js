@@ -40,9 +40,7 @@ describe('test stories searching ui', () => {
         searchStories('types', 'types of fruit');
         cy.dataCy('story-title').should('have.value', 'types of fruit');
         cy.dataCy('user-line-from-input').last().click({ force: true });
-        cy.focused().type('kiwi{enter}');
-        cy.dataCy('intent-label').click();
-        cy.focused().type('fruit_name{enter}');
+        cy.addUserUtterance('kiwi', 'fruit_name');
         cy.dataCy('save-new-user-input').click();
         cy.dataCy('story-group-menu-item').contains('types of fruit').dblclick();
         cy.dataCy('edit-name').find('input').clear().type('food{enter}');
