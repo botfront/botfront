@@ -38,7 +38,7 @@ export const mergeDomains = (files) => {
 
 const validateADomain = (
     file,
-    { defaultDomain = {}, projectLanguages = [], fallbackImportLanguage },
+    { defaultDomain = {}, projectLanguages = [], fallbackLang },
     isDefaultDomain = false, // we validate domain and default domain with the same function
 ) => {
     const { rawText } = file;
@@ -93,7 +93,7 @@ const validateADomain = (
         response.forEach((item) => {
             const { language, metadata, ...rest } = item;
             const content = typeof item === 'string' ? safeDump({ text: item }) : safeDump(rest);
-            const lang = language || fallbackImportLanguage;
+            const lang = language || fallbackLang;
             if (!firstMetadataFound && metadata) firstMetadataFound = metadata;
             if (firstMetadataFound && !isEqual(firstMetadataFound, metadata)) {
                 warnings.push(
@@ -216,6 +216,23 @@ export const validateDomain = (files, params) => {
         });
     }
     domainFiles = domainFiles.map(domainFile => validateADomain(domainFile, params));
+   
+    const newSummary = params.summary;
+
+    if (domainFiles.length > 0) {
+        const merged = mergeDomains(domainFiles);
+        const nameList = domainFiles.map(file => file.filename).join(', ');
+        const slotsLen = merged.slots.length;
+        const responsesLen = merged.responses.length;
+        const formsLen = Object.keys(merged.forms).length;
+        const actionsLen = merged.actions.length;
+        const tempSummary = [];
+        if (slotsLen > 0) tempSummary.push(`${slotsLen} slots`);
+        if (responsesLen > 0) tempSummary.push(`${responsesLen} responses`);
+        if (formsLen > 0) tempSummary.push(`${formsLen} forms`);
+        if (actionsLen > 0) tempSummary.push(`${actionsLen} actions`);
+        newSummary.push(`From ${nameList} you will add: ${tempSummary.join(', ')}`);
+    }
     return [
         files.map((file) => {
             if (file?.dataType !== 'domain') return file;
