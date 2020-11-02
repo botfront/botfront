@@ -27,12 +27,13 @@ const handleImportForms = async (forms, projectId) => {
     }
 };
 const handleImportResponse = async (responses, projectId) => {
-    const prepareResponses = responses.map((response) => {
+    const preparedResponses = responses.map((response) => {
         const index = indexBotResponse(response);
         return { ...response, textIndex: index, projectId };
     });
     try {
-        await botResponses.insertMany(prepareResponses);
+        const insertResponses = preparedResponses.map(async rep => botResponses.update({ key: rep.key, projectId }, rep, { upsert: true }));
+        await Promise.all(insertResponses);
     } catch (e) {
         if (e.code === 11000) {
             const alreadyExist = e?.result?.result?.writeErrors.map(err => `${err.err.op.key} already exist`).join(', ');
@@ -97,11 +98,6 @@ const handleImportDomain = async (files, {
    
     const errors = [];
     const insert = async () => {
-        // const callback = wrapMeteorCallback((error) => {
-        //     if (!error) setFileList({ delete: { filename, lastModified } });
-        //     if (error || idx === files.length - 1) setImportingState(false);
-        // });
-      
         try {
             await handleImportResponse(responses, projectId);
             // await handleImportForms(bfForms, projectId),
@@ -110,7 +106,6 @@ const handleImportDomain = async (files, {
         }
         try {
             await Meteor.callWithPromise('slots.upsert', slots, projectId);
-            // await handleImportForms(bfForms, projectId),
         } catch (e) {
             errors.push(`error when importing slots ${e.message}`);
         }
@@ -201,29 +196,34 @@ const handleImportCredentials = async (files, { projectId }) => {
 
 const handleImportRasaConfig = async (files, { projectId }) => {
     if (!files.length) return [];
+    let policiesImported = false;
+    const pipelineImported = {};
     const importResult = await Promise.all(
-        files.map(async (f, idx) => {
+        files.map(async (f) => {
             const { pipeline, policies, language } = f;
             // we only use the policies from the first one
             // this is something decided arbitrarily, there is a warning about it in validation so the user aware of this behavior
-            if (idx === 0) {
+            if (policies && !policiesImported) {
                 try {
                     await Meteor.callWithPromise(
                         'policies.save',
                         { policies: safeDump(policies), projectId },
                     );
+                    policiesImported = true;
                 } catch (e) {
                     return `error when importing policies from ${f.filename}`;
                 }
             }
-            try {
-                await Meteor.callWithPromise(
-                    'nlu.update.pipeline',
-                    projectId, language, safeDump(pipeline),
-                );
-                return null;
-            } catch (e) {
-                return `error when importing pipeline from ${f.filename}`;
+            if (pipeline && !pipelineImported[language]) {
+                try {
+                    await Meteor.callWithPromise(
+                        'nlu.update.pipeline',
+                        projectId, language, safeDump(pipeline),
+                    );
+                    return null;
+                } catch (e) {
+                    return `error when importing pipeline from ${f.filename}`;
+                }
             }
         }),
     );
@@ -242,8 +242,8 @@ const handleImportConversations = async (files, {
     const importResult = await Promise.all(files.map(async (f) => {
         try {
             const { conversations } = f;
-            const preparedConversations = conversations.map(conv => ({ ...conv, projectId }));
-            await Conversations.insertMany(preparedConversations);
+            const insertConv = conversations.map(conv => Conversations.update({ _id: conv._id }, { ...conv, projectId }, { upsert: true }));
+            await Promise.all(insertConv);
             return null;
         } catch (e) {
             if (e.code === 11000) {
@@ -267,8 +267,8 @@ const handleImportIncoming = async (files, {
     const importResult = await Promise.all(files.map(async (f) => {
         try {
             const { incoming } = f;
-            const preparedIncoming = incoming.map(utterance => ({ ...utterance, projectId }));
-            await Activity.insertMany(preparedIncoming);
+            const insertIncoming = incoming.map(utterance => Activity.update({ _id: utterance._id }, { ...utterance, projectId }, { upsert: true }));
+            await Promise.all(insertIncoming);
             return null;
         } catch (e) {
             if (e.code === 11000) {

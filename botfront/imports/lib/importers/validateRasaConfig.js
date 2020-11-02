@@ -1,9 +1,10 @@
 import yaml from 'js-yaml';
 import { Projects } from '../../api/project/project.collection';
 
-export const validateARasaConfig = (file) => {
+export const validateARasaConfig = (file, fallbackLang) => {
     let rasaConfig;
     const errors = [];
+    const warnings = [];
     try {
         rasaConfig = yaml.safeLoad(file.rawText);
     } catch (e) {
@@ -19,11 +20,12 @@ export const validateARasaConfig = (file) => {
             errors.push(`${key} is not a valid rasa config data`);
         }
     });
-    if (configsKeys.length < 3) {
-        const missingKeys = ['pipeline', 'policies', 'language'].filter(
-            key => !configsKeys.includes(key),
-        );
-        errors.push(`${missingKeys.join(', ')} missing in the rasa config data`);
+    if (!configsKeys.includes('language')) {
+        warnings.push('is missing a language key, it will use the fallback one');
+        rasaConfig.language = fallbackLang;
+    }
+    if (configsKeys.includes('language') && !configsKeys.includes('pipeline') && !configsKeys.includes('policies')) {
+        warnings.push('No pipeline or policies in this file');
     }
     if (errors.length > 0) {
         return {
@@ -43,6 +45,9 @@ const langSummary = (rasaConfigFile, projectLangs) => {
     if (projectLangs.has(rasaConfigFile.language) && rasaConfigFile.pipeline) {
         return `The pipeline for the language "${rasaConfigFile.language}" will be remplace by the one from the file ${rasaConfigFile.filename}`;
     }
+    if (!rasaConfigFile.pipeline) {
+        return `${rasaConfigFile.filename} will add the support for the language "${rasaConfigFile.language}" using the default pipeline`;
+    }
     return `${rasaConfigFile.filename} will add the support for the language "${rasaConfigFile.language}"`;
 };
 
@@ -51,30 +56,33 @@ const validateRasaConfigTogether = (files, projectId) => {
     const languagesFromFiles = new Set();
     const summary = [];
     let configFiles = files;
+    let policiesFoundIn = '';
+    const pipelinePerLang = {};
     if (files.length > 1) {
-        configFiles = configFiles.map((rasaConfigFile, idx) => {
-            if (languagesFromFiles.has(rasaConfigFile.language)) {
-                return {
-                    ...rasaConfigFile,
-                    errors: [
-                        ...(rasaConfigFile.errors || []),
-                        'There is already a config file for the lang, this file won\'t be used in the import',
-                    ],
-                };
+        configFiles = configFiles.map((rasaConfigFile) => {
+            const {
+                pipeline, language, policies, filename, warnings,
+            } = rasaConfigFile;
+            const newWarnings = [];
+            languagesFromFiles.add(language);
+            if (pipeline && pipelinePerLang[language]) {
+                newWarnings.push('There is already a config file with a pipeline for this lang, this data won\'t be used in the import');
             }
+            if (pipeline && !pipelinePerLang[language]) pipelinePerLang[language] = filename;
             summary.push(langSummary(rasaConfigFile, languagesFromProject));
 
-            if (idx === 0) {
-                languagesFromFiles.add(rasaConfigFile.language);
-                return rasaConfigFile;
+            if (policies && policiesFoundIn !== '') {
+                newWarnings.push(`Policies from this file conflicts with policies from ${policiesFoundIn}, and thus they won't be used in the import`);
             }
 
-            languagesFromFiles.add(rasaConfigFile.language);
+            if (policies && policiesFoundIn === '') {
+                summary.push(`Policies will be remplaced by the ones from ${filename}`);
+                policiesFoundIn = filename;
+            }
             return {
                 ...rasaConfigFile,
                 warnings: [
-                    ...(rasaConfigFile.warnings || []),
-                    `Policies from this file conflicts with policies from ${files[0].filename}, and thus they won't be used in the import`,
+                    ...(warnings || []), ...newWarnings,
                 ],
             };
         });
