@@ -342,6 +342,7 @@ if (Meteor.isServer) {
         },
 
         async 'project.setEnableSharing'(projectId, enableSharing) {
+            checkIfCan('share:x', projectId);
             check(projectId, String);
             check(enableSharing, Boolean);
             return Projects.update({ _id: projectId }, { $set: { enableSharing } });

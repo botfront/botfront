@@ -60,6 +60,7 @@ if (Meteor.isServer) {
                 training: 1,
                 timezoneOffset: 1,
                 nluThreshold: 1,
+                enableSharing: 1,
                 ...(can('stories:r', projectId) ? { storyGroups: 1 } : {}),
             },
         });

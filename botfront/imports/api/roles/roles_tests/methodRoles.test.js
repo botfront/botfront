@@ -248,8 +248,12 @@ if (Meteor.isServer) {
         {
             name: 'nlu.saveExampleChanges',
             roles: writers.nluData,
-            
             args: [projectId, language],
+        },
+        {
+            name: 'project.setEnableSharing',
+            roles: otherRoles.shareX,
+            args: [projectId],
         },
         {
             name: 'project.insert',

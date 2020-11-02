@@ -196,4 +196,10 @@ export const otherRoles = {
         'resources:w',
         'global-admin',
     ],
+    shareX: [
+        'share:x',
+        'projects:w',
+        'resources:w',
+        'global-admin',
+    ],
 };

@@ -100,11 +100,12 @@ if (Meteor.isServer) {
 
         createRole('projects:r', 'Can read everything in a project and access a project settings.');
         Roles.addRolesToParent(['incoming:r', 'triggers:r', 'stories:r', 'responses:r', 'nlu-data:r', 'analytics:r'], 'projects:r');
+        createRole('share:x', 'Can enable and disable the share chatbot link');
         createRole(
             'projects:w',
             'Can edit and use all ressources related to a project, settings. Extends `projects:r`. If no `projectId` constraint is specified this permission allows adding, editing, and removing projects.',
         );
-        Roles.addRolesToParent(['projects:r', 'nlu-data:x', 'analytics:w', 'incoming:w', 'triggers:w', 'stories:w', 'responses:w', 'nlu-data:w'], 'projects:w');
+        Roles.addRolesToParent(['projects:r', 'nlu-data:x', 'analytics:w', 'incoming:w', 'triggers:w', 'stories:w', 'responses:w', 'nlu-data:w', 'share:x'], 'projects:w');
 
         createRole('resources:r', 'Can access project deployment environment, instance, and endpoint settings. Inherits projects:r');
         Roles.addRolesToParent('projects:r', 'resources:r');

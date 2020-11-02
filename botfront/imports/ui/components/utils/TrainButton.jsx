@@ -207,11 +207,13 @@ class TrainButton extends React.Component {
                         link
                     />
                 )}
+                basic
                 hoverable
                 content={(
                     <div>
                         <Checkbox
                             toggle
+                            disabled={!can('share:x', projectId)}
                             checked={enableSharing}
                             data-cy='toggle-bot-sharing'
                             onChange={() => Meteor.call(
