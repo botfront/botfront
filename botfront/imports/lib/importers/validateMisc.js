@@ -1,8 +1,9 @@
 import yaml from 'js-yaml';
+import { Instances } from '../../api/instances/instances.collection';
 
 export const doValidation = params => !params.noValidate;
 
-export const validateSimpleYamlFiles = (files, type) => {
+export const validateSimpleYamlFiles = (files, params, type) => {
     let filesToValid = files.filter(f => f?.dataType === type);
     if (filesToValid.length > 1) {
         filesToValid = filesToValid.map((file, idx) => {
@@ -33,10 +34,15 @@ export const validateSimpleYamlFiles = (files, type) => {
             [type]: parsed,
         };
     });
-    return files.map((file) => {
+
+    const newSummary = params.summary;
+    if (filesToValid.length > 0) newSummary.push(`You will remplace ${type} by the one in ${filesToValid[0].filename}`);
+
+    const newFiles = files.map((file) => {
         if (file?.dataType !== type) return file;
         return filesToValid.shift();
     });
+    return [newFiles, { ...params, summary: newSummary }];
 };
 
 export const validateSimpleJsonFiles = (files, params, type) => {
@@ -79,20 +85,25 @@ export const validateSimpleJsonFiles = (files, params, type) => {
     return [newFiles, { ...params, summary: newSummary }];
 };
 
-export const validateEndpoints = (files, params) => [
-    validateSimpleYamlFiles(files, 'endpoints'),
-    params,
-];
+export const validateEndpoints = (files, params) => validateSimpleYamlFiles(files, params, 'endpoints');
 
-export const validateCredentials = (files, params) => [
-    validateSimpleYamlFiles(files, 'credentials'),
-    params,
-];
+
+export const validateCredentials = (files, params) => validateSimpleYamlFiles(files, params, 'credentials');
+  
+
+export const validateInstances = (files, params) => {
+    const [newFiles, newParams] = validateSimpleYamlFiles(files, params, 'instance');
+    const instanceFiles = newFiles.filter(f => f?.dataType === 'instance');
+    if (instanceFiles.length > 0) {
+        newParams.instanceHost = instanceFiles[0].instance.host;
+    } else {
+        newParams.instanceHost = Instances.findOne({ projectId: params.projectId }).host;
+    }
+    return [newFiles, newParams];
+};
+
 
 export const validateIncoming = (files, params) => validateSimpleJsonFiles(files, params, 'incoming');
  
 
 export const validateConversations = (files, params) => validateSimpleJsonFiles(files, params, 'conversations');
-
-
-export const validateInstances = (files, params) => [validateSimpleYamlFiles(files, 'instance'), params];
