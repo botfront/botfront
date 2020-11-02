@@ -97,6 +97,13 @@ export const getExamples = async ({
             },
         },
         { $sort: sortObject },
+        {
+            $addFields: {
+                'metadata.draft': { // clean up
+                    $cond: [{ $eq: ['$metadata.draft', false] }, '$$REMOVE', true],
+                },
+            },
+        },
     ]);
 
     const cursorIndex = !cursor
