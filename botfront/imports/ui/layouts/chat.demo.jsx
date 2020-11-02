@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Responsive, Button, Dropdown } from 'semantic-ui-react';
+import {
+    Responsive, Button, Dropdown,
+} from 'semantic-ui-react';
 import { Widget } from 'rasa-webchat/module';
 import { Loading } from '../components/utils/Utils';
 
@@ -24,6 +26,8 @@ const ChatDemo = (props) => {
     const [widgetProps, setWidgetProps] = useState({
         languages: [],
     });
+    const [environments, setEnvironments] = useState([]);
+    const [selectedEnv, setSelectedEnv] = useState('development');
     const [language, setLanguage] = useState();
     const [updateKey, setUpdateKey] = useState();
     const [error, setError] = useState();
@@ -31,14 +35,22 @@ const ChatDemo = (props) => {
     const handleChangeLanguage = (lang) => {
         window.localStorage.removeItem('chat_session');
         setLanguage(lang);
-        router.replace({ pathname, query: { lang } });
+        router.replace({ pathname, query: { lang, env: selectedEnv } });
         setUpdateKey(new Date());
+    };
+
+    const handleChangeEnvironment = (env) => {
+        window.localStorage.removeItem('chat_session');
+        setSelectedEnv(env);
+        router.replace({ pathname, query: { lang: language, env } });
+        setUpdateKey(Date.now());
     };
 
     const handleRestart = () => handleChangeLanguage(language);
 
-    useEffect(
-        () => Meteor.call('project.getChatProps', projectId, (err, res) => {
+    useEffect(() => {
+        setLoading(true);
+        Meteor.call('project.getChatProps', projectId, selectedEnv, (err, res) => {
             if (err) setError(err.message);
             else {
                 setWidgetProps(res);
@@ -49,9 +61,25 @@ const ChatDemo = (props) => {
                 handleChangeLanguage(initLang);
             }
             setLoading(false);
-        }),
-        [],
-    );
+        });
+    }, [selectedEnv]);
+    useEffect(() => {
+        Meteor.call('project.getDeploymentEnvironments', projectId, (err, res) => {
+            if (err) setError(err.message);
+            else {
+                const envs = [
+                    { text: 'development', value: 'development' },
+                    ...res.deploymentEnvironments.map(env => ({ text: env, value: env })),
+                ];
+                const initEnv = 'env' in queryParams
+                    && envs.some(({ value }) => value === queryParams.env)
+                    ? queryParams.env
+                    : 'development';
+                setSelectedEnv(initEnv);
+                setEnvironments(envs);
+            }
+        });
+    }, []);
 
     const renderError = () => <h1>{error}</h1>;
 
@@ -85,6 +113,18 @@ const ChatDemo = (props) => {
                         text='Change language'
                         options={widgetProps.languages}
                     />
+                    {environments.length > 1 && (
+                        <Dropdown
+                            data-cy='environment-dropdown'
+                            button
+                            icon={null}
+                            options={environments}
+                            className='icon basic'
+                            text='Change environment'
+                            onChange={(_, { value }) => handleChangeEnvironment(value)}
+                            value={selectedEnv}
+                        />
+                    )}
                 </Button.Group>
                 <Dropdown button icon='bars' className='icon basic'>
                     <Dropdown.Menu direction='left'>
@@ -128,7 +168,6 @@ const ChatDemo = (props) => {
             </div>
         </>
     );
-
     return (
         <div className='chat-demo-container'>
             <Loading loading={loading}>{error ? renderError() : render()}</Loading>

@@ -347,9 +347,9 @@ if (Meteor.isServer) {
             return Projects.update({ _id: projectId }, { $set: { enableSharing } });
         },
 
-        async 'project.getChatProps'(projectId) {
+        async 'project.getChatProps'(projectId, environment = 'development') {
             check(projectId, String);
-
+            check(environment, Match.Maybe(String));
             const {
                 chatWidgetSettings: { initPayload = '/get_started' } = {},
                 enableSharing,
@@ -377,12 +377,14 @@ if (Meteor.isServer) {
                 );
             }
 
-            const query = {
-                $or: [
-                    { projectId, environment: { $exists: false } },
-                    { projectId, environment: 'development' },
-                ],
-            };
+            const query = !environment || environment === 'development'
+                ? {
+                    $or: [
+                        { projectId, environment: { $exists: false } },
+                        { projectId, environment: 'development' },
+                    ],
+                }
+                : { projectId, environment };
             let { credentials = '' } = Credentials.findOne(query, { credentials: 1 }) || {};
             credentials = yamlLoad(credentials);
             const channel = Object.keys(credentials).find(k => ['WebchatInput', 'WebchatPlusInput'].some(c => k.includes(c)));
@@ -422,6 +424,11 @@ if (Meteor.isServer) {
             } catch (error) {
                 throw error;
             }
+        },
+
+        async 'project.getDeploymentEnvironments'(projectId) {
+            check(projectId, String);
+            return Projects.findOne({ _id: projectId }, { fields: { deploymentEnvironments: 1 } });
         },
     });
 }
