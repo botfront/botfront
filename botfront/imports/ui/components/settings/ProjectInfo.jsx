@@ -131,10 +131,6 @@ class ProjectInfo extends React.Component {
                         label='Namespace'
                         disabled
                     />
-                    <InfoField
-                        name='modelsBucket'
-                        label='GCS Bucket'
-                    />
                     <Form.Field>
                         <label>Languages supported</label>
                         <Dropdown
@@ -154,7 +150,7 @@ class ProjectInfo extends React.Component {
                             disabled={!hasWritePermission}
                         />
                         {!!projectLanguages.length
-                                && this.renderDeleteprojectLanguages()}
+                            && this.renderDeleteprojectLanguages()}
                     </Form.Field>
                     {!!projectLanguages.length && (
                         <SelectField
