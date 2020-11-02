@@ -27,7 +27,8 @@ import { ProjectContext } from '../../../layouts/context';
 import PrefixDropdown from '../../common/PrefixDropdown';
 import ActivityCommandBar from './ActivityCommandBar';
 import CanonicalPopup from '../common/CanonicalPopup';
-import ConversationPopup from './ConversationPopup';
+import ConversationSidePanel from './ConversationSidePanel';
+import ConversationIcon from './ConversationIcon';
 
 function Activity(props) {
     const [sortType, setSortType] = useState('Newest');
@@ -64,7 +65,7 @@ function Activity(props) {
     } = useContext(ProjectContext);
     const examples = []; // change me!!!!
 
-    const [openConvPopup, setOpenConvPopup] = useState(-1);
+    const [openConvPopup, setOpenConvPopup] = useState(false);
     const [filter, setFilter] = useState({
         entities: [], intents: [], query: '', dateRange: {},
     });
@@ -314,10 +315,12 @@ function Activity(props) {
     );
 
     const renderConvPopup = row => (
-        <ConversationPopup
+        <ConversationIcon
             {...row}
-            open={(row.datum || {})._id === openConvPopup}
-            setOpen={setOpenConvPopup}
+            open={(row.datum || {})._id === openConvPopup._id}
+            setOpen={(open) => {
+                setOpenConvPopup(!!open ? row.datum : false);
+            }}
         />
     );
         
@@ -379,8 +382,8 @@ function Activity(props) {
         if (key.toLowerCase() === 'd') handleDelete(selectionWithFullData);
         if (key.toLowerCase() === 'o') handleMarkOoS(selectionWithFullData);
         if (key.toLowerCase() === 'c') {
-            if (openConvPopup === selection[0]) setOpenConvPopup(-1);
-            else setOpenConvPopup(selection[0] || -1);
+            if (openConvPopup._id === selection[0]) setOpenConvPopup(false);
+            else setOpenConvPopup(data.find(datum => datum._id === selection[0]) || false);
         }
         if (key.toLowerCase() === 'v') {
             if (selectionWithFullData.some(d => !d.intent || isUtteranceOutdated(d))) return;
@@ -475,8 +478,10 @@ function Activity(props) {
             />
         </div>
     );
+
     return (
         <>
+            {!!openConvPopup && <ConversationSidePanel utterance={openConvPopup} onClose={() => setOpenConvPopup(false)} />}
             {renderTopBar()}
             {data && data.length ? (
                 <>
@@ -489,7 +494,10 @@ function Activity(props) {
                         loadMore={loading ? () => {} : loadMore}
                         onScroll={handleScroll}
                         selection={selection}
-                        onChangeSelection={setSelection}
+                        onChangeSelection={(newSelection) => {
+                            setSelection(newSelection);
+                            setOpenConvPopup(false);
+                        }}
                     />
                     {can('incoming:w', projectId) && selection.length > 1 && (
                         <ActivityCommandBar

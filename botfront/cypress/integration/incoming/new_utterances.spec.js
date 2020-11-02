@@ -76,8 +76,8 @@ describe('incoming page', function() {
         cy.get('.utterance-viewer').first().should('have.text', 'test conv link')
             .trigger('mouseover');
         cy.dataCy('conversation-viewer').first().click({ force: true });
-        cy.get('.popup').should('exist');
-        cy.get('.popup').should('contains.text', 'test conv link');
+        cy.dataCy('conversation-side-panel').should('exist');
+        cy.dataCy('conversation-side-panel').should('contains.text', 'test conv link');
     });
 
     it('should move an utterance to OOS, and then to training data', function() {
