@@ -106,8 +106,10 @@ export function hasErrors(messages) {
 
 // this function validate then import the files if there is not errors
 // onlyValidate, noValidate are boolean switches to alter the steps of the validation
-export async function importSteps(projectId, files, onlyValidate, wipeCurrent) {
-    const filesAndValidationData = await readAndValidate(files, { onlyValidate, projectId, wipeCurrent });
+export async function importSteps(projectId, files, onlyValidate, wipeCurrent, fallbackLang) {
+    const filesAndValidationData = await readAndValidate(files, {
+        onlyValidate, projectId, wipeCurrent, fallbackLang,
+    });
     if (onlyValidate || hasErrors(filesAndValidationData.fileMessages)) return filesAndValidationData;
     const { fileMessages: filesToImport, params } = filesAndValidationData;
     const importResult = await handleImportAll(filesToImport, params);

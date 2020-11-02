@@ -8,6 +8,7 @@ mutation (
     $noValidate: Boolean, 
     $onlyValidate: Boolean, 
     $wipeCurrent: Boolean,
+    $fallbackLang: String
 ) {
     import(
         projectId: $projectId
@@ -15,6 +16,7 @@ mutation (
         noValidate: $noValidate
         onlyValidate: $onlyValidate
         wipeCurrent: $wipeCurrent
+        fallbackLang: $fallbackLang
     ) {
         fileMessages {
             errors
