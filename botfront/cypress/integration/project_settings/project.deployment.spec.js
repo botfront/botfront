@@ -12,60 +12,6 @@ describe('enable an environment', function() {
     });
 
     describe('Environments', function() {
-        it('can enable, edit, and disable staging', function() {
-            cy.visit('/project/bf/settings');
-            cy.get('[data-cy=deployment-environments]')
-                .children().contains('staging').click();
-            cy.get('[data-cy=save-changes]').click();
-            cy.contains('Credentials').click();
-            cy.dataCy('environment-credentials-tab')
-                .contains('Staging')
-                .click();
-            cy.get('[data-cy=ace-field]')
-                .click();
-            cy.wait(100);
-            cy.get('textarea').type('# verify saved credentials staging');
-            cy.get('[data-cy=save-button]').click();
-
-
-            // verify edit saved
-            cy.visit('/project/bf/settings');
-            cy.contains('Credentials').click();
-            cy.dataCy('environment-credentials-tab')
-                .contains('Staging')
-                .click();
-            cy.contains('verify saved credentials staging').should('exist');
-
-            cy.contains('Endpoints').click();
-            cy.dataCy('environment-endpoints-tab')
-                .contains('Staging').click();
-            cy.get('[data-cy=ace-field]')
-                .click();
-            cy.wait(100);
-            cy.get('textarea')
-                .type('# verify saved endpoints staging');
-            cy.get('[data-cy=save-button]').click();
-
-            cy.visit('/project/bf/settings');
-            cy.contains('Endpoints').click();
-            cy.dataCy('environment-endpoints-tab')
-                .contains('Staging')
-                .click();
-            cy.contains('verify saved endpoints staging').should('exist');
-
-            cy.visit('/project/bf/settings');
-            cy.get('[data-cy=deployment-environments]')
-                .children().contains('staging').click();
-            cy.get('[data-cy=save-changes]').click();
-            cy.contains('Credentials').click();
-            cy.dataCy('credentials-environment-menu')
-                .children()
-                .should('not.exist');
-            cy.contains('Endpoints').click();
-            cy.dataCy('endpoints-environment-menu')
-                .children()
-                .should('not.exist');
-        });
         it('can enable, edit, and disable production', function() {
             cy.visit('/project/bf/settings');
             cy.get('[data-cy=deployment-environments]')

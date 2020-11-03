@@ -102,7 +102,7 @@ if (Meteor.isServer) {
                     }), // diff sender, before
                 ],
                 projectId: 'project1',
-                environment: 'staging', // diff env
+                environment: 'production', // diff env
             });
             expect(result).to.deep.equal({
                 failed: ['839676060a2f44b18724e12c9827c9bf'],

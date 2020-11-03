@@ -27,7 +27,7 @@ describe('Project Endpoints', function() {
         it('should have menu tabs with mutiple env', function() {
             cy.visit('/project/bf/settings');
             cy.get('[data-cy=deployment-environments]')
-                .children().contains('staging').click();
+                .children().contains('production').click();
             cy.get('[data-cy=save-changes]').click();
             cy.visit('/project/bf/settings');
             cy.contains('Endpoints').click();

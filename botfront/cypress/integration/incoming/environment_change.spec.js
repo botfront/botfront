@@ -33,7 +33,7 @@ describe('environments-change', function () {
         cy.contains('Project Info').click();
         cy.dataCy('deployment-environments')
             .children()
-            .contains('staging')
+            .contains('production')
             .click();
         cy.dataCy('save-changes').click();
         cy.visit('/project/bf/incoming');
@@ -42,17 +42,12 @@ describe('environments-change', function () {
         cy.dataCy('env-selector')
             .find('div.menu')
             .should('contain.text', 'development')
-            .should('contain.text', 'staging')
-            .should('not.contain.text', 'production');
+            .should('contain.text', 'production');
     });
 
     it('should be possible to switch between environments even if they are empty', function () {
         cy.visit('/project/bf/settings');
         cy.contains('Project Info').click();
-        cy.dataCy('deployment-environments')
-            .children()
-            .contains('staging')
-            .click();
         cy.dataCy('deployment-environments')
             .children()
             .contains('production')
@@ -62,8 +57,6 @@ describe('environments-change', function () {
         cy.dataCy('conversations').click();
         changeEnv('production');
         checkConversationEmpty();
-        changeEnv('staging');
-        checkConversationEmpty();
         changeEnv('development');
         checkConversationEmpty();
     });
@@ -72,14 +65,9 @@ describe('environments-change', function () {
         cy.addConversationFromTemplate('bf', 'dev', 'dev1', { language: 'fr', env: 'development' });
         cy.addConversationFromTemplate('bf', 'dev', 'dev2', { language: 'fr', env: 'development' });
         cy.addConversationFromTemplate('bf', 'prod', 'prod', { language: 'fr', env: 'production' });
-        cy.addConversationFromTemplate('bf', 'staging', 'stage', { language: 'fr', env: 'staging' });
 
         cy.visit('/project/bf/settings');
         cy.contains('Project Info').click();
-        cy.dataCy('deployment-environments')
-            .children()
-            .contains('staging')
-            .click();
         cy.dataCy('deployment-environments')
             .children()
             .contains('production')
@@ -97,8 +85,7 @@ describe('environments-change', function () {
         cy.dataCy('newutterances').click();
         cy.dataCy('utterance-text')
             .should('not.contain.text', 'dev')
-            .should('contain.text', 'prod')
-            .should('not.contain.text', 'staging');
+            .should('contain.text', 'prod');
 
         cy.dataCy('conversations').click();
         changeEnv('development');
@@ -110,20 +97,6 @@ describe('environments-change', function () {
         cy.dataCy('newutterances').click();
         cy.dataCy('utterance-text')
             .should('contain.text', 'dev')
-            .should('not.contain.text', 'prod')
-            .should('not.contain.text', 'staging');
-
-        cy.dataCy('conversations').click();
-        changeEnv('staging');
-        cy.get('.ui.vertical.menu')
-            .should('not.contain.text', 'dev1')
-            .should('not.contain.text', 'dev2')
-            .should('not.contain.text', 'prod')
-            .should('contain.text', 'stage');
-        cy.dataCy('newutterances').click();
-        cy.dataCy('utterance-text')
-            .should('not.contain.text', 'dev')
-            .should('not.contain.text', 'prod')
-            .should('contain.text', 'staging');
+            .should('not.contain.text', 'prod');
     });
 });

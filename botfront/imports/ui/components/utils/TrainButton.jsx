@@ -19,7 +19,7 @@ class TrainButton extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            modalOpen: { production: false, staging: false },
+            modalOpen: { production: false },
             webhooks: {},
         };
     }
@@ -65,11 +65,6 @@ class TrainButton extends React.Component {
         // there is no webhooks or environments so we don't render the deployment menu
         if (!(webhook && webhook.url)) return (<></>);
         if (!(environments && environments.length > 0)) return (<></>);
-        if (webhook.url && environments.includes('staging')) {
-            deployOptions.push({
-                key: 'staging', text: 'Deploy to staging', value: 'staging',
-            });
-        }
         if (webhook.url && environments.includes('production')) {
             deployOptions.push({
                 key: 'prod', text: 'Deploy to production', value: 'production',

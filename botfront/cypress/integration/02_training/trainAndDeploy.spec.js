@@ -37,23 +37,12 @@ describe('Training and deploy', function() {
         cy.contains('Project Info').click();
         cy.dataCy('deployment-environments')
             .children()
-            .contains('staging')
-            .click();
-        cy.dataCy('save-changes').click();
-        cy.visit('/project/bf/dialogue');
-        cy.dataCy('train-and-deploy').click();
-        cy.dataCy('train-and-deploy').should('have.text', 'Deploy to staging');
-
-        cy.visit('/project/bf/settings');
-        cy.contains('Project Info').click();
-        cy.dataCy('deployment-environments')
-            .children()
             .contains('production')
             .click();
         cy.dataCy('save-changes').click();
 
         cy.visit('/project/bf/dialogue');
         cy.dataCy('train-and-deploy').click();
-        cy.dataCy('train-and-deploy').should('have.text', 'Deploy to stagingDeploy to production');
+        cy.dataCy('train-and-deploy').should('have.text', 'Deploy to production');
     });
 });

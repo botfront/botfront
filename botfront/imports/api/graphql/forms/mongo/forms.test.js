@@ -73,7 +73,7 @@ if (Meteor.isServer) {
                     { ...formSubmissionTemplate, date: '2020-06-05T12:57:48.856Z' }, // older
                 ],
                 projectId: 'project1',
-                environment: 'staging',
+                environment: 'production',
             });
             expect(result).to.deep.equal({
                 failed: [],

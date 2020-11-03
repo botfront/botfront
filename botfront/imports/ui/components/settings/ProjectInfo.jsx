@@ -112,6 +112,9 @@ class ProjectInfo extends React.Component {
         const { project, projectLanguages } = this.context;
         const { saving, value, model } = this.state;
         const hasWritePermission = can('projects:w', project._id);
+        if (model.deploymentEnvironments) {
+            model.deploymentEnvironments = model.deploymentEnvironments.filter(env => env !== 'staging');
+        }
         const bridge = new SimpleSchema2Bridge(ProjectsSchema);
         return (
             <>

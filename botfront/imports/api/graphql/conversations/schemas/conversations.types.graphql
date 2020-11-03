@@ -8,7 +8,7 @@ type Query {
         pageSize: Int,
         """ filter conversations by status (default ["new", "read", "flagged"]) """
         status: [String] = ["new", "read", "flagged"]
-        """ (default "development", possible other values are "production" and "staging")"""
+        """ (default "development", possible other value is "production")"""
         env: String
         """ Sorting order (default updatedAt_DESC (most recent first), possible other value updatedAt_ASC(most recent last)"""
         sort: order = updatedAt_DESC #in the future if needed to sort on multiple fields passing and array of orders, and modifying the datasource(mongo/conversation.js) accordingly might to the trick

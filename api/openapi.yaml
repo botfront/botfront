@@ -350,7 +350,7 @@ paths:
           type: string
         - name: env
           in: path
-          description: environement to get latest imported event from, should be one of production, staging, development
+          description: environement to get latest imported event from, should be one of production, development
           required: true
           type: string
       produces:
@@ -381,7 +381,7 @@ paths:
           type: string
         - name: env
           in: path
-          description: environement to import to, should be one of production, staging, development
+          description: environement to import to, should be one of production, development
           required: true
           type: string
         - name: conversations

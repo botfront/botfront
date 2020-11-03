@@ -33,9 +33,9 @@ describe('Project Credentials', function() {
 
         it('should have menu tabs with mutiple env', function() {
             cy.visit('/project/bf/settings');
-            cy.get('[data-cy=deployment-environments]')
-                .children().contains('staging').click();
-            cy.get('[data-cy=save-changes]').click();
+            cy.dataCy('deployment-environments')
+                .children().contains('production').click();
+            cy.dataCy('save-changes').click();
             cy.visit('/project/bf/settings');
             cy.contains('Credentials').click();
             cy.dataCy('credentials-environment-menu').should('have.class', 'menu');

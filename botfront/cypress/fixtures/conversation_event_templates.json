@@ -94,10 +94,6 @@
         { "type": "user", "text": "dev", "name": "chitchat.greet" },
         { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" }
     ],
-    "staging": [
-        { "type": "user", "text": "staging", "name": "chitchat.greet" },
-        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" }
-    ],
     "prod": [
         { "type": "user", "text": "prod", "name": "chitchat.greet" },
         { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" }

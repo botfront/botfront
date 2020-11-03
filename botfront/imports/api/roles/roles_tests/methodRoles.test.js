@@ -269,7 +269,7 @@ if (Meteor.isServer) {
         {
             name: 'project.update',
             roles: writers.resources,
-            args: [{ _id: projectId, deploymentEnvironments: ['staging'] }],
+            args: [{ _id: projectId, deploymentEnvironments: ['production'] }],
         },
         {
             name: 'project.delete',
