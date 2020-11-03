@@ -30,7 +30,8 @@ Meteor.methods({
             result = await Stories.rawCollection().insertMany(stories);
             result = Object.values(result.insertedIds);
         } else {
-            result = [Stories.insert({ ...story, ...indexStory(story) })];
+            console.log(story.type);
+            result = [Stories.insert({ ...story, ...indexStory(story), ...(story.type === 'test_case' ? { status: 'unknown' } : {}) })];
             storyGroups[story.storyGroupId] = result;
         }
         return Object.keys(storyGroups).map((_id) => {

@@ -51,6 +51,10 @@ const isDeletionPossible = (node = {}, nodes, tree) => {
         deletable = true;
         message = `The form ${node.title} will be deleted. This action cannot be undone.`;
     }
+    if (node.type === 'test_case') {
+        deletable = true;
+        message = `The test ${node.title} will be deleted. This action cannot be undone.`;
+    }
     return [deletable, message];
 };
 

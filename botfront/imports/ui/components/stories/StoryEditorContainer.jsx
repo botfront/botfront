@@ -250,7 +250,7 @@ const StoryEditorContainer = ({
                     onSave={steps => saveStory(path, { steps })}
                     story={branches[path.join()]?.steps || []}
                     getResponseLocations={getResponseLocations}
-                    mode={story.type === 'rule' ? 'rule_steps' : 'story'}
+                    mode={story.type === 'rule' ? 'rule_steps' : story.type}
                 />
             </StoryErrorBoundary>
         );

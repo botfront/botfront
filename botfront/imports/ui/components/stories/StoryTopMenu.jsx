@@ -12,6 +12,7 @@ import { setStoryCollapsed } from '../../store/actions/actions';
 import StoryVisualEditor from './common/StoryVisualEditor';
 import { ConversationOptionsContext } from './Context';
 import { can } from '../../../lib/scopes';
+import { storyTypeCustomizations } from '../../../lib/story.types';
 
 const StoryTopMenu = ({
     fragment,
@@ -164,6 +165,7 @@ const StoryTopMenu = ({
             }
         </>
     );
+
     return (
         <>
             <Menu
@@ -182,7 +184,7 @@ const StoryTopMenu = ({
                     {isDestinationStory ? (
                         <Icon name='arrow alternate circle right' color='green' fitted />
                     ) : (
-                        <span className='story-title-prefix'>{type === 'rule' ? <>&gt;&gt;</> : '##'}</span>
+                        <span className='story-title-prefix'>{storyTypeCustomizations[type].prefix}</span>
                     )}
                     {status === 'unpublished' && <Label content='Unpublished' /> }
                     <input
@@ -200,6 +202,7 @@ const StoryTopMenu = ({
                     <StoryPlayButton
                         fragment={fragment}
                         className='top-menu-clickable'
+                        type={fragment.type}
                     />
                 </Menu.Item>
             </Menu>

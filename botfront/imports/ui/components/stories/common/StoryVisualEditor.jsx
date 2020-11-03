@@ -87,7 +87,6 @@ export default class StoryVisualEditor extends React.Component {
         const lineIsIntent = l => 'intent' in l || 'or' in l;
         const hasSlot = story.some(l => 'slot_was_set' in l);
         const hasLoop = story.some(l => 'active_loop' in l);
-
         const options = {
             userUtterance:
                 mode !== 'rule_condition'
@@ -95,10 +94,10 @@ export default class StoryVisualEditor extends React.Component {
                 && !lineIsIntent(currentLine)
                 && !lineIsIntent(nextLine),
             botUtterance: mode !== 'rule_condition',
-            action: mode !== 'rule_condition',
-            slot: mode !== 'rule_condition' || !hasSlot,
-            loopActive: mode !== 'rule_condition' || !hasLoop,
-            loopActivate: mode !== 'rule_condition',
+            action: !['rule_condition', 'test_case'].includes(mode),
+            slot: mode !== 'test_case' && (mode !== 'rule_condition' || !hasSlot),
+            loopActive: mode !== 'test_case' && (mode !== 'rule_condition' || !hasLoop),
+            loopActivate: !['rule_condition', 'test'].includes(mode),
         };
 
         if (!Object.keys(options).length) return null;
@@ -345,7 +344,7 @@ StoryVisualEditor.propTypes = {
     onSave: PropTypes.func.isRequired,
     story: PropTypes.array.isRequired,
     getResponseLocations: PropTypes.func.isRequired,
-    mode: PropTypes.oneOf(['story', 'rule_steps', 'rule_condition']),
+    mode: PropTypes.oneOf(['story', 'rule_steps', 'rule_condition', 'test_case']),
 };
 
 StoryVisualEditor.defaultProps = {

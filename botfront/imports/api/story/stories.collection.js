@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
 
-import { StorySchema, RuleSchema } from './stories.schema';
+import { StorySchema, RuleSchema, TestSchema } from './stories.schema';
 
 export const Stories = new Mongo.Collection('stories');
 
@@ -52,5 +52,6 @@ if (Meteor.isServer) {
     });
 }
 
+Stories.attachSchema(TestSchema, { selector: { type: 'test_case' } });
 Stories.attachSchema(RuleSchema, { selector: { type: 'rule' } });
 Stories.attachSchema(StorySchema, { selector: { type: 'story' } });

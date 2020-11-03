@@ -16,6 +16,7 @@ const StoryPlayButton = (props) => {
         refreshChat,
         fragment: { steps = [], rules = [] } = {},
         className,
+        type,
     } = props;
 
     const getInitialPayload = () => {
@@ -29,6 +30,16 @@ const StoryPlayButton = (props) => {
         return `${intent}${entitiesString}`;
     };
     const disabled = !rules.length && !steps?.[0]?.intent && !steps?.[0]?.or;
+    const playStory = () => {
+        changeShowChat(true);
+        changeChatInitPayload(`/${getInitialPayload()}`);
+        refreshChat(true);
+    };
+
+    const runTestCase = () => {
+        console.log('running test case');
+    };
+
     return (
         <Popup
             trigger={(
@@ -37,9 +48,8 @@ const StoryPlayButton = (props) => {
                     size='small'
                     disabled={disabled}
                     onClick={() => {
-                        changeShowChat(true);
-                        changeChatInitPayload(`/${getInitialPayload()}`);
-                        refreshChat(true);
+                        if (type === 'test_case') runTestCase();
+                        else playStory();
                     }}
                     className={className}
                     data-cy='play-story'
@@ -62,6 +72,7 @@ StoryPlayButton.propTypes = {
     refreshChat: PropTypes.func.isRequired,
     fragment: PropTypes.object.isRequired,
     className: PropTypes.string,
+    type: PropTypes.oneOf(['story', 'rule', 'test_case']).isRequired,
 };
 
 StoryPlayButton.defaultProps = {

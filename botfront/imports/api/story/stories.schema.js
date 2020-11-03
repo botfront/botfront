@@ -89,3 +89,12 @@ export const RuleSchema = new SimpleSchema({
         blackbox: true,
     },
 });
+
+export const TestSchema = new SimpleSchema({
+    ...topLevelFields,
+    ...commonFields,
+    type: {
+        type: String,
+        allowedValues: ['test_case'],
+    },
+});
