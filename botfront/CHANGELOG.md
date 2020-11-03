@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.27.4-ee.1](https://github.com/botfront/botfront/compare/v0.27.3-ee.1...v0.27.4-ee.1) (2020-11-03)
+
+
+### Features
+
+* choose env in chatbot page ([1106941](https://github.com/botfront/botfront/commit/1106941dcf53d7b7e95872f756a0dd2fa2a0feb5))
+* conversation side panel ([531b0df](https://github.com/botfront/botfront/commit/531b0df7305da8309c2cf1e3cd1e00fd86ede22a))
+* import and export roles ([b55e048](https://github.com/botfront/botfront/commit/b55e0484a37bb70b0ada9e0997ce7e659e593512))
+* share:x role ([59517ee](https://github.com/botfront/botfront/commit/59517eeb05b4e90730ed35d71f7bb0af97252188))
+
+
+### Bug Fixes
+
+* linking to conversations from analytics screen ([d85c0a1](https://github.com/botfront/botfront/commit/d85c0a1235f253bfc2700a585bb1e7925766537e))
+* loading stuck on NLU screen  ([3825fd2](https://github.com/botfront/botfront/commit/3825fd2dc4a342ec6ddad0e7ed3feba8714adec7))
+
 ### [0.27.3-ee.1](https://github.com/botfront/botfront/compare/v0.27.1-ee.1...v0.27.3-ee.1) (2020-10-29)
 
 
