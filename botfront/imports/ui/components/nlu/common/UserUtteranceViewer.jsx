@@ -126,10 +126,9 @@ function UserUtteranceViewer(props) {
         if (/[\W.,?!;:]/.test(completeText.slice(anchor, anchor + 1))) {
             return adjustBeginning(completeText, anchor + 1);
         }
-        if (hasNoWhitespace
-            || /[\W.,?!;:][a-zA-Z\u00C0-\u017F0-9-]/.test(
-                completeText.slice(anchor - 1, anchor + 1),
-            )
+        if (/[\W.,?!;:][a-zA-Z\u00C0-\u017F0-9-]/.test(
+            completeText.slice(anchor - 1, anchor + 1),
+        )
         ) {
             return anchor;
         }
@@ -142,10 +141,9 @@ function UserUtteranceViewer(props) {
         if (/[\W.,?!;:]/.test(completeText.slice(extent - 1, extent))) {
             return adjustEnd(completeText, extent - 1);
         }
-        if (hasNoWhitespace
-            || /[a-zA-Z\u00C0-\u017F0-9-][\W.,?!;:]/.test(
-                completeText.slice(extent - 1, extent + 1),
-            )
+        if (/[a-zA-Z\u00C0-\u017F0-9-][\W.,?!;:]/.test(
+            completeText.slice(extent - 1, extent + 1),
+        )
         ) {
             return extent;
         }
@@ -169,7 +167,7 @@ function UserUtteranceViewer(props) {
             ...extraBound,
         );
         if (anchor === extent) bad = true;
-        else {
+        else if (!hasNoWhitespace) {
             anchor = adjustBeginning(text, anchor);
             extent = adjustEnd(text, extent);
         }
