@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { saveAs } from 'file-saver';
 import {
-    Dropdown, Button, Message, Icon, Checkbox,
+    Dropdown, Button, Message, Icon, Checkbox, Popup,
 } from 'semantic-ui-react';
 import { ProjectContext } from '../../layouts/context';
+import { can } from '../../../lib/scopes';
 
 const ExportProject = ({
     setLoading,
@@ -39,6 +40,15 @@ const ExportProject = ({
         credentials: [...useState(false), 'Export credentials'],
         endpoints: [...useState(false), 'Export endpoints'],
         instances: [...useState(false), 'Export instances'],
+    };
+    const canViewResources = can('resources:r', projectId);
+    const canViewIncoming = can('incoming:r', projectId);
+    const togglePermissions = {
+        projectData: true,
+        conversations: canViewIncoming,
+        credentials: canViewResources,
+        endpoints: canViewResources,
+        instances: canViewResources,
     };
 
     const projectDataCols = [
@@ -175,14 +185,26 @@ const ExportProject = ({
     };
 
     const renderToggle = t => (
-        <Checkbox
-            toggle
-            checked={toggles[t][0]}
-            onChange={() => toggles[t][1](!toggles[t][0])}
-            label={toggles[t][2]}
-            className='export-option'
-            key={t}
+        <Popup
+            disabled={togglePermissions[t]}
+            trigger={(
+                <Checkbox
+                    data-cy='export-option'
+                    toggle
+                    checked={toggles[t][0]}
+                    onChange={() => toggles[t][1](!toggles[t][0])}
+                    label={toggles[t][2]}
+                    className='export-option'
+                    key={t}
+                    disabled={!togglePermissions[t]}
+                />
+            )}
+            on='hover'
+            inverted
+            flowing
+            content={`insufficient permissions to export ${t}`}
         />
+
     );
 
     if (ExportSuccessful === true) {

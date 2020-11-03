@@ -35,17 +35,21 @@ class Settings extends React.Component {
         const { projectId } = this.props;
         const canViewProjects = can('projects:r', projectId);
         const canViewResources = can('resources:r', projectId);
+        const canExport = can('export:x', projectId);
+        const canImport = can('import:x', projectId);
         const panes = [
-            {
-                name: 'info',
-                menuItem: <Menu.Item icon='info' content='Project Info' key='Project Info' />,
-                render: () => <Tab.Pane><ProjectInfo /></Tab.Pane>,
-            },
-            {
-                name: 'credentials',
-                menuItem: <Menu.Item icon='key' content='Credentials' key='Credentials' />,
-                render: () => <Tab.Pane><Credentials /></Tab.Pane>,
-            },
+            ...(canViewProjects ? [
+                {
+                    name: 'info',
+                    menuItem: <Menu.Item icon='info' content='Project Info' key='Project Info' />,
+                    render: () => <Tab.Pane><ProjectInfo /></Tab.Pane>,
+                },
+                {
+                    name: 'credentials',
+                    menuItem: <Menu.Item icon='key' content='Credentials' key='Credentials' />,
+                    render: () => <Tab.Pane><Credentials /></Tab.Pane>,
+                },
+            ] : []),
             ...(canViewResources ? [
                 {
                     name: 'instance',
@@ -79,6 +83,8 @@ class Settings extends React.Component {
                     menuItem: <Menu.Item icon='cogs' content='Integration' key='Integration' />,
                     render: () => <Tab.Pane><Integration /></Tab.Pane>,
                 },
+            ] : []),
+            ...(canImport || canExport ? [
                 {
                     name: 'import-export',
                     menuItem: <Menu.Item icon='download' content='Import/Export' key='Import/Export' />,

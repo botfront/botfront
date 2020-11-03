@@ -42,7 +42,7 @@ Projects.attachSchema(ProjectsSchema);
 
 if (Meteor.isServer) {
     Meteor.publish('projects', function (projectId) {
-        if (!getUserScopes(this.userId, ['nlu-data:r', 'responses:r', 'users:r', 'roles:r', 'nlu-data:x', 'global-settings:r']).includes(projectId)) {
+        if (!getUserScopes(this.userId, ['nlu-data:r', 'responses:r', 'users:r', 'roles:r', 'nlu-data:x', 'global-settings:r', 'export:x', 'import:x']).includes(projectId)) {
             return this.ready();
         }
         check(projectId, Match.Optional(String));
@@ -62,6 +62,7 @@ if (Meteor.isServer) {
                 nluThreshold: 1,
                 enableSharing: 1,
                 ...(can('stories:r', projectId) ? { storyGroups: 1 } : {}),
+                ...(can('import:x', projectId) ? { defaultDomain: 1 } : {}),
             },
         });
     });

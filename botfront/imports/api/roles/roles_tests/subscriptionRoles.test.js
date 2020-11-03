@@ -429,9 +429,8 @@ the tests are created by iterating over subscriptions. the test params are as fo
                 expect(Object.keys(result.projects[0])).to.include.members(Object.keys(partialProjectData))
                     .but.not.include([
                         'namespace',
-                        'defaultDomain',
-                        'timezoneOffset',
                         'deploymentEnvironments',
+                        'timezoneOffset',
                     ]);
                 done();
             },

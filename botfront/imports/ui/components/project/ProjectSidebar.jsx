@@ -17,8 +17,12 @@ const packageJson = require('/package.json');
 class ProjectSidebar extends React.Component {
     render() {
         const {
-            projectName, projectId, handleChangeProject, settingsReady, settings, triggerIntercom,
+            projectName, projectId, handleChangeProject, settingsReady, settings,
         } = this.props;
+
+        const canViewProjectsTab = can('projects:r', projectId)
+            || can('export:x', projectId)
+            || can('import:x', projectId);
 
         return (
             <DocumentTitle title={projectName}>
@@ -52,11 +56,11 @@ class ProjectSidebar extends React.Component {
                             <Menu.Item name='Analytics' icon='chart line' />
                         </Link>
                     </Can>
-                    <Can I='projects:r' projectId={projectId}>
+                    {canViewProjectsTab && (
                         <Link to={`/project/${projectId}/settings`}>
                             <Menu.Item name='Settings' icon='setting' data-cy='settings-sidebar-link' />
                         </Link>
-                    </Can>
+                    )}
                     <a href={settingsReady ? settings.settings.public.docUrl : ''} target='_blank' rel='noopener noreferrer'>
                         <Menu.Item name='documentation' icon='question' />
                     </a>
@@ -86,7 +90,6 @@ ProjectSidebar.propTypes = {
     handleChangeProject: PropTypes.func.isRequired,
     settingsReady: PropTypes.bool.isRequired,
     settings: PropTypes.object,
-    triggerIntercom: PropTypes.func.isRequired,
 };
 
 ProjectSidebar.defaultProps = {

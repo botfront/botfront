@@ -198,7 +198,7 @@ if (Meteor.isServer) {
         },
 
         async 'rasa.convertToJson'(file, language, outputFormat, host, projectId) {
-            checkIfCan('projects:w', projectId);
+            checkIfCan(['projects:w', 'import:x'], projectId);
             check(projectId, String);
             check(language, String);
             check(file, String);

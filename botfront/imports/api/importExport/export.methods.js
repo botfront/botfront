@@ -8,7 +8,7 @@ import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { Credentials } from '../credentials';
 
 import { generateErrorText } from './importExport.utils';
-import { checkIfCan } from '../../lib/scopes';
+import { checkIfCan, can } from '../../lib/scopes';
 
 if (Meteor.isServer) {
     import {
@@ -21,9 +21,20 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         exportProject(projectId, options) {
-            checkIfCan('projects:r', projectId);
+            checkIfCan('export:x', projectId);
             check(projectId, String);
             check(options, Object);
+            const params = { ...options };
+            
+            if (!can(['incoming:r'], projectId)) {
+                params.conversations = 0;
+            }
+            if (!can(['resources:r'], projectId)) {
+                params.credentials = 0;
+                params.endpoints = 0;
+                params.instances = 0;
+            }
+
 
             const apiHost = GlobalSettings
                 .findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.bfApiHost': 1 } })
@@ -35,7 +46,6 @@ if (Meteor.isServer) {
                 Meteor.userId(),
                 { apiHost, projectId, options },
             );
-            const params = { ...options };
             params.output = 'json';
             const exportAxios = axios.create();
             addLoggingInterceptors(exportAxios, appMethodLogger);
@@ -49,7 +59,7 @@ if (Meteor.isServer) {
             return exportRequest;
         },
         async exportRasa(projectId, language) {
-            checkIfCan('projects:r', projectId);
+            checkIfCan('export:x', projectId);
             check(projectId, String);
             check(language, String);
 

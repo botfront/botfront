@@ -13,7 +13,7 @@ class ImportExportProject extends React.Component {
     constructor (props) {
         super(props);
         const { projectId } = props;
-        this.state = { activeMenuItem: can('projects:w', projectId) ? 'Import' : 'Export', loading: false };
+        this.state = { activeMenuItem: can('import:x', projectId) ? 'Import' : 'Export', loading: false };
     }
 
     renderMenuItem = (itemText, itemKey = itemText) => {
@@ -38,7 +38,7 @@ class ImportExportProject extends React.Component {
         const { loading } = this.state;
         const { projectId } = this.props;
         const panes = [];
-        if (can('projects:w', projectId)) {
+        if (can('import:x', projectId)) {
             panes.push({
                 menuItem: this.renderMenuItem('Import'),
                 render: () => (

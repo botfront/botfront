@@ -111,17 +111,17 @@ if (Meteor.isServer) {
         },
         {
             name: 'exportProject',
-            roles: readers.projects,
+            roles: otherRoles.exportX,
             args: [projectId, null],
         },
         {
             name: 'exportRasa',
-            roles: readers.projects,
+            roles: otherRoles.exportX,
             args: [projectId, {}],
         },
         {
             name: 'importProject',
-            roles: writers.projects,
+            roles: otherRoles.importX,
             args: [null, projectId],
         },
         {

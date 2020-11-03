@@ -209,8 +209,13 @@ class Routes extends React.Component {
                                     <Route path='/project/:project_id/responses' component={TemplatesContainer} name='Templates' onEnter={authenticate('responses:r')} />
                                     <Route path='/project/:project_id/connect_handoff' component={ConnectHandoff} name='Connect Handoff' onEnter={authenticate('stories:w')} />
                                     <Route path='/project/:project_id/analytics' component={AnalyticsContainer} name='Analytics' onEnter={authenticate('analytics:r')} />
-                                    <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticate('projects:r')} />
-                                    <Route path='/project/:project_id/settings/:setting' component={ConfigurationContainer} name='Settings' onEnter={authenticate('projects:r')} />
+                                    <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticate(['projects:r', 'import:x', 'export:x'])} />
+                                    <Route
+                                        path='/project/:project_id/settings/:setting'
+                                        component={ConfigurationContainer}
+                                        name='Settings'
+                                        onEnter={authenticate(['projects:r', 'import:x', 'export:x'])}
+                                    />
                                     <Route path='*' component={NotFound} />
                                 </Route>
                                 <Route exact path='/admin' component={AdminLayout} onEnter={authenticateAdminPage()}>

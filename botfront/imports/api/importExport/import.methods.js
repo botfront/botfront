@@ -6,7 +6,7 @@ import { check } from 'meteor/check';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 
 import { generateErrorText, generateImportResponse } from './importExport.utils';
-import { checkIfCan } from '../../lib/scopes';
+import { checkIfCan, can } from '../../lib/scopes';
 
 if (Meteor.isServer) {
     import {
@@ -18,10 +18,21 @@ if (Meteor.isServer) {
 
     const importAppLogger = getAppLoggerForFile(__filename);
     Meteor.methods({
-        async importProject(projectFile, projectId) {
-            checkIfCan('projects:w', projectId);
+        async importProject(uploadedFile, projectId) {
+            checkIfCan('import:x', projectId);
             check(projectId, String);
-            check(projectFile, Object);
+            check(uploadedFile, Object);
+            const projectFile = uploadedFile;
+
+            if (!can('incoming:w')) {
+                delete projectFile.conversations;
+            }
+            if (!can('resources:w')) {
+                delete projectFile.credentials;
+                delete projectFile.endpoints;
+                delete projectFile.instances;
+            }
+
 
             const apiHost = GlobalSettings
                 .findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.bfApiHost': 1 } })
