@@ -4,19 +4,6 @@ const shortid = require('shortid');
 const { ObjectId } = mongoose.Types;
 const { languages } = require('./languages')
 
-const entity = new Schema(
-    {
-        start: { type: Number, required: true },
-        end: { type: Number, required: true },
-        value: { type: String, required: true },
-        entity: { type: String, required: true },
-        confidence: { type: Number, required: false },
-        extractor: { type: String, required: false },
-        processors: [{ type: String, required: false }],
-    },
-    { _id: false, versionKey: false },
-);
-
 const projects = new Schema({ _id: String }, { strict: false, versionKey: false });
 
 const responses = new Schema({
