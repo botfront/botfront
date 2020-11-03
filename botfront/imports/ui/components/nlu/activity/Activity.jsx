@@ -487,7 +487,6 @@ function Activity(props) {
                 <>
                     <DataTable
                         ref={tableRef}
-                        bufferSize={20}
                         columns={columns}
                         data={data}
                         hasNextPage={hasNextPage}
