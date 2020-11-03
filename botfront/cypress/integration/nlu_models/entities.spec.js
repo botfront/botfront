@@ -56,10 +56,10 @@ describe('training data import', function() {
         cy.dataCy('nlu-menu-training-data').click();
         cy.addExamples(['test test test'], 'test');
         cy.dataCy('utterance-text').should('exist');
-        // verify entities don't have to star adjacent to whitespace
+        // verify entities don't have to start adjacent to whitespace
         cy.addEntity('test test test', 1, 5);
         cy.dataCy('entity-dropdown').click();
         cy.dataCy('entity-dropdown').type('test_entity{enter}');
-        cy.dataCy('entity-text').should('have.text', 'est');
+        cy.dataCy('entity-text').should('have.text', 'est ');
     });
 });
