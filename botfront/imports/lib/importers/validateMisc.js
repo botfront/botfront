@@ -94,7 +94,7 @@ export const validateCredentials = (files, params) => validateSimpleYamlFiles(fi
 export const validateInstances = (files, params) => {
     const [newFiles, newParams] = validateSimpleYamlFiles(files, params, 'instance');
     const instanceFiles = newFiles.filter(f => f?.dataType === 'instance');
-    if (instanceFiles.length > 0) {
+    if (instanceFiles.length > 0 && (!instanceFiles[0].errors || instanceFiles[0].errors.length === 0)) {
         newParams.instanceHost = instanceFiles[0].instance.host;
     } else {
         newParams.instanceHost = Instances.findOne({ projectId: params.projectId }).host;

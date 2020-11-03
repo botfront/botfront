@@ -86,10 +86,11 @@ const validateRasaConfigTogether = (files, projectId) => {
                 ],
             };
         });
-    } else {
+    } else if (files.length === 1) {
         const configFile = configFiles[0];
         const langMessage = langSummary(configFile, languagesFromProject);
         if (langMessage) summary.push(langMessage);
+        if (configFile.policies) summary.push(`Policies will be remplaced by the ones from ${configFile.filename}`);
     }
     const projectLanguages = Array.from([...languagesFromProject, ...languagesFromFiles]);
     return [configFiles, summary, projectLanguages];
