@@ -20,6 +20,9 @@ endpoints:
 policies:
   - name: TEDPolicy
     epochs: 50
+    max_history: 5
+    batch_size: [32, 64]
+  - name: MemoizationPolicy
   - name: rasa_addons.core.policies.BotfrontDisambiguationPolicy
     fallback_trigger: 0.30
     disambiguation_trigger: '$0 < 2 * $1'
