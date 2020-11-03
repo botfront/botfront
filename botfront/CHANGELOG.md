@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.27.4](https://github.com/botfront/botfront/compare/v0.27.3...v0.27.4) (2020-11-03)
+
+
+### Bug Fixes
+
+* loading stuck on NLU screen  ([3825fd2](https://github.com/botfront/botfront/commit/3825fd2dc4a342ec6ddad0e7ed3feba8714adec7))
+
 ### [0.27.3](https://github.com/botfront/botfront/compare/v0.27.2...v0.27.3) (2020-10-29)
 
 
