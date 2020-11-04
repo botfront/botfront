@@ -17,14 +17,16 @@ const deduplicate = (listOfObjects, key) => {
 };
 
 export const mergeDomains = (files) => {
-    if (!files.length) return [];
-    const allResponses = files.reduce(
+    const filesToProcess = files.filter(file => !(file.errors && file.errors.length > 0));
+    if (!filesToProcess.length) return [];
+
+    const allResponses = filesToProcess.reduce(
         (all, { responses = [] }) => [...all, ...responses],
         [],
     );
-    const allSlots = files.reduce((all, { slots = [] }) => [...all, ...slots], []);
-    const allForms = files.reduce((all, { forms = {} }) => ({ ...forms, ...all }), {});
-    const allAction = files.reduce((all, { actions = [] }) => [...actions, ...all], []);
+    const allSlots = filesToProcess.reduce((all, { slots = [] }) => [...all, ...slots], []);
+    const allForms = filesToProcess.reduce((all, { forms = {} }) => ({ ...forms, ...all }), {});
+    const allAction = filesToProcess.reduce((all, { actions = [] }) => [...actions, ...all], []);
     const mergedResponses = deduplicate(allResponses, 'key');
     const mergedSlots = deduplicate(allSlots, 'name');
     const mergedActions = Array.from(new Set(allAction));
