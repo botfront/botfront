@@ -36,6 +36,7 @@ const BotResponsesContainer = (props) => {
         tag,
         responseLocations,
         loadingResponseLocations,
+        editable: initialEditable,
     } = props;
     const {
         project: { _id: projectId },
@@ -58,6 +59,8 @@ const BotResponsesContainer = (props) => {
     const [focus, setFocus] = useState(null);
     const [deletePopupOpen, setDeletePopupOpen] = useState(false);
     const typeName = useMemo(() => template && template.__typename, [template]);
+
+    const editable = initialEditable; // adds permission check here on ee
 
     useEffect(() => {
         Promise.resolve(initialValue).then((res) => {
@@ -147,6 +150,7 @@ const BotResponsesContainer = (props) => {
                     onFocus={() => setFocus(index)}
                     editCustom={() => setEditorOpen(true)}
                     hasMetadata={template && checkMetadataSet(template.metadata)}
+                    editable={editable}
                 />
                 {deletable && sequenceArray.length > 1 && <IconButton onClick={() => handleDeleteResponse(index)} icon='trash' />}
             </div>
@@ -159,6 +163,7 @@ const BotResponsesContainer = (props) => {
             responseLocations={responseLocations}
             loading={loadingResponseLocations}
             onChange={handleNameChange}
+            editable={editable}
         />
     );
 
@@ -177,25 +182,30 @@ const BotResponsesContainer = (props) => {
                         onToggleButtonType={handleToggleQuickReply}
                         responseType={typeName}
                     />
-                    {otherLanguages.length > 0 && initialValue && !initialValue.isNew && getSequence().length === 1 && !checkContentEmpty(getSequence()[0])
-                        && (
-                            <Dropdown
-                                button
-                                icon={null}
-                                compact
-                                data-cy='import-from-lang'
-                                className='import-from-lang'
-                                options={otherLanguages}
-                                text='Copy from'
-                                onChange={(_, selection) => {
-                                    importRespFromLang({
-                                        variables: {
-                                            projectId, key: name, originLang: selection.value, destLang: language,
-                                        },
-                                    });
-                                }}
-                            />
-                        )
+                    {otherLanguages.length > 0
+                    && initialValue
+                    && !initialValue.isNew
+                    && getSequence().length === 1
+                    && !checkContentEmpty(getSequence()[0])
+                    && editable
+                    && (
+                        <Dropdown
+                            button
+                            icon={null}
+                            compact
+                            data-cy='import-from-lang'
+                            className='import-from-lang'
+                            options={otherLanguages}
+                            text='Copy from'
+                            onChange={(_, selection) => {
+                                importRespFromLang({
+                                    variables: {
+                                        projectId, key: name, originLang: selection.value, destLang: language,
+                                    },
+                                });
+                            }}
+                        />
+                    )
                     }
                     {enableEditPopup && (
                         <IconButton
@@ -214,7 +224,7 @@ const BotResponsesContainer = (props) => {
                             renameable={false}
                         />
                     )}
-                    {deletable && onDeleteAllResponses && (
+                    {deletable && onDeleteAllResponses && editable && (
                         <>
                             <Popup
                                 trigger={<span><IconButton onMouseDown={() => {}} icon='trash' /></span>}
@@ -256,6 +266,7 @@ BotResponsesContainer.propTypes = {
     tag: PropTypes.string,
     responseLocations: PropTypes.array,
     loadingResponseLocations: PropTypes.bool,
+    editable: PropTypes.bool,
 };
 
 BotResponsesContainer.defaultProps = {
@@ -268,6 +279,7 @@ BotResponsesContainer.defaultProps = {
     tag: null,
     responseLocations: [],
     loadingResponseLocations: false,
+    editable: true,
 };
 
 export default BotResponsesContainer;

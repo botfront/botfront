@@ -76,11 +76,18 @@ export default class StoryVisualEditor extends React.Component {
         });
     };
 
-    getReadOnlyClass = () => '';
+    getReadOnlyClass = () => {
+        const { mode } = this.props;
+        return mode !== 'test_case' ? '' : 'read-only';
+    }
 
     renderAddLine = (rawIndex) => {
         const { lineInsertIndex } = this.state;
         const { story, mode } = this.props;
+        if (mode === 'test_case') {
+            // prevent crowding of story elements in read only mode
+            return <div className='line-spacer' />;
+        }
         let index = rawIndex;
         const [currentLine, nextLine] = [story[index] || {}, story[index + 1] || {}];
         if (this.loopLinesMatch(currentLine, nextLine)) index += 1;
@@ -143,7 +150,7 @@ export default class StoryVisualEditor extends React.Component {
     renderActionLine = (i, l, exceptions) => (
         <React.Fragment key={`action${i + l.action}`}>
             <ExceptionWrapper exceptions={exceptions}>
-                <div className='story-line'>
+                <div className={`story-line ${this.getReadOnlyClass()}`}>
                     <ActionLabel
                         value={l.action}
                         onChange={v => this.handleReplaceLine(i, { action: v })}
@@ -174,7 +181,7 @@ export default class StoryVisualEditor extends React.Component {
     renderBadLine = (index, line, exceptions) => (
         <React.Fragment key={`BadLine-${index}`}>
             <ExceptionWrapper exceptions={exceptions}>
-                <div className='story-line'>
+                <div className={`story-line ${this.getReadOnlyClass()}`}>
                     <BadLineLabel
                         lineMd={`${safeDump(line).substring(0, 31)}${
                             safeDump(line).length > 30 ? '...' : ''
@@ -256,8 +263,9 @@ export default class StoryVisualEditor extends React.Component {
     };
 
     renderLine = (line, index) => {
+        const { mode } = this.props;
         const { responses } = this.context;
-        const { language } = this.context;
+        const { language, project: { _id: projectId } } = this.context;
         const { responseLocations, loadingResponseLocations } = this.state;
         const exceptions = [];
 
@@ -279,6 +287,7 @@ export default class StoryVisualEditor extends React.Component {
                                 onDeleteAllResponses={() => this.handleDeleteLine(index)}
                                 responseLocations={responseLocations[name]}
                                 loadingResponseLocations={loadingResponseLocations}
+                                editable={mode !== 'test_case'}
                             />
                         </ExceptionWrapper>
                         {this.renderAddLine(index)}
@@ -299,6 +308,7 @@ export default class StoryVisualEditor extends React.Component {
                             value={line.or || [line]}
                             onChange={v => this.handleSaveUserUtterance(index, v)}
                             onDelete={() => this.handleDeleteLine(index)}
+                            editable={mode !== 'test_case'}
                         />
                     </ExceptionWrapper>
                     {this.renderAddLine(index)}
