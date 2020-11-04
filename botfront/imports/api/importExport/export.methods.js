@@ -130,9 +130,22 @@ if (Meteor.isServer) {
                 fragments: fragmentsByGroup,
             };
 
-            const instance = safeDump(await Instances.findOne({ projectId }));
+           
             const defaultDomain = project?.defaultDomain?.content || '';
-
+            const configData = project;
+            // exported separately
+            delete configData.defaultDomain;
+            // all of those are state data we don't want to keep in the import
+            delete configData.training;
+            delete configData.disabled;
+            delete configData.enableSharing;
+            delete configData._id;
+            delete configData.defaultDomain;
+            delete configData.storyGroups;
+            delete configData.languages;
+            const instance = await Instances.findOne({ projectId });
+            const bfconfig = { ...configData, instance };
+            const bfconfigYaml = safeDump(bfconfig);
 
             const rasaZip = new ZipFolder();
             if (exportData.fragments.length > 1) {
@@ -163,7 +176,7 @@ if (Meteor.isServer) {
             }
             
             rasaZip.addFile(exportData.domain, 'domain.yml');
-            rasaZip.addFile(instance, 'botfront/instance.yml');
+            rasaZip.addFile(bfconfigYaml, 'botfront/bfconfig.yml');
             rasaZip.addFile(defaultDomain, 'botfront/default-domain.yml');
             
             if (options.conversations) {

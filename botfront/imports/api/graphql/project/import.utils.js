@@ -5,7 +5,7 @@ import {
     validateCredentials,
     validateIncoming,
     validateConversations,
-    validateInstances,
+    validateBfConfig,
 } from '../../../lib/importers/validateMisc.js';
 import {
     validateRasaConfig,
@@ -62,15 +62,14 @@ export async function getRawTextAndType(files) {
     return filesDataAndTypes;
 }
 
-// validateFil
-function validateFiles(files, params) {
+export function validateFiles(files, params) {
     let filesWithMessages = files;
     let newParams = { ...params, summary: [] };
     // this is the validation pipeline each step only add errors to the files it should validate
     // each step can also add data to the params, eg : the default domain, the summary of changes etc,
     ([filesWithMessages, newParams] = validateDefaultDomains(filesWithMessages, newParams));
     ([filesWithMessages, newParams] = validateRasaConfig(filesWithMessages, newParams));
-    ([filesWithMessages, newParams] = validateInstances(filesWithMessages, newParams));
+    ([filesWithMessages, newParams] = validateBfConfig(filesWithMessages, newParams));
     ([filesWithMessages, newParams] = validateEndpoints(filesWithMessages, newParams));
     ([filesWithMessages, newParams] = validateCredentials(filesWithMessages, newParams));
     ([filesWithMessages, newParams] = validateDomain(filesWithMessages, newParams));

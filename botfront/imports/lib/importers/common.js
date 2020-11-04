@@ -33,7 +33,7 @@ export const determineDataType = (f, rawText) => {
     try {
         if (dataType) return dataType;
         if ((/^default-domain(-[a-z]+)?.ya?ml$/.test(filename))) return 'defaultdomain';
-        if ((/^instance(-[a-z]+)?.ya?ml$/.test(filename))) return 'instance';
+        if ((/^bfconfig(-[a-z]+)?.ya?ml$/.test(filename))) return 'bfconfig';
         if ((/^domain(-[a-z]+)?.ya?ml$/.test(filename))) return 'domain';
         if ((/^config(-[a-z]+)?.ya?ml$/.test(filename))) return 'rasaconfig';
         if ((/^endpoints(\.[a-z]+)?.ya?ml$/.test(filename))) return 'endpoints';

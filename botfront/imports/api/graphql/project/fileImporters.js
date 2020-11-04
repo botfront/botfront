@@ -143,21 +143,31 @@ const handleImportDefaultDomain = async (files, {
 };
 
 
-const handleImportInstance = async (files, {
+const handleImportBfConfig = async (files, {
     projectId,
 }) => {
     if (!files.length) return [];
     const toImport = files[0]; // we use the first file, as there could be only one instance
-    const { instance } = toImport;
+    const { bfconfig } = toImport;
+    const { instance, ...bfconfigData } = bfconfig;
+    const errors = [];
     try {
         await Meteor.callWithPromise(
             'instance.update',
             { ...instance, projectId },
         );
-        return [null];
     } catch (e) {
-        return [`error when importing instance from ${toImport.filename}`];
+        errors.push(`error when importing instance from ${toImport.filename}`);
     }
+    try {
+        await Meteor.callWithPromise(
+            'project.update',
+            { ...bfconfigData, _id: projectId },
+        );
+    } catch (e) {
+        errors.push(`error when project data from  ${toImport.filename}`);
+    }
+    return errors;
 };
 
 
@@ -299,7 +309,7 @@ export const handleImportAll = async (files, params) => {
   
 
     importers.push(configAndDomainImport());
-    importers.push(handleImportInstance(files.filter(f => f.dataType === 'instance'), params));
+    importers.push(handleImportBfConfig(files.filter(f => f.dataType === 'bfconfig'), params));
     importers.push(handleImportEndpoints(files.filter(f => f.dataType === 'endpoints'), params));
     importers.push(handleImportCredentials(files.filter(f => f.dataType === 'credentials'), params));
     importers.push(handleImportRasaConfig(files.filter(f => f.dataType === 'rasaconfig'), params));
