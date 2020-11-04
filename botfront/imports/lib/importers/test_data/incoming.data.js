@@ -1,79 +1,62 @@
-export const validRasaConfig = {
-    filename: 'configtest.yml',
+export const validIncoming = {
+    filename: 'incomingtest.yml',
     rawText:
-    `pipeline:
-  - name: WhitespaceTokenizer
-  - name: LexicalSyntacticFeaturizer
-  - name: CountVectorsFeaturizer
-  - name: CountVectorsFeaturizer
-    analyzer: char_wb
-    min_ngram: 1
-    max_ngram: 4
-  - name: DIETClassifier
-    epochs: 200
-  - name: >-
-      rasa_addons.nlu.components.intent_ranking_canonical_example_injector.IntentRankingCanonicalExampleInjector
-  - name: EntitySynonymMapper
-language: en
-
-policies:
-  - name: TEDPolicy
-    epochs: 50
-    max_history: 5
-    batch_size:
-      - 32
-      - 64
-  - name: RulePolicy
-    enable_fallback_prediction: false
-  - name: AugmentedMemoizationPolicy`,
-    dataType: 'rasaconfig',
+    `[
+        {
+          "_id": "6ffea22a-d9ae-4bcf-b445-98b1715ac341",
+          "env": "development",
+          "language": "en",
+          "projectId": "bf",
+          "text": "hey",
+          "__v": 0,
+          "confidence": 1,
+          "createdAt": "2020-10-29T16:14:05.275Z",
+          "entities": [],
+          "intent": "chitchat.greet",
+          "updatedAt": "2020-10-29T16:27:33.597Z"
+        },
+        {
+          "_id": "b806859d-a265-4dc0-8758-7ae373be813f",
+          "env": "development",
+          "language": "en",
+          "projectId": "bf",
+          "text": "hello",
+          "__v": 0,
+          "confidence": 1,
+          "createdAt": "2020-10-29T16:27:25.716Z",
+          "entities": [],
+          "intent": "chitchat.greet",
+          "updatedAt": "2020-10-29T16:27:33.222Z"
+        }
+      ]`,
+    dataType: 'incoming',
 };
 
-export const validRasaConfigParsed = {
-    language: 'en',
-    pipeline: [
-        {
-            name: 'WhitespaceTokenizer',
-        },
-        {
-            name: 'LexicalSyntacticFeaturizer',
-        },
-        {
-            name: 'CountVectorsFeaturizer',
-        },
-        {
-            analyzer: 'char_wb',
-            max_ngram: 4,
-            min_ngram: 1,
-            name: 'CountVectorsFeaturizer',
-        },
-        {
-            epochs: 200,
-            name: 'DIETClassifier',
-        },
-        {
-            name: 'rasa_addons.nlu.components.intent_ranking_canonical_example_injector.IntentRankingCanonicalExampleInjector',
-        },
-        {
-            name: 'EntitySynonymMapper',
-        },
-    ],
-    policies: [
-        {
-            batch_size: [
-                32,
-                64,
-            ],
-            epochs: 50,
-            max_history: 5,
-            name: 'TEDPolicy',
-        },
-        {
-            enable_fallback_prediction: false,
-            name: 'RulePolicy',
-        },
-        {
-            name: 'AugmentedMemoizationPolicy',
-        },
-    ],
-};
+export const validIncomingParsed = [
+    {
+        _id: '6ffea22a-d9ae-4bcf-b445-98b1715ac341',
+        env: 'development',
+        language: 'en',
+        projectId: 'bf',
+        text: 'hey',
+        __v: 0,
+        confidence: 1,
+        createdAt: '2020-10-29T16:14:05.275Z',
+        entities: [],
+        intent: 'chitchat.greet',
+        updatedAt: '2020-10-29T16:27:33.597Z',
+    },
+    {
+        _id: 'b806859d-a265-4dc0-8758-7ae373be813f',
+        env: 'development',
+        language: 'en',
+        projectId: 'bf',
+        text: 'hello',
+        __v: 0,
+        confidence: 1,
+        createdAt: '2020-10-29T16:27:25.716Z',
+        entities: [],
+        intent: 'chitchat.greet',
+        updatedAt: '2020-10-29T16:27:33.222Z',
+    },
+];
