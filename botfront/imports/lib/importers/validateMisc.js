@@ -14,7 +14,7 @@ export const validateSimpleYamlFiles = (files, params, type, alias = type) => {
                 ...file,
                 warnings: [
                     ...(file.warnings || []),
-                    `Conflicts with ${file[0].filename}, and thus won't be used in the import`,
+                    `Conflicts with ${filesToValid[0].filename}, and thus won't be used in the import`,
                 ],
             };
         });
@@ -26,7 +26,7 @@ export const validateSimpleYamlFiles = (files, params, type, alias = type) => {
         } catch (e) {
             return {
                 ...file,
-                errors: [...(file?.errors || []), 'Not valid yaml'],
+                errors: [...(file?.errors || []), `Not valid yaml: ${e.message}`],
             };
         }
         return {
@@ -55,7 +55,7 @@ export const validateSimpleJsonFiles = (files, params, type) => {
         } catch (e) {
             return {
                 ...file,
-                errors: [...(file?.errors || []), 'Not valid json'],
+                errors: [...(file?.errors || []), `Not valid json: ${e.message}`],
             };
         }
         if (!Array.isArray(parsed) || parsed.length < 1) {
