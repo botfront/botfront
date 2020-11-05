@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-alpha.2](https://github.com/botfront/botfront/compare/v1.0.0-alpha.1...v1.0.0-alpha.2) (2020-11-05)
+
+
+### Features
+
+* add loop line menu ([7ab3758](https://github.com/botfront/botfront/commit/7ab3758944d8fec5deefdfd0a26e58c2f308be94))
+* auto select new fragment title input ([266581c](https://github.com/botfront/botfront/commit/266581c3ffe0e0e7d09ada121a31cce8a3e740e8))
+* generalize fragment linking behavior ([7bc41d5](https://github.com/botfront/botfront/commit/7bc41d57f8d2b8e26497f1ffe376859d772c0553))
+* migration to rasa 2.0 story format ([8115307](https://github.com/botfront/botfront/commit/8115307e00bf0d1391b6c1e13aeb34dbf33c8c20))
+* yaml mode ([bdfb6f0](https://github.com/botfront/botfront/commit/bdfb6f08a0e4b21ee9ef298db87366803b9a901c))
+
+
+### Bug Fixes
+
+* autofocus new response text ([1045b87](https://github.com/botfront/botfront/commit/1045b87242c36cfb6b0fde63926b8fd3f029e18d))
+* fix broken canonical example logic ([6b3e810](https://github.com/botfront/botfront/commit/6b3e810970ebb603cc05a98630b7109ba64cd45a))
+
 ## [1.0.0-alpha.1](https://github.com/botfront/botfront/compare/v0.27.3...v1.0.0-alpha.1) (2020-10-30)
 
 
