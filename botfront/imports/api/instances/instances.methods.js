@@ -22,6 +22,7 @@ import { CorePolicies } from '../core_policies';
 import { Evaluations } from '../nlu_evaluation';
 import Activity from '../graphql/activity/activity.model';
 import { getStoriesAndDomain } from '../../lib/story.utils';
+import { dropNullValuesFromObject } from '../../lib/client.safe.utils';
 import { Projects } from '../project/project.collection';
 
 const replaceMongoReservedChars = (input) => {
@@ -98,7 +99,7 @@ export const getNluDataAndConfig = async (projectId, language, intents) => {
                 }) => ({
                     text,
                     intent,
-                    entities,
+                    entities: entities.map(dropNullValuesFromObject),
                     metadata,
                 }),
             ),
