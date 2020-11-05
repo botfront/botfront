@@ -3,7 +3,9 @@ import { validCredentials, validCredentialsParsed } from './credentials.data.js'
 import { validEndpoints, validEndpointsParsed } from './endpoints.data.js';
 import { validBfConfig, validBfConfigParsed } from './bfConfig.data.js';
 import { validRasaConfig, validRasaConfigParsed } from './rasaconfig.data.js';
-import { validDefaultDomain, validDefaultDomainParsed } from './defaultdomain.data.js';
+import {
+    validDefaultDomain, validDefaultDomain2, mergedDefaultDomains, validDefaultDomainParsed, validDefaultDomainParsed2, invalidDefaultDomain,
+} from './defaultdomain.data.js';
 import { validDomain, validDomainParsed } from './domain.data.js';
 import { validConversations, validConversationsParsed } from './conversation.data.js';
 
@@ -136,6 +138,74 @@ export const multipleFiles = [
             projectId,
             summary: ['You will add 4 incoming'],
             defaultDomain,
+            instanceHost: 'http://localhost:1234',
+            projectLanguages: [
+                'en',
+            ],
+        },
+    },
+    {
+        name: 'should merge default domains excluding those with erros',
+        files: [invalidDefaultDomain, validDefaultDomain, validDefaultDomain2, invalidDefaultDomain],
+        params: { projectId },
+        expectedFiles: [
+            {
+                ...invalidDefaultDomain,
+                errors: ['Not valid yaml'],
+            }, {
+                ...validDefaultDomain,
+                ...validDefaultDomainParsed,
+                bfForms: [],
+                warnings: [],
+            }, {
+                ...validDefaultDomain2,
+                ...validDefaultDomainParsed2,
+                bfForms: [],
+                warnings: ['You have multiple default domain files. if some data conflicts, the one from the first file with that data will be used (same way has rasa merges domains)'],
+            },
+            {
+                ...invalidDefaultDomain,
+                errors: ['Not valid yaml'],
+            }],
+        expectedParams: {
+            projectId,
+            summary: ['You will remplace the default domain by default-domain1.yml, default-domain2.yml'],
+            defaultDomain: mergedDefaultDomains,
+            instanceHost: 'http://localhost:1234',
+            projectLanguages: [
+                'en',
+            ],
+        },
+    },
+    {
+        name: 'should remove data of domain that already exists in the default domain',
+        files: [validDomain, validDefaultDomain],
+        params: { projectId },
+        expectedFiles: [{
+            ...validDomain,
+            ...validDomainParsed,
+            slots:
+            [
+                {
+                    initialValue: 'fr',
+                    name: 'a_language',
+                    type: 'unfeaturized',
+                },
+            ],
+            bfForms: [],
+            warnings: [],
+        },
+        {
+            ...validDefaultDomain,
+            ...validDefaultDomainParsed,
+            bfForms: [],
+            warnings: [],
+        }],
+        expectedParams: {
+            projectId,
+            summary: ['You will remplace the default domain by default-domain1.yml',
+                'From domain.yml you will add: 1 slots, 3 responses, 1 actions'],
+            defaultDomain: validDefaultDomainParsed,
             instanceHost: 'http://localhost:1234',
             projectLanguages: [
                 'en',

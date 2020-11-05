@@ -16,20 +16,32 @@ const deduplicate = (listOfObjects, key) => {
     });
 };
 
+
+const deduplicateArray = (array) => {
+    const seen = new Set();
+    return array.filter((value) => {
+        if (seen.has(value)) {
+            return false;
+        }
+        seen.add(value);
+        return true;
+    });
+};
+
 export const mergeDomains = (files) => {
     const filesToProcess = files.filter(file => !(file.errors && file.errors.length > 0));
     if (!filesToProcess.length) return [];
 
     const allResponses = filesToProcess.reduce(
-        (all, { responses = [] }) => [...all, ...responses],
+        (all, { responses = [] }) => [...responses, ...all],
         [],
     );
-    const allSlots = filesToProcess.reduce((all, { slots = [] }) => [...all, ...slots], []);
+    const allSlots = filesToProcess.reduce((all, { slots = {} }) => [...slots, ...all], []);
     const allForms = filesToProcess.reduce((all, { forms = {} }) => ({ ...forms, ...all }), {});
-    const allAction = filesToProcess.reduce((all, { actions = [] }) => [...actions, ...all], []);
+    const allAction = filesToProcess.reduce((all, { actions = [] }) => [...all, ...actions], []);
     const mergedResponses = deduplicate(allResponses, 'key');
     const mergedSlots = deduplicate(allSlots, 'name');
-    const mergedActions = Array.from(new Set(allAction));
+    const mergedActions = deduplicateArray(allAction);
     return {
         slots: mergedSlots,
         responses: mergedResponses,
@@ -38,10 +50,30 @@ export const mergeDomains = (files) => {
     };
 };
 
+
+export const mergeDomainsRasaFormat = (files) => {
+    const filesToProcess = files.filter(file => !(file.errors && file.errors.length > 0));
+    if (!filesToProcess.length) return [];
+    const allResponses = filesToProcess.reduce((all, { responses = {} }) => ({ ...responses, ...all }), {});
+    const allSlots = filesToProcess.reduce((all, { slots = {} }) => ({ ...all, ...slots }), {});
+    const allForms = filesToProcess.reduce((all, { forms = {} }) => ({ ...forms, ...all }), {});
+    const allAction = filesToProcess.reduce((all, { actions = [] }) => [...all, ...actions], []);
+    const mergedActions = deduplicateArray(allAction); // we are not using a set to deduplicate to keep the order
+    return {
+        slots: allSlots,
+        responses: allResponses,
+        forms: allForms,
+        actions: mergedActions,
+    };
+};
+
 const validateADomain = (
     file,
     { defaultDomain = {}, projectLanguages = [], fallbackLang },
-    isDefaultDomain = false, // we validate domain and default domain with the same function
+    // we validate domain and default domain with the same function
+    // isDefaultDomain allow us to get the domain in rasaformat
+    // and also trigget specific warning linked with default domain
+    isDefaultDomain = false,
 ) => {
     const { rawText } = file;
     let domain;
@@ -50,7 +82,7 @@ const validateADomain = (
     } catch (e) {
         return {
             ...file,
-            errors: [...(file?.errors || []), 'Not valid yaml'],
+            errors: [...(file?.errors || []), 'Not valid yaml'],
         };
     }
     const {
@@ -58,7 +90,7 @@ const validateADomain = (
         templates: legacyResponsesFromFile = {},
         responses: modernResponsesFromFile = {},
         forms: formsFromFile = {},
-        actions: actionsFromFile = {},
+        actions: actionsFromFile = [],
     } = domain;
     const {
         slots: defaultSlots = {},
@@ -86,6 +118,7 @@ const validateADomain = (
 
     const warnings = [];
     const responses = [];
+    let responsesRasaFormat = {};
     const slots = [];
 
     Object.keys(responsesFromFile).forEach((key) => {
@@ -124,8 +157,11 @@ const validateADomain = (
                 values,
                 key,
             });
+            responsesRasaFormat = { [key]: response, ...responsesRasaFormat };
         }
     });
+
+    
     // MIGHT NEED TO UPDATE WITH RASA 2
     Object.keys(slotsFromFile || {}).forEach((name) => {
         const slot = slotsFromFile[name];
@@ -145,14 +181,20 @@ const validateADomain = (
             'forms defined in this file will be added to the default domain on import',
         );
     }
+
+    const actionsWithoutResponses = actionsFromFile.filter(action => (/^action_/.test(action)));
+    const newDomain = {
+        slots: isDefaultDomain ? slotsFromFile : slots,
+        bfForms,
+        responses: isDefaultDomain ? responsesRasaFormat : responses,
+        actions: actionsWithoutResponses,
+        forms: formsFromFile,
+    };
+
     return {
         ...file,
         warnings: [...(file?.warnings || []), ...warnings],
-        slots,
-        bfForms,
-        responses,
-        actions: actionsFromFile,
-        forms: formsFromFile,
+        ...newDomain,
     };
 };
 
@@ -182,16 +224,14 @@ export const validateDefaultDomains = (files, params) => {
         });
     }
 
-    defaultDomainFiles = defaultDomainFiles.map(domainFile => validateADomain(domainFile, params, true));
 
     if (defaultDomainFiles.length === 0) {
         defaultDomain = safeLoad(
             Projects.findOne({ _id: projectId }).defaultDomain.content,
         );
     } else {
-        defaultDomain = mergeDomains(defaultDomainFiles);
+        defaultDomain = mergeDomainsRasaFormat(defaultDomainFiles);
     }
-  
     const newSummary = params.summary;
 
     if (defaultDomainFiles.length > 0) {
@@ -230,7 +270,6 @@ export const validateDomain = (files, params) => {
             };
         });
     }
-    domainFiles = domainFiles.map(domainFile => validateADomain(domainFile, params));
    
     const newSummary = params.summary;
 

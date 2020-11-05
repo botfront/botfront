@@ -108,7 +108,7 @@ export const singlesFiles = [
         }],
         expectedParams: {
             projectId,
-            summary: ['You will remplace the default domain by default-domain.yml'],
+            summary: ['You will remplace the default domain by default-domain1.yml'],
             defaultDomain: validDefaultDomainParsed,
             instanceHost: 'http://localhost:1234',
             projectLanguages: [
@@ -128,7 +128,7 @@ export const singlesFiles = [
         }],
         expectedParams: {
             projectId,
-            summary: ['From domain.yml you will add: 1 slots, 3 responses, 4 actions'],
+            summary: ['From domain.yml you will add: 2 slots, 3 responses, 1 actions'],
             defaultDomain,
             instanceHost: 'http://localhost:1234',
             projectLanguages: [

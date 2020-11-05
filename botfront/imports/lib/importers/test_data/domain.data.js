@@ -25,6 +25,9 @@ slots:
     fallback_language:
       type: unfeaturized
       initial_value: en
+    a_language:
+      type: unfeaturized
+      initial_value: fr
     disambiguation_message:
       type: unfeaturized
 forms: {}`,
@@ -34,9 +37,6 @@ forms: {}`,
 export const validDomainParsed = {
     actions: [
         'action_aaa',
-        'utter_cgMeFnuj5',
-        'utter_uCag8LL6z',
-        'utter_J5MMvow26',
     ],
   
     responses: [
@@ -80,6 +80,11 @@ export const validDomainParsed = {
         },
     ],
     slots: [
+        {
+            name: 'a_language',
+            type: 'unfeaturized',
+            initialValue: 'fr',
+        },
         {
             name: 'disambiguation_message',
             type: 'unfeaturized',
