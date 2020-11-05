@@ -24,7 +24,6 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
         data,
         height: providedHeight,
         width,
-        bufferSize,
         stickyRows,
         onClickRow,
         hasNextPage,
@@ -39,7 +38,7 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
     } = props;
 
     const dataCount = hasNextPage ? data.length + 1 : data.length;
-    const isDataLoaded = index => !hasNextPage || index < (data.length - bufferSize);
+    const isDataLoaded = index => !hasNextPage || index < data.length;
     const columns = useMemo(() => allColumns.filter(c => !c.hidden), [allColumns]);
     const selectionKey = (allColumns.filter(c => c.selectionKey)[0] || {}).key || allColumns[0].key;
     const isDatumSelected = datum => datum && selection.includes(datum[selectionKey]);
@@ -328,7 +327,6 @@ const DataTable = React.forwardRef((props, forwardedRef) => {
 DataTable.propTypes = {
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['auto'])]),
     width: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf(['auto'])]),
-    bufferSize: PropTypes.number,
     stickyRows: PropTypes.array,
     onClickRow: PropTypes.func,
     hasNextPage: PropTypes.bool,
@@ -346,7 +344,6 @@ DataTable.propTypes = {
 DataTable.defaultProps = {
     height: 'auto',
     width: 'auto',
-    bufferSize: 20,
     onClickRow: null,
     stickyRows: null,
     hasNextPage: false,

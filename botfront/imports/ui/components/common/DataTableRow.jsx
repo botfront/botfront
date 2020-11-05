@@ -18,7 +18,7 @@ const Row = React.forwardRef((props, ref) => {
     if (!isDataLoaded) {
         return (
             <div ref={ref} style={style}>
-                <div className={`row ${rowClassName(datum, index)}`}>Loading...</div>
+                <div className={`row ${rowClassName(datum, index)}`} data-cy='loading-row'>Loading...</div>
             </div>
         );
     }
