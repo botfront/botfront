@@ -160,10 +160,17 @@ export const validateDefaultDomains = (files, params) => {
     const { projectId } = params;
     let defaultDomain = {};
     let defaultDomainFiles = files.filter(file => file?.dataType === 'defaultdomain');
+    defaultDomainFiles = defaultDomainFiles.map(domainFile => validateADomain(domainFile, params, true));
+
     if (defaultDomainFiles.length > 1) {
-        defaultDomainFiles = defaultDomainFiles.map((domainFile, idx) => {
-            if (idx === 0) {
+        let firstValidFileFound = false;
+        defaultDomainFiles = defaultDomainFiles.map((domainFile) => {
+            // we add warnings to all the files that valid except the first one
+            if (!firstValidFileFound && !(domainFile.errors && domainFile.errors.length > 0)) {
+                firstValidFileFound = true;
                 return domainFile;
+            } if (domainFile.errors && domainFile.errors.length > 0) {
+                return domainFile; // we don't add warnings to files with errors already
             }
             return {
                 ...domainFile,
@@ -188,7 +195,7 @@ export const validateDefaultDomains = (files, params) => {
     const newSummary = params.summary;
 
     if (defaultDomainFiles.length > 0) {
-        const nameList = defaultDomainFiles.map(file => file.filename).join(', ');
+        const nameList = defaultDomainFiles.filter(file => !(file.errors && file.errors.length > 0)).map(file => file.filename).join(', ');
         newSummary.push(`You will remplace the default domain by ${nameList}`);
     }
     const newFiles = files.map((file) => {
@@ -203,16 +210,22 @@ export const validateDefaultDomains = (files, params) => {
 
 export const validateDomain = (files, params) => {
     let domainFiles = files.filter(file => file?.dataType === 'domain');
+    domainFiles = domainFiles.map(domainFile => validateADomain(domainFile, params));
     if (domainFiles.length > 1) {
-        domainFiles = domainFiles.map((domainFile, idx) => {
-            if (idx === 0) {
+        let firstValidFileFound = false;
+        domainFiles = domainFiles.map((domainFile) => {
+            // we add warnings to all the files that valid except the first one
+            if (!firstValidFileFound && !(domainFile.errors && domainFile.errors.length > 0)) {
+                firstValidFileFound = true;
                 return domainFile;
+            } if (domainFile.errors && domainFile.errors.length > 0) {
+                return domainFile; // we don't add warnings to files with errors already
             }
             return {
                 ...domainFile,
                 warnings: [
                     ...(domainFile?.warnings || []),
-                    'You have multiple domain files if some data conflicts, the one from the first file with that data will be used (same ways has rasa merges domains)',
+                    'You have multiple default domain files. if some data conflicts, the one from the first file with that data will be used (same way has rasa merges domains)',
                 ],
             };
         });

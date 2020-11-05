@@ -5,20 +5,6 @@ export const doValidation = params => !params.noValidate;
 
 export const validateSimpleYamlFiles = (files, params, type, alias = type) => {
     let filesToValid = files.filter(f => f?.dataType === type);
-    if (filesToValid.length > 1) {
-        filesToValid = filesToValid.map((file, idx) => {
-            if (idx === 0) {
-                return file;
-            }
-            return {
-                ...file,
-                warnings: [
-                    ...(file.warnings || []),
-                    `Conflicts with ${filesToValid[0].filename}, and thus won't be used in the import`,
-                ],
-            };
-        });
-    }
     filesToValid = filesToValid.map((file) => {
         let parsed;
         try {
@@ -34,6 +20,25 @@ export const validateSimpleYamlFiles = (files, params, type, alias = type) => {
             [type]: parsed,
         };
     });
+    if (filesToValid.length > 1) {
+        let firstValidFileFound = false;
+        filesToValid = filesToValid.map((file) => {
+            if (!firstValidFileFound && !(file.errors && file.errors.length > 0)) {
+                firstValidFileFound = true;
+                return file;
+            } if (file.errors && file.errors.length > 0) {
+                return file; // we don't add warnings to files with errors already
+            }
+            return {
+                ...file,
+                warnings: [
+                    ...(file.warnings || []),
+                    `Conflicts with ${filesToValid[0].filename}, and thus won't be used in the import`,
+                ],
+            };
+        });
+    }
+  
 
     const newSummary = params.summary;
     if (filesToValid.length > 0) newSummary.push(`You will remplace ${alias} by the one in ${filesToValid[0].filename}`);
