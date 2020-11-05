@@ -4,7 +4,7 @@ import { WebApp } from 'meteor/webapp';
 import { getUser } from 'meteor/apollo';
 import { Accounts } from 'meteor/accounts-base';
 import axios from 'axios';
-import { typeDefs, resolvers, schemaDirectives } from '../../api/graphql/index';
+import { typeDefs, resolvers } from '../../api/graphql/index';
 
 const MONGO_URL = process.env.MONGO_URL || `mongodb://localhost:${(process.env.METEOR_PORT || 3000) + 1}/meteor`;
 
@@ -23,7 +23,6 @@ export const connectToDb = () => {
 
 export const runAppolloServer = () => {
     const server = new ApolloServer({
-        uploads: false,
         typeDefs,
         resolvers,
         context: async ({ req: { headers: { authorization } } }) => {
@@ -36,7 +35,7 @@ export const runAppolloServer = () => {
             }
             return ({ user });
         },
-        schemaDirectives,
+        // schemaDirectives,
     });
 
     server.applyMiddleware({

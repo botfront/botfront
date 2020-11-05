@@ -10,6 +10,15 @@ import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { Credentials } from '../credentials';
 
 import { generateErrorText } from './importExport.utils';
+import { ZipFolder } from './ZipFolder';
+import { Projects } from '../project/project.collection';
+// import { NLUModels } from '../nlu_model/nlu_model.collection';
+import { Instances } from '../instances/instances.collection';
+import Conversations from '../graphql/conversations/conversations.model';
+import Activity from '../graphql/activity/activity.model';
+
+// import { StoryGroups } from '../storyGroups/storyGroups.collection';
+
 
 if (Meteor.isServer) {
     import {
@@ -48,19 +57,50 @@ if (Meteor.isServer) {
 
             return exportRequest;
         },
-        async exportRasa(projectId, language) {
+        async exportRasa(projectId, language, options) {
             check(projectId, String);
             check(language, String);
-
+            check(options, Object);
             const passedLang = language === 'all' ? {} : { language };
-            const credentials = await Credentials.findOne(
-                { projectId },
-                { fields: { credentials: 1 } },
-            );
-            const endpoints = await Endpoints.findOne(
-                { projectId },
-                { fields: { endpoints: 1 } },
-            );
+
+            const project = Projects.findOne({ _id: projectId });
+            const hasEnvs = project.deploymentEnvironments && project.deploymentEnvironments.length !== 0;
+            let credentials;
+            let endpoints;
+
+            if (hasEnvs) {
+                credentials = await Promise.all(project.deploymentEnvironments.map(async (environment) => {
+                    const creds = await Credentials.findOne(
+                        { projectId, environment },
+                        { fields: { credentials: 1 } },
+                    );
+                    return {
+                        environment,
+                        credentials: creds.credentials,
+                    };
+                }));
+
+                endpoints = await Promise.all(project.deploymentEnvironments.map(async (environment) => {
+                    const endpoint = await Endpoints.findOne(
+                        { projectId, environment },
+                        { fields: { endpoints: 1 } },
+                    );
+                    return {
+                        environment,
+                        endpoints: endpoint.endpoints,
+                    };
+                }));
+            } else {
+                credentials = await Credentials.findOne(
+                    { projectId },
+                    { fields: { credentials: 1 } },
+                ).credentials;
+                endpoints = await Endpoints.findOne(
+                    { projectId },
+                    { fields: { endpoints: 1 } },
+                ).endpoints;
+            }
+
             const rasaData = await Meteor.callWithPromise(
                 'rasa.getTrainingPayload',
                 projectId,
@@ -77,22 +117,79 @@ if (Meteor.isServer) {
                     const fragmentsByType = safeDump({ stories, rules });
                     return { group, fragments: fragmentsByType };
                 });
-
             const exportData = {
                 config:
                     language === 'all'
                         ? rasaData.config
                         : { [language]: rasaData.config[language] },
-                credentials: credentials.credentials,
                 domain: rasaData.domain,
-                endpoints: endpoints.endpoints,
                 nlu:
                     language === 'all'
                         ? rasaData.nlu
                         : { [language]: rasaData.nlu[language] },
                 fragments: fragmentsByGroup,
             };
-            return exportData;
+
+           
+            const defaultDomain = project?.defaultDomain?.content || '';
+            const configData = project;
+            // exported separately
+            delete configData.defaultDomain;
+            // all of those are state data we don't want to keep in the import
+            delete configData.training;
+            delete configData.disabled;
+            delete configData.enableSharing;
+            delete configData._id;
+            delete configData.defaultDomain;
+            delete configData.storyGroups;
+            delete configData.languages;
+            const instance = await Instances.findOne({ projectId });
+            const bfconfig = { ...configData, instance };
+            const bfconfigYaml = safeDump(bfconfig);
+
+            const rasaZip = new ZipFolder();
+            if (exportData.fragments.length > 1) {
+                exportData.fragments.forEach(f => rasaZip.addFile(
+                    f.fragments,
+                    `data/stories/${f.group
+                        .replace(/ /g, '_')
+                        .toLowerCase()}.yml`,
+                        
+                ));
+            } else {
+                rasaZip.addFile(exportData.fragments[0].fragments, 'data/stories.yml');
+            }
+            if (language === 'all') {
+                Object.keys(exportData.config).forEach(k => rasaZip.addFile(exportData.config[k], `config.${k}.yml`));
+                Object.keys(exportData.nlu).forEach(k => rasaZip.addFile(JSON.stringify(exportData.nlu[k]), `data/nlu/${k}.json`));
+            } else {
+                rasaZip.addFile(exportData.config[language], 'config.yml');
+                rasaZip.addFile(JSON.stringify(exportData.nlu[language]), 'data/nlu.json');
+            }
+
+            if (hasEnvs) {
+                endpoints.forEach((endpoint) => { rasaZip.addFile(endpoint.endpoints, `endpoints.${endpoint.environment}.yml`); });
+                credentials.forEach((credential) => { rasaZip.addFile(credential.credentials, `credentials.${credential.environment}.yml`); });
+            } else {
+                rasaZip.addFile(endpoints, 'endpoints.yml');
+                rasaZip.addFile(credentials, 'credentials.yml');
+            }
+            
+            rasaZip.addFile(exportData.domain, 'domain.yml');
+            rasaZip.addFile(bfconfigYaml, 'botfront/bfconfig.yml');
+            rasaZip.addFile(defaultDomain, 'botfront/default-domain.yml');
+            
+            if (options.conversations) {
+                const conversations = await Conversations.find({ projectId }).lean();
+                rasaZip.addFile(JSON.stringify(conversations, null, 2), 'botfront/conversation.json');
+            }
+            if (options.incoming) {
+                const incoming = await Activity.find({ projectId }).lean();
+                rasaZip.addFile(JSON.stringify(incoming, null, 2), 'botfront/incoming.json');
+            }
+
+
+            return rasaZip.generateBlob();
         },
     });
 }

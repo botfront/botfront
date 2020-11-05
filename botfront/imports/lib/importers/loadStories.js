@@ -1,5 +1,6 @@
 import shortid from 'shortid';
 import uuidv4 from 'uuid/v4';
+import { update } from './common';
 
 const splitBody = (lines) => {
     const header = [];
@@ -207,4 +208,45 @@ export const fileToStoryGroup = (filename, text, existingStoryGroups = []) => {
     return {
         name, firstLine, rawText, _id: uuidv4(),
     };
+};
+
+export const validateStories = (files) => {
+    const stories = files
+        .filter(f => f.dataType === 'stories')
+        .filter(f => !(f.errors || []).length && f.stories)
+        .map(sg => sg.stories)
+        .reduce((acc, curr) => [...acc, ...curr], []);
+    const { stories: parsedStories, warnings } = generateStories(stories);
+    return files.map((f) => {
+        if (f.dataType !== 'stories') return f;
+        return {
+            ...f,
+            parsedStories: parsedStories.filter(
+                ({ storyGroupId }) => storyGroupId === f._id,
+            ),
+            warnings: warnings
+                .filter(({ storyGroupId }) => storyGroupId === f._id)
+                .map(w => w.message),
+        };
+    });
+};
+
+export const addStoryFile = ({
+    f, rawText, fileList, setFileList, existingStoryGroups,
+}) => {
+    const storyGroupParse = fileToStoryGroup(f.name, rawText, [
+        ...existingStoryGroups,
+        ...fileList,
+    ]);
+    if (!storyGroupParse) {
+        return update(setFileList, f, { errors: ['could not read story file'] });
+    }
+    const stories = parseStoryGroups([storyGroupParse]);
+    const errors = stories.filter(s => 'error' in s).map(s => s.error.message);
+    if (!stories.length) errors.push('No stories found in file.');
+    // if (stories.length > 30) errors.unshift('File contains over 30 stories. Consider splitting in smaller chunks.');
+    if (errors.length) {
+        return update(setFileList, f, { dataType: 'stories', errors });
+    }
+    return update(setFileList, f, { ...storyGroupParse, dataType: 'stories', stories });
 };

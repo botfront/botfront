@@ -29,6 +29,13 @@ const commonFields = {
         type: Object,
         blackbox: true,
     },
+    'steps.$': SimpleSchema.oneOf({
+        type: Object,
+        blackbox: true,
+    }, {
+        type: String,
+        allowedValues: ['...'],
+    }),
 };
 
 const intermediateStorySchemas = [

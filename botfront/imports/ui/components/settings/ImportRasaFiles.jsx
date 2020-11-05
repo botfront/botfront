@@ -1,5 +1,5 @@
 import React, {
-    useRef, useState, useContext, useMemo, useEffect,
+    useRef, useState, useContext, useEffect,
 } from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
@@ -20,42 +20,92 @@ import {
 import { get as _get } from 'lodash';
 import { NativeTypes } from 'react-dnd-html5-backend-cjs';
 import { useDrop } from 'react-dnd-cjs';
+import { useMutation } from '@apollo/react-hooks';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
-import { Slots } from '../../../api/slots/slots.collection';
 import { getDefaultDomainAndLanguage } from '../../../lib/story.utils';
-import {
-    useStoryFileReader,
-    useDomainFileReader,
-    useDatasetFileReader,
-} from './fileReaders';
-import {
-    handleImportStoryGroups,
-    handleImportDomain,
-    handleImportDataset,
-} from './fileImporters';
+import { useFileReader } from './fileReaders';
 import { ProjectContext } from '../../layouts/context';
+import {
+    unZipFile,
+} from '../../../lib/importers/common';
+import { importFilesMutation } from './graphql';
 
 const ImportRasaFiles = (props) => {
     const {
-        existingStoryGroups, existingSlots, projectId, defaultDomain,
+        existingStoryGroups, projectId, defaultDomain,
     } = props;
     const { projectLanguages, instance, language } = useContext(ProjectContext);
-    const [fallbackImportLanguage, setFallbackImportLanguage] = useState(language);
-    const [wipeCurrent, setWipeCurrent] = useState({
-        stories: false,
-        domain: false,
-        'NLU data': false,
-    });
+    const [importFiles] = useMutation(importFilesMutation);
+    const [fallbackImportLanguage, setFallbackImportLanguage] = useState();
+    const [importResults, setImportResults] = useState([]);
+    useEffect(() => setFallbackImportLanguage(language), [language]);
+    const [wipeCurrent, setWipeCurrent] = useState(false);
+    const [importSummary, setImportSummary] = useState([]);
+
+    const [filesImporting, setFilesImporting] = useState(false);
+
+    const validateFunction = async (files) => {
+        // we don't want to send files with errors already so we filter those out
+        // but we keep their index so it easy to recontruct the list
+        const filesNotSentIndexes = [];
+        const filesToSend = files.filter((file, index) => {
+            if (file.errors && file.errors.length > 0) {
+                filesNotSentIndexes.push(index);
+                return false;
+            }
+            return true;
+        });
+        const validationResult = await importFiles({
+            variables: {
+                projectId, files: filesToSend, onlyValidate: true, wipeCurrent, fallbackLang: fallbackImportLanguage,
+            },
+        });
+        const validationData = validationResult?.data?.import?.fileMessages;
+        const summary = validationResult?.data?.import?.summary;
+        setImportSummary(summary);
+        if (validationData.length !== files.length) { // that means some files were not sent
+            filesNotSentIndexes.forEach((index) => {
+                validationData.splice(index, 0, files[index]); // so we re-insert those
+            });
+        }
+        return validationData;
+    };
+
+
+    const handleImport = async ([files, setFileList]) => {
+        setFilesImporting(true);
+        const filesToImport = files.filter(file => !(file.errors && file.errors.length));
+        const importResult = await importFiles({
+            variables: {
+                projectId, files: filesToImport, noValidate: true, wipeCurrent, fallbackLang: fallbackImportLanguage,
+            },
+        });
+        setImportSummary([]);
+        setFilesImporting(false);
+        setFileList({ reset: true });
+        const importResultMessages = importResult?.data?.import?.summary;
+        setImportResults(importResultMessages);
+    };
+
 
     const handleFileDrop = async (files, [fileList, setFileList]) => {
-        const newValidFiles = Array.from(files).filter(
+        const newValidFiles = Array.from(files);
+        const filesWithUnziped = await newValidFiles.reduce(async (newFiles, currFile) => {
+            if (currFile.name.match(/\.zip$/)) {
+                const filesFromZip = await unZipFile(currFile);
+                return [...newFiles, ...filesFromZip];
+            }
+            // since this reduce is async we need to await for the previous result
+            return [...(await newFiles), currFile];
+        }, []);
+        const filesToAdd = filesWithUnziped.filter(
             f => f.size
                 && !fileList.some(
                     // index on lastModified and filename
                     cf => cf.lastModified === f.lastModified && cf.filename === f.name,
                 ),
         );
-        setFileList({ add: newValidFiles });
+        setFileList({ add: filesToAdd });
     };
 
     const useFileDrop = fileReader => useDrop({
@@ -67,28 +117,27 @@ const ImportRasaFiles = (props) => {
         }),
     });
 
+
     const renderFileList = ([fileList, setFileList]) => {
         const filesWithErrors = fileList.filter(f => (f.errors || []).length);
         const filesWithWarnings = fileList.filter(f => (f.warnings || []).length);
         const colorOfLabel = (f) => {
             if (f.errors && f.errors.length) return { color: 'red' };
             if (f.warnings && f.warnings.length) return { color: 'yellow' };
+            if (!f.validated) return { color: 'grey' };
             return { color: 'green' };
         };
         return (
             <div>
                 {fileList.map(f => (
                     <Label
-                        key={`${f.filename}${f.lastModified}`}
+                        key={`${f.name}${f.lastModified}`}
                         className='file-label'
                         {...colorOfLabel(f)}
                         as='a'
                         onClick={e => e.stopPropagation()}
                     >
                         {f.name}
-                        {f.name !== f.filename && (
-                            <Label.Detail>({f.filename})</Label.Detail>
-                        )}
                         <Icon
                             name='delete'
                             onClick={() => setFileList({
@@ -130,244 +179,136 @@ const ImportRasaFiles = (props) => {
         );
     };
 
-    const renderImportSection = (params) => {
-        const {
-            title,
-            fileReader,
-            canDrop,
-            isOver,
-            drop,
-            fileField,
-            importingState,
-            icon,
-            tooltip,
-        } = params;
-
-        return (
-            <Segment
-                className={`import-box ${
-                    canDrop && isOver && !importingState ? 'upload-target' : ''
-                }`}
-                key={`import-${title}`}
-            >
-                <div
-                    {...(!importingState ? { ref: drop } : {})}
-                    data-cy={`drop-zone-${title.replace(' ', '-').toLowerCase()}`}
-                >
-                    {importingState ? (
-                        <Dimmer active inverted>
-                            <Loader>{`Importing ${title}...`}</Loader>
-                        </Dimmer>
-                    ) : (
-                        <>
-                            <div className='side-by-side'>
-                                <h3>
-                                    {`Import ${title.replace(/^\w/, c => c.toUpperCase())}`}
-                                </h3>
-                                <div>
-                                    <Popup
-                                        content={tooltip}
-                                        inverted
-                                        trigger={(
-                                            <Icon
-                                                name='question circle'
-                                                color='grey'
-                                                size='large'
-                                            />
-                                        )}
-                                    />
-                                </div>
-                            </div>
-                            <input
-                                type='file'
-                                ref={fileField}
-                                style={{ display: 'none' }}
-                                multiple
-                                onChange={e => handleFileDrop(e.target.files, fileReader)
-                                }
-                            />
-                            {fileReader[0].length ? (
-                                renderFileList(fileReader)
-                            ) : (
-                                <>
-                                    <div className='align-center'>
-                                        <Icon
-                                            name={icon}
-                                            size='huge'
-                                            color='grey'
-                                            style={{ marginBottom: '8px' }}
-                                        />
-                                        <Button
-                                            primary
-                                            basic
-                                            content={`Upload ${title}`}
-                                            size='small'
-                                            onClick={() => fileField.current.click()}
-                                        />
-                                        <span className='small grey'>
-                                            or drop files to upload
-                                        </span>
-                                    </div>
-                                </>
-                            )}
-                            <br />
-                            <div className='side-by-side right'>
-                                <Checkbox
-                                    toggle
-                                    checked={wipeCurrent[title]}
-                                    onChange={() => setWipeCurrent({
-                                        ...wipeCurrent,
-                                        [title]: !wipeCurrent[title],
-                                    })}
-                                    label={`Replace existing ${title}`}
-                                    data-cy={`wipe-${title.toLowerCase().replace(' ', '')}`}
-                                />
-                            </div>
-                        </>
-                    )}
-                </div>
-            </Segment>
-        );
-    };
-
-    const [storiesImporting, setStoriesImporting] = useState(false);
-    const storyFileReader = useStoryFileReader(
-        wipeCurrent.stories ? [] : existingStoryGroups,
-    );
-    useEffect(() => {
-        // rerun add instruction to change storygroup name as needed
-        if (typeof storyFileReader[1] === 'function') { storyFileReader[1]({ add: storyFileReader[0] }); }
-    }, [wipeCurrent.stories]);
-    const [dropStoryFilesIndicators, dropStoryFiles] = useFileDrop(storyFileReader);
-
-    const [domainImporting, setDomainImporting] = useState(false);
-    const domainFileReader = useDomainFileReader({
+    const fileReader = useFileReader({
+        existingStoryGroups: wipeCurrent ? [] : existingStoryGroups,
         defaultDomain,
-        fallbackImportLanguage: fallbackImportLanguage || language,
+        fallbackImportLanguage,
         projectLanguages: projectLanguages.map(l => l.value),
-    });
-    const [dropDomainFilesIndicators, dropDomainFiles] = useFileDrop(domainFileReader);
-
-    const [datasetImporting, setDatasetImporting] = useState(false);
-    const datasetFileReader = useDatasetFileReader({
         instanceHost: instance.host,
-        fallbackImportLanguage: fallbackImportLanguage || language,
-        projectLanguages: projectLanguages.map(l => l.value),
+        validateFunction,
     });
-    const [dropDatasetFilesIndicators, dropDatasetFiles] = useFileDrop(datasetFileReader);
+    const [fileList, setFileList] = fileReader;
+    const [{ canDrop, isOver }, drop] = useFileDrop(fileReader);
+    const fileField = useRef();
 
-    const importers = [
-        {
-            title: 'stories',
-            fileReader: storyFileReader,
-            ...dropStoryFilesIndicators,
-            drop: dropStoryFiles,
-            fileField: useRef(),
-            onImport: handleImportStoryGroups,
-            importingState: storiesImporting,
-            setImportingState: setStoriesImporting,
-            icon: 'book',
-            tooltip: (
-                <p>
-                    Import stories, one story group per file. The contents of existing
-                    story groups is never overwritten.
-                </p>
-            ),
-        },
-        {
-            title: 'domain',
-            fileReader: domainFileReader,
-            ...dropDomainFilesIndicators,
-            drop: dropDomainFiles,
-            fileField: useRef(),
-            onImport: handleImportDomain,
-            importingState: domainImporting,
-            setImportingState: setDomainImporting,
-            icon: 'globe',
-            tooltip: (
-                <>
-                    <p>
-                        Import slots and bot response responses. Existing slots and
-                        responses are completely overwritten. Slots in your current
-                        default domain are not imported.
-                    </p>
+    const renderImportSection = () => (
+        <Segment
+            className={`import-box ${
+                canDrop && isOver && !filesImporting ? 'upload-target' : ''
+            }`}
+        >
+            <div
+                {...(!filesImporting ? { ref: drop } : {})}
+                data-cy='drop-zone-data'
+            >
+                {filesImporting ? (
+                    <Dimmer active inverted>
+                        <Loader>Importing data...</Loader>
+                    </Dimmer>
+                ) : (
+                    <>
+                        <input
+                            type='file'
+                            ref={fileField}
+                            style={{ display: 'none' }}
+                            multiple
+                            onChange={e => handleFileDrop(e.target.files, fileReader)
+                            }
+                        />
+                        {fileList.length ? (
+                            renderFileList(fileReader)
+                        ) : (
+                            <>
+                                <div className='align-center'>
+                                    <Icon
+                                        name='database'
+                                        size='huge'
+                                        color='grey'
+                                        style={{ marginBottom: '8px' }}
+                                    />
+                                    <Button
+                                        primary
+                                        basic
+                                        content='Open File Browser'
+                                        size='small'
+                                        onClick={() => fileField.current.click()}
+                                    />
+                                    <span className='small grey'>
+                                        or drop files to upload
+                                    </span>
+                                </div>
+                            </>
+                        )}
+                        <br />
+                        <div className='side-by-side right'>
+                            <Checkbox
+                                toggle
+                                checked={wipeCurrent}
+                                onChange={() => setWipeCurrent(!wipeCurrent)}
+                                label='Replace existing data'
+                                data-cy='wipe-data'
+                            />
+                        </div>
+                    </>
+                )}
+            </div>
+        </Segment>
+    );
 
-                    <p>
-                        Actions and forms are not currently imported. If your actions and
-                        forms are mentioned in stories, they will automatically be infered
-                        on training.
-                    </p>
-
-                    <p>For more information, read the docs.</p>
-                </>
-            ),
-        },
-        {
-            title: 'NLU data',
-            fileReader: datasetFileReader,
-            ...dropDatasetFilesIndicators,
-            drop: dropDatasetFiles,
-            fileField: useRef(),
-            onImport: handleImportDataset,
-            importingState: datasetImporting,
-            setImportingState: setDatasetImporting,
-            icon: 'grid layout',
-            tooltip: (
-                <>
-                    <p>
-                        Import NLU examples, synonyms and gazettes. Items are added to
-                        your current collection.
-                    </p>
-                </>
-            ),
-        },
-    ];
-    const valid = (reader, filter = () => true) => reader[0].filter(f => !f.errors && filter(f));
-
-    const handleImport = () => {
-        importers.forEach(({
-            fileReader, onImport, setImportingState, title,
-        }) => onImport(valid(fileReader), {
-            projectId,
-            fileReader,
-            setImportingState,
-            wipeCurrent: wipeCurrent[title],
-            existingStoryGroups,
-            existingSlots,
-        }));
-    };
+    const valid = (filter = () => true) => fileList.filter(f => !f.errors && filter(f));
+    
 
     const renderTotals = () => {
-        const countAcrossFiles = (reader, path, filter = () => true) => valid(reader, filter).reduce(
+        const checkUniques = () => {
+            const duplicateSensitiveTypes = ['credentials', 'endpoints', 'rasaconfig', 'botfrontconfig'];
+            const listOfFilesToCheck = fileList
+                .map((file, index) => ({ dataType: file.dataType, index }))
+                .filter(f => duplicateSensitiveTypes.includes(f.dataType));
+           
+
+            const duplicatesSummary = listOfFilesToCheck.reduce((duplicates, curr) => ({ ...duplicates, [curr.dataType]: [...duplicates[curr.dataType], curr.index] }), {
+                credentials: [], endpoints: [], rasaconfig: [], botfrontconfig: [],
+            });
+        
+            duplicateSensitiveTypes.forEach((fileType) => {
+                if (duplicatesSummary[fileType].length > 1) {
+                    const original = fileList[duplicatesSummary[fileType][0]].name;
+                    const copies = duplicatesSummary[fileType].slice(1);
+                    copies.forEach((copyIndex) => {
+                        fileList[copyIndex] = { ...fileList[copyIndex], warnings: [`Duplicate of ${original}, and thus won't be used in the import`] };
+                    });
+                }
+            });
+        };
+        checkUniques();
+
+        const countAcrossFiles = (path, filter = () => true) => valid(filter).reduce(
             (acc, curr) => acc + _get(curr, path, []).length,
             0,
         );
+
         const numbers = {
-            story: countAcrossFiles(storyFileReader, 'parsedStories'),
-            slot: countAcrossFiles(domainFileReader, 'slots'),
-            form: countAcrossFiles(domainFileReader, 'bfForms'),
-            response: countAcrossFiles(domainFileReader, 'responses'),
+            story: countAcrossFiles('parsedStories', f => f.dataType === 'stories'),
+            slot: countAcrossFiles('slots', f => f.dataType === 'domain'),
+            form: countAcrossFiles('bfForms', f => f.dataType === 'domain'),
+            response: countAcrossFiles('responses', f => f.dataType === 'domain'),
         };
         projectLanguages.forEach((l) => {
             numbers[`${l.text} example`] = countAcrossFiles(
-                datasetFileReader,
                 'rasa_nlu_data.common_examples',
-                f => f.language === l.value,
+                f => f.dataType === 'nlu' && f.language === l.value,
             );
             numbers[`${l.text} synonym`] = countAcrossFiles(
-                datasetFileReader,
                 'rasa_nlu_data.entity_synonyms',
-                f => f.language === l.value,
+                f => f.dataType === 'nlu' && f.language === l.value,
             );
             numbers[`${l.text} gazette`] = countAcrossFiles(
-                datasetFileReader,
                 'rasa_nlu_data.gazette',
-                f => f.language === l.value,
+                f => f.dataType === 'nlu' && f.language === l.value,
             );
-            numbers[`${l.text} regex_feature`] = countAcrossFiles(
-                datasetFileReader,
+            numbers[`${l.text} regex feature`] = countAcrossFiles(
                 'rasa_nlu_data.regex_features',
-                f => f.language === l.value,
+                f => f.dataType === 'nlu' && f.language === l.value,
             );
         });
 
@@ -379,13 +320,15 @@ const ImportRasaFiles = (props) => {
             .join(', ');
     };
 
-    const counts = useMemo(renderTotals, importers);
-
-    const renderBottom = () => {
-        if (!counts) return null;
-        return (
+    
+    const renderBottom = () => (
+        <>
             <Message info>
-                <div>Importing {counts}.</div>
+                <Message.Header>Import summary</Message.Header>
+                <Message.List>
+                    {importSummary.map(message => (<Message.Item>{message}</Message.Item>))}
+                </Message.List>
+            
                 <div className='side-by-side middle'>
                     <div className='side-by-side narrow left middle'>
                         <Popup
@@ -420,23 +363,39 @@ const ImportRasaFiles = (props) => {
                             selection
                             value={fallbackImportLanguage}
                             onChange={(_e, { value }) => {
-                                importers.forEach(i => i.fileReader[1]({ changeLang: value }));
+                                setFileList({ changeLang: value });
                                 setFallbackImportLanguage(value);
                             }}
                         />
                     </div>
                     <div>
-                        <Button content='Import' data-cy='import-rasa-files' primary onClick={handleImport} />
+                        <Button disabled={fileReader[0].some(f => !f.validated)} content='Import' data-cy='import-rasa-files' primary onClick={() => handleImport(fileReader)} />
                     </div>
                 </div>
             </Message>
-        );
+        </>
+    );
+
+    const renderImportResults = () => {
+        if (importResults && importResults.length !== 0) {
+            return (
+                <Message error>
+                    <Message.Header>Import Error</Message.Header>
+                    <Message.List>
+                        {importResults.map(message => (<Message.Item>{message}</Message.Item>))}
+                    </Message.List>
+                </Message>
+            );
+        }
+        return <></>;
     };
+    
 
     return (
         <>
-            {importers.map(renderImportSection)}
+            {renderImportSection()}
             {renderBottom()}
+            {renderImportResults()}
         </>
     );
 };
@@ -444,7 +403,6 @@ const ImportRasaFiles = (props) => {
 ImportRasaFiles.propTypes = {
     projectId: PropTypes.string.isRequired,
     existingStoryGroups: PropTypes.array.isRequired,
-    existingSlots: PropTypes.array.isRequired,
     defaultDomain: PropTypes.object.isRequired,
 };
 
@@ -452,13 +410,11 @@ ImportRasaFiles.defaultProps = {};
 
 const ImportRasaFilesContainer = withTracker(({ projectId }) => {
     const storyGroupHandler = Meteor.subscribe('storiesGroup', projectId);
-    const slotsHandler = Meteor.subscribe('slots', projectId);
     const existingStoryGroups = storyGroupHandler.ready()
         ? StoryGroups.find({ projectId }).fetch()
         : [];
-    const existingSlots = slotsHandler.ready() ? Slots.find({ projectId }).fetch() : [];
     const { defaultDomain } = getDefaultDomainAndLanguage(projectId);
-    return { existingStoryGroups, existingSlots, defaultDomain };
+    return { existingStoryGroups, defaultDomain };
 })(ImportRasaFiles);
 
 const mapStateToProps = state => ({
