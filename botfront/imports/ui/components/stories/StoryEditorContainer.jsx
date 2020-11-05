@@ -29,6 +29,8 @@ import BranchTabLabel from './BranchTabLabel';
 import StoryTopMenu from './StoryTopMenu';
 import StoryFooter from './StoryFooter';
 
+import StoryDif from './VisualStoryDif/StoryDif';
+
 function getDefaultPath(story) {
     if (!story.branches) return [story._id];
     const newPath = [story._id];
@@ -243,6 +245,48 @@ const StoryEditorContainer = ({
     const renderVisualEditor = (path) => {
         if (!branches[path.join()]) {
             return null;
+        }
+        if (story.type === 'test_case') {
+            return (
+                <StoryDif
+                    expected={[
+                        {
+                            intent: 'test',
+                            user: 'awesome',
+                            entities: [],
+                        },
+                        {
+                            action: 'utter_test',
+                        },
+                        {
+                            intent: 'test',
+                            user: 'awesome',
+                            entities: [],
+                        },
+                        {
+                            action: 'utter_test',
+                        },
+                    ]}
+                    actual={[
+                        {
+                            intent: 'test',
+                            user: 'awesome',
+                            entities: [],
+                        },
+                        {
+                            action: 'utter_testing',
+                        },
+                        {
+                            intent: 'test',
+                            user: 'awesome',
+                            entities: [],
+                        },
+                        {
+                            action: 'utter_test',
+                        },
+                    ]}
+                />
+            );
         }
         return (
             <StoryErrorBoundary>
