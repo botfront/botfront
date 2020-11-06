@@ -240,7 +240,7 @@ const StoryTopMenu = ({
                     {renderConditionSection()}
                 </Message>
             )}
-            {type === 'test_case' && !fragment.testResults.success && (
+            {type === 'test_case' && fragment?.testResults?.success === false && (
                 <Message
                     className='top-menu-yellow-banner'
                     attached

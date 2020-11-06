@@ -246,7 +246,7 @@ const StoryEditorContainer = ({
         if (!branches[path.join()]) {
             return null;
         }
-        if (story.type === 'test_case' && !story.testResults?.success) {
+        if (story.type === 'test_case' && story.testResults?.success === false) {
             return (
                 <StoryDif
                     expected={story.steps}
