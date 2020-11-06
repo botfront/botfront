@@ -42,45 +42,37 @@ const validateRasaConfigTogether = (files, projectId) => {
     const languagesFromProject = new Set(Projects.findOne({ _id: projectId }).languages);
     const languagesFromFiles = new Set();
     const summary = [];
-    let configFiles = files;
     let policiesFoundIn = '';
     const pipelinePerLang = {};
-    if (files.length > 1) {
-        configFiles = configFiles.map((rasaConfigFile) => {
-            const {
-                pipeline, language, policies, filename, warnings,
-            } = rasaConfigFile;
-            const newWarnings = [];
-            languagesFromFiles.add(language);
-            if (pipeline && pipelinePerLang[language]) {
-                newWarnings.push(
-                    `Dropped pipeline, since a pipeline for '${language}' is found in another import file.`,
-                );
-            }
-            if (pipeline && !pipelinePerLang[language]) { pipelinePerLang[language] = filename; }
-            summary.push(langSummary(rasaConfigFile, languagesFromProject));
+    const configFiles = files.map((rasaConfigFile) => {
+        const {
+            pipeline, language, policies, filename, warnings,
+        } = rasaConfigFile;
+        const newWarnings = [];
+        languagesFromFiles.add(language);
+        if (pipeline && pipelinePerLang[language]) {
+            newWarnings.push(
+                `Dropped pipeline, since a pipeline for '${language}' is found in another import file.`,
+            );
+        }
+        if (pipeline && !pipelinePerLang[language]) { pipelinePerLang[language] = filename; }
+        summary.push(langSummary(rasaConfigFile, languagesFromProject));
 
-            if (policies && policiesFoundIn !== '') {
-                newWarnings.push(
-                    `Dropped policies, since policies are already found in file ${policiesFoundIn}.`,
-                );
-            }
+        if (policies && policiesFoundIn !== '') {
+            newWarnings.push(
+                `Dropped policies, since policies are already found in file ${policiesFoundIn}.`,
+            );
+        }
 
-            if (policies && policiesFoundIn === '') {
-                summary.push(`Policies will be overwritten by ${filename}.`);
-                policiesFoundIn = filename;
-            }
-            return {
-                ...rasaConfigFile,
-                warnings: [...(warnings || []), ...newWarnings],
-            };
-        });
-    } else if (files.length === 1) {
-        const configFile = configFiles[0];
-        const langMessage = langSummary(configFile, languagesFromProject);
-        if (langMessage) summary.push(langMessage);
-        if (configFile.policies) { summary.push(`Policies will be overwritten by ${configFile.filename}.`); }
-    }
+        if (policies && policiesFoundIn === '') {
+            summary.push(`Policies will be overwritten by ${filename}.`);
+            policiesFoundIn = filename;
+        }
+        return {
+            ...rasaConfigFile,
+            warnings: [...(warnings || []), ...newWarnings],
+        };
+    });
     const projectLanguages = Array.from([...languagesFromProject, ...languagesFromFiles]);
     return [configFiles, summary, projectLanguages];
 };
