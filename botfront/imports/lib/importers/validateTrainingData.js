@@ -67,12 +67,16 @@ export class TrainingDataValidator {
         };
         if (stories) {
             output.stories = stories.map(({ story: title, ...frag }) => ({
-                ...frag, title, ...injectGroupName(frag),
+                ...frag,
+                title,
+                ...injectGroupName(frag),
             }));
         }
         if (rules) {
             output.rules = rules.map(({ rule: title, ...frag }) => ({
-                ...frag, title, ...injectGroupName(frag),
+                ...frag,
+                title,
+                ...injectGroupName(frag),
             }));
         }
         return output;
@@ -91,7 +95,7 @@ export class TrainingDataValidator {
             this.groupNameMappings[name] = newName;
         }
         return newName;
-    }
+    };
 
     static getLanguageFromMdNluFile = (rawText) => {
         const languageFromFirstLine = (rawText
@@ -109,11 +113,13 @@ export class TrainingDataValidator {
         return [];
     };
 
-    static countAndPluralize = (number, noun) => `${number} ${
+    static countAndPluralize = (number, noun, withN = true) => `${withN ? `${number} ` : ''}${
         number !== 1
-            ? noun.endsWith('y')
-                ? `${noun.slice(0, noun.length - 1)}ies`
-                : `${noun}s`
+            ? noun === 'was'
+                ? 'were'
+                : noun.endsWith('y')
+                    ? `${noun.slice(0, noun.length - 1)}ies`
+                    : `${noun}s`
             : noun
     }`;
 
@@ -123,6 +129,15 @@ export class TrainingDataValidator {
         'en',
         extension,
         this.instanceHost,
+    );
+
+    static isNluEmpty = ({
+        common_examples = [],
+        regex_features = [],
+        entity_synonyms = [],
+        gazette = [],
+    }) => ![common_examples, regex_features, entity_synonyms, gazette].some(
+        d => d.length,
     );
 
     getNluFromFile = async (
@@ -138,27 +153,31 @@ export class TrainingDataValidator {
             if (!nlu) throw new Error();
             delete nlu.lookup_tables;
         } catch {
-            return {
-                errors: [
-                    `NLU data in this file could not be parsed by Rasa at ${this.instanceHost}.`,
-                ],
-            };
+            throw new Error(
+                `NLU data in this file could not be parsed by Rasa at ${this.instanceHost}.`,
+            );
         }
-        nlu.common_examples = (nlu.common_examples || []).map((example) => {
-            if (!language && example?.metadata?.language) {
-                ({ language } = example.metadata);
-            }
-            return {
-                ...example,
-                metadata: {
-                    ...(example.metadata || {}),
-                    ...(language ? { language } : {}),
-                    ...(canonicalText
-                        ? { canonical: canonicalText.includes(example.text) }
-                        : {}),
-                },
-            };
-        });
+        if (TrainingDataValidator.isNluEmpty(nlu)) {
+            throw new Error('NLU data came back empty from Rasa.');
+        }
+        if (nlu) {
+            nlu.common_examples = (nlu.common_examples || []).map((example) => {
+                if (!language && example?.metadata?.language) {
+                    ({ language } = example.metadata);
+                }
+                return {
+                    ...example,
+                    metadata: {
+                        ...(example.metadata || {}),
+                        ...(language ? { language } : {}),
+                        ...(canonicalText
+                            ? { canonical: canonicalText.includes(example.text) }
+                            : {}),
+                    },
+                };
+            });
+        }
+        if (!language) language = this.fallbackLang;
         // even though language is found in individual examples metadata, we also
         // store it as a file-level property. This is because the schema for other
         // nlu data (e.g. synonyms) don't allow for metadata. For these, we have to
@@ -167,17 +186,27 @@ export class TrainingDataValidator {
     };
 
     loadFromYaml = async (file) => {
-        let { stories, rules, nlu } = {};
+        let {
+            stories, rules, nlu, errors,
+        } = {};
         try {
             ({ nlu, stories, rules } = safeLoad(file.rawText));
             if (!nlu && !stories && !rules) throw new Error();
         } catch {
             return false;
         }
-        const nluStuff = nlu ? await this.getNluFromFile(safeDump({ nlu }), 'yaml') : {};
+        try {
+            nlu = nlu ? await this.getNluFromFile(safeDump({ nlu }), 'yaml') : {};
+        } catch (error) {
+            errors = [error.message];
+        }
         return {
-            ...this.formatRulesAndStoriesFromLoadedYaml({ stories, rules }, file.filename),
-            nlu: nluStuff,
+            ...this.formatRulesAndStoriesFromLoadedYaml(
+                { stories, rules },
+                file.filename,
+            ),
+            nlu,
+            errors,
         };
     };
 
@@ -188,20 +217,38 @@ export class TrainingDataValidator {
         } catch {
             return false;
         }
-        if ('rasa_nlu_data' in parsed) {
-            const { lookup_tables: _, ...nlu } = parsed.rasa_nlu_data;
-            return { nlu };
+        try {
+            if ('rasa_nlu_data' in parsed) {
+                const { lookup_tables: _, ...nlu } = parsed.rasa_nlu_data;
+                if (TrainingDataValidator.isNluEmpty(nlu)) {
+                    throw new Error('No NLU data is file.');
+                }
+                return { nlu };
+            }
+            return { nlu: await this.getNluFromFile(parsed, 'json') };
+        } catch (error) {
+            return { errors: [error.message] };
         }
-        return { nlu: await this.getNluFromFile(parsed, 'json') };
     };
 
     loadNluFromMd = async (file) => {
-        const language = TrainingDataValidator.getLanguageFromMdNluFile(file.rawText) || this.fallbackLang;
-        const canonicalText = TrainingDataValidator.getCanonicalFromMdNluFile(file.rawText);
-        return this.getNluFromFile(file.rawText, 'md', { language, canonicalText });
+        const language = TrainingDataValidator.getLanguageFromMdNluFile(file.rawText)
+            || this.fallbackLang;
+        const canonicalText = TrainingDataValidator.getCanonicalFromMdNluFile(
+            file.rawText,
+        );
+        try {
+            const nlu = await this.getNluFromFile(file.rawText, 'md', {
+                language,
+                canonicalText,
+            });
+            return nlu;
+        } catch (error) {
+            return { errors: [error.message] };
+        }
     };
 
-    validateCommonExamples = (examples) => {
+    validateCommonExamples = (examples, filename) => {
         const droppedExamples = {};
         const warnings = [];
         const filteredExamples = examples.filter((ex) => {
@@ -211,10 +258,13 @@ export class TrainingDataValidator {
                 this.existingNlu[language] = freshNluTally();
             }
             if (this.existingNlu[language].common_examples[text]) {
-                droppedExamples[language] = [...(droppedExamples[language] || []), text];
+                droppedExamples[language] = [
+                    ...(droppedExamples[language] || []),
+                    [text, filename],
+                ];
                 return false;
             }
-            this.existingNlu[language].common_examples[text] = true;
+            this.existingNlu[language].common_examples[text] = filename;
             if (!this.projectLanguages.includes(language)) {
                 this.projectLanguages.push(language);
                 this.summary.push({
@@ -227,10 +277,20 @@ export class TrainingDataValidator {
             return true;
         });
         Object.keys(droppedExamples).forEach(lang => warnings.push({
-            text: `${droppedExamples[lang].length} ${lang} examples dropped`,
-            longText: `The following examples were dropped: ${droppedExamples[lang]
-                .map(ex => `'${ex}'`)
-                .join(', ')}.`,
+            text: `${droppedExamples[lang].length} '${lang}' examples dropped`,
+            longText: `${TrainingDataValidator.countAndPluralize(
+                droppedExamples[lang].length,
+                'Example',
+                false,
+            )} ${droppedExamples[lang]
+                .map(ex => `'${ex[0]}'`)
+                .join(', ')} ${TrainingDataValidator.countAndPluralize(
+                droppedExamples[lang].length,
+                'was',
+                false,
+            )} dropped because same text was found in an import file (${Array.from(
+                new Set(droppedExamples[lang].map(ex => `${ex[1]}`)),
+            ).join(', ')}).`,
         }));
         return [warnings, filteredExamples];
     };
@@ -255,7 +315,7 @@ export class TrainingDataValidator {
         let loadedFile = await this.loadFromYaml(file);
         if (!loadedFile) loadedFile = await this.loadFromJson(file);
         if (!loadedFile) loadedFile = await this.loadFromMd(file);
-        return loadedFile;
+        return { ...file, ...loadedFile };
     };
 
     getGroupNameAndBodyFromMdStoryFile = (file) => {
@@ -295,7 +355,7 @@ export class TrainingDataValidator {
             this.existingFragments[group] = freshCoreTally();
         }
         this.existingFragments[group][type] += 1;
-    }
+    };
 
     addGroupToExistingList = (name) => {
         if (!this.existingStoryGroups.find(esg => esg.name === name)) {
@@ -303,10 +363,11 @@ export class TrainingDataValidator {
                 text: `Fragment group '${name}' will be created.`,
             });
             this.existingStoryGroups.push({
-                name, _id: uuidv4(),
+                name,
+                _id: uuidv4(),
             });
         }
-    }
+    };
 
     validateRules = (rules) => {
         const warnings = [];
@@ -352,20 +413,23 @@ export class TrainingDataValidator {
                 if (!parts.body.length) parts.header.push(checkpoint);
                 else parts.footer.push(checkpoint);
             } else if (parts.footer.length) {
-                throw new Error('A checkpoint sandwiched between other content: bad form.');
+                throw new Error(
+                    'A checkpoint sandwiched between other content: bad form.',
+                );
             } else {
                 parts.body.push(rest);
             }
         });
         return parts;
-    }
+    };
 
     static checkStoryHeader = (header, fullTitle) => {
         let ancestorOf = [];
         const linkFrom = [];
         header.forEach((origin) => {
             const motherFromCheckpoint = (origin.match(/(.*)__branches/) || [])[1];
-            const motherFromTitle = (fullTitle.replace(/ /g, '_').match(/(.*)__.*/) || [])[1];
+            const motherFromTitle = (fullTitle.replace(/ /g, '_').match(/(.*)__.*/)
+                || [])[1];
             if (motherFromCheckpoint || motherFromTitle) {
                 if (motherFromCheckpoint !== motherFromTitle) {
                     throw new Error('Branching convention not respected.');
@@ -378,7 +442,7 @@ export class TrainingDataValidator {
         });
         return { ancestorOf, linkFrom };
     };
-    
+
     static checkStoryFooter = (footer, fullTitle) => {
         let hasDescendents = false;
         let linkTo = null;
@@ -403,9 +467,17 @@ export class TrainingDataValidator {
     injectStoryParsingMetadata = (story, extra) => {
         const fullTitle = story.title;
         const title = (fullTitle.match(/.*__(.*)/) || [null, fullTitle])[1];
-        const { header, body, footer } = TrainingDataValidator.splitStoryBody(story.steps);
-        const { ancestorOf, linkFrom } = TrainingDataValidator.checkStoryHeader(header, fullTitle);
-        const { hasDescendents, linkTo } = TrainingDataValidator.checkStoryFooter(footer, fullTitle);
+        const { header, body, footer } = TrainingDataValidator.splitStoryBody(
+            story.steps,
+        );
+        const { ancestorOf, linkFrom } = TrainingDataValidator.checkStoryHeader(
+            header,
+            fullTitle,
+        );
+        const { hasDescendents, linkTo } = TrainingDataValidator.checkStoryFooter(
+            footer,
+            fullTitle,
+        );
 
         return {
             ...story,
@@ -423,7 +495,7 @@ export class TrainingDataValidator {
                 },
             },
         };
-    }
+    };
 
     validateStories = (stories, fileIndex) => {
         const warnings = [];
@@ -431,7 +503,8 @@ export class TrainingDataValidator {
         const filteredAndParsedStories = stories.reduce((acc, story) => {
             const errors = [
                 ...new DialogueFragmentValidator({
-                    mode: 'story_steps', allowCheckpoints: true,
+                    mode: 'story_steps',
+                    allowCheckpoints: true,
                 }).validateYamlFragment(safeDump(story.steps || [])),
             ].filter(a => a.type === 'error');
             if (errors.length) {
@@ -444,10 +517,7 @@ export class TrainingDataValidator {
             try {
                 return [...acc, this.injectStoryParsingMetadata(story, { fileIndex })];
             } catch (error) {
-                dropped[story.title] = [
-                    ...(dropped[story.title] || []),
-                    error,
-                ];
+                dropped[story.title] = [...(dropped[story.title] || []), error.message];
                 return acc;
             }
         }, []);
@@ -456,7 +526,7 @@ export class TrainingDataValidator {
             longText: `Reason: ${dropped[title].join(' ')}`,
         }));
         return [warnings, filteredAndParsedStories];
-    }
+    };
 
     addGlobalNluSummaryLines = () => Object.keys(this.existingNlu).forEach((lang) => {
         const { total, ...nByType } = Object.keys(this.existingNlu[lang]).reduce(
@@ -466,7 +536,10 @@ export class TrainingDataValidator {
                 return {
                     ...acc,
                     total: acc.total + n,
-                    [key]: TrainingDataValidator.countAndPluralize(n, ENGLISH_MAPPINGS[key]),
+                    [key]: TrainingDataValidator.countAndPluralize(
+                        n,
+                        ENGLISH_MAPPINGS[key],
+                    ),
                 };
             },
             { total: 0 },
@@ -480,8 +553,12 @@ export class TrainingDataValidator {
     addGlobalCoreSummaryLines = () => Object.keys(this.existingFragments).forEach((group) => {
         const { rules, stories } = this.existingFragments[group];
         const nByType = [
-            ...(rules > 0 ? [TrainingDataValidator.countAndPluralize(rules, 'rule')] : []),
-            ...(stories > 0 ? [TrainingDataValidator.countAndPluralize(stories, 'story')] : []),
+            ...(rules > 0
+                ? [TrainingDataValidator.countAndPluralize(rules, 'rule')]
+                : []),
+            ...(stories > 0
+                ? [TrainingDataValidator.countAndPluralize(stories, 'story')]
+                : []),
         ];
         this.summary.push({
             text: `${nByType} will be added to group '${group}'.`,
@@ -489,9 +566,7 @@ export class TrainingDataValidator {
     });
 
     updateLinks = (pathsAndIds) => {
-        const {
-            linkTo, currentPath, _id,
-        } = pathsAndIds;
+        const { linkTo, currentPath, _id } = pathsAndIds;
         let outputLinks = this.links;
         if (linkTo) {
             outputLinks = [
@@ -503,13 +578,12 @@ export class TrainingDataValidator {
                 },
             ];
         }
-        outputLinks
-            .forEach((l, i) => {
-                const path = (l.path.match(/(.*)__/) || [])[1];
-                if (path === currentPath) {
-                    outputLinks[i] = { ...l, path, value: [_id, ...l.value] };
-                }
-            });
+        outputLinks.forEach((l, i) => {
+            const path = (l.path.match(/(.*)__/) || [])[1];
+            if (path === currentPath) {
+                outputLinks[i] = { ...l, path, value: [_id, ...l.value] };
+            }
+        });
         this.links = outputLinks;
     };
 
@@ -519,7 +593,10 @@ export class TrainingDataValidator {
 
         const output = { '': [] };
         stories
-            .sort((a, b) => b.metadata.parsingMetadata.ancestorOf.length - a.metadata.parsingMetadata.ancestorOf.length) // sort deepest first
+            .sort(
+                (a, b) => b.metadata.parsingMetadata.ancestorOf.length
+                    - a.metadata.parsingMetadata.ancestorOf.length,
+            ) // sort deepest first
             .forEach((parsedStory) => {
                 const {
                     steps,
@@ -534,10 +611,9 @@ export class TrainingDataValidator {
                     fileIndex,
                 } = parsingMetadata;
                 const ancestorPath = ancestorOf.join('__');
-                const currentPath = `${ancestorPath && `${ancestorPath}__`}${title.replace(
-                    / /g,
-                    '_',
-                )}`;
+                const currentPath = `${
+                    ancestorPath && `${ancestorPath}__`
+                }${title.replace(/ /g, '_')}`;
                 const _id = ancestorOf.length
                     ? shortid.generate().replace('_', '0')
                     : uuidv4();
@@ -550,14 +626,16 @@ export class TrainingDataValidator {
 
                 if (!output[ancestorPath]) output[ancestorPath] = [];
                 const arrayToPushStoryTo = !ancestorOf.length
-                    ? rehydrated[fileIndex].stories : output[ancestorPath];
+                    ? rehydrated[fileIndex].stories
+                    : output[ancestorPath];
 
                 arrayToPushStoryTo.push({
                     _id,
                     steps,
                     title,
                     ...(!ancestorOf.length ? { metadata } : {}),
-                    branches: hasDescendents && output[currentPath] ? output[currentPath] : [],
+                    branches:
+                        hasDescendents && output[currentPath] ? output[currentPath] : [],
                     ...(linkFrom.length ? { checkpoints: linkFrom } : {}),
                 });
 
@@ -565,23 +643,27 @@ export class TrainingDataValidator {
             });
 
         rehydrated.forEach(({ stories: rehydratedStories = [] }, index) => {
-            rehydratedStories.forEach(({ checkpoints = [], title, metadata = {} }, storyIndex) => {
-                this.incrementFragmentsForGroup(metadata.group, 'stories');
-                this.addGroupToExistingList(metadata.group);
-                const resolvedCheckpoints = [];
-                checkpoints.forEach((c) => {
-                    const link = this.links.find(l => l.name === c) || {};
-                    if (!link.value) {
-                        rehydrated[index].warnings.push({
-                            text: `Story '${title}' refers to a checkpoint '${c}', but no origin counterpart was found.`,
-                        });
-                    } else resolvedCheckpoints.push(link.value);
-                });
-                rehydrated[index].stories[storyIndex].checkpoints = resolvedCheckpoints;
-            });
+            rehydratedStories.forEach(
+                ({ checkpoints = [], title, metadata = {} }, storyIndex) => {
+                    this.incrementFragmentsForGroup(metadata.group, 'stories');
+                    this.addGroupToExistingList(metadata.group);
+                    const resolvedCheckpoints = [];
+                    checkpoints.forEach((c) => {
+                        const link = this.links.find(l => l.name === c) || {};
+                        if (!link.value) {
+                            rehydrated[index].warnings.push({
+                                text: `Story '${title}' refers to a checkpoint '${c}', but no origin counterpart was found.`,
+                            });
+                        } else resolvedCheckpoints.push(link.value);
+                    });
+                    rehydrated[index].stories[
+                        storyIndex
+                    ].checkpoints = resolvedCheckpoints;
+                },
+            );
         });
         return rehydrated;
-    }
+    };
 
     validateTrainingData = async (files) => {
         let trainingDataFiles = await Promise.all(
@@ -591,32 +673,39 @@ export class TrainingDataValidator {
             let {
                 nlu = {}, stories = [], rules = [], warnings = [],
             } = file;
-            // we don't care about duplicates in synonyms, gazette and regex
-            if (nlu.common_examples) {
-                const [newWarnings, filtered] = this.validateCommonExamples(
-                    nlu.common_examples,
-                );
-                nlu = { ...nlu, common_examples: filtered };
-                nlu.common_examples = filtered;
-                warnings = [...warnings, ...newWarnings];
+            const { errors = [], filename } = file;
+            if (!errors.length) {
+                // we don't care about duplicates in synonyms, gazette and regex
+                if (nlu.common_examples) {
+                    const [newWarnings, filtered] = this.validateCommonExamples(
+                        nlu.common_examples,
+                        filename,
+                    );
+                    nlu = { ...nlu, common_examples: filtered };
+                    nlu.common_examples = filtered;
+                    warnings = [...warnings, ...newWarnings];
+                }
+                if (rules.length) {
+                    const [newWarnings, filtered] = this.validateRules(rules);
+                    rules = filtered;
+                    warnings = [...warnings, ...newWarnings];
+                }
+                if (stories.length) {
+                    const [newWarnings, filtered] = this.validateStories(
+                        stories,
+                        fileIndex,
+                    );
+                    stories = filtered;
+                    warnings = [...warnings, ...newWarnings];
+                }
+                ['entity_synonyms', 'regex_features', 'fuzzy_gazette'].forEach(key => this.validateGenericNluData(nlu, key));
             }
-            if (rules.length) {
-                const [newWarnings, filtered] = this.validateRules(rules);
-                rules = filtered;
-                warnings = [...warnings, ...newWarnings];
-            }
-            if (stories.length) {
-                const [newWarnings, filtered] = this.validateStories(stories, fileIndex);
-                stories = filtered;
-                warnings = [...warnings, ...newWarnings];
-            }
-            ['entity_synonyms', 'regex_features', 'fuzzy_gazette']
-                .forEach(key => this.validateGenericNluData(nlu, key));
             return {
                 ...file,
                 nlu,
                 stories,
                 rules,
+                errors,
                 warnings,
             };
         });
