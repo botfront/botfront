@@ -1,5 +1,5 @@
 import {
-    Popup, Icon, Menu, Label, Message, Checkbox, Header, List,
+    Popup, Icon, Menu, Label, Message, Checkbox, Header, List, Button,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import React, { useState, useContext, useEffect } from 'react';
@@ -238,6 +238,22 @@ const StoryTopMenu = ({
                     data-cy='connected-to'
                 >
                     {renderConditionSection()}
+                </Message>
+            )}
+            {type === 'test_case' && !fragment.testResults.success && (
+                <Message
+                    className='top-menu-yellow-banner'
+                    attached
+                    warning
+                >
+                    The most recent run of this test failed.
+                    <Button
+                        onClick={() => {
+                            Meteor.call('stories.update', { ...fragment, steps: fragment.testResults.steps, testResults: { success: true, steps: [] } });
+                        }}
+                        compact
+                    >Overwrite
+                    </Button>
                 </Message>
             )}
         </>

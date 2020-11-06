@@ -96,6 +96,7 @@
             }
         }
     }
+
 }
 
 .dropdown-button-trigger > i.dropdown.icon {
@@ -124,6 +125,17 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+&.invalid {
+    .utterances-container {
+        background-color: rgba(255, 212, 212, 0.5);
+    }
+}
+&.valid {
+    .utterances-container {
+        background-color: rgba(228, 255, 228, 0.5);
+    }
 }
 
 .utterances-container {
@@ -379,6 +391,23 @@ div.add-entity-wrap {
 
 .bot-responses-modal.content button {
     cursor: pointer;
+}
+
+
+.loading-bot-response {
+    margin-left: 24px;
+    margin-bottom: 4px;
+    margin-right:200px;
+    width: 100%;
+    .ui.placeholder {
+        width: 20em;
+        opacity: 0.6;
+        border-radius: 4px;
+        background-color: rgb(237, 237, 237);
+        .line {
+            background: rgb(241, 241, 241);
+        }
+    }
 }
 
 .utterance-container {

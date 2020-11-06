@@ -45,9 +45,9 @@ export const indexStory = (storyToIndex, options = {}) => {
         ? { ...storyPreupdate, ...update }
         : storyPreupdate;
     const {
-        title, steps, condition, branches,
+        title, steps, condition, branches, testResult: { testSteps = [] } = {},
     } = story;
-    const els = scrapeStoryTextAndActions([title, condition, steps, branches]);
+    const els = scrapeStoryTextAndActions([title, condition, steps, branches, testSteps]);
     const result = {};
     result.textIndex = els.map(el => el.value).join(' ');
     const events = Array.from(

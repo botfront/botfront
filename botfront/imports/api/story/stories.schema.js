@@ -10,6 +10,18 @@ const topLevelFields = {
     metadata: { type: Object, blackbox: true, optional: true },
 };
 
+const stepFields = {
+    steps: {
+        type: Array,
+        optional: true,
+        defaultValue: [],
+    },
+    'steps.$': {
+        type: Object,
+        blackbox: true,
+    },
+};
+
 const commonFields = {
     story: {
         type: String,
@@ -20,15 +32,7 @@ const commonFields = {
         type: String,
         trim: true,
     },
-    steps: {
-        type: Array,
-        optional: true,
-        defaultValue: [],
-    },
-    'steps.$': {
-        type: Object,
-        blackbox: true,
-    },
+    ...stepFields,
 };
 
 const intermediateStorySchemas = [
@@ -90,11 +94,23 @@ export const RuleSchema = new SimpleSchema({
     },
 });
 
+const TestResult = new SimpleSchema({
+    success: {
+        type: Boolean,
+        optional: true,
+    },
+    ...stepFields,
+});
+
 export const TestSchema = new SimpleSchema({
     ...topLevelFields,
     ...commonFields,
     type: {
         type: String,
         allowedValues: ['test_case'],
+    },
+    testResult: {
+        type: TestResult,
+        optional: true,
     },
 });

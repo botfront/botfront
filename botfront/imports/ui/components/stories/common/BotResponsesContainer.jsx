@@ -171,10 +171,12 @@ const BotResponsesContainer = (props) => {
         <ResponseContext.Provider value={{ name }}>
             <div className='utterances-container exception-wrapper-target'>
                 {!template && (
-                    <Placeholder>
-                        <Placeholder.Line />
-                        <Placeholder.Line />
-                    </Placeholder>
+                    <div className='loading-bot-response'>
+                        <Placeholder fluid>
+                            <Placeholder.Line />
+                            <Placeholder.Line />
+                        </Placeholder>
+                    </div>
                 )}
                 {getSequence().map(renderResponse)}
                 <div className='side-by-side right narrow top-right'>

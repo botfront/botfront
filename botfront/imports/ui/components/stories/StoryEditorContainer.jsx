@@ -246,45 +246,11 @@ const StoryEditorContainer = ({
         if (!branches[path.join()]) {
             return null;
         }
-        if (story.type === 'test_case') {
+        if (story.type === 'test_case' && !story.testResults?.success) {
             return (
                 <StoryDif
-                    expected={[
-                        {
-                            intent: 'test',
-                            user: 'awesome',
-                            entities: [],
-                        },
-                        {
-                            action: 'utter_test',
-                        },
-                        {
-                            intent: 'test',
-                            user: 'awesome',
-                            entities: [],
-                        },
-                        {
-                            action: 'utter_test',
-                        },
-                    ]}
-                    actual={[
-                        {
-                            intent: 'test',
-                            user: 'awesome',
-                            entities: [],
-                        },
-                        {
-                            action: 'utter_testing',
-                        },
-                        {
-                            intent: 'test',
-                            user: 'awesome',
-                            entities: [],
-                        },
-                        {
-                            action: 'utter_test',
-                        },
-                    ]}
+                    expected={story.steps}
+                    actual={story?.testResults?.steps || []}
                 />
             );
         }
