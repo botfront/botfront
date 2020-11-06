@@ -270,7 +270,6 @@ export const validateDomain = (files, params) => {
             };
         });
     }
-   
     const newSummary = params.summary;
 
     if (domainFiles.length > 0) {

@@ -714,7 +714,6 @@ export class TrainingDataValidator {
         });
 
         this.rehydrateStories(trainingDataFiles);
-        console.log(this.existingNlu);
         this.addGlobalNluSummaryLines();
         this.addGlobalCoreSummaryLines();
 

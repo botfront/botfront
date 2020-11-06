@@ -38,7 +38,7 @@ export const validateSimpleYamlFiles = (files, params, type, alias = type) => {
     }
 
     const newSummary = params.summary;
-    if (filesToValid.length > 0) newSummary.push(`You will remplace ${alias} by the one in ${filesToValid[0].filename}`);
+    if (filesToValid.length > 0) newSummary.push(`${alias.charAt(0).toUpperCase() + alias.slice(1)} will be imported from ${filesToValid[0].filename}.`);
 
     const newFiles = files.map((file) => {
         if (file?.dataType !== type) return file;

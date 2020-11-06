@@ -2,53 +2,40 @@ import yaml from 'js-yaml';
 import { Projects } from '../../api/project/project.collection';
 
 export const validateARasaConfig = (file, fallbackLang) => {
-    let rasaConfig;
-    const errors = [];
-    const warnings = [];
+    let { pipeline, language, policies } = {};
+    const errors = file?.errors || [];
+    const warnings = file?.warnings || [];
     try {
-        rasaConfig = yaml.safeLoad(file.rawText);
-    } catch (e) {
-        return {
-            ...file,
-            errors: [...(file?.errors || []), 'Not valid yaml'],
-        };
+        ({ pipeline, language, policies } = yaml.safeLoad(file.rawText));
+    } catch {
+        errors.push('Invalid YAML.');
+        return { ...file, errors };
     }
-
-    const configsKeys = Object.keys(rasaConfig);
-    configsKeys.forEach((key) => {
-        if (!['pipeline', 'policies', 'language'].includes(key)) {
-            errors.push(`${key} is not a valid rasa config data`);
-        }
-    });
-    if (!configsKeys.includes('language')) {
-        warnings.push('is missing a language key, it will use the fallback one');
-        rasaConfig.language = fallbackLang;
+    if (!pipeline && !policies) {
+        errors.push('No pipeline or policies in this file.');
+        return { ...file, errors };
     }
-    if (configsKeys.includes('language') && !configsKeys.includes('pipeline') && !configsKeys.includes('policies')) {
-        warnings.push('No pipeline or policies in this file');
-    }
-    if (errors.length > 0) {
-        return {
-            ...file,
-            errors: [...(file?.errors || []), ...errors],
-        };
+    if (!language) {
+        warnings.push(`No language specified for pipeline, using '${fallbackLang}'.`);
+        language = fallbackLang;
     }
     return {
         ...file,
-        ...rasaConfig,
+        pipeline,
+        ...(pipeline ? { language } : {}),
+        policies,
+        warnings,
     };
 };
 
 const langSummary = (rasaConfigFile, projectLangs) => {
     if (!rasaConfigFile) return null;
     if (rasaConfigFile.errors && rasaConfigFile.errors.length > 0) return null;
-    if (projectLangs.has(rasaConfigFile.language) && rasaConfigFile.pipeline) {
-        return `The pipeline for the language "${rasaConfigFile.language}" will be remplace by the one from the file ${rasaConfigFile.filename}`;
+    if (!rasaConfigFile.language) return null;
+    if (projectLangs.has(rasaConfigFile.language)) {
+        return `Pipeline for language '${rasaConfigFile.language}' will be overwritten by ${rasaConfigFile.filename}.`;
     }
-    if (!rasaConfigFile.pipeline) {
-        return `${rasaConfigFile.filename} will add the support for the language "${rasaConfigFile.language}" using the default pipeline`;
-    }
-    return `${rasaConfigFile.filename} will add the support for the language "${rasaConfigFile.language}"`;
+    return `Pipeline for new language model '${rasaConfigFile.language}' will be imported from ${rasaConfigFile.filename}.`;
 };
 
 const validateRasaConfigTogether = (files, projectId) => {
@@ -66,31 +53,33 @@ const validateRasaConfigTogether = (files, projectId) => {
             const newWarnings = [];
             languagesFromFiles.add(language);
             if (pipeline && pipelinePerLang[language]) {
-                newWarnings.push('There is already a config file with a pipeline for this lang, this data won\'t be used in the import');
+                newWarnings.push(
+                    `Dropped pipeline, since a pipeline for '${language}' is found in another import file.`,
+                );
             }
-            if (pipeline && !pipelinePerLang[language]) pipelinePerLang[language] = filename;
+            if (pipeline && !pipelinePerLang[language]) { pipelinePerLang[language] = filename; }
             summary.push(langSummary(rasaConfigFile, languagesFromProject));
 
             if (policies && policiesFoundIn !== '') {
-                newWarnings.push(`Policies from this file conflicts with policies from ${policiesFoundIn}, and thus they won't be used in the import`);
+                newWarnings.push(
+                    `Dropped policies, since policies are already found in file ${policiesFoundIn}.`,
+                );
             }
 
             if (policies && policiesFoundIn === '') {
-                summary.push(`Policies will be remplaced by the ones from ${filename}`);
+                summary.push(`Policies will be overwritten by ${filename}.`);
                 policiesFoundIn = filename;
             }
             return {
                 ...rasaConfigFile,
-                warnings: [
-                    ...(warnings || []), ...newWarnings,
-                ],
+                warnings: [...(warnings || []), ...newWarnings],
             };
         });
     } else if (files.length === 1) {
         const configFile = configFiles[0];
         const langMessage = langSummary(configFile, languagesFromProject);
         if (langMessage) summary.push(langMessage);
-        if (configFile.policies) summary.push(`Policies will be remplaced by the ones from ${configFile.filename}`);
+        if (configFile.policies) { summary.push(`Policies will be overwritten by ${configFile.filename}.`); }
     }
     const projectLanguages = Array.from([...languagesFromProject, ...languagesFromFiles]);
     return [configFiles, summary, projectLanguages];
