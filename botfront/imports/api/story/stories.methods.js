@@ -4,6 +4,7 @@ import uuidv4 from 'uuid/v4';
 import { indexStory } from './stories.index';
 
 import { Stories } from './stories.collection';
+import Conversations from '../graphql/conversations/conversations.model';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo/botResponses';
 import { checkIfCan } from '../../lib/scopes';
@@ -174,5 +175,36 @@ Meteor.methods({
         } catch (e) {
             return {};
         }
+    },
+
+    async 'stories.addTestCase'(projectId, trackerId) {
+        checkIfCan('stories:w', projectId);
+        check(projectId, String);
+        check(trackerId, String);
+        const convo = await Conversations.findOne({ _id: trackerId, projectId }).lean();
+        if (!convo) throw new Meteor.Error(404, 'Conversation not found');
+        const steps = [];
+        convo.tracker.events.forEach((event) => {
+            if (event.event === 'user') {
+                steps.push({
+                    user: event.text,
+                    intent: event.parse_data.intent.name,
+                });
+            }
+            if (event.event === 'action' && event.name.startsWith('utter')) {
+                steps.push({
+                    action: event.name,
+                });
+            }
+        });
+        const storyGroup = await StoryGroups.findOne({ projectId, pinned: false });
+        const newTestStory = {
+            type: 'test_case',
+            storyGroupId: storyGroup._id,
+            title: `test_story_${uuidv4()}`,
+            projectId,
+            steps,
+        };
+        await Meteor.callWithPromise('stories.insert', newTestStory);
     },
 });

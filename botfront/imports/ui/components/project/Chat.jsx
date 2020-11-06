@@ -18,9 +18,11 @@ class Chat extends React.Component {
             language,
             path,
             initialPayLoad,
+            innerRef,
         } = this.props;
         return (
             <Widget
+                ref={innerRef}
                 interval={0}
                 initPayload={initialPayLoad}
                 socketUrl={socketUrl}
@@ -40,6 +42,7 @@ Chat.propTypes = {
     path: PropTypes.string.isRequired,
     language: PropTypes.string,
     initialPayLoad: PropTypes.string,
+    innerRef: PropTypes.shape({ current: PropTypes.any }).isRequired,
 };
 
 Chat.defaultProps = {
@@ -47,4 +50,4 @@ Chat.defaultProps = {
     initialPayLoad: '',
 };
 
-export default Chat;
+export default React.forwardRef((props, ref) => <Chat innerRef={ref} {...props} />);

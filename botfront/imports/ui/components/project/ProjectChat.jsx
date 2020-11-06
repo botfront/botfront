@@ -5,12 +5,15 @@ import React from 'react';
 import {
     Menu, Icon, Dropdown, Popup, Message,
 } from 'semantic-ui-react';
+
 import Chat from './Chat';
+import { wrapMeteorCallback } from '../utils/Errors';
 import { setShouldRefreshChat } from '../../store/actions/actions';
 
 class ProjectChat extends React.Component {
     constructor(props) {
         super(props);
+        this.chatRef = React.createRef(null);
         this.state = {
             key: 0,
             languageOptions: null,
@@ -50,6 +53,22 @@ class ProjectChat extends React.Component {
         window.localStorage.removeItem('chat_session');
         this.rerenderChatComponent();
     };
+
+    handleSaveTest = () => {
+        const {
+            project: { _id: projectId },
+        } = this.props;
+        if (this.chatRef.current && this.chatRef.current.getSessionId) {
+            Meteor.call(
+                'stories.addTestCase',
+                projectId,
+                this.chatRef.current.getSessionId(),
+                wrapMeteorCallback((res) => {
+                    console.log(res);
+                }),
+            );
+        }
+    }
 
     handleLangChange = (e, { value }) => {
         this.setState(
@@ -110,6 +129,24 @@ class ProjectChat extends React.Component {
                             <Popup
                                 trigger={(
                                     <Icon
+                                        name='clipboard check'
+                                        color='grey'
+                                        link={!noChannel}
+                                        onClick={this.handleSaveTest}
+                                        disabled={noChannel}
+                                        data-cy='save-chat-as-test'
+                                    />
+                                )}
+                                content='Save conversation as a test case'
+                                position='bottom right'
+                                className='redo-chat-popup'
+                                disabled={noChannel}
+                            />
+                        </Menu.Item>
+                        <Menu.Item>
+                            <Popup
+                                trigger={(
+                                    <Icon
                                         name='redo'
                                         color='grey'
                                         link={!noChannel}
@@ -144,6 +181,7 @@ class ProjectChat extends React.Component {
                 </Menu>
                 {socketUrl && path && (
                     <Chat
+                        ref={this.chatRef}
                         socketUrl={socketUrl}
                         key={key}
                         language={selectedLanguage}
