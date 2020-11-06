@@ -62,7 +62,7 @@ export async function getRawTextAndType(files) {
     return filesDataAndTypes;
 }
 
-export function validateFiles(files, params) {
+export async function validateFiles(files, params) {
     let filesWithMessages = files;
     let newParams = { ...params, summary: [] };
     // this is the validation pipeline each step only add errors to the files it should validate
@@ -75,7 +75,7 @@ export function validateFiles(files, params) {
     ([filesWithMessages, newParams] = validateDomain(filesWithMessages, newParams));
     ([filesWithMessages, newParams] = validateConversations(filesWithMessages, newParams));
     ([filesWithMessages, newParams] = validateIncoming(filesWithMessages, newParams));
-    ([filesWithMessages, newParams] = validateTrainingData(filesWithMessages, newParams));
+    ([filesWithMessages, newParams] = await validateTrainingData(filesWithMessages, newParams));
 
 
     return [filesWithMessages, newParams];
@@ -87,9 +87,8 @@ export async function readAndValidate(files, params) {
     const filesDataAndTypes = await getRawTextAndType(files, params);
 
     // send all file to the validation pipeline
-    const [fileWithMessages, finalParams] = validateFiles(filesDataAndTypes, params);
+    const [fileWithMessages, finalParams] = await validateFiles(filesDataAndTypes, params);
     
-   
     return {
         fileMessages: fileWithMessages, summary: finalParams.summary, params: finalParams,
     };

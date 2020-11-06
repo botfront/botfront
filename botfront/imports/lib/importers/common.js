@@ -45,12 +45,12 @@ export const determineDataType = (f, rawText) => {
             } catch (e) {
                 return 'unknown';
             }
-            if ('rasa_nlu_data' in data) return 'nlu'; // need to be checked
             if (Array.isArray(data) && data.length > 0) {
                 // might need improving at some point
                 if (data[0].tracker) return 'conversations';
                 if (data[0].text) return 'incoming';
             }
+            return 'training_data';
         }
         if (filename.match(/\.yml$/)) {
             let data;
@@ -60,14 +60,16 @@ export const determineDataType = (f, rawText) => {
                 return 'unknown';
             }
             const domainKeys = ['responses', 'templates', 'actions', 'session_config', 'slots'];
-            const trainingKeys = ['version', 'nlu', 'stories', 'rules'];
-          
+            const trainingKeys = ['nlu', 'stories', 'rules'];
             if (Object.keys(data).some(key => domainKeys.includes(key))) {
                 return 'domain';
             }
             if (Object.keys(data).some(key => trainingKeys.includes(key))) {
-                return 'rasatrainingdata';
+                return 'training_data';
             }
+        }
+        if (filename.match(/\.md$/)) {
+            return 'training_data';
         }
         return 'unknown';
     } catch (e) {

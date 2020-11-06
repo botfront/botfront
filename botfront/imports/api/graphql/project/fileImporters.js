@@ -75,6 +75,34 @@ const handleImportResponse = async (responses, projectId) => {
 //     } else insert();
 // };
 
+// const handleImportDataset = (files, {
+//     projectId, fileReader: [, setFileList], setImportingState, wipeCurrent,
+// }) => {
+//     if (!files.length) return;
+//     setImportingState(true);
+//     files.forEach((f, idx) => {
+//         Meteor.call(
+//             'nlu.import',
+//             f.rasa_nlu_data,
+//             projectId,
+//             f.language,
+//             wipeCurrent,
+//             f.canonical,
+//             wrapMeteorCallback((err) => {
+//                 if (!err) {
+//                     setFileList({
+//                         delete: {
+//                             filename: f.filename,
+//                             lastModified: f.lastModified,
+//                         },
+//                     });
+//                 }
+//                 if (err || idx === files.length - 1) setImportingState(false);
+//             }),
+//         );
+//     });
+// };
+
 const wipeDomain = async (projectId) => {
     try {
         await botResponses.deleteMany({ projectId });

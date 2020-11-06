@@ -92,9 +92,7 @@ export const validateSimpleJsonFiles = (files, params, type) => {
 
 export const validateEndpoints = (files, params) => validateSimpleYamlFiles(files, params, 'endpoints');
 
-
 export const validateCredentials = (files, params) => validateSimpleYamlFiles(files, params, 'credentials');
-  
 
 export const validateBfConfig = (files, params) => {
     const [newFiles, newParams] = validateSimpleYamlFiles(files, params, 'bfconfig', 'botfront config');
@@ -107,8 +105,6 @@ export const validateBfConfig = (files, params) => {
     return [newFiles, newParams];
 };
 
-
 export const validateIncoming = (files, params) => validateSimpleJsonFiles(files, params, 'incoming');
- 
 
 export const validateConversations = (files, params) => validateSimpleJsonFiles(files, params, 'conversations');

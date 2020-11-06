@@ -5,8 +5,10 @@ const INTENT_KEYS = ['intent', 'entities', 'user'];
 export class DialogueFragmentValidator {
     constructor({
         mode = 'story', // story, rule_steps, rule_condition
+        allowCheckpoints = false,
     } = {}) {
         this.mode = mode;
+        this.allowCheckpoints = allowCheckpoints;
         this.annotations = [];
     }
 
@@ -185,6 +187,8 @@ export class DialogueFragmentValidator {
             this.validateActionStep(step, index);
         } else if (Object.keys(step).includes('slot_was_set')) {
             this.validateSlotWasSetStep(step, index);
+        } else if (this.allowCheckpoints && Object.keys(step).length === 1 && 'checkpoint' in step) {
+            // ok
         } else {
             this.addAnnotation(index, 'Step type not supported');
         }
