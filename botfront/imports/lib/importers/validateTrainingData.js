@@ -163,7 +163,7 @@ export class TrainingDataValidator {
         // store it as a file-level property. This is because the schema for other
         // nlu data (e.g. synonyms) don't allow for metadata. For these, we have to
         // use this file level property
-        return { nlu, language };
+        return { ...nlu, language };
     };
 
     loadFromYaml = async (file) => {
@@ -174,10 +174,10 @@ export class TrainingDataValidator {
         } catch {
             return false;
         }
-        const nluStuff = nlu ? this.getNluFromFile(safeDump({ nlu }), 'yaml') : {};
+        const nluStuff = nlu ? await this.getNluFromFile(safeDump({ nlu }), 'yaml') : {};
         return {
             ...this.formatRulesAndStoriesFromLoadedYaml({ stories, rules }, file.filename),
-            ...nluStuff,
+            nlu: nluStuff,
         };
     };
 
@@ -192,7 +192,7 @@ export class TrainingDataValidator {
             const { lookup_tables: _, ...nlu } = parsed.rasa_nlu_data;
             return { nlu };
         }
-        return this.getNluFromFile(parsed, 'json');
+        return { nlu: await this.getNluFromFile(parsed, 'json') };
     };
 
     loadNluFromMd = async (file) => {
@@ -232,22 +232,22 @@ export class TrainingDataValidator {
                 .map(ex => `'${ex}'`)
                 .join(', ')}.`,
         }));
-        return [filteredExamples, warnings];
+        return [warnings, filteredExamples];
     };
 
     validateGenericNluData = (nluData = {}, key) => {
         if (!(key in nluData)) return;
         const lang = nluData.language;
-        if (!(lang in this.existingNlu)) {
+        if (lang && !(lang in this.existingNlu)) {
             this.existingNlu[lang] = freshNluTally();
         }
         nluData[key].forEach(() => {
-            this.existingNlu[lang][key].push(1);
+            this.existingNlu[lang][key] = true;
         });
     };
 
     loadFromMd = async (file) => {
-        if (file.rawText.match(NLU_LINES)) return { nlu: this.loadNluFromMd(file) };
+        if (file.rawText.match(NLU_LINES)) return { nlu: await this.loadNluFromMd(file) };
         return this.loadStoriesFromMd(file);
     };
 
@@ -461,17 +461,18 @@ export class TrainingDataValidator {
     addGlobalNluSummaryLines = () => Object.keys(this.existingNlu).forEach((lang) => {
         const { total, ...nByType } = Object.keys(this.existingNlu[lang]).reduce(
             (acc, key) => {
-                const n = this.existingNlu[lang][key].length;
+                const n = Object.keys(this.existingNlu[lang][key]).length;
                 if (!n) return acc;
                 return {
                     ...acc,
+                    total: acc.total + n,
                     [key]: TrainingDataValidator.countAndPluralize(n, ENGLISH_MAPPINGS[key]),
                 };
             },
             { total: 0 },
         );
         this.summary.push({
-            text: `${nByType} NLU data will be imported to '${lang}' model.`,
+            text: `${total} NLU data will be imported to '${lang}' model.`,
             longText: `${Object.values(nByType).join(', ')} will be imported.`,
         });
     });

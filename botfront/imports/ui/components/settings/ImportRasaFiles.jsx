@@ -78,7 +78,7 @@ const ImportRasaFiles = (props) => {
         const filesToImport = files.filter(file => !(file.errors && file.errors.length));
         const importResult = await importFiles({
             variables: {
-                projectId, files: filesToImport, noValidate: true, wipeCurrent, fallbackLang: fallbackImportLanguage,
+                projectId, files: filesToImport, wipeCurrent, fallbackLang: fallbackImportLanguage,
             },
         });
         setImportSummary([]);

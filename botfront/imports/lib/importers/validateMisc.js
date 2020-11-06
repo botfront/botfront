@@ -1,8 +1,6 @@
 import yaml from 'js-yaml';
 import { Instances } from '../../api/instances/instances.collection';
 
-export const doValidation = params => !params.noValidate;
-
 export const validateSimpleYamlFiles = (files, params, type, alias = type) => {
     let filesToValid = files.filter(f => f?.dataType === type);
     filesToValid = filesToValid.map((file) => {
@@ -38,7 +36,6 @@ export const validateSimpleYamlFiles = (files, params, type, alias = type) => {
             };
         });
     }
-  
 
     const newSummary = params.summary;
     if (filesToValid.length > 0) newSummary.push(`You will remplace ${alias} by the one in ${filesToValid[0].filename}`);

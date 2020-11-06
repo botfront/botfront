@@ -90,7 +90,6 @@ export async function readAndValidate(files, params) {
         errors: errors.map(s => (typeof s === 'string' ? { text: s } : s)),
         info: info.map(s => (typeof s === 'string' ? { text: s } : s)),
     }));
-    
     return {
         fileMessages, summary, params: finalParams,
     };
@@ -105,8 +104,10 @@ export function hasErrors(messages) {
 }
 
 // this function validate then import the files if there is not errors
-// onlyValidate, noValidate are boolean switches to alter the steps of the validation
-export async function importSteps(projectId, files, onlyValidate, wipeCurrent, fallbackLang) {
+// onlyValidate are boolean switches to alter the steps of the validation
+export async function importSteps({
+    projectId, files, onlyValidate, wipeCurrent, fallbackLang,
+}) {
     const filesAndValidationData = await readAndValidate(files, {
         onlyValidate, projectId, wipeCurrent, fallbackLang,
     });
