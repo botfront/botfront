@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import { safeLoad, safeDump } from 'js-yaml';
 import uuidv4 from 'uuid/v4';
 import shortid from 'shortid';
@@ -141,26 +142,30 @@ export class TrainingDataValidator {
     );
 
     getNluFromFile = async (
-        rawText,
+        fileData,
         extension,
         { language: specLang, canonicalText } = {},
     ) => {
         let language = specLang;
         let nlu;
-        try {
-            const res = await this.convertNluToJson(rawText, extension);
-            ({ rasa_nlu_data: nlu } = res?.data || {});
-            if (!nlu) throw new Error();
-            delete nlu.lookup_tables;
-        } catch {
-            throw new Error(
-                `NLU data in this file could not be parsed by Rasa at ${this.instanceHost}.`,
-            );
-        }
-        if (TrainingDataValidator.isNluEmpty(nlu)) {
-            throw new Error('NLU data came back empty from Rasa.');
+        if (fileData && typeof fileData === 'object' && 'rasa_nlu_data' in fileData) {
+            nlu = fileData.rasa_nlu_data;
+        } else {
+            try {
+                const res = await this.convertNluToJson(fileData, extension);
+                ({ rasa_nlu_data: nlu } = res?.data || {});
+                if (!nlu) throw new Error();
+            } catch {
+                throw new Error(
+                    `NLU data in this file could not be parsed by Rasa at ${this.instanceHost}.`,
+                );
+            }
         }
         if (nlu) {
+            delete nlu.lookup_tables;
+            if (TrainingDataValidator.isNluEmpty(nlu)) {
+                throw new Error('NLU data came back empty from Rasa.');
+            }
             nlu.common_examples = (nlu.common_examples || []).map((example) => {
                 if (!language && example?.metadata?.language) {
                     ({ language } = example.metadata);
@@ -218,13 +223,6 @@ export class TrainingDataValidator {
             return false;
         }
         try {
-            if ('rasa_nlu_data' in parsed) {
-                const { lookup_tables: _, ...nlu } = parsed.rasa_nlu_data;
-                if (TrainingDataValidator.isNluEmpty(nlu)) {
-                    throw new Error('No NLU data is file.');
-                }
-                return { nlu };
-            }
             return { nlu: await this.getNluFromFile(parsed, 'json') };
         } catch (error) {
             return { errors: [error.message] };
@@ -260,7 +258,7 @@ export class TrainingDataValidator {
             if (this.existingNlu[language].common_examples[text]) {
                 droppedExamples[language] = [
                     ...(droppedExamples[language] || []),
-                    [text, filename],
+                    [text, this.existingNlu[language].common_examples[text]],
                 ];
                 return false;
             }
@@ -302,7 +300,7 @@ export class TrainingDataValidator {
             this.existingNlu[lang] = freshNluTally();
         }
         nluData[key].forEach(() => {
-            this.existingNlu[lang][key] = true;
+            this.existingNlu[lang][key][uuidv4()] = true;
         });
     };
 
@@ -331,6 +329,11 @@ export class TrainingDataValidator {
 
     loadStoriesFromMd = async (file) => {
         const [group, mdFragments] = this.getGroupNameAndBodyFromMdStoryFile(file);
+        if (!mdFragments.replace(/(<!--.*?-->)|(<!--[\S\s]+?-->)|(<!--[\S\s]*?$)/g, '').trim()) {
+            return {
+                errors: ['File is empty.'],
+            };
+        }
         try {
             const { data: { data = '' } = {} } = await axiosClient.post(
                 `${this.instanceHost}/data/convert/core`,
@@ -711,6 +714,7 @@ export class TrainingDataValidator {
         });
 
         this.rehydrateStories(trainingDataFiles);
+        console.log(this.existingNlu);
         this.addGlobalNluSummaryLines();
         this.addGlobalCoreSummaryLines();
 
