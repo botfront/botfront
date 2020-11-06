@@ -35,27 +35,20 @@ function streamToString (stream) {
 export async function getRawTextAndType(files) {
     const filesDataAndTypes = await Promise.all(files.map(async (file) => {
         const { filename } = file;
-        if (file.filename.match(/\.(yml|json|md)/)) {
-            const rawText = await streamToString(file.createReadStream());
-            if (/\ufffd/.test(rawText)) { // out of range char test
-                return {
-                    file,
-                    filename,
-                    errors: ['file is not parseable text'],
-                };
-            }
-
+        const rawText = await streamToString(file.createReadStream());
+        if (/\ufffd/.test(rawText)) { // out of range char test
             return {
                 file,
                 filename,
-                rawText,
-                dataType: determineDataType(file, rawText),
+                errors: ['file is not parseable text'],
             };
         }
+
         return {
-            filename,
             file,
-            errors: ['file is neither .json or.yaml or .md'],
+            filename,
+            rawText,
+            dataType: determineDataType(file, rawText),
         };
     }));
 
@@ -87,10 +80,19 @@ export async function readAndValidate(files, params) {
     const filesDataAndTypes = await getRawTextAndType(files, params);
 
     // send all file to the validation pipeline
-    const [fileWithMessages, finalParams] = await validateFiles(filesDataAndTypes, params);
+    const [mixedFileMessages, { summary: mixedSummary, ...finalParams }] = await validateFiles(filesDataAndTypes, params);
+    const summary = mixedSummary.map(s => (typeof s === 'string' ? { text: s } : s));
+    const fileMessages = mixedFileMessages.map(({
+        warnings = [], errors = [], info = [], ...f
+    }) => ({
+        ...f,
+        warnings: warnings.map(s => (typeof s === 'string' ? { text: s } : s)),
+        errors: errors.map(s => (typeof s === 'string' ? { text: s } : s)),
+        info: info.map(s => (typeof s === 'string' ? { text: s } : s)),
+    }));
     
     return {
-        fileMessages: fileWithMessages, summary: finalParams.summary, params: finalParams,
+        fileMessages, summary, params: finalParams,
     };
 }
 

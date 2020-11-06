@@ -314,7 +314,7 @@ export class TrainingDataValidator {
         const filteredRules = rules.filter((rule) => {
             if (rule.condition && rule.conversation_start) {
                 dropped[rule.title] = [
-                    ...dropped[rule.title],
+                    ...(dropped[rule.title] || []),
                     'Cannot have conditions set while conversation_start is true',
                 ];
                 return false;
@@ -329,7 +329,7 @@ export class TrainingDataValidator {
             ].filter(a => a.type === 'error');
             if (errors.length) {
                 dropped[rule.title] = [
-                    ...dropped[rule.title],
+                    ...(dropped[rule.title] || []),
                     ...errors.map(({ text }) => text),
                 ];
                 return false;
@@ -436,7 +436,7 @@ export class TrainingDataValidator {
             ].filter(a => a.type === 'error');
             if (errors.length) {
                 dropped[story.title] = [
-                    ...dropped[story.title],
+                    ...(dropped[story.title] || []),
                     ...errors.map(({ text }) => text),
                 ];
                 return acc;
@@ -445,7 +445,7 @@ export class TrainingDataValidator {
                 return [...acc, this.injectStoryParsingMetadata(story, { fileIndex })];
             } catch (error) {
                 dropped[story.title] = [
-                    ...dropped[story.title],
+                    ...(dropped[story.title] || []),
                     error,
                 ];
                 return acc;
@@ -549,8 +549,7 @@ export class TrainingDataValidator {
 
                 if (!output[ancestorPath]) output[ancestorPath] = [];
                 const arrayToPushStoryTo = !ancestorOf.length
-                    ? rehydrated[fileIndex] : output[ancestorPath];
-                console.log(arrayToPushStoryTo);
+                    ? rehydrated[fileIndex].stories : output[ancestorPath];
 
                 arrayToPushStoryTo.push({
                     _id,

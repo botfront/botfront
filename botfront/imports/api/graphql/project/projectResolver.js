@@ -15,12 +15,15 @@ export default {
             return importSteps(projectId, filesData, onlyValidate, noValidate, wipeCurrent, fallbackLang);
         },
     },
-    Report: {
+    ImportReport: {
         fileMessages: parent => parent.fileMessages,
         summary: parent => parent.summary,
     },
-
-    fileMessages: {
+    ImportSummaryEntry: {
+        text: parent => parent.text,
+        longText: parent => parent.longText,
+    },
+    FileMessage: {
         errors: parent => parent.errors,
         warnings: parent => parent.warnings,
         info: parent => parent.info,

@@ -52,7 +52,7 @@ export const determineDataType = (f, rawText) => {
             }
             return 'training_data';
         }
-        if (filename.match(/\.yml$/)) {
+        if (filename.match(/\.ya?ml$/)) {
             let data;
             try {
                 data = yaml.safeLoad(rawText);

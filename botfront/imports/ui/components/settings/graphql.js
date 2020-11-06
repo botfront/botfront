@@ -19,13 +19,13 @@ mutation (
         fallbackLang: $fallbackLang
     ) {
         fileMessages {
-            errors
-            warnings
-            info
+            errors { text, longText }
+            warnings { text, longText }
+            info { text, longText }
             conflicts
             filename        
         }
-       summary
+        summary { text, longText }
     }
 }
 `;

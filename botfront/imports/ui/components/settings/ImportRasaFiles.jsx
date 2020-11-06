@@ -16,6 +16,7 @@ import {
     Loader,
     Popup,
     Checkbox,
+    Accordion,
 } from 'semantic-ui-react';
 import { get as _get } from 'lodash';
 import { NativeTypes } from 'react-dnd-html5-backend-cjs';
@@ -117,6 +118,21 @@ const ImportRasaFiles = (props) => {
         }),
     });
 
+    const unpackSummaryEntry = (entry) => {
+        const { text, longText } = entry;
+        if (!longText) return text;
+        return (
+            <Accordion
+                className='import-summary-accordion'
+                defaultActiveIndex={-1}
+                panels={[{
+                    key: text,
+                    title: { content: text },
+                    content: { content: longText },
+                }]}
+            />
+        );
+    };
 
     const renderFileList = ([fileList, setFileList]) => {
         const filesWithErrors = fileList.filter(f => (f.errors || []).length);
@@ -159,7 +175,7 @@ const ImportRasaFiles = (props) => {
                         {filesWithErrors.map(f => (
                             <Message color='red' key={`errors-${f.name}`}>
                                 <Message.Header>{f.name}</Message.Header>
-                                <Message.List items={f.errors} />
+                                <Message.List items={f.errors.map(unpackSummaryEntry)} />
                             </Message>
                         ))}
                     </>
@@ -170,7 +186,7 @@ const ImportRasaFiles = (props) => {
                         {filesWithWarnings.map(f => (
                             <Message color='yellow' key={`warnings-${f.name}`}>
                                 <Message.Header>{f.name}</Message.Header>
-                                <Message.List items={f.warnings} />
+                                <Message.List items={f.warnings.map(unpackSummaryEntry)} />
                             </Message>
                         ))}
                     </>
@@ -264,7 +280,6 @@ const ImportRasaFiles = (props) => {
             const listOfFilesToCheck = fileList
                 .map((file, index) => ({ dataType: file.dataType, index }))
                 .filter(f => duplicateSensitiveTypes.includes(f.dataType));
-           
 
             const duplicatesSummary = listOfFilesToCheck.reduce((duplicates, curr) => ({ ...duplicates, [curr.dataType]: [...duplicates[curr.dataType], curr.index] }), {
                 credentials: [], endpoints: [], rasaconfig: [], botfrontconfig: [],
@@ -325,9 +340,7 @@ const ImportRasaFiles = (props) => {
         <>
             <Message info>
                 <Message.Header>Import summary</Message.Header>
-                <Message.List>
-                    {importSummary.map(message => (<Message.Item>{message}</Message.Item>))}
-                </Message.List>
+                <Message.List items={importSummary.map(unpackSummaryEntry)} />
             
                 <div className='side-by-side middle'>
                     <div className='side-by-side narrow left middle'>

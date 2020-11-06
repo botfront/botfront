@@ -7,23 +7,23 @@ type Mutation {
         noValidate: Boolean, 
         wipeCurrent: Boolean = False,
         fallbackLang: String
-    ): Report
+    ): ImportReport
 }
 
-type Report {
-    # messages per file errors, warnings or info
-    fileMessages:[fileMessages] 
-    # messages for a whole operation
-    # used to store the result of the import 
-    # used to store the result of the validation (eg. counting the number of stories) 
-    summary:[String]
-   
+type ImportReport {
+    fileMessages: [FileMessage]
+    summary: [ImportSummaryEntry]
 }
 
-type fileMessages{
-    errors:[String]
-    warnings:[String]
-    info:[String]
+type ImportSummaryEntry {
+    text: String!
+    longText: String
+}
+
+type FileMessage{
+    errors: [ImportSummaryEntry]
+    warnings: [ImportSummaryEntry]
+    info: [ImportSummaryEntry]
     conflicts: Boolean
     filename: String
 }
