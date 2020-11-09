@@ -43,13 +43,14 @@ export class TrainingDataValidator {
         projectLanguages,
         existingStoryGroups = [],
         summary,
+        ...rest
     }) {
         this.instanceHost = instanceHost;
         this.fallbackLang = fallbackLang;
         this.projectLanguages = projectLanguages;
         this.existingStoryGroups = existingStoryGroups;
         this.summary = summary;
-
+        this.unUsedParams = rest;
         // various state variables to count, deduplicate and validate
         this.existingFragments = {};
         this.existingNlu = {};
@@ -715,6 +716,7 @@ export class TrainingDataValidator {
                 return trainingDataFiles.shift();
             }),
             {
+                ...this.unUsedParams,
                 instanceHost: this.instanceHost,
                 fallbackLang: this.fallbackLang,
                 projectLanguages: this.projectLanguages,
