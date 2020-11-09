@@ -1,9 +1,6 @@
 import React, {
     useRef, useState, useContext, useEffect,
 } from 'react';
-import PropTypes from 'prop-types';
-import { withTracker } from 'meteor/react-meteor-data';
-import { connect } from 'react-redux';
 import {
     Button,
     Dropdown,
@@ -21,16 +18,13 @@ import {
 import { NativeTypes } from 'react-dnd-html5-backend-cjs';
 import { useDrop } from 'react-dnd-cjs';
 import { useMutation } from '@apollo/react-hooks';
-import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
-import { getDefaultDomainAndLanguage } from '../../../lib/story.utils';
 import { useFileReader } from './fileReaders';
 import { ProjectContext } from '../../layouts/context';
 import { unZipFile } from '../../../lib/importers/common';
 import { importFilesMutation } from './graphql';
 
-const ImportRasaFiles = (props) => {
-    const { existingStoryGroups, projectId, defaultDomain } = props;
-    const { projectLanguages, instance, language } = useContext(ProjectContext);
+const ImportRasaFiles = () => {
+    const { projectLanguages, project: { _id: projectId }, language } = useContext(ProjectContext);
     const [importFiles] = useMutation(importFilesMutation);
     const [fallbackImportLanguage, setFallbackImportLanguage] = useState();
     const [importResults, setImportResults] = useState([]);
@@ -208,14 +202,7 @@ const ImportRasaFiles = (props) => {
         );
     };
 
-    const fileReader = useFileReader({
-        existingStoryGroups: wipeCurrent ? [] : existingStoryGroups,
-        defaultDomain,
-        fallbackImportLanguage,
-        projectLanguages: projectLanguages.map(l => l.value),
-        instanceHost: instance.host,
-        validateFunction,
-    });
+    const fileReader = useFileReader({ validateFunction });
     const [fileList, setFileList] = fileReader;
     const [{ canDrop, isOver }, drop] = useFileDrop(fileReader);
     const fileField = useRef();
@@ -367,25 +354,8 @@ const ImportRasaFiles = (props) => {
     );
 };
 
-ImportRasaFiles.propTypes = {
-    projectId: PropTypes.string.isRequired,
-    existingStoryGroups: PropTypes.array.isRequired,
-    defaultDomain: PropTypes.object.isRequired,
-};
+ImportRasaFiles.propTypes = {};
 
 ImportRasaFiles.defaultProps = {};
 
-const ImportRasaFilesContainer = withTracker(({ projectId }) => {
-    const storyGroupHandler = Meteor.subscribe('storiesGroup', projectId);
-    const existingStoryGroups = storyGroupHandler.ready()
-        ? StoryGroups.find({ projectId }).fetch()
-        : [];
-    const { defaultDomain } = getDefaultDomainAndLanguage(projectId);
-    return { existingStoryGroups, defaultDomain };
-})(ImportRasaFiles);
-
-const mapStateToProps = state => ({
-    projectId: state.settings.get('projectId'),
-});
-
-export default connect(mapStateToProps)(ImportRasaFilesContainer);
+export default ImportRasaFiles;

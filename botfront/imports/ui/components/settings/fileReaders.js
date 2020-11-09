@@ -21,6 +21,7 @@ export const useFileReader = (params) => {
             delete: deleteInstruction,
             add: addInstruction,
             set: setInstruction,
+            reset: resetInstruction,
         } = instruction;
 
         if (deleteInstruction) {
@@ -70,6 +71,7 @@ export const useFileReader = (params) => {
             });
             return newFileList.map(f => addDataToFile(f, { validated: false }));
         }
+        if (resetInstruction) return [];
         if (setInstruction) return setInstruction;
         return fileList;
     };
