@@ -120,7 +120,7 @@ const validateADomain = (
     const responses = [];
     let responsesRasaFormat = {};
     const slots = [];
-
+    const newLanguages = new Set();
     Object.keys(responsesFromFile).forEach((key) => {
         const response = responsesFromFile[key];
         const values = [];
@@ -137,18 +137,19 @@ const validateADomain = (
             }
             if (!projectLanguages.includes(lang)) {
                 warnings.push(
-                    `Response '${key}' defined for '${lang}', but no such language used by project.`,
+                    `Response '${key}' defined for '${lang}', but no such language used by project, importing this file will add support for the language`,
                 );
+                newLanguages.add(lang);
+            }
+            
+            const valueIndex = values.findIndex(v => v.lang === lang);
+            if (valueIndex > -1) {
+                values[valueIndex].sequence = [
+                    ...values[valueIndex].sequence,
+                    { content },
+                ];
             } else {
-                const valueIndex = values.findIndex(v => v.lang === lang);
-                if (valueIndex > -1) {
-                    values[valueIndex].sequence = [
-                        ...values[valueIndex].sequence,
-                        { content },
-                    ];
-                } else {
-                    values.push({ lang, sequence: [{ content }] });
-                }
+                values.push({ lang, sequence: [{ content }] });
             }
         });
         if (values.length) {
@@ -195,6 +196,7 @@ const validateADomain = (
         ...file,
         warnings: [...(file?.warnings || []), ...warnings],
         ...newDomain,
+        newLanguages,
     };
 };
 
@@ -270,9 +272,12 @@ export const validateDomain = (files, params) => {
             };
         });
     }
+   
     const newSummary = params.summary;
+    let newLanguages = params.projectLanguages;
 
     if (domainFiles.length > 0) {
+        const newLangs = domainFiles.reduce((all, file) => new Set([...file.newLanguages, ...all]), new Set());
         const merged = mergeDomains(domainFiles);
         const nameList = domainFiles.map(file => file.filename).join(', ');
         const slotsLen = merged.slots.length;
@@ -285,12 +290,13 @@ export const validateDomain = (files, params) => {
         if (formsLen > 0) tempSummary.push(`${formsLen} forms`);
         if (actionsLen > 0) tempSummary.push(`${actionsLen} actions`);
         newSummary.push(`From ${nameList} you will add: ${tempSummary.join(', ')}`);
+        newLanguages = Array.from(new Set([...params.projectLanguages, ...newLangs]));
     }
     return [
         files.map((file) => {
             if (file?.dataType !== 'domain') return file;
             return domainFiles.shift();
         }),
-        params,
+        { ...params, summary: newSummary, projectLanguages: newLanguages },
     ];
 };

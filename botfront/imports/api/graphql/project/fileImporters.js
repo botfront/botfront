@@ -12,19 +12,15 @@ import { Projects } from '../../project/project.collection';
 import { mergeDomains } from '../../../lib/importers/validateDomain';
 
 const handleImportForms = async (forms, projectId) => {
-    try {
-        const { defaultDomain } = Projects.findOne({ _id: projectId });
-        const parsedDomain = safeLoad(defaultDomain.content);
-        const newForms = { ...(parsedDomain?.forms || {}), ...forms };
-        parsedDomain.forms = newForms;
-        const newDomain = safeDump(parsedDomain);
-        await Meteor.callWithPromise(
-            'project.update',
-            { defaultDomain: { content: newDomain }, _id: projectId },
-        );
-    } catch (e) {
-        throw new Error('Error while importing forms');
-    }
+    const { defaultDomain } = Projects.findOne({ _id: projectId });
+    const parsedDomain = safeLoad(defaultDomain.content);
+    const newForms = { ...(parsedDomain?.forms || {}), ...forms };
+    parsedDomain.forms = newForms;
+    const newDomain = safeDump(parsedDomain);
+    await Meteor.callWithPromise(
+        'project.update',
+        { defaultDomain: { content: newDomain }, _id: projectId },
+    );
 };
 const handleImportResponse = async (responses, projectId) => {
     const preparedResponses = responses.map((response) => {
@@ -127,19 +123,17 @@ const handleImportDomain = async (files, {
     const errors = [];
     const insert = async () => {
         try {
-            await handleImportResponse(responses, projectId);
-            // await handleImportForms(bfForms, projectId),
+            if (responses && responses.length > 0) await handleImportResponse(responses, projectId);
         } catch (e) {
             errors.push(`error when importing responses ${e.message}`);
         }
         try {
-            await Meteor.callWithPromise('slots.upsert', slots, projectId);
+            if (slots && slots.length > 0) await Meteor.callWithPromise('slots.upsert', slots, projectId);
         } catch (e) {
             errors.push(`error when importing slots ${e.message}`);
         }
-
         try {
-            await handleImportForms(forms, projectId);
+            if (forms && forms.length > 0) { await handleImportForms(forms, projectId); }
         } catch (e) {
             errors.push(`error when importing forms ${e.message}`);
         }
@@ -232,8 +226,8 @@ const handleImportCredentials = async (files, { projectId }) => {
 };
 
 
-const handleImportRasaConfig = async (files, { projectId }) => {
-    if (!files.length) return [];
+const handleImportRasaConfig = async (files, { projectId, projectLanguages }) => {
+    const languagesNotImported = new Set(projectLanguages);
     let policiesImported = false;
     const pipelineImported = {};
     const importResult = await Promise.all(
@@ -258,15 +252,30 @@ const handleImportRasaConfig = async (files, { projectId }) => {
                         'nlu.update.pipeline',
                         projectId, language, safeDump(pipeline),
                     );
+                    languagesNotImported.delete(language);
                     return null;
                 } catch (e) {
                     return `error when importing pipeline from ${f.filename}`;
                 }
             }
+            return null;
         }),
     );
+    const { languages } = await Projects.findOne({ _id: projectId });
+    languages.forEach(lang => languagesNotImported.delete(lang));
+    const createResult = await Promise.all([...languagesNotImported].map(async (lang) => {
+        try {
+            await Meteor.callWithPromise(
+                'nlu.insert',
+                projectId, lang,
+            );
+            return null;
+        } catch (e) {
+            return `error when creating nlu model for ${e.message}`;
+        }
+    }));
     // return only the results with data in it (if nothing bad happen it shoudl be and array of null)
-    return importResult.filter(r => r);
+    return [...importResult, ...createResult].filter(r => r);
 };
 
 
@@ -326,13 +335,15 @@ export const handleImportAll = async (files, params) => {
     const importers = [];
     // handleImportStoryGroups(files.filter(f => f.dataType === 'stories'), params);
 
-    // this function is there to force the order of import: bfconfig then domain
-    // bfconfig might replace the default domain and importing the domain might add some data to it (eg. forms)
+    // this function is there to force the order of import: rasaconfig, default domain then domain
+    // rasaconfig might add support for languages that have data in the domain
+    // the default domain might be updated and importing the domain might add some data to it (eg. forms)
     // that why we want this order
     const configAndDomainImport = async () => {
+        const rasaconfig = await handleImportRasaConfig(files.filter(f => f.dataType === 'rasaconfig'), params);
         const configErrors = await handleImportDefaultDomain(files.filter(f => f.dataType === 'defaultdomain'), params);
         const domainErrors = await handleImportDomain(files.filter(f => f.dataType === 'domain'), params);
-        return [...configErrors, ...domainErrors];
+        return [...rasaconfig, ...configErrors, ...domainErrors];
     };
   
 
@@ -340,7 +351,6 @@ export const handleImportAll = async (files, params) => {
     importers.push(handleImportBfConfig(files.filter(f => f.dataType === 'bfconfig'), params));
     importers.push(handleImportEndpoints(files.filter(f => f.dataType === 'endpoints'), params));
     importers.push(handleImportCredentials(files.filter(f => f.dataType === 'credentials'), params));
-    importers.push(handleImportRasaConfig(files.filter(f => f.dataType === 'rasaconfig'), params));
     importers.push(handleImportConversations(files.filter(f => f.dataType === 'conversations'), params));
     importers.push(handleImportIncoming(files.filter(f => f.dataType === 'incoming'), params));
     // importers return a arrays of array of errors, we flaten it and remove the null values
