@@ -1,33 +1,6 @@
 import JSZIP from 'jszip';
 import yaml from 'js-yaml';
 
-export const base = (f) => {
-    const newfile = new File([f], f.name);
-    return newfile;
-};
-
-export const update = (updater, file, content) => updater({
-    update: {
-        ...base(file),
-        ...content,
-    },
-});
-
-export const findFileInFileList = (fileList, file) => fileList.findIndex(
-    cf => cf.filename === file.filename && cf.lastModified === file.lastModified,
-);
-
-export const updateAtIndex = (fileList, index, content) => [
-    ...fileList.slice(0, index),
-    { ...fileList[index], ...content },
-    ...fileList.slice(index + 1),
-];
-
-export const deleteAtIndex = (fileList, index) => [
-    ...fileList.slice(0, index),
-    ...fileList.slice(index + 1),
-];
-
 export const determineDataType = (f, rawText) => {
     const { dataType, filename } = f;
     try {
@@ -78,11 +51,9 @@ export const determineDataType = (f, rawText) => {
     }
 };
 
-
 export const unZipFile = async (f) => {
     const zip = new JSZIP();
     const loadedZip = await zip.loadAsync(f);
-  
     const files = await Promise.all(Object.keys(loadedZip.files).map(async (filename) => {
         const fileData = await loadedZip.files[filename].async('blob');
         if ((/([a-z-0-9]+\/)+$/).test(filename)) { // this regex detect folder in the shape of aa/bbb/

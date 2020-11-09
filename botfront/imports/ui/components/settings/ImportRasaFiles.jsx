@@ -18,7 +18,6 @@ import {
     Checkbox,
     Accordion,
 } from 'semantic-ui-react';
-import { get as _get } from 'lodash';
 import { NativeTypes } from 'react-dnd-html5-backend-cjs';
 import { useDrop } from 'react-dnd-cjs';
 import { useMutation } from '@apollo/react-hooks';
@@ -26,15 +25,11 @@ import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { getDefaultDomainAndLanguage } from '../../../lib/story.utils';
 import { useFileReader } from './fileReaders';
 import { ProjectContext } from '../../layouts/context';
-import {
-    unZipFile,
-} from '../../../lib/importers/common';
+import { unZipFile } from '../../../lib/importers/common';
 import { importFilesMutation } from './graphql';
 
 const ImportRasaFiles = (props) => {
-    const {
-        existingStoryGroups, projectId, defaultDomain,
-    } = props;
+    const { existingStoryGroups, projectId, defaultDomain } = props;
     const { projectLanguages, instance, language } = useContext(ProjectContext);
     const [importFiles] = useMutation(importFilesMutation);
     const [fallbackImportLanguage, setFallbackImportLanguage] = useState();
@@ -58,13 +53,18 @@ const ImportRasaFiles = (props) => {
         });
         const validationResult = await importFiles({
             variables: {
-                projectId, files: filesToSend, onlyValidate: true, wipeCurrent, fallbackLang: fallbackImportLanguage,
+                projectId,
+                files: filesToSend,
+                onlyValidate: true,
+                wipeCurrent,
+                fallbackLang: fallbackImportLanguage,
             },
         });
         const validationData = validationResult?.data?.import?.fileMessages;
         const summary = validationResult?.data?.import?.summary;
         setImportSummary(summary);
-        if (validationData.length !== files.length) { // that means some files were not sent
+        if (validationData.length !== files.length) {
+            // that means some files were not sent
             filesNotSentIndexes.forEach((index) => {
                 validationData.splice(index, 0, files[index]); // so we re-insert those
             });
@@ -72,13 +72,17 @@ const ImportRasaFiles = (props) => {
         return validationData;
     };
 
-
     const handleImport = async ([files, setFileList]) => {
         setFilesImporting(true);
-        const filesToImport = files.filter(file => !(file.errors && file.errors.length));
+        const filesToImport = files.filter(
+            file => !(file.errors && file.errors.length),
+        );
         const importResult = await importFiles({
             variables: {
-                projectId, files: filesToImport, wipeCurrent, fallbackLang: fallbackImportLanguage,
+                projectId,
+                files: filesToImport,
+                wipeCurrent,
+                fallbackLang: fallbackImportLanguage,
             },
         });
         setImportSummary([]);
@@ -88,17 +92,19 @@ const ImportRasaFiles = (props) => {
         setImportResults(importResultMessages);
     };
 
-
     const handleFileDrop = async (files, [fileList, setFileList]) => {
         const newValidFiles = Array.from(files);
-        const filesWithUnziped = await newValidFiles.reduce(async (newFiles, currFile) => {
-            if (currFile.name.match(/\.zip$/)) {
-                const filesFromZip = await unZipFile(currFile);
-                return [...newFiles, ...filesFromZip];
-            }
-            // since this reduce is async we need to await for the previous result
-            return [...(await newFiles), currFile];
-        }, []);
+        const filesWithUnziped = await newValidFiles.reduce(
+            async (newFiles, currFile) => {
+                if (currFile.name.match(/\.zip$/)) {
+                    const filesFromZip = await unZipFile(currFile);
+                    return [...newFiles, ...filesFromZip];
+                }
+                // since this reduce is async we need to await for the previous result
+                return [...(await newFiles), currFile];
+            },
+            [],
+        );
         const filesToAdd = filesWithUnziped.filter(
             f => f.size
                 && !fileList.some(
@@ -123,13 +129,14 @@ const ImportRasaFiles = (props) => {
         if (!longText) return text;
         return (
             <Accordion
-                className='import-summary-accordion'
                 defaultActiveIndex={-1}
-                panels={[{
-                    key: text,
-                    title: { content: text },
-                    content: { content: longText },
-                }]}
+                panels={[
+                    {
+                        key: text,
+                        title: { content: text },
+                        content: { content: longText },
+                    },
+                ]}
             />
         );
     };
@@ -175,7 +182,10 @@ const ImportRasaFiles = (props) => {
                         {filesWithErrors.map(f => (
                             <Message color='red' key={`errors-${f.name}`}>
                                 <Message.Header>{f.name}</Message.Header>
-                                <Message.List items={f.errors.map(unpackSummaryEntry)} />
+                                <Message.List
+                                    items={f.errors.map(unpackSummaryEntry)}
+                                    className='import-summary-accordion'
+                                />
                             </Message>
                         ))}
                     </>
@@ -186,7 +196,10 @@ const ImportRasaFiles = (props) => {
                         {filesWithWarnings.map(f => (
                             <Message color='yellow' key={`warnings-${f.name}`}>
                                 <Message.Header>{f.name}</Message.Header>
-                                <Message.List items={f.warnings.map(unpackSummaryEntry)} />
+                                <Message.List
+                                    items={f.warnings.map(unpackSummaryEntry)}
+                                    className='import-summary-accordion'
+                                />
                             </Message>
                         ))}
                     </>
@@ -213,10 +226,7 @@ const ImportRasaFiles = (props) => {
                 canDrop && isOver && !filesImporting ? 'upload-target' : ''
             }`}
         >
-            <div
-                {...(!filesImporting ? { ref: drop } : {})}
-                data-cy='drop-zone-data'
-            >
+            <div {...(!filesImporting ? { ref: drop } : {})} data-cy='drop-zone-data'>
                 {filesImporting ? (
                     <Dimmer active inverted>
                         <Loader>Importing data...</Loader>
@@ -228,8 +238,7 @@ const ImportRasaFiles = (props) => {
                             ref={fileField}
                             style={{ display: 'none' }}
                             multiple
-                            onChange={e => handleFileDrop(e.target.files, fileReader)
-                            }
+                            onChange={e => handleFileDrop(e.target.files, fileReader)}
                         />
                         {fileList.length ? (
                             renderFileList(fileReader)
@@ -271,77 +280,15 @@ const ImportRasaFiles = (props) => {
         </Segment>
     );
 
-    const valid = (filter = () => true) => fileList.filter(f => !f.errors && filter(f));
-    
-
-    const renderTotals = () => {
-        const checkUniques = () => {
-            const duplicateSensitiveTypes = ['credentials', 'endpoints', 'rasaconfig', 'botfrontconfig'];
-            const listOfFilesToCheck = fileList
-                .map((file, index) => ({ dataType: file.dataType, index }))
-                .filter(f => duplicateSensitiveTypes.includes(f.dataType));
-
-            const duplicatesSummary = listOfFilesToCheck.reduce((duplicates, curr) => ({ ...duplicates, [curr.dataType]: [...duplicates[curr.dataType], curr.index] }), {
-                credentials: [], endpoints: [], rasaconfig: [], botfrontconfig: [],
-            });
-        
-            duplicateSensitiveTypes.forEach((fileType) => {
-                if (duplicatesSummary[fileType].length > 1) {
-                    const original = fileList[duplicatesSummary[fileType][0]].name;
-                    const copies = duplicatesSummary[fileType].slice(1);
-                    copies.forEach((copyIndex) => {
-                        fileList[copyIndex] = { ...fileList[copyIndex], warnings: [`Duplicate of ${original}, and thus won't be used in the import`] };
-                    });
-                }
-            });
-        };
-        checkUniques();
-
-        const countAcrossFiles = (path, filter = () => true) => valid(filter).reduce(
-            (acc, curr) => acc + _get(curr, path, []).length,
-            0,
-        );
-
-        const numbers = {
-            story: countAcrossFiles('parsedStories', f => f.dataType === 'stories'),
-            slot: countAcrossFiles('slots', f => f.dataType === 'domain'),
-            form: countAcrossFiles('bfForms', f => f.dataType === 'domain'),
-            response: countAcrossFiles('responses', f => f.dataType === 'domain'),
-        };
-        projectLanguages.forEach((l) => {
-            numbers[`${l.text} example`] = countAcrossFiles(
-                'rasa_nlu_data.common_examples',
-                f => f.dataType === 'nlu' && f.language === l.value,
-            );
-            numbers[`${l.text} synonym`] = countAcrossFiles(
-                'rasa_nlu_data.entity_synonyms',
-                f => f.dataType === 'nlu' && f.language === l.value,
-            );
-            numbers[`${l.text} gazette`] = countAcrossFiles(
-                'rasa_nlu_data.gazette',
-                f => f.dataType === 'nlu' && f.language === l.value,
-            );
-            numbers[`${l.text} regex feature`] = countAcrossFiles(
-                'rasa_nlu_data.regex_features',
-                f => f.dataType === 'nlu' && f.language === l.value,
-            );
-        });
-
-        const pluralizeUnit = unit => (unit.slice(-1) === 'y' ? `${unit.slice(0, -1)}ies` : `${unit}s`);
-        const printCount = (number, unit) => (number ? `${number} ${number < 2 ? unit : pluralizeUnit(unit)}` : null);
-        return Object.keys(numbers)
-            .map(n => printCount(numbers[n], n))
-            .filter(c => c)
-            .join(', ');
-    };
-
-    
     const renderBottom = () => (
         <>
             <Message info>
                 <Message.Header>Import summary</Message.Header>
-                <Message.List items={importSummary.map(unpackSummaryEntry)} />
-            
+                <Message.List
+                    items={importSummary.map(unpackSummaryEntry)}
+                    className='import-summary-accordion'
+                />
+
                 <div className='side-by-side middle'>
                     <div className='side-by-side narrow left middle'>
                         <Popup
@@ -382,7 +329,13 @@ const ImportRasaFiles = (props) => {
                         />
                     </div>
                     <div>
-                        <Button disabled={fileReader[0].some(f => !f.validated)} content='Import' data-cy='import-rasa-files' primary onClick={() => handleImport(fileReader)} />
+                        <Button
+                            disabled={fileReader[0].some(f => !f.validated)}
+                            content='Import'
+                            data-cy='import-rasa-files'
+                            primary
+                            onClick={() => handleImport(fileReader)}
+                        />
                     </div>
                 </div>
             </Message>
@@ -394,15 +347,16 @@ const ImportRasaFiles = (props) => {
             return (
                 <Message error>
                     <Message.Header>Import Error</Message.Header>
-                    <Message.List>
-                        {importResults.map(message => (<Message.Item>{message}</Message.Item>))}
+                    <Message.List className='import-summary-accordion'>
+                        {importResults.map(message => (
+                            <Message.Item>{message}</Message.Item>
+                        ))}
                     </Message.List>
                 </Message>
             );
         }
         return <></>;
     };
-    
 
     return (
         <>
