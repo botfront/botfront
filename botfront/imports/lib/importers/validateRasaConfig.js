@@ -73,7 +73,7 @@ const validateRasaConfigTogether = (files, projectId) => {
             warnings: [...(warnings || []), ...newWarnings],
         };
     });
-    const projectLanguages = Array.from([...languagesFromProject, ...languagesFromFiles]);
+    const projectLanguages = Array.from(new Set([...languagesFromProject, ...languagesFromFiles]));
     return [configFiles, summary, projectLanguages];
 };
 
