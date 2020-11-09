@@ -1,13 +1,11 @@
 import { Meteor } from 'meteor/meteor';
-import { expect } from 'chai';
+import { assert, expect } from 'chai';
 import { Projects } from '../../api/project/project.collection';
 import { Instances } from '../../api/instances/instances.collection';
 
 import { singlesFiles } from './test_data/singleFiles.data';
 import { multipleFiles } from './test_data/multipleFiles.data';
 import { validateFiles } from '../../api/graphql/project/import.utils.js';
-
-multipleFiles;
 
 
 const projectId = 'bf';
@@ -45,10 +43,13 @@ if (Meteor.isServer) {
             const {
                 name, files, params, expectedFiles, expectedParams,
             } = test;
-            it(name, () => {
-                const [newFiles, newParams] = validateFiles(files, params);
-                expect(newFiles).to.eql(expectedFiles);
-                expect(newParams).to.eql(expectedParams);
+            
+            it(name, (done) => {
+                validateFiles(files, params).then(([newFiles, newParams]) => {
+                    expect(newFiles).to.eql(expectedFiles);
+                    expect(newParams).to.eql(expectedParams);
+                    done();
+                }).catch(done);
             });
         });
     });
@@ -69,10 +70,12 @@ if (Meteor.isServer) {
             const {
                 name, files, params, expectedFiles, expectedParams,
             } = test;
-            it(name, () => {
-                const [newFiles, newParams] = validateFiles(files, params);
-                expect(newFiles).to.eql(expectedFiles);
-                expect(newParams).to.eql(expectedParams);
+            it(name, (done) => {
+                validateFiles(files, params).then(([newFiles, newParams]) => {
+                    expect(newFiles).to.eql(expectedFiles);
+                    expect(newParams).to.eql(expectedParams);
+                    done();
+                }).catch(done);
             });
         });
     });
