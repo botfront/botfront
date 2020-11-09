@@ -356,20 +356,14 @@ export class TrainingDataValidator {
     incrementFragmentsForGroup = (group, type) => {
         if (!this.existingFragments[group]) {
             this.existingFragments[group] = freshCoreTally();
+            if (!this.existingStoryGroups.find(esg => esg.name === group)) {
+                this.existingStoryGroups.push({
+                    name: group,
+                    _id: uuidv4(),
+                });
+            }
         }
         this.existingFragments[group][type] += 1;
-    };
-
-    addGroupToExistingList = (name) => {
-        if (!this.existingStoryGroups.find(esg => esg.name === name)) {
-            this.summary.push({
-                text: `Fragment group '${name}' will be created.`,
-            });
-            this.existingStoryGroups.push({
-                name,
-                _id: uuidv4(),
-            });
-        }
     };
 
     validateRules = (rules) => {
@@ -399,7 +393,6 @@ export class TrainingDataValidator {
                 return false;
             }
             this.incrementFragmentsForGroup(rule?.metadata?.group, 'rules');
-            this.addGroupToExistingList(rule?.metadata?.group);
             return true;
         });
         Object.keys(dropped).forEach(title => warnings.push({
@@ -564,7 +557,7 @@ export class TrainingDataValidator {
                 : []),
         ];
         this.summary.push({
-            text: `${nByType} will be added to group '${group}'.`,
+            text: `Group '${group}' will be created with ${nByType}.`,
         });
     });
 
@@ -649,7 +642,6 @@ export class TrainingDataValidator {
             rehydratedStories.forEach(
                 ({ checkpoints = [], title, metadata = {} }, storyIndex) => {
                     this.incrementFragmentsForGroup(metadata.group, 'stories');
-                    this.addGroupToExistingList(metadata.group);
                     const resolvedCheckpoints = [];
                     checkpoints.forEach((c) => {
                         const link = this.links.find(l => l.name === c) || {};
