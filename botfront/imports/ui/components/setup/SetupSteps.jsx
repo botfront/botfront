@@ -59,15 +59,8 @@ class SetupSteps extends React.Component {
                                 router.push(`/project/${responses[0]}/dialogue`);
                             })
                             .catch((e) => {
+                                // eslint-disable-next-line no-console
                                 console.log(e);
-                                router.push({
-                                    pathname: '/admin/projects',
-                                    state: {
-                                        error:
-                                            'Something went wrong with project creation,'
-                                            + ' redirecting you to the project selection screen',
-                                    },
-                                });
                             });
                     }),
                 );
