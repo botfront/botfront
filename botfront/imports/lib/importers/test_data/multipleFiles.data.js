@@ -29,7 +29,13 @@ export const multipleFiles = [
     {
         name: 'should mark a second credentials with an error',
         files: [validCredentials, validCredentials],
-        params: { projectId },
+        params: {
+            projectId,
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+        },
         expectedFiles: [{
             ...validCredentials,
             credentials: validCredentialsParsed,
@@ -43,18 +49,25 @@ export const multipleFiles = [
         }],
         expectedParams: {
             projectId,
-            summary: ['You will remplace credentials by the one in credentialstest.yml'],
+            summary: ['Credentials will be imported from credentialstest.yml.'],
             defaultDomain,
             instanceHost: 'http://localhost:1234',
             projectLanguages: [
                 'en',
             ],
+            fallbackLang: 'en',
         },
     },
     {
         name: 'should mark a second endpoints file with an error',
         files: [validEndpoints, validEndpoints],
-        params: { projectId },
+        params: {
+            projectId,
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+        },
         expectedFiles: [{
             ...validEndpoints,
             endpoints: validEndpointsParsed,
@@ -68,18 +81,25 @@ export const multipleFiles = [
         }],
         expectedParams: {
             projectId,
-            summary: ['You will remplace endpoints by the one in endpointstest.yml'],
+            summary: ['Endpoints will be imported from endpointstest.yml.'],
             defaultDomain,
             instanceHost: 'http://localhost:1234',
             projectLanguages: [
                 'en',
             ],
+            fallbackLang: 'en',
         },
     },
     {
         name: 'should mark a second bfconfig file with an error',
         files: [validBfConfig, validBfConfig],
-        params: { projectId },
+        params: {
+            projectId,
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+        },
         expectedFiles: [{
             ...validBfConfig,
             bfconfig: validBfConfigParsed,
@@ -93,18 +113,25 @@ export const multipleFiles = [
         }],
         expectedParams: {
             projectId,
-            summary: ['You will remplace botfront config by the one in bfconfigtest.yml'],
+            summary: ['Botfront config will be imported from bfconfigtest.yml.'],
             defaultDomain,
             instanceHost: 'http://localhost:6005',
             projectLanguages: [
                 'en',
             ],
+            fallbackLang: 'en',
         },
     },
     {
         name: 'should merge the number of conversations in the files',
         files: [validConversations, validConversations],
-        params: { projectId },
+        params: {
+            projectId,
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+        },
         expectedFiles: [{
             ...validConversations,
             conversations: validConversationsParsed,
@@ -121,12 +148,19 @@ export const multipleFiles = [
             projectLanguages: [
                 'en',
             ],
+            fallbackLang: 'en',
         },
     },
     {
         name: 'should merge the number of incomming in the files',
         files: [validIncoming, validIncoming],
-        params: { projectId },
+        params: {
+            projectId,
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+        },
         expectedFiles: [{
             ...validIncoming,
             incoming: validIncomingParsed,
@@ -142,12 +176,19 @@ export const multipleFiles = [
             projectLanguages: [
                 'en',
             ],
+            fallbackLang: 'en',
         },
     },
     {
         name: 'should merge default domains excluding those with erros',
         files: [invalidDefaultDomain, validDefaultDomain, validDefaultDomain2, invalidDefaultDomain],
-        params: { projectId },
+        params: {
+            projectId,
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+        },
         expectedFiles: [
             {
                 ...invalidDefaultDomain,
@@ -175,12 +216,19 @@ export const multipleFiles = [
             projectLanguages: [
                 'en',
             ],
+            fallbackLang: 'en',
         },
     },
     {
         name: 'should remove data of domain that already exists in the default domain',
         files: [validDomain, validDefaultDomain],
-        params: { projectId },
+        params: {
+            projectId,
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+        },
         expectedFiles: [{
             ...validDomain,
             ...validDomainParsed,
@@ -192,6 +240,19 @@ export const multipleFiles = [
                     type: 'unfeaturized',
                 },
             ],
+            responses: [{
+                key: 'utter_aaa',
+                values: [
+                    {
+                        lang: 'en',
+                        sequence: [
+                            {
+                                content: 'text: aaaa\n',
+                            },
+                        ],
+                    },
+                ],
+            }],
             bfForms: [],
             warnings: [],
         },
@@ -204,12 +265,68 @@ export const multipleFiles = [
         expectedParams: {
             projectId,
             summary: ['You will remplace the default domain by default-domain1.yml',
-                'From domain.yml you will add: 1 slots, 3 responses, 1 actions'],
+                'From domain.yml you will add: 1 slots, 1 responses, 1 actions'],
             defaultDomain: validDefaultDomainParsed,
             instanceHost: 'http://localhost:1234',
             projectLanguages: [
                 'en',
             ],
+            fallbackLang: 'en',
+        },
+    },
+    {
+        name: 'should remove data of domain that already exists in the default domain',
+        files: [validDomain, validDefaultDomain],
+        params: {
+            projectId,
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+        },
+        expectedFiles: [{
+            ...validDomain,
+            ...validDomainParsed,
+            slots:
+            [
+                {
+                    initialValue: 'fr',
+                    name: 'a_language',
+                    type: 'unfeaturized',
+                },
+            ],
+            responses: [{
+                key: 'utter_aaa',
+                values: [
+                    {
+                        lang: 'en',
+                        sequence: [
+                            {
+                                content: 'text: aaaa\n',
+                            },
+                        ],
+                    },
+                ],
+            }],
+            bfForms: [],
+            warnings: [],
+        },
+        {
+            ...validDefaultDomain,
+            ...validDefaultDomainParsed,
+            bfForms: [],
+            warnings: [],
+        }],
+        expectedParams: {
+            projectId,
+            summary: ['You will remplace the default domain by default-domain1.yml',
+                'From domain.yml you will add: 1 slots, 1 responses, 1 actions'],
+            defaultDomain: validDefaultDomainParsed,
+            instanceHost: 'http://localhost:1234',
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
         },
     },
 ];

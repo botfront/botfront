@@ -6,7 +6,18 @@ export const validDefaultDomain = {
       type: unfeaturized
 actions:
     - action_aaa
-    `,
+responses:
+    utter_greet:
+      - text: "Hey there!"
+        language: en
+    utter_goodbye:
+      - text: "Goodbye :("
+        language: en
+forms:
+    restaurant_form:
+       cuisine:
+          - type: from_entity
+            entity: cuisine`,
     dataType: 'defaultdomain',
 };
 
@@ -20,6 +31,13 @@ actions:
     - action_bbb
     - action_aaa
     - action_ccc
+responses:
+    utter_youarewelcome:
+      - text: "You're very welcome."
+        language: en
+    utter_iamabot:
+      - text: "I am a bot, powered by Rasa."
+        language: en
     `,
     dataType: 'defaultdomain',
 };
@@ -40,13 +58,33 @@ actions:
 };
 
 export const validDefaultDomainParsed = {
-    slots:
-        {
-            disambiguation_message: { type: 'unfeaturized' },
+    slots: {
+        disambiguation_message: { type: 'unfeaturized' },
+    },
+    responses: {
+        utter_goodbye: [
+            {
+                language: 'en',
+                text: 'Goodbye :(',
+            },
+        ],
+        utter_greet: [
+            {
+                language: 'en',
+                text: 'Hey there!',
+            },
+        ],
+    },
+    forms: {
+        restaurant_form: {
+            cuisine: [
+                {
+                    entity: 'cuisine',
+                    type: 'from_entity',
+                },
+            ],
         },
-    
-    responses: {},
-    forms: {},
+    },
     actions: [
         'action_aaa',
     ],
@@ -59,9 +97,20 @@ export const validDefaultDomainParsed2 = {
             info_message: { type: 'unfeaturized' },
            
         },
-    
-  
-    responses: {},
+    responses: {
+        utter_iamabot: [
+            {
+                language: 'en',
+                text: 'I am a bot, powered by Rasa.',
+            },
+        ],
+        utter_youarewelcome: [
+            {
+                language: 'en',
+                text: 'You\'re very welcome.',
+            },
+        ],
+    },
     forms: {},
     actions: [
         'action_bbb',
@@ -77,8 +126,42 @@ export const mergedDefaultDomains = {
             disambiguation_message: { type: 'unfeaturized' },
             info_message: { type: 'unfeaturized' },
         },
-    responses: {},
-    forms: {},
+    responses: {
+        utter_goodbye: [
+            {
+                language: 'en',
+                text: 'Goodbye :(',
+            },
+        ],
+        utter_greet: [
+            {
+                language: 'en',
+                text: 'Hey there!',
+            },
+        ],
+        utter_iamabot: [
+            {
+                language: 'en',
+                text: 'I am a bot, powered by Rasa.',
+            },
+        ],
+        utter_youarewelcome: [
+            {
+                language: 'en',
+                text: 'You\'re very welcome.',
+            },
+        ],
+    },
+    forms: {
+        restaurant_form: {
+            cuisine: [
+                {
+                    entity: 'cuisine',
+                    type: 'from_entity',
+                },
+            ],
+        },
+    },
     actions: [
         'action_aaa',
         'action_bbb',
