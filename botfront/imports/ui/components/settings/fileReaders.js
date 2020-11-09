@@ -51,7 +51,7 @@ export const useFileReader = (params) => {
             const addFileNameCheck = addInstruction.map((f) => {
                 if (!f.name.match(/\.(ya?ml|json|md)/)) {
                     return addDataToFile(f, {
-                        errors: ['File is not .zip, .json, .md or .yaml.'],
+                        errors: [{ text: 'File is not .zip, .json, .md or .yaml.' }],
                     });
                 }
                 return f;

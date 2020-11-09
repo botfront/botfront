@@ -37,7 +37,7 @@ export async function getRawTextAndType(files) {
                 return {
                     file,
                     filename,
-                    errors: ['file is not parseable text'],
+                    errors: [{ text: 'File is not parseable text.' }],
                 };
             }
 
