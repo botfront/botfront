@@ -130,5 +130,5 @@ export async function importSteps({
     if (onlyValidate || hasErrors(filesAndValidationData.fileMessages)) { return filesAndValidationData; }
     const { fileMessages: filesToImport, params } = filesAndValidationData;
     const importResult = await handleImportAll(filesToImport, params);
-    return { summary: importResult };
+    return { summary: importResult.map(text => ({ text })) };
 }

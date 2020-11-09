@@ -335,9 +335,7 @@ const ImportRasaFiles = () => {
                 <Message error>
                     <Message.Header>Import Error</Message.Header>
                     <Message.List className='import-summary-accordion'>
-                        {importResults.map(message => (
-                            <Message.Item>{message}</Message.Item>
-                        ))}
+                        {importResults.map(message => (<Message.Item>{message.text}</Message.Item>))}
                     </Message.List>
                 </Message>
             );
