@@ -40,5 +40,20 @@ describe('Project Credentials', function() {
             cy.dataCy('install').click();
             cy.dataCy('envs-selector').should('exist');
         });
+
+        it('should display the installation tab with the webchat Plus channel', function() {
+            cy.visit('/project/bf/settings');
+            cy.contains('Credentials').click();
+            cy.get('[data-cy=ace-field]')
+                .click();
+            cy.wait(100);
+            cy.get('textarea').type('{selectAll}{del}rasa_addons.core.channels.webchat_plus.WebchatPlusInput:{enter}  session_persistence: true{enter}base_url: \'http://localhost:5005\'');
+            cy.get('[data-cy=save-button]').click();
+            cy.get('[data-cy=changes-saved]').should('be.visible');
+            cy.contains('Chat widget').click();
+            cy.dataCy('install').click();
+            cy.dataCy('envs-selector').should('not.exist');
+            cy.dataCy('copy-webchat-snippet');
+        });
     });
 });

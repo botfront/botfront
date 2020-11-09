@@ -79,7 +79,10 @@ class ChatWidgetForm extends React.Component {
         } = this.context;
         const { selectedEnvironment } = this.state;
         const credential = safeLoad(credentials[selectedEnvironment]);
-        const channel = credential['rasa_addons.core.channels.webchat.WebchatInput'];
+        let channel = credential['rasa_addons.core.channels.webchat.WebchatInput'];
+        if (!channel) {
+            channel = credential['rasa_addons.core.channels.webchat_plus.WebchatPlusInput'];
+        }
         // eslint-disable-next-line max-len
         const snippet = `<script>!function(){let e=document.createElement("script"),t=document.head||document.getElementsByTagName("head")[0];e.src="https://storage.googleapis.com/cdn.botfront.cloud/botfront-widget-latest.js",e.async=!0,e.onload=(()=>{window.RasaWebchatPro({customData:${JSON.stringify(
             chatWidgetSettings.customData,
@@ -182,6 +185,7 @@ class ChatWidgetForm extends React.Component {
                             className='copy-button'
                             icon='copy'
                             content={copied ? 'Copied' : 'Copy'}
+                            data-cy='copy-webchat-snippet'
                         />
                     </Input>
                 </Form>
