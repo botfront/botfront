@@ -58,7 +58,7 @@ class LoginComponent extends React.Component {
                 if (!err) {
                     const { location } = this.props;
                     // this represents the previously visited page on our domain.
-                    if (location?.state?.nextPathname) {
+                    if (location?.state?.nextPathname && location?.state?.nextPathname.indexOf('login') === -1) {
                         // if it exists we want to go back to the page the user was trying to visit
                         browserHistory.goBack();
                     } else {
