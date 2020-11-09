@@ -61,7 +61,7 @@ Meteor.methods({
                 });
             }
         });
-        await deleteExamples({ ids: deleted });
+        await deleteExamples({ ids: deleted, projectId });
         await insertExamples({
             examples: newExamples,
             language,
@@ -354,7 +354,7 @@ if (Meteor.isServer) {
                         _id: uuidv4(),
                         metadata: { canonical: canonicalExamples.includes(e.text) },
                     }));
-                    if (overwrite) { await deleteExamples({ ids: currentExamples.map(({ _id }) => _id) }); }
+                    if (overwrite) { await deleteExamples({ projectId, ids: currentExamples.map(({ _id }) => _id) }); }
                     commonExamples = overwrite
                         ? commonExamples
                         : filterExistent(currentExamples, commonExamples, ['text']);

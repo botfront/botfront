@@ -227,8 +227,8 @@ export const updateExamples = async ({ examples }) => {
     return newExamples;
 };
 
-export const deleteExamples = async ({ ids }) => {
-    const result = await Examples.deleteMany({ _id: { $in: ids } }).exec();
+export const deleteExamples = async ({ ids, projectId }) => {
+    const result = await Examples.deleteMany({ _id: { $in: ids }, projectId }).exec();
     if (result.deletedCount !== ids.length) {
         throw new Error('Issue during delete');
     }
