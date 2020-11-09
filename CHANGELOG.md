@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.27.5-ee.1](https://github.com/botfront/botfront/compare/v0.27.4-ee.1...v0.27.5-ee.1) (2020-11-09)
+
+
+### Bug Fixes
+
+* filter out null entity groups and roles at export time ([a565488](https://github.com/botfront/botfront/commit/a565488f5cb978469574706dceb32237c56900be))
+* root url protocol ([5f951c5](https://github.com/botfront/botfront/commit/5f951c55b250ae13f64dd66004a740e37ec1dcfa))
+* webchat url ([48d7679](https://github.com/botfront/botfront/commit/48d767996cfc9dc11aad4ac088bf91ef7b60fbc4))
+
 ### [0.27.4-ee.1](https://github.com/botfront/botfront/compare/v0.27.3-ee.1...v0.27.4-ee.1) (2020-11-03)
 
 
