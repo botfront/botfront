@@ -206,6 +206,7 @@ const ImportRasaFiles = () => {
     const [fileList, setFileList] = fileReader;
     const [{ canDrop, isOver }, drop] = useFileDrop(fileReader);
     const fileField = useRef();
+    useEffect(() => setFileList({ reload: true }), [wipeCurrent, fallbackImportLanguage]);
 
     const renderImportSection = () => (
         <Segment
@@ -213,7 +214,7 @@ const ImportRasaFiles = () => {
                 canDrop && isOver && !filesImporting ? 'upload-target' : ''
             }`}
         >
-            <div {...(!filesImporting ? { ref: drop } : {})} data-cy='drop-zone-data'>
+            <div {...(!filesImporting ? { ref: drop } : {})} data-cy='drop-zone-data' className='drop-zone-data'>
                 {filesImporting ? (
                     <Dimmer active inverted>
                         <Loader>Importing data...</Loader>
@@ -251,16 +252,6 @@ const ImportRasaFiles = () => {
                                 </div>
                             </>
                         )}
-                        <br />
-                        <div className='side-by-side right'>
-                            <Checkbox
-                                toggle
-                                checked={wipeCurrent}
-                                onChange={() => setWipeCurrent(!wipeCurrent)}
-                                label='Replace existing data'
-                                data-cy='wipe-data'
-                            />
-                        </div>
                     </>
                 )}
             </div>
@@ -275,56 +266,14 @@ const ImportRasaFiles = () => {
                     items={importSummary.map(unpackSummaryEntry)}
                     className='import-summary-accordion'
                 />
-
-                <div className='side-by-side middle'>
-                    <div className='side-by-side narrow left middle'>
-                        <Popup
-                            content={(
-                                <>
-                                    <p>
-                                        Bot responses found in domain files will use the
-                                        &apos;language&apos; attribute if it exists; if
-                                        not, the fallback import language will be used.
-                                    </p>
-
-                                    <p>
-                                        Likewise, the language of a NLU file can be
-                                        specified in its first line; if it isn&apos;t, the
-                                        fallback import language will be used.
-                                    </p>
-
-                                    <p>For more information, read the docs.</p>
-                                </>
-                            )}
-                            inverted
-                            trigger={(
-                                <div>
-                                    <Icon name='question circle' />
-                                    <strong>Fallback import language: </strong>
-                                </div>
-                            )}
-                        />
-                        <Dropdown
-                            className='export-option'
-                            options={projectLanguages}
-                            selection
-                            value={fallbackImportLanguage}
-                            onChange={(_e, { value }) => {
-                                setFileList({ changeLang: value });
-                                setFallbackImportLanguage(value);
-                            }}
-                        />
-                    </div>
-                    <div>
-                        <Button
-                            disabled={fileReader[0].some(f => !f.validated)}
-                            content='Import'
-                            data-cy='import-rasa-files'
-                            primary
-                            onClick={() => handleImport(fileReader)}
-                        />
-                    </div>
-                </div>
+                <br />
+                <Button
+                    disabled={fileReader[0].some(f => !f.validated)}
+                    content='Import'
+                    data-cy='import-rasa-files'
+                    primary
+                    onClick={() => handleImport(fileReader)}
+                />
             </Message>
         </>
     );
@@ -343,10 +292,60 @@ const ImportRasaFiles = () => {
         return <></>;
     };
 
+    const renderKnobs = () => (
+        <Segment className='import-box'>
+            <div className='side-by-side narrow left middle'>
+                <Popup
+                    content={(
+                        <>
+                            <p>
+                                        Bot responses found in domain files will use the
+                                        &apos;language&apos; attribute if it exists; if
+                                        not, the fallback import language will be used.
+                            </p>
+
+                            <p>
+                                        Likewise, the language of a NLU file can be
+                                        specified in its first line; if it isn&apos;t, the
+                                        fallback import language will be used.
+                            </p>
+
+                            <p>For more information, read the docs.</p>
+                        </>
+                    )}
+                    inverted
+                    trigger={(
+                        <div>
+                            <Icon name='question circle' />
+                            <strong>Fallback import language: </strong>
+                        </div>
+                    )}
+                />
+                <Dropdown
+                    className='export-option'
+                    options={projectLanguages}
+                    selection
+                    value={fallbackImportLanguage}
+                    onChange={(_e, { value }) => setFallbackImportLanguage(value)}
+                />
+            </div>
+            <div className='side-by-side right'>
+                <Checkbox
+                    toggle
+                    checked={wipeCurrent}
+                    onChange={() => setWipeCurrent(!wipeCurrent)}
+                    label='Replace existing data'
+                    data-cy='wipe-data'
+                />
+            </div>
+        </Segment>
+    );
+
     return (
         <>
+            {renderKnobs()}
             {renderImportSection()}
-            {renderBottom()}
+            {!!importSummary.length && renderBottom()}
             {renderImportResults()}
         </>
     );

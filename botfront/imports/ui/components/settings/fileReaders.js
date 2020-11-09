@@ -17,11 +17,24 @@ export const useFileReader = (params) => {
     const reducer = (fileList, instruction) => {
         // eslint-disable-next-line no-use-before-define
         const setFileList = ins => fileReader[1](ins);
+
+        const setFileListAfterRecompute = update => params.validateFunction(update).then((data, err) => {
+            if (err) return setFileList({ set: fileList }); // reset to previous state
+            return setFileList({
+                set: update.map((file, i) => {
+                    const warnings = data[i]?.warnings || [];
+                    const errors = data[i]?.errors || file.errors || [];
+                    return addDataToFile(file, { validated: true, errors, warnings });
+                }),
+            });
+        });
+
         const {
             delete: deleteInstruction,
             add: addInstruction,
             set: setInstruction,
             reset: resetInstruction,
+            reload: reloadInstruction,
         } = instruction;
 
         if (deleteInstruction) {
@@ -31,45 +44,25 @@ export const useFileReader = (params) => {
                 ...fileList.slice(0, index),
                 ...fileList.slice(index + 1),
             ];
-            params.validateFunction(newFileList).then((data, err) => {
-                if (err) return setFileList({ set: fileList }); // reset to previous state
-                return setFileList({
-                    set: newFileList.map((file, i) => {
-                        const warnings = data[i]?.warnings || [];
-                        const errors = data[i]?.errors || file.errors || [];
-                        return addDataToFile(file, { validated: true, errors, warnings });
-                    }),
-                });
-            });
+            setFileListAfterRecompute(newFileList);
             return newFileList.map(f => addDataToFile(f, { validated: false }));
         }
         if (addInstruction) {
-            const addFileNameCheck = addInstruction.map((f, i) => {
+            const addFileNameCheck = addInstruction.map((f) => {
                 if (!f.name.match(/\.(ya?ml|json|md)/)) {
                     return addDataToFile(f, {
                         errors: ['File is not .zip, .json, .md or .yaml.'],
                     });
                 }
-                // console.log(addInstruction, fileList);
-                // if (fileList.some((f_, i_) => f.name === f_.name && i !== i_)) {
-                //     return addDataToFile(f, {
-                //         errors: ['File with same filename uploaded.'],
-                //     });
-                // }
                 return f;
             });
             const newFileList = [...fileList, ...addFileNameCheck];
-            params.validateFunction(newFileList).then((data, err) => {
-                if (err) return setFileList({ set: fileList }); // reset to previous state
-                return setFileList({
-                    set: newFileList.map((file, i) => {
-                        const warnings = data[i]?.warnings || [];
-                        const errors = data[i]?.errors || file.errors || [];
-                        return addDataToFile(file, { validated: true, errors, warnings });
-                    }),
-                });
-            });
+            setFileListAfterRecompute(newFileList);
             return newFileList.map(f => addDataToFile(f, { validated: false }));
+        }
+        if (reloadInstruction) {
+            setFileListAfterRecompute(fileList);
+            return fileList.map(f => addDataToFile(f, { validated: false }));
         }
         if (resetInstruction) return [];
         if (setInstruction) return setInstruction;

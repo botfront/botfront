@@ -276,7 +276,7 @@ export class TrainingDataValidator {
             return true;
         });
         Object.keys(droppedExamples).forEach(lang => warnings.push({
-            text: `${droppedExamples[lang].length} '${lang}' examples dropped`,
+            text: `${droppedExamples[lang].length} ${langFromCode(lang)} examples dropped.`,
             longText: `${TrainingDataValidator.countAndPluralize(
                 droppedExamples[lang].length,
                 'Example',
