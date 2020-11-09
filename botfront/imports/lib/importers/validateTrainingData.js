@@ -3,7 +3,7 @@ import { safeLoad, safeDump } from 'js-yaml';
 import uuidv4 from 'uuid/v4';
 import shortid from 'shortid';
 import axios from 'axios';
-import { languages as LANGUAGES } from '../languages';
+import { languages as LANGUAGES, langFromCode } from '../languages';
 import { DialogueFragmentValidator } from '../dialogue_fragment_validator';
 
 const NLU_ENGLISH_MAPPINGS = {
@@ -266,10 +266,10 @@ export class TrainingDataValidator {
             if (!this.projectLanguages.includes(language)) {
                 this.projectLanguages.push(language);
                 this.summary.push({
-                    text: `A new model with default pipeline will be created for language '${language}'.`,
+                    text: `A new model with default pipeline will be created for ${langFromCode(language)}.`,
                 });
                 warnings.push({
-                    text: `File contains data for language '${language}'; a new model will be created for that language.`,
+                    text: `File contains data for ${langFromCode(language)}; a new model will be created for that language.`,
                 });
             }
             return true;
@@ -548,7 +548,7 @@ export class TrainingDataValidator {
             { total: 0 },
         );
         this.summary.push({
-            text: `${total} NLU data will be imported to '${lang}' model.`,
+            text: `${total} NLU data will be imported to ${langFromCode(lang)} model.`,
             longText: `${Object.values(nByType).join(', ')} will be imported.`,
         });
     });

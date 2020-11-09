@@ -184,3 +184,5 @@ export const languages = {
     zh: { name: 'Chinese' },
     zu: { name: 'Zulu' },
 };
+
+export const langFromCode = code => languages?.[code]?.name;
