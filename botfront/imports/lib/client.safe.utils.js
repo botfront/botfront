@@ -6,7 +6,10 @@ export function clearTypenameField(object) {
 
 export const formNameIsValid = name => name.match(/^[a-zA-Z0-9-_]+_form$/) && name.split('form').length === 2;
 
-export const dropNullValuesFromObject = o => Object.entries(o).reduce(
-    (a, [k, v]) => ({ ...a, ...(v === undefined || v === null ? {} : { [k]: v }) }),
+export const dropNullValuesFromObject = obj => Object.entries(obj).reduce(
+    (acc, [key, val]) => ({
+        ...acc,
+        ...(val === undefined || val === null ? {} : { [key]: val }),
+    }),
     {},
 );
