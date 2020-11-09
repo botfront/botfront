@@ -25,7 +25,7 @@ function EntityValueEditor({
                 onMouseDown={e => e.stopPropagation()}
                 size='small'
                 labelPosition='left'
-                className='entity-value-input'
+                className={`entity-${key}-input`}
             >
                 <Label>{capitalize(key)}</Label>
                 <input />
@@ -51,6 +51,7 @@ function EntityValueEditor({
             content={capitalize(key)}
             icon='add'
             disabled={disabled}
+            data-cy={`add-entity-${key}`}
         />
     );
 

@@ -40,7 +40,7 @@ type Mutation {
         language: String!
         projectId: String!
     ):  [Example]
-    deleteExamples(ids: [String]!): [String]
+    deleteExamples(ids: [String]!, projectId: String!): [String]
     switchCanonical( projectId:String, language: String, example: ExampleInput!): [Example]
 }
 

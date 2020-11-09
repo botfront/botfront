@@ -150,7 +150,7 @@ const NLUModalContent = React.forwardRef((props, forwardedRef) => {
             };
         });
         setExamples(updatedExamples);
-        return new Promise(() => ({ data: { deleteExamples: ids } })); // needed for mutationCallback in parent
+        return new Promise(() => ({ data: { deleteExamples: ids, projectId } })); // needed for mutationCallback in parent
     };
 
     const onUpdateExamples = (examplesUpdate) => {

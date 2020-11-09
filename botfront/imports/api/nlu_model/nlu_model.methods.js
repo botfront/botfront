@@ -65,7 +65,7 @@ Meteor.methods({
                 });
             }
         });
-        await deleteExamples({ ids: deleted });
+        await deleteExamples({ ids: deleted, projectId });
         await insertExamples({
             examples: newExamples,
             language,
@@ -215,7 +215,6 @@ Meteor.methods({
     'nlu.deleteRegexFeature'(modelId, itemId) {
         check(modelId, String);
         check(itemId, String);
-        console.log(itemId);
         return NLUModels.update(
             { _id: modelId },
             { $pull: { 'training_data.regex_features': { _id: itemId } } },
@@ -317,6 +316,7 @@ if (Meteor.isServer) {
             newItem.logActivity = item.logActivity;
             newItem.instance = item.instance;
             newItem.description = item.description;
+            newItem.hasNoWhitespace = item.hasNoWhitespace;
             const before = NLUModels.findOne({ _id: modelId }, {
                 fields: {
                     evaluations: 0, intents: 0, chitchat_intents: 0, training_data: 0,
@@ -444,7 +444,7 @@ if (Meteor.isServer) {
                         _id: uuidv4(),
                         metadata: { canonical: canonicalExamples.includes(e.text) },
                     }));
-                    if (overwrite) { await deleteExamples({ ids: currentExamples.map(({ _id }) => _id) }); }
+                    if (overwrite) { await deleteExamples({ projectId, ids: currentExamples.map(({ _id }) => _id) }); }
                     commonExamples = overwrite
                         ? commonExamples
                         : filterExistent(currentExamples, commonExamples, ['text']);

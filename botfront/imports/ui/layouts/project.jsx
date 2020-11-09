@@ -27,6 +27,7 @@ import { Projects } from '../../api/project/project.collection';
 import { languages as languageOptions } from '../../lib/languages';
 import { setProjectId, setWorkingLanguage, setShowChat } from '../store/actions/actions';
 import { Credentials } from '../../api/credentials';
+import { NLUModels } from '../../api/nlu_model/nlu_model.collection';
 import { Instances } from '../../api/instances/instances.collection';
 import { Slots } from '../../api/slots/slots.collection';
 import 'semantic-ui-css/semantic.min.css';
@@ -56,6 +57,7 @@ function Project(props) {
         children,
         settings,
         allowContextualQuestions,
+        hasNoWhitespace,
     } = props;
     const [resizingChatPane, setResizingChatPane] = useState(false);
     const [requestedSlot, setRequestedSlot] = useState(null);
@@ -220,6 +222,7 @@ function Project(props) {
                                 resetResponseInCache,
                                 setResponseInCache,
                                 requestedSlot,
+                                hasNoWhitespace,
                             }}
                         >
                             <DndProvider backend={HTML5Backend}>
@@ -277,6 +280,7 @@ Project.propTypes = {
     showChat: PropTypes.bool.isRequired,
     changeShowChat: PropTypes.func.isRequired,
     allowContextualQuestions: PropTypes.bool,
+    hasNoWhitespace: PropTypes.bool,
 };
 
 Project.defaultProps = {
@@ -287,6 +291,7 @@ Project.defaultProps = {
     workingLanguage: 'en',
     workingDeploymentEnvironment: 'development',
     allowContextualQuestions: false,
+    hasNoWhitespace: false,
 };
 
 const ProjectContainer = withTracker((props) => {
@@ -313,6 +318,8 @@ const ProjectContainer = withTracker((props) => {
     const instanceHandler = Meteor.subscribe('nlu_instances', projectId);
     const slotsHandler = Meteor.subscribe('slots', projectId);
     const allowContextualQuestionsHandler = Meteor.subscribe('project.requestedSlot', projectId);
+    const nluModelsHandler = Meteor.subscribe('nlu_models', projectId, workingLanguage);
+    const { hasNoWhitespace } = NLUModels.findOne({ projectId, language: workingLanguage }, { fields: { hasNoWhitespace: 1 } }) || {};
     const instance = Instances.findOne({ projectId });
     const readyHandler = handler => handler;
     const readyHandlerList = [
@@ -323,6 +330,7 @@ const ProjectContainer = withTracker((props) => {
         instanceHandler.ready(),
         slotsHandler.ready(),
         allowContextualQuestionsHandler.ready(),
+        nluModelsHandler.ready(),
     ];
     const ready = readyHandlerList.every(readyHandler);
     const project = Projects.findOne({ _id: projectId });
@@ -369,6 +377,7 @@ const ProjectContainer = withTracker((props) => {
         projectLanguages,
         settings,
         allowContextualQuestions: ready ? project.allowContextualQuestions : false,
+        hasNoWhitespace,
     };
 })(Project);
 

@@ -117,8 +117,8 @@ ${entityFields}`;
 
 
 export const DELETE_EXAMPLES = gql`
-mutation deleteExamples($ids: [String]!) {
-    deleteExamples(ids: $ids) 
+mutation deleteExamples($ids: [String]!, $projectId: String!) {
+    deleteExamples(ids: $ids, projectId: $projectId) 
 }`;
 
 

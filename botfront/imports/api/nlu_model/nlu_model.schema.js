@@ -1,5 +1,4 @@
 import SimpleSchema from 'simpl-schema';
-import { uuidv4 } from 'uuid/v4';
 import { languages } from '../../lib/languages';
 
 export const TrainingExampleSchema = new SimpleSchema({
@@ -88,6 +87,7 @@ export const NLUModelSchema = new SimpleSchema({
     },
     description: { type: String, optional: true },
     config: { type: String, optional: true },
+    hasNoWhitespace: { type: Boolean, optional: true },
 
     evaluations: { type: Array, optional: true, defaultValue: [] },
     'evaluations.$': { type: String },

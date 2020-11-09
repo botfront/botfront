@@ -88,7 +88,7 @@ function Entity({
             <Grid.Row centered>
                 {showDeleteConfirmation
                     ? (
-                        <Button negative size='mini' onClick={() => setToBeDeleted(true)}>
+                        <Button negative size='mini' onClick={() => setToBeDeleted(true)} data-cy='confirm-entity-deletion'>
                         Confirm deletion
                         </Button>
                     )
@@ -133,6 +133,7 @@ function Entity({
                         setPopupOpen(false);
                     }}
                     className='entity-popup'
+                    data-cy='entity-popup'
                 />
             )}
             {customTrigger ? (
@@ -144,11 +145,11 @@ function Entity({
                     data-cy='entity-label'
                     className={`entity-container ${colorToRender}`}
                 >
-                    <span className='float entity-name'>
+                    <span className='float entity-name' data-cy='entity-name'>
                         {(value.group || value.role || value.text !== value.value) && <>&#9733;</>}
                         {value.entity}
                     </span>
-                    <div ref={labelRef} {...onClickProp}>
+                    <div ref={labelRef} {...onClickProp} data-cy='entity-text'>
                         {renderText()}
                     </div>
                 </div>

@@ -136,7 +136,7 @@ const TemplatesContainer = ({ params, events, ready }) => {
         if (!loading && !error) {
             setTemplates(data.botResponses);
         }
-    }, [data]);
+    }, [data, loading, error]);
 
     useEffect(() => {
         refetch();
