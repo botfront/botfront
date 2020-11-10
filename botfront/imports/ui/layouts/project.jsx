@@ -37,6 +37,7 @@ import { setsAreIdentical, cleanDucklingFromExamples } from '../../lib/utils';
 import { INSERT_EXAMPLES } from '../components/nlu/models/graphql';
 import apolloClient from '../../startup/client/apollo';
 import { useResponsesContext } from './response.hooks';
+import { can } from '../../lib/scopes';
 
 const ProjectChat = React.lazy(() => import('../components/project/ProjectChat'));
 
@@ -318,8 +319,14 @@ const ProjectContainer = withTracker((props) => {
     const instanceHandler = Meteor.subscribe('nlu_instances', projectId);
     const slotsHandler = Meteor.subscribe('slots', projectId);
     const allowContextualQuestionsHandler = Meteor.subscribe('project.requestedSlot', projectId);
-    const nluModelsHandler = Meteor.subscribe('nlu_models', projectId, workingLanguage);
-    const { hasNoWhitespace } = NLUModels.findOne({ projectId, language: workingLanguage }, { fields: { hasNoWhitespace: 1 } }) || {};
+    let nluModelsHandler = null;
+    let hasNoWhitespace;
+    if (can('nlu-data:r', projectId)) {
+        nluModelsHandler = Meteor.subscribe('nlu_models', projectId, workingLanguage);
+        ({ hasNoWhitespace } = NLUModels.findOne({ projectId, language: workingLanguage }, { fields: { hasNoWhitespace: 1 } }) || {});
+    } else {
+        hasNoWhitespace = false;
+    }
     const instance = Instances.findOne({ projectId });
     const readyHandler = handler => handler;
     const readyHandlerList = [
@@ -330,7 +337,7 @@ const ProjectContainer = withTracker((props) => {
         instanceHandler.ready(),
         slotsHandler.ready(),
         allowContextualQuestionsHandler.ready(),
-        nluModelsHandler.ready(),
+        nluModelsHandler ? nluModelsHandler.ready() : true,
     ];
     const ready = readyHandlerList.every(readyHandler);
     const project = Projects.findOne({ _id: projectId });
