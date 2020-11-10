@@ -42,11 +42,14 @@ export class TrainingDataValidator {
         fallbackLang,
         projectLanguages,
         existingStoryGroups = [],
+        wipeCurrent,
         summary,
         ...rest
     }) {
+        this.wipeCurrent = wipeCurrent;
         this.instanceHost = instanceHost;
         this.fallbackLang = fallbackLang;
+        this.projectLanguagesBefore = projectLanguages;
         this.projectLanguages = projectLanguages;
         this.existingStoryGroups = existingStoryGroups;
         this.summary = summary;
@@ -147,7 +150,7 @@ export class TrainingDataValidator {
         extension,
         { language: specLang, canonicalText } = {},
     ) => {
-        let language = specLang;
+        let language = specLang || this.fallbackLang;
         let nlu;
         if (fileData && typeof fileData === 'object' && 'rasa_nlu_data' in fileData) {
             nlu = fileData.rasa_nlu_data;
@@ -168,14 +171,14 @@ export class TrainingDataValidator {
                 throw new Error('NLU data came back empty from Rasa.');
             }
             nlu.common_examples = (nlu.common_examples || []).map((example) => {
-                if (!language && example?.metadata?.language) {
+                if (example?.metadata?.language) {
                     ({ language } = example.metadata);
                 }
                 return {
                     ...example,
                     metadata: {
                         ...(example.metadata || {}),
-                        ...(language ? { language } : {}),
+                        language,
                         ...(canonicalText
                             ? { canonical: canonicalText.includes(example.text) }
                             : {}),
@@ -231,8 +234,7 @@ export class TrainingDataValidator {
     };
 
     loadNluFromMd = async (file) => {
-        const language = TrainingDataValidator.getLanguageFromMdNluFile(file.rawText)
-            || this.fallbackLang;
+        const language = TrainingDataValidator.getLanguageFromMdNluFile(file.rawText);
         const canonicalText = TrainingDataValidator.getCanonicalFromMdNluFile(
             file.rawText,
         );
@@ -267,16 +269,22 @@ export class TrainingDataValidator {
             if (!this.projectLanguages.includes(language)) {
                 this.projectLanguages.push(language);
                 this.summary.push({
-                    text: `A new model with default pipeline will be created for ${langFromCode(language)}.`,
+                    text: `A new model with default pipeline will be created for ${langFromCode(
+                        language,
+                    )}.`,
                 });
                 warnings.push({
-                    text: `File contains data for ${langFromCode(language)}; a new model will be created for that language.`,
+                    text: `File contains data for ${langFromCode(
+                        language,
+                    )}; a new model will be created for that language.`,
                 });
             }
             return true;
         });
         Object.keys(droppedExamples).forEach(lang => warnings.push({
-            text: `${droppedExamples[lang].length} ${langFromCode(lang)} examples dropped.`,
+            text: `${droppedExamples[lang].length} ${langFromCode(
+                lang,
+            )} examples dropped.`,
             longText: `${TrainingDataValidator.countAndPluralize(
                 droppedExamples[lang].length,
                 'Example',
@@ -330,7 +338,11 @@ export class TrainingDataValidator {
 
     loadStoriesFromMd = async (file) => {
         const [group, mdFragments] = this.getGroupNameAndBodyFromMdStoryFile(file);
-        if (!mdFragments.replace(/(<!--.*?-->)|(<!--[\S\s]+?-->)|(<!--[\S\s]*?$)/g, '').trim()) {
+        if (
+            !mdFragments
+                .replace(/(<!--.*?-->)|(<!--[\S\s]+?-->)|(<!--[\S\s]*?$)/g, '')
+                .trim()
+        ) {
             return {
                 errors: ['File is empty.'],
             };
@@ -525,6 +537,23 @@ export class TrainingDataValidator {
         return [warnings, filteredAndParsedStories];
     };
 
+    addWipingWarnings = () => {
+        this.wipeNluData = Object.keys(this.existingNlu).filter(l => this.wipeCurrent && this.projectLanguagesBefore.includes(l));
+        this.wipeFragments = this.wipeCurrent && !!Object.keys(this.existingFragments).length;
+        if (this.wipeNluData.length) {
+            this.summary.push({
+                text: `ALL EXISTING NLU DATA for ${this.wipeNluData
+                    .map(langFromCode)
+                    .join(', ')} will be deleted.`,
+            });
+        }
+        if (this.wipeFragments) {
+            this.summary.push({
+                text: 'ALL EXISTING CONVERSATIONAL FRAGMENTS will be deleted.',
+            });
+        }
+    };
+
     addGlobalNluSummaryLines = () => Object.keys(this.existingNlu).forEach((lang) => {
         const { total, ...nByType } = Object.keys(this.existingNlu[lang]).reduce(
             (acc, key) => {
@@ -542,7 +571,9 @@ export class TrainingDataValidator {
             { total: 0 },
         );
         this.summary.push({
-            text: `${total} NLU data will be imported to ${langFromCode(lang)} model.`,
+            text: `${total} NLU data will be imported to ${langFromCode(
+                lang,
+            )} model.`,
             longText: `${Object.values(nByType).join(', ')} will be imported.`,
         });
     });
@@ -706,7 +737,8 @@ export class TrainingDataValidator {
             };
         });
 
-        this.rehydrateStories(trainingDataFiles);
+        trainingDataFiles = this.rehydrateStories(trainingDataFiles);
+        this.addWipingWarnings();
         this.addGlobalNluSummaryLines();
         this.addGlobalCoreSummaryLines();
 
@@ -717,6 +749,9 @@ export class TrainingDataValidator {
             }),
             {
                 ...this.unUsedParams,
+                wipeCurrent: this.wipeCurrent,
+                wipeNluData: this.wipeNluData,
+                wipeFragments: this.wipeFragments,
                 instanceHost: this.instanceHost,
                 fallbackLang: this.fallbackLang,
                 projectLanguages: this.projectLanguages,

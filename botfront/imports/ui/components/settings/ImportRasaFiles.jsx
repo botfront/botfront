@@ -334,7 +334,7 @@ const ImportRasaFiles = () => {
                     toggle
                     checked={wipeCurrent}
                     onChange={() => setWipeCurrent(!wipeCurrent)}
-                    label='Replace existing data'
+                    label='Delete existing data first'
                     data-cy='wipe-data'
                 />
             </div>

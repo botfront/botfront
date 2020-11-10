@@ -125,6 +125,7 @@ export async function importSteps({
         onlyValidate,
         projectId,
         existingStoryGroups,
+        wipeCurrent,
         fallbackLang,
     });
     if (onlyValidate || hasErrors(filesAndValidationData.fileMessages)) { return filesAndValidationData; }
