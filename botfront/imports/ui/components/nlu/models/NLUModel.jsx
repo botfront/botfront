@@ -223,7 +223,7 @@ function NLUModel(props) {
                                                 language: workingLanguage,
                                             },
                                         })}
-                                        deleteExamples={ids => deleteExamples({ variables: { ids } })}
+                                        deleteExamples={ids => deleteExamples({ variables: { ids, projectId } })}
                                         switchCanonical={example => switchCanonical({
                                             variables: {
                                                 projectId,

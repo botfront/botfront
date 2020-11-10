@@ -26,6 +26,7 @@ import { Projects } from '../../api/project/project.collection';
 import { languages as languageOptions } from '../../lib/languages';
 import { setProjectId, setWorkingLanguage, setShowChat } from '../store/actions/actions';
 import { Credentials } from '../../api/credentials';
+import { NLUModels } from '../../api/nlu_model/nlu_model.collection';
 import { Instances } from '../../api/instances/instances.collection';
 import { Slots } from '../../api/slots/slots.collection';
 import 'semantic-ui-css/semantic.min.css';
@@ -51,6 +52,7 @@ function Project(props) {
         slots,
         channel,
         children,
+        hasNoWhitespace,
     } = props;
     const [resizingChatPane, setResizingChatPane] = useState(false);
     const {
@@ -192,6 +194,7 @@ function Project(props) {
                                 getCanonicalExamples,
                                 resetResponseInCache,
                                 setResponseInCache,
+                                hasNoWhitespace,
                             }}
                         >
                             <DndProvider backend={HTML5Backend}>
@@ -247,6 +250,7 @@ Project.propTypes = {
     channel: PropTypes.object,
     showChat: PropTypes.bool.isRequired,
     changeShowChat: PropTypes.func.isRequired,
+    hasNoWhitespace: PropTypes.bool,
 };
 
 Project.defaultProps = {
@@ -254,6 +258,7 @@ Project.defaultProps = {
     project: {},
     instance: {},
     workingLanguage: 'en',
+    hasNoWhitespace: false,
 };
 
 const ProjectContainer = withTracker((props) => {
@@ -275,6 +280,8 @@ const ProjectContainer = withTracker((props) => {
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
     const instanceHandler = Meteor.subscribe('nlu_instances', projectId);
     const slotsHandler = Meteor.subscribe('slots', projectId);
+    const nluModelsHandler = Meteor.subscribe('nlu_models', projectId, workingLanguage);
+    const { hasNoWhitespace } = NLUModels.findOne({ projectId, language: workingLanguage }, { fields: { hasNoWhitespace: 1 } }) || {};
     const instance = Instances.findOne({ projectId });
     const readyHandler = handler => handler;
     const readyHandlerList = [
@@ -283,6 +290,7 @@ const ProjectContainer = withTracker((props) => {
         projectHandler.ready(),
         instanceHandler.ready(),
         slotsHandler.ready(),
+        nluModelsHandler.ready(),
     ];
     const ready = readyHandlerList.every(readyHandler);
     const project = Projects.findOne({ _id: projectId });
@@ -333,6 +341,7 @@ const ProjectContainer = withTracker((props) => {
         instance,
         slots: Slots.find({}).fetch(),
         projectLanguages,
+        hasNoWhitespace,
     };
 })(Project);
 

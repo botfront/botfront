@@ -12,7 +12,7 @@ export default class ErrorBoundary extends React.Component {
 
     isRootUrlError = () => {
         // eslint-disable-next-line no-undef
-        const rootUrlRegex = new RegExp(__meteor_runtime_config__.ROOT_URL);
+        const rootUrlRegex = new RegExp(__meteor_runtime_config__.ROOT_URL.replace(/(^\w+:|^)\/\//, ''));
         return !rootUrlRegex.test(window.location.href);
     }
 

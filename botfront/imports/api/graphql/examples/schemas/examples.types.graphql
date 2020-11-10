@@ -42,7 +42,7 @@ type Mutation {
         autoAssignCanonical: Boolean = true
         overwriteOnSameText: Boolean = false
     ):  [Example]
-    deleteExamples(ids: [String]!): [String]
+    deleteExamples(ids: [String]!, projectId: String!): [String]
     switchCanonical( projectId:String, language: String, example: ExampleInput!): [Example]
 }
 
