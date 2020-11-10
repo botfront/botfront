@@ -88,7 +88,6 @@ export const defaultTemplate = (template) => {
         };
     case 'CarouselPayload':
         return {
-            template_type: 'generic',
             elements: [defaultCarouselSlide()],
             __typename: 'CarouselPayload',
         };
@@ -130,7 +129,6 @@ export const parseContentType = (content) => {
         (content.quick_replies === undefined || Array.isArray(content.quick_replies)),
         (content.elements === undefined || (
             Array.isArray(content.elements)
-            && typeof content.template_type === 'string'
             && content.elements.every(el => (
                 typeof el === 'object'
                 && (el.buttons === undefined || Array.isArray(el.buttons))
