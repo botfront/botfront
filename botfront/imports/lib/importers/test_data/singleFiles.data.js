@@ -2,7 +2,9 @@
 import { validCredentials, validCredentialsParsed } from './credentials.data.js';
 import { validEndpoints, validEndpointsParsed } from './endpoints.data.js';
 import { validBfConfig, validBfConfigParsed } from './bfConfig.data.js';
-import { validRasaConfig, validRasaConfigParsed } from './rasaconfig.data.js';
+import {
+    validRasaConfig, validRasaConfigParsed, validRasaConfigFr, validRasaConfigFrParsed, validRasaConfigNoLang, validRasaConfigNoLangParsed,
+} from './rasaconfig.data.js';
 import { validDefaultDomain, validDefaultDomainParsed } from './defaultdomain.data.js';
 import {
     validDomain, validDomainParsed, validDomainFr, validDomainFrParsed,
@@ -118,6 +120,60 @@ export const singlesFiles = [
             ...validRasaConfig,
             ...validRasaConfigParsed,
             warnings: [],
+        }],
+        expectedParams: {
+            projectId,
+            summary: ['Pipeline for language \'en\' will be overwritten by configtest.yml.', 'Policies will be overwritten by configtest.yml.'],
+            defaultDomain,
+            instanceHost: 'http://localhost:1234',
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+            existingStoryGroups: [],
+        },
+    },
+    {
+        name: 'should procces a valid rasaconfig with a unsupported language',
+        files: [validRasaConfigFr],
+        params: {
+            projectId,
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+        },
+        expectedFiles: [{
+            ...validRasaConfigFr,
+            ...validRasaConfigFrParsed,
+            warnings: [],
+        }],
+        expectedParams: {
+            projectId,
+            summary: ['Pipeline for new language model \'fr\' will be imported from configtest.yml.', 'Policies will be overwritten by configtest.yml.'],
+            defaultDomain,
+            instanceHost: 'http://localhost:1234',
+            projectLanguages: [
+                'en', 'fr',
+            ],
+            fallbackLang: 'en',
+            existingStoryGroups: [],
+        },
+    },
+    {
+        name: 'should procces a valid rasaconfig with a no language',
+        files: [validRasaConfigNoLang],
+        params: {
+            projectId,
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+        },
+        expectedFiles: [{
+            ...validRasaConfigNoLang,
+            ...validRasaConfigParsed,
+            warnings: ['No language specified for pipeline, using \'en\'.'],
         }],
         expectedParams: {
             projectId,
