@@ -121,6 +121,8 @@ const validateADomain = (
     let responsesRasaFormat = {};
     const slots = [];
     const newLanguages = new Set();
+    const newLangsResponses = {};
+
     Object.keys(responsesFromFile).forEach((key) => {
         const response = responsesFromFile[key];
         const values = [];
@@ -136,9 +138,7 @@ const validateADomain = (
                 );
             }
             if (!projectLanguages.includes(lang)) {
-                warnings.push(
-                    `Response '${key}' defined for '${lang}', but no such language used by project, importing this file will add support for the language`,
-                );
+                newLangsResponses[lang] = [...(newLangsResponses[lang] || []), key];
                 newLanguages.add(lang);
             }
             
@@ -161,7 +161,11 @@ const validateADomain = (
             responsesRasaFormat = { [key]: response, ...responsesRasaFormat };
         }
     });
-
+    if (Object.keys(newLangsResponses).length > 0) {
+        Object.keys(newLangsResponses).forEach((lang) => {
+            warnings.push({ text: `those reponses will add the support for the language ${lang} :` }, { longText: newLangsResponses[lang].join(', ') });
+        });
+    }
     
     // MIGHT NEED TO UPDATE WITH RASA 2
     Object.keys(slotsFromFile || {}).forEach((name) => {
@@ -196,7 +200,7 @@ const validateADomain = (
         ...file,
         warnings: [...(file?.warnings || []), ...warnings],
         ...newDomain,
-        newLanguages,
+        newLanguages: Array.from(newLanguages),
     };
 };
 
@@ -277,7 +281,7 @@ export const validateDomain = (files, params) => {
     let newLanguages = params.projectLanguages;
 
     if (domainFiles.length > 0) {
-        const newLangs = domainFiles.reduce((all, file) => new Set([...file.newLanguages, ...all]), new Set());
+        const newLangs = domainFiles.reduce((all, file) => [...file.newLanguages, ...all], []);
         const merged = mergeDomains(domainFiles);
         const nameList = domainFiles.map(file => file.filename).join(', ');
         const slotsLen = merged.slots.length;
