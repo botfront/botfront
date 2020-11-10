@@ -21,9 +21,9 @@ export const validateARasaConfig = (file, fallbackLang) => {
     }
     return {
         ...file,
-        pipeline,
-        ...(pipeline ? { language } : {}),
-        policies,
+        ...(pipeline ? { pipeline } : {}),
+        ...(language ? { language } : {}),
+        ...(policies ? { policies } : {}),
         warnings,
     };
 };
@@ -46,8 +46,9 @@ const validateRasaConfigTogether = (files, projectId) => {
     const pipelinePerLang = {};
     const configFiles = files.map((rasaConfigFile) => {
         const {
-            pipeline, language, policies, filename, warnings,
+            pipeline, language, policies, filename, warnings, errors,
         } = rasaConfigFile;
+        if (errors) return rasaConfigFile;
         const newWarnings = [];
         languagesFromFiles.add(language);
         if (pipeline && pipelinePerLang[language]) {
@@ -55,8 +56,10 @@ const validateRasaConfigTogether = (files, projectId) => {
                 `Dropped pipeline, since a pipeline for '${language}' is found in another import file.`,
             );
         }
-        if (pipeline && !pipelinePerLang[language]) { pipelinePerLang[language] = filename; }
-        summary.push(langSummary(rasaConfigFile, languagesFromProject));
+        if (pipeline && !pipelinePerLang[language]) {
+            pipelinePerLang[language] = filename;
+            summary.push(langSummary(rasaConfigFile, languagesFromProject));
+        }
 
         if (policies && policiesFoundIn !== '') {
             newWarnings.push(
@@ -78,13 +81,13 @@ const validateRasaConfigTogether = (files, projectId) => {
 };
 
 export const validateRasaConfig = (files, params) => {
-    const { projectId } = params;
+    const { projectId, fallbackLang } = params;
     let summary = [];
     let projectLanguages = [];
 
     let rasaConfigFiles = files.filter(f => f?.dataType === 'rasaconfig');
 
-    rasaConfigFiles = rasaConfigFiles.map(rasaConfigFile => validateARasaConfig(rasaConfigFile));
+    rasaConfigFiles = rasaConfigFiles.map(rasaConfigFile => validateARasaConfig(rasaConfigFile, fallbackLang));
     [rasaConfigFiles, summary, projectLanguages] = validateRasaConfigTogether(
         rasaConfigFiles,
         projectId,
