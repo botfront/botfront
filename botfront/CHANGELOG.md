@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.27.5-ee.2](https://github.com/botfront/botfront/compare/v0.27.5-ee.1...v0.27.5-ee.2) (2020-11-10)
+
+
+### Bug Fixes
+
+* login issues ([aa81fae](https://github.com/botfront/botfront/commit/aa81fae869731b5497efc717129367bcfc0ce30b))
+* response role broken by merge ([efafa35](https://github.com/botfront/botfront/commit/efafa357b3ee9cbdb38e755453de641640325fe1))
+
 ### [0.27.5-ee.1](https://github.com/botfront/botfront/compare/v0.27.4-ee.1...v0.27.5-ee.1) (2020-11-09)
 
 
