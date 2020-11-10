@@ -49,6 +49,7 @@ export const singlesFiles = [
                 'en',
             ],
             fallbackLang: 'en',
+            existingStoryGroups: [],
         },
     },
     {
@@ -74,6 +75,7 @@ export const singlesFiles = [
                 'en',
             ],
             fallbackLang: 'en',
+            existingStoryGroups: [],
         },
     },
     {
@@ -99,6 +101,7 @@ export const singlesFiles = [
                 'en',
             ],
             fallbackLang: 'en',
+            existingStoryGroups: [],
         },
     },
     {
@@ -125,6 +128,7 @@ export const singlesFiles = [
                 'en',
             ],
             fallbackLang: 'en',
+            existingStoryGroups: [],
         },
     },
     {
@@ -142,6 +146,7 @@ export const singlesFiles = [
             ...validDefaultDomainParsed,
             bfForms: [],
             warnings: [],
+            newLanguages: [],
         }],
         expectedParams: {
             projectId,
@@ -152,6 +157,7 @@ export const singlesFiles = [
                 'en',
             ],
             fallbackLang: 'en',
+            existingStoryGroups: [],
         },
     },
     {
@@ -169,6 +175,7 @@ export const singlesFiles = [
             ...validDomainParsed,
             bfForms: [],
             warnings: [],
+            newLanguages: [],
         }],
         expectedParams: {
             projectId,
@@ -179,6 +186,7 @@ export const singlesFiles = [
                 'en',
             ],
             fallbackLang: 'en',
+            existingStoryGroups: [],
         },
     },
     {
@@ -204,6 +212,7 @@ export const singlesFiles = [
                 'en',
             ],
             fallbackLang: 'en',
+            existingStoryGroups: [],
         },
     },
     {
@@ -229,6 +238,7 @@ export const singlesFiles = [
                 'en',
             ],
             fallbackLang: 'en',
+            existingStoryGroups: [],
         },
     },
     {
@@ -245,7 +255,13 @@ export const singlesFiles = [
             ...validDomainFr,
             ...validDomainFrParsed,
             bfForms: [],
-            warnings: ['f'],
+            newLanguages: ['fr'],
+            warnings: [{
+                text: 'those reponses will add the support for the language fr :',
+            },
+            {
+                longText: 'utter_greet, utter_aaa',
+            }],
         }],
         expectedParams: {
             projectId,
@@ -253,9 +269,11 @@ export const singlesFiles = [
             defaultDomain,
             instanceHost: 'http://localhost:1234',
             projectLanguages: [
-                'en',
+                'en', 'fr',
             ],
             fallbackLang: 'en',
+            existingStoryGroups: [],
+            
         },
     },
 ];
