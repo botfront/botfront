@@ -2,9 +2,13 @@
 import { validCredentials, validCredentialsParsed } from './credentials.data.js';
 import { validEndpoints, validEndpointsParsed } from './endpoints.data.js';
 import { validBfConfig, validBfConfigParsed } from './bfConfig.data.js';
-import { validRasaConfig, validRasaConfigParsed } from './rasaconfig.data.js';
+import {
+    validRasaConfig, validRasaConfigParsed, validRasaConfigFr, validRasaConfigFrParsed, validRasaConfigNoLang, validRasaConfigNoLangParsed,
+} from './rasaconfig.data.js';
 import { validDefaultDomain, validDefaultDomainParsed } from './defaultdomain.data.js';
-import { validDomain, validDomainParsed } from './domain.data.js';
+import {
+    validDomain, validDomainParsed, validDomainFr, validDomainFrParsed,
+} from './domain.data.js';
 import { validConversations, validConversationsParsed } from './conversation.data.js';
 
 import { validIncoming, validIncomingParsed } from './incoming.data.js';
@@ -27,119 +31,230 @@ export const singlesFiles = [
     {
         name: 'should procces a valid credentials file',
         files: [validCredentials],
-        params: { projectId },
+        params: {
+            projectId,
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+        },
         expectedFiles: [{
             ...validCredentials,
             credentials: validCredentialsParsed,
         }],
         expectedParams: {
             projectId,
-            summary: ['You will remplace credentials by the one in credentialstest.yml'],
+            summary: ['Credentials will be imported from credentialstest.yml.'],
             defaultDomain,
             instanceHost: 'http://localhost:1234',
             projectLanguages: [
                 'en',
             ],
+            fallbackLang: 'en',
+            existingStoryGroups: [],
         },
     },
     {
         name: 'should procces a valid endpoints file',
         files: [validEndpoints],
-        params: { projectId },
+        params: {
+            projectId,
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+        },
         expectedFiles: [{
             ...validEndpoints,
             endpoints: validEndpointsParsed,
         }],
         expectedParams: {
             projectId,
-            summary: ['You will remplace endpoints by the one in endpointstest.yml'],
+            summary: ['Endpoints will be imported from endpointstest.yml.'],
             defaultDomain,
             instanceHost: 'http://localhost:1234',
             projectLanguages: [
                 'en',
             ],
+            fallbackLang: 'en',
+            existingStoryGroups: [],
         },
     },
     {
         name: 'should procces an valid bfconfig file',
         files: [validBfConfig],
-        params: { projectId },
+        params: {
+            projectId,
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+        },
         expectedFiles: [{
             ...validBfConfig,
             bfconfig: validBfConfigParsed,
         }],
         expectedParams: {
             projectId,
-            summary: ['You will remplace botfront config by the one in bfconfigtest.yml'],
+            summary: ['Botfront config will be imported from bfconfigtest.yml.'],
             defaultDomain,
             instanceHost: 'http://localhost:6005',
             projectLanguages: [
                 'en',
             ],
+            fallbackLang: 'en',
+            existingStoryGroups: [],
         },
     },
     {
         name: 'should procces a valid rasaconfig',
         files: [validRasaConfig],
-        params: { projectId },
+        params: {
+            projectId,
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+        },
         expectedFiles: [{
             ...validRasaConfig,
             ...validRasaConfigParsed,
+            warnings: [],
         }],
         expectedParams: {
             projectId,
-            summary: ['The pipeline for the language \"en\" will be remplace by the one from the file configtest.yml', 'Policies will be remplaced by the ones from configtest.yml'],
+            summary: ['Pipeline for language \'en\' will be overwritten by configtest.yml.', 'Policies will be overwritten by configtest.yml.'],
             defaultDomain,
             instanceHost: 'http://localhost:1234',
             projectLanguages: [
                 'en',
             ],
+            fallbackLang: 'en',
+            existingStoryGroups: [],
+        },
+    },
+    {
+        name: 'should procces a valid rasaconfig with a unsupported language',
+        files: [validRasaConfigFr],
+        params: {
+            projectId,
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+        },
+        expectedFiles: [{
+            ...validRasaConfigFr,
+            ...validRasaConfigFrParsed,
+            warnings: [],
+        }],
+        expectedParams: {
+            projectId,
+            summary: ['Pipeline for new language model \'fr\' will be imported from configtest.yml.', 'Policies will be overwritten by configtest.yml.'],
+            defaultDomain,
+            instanceHost: 'http://localhost:1234',
+            projectLanguages: [
+                'en', 'fr',
+            ],
+            fallbackLang: 'en',
+            existingStoryGroups: [],
+        },
+    },
+    {
+        name: 'should procces a valid rasaconfig with a no language',
+        files: [validRasaConfigNoLang],
+        params: {
+            projectId,
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+        },
+        expectedFiles: [{
+            ...validRasaConfigNoLang,
+            ...validRasaConfigParsed,
+            warnings: ['No language specified for pipeline, using \'en\'.'],
+        }],
+        expectedParams: {
+            projectId,
+            summary: ['Pipeline for language \'en\' will be overwritten by configtest.yml.', 'Policies will be overwritten by configtest.yml.'],
+            defaultDomain,
+            instanceHost: 'http://localhost:1234',
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+            existingStoryGroups: [],
         },
     },
     {
         name: 'should procces a valid defaultDomain',
         files: [validDefaultDomain],
-        params: { projectId },
+        params: {
+            projectId,
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+        },
         expectedFiles: [{
             ...validDefaultDomain,
             ...validDefaultDomainParsed,
             bfForms: [],
             warnings: [],
+            newLanguages: [],
         }],
         expectedParams: {
             projectId,
-            summary: ['You will remplace the default domain by default-domain.yml'],
+            summary: ['You will remplace the default domain by default-domain1.yml'],
             defaultDomain: validDefaultDomainParsed,
             instanceHost: 'http://localhost:1234',
             projectLanguages: [
                 'en',
             ],
+            fallbackLang: 'en',
+            existingStoryGroups: [],
         },
     },
     {
         name: 'should procces a valid domain',
         files: [validDomain],
-        params: { projectId },
+        params: {
+            projectId,
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+        },
         expectedFiles: [{
             ...validDomain,
             ...validDomainParsed,
             bfForms: [],
             warnings: [],
+            newLanguages: [],
         }],
         expectedParams: {
             projectId,
-            summary: ['From domain.yml you will add: 1 slots, 3 responses, 4 actions'],
+            summary: ['From domain.yml you will add: 2 slots, 2 responses, 1 actions'],
             defaultDomain,
             instanceHost: 'http://localhost:1234',
             projectLanguages: [
                 'en',
             ],
+            fallbackLang: 'en',
+            existingStoryGroups: [],
         },
     },
     {
         name: 'should procces a valid conversation file',
         files: [validConversations],
-        params: { projectId },
+        params: {
+            projectId,
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+        },
         expectedFiles: [{
             ...validConversations,
             conversations: validConversationsParsed,
@@ -152,12 +267,20 @@ export const singlesFiles = [
             projectLanguages: [
                 'en',
             ],
+            fallbackLang: 'en',
+            existingStoryGroups: [],
         },
     },
     {
         name: 'should procces a valid incoming file',
         files: [validIncoming],
-        params: { projectId },
+        params: {
+            projectId,
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+        },
         expectedFiles: [{
             ...validIncoming,
             incoming: validIncomingParsed,
@@ -170,6 +293,43 @@ export const singlesFiles = [
             projectLanguages: [
                 'en',
             ],
+            fallbackLang: 'en',
+            existingStoryGroups: [],
+        },
+    },
+    {
+        name: 'should procces a valid domain with a non supported language',
+        files: [validDomainFr],
+        params: {
+            projectId,
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+        },
+        expectedFiles: [{
+            ...validDomainFr,
+            ...validDomainFrParsed,
+            bfForms: [],
+            newLanguages: ['fr'],
+            warnings: [{
+                text: 'those reponses will add the support for the language fr :',
+            },
+            {
+                longText: 'utter_greet, utter_aaa',
+            }],
+        }],
+        expectedParams: {
+            projectId,
+            summary: ['From domain.yml you will add: 2 slots, 2 responses, 1 actions'],
+            defaultDomain,
+            instanceHost: 'http://localhost:1234',
+            projectLanguages: [
+                'en', 'fr',
+            ],
+            fallbackLang: 'en',
+            existingStoryGroups: [],
+            
         },
     },
 ];

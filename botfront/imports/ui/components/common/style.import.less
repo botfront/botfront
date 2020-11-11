@@ -66,8 +66,25 @@
 
 .ui.segment.import-box {
     background-color: #f5f5f5;
-    & > div {
+    .dropzone-data {
         min-height: 125px;
+    }
+}
+
+.import-summary-accordion {
+    .title {
+        color: unset !important;
+        padding: 0 !important;
+        margin-left: -5.5px;
+        margin-bottom: 0.5em !important;
+        &.active {
+            margin-bottom: 0 !important;
+        }
+    }
+    div.content { margin-left: 1.1em; }
+    li.content { padding-left: 0.05em !important; }
+    .content {
+        margin-bottom: 0.5em !important;
     }
 }
 

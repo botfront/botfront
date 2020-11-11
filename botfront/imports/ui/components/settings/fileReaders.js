@@ -1,109 +1,72 @@
 import { useReducer } from 'react';
-import {
-    update,
-    findFileInFileList,
-    updateAtIndex,
-    deleteAtIndex,
-} from '../../../lib/importers/common';
 
+const findFileInFileList = (fileList, file) => fileList.findIndex(
+    cf => cf.filename === file.filename && cf.lastModified === file.lastModified,
+);
 
 const addDataToFile = (file, data) => {
-    const newFile = file;
+    const newFile = new File([file], file.name);
     Object.keys(data).forEach((key) => {
         newFile[key] = data[key];
     });
+    if (!newFile.filename) newFile.filename = newFile.name;
     return newFile;
 };
-
 
 export const useFileReader = (params) => {
     const reducer = (fileList, instruction) => {
         // eslint-disable-next-line no-use-before-define
         const setFileList = ins => fileReader[1](ins);
+
+        const setFileListAfterRecompute = update => params.validateFunction(update).then((data, err) => {
+            if (err) return setFileList({ set: fileList }); // reset to previous state
+            return setFileList({
+                set: update.map((file, i) => {
+                    const warnings = data[i]?.warnings || [];
+                    const errors = data[i]?.errors || file.errors || [];
+                    return addDataToFile(file, { validated: true, errors, warnings });
+                }),
+            });
+        });
+
         const {
             delete: deleteInstruction,
             add: addInstruction,
-            update: updateInstruction,
-            changeLang: changeLangInstruction,
+            set: setInstruction,
             reset: resetInstruction,
+            reload: reloadInstruction,
         } = instruction;
 
         if (deleteInstruction) {
             const index = findFileInFileList(fileList, deleteInstruction);
             if (index < 0) return fileList;
-            const newFileList = deleteAtIndex(fileList, index);
-            params.validateFunction(newFileList).then((data) => {
-                newFileList.forEach((file, i) => {
-                    const warnings = data[i].warnings || [];
-                    const errors = data[i].errors || file.errors || [];
-                    update(setFileList, addDataToFile(file, { validated: true, errors, warnings }));
-                });
-            });
-            return newFileList.map(f => (addDataToFile(f, { validated: false })));
+            const newFileList = [
+                ...fileList.slice(0, index),
+                ...fileList.slice(index + 1),
+            ];
+            setFileListAfterRecompute(newFileList);
+            return newFileList.map(f => addDataToFile(f, { validated: false }));
         }
         if (addInstruction) {
-            // eslint-disable-next-line consistent-return
             const addFileNameCheck = addInstruction.map((f) => {
-                if (f.name.match(/\.(yaml|yml|json|md)/)) {
-                    return (f);
+                if (!f.name.match(/\.(ya?ml|json|md)/)) {
+                    return addDataToFile(f, {
+                        errors: [{ text: 'File is not .zip, .json, .md or .yaml.' }],
+                    });
                 }
-                return addDataToFile(f, { errors: ['file is neither .zip, .json or.yaml'] });
+                return f;
             });
-            const newFileList = [...fileList, ...addFileNameCheck].map(f => (addDataToFile(f, { validated: false })));
-            params.validateFunction(newFileList).then((data) => {
-                newFileList.forEach((file, index) => {
-                    const warnings = data[index].warnings || [];
-                    // file.errors are errors that are detected on the client side
-                    // data[index].errors are errros that are detected on the server side
-                    // file that have errors in the client are not sent to the server
-                    // that why we use the server error and then, the client error
-                    const errors = data[index].errors || file.errors || [];
-                    update(setFileList, addDataToFile(file, { validated: true, errors, warnings }));
-                });
-            });
-           
-            return newFileList;
+            const newFileList = [...fileList, ...addFileNameCheck];
+            setFileListAfterRecompute(newFileList);
+            return newFileList.map(f => addDataToFile(f, { validated: false }));
         }
-        if (updateInstruction) {
-            // callback for 'add' method
-            const index = findFileInFileList(fileList, updateInstruction);
-            if (index < 0) return fileList;
-            if (
-                fileList.some(
-                    (f, idx) => f.name === updateInstruction.name && index !== idx,
-                )
-            ) {
-                updateInstruction.errors = [
-                    ...(updateInstruction.errors || []),
-                    'Another file was uploaded with same name.',
-                ];
-            }
-            return updateAtIndex(fileList, index, updateInstruction);
+        if (reloadInstruction) {
+            setFileListAfterRecompute(fileList);
+            return fileList.map(f => addDataToFile(f, { validated: false }));
         }
-        if (changeLangInstruction) {
-            // TO RE WORK WITH NEW STORIES
-            return fileList.map(f =>
-                // if (f.dataType === 'domain') {
-                //     return {
-                //         ...f,
-                //         ...loadDomain({
-                //             ...f,
-                //             ...params,
-                //             fallbackImportLanguage: changeLangInstruction,
-                //         }),
-                //     };
-                // }
-                // if (f.dataType === 'nlu') {
-                //     return {
-                //         ...f,
-                //         language: getLanguage(f.rawText, changeLangInstruction),
-                //     };
-                // }
-                f);
-        }
-        if (resetInstruction) {
-            return [];
-        }
+        if (resetInstruction) return [];
+        if (setInstruction) return setInstruction;
+        return fileList;
     };
     const fileReader = useReducer(reducer, []);
     return fileReader;

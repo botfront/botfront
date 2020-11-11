@@ -14,7 +14,7 @@ describe('nlu editor modal tests', () => {
         cy.createStoryInGroup();
         cy.browseToStory();
         cy.addUtteranceLine({ intent: 'shopping', entities: [{ value: 'costco', name: 'shop' }] });
-        cy.importNluData('bf', 'nlu_entity_sample.json', 'en');
+        cy.import('bf', 'nlu_entity_sample.json', 'en');
         cy.train();
     });
     afterEach(() => {
@@ -101,15 +101,12 @@ describe('nlu editor modal tests', () => {
         cy.dataCy('nlu-editor-modal').should('not.exist');
         cy.wait(300);
         cy.dataCy('utterance-text').click();
-        cy.dataCy('icon-gem').first().should('have.class', 'grey');
-        cy.dataCy('icon-gem').first().click({ force: true });
-        cy.dataCy('icon-gem').first().should('have.class', 'black');
+        cy.dataCy('icon-gem', null, '.grey').click({ force: true });
+        cy.dataCy('icon-gem', null, '.black').should('exist');
         cy.dataCy('save-nlu').click();
         cy.dataCy('nlu-editor-modal').should('not.exist');
         cy.wait(1000);
         cy.dataCy('utterance-text').contains('I will probably go to').should('exist');
-        cy.dataCy('utterance-text').click();
-        cy.dataCy('icon-gem').first().should('have.class', 'black');
     });
 });
 
@@ -121,7 +118,7 @@ describe('auto-assignment of canonical status in the nlu editor', () => {
         cy.createStoryInGroup();
         cy.browseToStory();
         cy.addUtteranceLine({ intent: 'shopping' });
-        cy.importNluData('bf', 'nlu_sample_en.json', 'en');
+        cy.import('bf', 'nlu_sample_en.json', 'en');
         cy.train();
     });
     afterEach(() => {

@@ -66,7 +66,7 @@ describe('NLU canonical examples', function () {
     it('canonical should be unique per intent, entity and entity value', function () {
         // firstly import all the testing data
         cy.visit('/project/bf/nlu/models');
-        cy.importNluData('bf', 'nlu_import_canonical.json', 'fr');
+        cy.import('bf', 'nlu_import_canonical.json', 'fr');
         cy.contains('Training Data').click();
         // All the imported examples should have been marked automatically as canonical ones
         cy.dataCy('icon-gem', null, '.black').should('have.length', 6);

@@ -1,24 +1,8 @@
 import yaml from 'js-yaml';
 import { Instances } from '../../api/instances/instances.collection';
 
-export const doValidation = params => !params.noValidate;
-
 export const validateSimpleYamlFiles = (files, params, type, alias = type) => {
     let filesToValid = files.filter(f => f?.dataType === type);
-    if (filesToValid.length > 1) {
-        filesToValid = filesToValid.map((file, idx) => {
-            if (idx === 0) {
-                return file;
-            }
-            return {
-                ...file,
-                warnings: [
-                    ...(file.warnings || []),
-                    `Conflicts with ${filesToValid[0].filename}, and thus won't be used in the import`,
-                ],
-            };
-        });
-    }
     filesToValid = filesToValid.map((file) => {
         let parsed;
         try {
@@ -34,9 +18,27 @@ export const validateSimpleYamlFiles = (files, params, type, alias = type) => {
             [type]: parsed,
         };
     });
+    if (filesToValid.length > 1) {
+        let firstValidFileFound = false;
+        filesToValid = filesToValid.map((file) => {
+            if (!firstValidFileFound && !(file.errors && file.errors.length > 0)) {
+                firstValidFileFound = true;
+                return file;
+            } if (file.errors && file.errors.length > 0) {
+                return file; // we don't add warnings to files with errors already
+            }
+            return {
+                ...file,
+                warnings: [
+                    ...(file.warnings || []),
+                    `Conflicts with ${filesToValid[0].filename}, and thus won't be used in the import`,
+                ],
+            };
+        });
+    }
 
     const newSummary = params.summary;
-    if (filesToValid.length > 0) newSummary.push(`You will remplace ${alias} by the one in ${filesToValid[0].filename}`);
+    if (filesToValid.length > 0) newSummary.push(`${alias.charAt(0).toUpperCase() + alias.slice(1)} will be imported from ${filesToValid[0].filename}.`);
 
     const newFiles = files.map((file) => {
         if (file?.dataType !== type) return file;
@@ -87,9 +89,7 @@ export const validateSimpleJsonFiles = (files, params, type) => {
 
 export const validateEndpoints = (files, params) => validateSimpleYamlFiles(files, params, 'endpoints');
 
-
 export const validateCredentials = (files, params) => validateSimpleYamlFiles(files, params, 'credentials');
-  
 
 export const validateBfConfig = (files, params) => {
     const [newFiles, newParams] = validateSimpleYamlFiles(files, params, 'bfconfig', 'botfront config');
@@ -102,8 +102,6 @@ export const validateBfConfig = (files, params) => {
     return [newFiles, newParams];
 };
 
-
 export const validateIncoming = (files, params) => validateSimpleJsonFiles(files, params, 'incoming');
- 
 
 export const validateConversations = (files, params) => validateSimpleJsonFiles(files, params, 'conversations');

@@ -6,7 +6,7 @@ describe('nlu tagging in training data', function() {
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => {
             cy.login();
-            cy.importNluData('bf', 'nlu_import.json', 'fr');
+            cy.import('bf', 'nlu_import.json', 'fr');
         });
     });
 
