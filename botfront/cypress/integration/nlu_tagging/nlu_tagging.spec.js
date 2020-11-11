@@ -17,7 +17,6 @@ describe('nlu tagging in training data', function() {
     
     it('should be able to change the intent with a popup', function() {
         cy.visit('/project/bf/nlu/models');
-        cy.pause();
         cy.get('.row:contains(chitchat.presentation)')
             .eq(1)
             .findCy('intent-label')

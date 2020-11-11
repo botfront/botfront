@@ -347,11 +347,12 @@ const objectToFormData = (obj) => {
     const dug = fileDigger(obj);
     formData.append('operations', JSON.stringify({ operationName: null, ...dug }));
     const map = {};
+    const files = [];
     Object.entries(foundFiles).forEach(([k, v], i) => {
-        map[i] = [k];
-        formData.append(i, v);
+        map[i] = [k]; files.push([i, v]);
     });
     formData.append('map', JSON.stringify(map));
+    files.forEach(([i, v]) => formData.append(i, v));
     return formData;
 };
 
