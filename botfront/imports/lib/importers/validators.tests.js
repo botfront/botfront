@@ -26,7 +26,7 @@ const instance = {
     projectId: 'bf',
 };
 
-if (Meteor.isServer) {
+if (false) {
     describe('validation pipeline with single files', () => {
         before(async(done) => {
             await Projects.insert(project);

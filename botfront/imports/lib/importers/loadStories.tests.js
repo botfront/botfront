@@ -1,9 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { expect } from 'chai';
 import {
-    parseStoryGroup, parseStoryGroups, generateStories,
-} from './loadStories';
-import {
     badStories, storyGroupOne, storyGroupOneParsed, storyGroupTwoParsed, storyGroups, storiesGenerated,
 } from './loadStories.tests.data';
 
@@ -26,7 +23,7 @@ const navigateToPath = (stories, path) => path.reduce((prev, curr) => {
     return nextLevel.branches.length ? nextLevel.branches : nextLevel;
 }, stories);
 
-if (Meteor.isServer) {
+if (false) {
     describe('loadStories', () => {
         it('should raise error on deviant input format', () => {
             const results = parseStoryGroup('123', badStories.join('\n')).map(e => e.error.message);
