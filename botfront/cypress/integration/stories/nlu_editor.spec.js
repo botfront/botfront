@@ -136,7 +136,7 @@ describe('auto-assignment of canonical status in the nlu editor', () => {
         cy.dataCy('icon-gem').first().should('have.class', 'black');
         cy.dataCy('save-nlu').click();
         cy.dataCy('nlu-editor-modal').should('not.exist');
-
+        cy.wait(1000);
         cy.contains('I will go shopping').should('exist');
     });
     
@@ -153,7 +153,7 @@ describe('auto-assignment of canonical status in the nlu editor', () => {
         cy.dataCy('icon-gem').should('have.class', 'black');
         cy.dataCy('save-nlu').click();
         cy.dataCy('nlu-editor-modal').should('not.exist');
-
+        cy.wait(1000);
         cy.contains('hi').should('exist');
     });
     
@@ -170,6 +170,7 @@ describe('auto-assignment of canonical status in the nlu editor', () => {
         cy.dataCy('icon-gem').last().should('not.have.class', 'black');
         cy.dataCy('save-nlu').click();
         cy.dataCy('nlu-editor-modal').should('not.exist');
+        cy.wait(1000);
         cy.contains('I will go shopping').should('exist');
 
         cy.dataCy('utterance-text').click();
@@ -179,6 +180,7 @@ describe('auto-assignment of canonical status in the nlu editor', () => {
         cy.dataCy('nlu-modification-label').contains('edited').should('exist');
         cy.dataCy('save-nlu').click();
         cy.dataCy('nlu-editor-modal').should('not.exist');
+        cy.wait(1000);
         cy.contains('I will go shopping edited').should('exist');
 
         cy.dataCy('utterance-text').click();
@@ -186,6 +188,7 @@ describe('auto-assignment of canonical status in the nlu editor', () => {
         cy.dataCy('nlu-modification-label').contains('deleted').should('exist');
         cy.dataCy('save-nlu').click();
         cy.dataCy('nlu-editor-modal').should('not.exist');
+        cy.wait(1000);
         cy.dataCy('utterance-text').children('span').should('not.exist');
     });
 });
