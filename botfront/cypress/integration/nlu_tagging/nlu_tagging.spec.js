@@ -6,7 +6,7 @@ describe('nlu tagging in training data', function() {
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => {
             cy.login();
-            cy.importNluData('bf', 'nlu_import.json', 'fr');
+            cy.import('bf', 'nlu_import.json', 'fr');
         });
     });
 
@@ -17,6 +17,7 @@ describe('nlu tagging in training data', function() {
     
     it('should be able to change the intent with a popup', function() {
         cy.visit('/project/bf/nlu/models');
+        cy.pause();
         cy.get('.row:contains(chitchat.presentation)')
             .eq(1)
             .findCy('intent-label')

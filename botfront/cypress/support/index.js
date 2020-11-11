@@ -295,14 +295,21 @@ Cypress.Commands.add('importProject', (projectId = 'bf', fixture) => cy.fixture(
         });
     }));
 
-Cypress.Commands.add('importNluData', (projectId = 'bf', fixture, lang = 'en', overwrite = false) => {
-    cy.fixture(fixture, 'utf8').then((content) => {
-        cy.MeteorCall('nlu.import', [
-            content.rasa_nlu_data,
-            projectId,
-            lang,
-            overwrite,
-        ]);
+Cypress.Commands.add('import', (projectId = 'bf', fixture, fallbackLang = 'en', wipeCurrent = false) => {
+    cy.fixture(fixture, 'utf8').then((loadedFixture) => {
+        let file = typeof loadedFixture === 'string' ? loadedFixture : JSON.stringify(loadedFixture);
+        file = new File([file], fixture);
+        file.filename = fixture;
+        cy.graphQlQuery(
+            `mutation import($projectId: String!, $files: [Upload]!, $wipeCurrent: Boolean = false, $fallbackLang: String!) {
+                import(projectId: $projectId, files: $files, wipeCurrent: $wipeCurrent, fallbackLang: $fallbackLang) {  
+                    summary { text, longText }
+                }
+            }`,
+            {
+                projectId, fallbackLang, wipeCurrent, files: [file],
+            },
+        );
     });
     return cy.wait(500);
 });
@@ -316,13 +323,56 @@ Cypress.Commands.add('train', (waitTime = 300000) => {
     cy.get('[data-cy=train-button]', { timeout: waitTime }).should('not.have.class', 'disabled');
 });
 
-Cypress.Commands.add('graphQlQuery', (query, variables) => cy.get('@loginToken').then((token) => {
-    cy.request({
-        method: 'POST',
-        url: '/graphql',
-        headers: { 'Content-Type': 'application/json', Authorization: token },
-        body: { query, variables },
+const objectToFormData = (obj) => {
+    // this traverses the query/variables object and makes it graphql-upload-compliant
+    // cf. https://github.com/jaydenseric/graphql-multipart-request-spec#curl-request
+    const formData = new FormData();
+    const foundFiles = {};
+    const fileDigger = (input, path = '') => {
+        if (input instanceof File) {
+            foundFiles[path] = input;
+            return null;
+        }
+        if (Array.isArray(input)) {
+            return input.map((child, i) => fileDigger(child, `${path}.${i}`, foundFiles));
+        }
+        if (input && typeof input === 'object') {
+            return Object.entries(input).reduce((acc, [k, v]) => ({
+                ...acc,
+                [k]: fileDigger(v, `${path}${path ? '.' : ''}${k}`, foundFiles),
+            }), {});
+        }
+        return input;
+    };
+    const dug = fileDigger(obj);
+    formData.append('operations', JSON.stringify({ operationName: null, ...dug }));
+    const map = {};
+    Object.entries(foundFiles).forEach(([k, v], i) => {
+        map[i] = [k];
+        formData.append(i, v);
     });
+    formData.append('map', JSON.stringify(map));
+    return formData;
+};
+
+Cypress.Commands.add('graphQlQuery', (query, variables) => cy.get('@loginToken').then((token) => {
+    const formData = objectToFormData({ variables, query });
+    // cy.request({
+    //     method: 'POST',
+    //     url: '/graphql',
+    //     headers: { 'Content-Type': 'application/json', Authorization: token },
+    //     body: { query, variables },
+    // });
+    cy.formRequest('post', '/graphql', formData, token);
+}));
+
+Cypress.Commands.add('formRequest', (method, url, formData, authorization) => new Cypress.Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open(method, url);
+    xhr.setRequestHeader('Authorization', authorization);
+    xhr.onload = () => resolve(xhr);
+    xhr.onerror = () => reject(xhr);
+    xhr.send(formData);
 }));
 
 Cypress.Commands.add('insertNluExamples', (projectId, language = 'en', examples, autoAssignCanonical = true) => cy.graphQlQuery(

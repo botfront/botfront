@@ -10,7 +10,7 @@ describe('story visual editor', function () {
             () => cy.createNLUModelProgramatically('bf', '', 'de'),
         );
         cy.login();
-        cy.importNluData('bf', 'nlu_sample_en.json', 'en');
+        cy.import('bf', 'nlu_sample_en.json', 'en');
         cy.visit('/project/bf/dialogue');
         cy.createStoryGroup();
         cy.createStoryInGroup();

@@ -14,7 +14,7 @@ describe('nlu editor modal tests', () => {
         cy.createStoryInGroup();
         cy.browseToStory();
         cy.addUtteranceLine({ intent: 'shopping', entities: [{ value: 'costco', name: 'shop' }] });
-        cy.importNluData('bf', 'nlu_entity_sample.json', 'en');
+        cy.import('bf', 'nlu_entity_sample.json', 'en');
         cy.train();
     });
     afterEach(() => {
@@ -121,7 +121,7 @@ describe('auto-assignment of canonical status in the nlu editor', () => {
         cy.createStoryInGroup();
         cy.browseToStory();
         cy.addUtteranceLine({ intent: 'shopping' });
-        cy.importNluData('bf', 'nlu_sample_en.json', 'en');
+        cy.import('bf', 'nlu_sample_en.json', 'en');
         cy.train();
     });
     afterEach(() => {
