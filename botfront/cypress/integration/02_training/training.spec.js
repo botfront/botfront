@@ -105,7 +105,7 @@ describe('Training', function() {
             .should('have.class', 'checked');
         cy.visit('/chat/bf/');
         cy.get('body').contains('Sharing not enabled for project').should('not.exist');
-        cy.get('body').contains('utter_get_started').should('exist');
+        cy.get('body').contains('utter_get_started', { timeout: 10000 }).should('exist');
         cy.dataCy('environment-dropdown').should('not.exist');
 
         cy.visit('/project/bf/settings');
