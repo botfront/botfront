@@ -32,6 +32,17 @@ class Chat extends React.Component {
                 customData={{ language }}
                 embedded
                 customMessageDelay={() => 0}
+                customComponent={(message) => {
+                    const {
+                        dispatch, id, isLast, store, ...custom
+                    } = message;
+                    return (
+                        <div className='rw-response'>
+                            You have to define a custom component prop on the rasa webchat to display this message.
+                            {JSON.stringify(custom)}
+                        </div>
+                    );
+                }}
             />
         );
     }
