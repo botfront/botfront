@@ -123,11 +123,13 @@ function UserUtteranceViewer(props) {
         });
     }
 
-    function adjustBeginning(completeText, anchor) {
-        if (anchor === 0 || anchor === completeText.length) return anchor;
+    function adjustBeginning(completeText, anchor, limit) {
+        if (anchor === 0 || anchor === completeText.length || anchor === limit) return anchor;
+        // if first char is not a word character we move the anchor one character to the right
         if (/[\W.,?!;:]/.test(completeText.slice(anchor, anchor + 1))) {
-            return adjustBeginning(completeText, anchor + 1);
+            return adjustBeginning(completeText, anchor + 1, limit);
         }
+        // if the first char is not a word char we return the new anchor without that first char
         if (/[\W.,?!;:][a-zA-Z\u00C0-\u017F0-9-]/.test(
             completeText.slice(anchor - 1, anchor + 1),
         )
@@ -135,14 +137,17 @@ function UserUtteranceViewer(props) {
             return anchor;
         }
 
-        return adjustBeginning(completeText, anchor - 1);
+        // if none of the previous assumptions were true we move the anchor one char left
+        return adjustBeginning(completeText, anchor - 1, limit);
     }
 
-    function adjustEnd(completeText, extent) {
-        if (extent === 0 || extent === completeText.length) return extent;
+    function adjustEnd(completeText, extent, limit) {
+        if (extent === 0 || extent === completeText.length || extent === limit) return extent;
+        // if last char is not a word character we move the anchor one character to the left
         if (/[\W.,?!;:]/.test(completeText.slice(extent - 1, extent))) {
-            return adjustEnd(completeText, extent - 1);
+            return adjustEnd(completeText, extent - 1, limit);
         }
+        // if the last char is not a word char we return the new extent without that last char
         if (/[a-zA-Z\u00C0-\u017F0-9-][\W.,?!;:]/.test(
             completeText.slice(extent - 1, extent + 1),
         )
@@ -150,7 +155,8 @@ function UserUtteranceViewer(props) {
             return extent;
         }
 
-        return adjustEnd(completeText, extent + 1);
+        // if none of the previous assumptions were true we move the extent one char right
+        return adjustEnd(completeText, extent + 1, limit);
     }
 
     function createEntity({ shiftKey, ctrlKey, metaKey }, element, exited, selection) {
@@ -170,9 +176,10 @@ function UserUtteranceViewer(props) {
         );
         if (anchor === extent) bad = true;
         else if (!hasNoWhitespace) {
-            anchor = adjustBeginning(text, anchor);
-            extent = adjustEnd(text, extent);
+            anchor = adjustBeginning(text, anchor, extent);
+            extent = adjustEnd(text, extent, anchor);
         }
+        if (anchor === extent) bad = true;
         if (entities.some(e => anchor <= e.end && extent >= e.start)) bad = true;
         if (
             bad
@@ -323,6 +330,7 @@ function UserUtteranceViewer(props) {
                             customTrigger={(
                                 <span
                                     className='selected-text'
+                                    data-cy='selected-entity'
                                     role='application'
                                     data-element-start={element.start}
                                 >

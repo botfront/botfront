@@ -46,6 +46,21 @@ describe('training data import', function() {
         cy.dataCy('entity-label').should('not.exist');
     });
 
+    it('should improve entity selection', () => {
+        cy.visit('project/bf/nlu/model/en');
+        cy.addExamples(['test , test test'], 'test');
+        cy.dataCy('utterance-text').should('exist');
+        // This one only selects whitespaces so it should not select anything at all !
+        cy.addEntity('test , test test', 5, 7);
+        cy.dataCy('entity-dropdown').should('not.exist');
+        cy.dataCy('selected-entity').should('not.exist');
+
+        // this one selects whitespace and the first two chars of the second "test" so it should refine the selection to contain text.
+        cy.addEntity('test , test test', 5, 9);
+        cy.dataCy('entity-dropdown');
+        cy.dataCy('selected-entity').should('have.text', 'test');
+    });
+
     it('should create an entity in non-whitespace mode', () => {
         cy.visit('project/bf/nlu/model/en');
         // enable non-whitespace mode
