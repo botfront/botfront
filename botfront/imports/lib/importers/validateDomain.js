@@ -16,6 +16,37 @@ const deduplicate = (listOfObjects, key) => {
     });
 };
 
+// deduplicate response and merge them by lang
+export const deduplicateAndMergeResponses = (listOfResponse) => {
+    // for a said key, seen will store supported lang and where the response is in the final array
+    // eg. { utter_test: { langs :['en','fr'], index: 2 }};
+    const seen = {};
+    return listOfResponse.reduce((all, resp) => {
+        const { key } = resp;
+        const respSeen = seen[key];
+        if (respSeen) { // the reponse was already added
+            const insertIndex = respSeen.index;
+            // we filter out lang already supported for a said key
+            const langToAdd = resp.values.filter(val => (
+                !respSeen.langs.includes(val.lang)));
+            // add newly supported lang to the seen ones
+            const newLangs = langToAdd.map(val => val.lang);
+            seen[key] = { langs: [...respSeen.langs, ...newLangs], index: insertIndex };
+            // update the final array
+            const updatedResp = all[insertIndex];
+            updatedResp.values.push(...langToAdd);
+            return [...all.slice(0, insertIndex), updatedResp, ...all.slice(insertIndex + 1)];
+        }
+        // it's the first time we see this response
+        // list all lang supported
+        const langs = resp.values.map(val => val.lang);
+        //  add those to the seen, as well as the index
+        seen[key] = { langs, index: all.length };
+        // add the response
+        return [...all, resp];
+    }, []);
+};
+
 
 const deduplicateArray = (array) => {
     const seen = new Set();
@@ -33,13 +64,17 @@ export const mergeDomains = (files) => {
     if (!filesToProcess.length) return [];
 
     const allResponses = filesToProcess.reduce(
-        (all, { responses = [] }) => [...responses, ...all],
+        (all, { responses = [] }) => [...all, ...responses],
         [],
     );
-    const allSlots = filesToProcess.reduce((all, { slots = {} }) => [...slots, ...all], []);
+    // the order of merging is important
+    // for arrays [...all, ...slots] => will keep the first one during deduplication
+    // for obj { ...forms, ...all } => the first one found erase the new one
+
+    const allSlots = filesToProcess.reduce((all, { slots = {} }) => [...all, ...slots], []);
     const allForms = filesToProcess.reduce((all, { forms = {} }) => ({ ...forms, ...all }), {});
     const allAction = filesToProcess.reduce((all, { actions = [] }) => [...all, ...actions], []);
-    const mergedResponses = deduplicate(allResponses, 'key');
+    const mergedResponses = deduplicateAndMergeResponses(allResponses);
     const mergedSlots = deduplicate(allSlots, 'name');
     const mergedActions = deduplicateArray(allAction);
     return {
@@ -54,11 +89,30 @@ export const mergeDomains = (files) => {
 export const mergeDomainsRasaFormat = (files) => {
     const filesToProcess = files.filter(file => !(file.errors && file.errors.length > 0));
     if (!filesToProcess.length) return [];
-    const allResponses = filesToProcess.reduce((all, { responses = {} }) => ({ ...responses, ...all }), {});
-    const allSlots = filesToProcess.reduce((all, { slots = {} }) => ({ ...all, ...slots }), {});
+    // the order of merging is important
+    // for arrays [...all, ...slots] => will keep the first one during deduplication
+    // for obj { ...forms, ...all } => the first one found erase the new one
+
+    const allResponses = filesToProcess.reduce((all, { responses = {} }) => {
+        let toInsert = {};
+        Object.keys(responses).forEach((respKey) => {
+            const currentResp = responses[respKey];
+            if (all[respKey]) {
+                const existingResps = all[respKey];
+                // the existing one are put in first so during deduplication they will be kept
+                const newResp = deduplicate([existingResps, currentResp], 'lang');
+                toInsert = { ...toInsert, respKey: newResp };
+            } else {
+                toInsert = { ...toInsert, respKey: responses[respKey] };
+            }
+        });
+        // "toInsert" is after "all", because "toInsert" might contain an updated version of a respone in "all"
+        return { ...all, ...toInsert };
+    }, {});
+    const allSlots = filesToProcess.reduce((all, { slots = {} }) => ({ ...slots, ...all }), {});
     const allForms = filesToProcess.reduce((all, { forms = {} }) => ({ ...forms, ...all }), {});
     const allAction = filesToProcess.reduce((all, { actions = [] }) => [...all, ...actions], []);
-    const mergedActions = deduplicateArray(allAction); // we are not using a set to deduplicate to keep the order
+    const mergedActions = deduplicateArray(allAction); // we are not using a set to deduplicate to keep the order of the actions
     return {
         slots: allSlots,
         responses: allResponses,

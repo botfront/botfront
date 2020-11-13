@@ -13,6 +13,9 @@ responses:
     utter_goodbye:
       - text: "Goodbye :("
         language: en
+    utter_double:
+      - text: "Hey there!1"
+        language: en
 forms:
     restaurant_form:
        cuisine:
@@ -38,6 +41,12 @@ responses:
     utter_iamabot:
       - text: "I am a bot, powered by Rasa."
         language: en
+    utter_double:
+      - text: "Hey there!2"
+        language: en
+    utter_greet:
+      - text: "Salut!"
+        language: fr
     `,
     dataType: 'defaultdomain',
 };
@@ -74,6 +83,12 @@ export const validDefaultDomainParsed = {
                 text: 'Hey there!',
             },
         ],
+        utter_double: [
+            {
+                language: 'en',
+                text: 'Hey there!1',
+            },
+        ],
     },
     forms: {
         restaurant_form: {
@@ -104,10 +119,22 @@ export const validDefaultDomainParsed2 = {
                 text: 'I am a bot, powered by Rasa.',
             },
         ],
+        utter_greet: [
+            {
+                language: 'fr',
+                text: 'Salut!',
+            },
+        ],
         utter_youarewelcome: [
             {
                 language: 'en',
                 text: 'You\'re very welcome.',
+            },
+        ],
+        utter_double: [
+            {
+                language: 'en',
+                text: 'Hey there!2',
             },
         ],
     },

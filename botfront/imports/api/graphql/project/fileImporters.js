@@ -1,15 +1,16 @@
 import { safeLoad, safeDump } from 'js-yaml';
 import botResponses from '../botResponses/botResponses.model';
-
+import { saveEndpoints } from '../../endpoints/endpoints.methods';
 import Conversations from '../conversations/conversations.model';
 import Activity from '../activity/activity.model';
 import { indexBotResponse } from '../botResponses/mongo/botResponses';
 import { Slots } from '../../slots/slots.collection';
 import { Projects } from '../../project/project.collection';
-import { mergeDomains } from '../../../lib/importers/validateDomain';
+import { mergeDomains, deduplicateAndMergeResponses } from '../../../lib/importers/validateDomain';
+
 import handleImportTrainingData from './trainingDataFileImporter';
 
-const handleImportForms = async (forms, projectId) => {
+export const handleImportForms = async (forms, projectId) => {
     const { defaultDomain } = Projects.findOne({ _id: projectId });
     const parsedDomain = safeLoad(defaultDomain.content);
     const newForms = { ...(parsedDomain?.forms || {}), ...forms };
@@ -20,13 +21,22 @@ const handleImportForms = async (forms, projectId) => {
         _id: projectId,
     });
 };
-const handleImportResponse = async (responses, projectId) => {
+export const handleImportResponse = async (responses, projectId) => {
     const preparedResponses = responses.map((response) => {
         const index = indexBotResponse(response);
         return { ...response, textIndex: index, projectId };
     });
     try {
-        const insertResponses = preparedResponses.map(async rep => botResponses.update({ key: rep.key, projectId }, rep, { upsert: true }));
+        const insertResponses = preparedResponses.map(async (resp) => {
+            const existing = await botResponses.findOne({ key: resp.key, projectId }).lean();
+            if (existing) {
+                const newResponse = deduplicateAndMergeResponses([resp, existing])[0];
+                const newIndex = indexBotResponse(newResponse);
+                await botResponses.update({ key: resp.key, projectId }, { ...newResponse, index: newIndex, projectId }, { upsert: true });
+            } else {
+                await botResponses.update({ key: resp.key, projectId }, resp, { upsert: true });
+            }
+        });
         await Promise.all(insertResponses);
     } catch (e) {
         if (e.code === 11000) {
@@ -35,7 +45,7 @@ const handleImportResponse = async (responses, projectId) => {
                 .join(', ');
             throw new Error(alreadyExist);
         }
-        throw new Error('Error while importing responses');
+        throw new Error(e);
     }
 };
 
@@ -54,7 +64,7 @@ const wipeDomain = async (projectId) => {
     return true;
 };
 
-const handleImportDomain = async (files, { projectId, wipeCurrent }) => {
+export const handleImportDomain = async (files, { projectId, wipeCurrent }) => {
     if (!files.length) return [];
     const { slots, responses, forms } = mergeDomains(files);
 
@@ -71,7 +81,7 @@ const handleImportDomain = async (files, { projectId, wipeCurrent }) => {
             errors.push(`error when importing slots ${e.message}`);
         }
         try {
-            if (forms && forms.length > 0) {
+            if (forms) {
                 await handleImportForms(forms, projectId);
             }
         } catch (e) {
@@ -86,7 +96,7 @@ const handleImportDomain = async (files, { projectId, wipeCurrent }) => {
     return errors;
 };
 
-const handleImportDefaultDomain = async (
+export const handleImportDefaultDomain = async (
     files,
     { projectId, defaultDomain: jsDefaultDomain },
 ) => {
@@ -94,14 +104,14 @@ const handleImportDefaultDomain = async (
     const defaultDomain = { content: safeDump(jsDefaultDomain) };
     try {
         await Meteor.callWithPromise('project.update', { defaultDomain, _id: projectId });
-        return [null];
+        return [];
     } catch (e) {
         const nameList = files.map(f => f.filename).join(', ');
         return [`error when import default domain from ${nameList}`];
     }
 };
 
-const handleImportBfConfig = async (files, { projectId }) => {
+export const handleImportBfConfig = async (files, { projectId }) => {
     if (!files.length) return [];
     const toImport = files[0]; // we use the first file, as there could be only one instance
     const { bfconfig } = toImport;
@@ -118,31 +128,31 @@ const handleImportBfConfig = async (files, { projectId }) => {
             _id: projectId,
         });
     } catch (e) {
-        errors.push(`error when project data from  ${toImport.filename}`);
+        errors.push(`error when importing project data from  ${toImport.filename}: ${e.message}`);
     }
     return errors;
 };
 
-const handleImportEndpoints = async (files, { projectId }) => {
+export const handleImportEndpoints = async (files, { projectId }) => {
     if (!files.length) return [];
     const toImport = [files[0]]; // there could only be one file os, but the map is there for ee
     const importResult = await Promise.all(
         toImport.map(async (f) => {
             try {
-                await Meteor.callWithPromise('endpoints.save', {
+                await saveEndpoints({
                     projectId,
                     endpoints: f.rawText,
                 });
                 return null;
             } catch (e) {
-                return `error when importing ${f.filename}`;
+                return `error when importing ${f.filename}: ${e.message}`;
             }
         }),
     );
     return importResult.filter(r => r);
 };
 
-const handleImportCredentials = async (files, { projectId }) => {
+export const handleImportCredentials = async (files, { projectId }) => {
     if (!files.length) return [];
     const toImport = [files[0]]; // there could only be one file os, but the map is there for ee
     const importResult = await Promise.all(
@@ -162,9 +172,10 @@ const handleImportCredentials = async (files, { projectId }) => {
     return importResult.filter(r => r);
 };
 
-const handleImportRasaConfig = async (files, { projectId, projectLanguages }) => {
+export const handleImportRasaConfig = async (files, { projectId, projectLanguages }) => {
     const languagesNotImported = new Set(projectLanguages);
     let policiesImported = false;
+    const existingLanguages = Projects.findOne({ _id: projectId }).languages;
     const pipelineImported = {};
     const importResult = await Promise.all(
         files.map(async (f) => {
@@ -184,12 +195,17 @@ const handleImportRasaConfig = async (files, { projectId, projectLanguages }) =>
             }
             if (pipeline && !pipelineImported[language]) {
                 try {
-                    await Meteor.callWithPromise(
-                        'nlu.update.pipeline',
-                        projectId,
-                        language,
-                        safeDump(pipeline),
-                    );
+                    if (existingLanguages.includes(language)) {
+                        await Meteor.callWithPromise(
+                            'nlu.update.pipeline',
+                            projectId,
+                            language,
+                            safeDump(pipeline),
+                        );
+                    } else {
+                        await Meteor.callWithPromise('nlu.insert', projectId, language, safeDump(pipeline));
+                    }
+                                       
                     languagesNotImported.delete(language);
                     return null;
                 } catch (e) {
@@ -207,7 +223,7 @@ const handleImportRasaConfig = async (files, { projectId, projectLanguages }) =>
                 await Meteor.callWithPromise('nlu.insert', projectId, lang);
                 return null;
             } catch (e) {
-                return `error when creating nlu model for ${e.message}`;
+                return `error when creating nlu model: ${e.message}`;
             }
         }),
     );
@@ -215,7 +231,7 @@ const handleImportRasaConfig = async (files, { projectId, projectLanguages }) =>
     return [...importResult, ...createResult].filter(r => r);
 };
 
-const handleImportConversations = async (files, { projectId, wipeCurrent }) => {
+export const handleImportConversations = async (files, { projectId, wipeCurrent }) => {
     if (!files.length) return [];
     if (wipeCurrent) {
         await Conversations.deleteMany({ projectId });
@@ -243,7 +259,7 @@ const handleImportConversations = async (files, { projectId, wipeCurrent }) => {
     return importResult.filter(r => r);
 };
 
-const handleImportIncoming = async (files, { projectId, wipeCurrent }) => {
+export const handleImportIncoming = async (files, { projectId, wipeCurrent }) => {
     if (!files.length) return [];
     if (wipeCurrent) {
         await Activity.deleteMany({ projectId });
