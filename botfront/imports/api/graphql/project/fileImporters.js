@@ -290,11 +290,15 @@ export const handleImportAll = async (files, params) => {
             files.filter(f => f.dataType === 'defaultdomain'),
             params,
         );
+        const trainingDataErrors = handleImportTrainingData(
+            files.filter(f => f.dataType === 'training_data'),
+            params,
+        );
         const domainErrors = await handleImportDomain(
             files.filter(f => f.dataType === 'domain'),
             params,
         );
-        return [...rasaconfig, ...configErrors, ...domainErrors];
+        return [...rasaconfig, ...configErrors, ...trainingDataErrors, ...domainErrors];
     };
 
     importers.push(configAndDomainImport());
@@ -325,12 +329,6 @@ export const handleImportAll = async (files, params) => {
     importers.push(
         handleImportIncoming(
             files.filter(f => f.dataType === 'incoming'),
-            params,
-        ),
-    );
-    importers.push(
-        handleImportTrainingData(
-            files.filter(f => f.dataType === 'training_data'),
             params,
         ),
     );

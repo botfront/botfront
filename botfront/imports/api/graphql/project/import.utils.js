@@ -118,9 +118,7 @@ export async function importSteps({
     wipeCurrent,
     fallbackLang,
 }) {
-    const existingStoryGroups = wipeCurrent
-        ? []
-        : StoryGroups.find({ projectId }, { fields: { name: 1, _id: 1 } }).fetch();
+    const existingStoryGroups = StoryGroups.find({ projectId }, { fields: { name: 1, _id: 1 } }).fetch();
     const filesAndValidationData = await readAndValidate(files, {
         onlyValidate,
         projectId,

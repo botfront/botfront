@@ -88,6 +88,7 @@ export class TrainingDataValidator {
     };
 
     getNonConflictingGroupName = (name) => {
+        if (this.wipeCurrent) return name;
         let newName = name;
         if (name in this.groupNameMappings) {
             return this.groupNameMappings[name];
@@ -593,7 +594,7 @@ export class TrainingDataValidator {
                 : []),
         ];
         this.summary.push({
-            text: `Group '${group}' will be created with ${nByType}.`,
+            text: `Group '${group}' will be created with ${nByType.join(' and ')}.`,
         });
     });
 
