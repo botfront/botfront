@@ -61,6 +61,20 @@ jobs:
       working-directory: ./botfront
       run: npm run test-once
 
+  license-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: 'Get Previous tag'
+        id: previoustag
+        uses: "WyriHaximus/github-action-get-previous-tag@master"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - working-directory: ./botfront
+        run: npx license-checker --excludePackages 'botfront@${{ steps.previoustag.outputs.tag }}' --failOn 'GPL-3.0;GPL-2.0;GPL;AGPL-3.0-only;AGPL-3.0'
+      - working-directory: ./cli
+        run: npx license-checker --excludePackages 'botfront@${{ steps.previoustag.outputs.tag }}' --failOn 'GPL-3.0;GPL-2.0;GPL;AGPL-3.0-only;AGPL-3.0'
+
   build-bf: # to do: run meteor build in previous step and build from simplified dockerfile
     runs-on: ubuntu-latest
     steps:
