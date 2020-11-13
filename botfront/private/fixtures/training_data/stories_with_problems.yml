@@ -1,0 +1,53 @@
+version: "2.0"
+stories:
+- story: Childless mother without a group name
+  steps:
+  - intent: intent_1
+  - checkpoint: Childless_mother_without_a_group_name__branches
+- story: Sandwich
+  steps:
+  - intent: intent_1
+  - checkpoint: checkpoint_1
+  - intent: intent_2
+  metadata:
+    group: this group won't be created
+- story: Mismatched mother__child
+  steps:
+  - checkpoint: Another_mothers__branches
+  - intent: intent_1
+  metadata:
+    group: this group won't be created
+- story: Mother__child
+  steps:
+  - checkpoint: Mother__branches
+  - checkpoint: Mother__branches
+  - intent: intent_1
+  metadata:
+    group: this group won't be created
+- story: Multiple destinations
+  steps:
+  - intent: intent_1
+  - checkpoint: one
+  - checkpoint: two
+  metadata:
+    group: this group won't be created
+- story: Mismatched child
+  steps:
+  - intent: intent_1
+  - checkpoint: Another_names__branches
+  metadata:
+    group: this group won't be created
+- story: BadStory
+  steps:
+  - badkey: i don't care
+  metadata:
+    group: this group won't be created
+rules:
+- rule: BadRule
+  condition:
+  - intent: intent1
+  steps:
+  - intent: intent1
+  - action: utter_it_fast
+  metadata:
+    group: this group won't be created
