@@ -194,37 +194,6 @@ if (Meteor.isServer) {
             }
         },
 
-        async 'rasa.convertToJson'(file, language, inputFormat, host) {
-            check(file, String);
-            check(language, String);
-            check(inputFormat, String);
-            check(host, String);
-            const appMethodLogger = getAppLoggerForMethod(
-                trainingAppLogger,
-                'rasa.convertToJson',
-                Meteor.userId(),
-                {
-                    file,
-                    language,
-                    inputFormat,
-                    host,
-                },
-            );
-
-            const client = axios.create({
-                baseURL: host,
-                timeout: 100 * 1000,
-            });
-            addLoggingInterceptors(client, appMethodLogger);
-            const { data } = await client.post('/data/convert/nlu', {
-                data: file,
-                input_format: inputFormat,
-                output_format: 'json',
-                language,
-            });
-            return data;
-        },
-
         async 'rasa.getTrainingPayload'(
             projectId,
             { language = '' } = {},

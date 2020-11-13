@@ -34,7 +34,7 @@ const NLU_HEADERS_IN_MD = [
     '## gazette:',
 ];
 const NLU_LINES = new RegExp(`(?:${NLU_HEADERS_IN_MD.join('|')})`, 'm');
-const axiosClient = axios.create();
+export const axiosClient = axios.create();
 
 export class TrainingDataValidator {
     constructor({
@@ -128,13 +128,17 @@ export class TrainingDataValidator {
             : noun
     }`;
 
-    convertNluToJson = (rawText, extension) => Meteor.callWithPromise(
-        'rasa.convertToJson',
-        rawText,
-        'en',
-        extension,
-        this.instanceHost,
-    );
+    convertNluToJson = async (rawText, extension) => {
+        const { data } = await axiosClient.post(
+            `${this.instanceHost}/data/convert/nlu`, {
+                data: rawText,
+                input_format: extension,
+                output_format: 'json',
+                language: 'en',
+            },
+        );
+        return data;
+    }
 
     static isNluEmpty = ({
         common_examples = [],
@@ -693,6 +697,7 @@ export class TrainingDataValidator {
     };
 
     validateTrainingData = async (files) => {
+        // to do: batch it in chunks
         let trainingDataFiles = await Promise.all(
             files.filter(f => f?.dataType === 'training_data').map(this.loadFile),
         );
