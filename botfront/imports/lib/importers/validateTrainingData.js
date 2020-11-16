@@ -130,16 +130,14 @@ export class TrainingDataValidator {
     }`;
 
     convertNluToJson = async (rawText, extension) => {
-        const { data } = await axiosClient.post(
-            `${this.instanceHost}/data/convert/nlu`, {
-                data: rawText,
-                input_format: extension,
-                output_format: 'json',
-                language: 'en',
-            },
-        );
+        const { data } = await axiosClient.post(`${this.instanceHost}/data/convert/nlu`, {
+            data: rawText,
+            input_format: extension,
+            output_format: 'json',
+            language: 'en',
+        });
         return data;
-    }
+    };
 
     static isNluEmpty = ({
         common_examples = [],
@@ -200,9 +198,8 @@ export class TrainingDataValidator {
     };
 
     loadFromYaml = async (file) => {
-        let {
-            stories, rules, nlu, errors,
-        } = {};
+        let { stories, rules, nlu } = file;
+        const { errors = [], warnings = [] } = file;
         try {
             ({ nlu, stories, rules } = safeLoad(file.rawText));
             if (!nlu && !stories && !rules) throw new Error();
@@ -210,9 +207,17 @@ export class TrainingDataValidator {
             return false;
         }
         try {
-            nlu = nlu ? await this.getNluFromFile(safeDump({ nlu }), 'yaml') : {};
+            // Since nlu examples are actually serialized as Md and not as YAML lists, we
+            // use the original text for maximum fidelity
+            const nluSection = file.rawText
+                .split(/(?<=(^|\n))(?=[a-z]+:)/)
+                .find(el => el.startsWith('nlu:\n'));
+            nlu = nlu ? await this.getNluFromFile(nluSection, 'yaml') : {};
         } catch (error) {
-            errors = [error.message];
+            nlu = {};
+            if (stories || rules) {
+                warnings.push(`NLU data dropped: ${error.message}`);
+            } else errors.push(error.message);
         }
         return {
             ...this.formatRulesAndStoriesFromLoadedYaml(
@@ -221,6 +226,7 @@ export class TrainingDataValidator {
             ),
             nlu,
             errors,
+            warnings,
         };
     };
 
@@ -548,13 +554,16 @@ export class TrainingDataValidator {
         // commented line is to delete only data for languages that are being imported,
         // for now we delete all data for preexisting languages
         // this.wipeNluData = Object.keys(this.existingNlu).filter(l => this.wipeInvolvedCollections && this.projectLanguagesBefore.includes(l));
-        this.wipeNluData = !this.wipeInvolvedCollections ? [] : this.projectLanguagesBefore;
+        this.wipeNluData = this.wipeInvolvedCollections && !!Object.keys(this.existingNlu).length
+            ? this.projectLanguagesBefore
+            : [];
         this.wipeFragments = this.wipeInvolvedCollections && !!Object.keys(this.existingFragments).length;
         if (this.wipeNluData.length) {
             this.summary.push({
                 text: `ALL EXISTING NLU DATA for ${this.wipeNluData
                     .map(langFromCode)
-                    .join(', ').toUpperCase()} will be deleted.`,
+                    .join(', ')
+                    .toUpperCase()} will be deleted.`,
             });
         }
         if (this.wipeFragments) {
@@ -626,7 +635,8 @@ export class TrainingDataValidator {
     };
 
     rehydrateStories = (files) => {
-        const stories = files.reduce((acc, f) => [...acc, ...(f.stories || [])], []);
+        const stories = files.filter(f => !f.errors?.length)
+            .reduce((acc, f) => [...acc, ...(f.stories || [])], []);
         const rehydrated = files.map(f => ({ ...f, stories: [] }));
 
         const output = { '': [] };

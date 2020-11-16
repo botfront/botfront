@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-expressions */
 import { Meteor } from 'meteor/meteor';
 import { expect } from 'chai';
-import { inspect } from 'util';
 import MockAdapter from 'axios-mock-adapter';
 import { axiosClient, validateTrainingData } from './validateTrainingData';
 import { stories01, stories01_02 } from './test_data/training_data.data';
@@ -33,6 +32,7 @@ const fileMappings = {
     'stories02.md': 'stories02.yml',
     'nlu01.md': 'nlu01.json',
     'nlu02.yml': 'nlu02.json',
+    'nlu03.yml': 'nlu03.json',
 };
 
 const loadTrainingDataFixture = filename => Assets.getText(`fixtures/training_data/${filename}`);
@@ -94,7 +94,6 @@ const caught = func => async (done) => {
         done(e);
     }
 };
-
 
 describe('stories and rules importing', function () {
     describe('from md', () => {
@@ -187,9 +186,9 @@ describe('stories and rules importing', function () {
         it(
             'should group rules and stories in respective groups, and avoid group name collision',
             caught(async () => {
-                const [, { summary, wipeFragments, existingStoryGroups }] = await validateWrapped([
-                    'stories_and_rules_from_multiple_groups.yml',
-                ]);
+                const [,
+                    { summary, wipeFragments, existingStoryGroups },
+                ] = await validateWrapped(['stories_and_rules_from_multiple_groups.yml']);
                 expect(summary[0].text).to.equal(
                     'Group \'group1\' will be created with 1 rule and 1 story.',
                 );
@@ -203,7 +202,9 @@ describe('stories and rules importing', function () {
         it(
             'should do the same without altering group name when "wipeInvolvedCollections" is true',
             caught(async () => {
-                const [, { summary, wipeFragments, existingStoryGroups }] = await validateWrapped(
+                const [,
+                    { summary, wipeFragments, existingStoryGroups },
+                ] = await validateWrapped(
                     ['stories_and_rules_from_multiple_groups.yml'],
                     { wipeInvolvedCollections: true },
                 );
@@ -228,62 +229,219 @@ describe('nlu data importing', function () {
         it(
             'should recover canonical status and language from file and detect missing model accordingly',
             caught(async () => {
-                const [[{
-                    nlu: {
-                        common_examples, regex_features, entity_synonyms,
-                    },
-                    warnings,
-                }], { summary, wipeNluData, projectLanguages }] = await validateWrapped([
-                    'nlu01.md',
-                ], { wipeInvolvedCollections: true });
-                const canonical = common_examples.filter(ex => ex?.metadata?.canonical);
+                const [
+                    [
+                        {
+                            nlu: {
+                                common_examples: examples,
+                                regex_features: regex,
+                                entity_synonyms: synonyms,
+                            },
+                            warnings,
+                        },
+                    ],
+                    { summary, wipeNluData, projectLanguages },
+                ] = await validateWrapped(['nlu01.md'], {
+                    wipeInvolvedCollections: true,
+                });
+                const canonical = examples.filter(ex => ex?.metadata?.canonical);
                 expect(canonical.map(c => c.text)).to.deep.equal([
                     'hey there',
                     'I want to grab lunch',
                     'show me chinese restaurants',
                     'anywhere in the west',
                 ]);
-                expect(common_examples.filter(ex => ex?.metadata?.language !== 'fr')).to.have.lengthOf(0);
-                expect(common_examples).to.have.lengthOf(30);
-                expect(regex_features).to.have.lengthOf(1);
-                expect(entity_synonyms).to.have.lengthOf(2);
-                expect(warnings).to.deep.equal([{
-                    text: 'File contains data for French; a new model will be created for that language.',
-                }]);
-                expect(summary).to.deep.equal([{
-                    text: 'A new model with default pipeline will be created for French.',
-                }, {
-                    text: 'ALL EXISTING NLU DATA for ENGLISH will be deleted.',
-                }, {
-                    text: '33 NLU data will be imported to French model.',
-                    longText: '30 examples, 2 synonyms, 1 regex feature will be imported.',
-                }]);
+                expect(
+                    examples.filter(ex => ex?.metadata?.language !== 'fr'),
+                ).to.have.lengthOf(0);
+                expect(examples).to.have.lengthOf(30);
+                expect(regex).to.have.lengthOf(1);
+                expect(synonyms).to.have.lengthOf(2);
+                expect(warnings).to.deep.equal([
+                    {
+                        text:
+                            'File contains data for French; a new model will be created for that language.',
+                    },
+                ]);
+                expect(summary).to.deep.equal([
+                    {
+                        text:
+                            'A new model with default pipeline will be created for French.',
+                    },
+                    {
+                        text: 'ALL EXISTING NLU DATA for ENGLISH will be deleted.',
+                    },
+                    {
+                        text: '33 NLU data will be imported to French model.',
+                        longText:
+                            '30 examples, 2 synonyms, 1 regex feature will be imported.',
+                    },
+                ]);
                 expect(wipeNluData).to.deep.equal(['en']);
                 expect(projectLanguages).to.deep.equal(['en', 'fr']);
             }),
         );
         it(
-            'should import the same file, but with no model creation',
+            'should validate the same file, but with no model creation when language exists already',
             caught(async () => {
-                const [[{
-                    warnings,
-                }], { summary, wipeNluData }] = await validateWrapped([
-                    'nlu01.md',
-                ], { projectLanguages: ['en', 'fr'], wipeInvolvedCollections: true });
-                expect(warnings).to.deep.equal([]);
-                expect(summary).to.deep.equal([{
-                    text: 'ALL EXISTING NLU DATA for ENGLISH, FRENCH will be deleted.',
-                }, {
-                    text: '33 NLU data will be imported to French model.',
-                    longText: '30 examples, 2 synonyms, 1 regex feature will be imported.',
-                }]);
+                const [[{ warnings }], { summary, wipeNluData }] = await validateWrapped(
+                    ['nlu01.md'],
+                    { projectLanguages: ['en', 'fr'], wipeInvolvedCollections: true },
+                );
+                expect(warnings).to.be.empty;
+                expect(summary).to.deep.equal([
+                    {
+                        text:
+                            'ALL EXISTING NLU DATA for ENGLISH, FRENCH will be deleted.',
+                    },
+                    {
+                        text: '33 NLU data will be imported to French model.',
+                        longText:
+                            '30 examples, 2 synonyms, 1 regex feature will be imported.',
+                    },
+                ]);
                 expect(wipeNluData).to.deep.equal(['en', 'fr']);
             }),
         );
     });
     describe('from yaml', () => {
-        //
+        it(
+            'should validate examples into respective languages, and assign underspecified ones to fallback',
+            caught(async () => {
+                const [
+                    [
+                        {
+                            nlu: { common_examples: examples },
+                            warnings,
+                        },
+                    ],
+                    { summary },
+                ] = await validateWrapped(['nlu02.yml'], {
+                    projectLanguages: ['en', 'fr'],
+                    fallbackLang: 'fr',
+                });
+                expect(warnings).to.be.empty;
+                expect(
+                    examples.find(ex => ex?.metadata?.nolanguagespecified).metadata
+                        .language,
+                ).to.be.equal('fr');
+                expect(summary).to.deep.equal([
+                    {
+                        text: '4 NLU data will be imported to English model.',
+                        longText: '4 examples will be imported.',
+                    },
+                    {
+                        text: '3 NLU data will be imported to French model.',
+                        longText: '3 examples will be imported.',
+                    },
+                ]);
+            }),
+        );
+    });
+    describe('from json', () => {
+        it(
+            'should import from two files',
+            caught(async () => {
+                const [
+                    [{ warnings: warnings1 }, { warnings: warnings2 }],
+                    { summary },
+                ] = await validateWrapped(['nlu01.json', 'nlu02.json'], {
+                    projectLanguages: ['fr'],
+                    fallbackLang: 'fr',
+                });
+                expect(warnings1).to.be.empty;
+                expect(warnings2).to.deep.equal([
+                    {
+                        text:
+                            'File contains data for English; a new model will be created for that language.',
+                    },
+                ]);
+                expect(summary).to.deep.equal([
+                    {
+                        text:
+                            'A new model with default pipeline will be created for English.',
+                    },
+                    {
+                        text: '36 NLU data will be imported to French model.',
+                        longText:
+                            '33 examples, 2 synonyms, 1 regex feature will be imported.',
+                    },
+                    {
+                        text: '4 NLU data will be imported to English model.',
+                        longText: '4 examples will be imported.',
+                    },
+                ]);
+            }),
+        );
     });
 });
 
-// console.log(inspect(warnings, false, null, true));
+describe('mixed data importing', function () {
+    it(
+        'should validate a yaml file with multiple data types',
+        caught(async () => {
+            const [, { summary }] = await validateWrapped([
+                'stories_rules_and_nlu_all_together.yml',
+            ]);
+            expect(summary).to.be.deep.equal([
+                {
+                    text: '4 NLU data will be imported to English model.',
+                    longText: '2 examples, 1 synonym, 1 regex feature will be imported.',
+                },
+                {
+                    text:
+                        'Group \'stories_rules_and_nlu_all_together.yml\' will be created with 1 rule and 2 stories.',
+                },
+            ]);
+        }),
+    );
+    it(
+        'should validate everything at once',
+        caught(async () => {
+            const [, { summary }] = await validateWrapped([
+                'stories_rules_and_nlu_all_together.yml',
+                'nlu01.md',
+                'nlu02.json',
+                'stories_with_problems.yml',
+                'stories02.yml',
+                'stories01.yml',
+                'stories_and_rules_from_multiple_groups.yml',
+            ], {
+                projectLanguages: ['ch'],
+                fallbackLang: 'ch',
+            });
+            expect(summary.slice(0, summary.length - 1)).to.deep.equal([
+                {
+                    text: 'A new model with default pipeline will be created for French.',
+                },
+                {
+                    text: 'A new model with default pipeline will be created for English.',
+                },
+                {
+                    text: '4 NLU data will be imported to Chamorro model.',
+                    longText: '2 examples, 1 synonym, 1 regex feature will be imported.',
+                },
+                {
+                    text: '36 NLU data will be imported to French model.',
+                    longText: '33 examples, 2 synonyms, 1 regex feature will be imported.',
+                },
+                {
+                    text: '4 NLU data will be imported to English model.',
+                    longText: '4 examples will be imported.',
+                },
+                {
+                    text: 'Group \'stories_rules_and_nlu_all_together.yml\' will be created with 1 rule and 2 stories.',
+                },
+                { text: 'Group \'group1\' will be created with 1 rule and 1 story.' },
+                {
+                    text: 'Group \'stories_with_problems.yml\' will be created with 1 story.',
+                },
+                { text: 'Group \'stories02.yml\' will be created with 2 stories.' },
+                { text: 'Group \'stories01.yml\' will be created with 1 story.' },
+            ]);
+            expect(summary[summary.length - 2].text).to.match(
+                /Group 'stock group (.*)' will be created with 1 story./,
+            );
+        }),
+    );
+});
