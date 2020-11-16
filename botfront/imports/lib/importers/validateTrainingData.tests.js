@@ -74,7 +74,7 @@ const generateInitialParams = (overwrite = {}) => ({
     fallbackLang: 'en',
     projectLanguages: ['en'],
     defaultDomain: {},
-    wipeCurrent: false,
+    wipeInvolvedCollections: false,
     instanceHost: 'https://mocked',
     existingStoryGroups: [{ _id: 'stock', name: 'stock group' }],
     summary: [],
@@ -201,11 +201,11 @@ describe('stories and rules importing', function () {
             }),
         );
         it(
-            'should do the same without altering group name when "wipeCurrent" is true',
+            'should do the same without altering group name when "wipeInvolvedCollections" is true',
             caught(async () => {
                 const [, { summary, wipeFragments, existingStoryGroups }] = await validateWrapped(
                     ['stories_and_rules_from_multiple_groups.yml'],
-                    { wipeCurrent: true },
+                    { wipeInvolvedCollections: true },
                 );
                 expect(summary[0].text).to.equal(
                     'ALL EXISTING CONVERSATIONAL FRAGMENTS will be deleted.',
@@ -235,7 +235,7 @@ describe('nlu data importing', function () {
                     warnings,
                 }], { summary, wipeNluData, projectLanguages }] = await validateWrapped([
                     'nlu01.md',
-                ], { wipeCurrent: true });
+                ], { wipeInvolvedCollections: true });
                 const canonical = common_examples.filter(ex => ex?.metadata?.canonical);
                 expect(canonical.map(c => c.text)).to.deep.equal([
                     'hey there',
@@ -269,7 +269,7 @@ describe('nlu data importing', function () {
                     warnings,
                 }], { summary, wipeNluData }] = await validateWrapped([
                     'nlu01.md',
-                ], { projectLanguages: ['en', 'fr'], wipeCurrent: true });
+                ], { projectLanguages: ['en', 'fr'], wipeInvolvedCollections: true });
                 expect(warnings).to.deep.equal([]);
                 expect(summary).to.deep.equal([{
                     text: 'ALL EXISTING NLU DATA for ENGLISH, FRENCH will be deleted.',

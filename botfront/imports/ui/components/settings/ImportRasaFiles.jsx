@@ -29,7 +29,7 @@ const ImportRasaFiles = () => {
     const [fallbackImportLanguage, setFallbackImportLanguage] = useState();
     const [importResults, setImportResults] = useState([]);
     useEffect(() => setFallbackImportLanguage(language), [language]);
-    const [wipeCurrent, setWipeCurrent] = useState(false);
+    const [wipeInvolvedCollections, setwipeInvolvedCollections] = useState(false);
     const [wipeProject, setWipeProject] = useState(false);
 
     const [importSummary, setImportSummary] = useState([]);
@@ -52,7 +52,7 @@ const ImportRasaFiles = () => {
                 projectId,
                 files: filesToSend,
                 onlyValidate: true,
-                wipeCurrent,
+                wipeInvolvedCollections,
                 wipeProject,
                 fallbackLang: fallbackImportLanguage,
             },
@@ -78,6 +78,7 @@ const ImportRasaFiles = () => {
             variables: {
                 projectId,
                 files: filesToImport,
+                wipeInvolvedCollections,
                 wipeProject,
                 fallbackLang: fallbackImportLanguage,
             },
@@ -209,7 +210,7 @@ const ImportRasaFiles = () => {
     const [fileList, setFileList] = fileReader;
     const [{ canDrop, isOver }, drop] = useFileDrop(fileReader);
     const fileField = useRef();
-    useEffect(() => setFileList({ reload: true }), [wipeCurrent, fallbackImportLanguage]);
+    useEffect(() => setFileList({ reload: true }), [wipeInvolvedCollections, fallbackImportLanguage]);
 
     const renderImportSection = () => (
         <Segment

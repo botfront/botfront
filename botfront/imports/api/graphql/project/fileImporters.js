@@ -64,7 +64,7 @@ const wipeDomain = async (projectId) => {
     return true;
 };
 
-export const handleImportDomain = async (files, { projectId, wipeCurrent }) => {
+export const handleImportDomain = async (files, { projectId, wipeInvolvedCollections }) => {
     if (!files.length) return [];
     const { slots, responses, forms } = mergeDomains(files);
 
@@ -89,7 +89,7 @@ export const handleImportDomain = async (files, { projectId, wipeCurrent }) => {
         }
     };
 
-    if (wipeCurrent) {
+    if (wipeInvolvedCollections) {
         await wipeDomain(projectId);
     }
     await insert();
@@ -231,9 +231,9 @@ export const handleImportRasaConfig = async (files, { projectId, projectLanguage
     return [...importResult, ...createResult].filter(r => r);
 };
 
-export const handleImportConversations = async (files, { projectId, wipeCurrent }) => {
+export const handleImportConversations = async (files, { projectId, wipeInvolvedCollections }) => {
     if (!files.length) return [];
-    if (wipeCurrent) {
+    if (wipeInvolvedCollections) {
         await Conversations.deleteMany({ projectId });
     }
     const importResult = await Promise.all(
@@ -259,9 +259,9 @@ export const handleImportConversations = async (files, { projectId, wipeCurrent 
     return importResult.filter(r => r);
 };
 
-export const handleImportIncoming = async (files, { projectId, wipeCurrent }) => {
+export const handleImportIncoming = async (files, { projectId, wipeInvolvedCollections }) => {
     if (!files.length) return [];
-    if (wipeCurrent) {
+    if (wipeInvolvedCollections) {
         await Activity.deleteMany({ projectId });
     }
     const importResult = await Promise.all(

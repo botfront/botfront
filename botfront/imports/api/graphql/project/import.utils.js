@@ -115,7 +115,7 @@ export async function importSteps({
     projectId,
     files,
     onlyValidate,
-    wipeCurrent,
+    wipeInvolvedCollections,
     fallbackLang,
 }) {
     const existingStoryGroups = StoryGroups.find({ projectId }, { fields: { name: 1, _id: 1 } }).fetch();
@@ -123,7 +123,7 @@ export async function importSteps({
         onlyValidate,
         projectId,
         existingStoryGroups,
-        wipeCurrent,
+        wipeInvolvedCollections,
         fallbackLang,
     });
     if (onlyValidate || hasErrors(filesAndValidationData.fileMessages)) { return filesAndValidationData; }

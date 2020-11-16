@@ -38,7 +38,7 @@ const expectedParams = {
     projectLanguages: ['en'],
     fallbackLang: 'en',
     existingStoryGroups: [],
-    wipeCurrent: undefined,
+    wipeInvolvedCollections: undefined,
     wipeFragments: undefined,
     wipeNluData: [],
 };

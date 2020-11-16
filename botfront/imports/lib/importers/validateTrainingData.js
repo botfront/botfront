@@ -42,11 +42,11 @@ export class TrainingDataValidator {
         fallbackLang,
         projectLanguages,
         existingStoryGroups = [],
-        wipeCurrent,
+        wipeInvolvedCollections,
         summary,
         ...rest
     }) {
-        this.wipeCurrent = wipeCurrent;
+        this.wipeInvolvedCollections = wipeInvolvedCollections;
         this.instanceHost = instanceHost;
         this.fallbackLang = fallbackLang;
         this.projectLanguagesBefore = [...projectLanguages];
@@ -88,7 +88,7 @@ export class TrainingDataValidator {
     };
 
     getNonConflictingGroupName = (name) => {
-        if (this.wipeCurrent) return name;
+        if (this.wipeInvolvedCollections) return name;
         let newName = name;
         if (name in this.groupNameMappings) {
             return this.groupNameMappings[name];
@@ -547,9 +547,9 @@ export class TrainingDataValidator {
     addWipingWarnings = () => {
         // commented line is to delete only data for languages that are being imported,
         // for now we delete all data for preexisting languages
-        // this.wipeNluData = Object.keys(this.existingNlu).filter(l => this.wipeCurrent && this.projectLanguagesBefore.includes(l));
-        this.wipeNluData = !this.wipeCurrent ? [] : this.projectLanguagesBefore;
-        this.wipeFragments = this.wipeCurrent && !!Object.keys(this.existingFragments).length;
+        // this.wipeNluData = Object.keys(this.existingNlu).filter(l => this.wipeInvolvedCollections && this.projectLanguagesBefore.includes(l));
+        this.wipeNluData = !this.wipeInvolvedCollections ? [] : this.projectLanguagesBefore;
+        this.wipeFragments = this.wipeInvolvedCollections && !!Object.keys(this.existingFragments).length;
         if (this.wipeNluData.length) {
             this.summary.push({
                 text: `ALL EXISTING NLU DATA for ${this.wipeNluData
@@ -760,7 +760,7 @@ export class TrainingDataValidator {
             }),
             {
                 ...this.unUsedParams,
-                wipeCurrent: this.wipeCurrent,
+                wipeInvolvedCollections: this.wipeInvolvedCollections,
                 wipeNluData: this.wipeNluData,
                 wipeFragments: this.wipeFragments,
                 instanceHost: this.instanceHost,
