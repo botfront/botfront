@@ -49,7 +49,7 @@ export class TrainingDataValidator {
         this.wipeCurrent = wipeCurrent;
         this.instanceHost = instanceHost;
         this.fallbackLang = fallbackLang;
-        this.projectLanguagesBefore = projectLanguages;
+        this.projectLanguagesBefore = [...projectLanguages];
         this.projectLanguages = projectLanguages;
         this.existingStoryGroups = existingStoryGroups;
         this.summary = summary;
@@ -243,12 +243,14 @@ export class TrainingDataValidator {
         const canonicalText = TrainingDataValidator.getCanonicalFromMdNluFile(
             file.rawText,
         );
+        const text = file.rawText.substring(file.rawText.search(/\n+##/) + 1);
         try {
-            const nlu = await this.getNluFromFile(file.rawText, 'md', {
-                language,
-                canonicalText,
-            });
-            return nlu;
+            return {
+                nlu: await this.getNluFromFile(text, 'md', {
+                    language,
+                    canonicalText,
+                }),
+            };
         } catch (error) {
             return { errors: [error.message] };
         }
@@ -319,7 +321,7 @@ export class TrainingDataValidator {
     };
 
     loadFromMd = async (file) => {
-        if (file.rawText.match(NLU_LINES)) return { nlu: await this.loadNluFromMd(file) };
+        if (file.rawText.match(NLU_LINES)) return this.loadNluFromMd(file);
         return this.loadStoriesFromMd(file);
     };
 
@@ -543,13 +545,16 @@ export class TrainingDataValidator {
     };
 
     addWipingWarnings = () => {
-        this.wipeNluData = Object.keys(this.existingNlu).filter(l => this.wipeCurrent && this.projectLanguagesBefore.includes(l));
+        // commented line is to delete only data for languages that are being imported,
+        // for now we delete all data for preexisting languages
+        // this.wipeNluData = Object.keys(this.existingNlu).filter(l => this.wipeCurrent && this.projectLanguagesBefore.includes(l));
+        this.wipeNluData = !this.wipeCurrent ? [] : this.projectLanguagesBefore;
         this.wipeFragments = this.wipeCurrent && !!Object.keys(this.existingFragments).length;
         if (this.wipeNluData.length) {
             this.summary.push({
                 text: `ALL EXISTING NLU DATA for ${this.wipeNluData
                     .map(langFromCode)
-                    .join(', ')} will be deleted.`,
+                    .join(', ').toUpperCase()} will be deleted.`,
             });
         }
         if (this.wipeFragments) {

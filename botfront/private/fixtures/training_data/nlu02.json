@@ -1,0 +1,67 @@
+{
+    "rasa_nlu_data": {
+        "common_examples": [
+            {
+                "text": "how much CO2 will that use?",
+                "intent": "estimate_emissions",
+                "metadata": {
+                    "language": "en"
+                }
+            },
+            {
+                "text": "how much carbon will a one way flight from new york to california produce?",
+                "intent": "estimate_emissions",
+                "entities": [
+                    {
+                    "start": 43,
+                    "end": 51,
+                    "value": "new york",
+                    "entity": "city",
+                    "role": "from"
+                    }
+                ],
+                "metadata": {
+                    "language": "en"
+                }
+            },
+            {
+                "text": "hey",
+                "intent": "greet",
+                "metadata": {
+                    "language": "en"
+                }
+            },
+            {
+                "text": "hello",
+                "intent": "greet",
+                "metadata": {
+                    "language": "en"
+                }
+            },
+            {
+                "text": "bonjour",
+                "intent": "greet",
+                "metadata": {
+                    "language": "fr"
+                }
+            },
+            {
+                "text": "salut",
+                "intent": "greet",
+                "metadata": {
+                    "language": "fr"
+                }
+            },
+            {
+                "text": "aloha",
+                "intent": "greet",
+                "metadata": {
+                    "nolanguagespecified": true
+                }
+            }
+        ],
+        "regex_features": [],
+        "lookup_tables": [],
+        "entity_synonyms": []
+    }
+}
