@@ -100,10 +100,10 @@ export const mergeDomainsRasaFormat = (files) => {
             if (all[respKey]) {
                 const existingResps = all[respKey];
                 // the existing one are put in first so during deduplication they will be kept
-                const newResp = deduplicate([existingResps, currentResp], 'lang');
-                toInsert = { ...toInsert, respKey: newResp };
+                const newResp = deduplicate([...existingResps, ...currentResp], 'lang');
+                toInsert = { ...toInsert, [respKey]: newResp };
             } else {
-                toInsert = { ...toInsert, respKey: responses[respKey] };
+                toInsert = { ...toInsert, [respKey]: currentResp };
             }
         });
         // "toInsert" is after "all", because "toInsert" might contain an updated version of a respone in "all"
@@ -217,7 +217,7 @@ const validateADomain = (
     });
     if (Object.keys(newLangsResponses).length > 0) {
         Object.keys(newLangsResponses).forEach((lang) => {
-            warnings.push({ text: `those reponses will add the support for the language ${lang} :` }, { longText: newLangsResponses[lang].join(', ') });
+            warnings.push({ text: `those reponses will add the support for the language ${lang} :`, longText: newLangsResponses[lang].join(', ') });
         });
     }
     

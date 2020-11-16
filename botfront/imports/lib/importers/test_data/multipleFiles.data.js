@@ -29,6 +29,20 @@ const defaultDomain = {
     ],
 };
 
+const expectedParams = {
+    projectId,
+    defaultDomain,
+    instanceHost: 'http://localhost:1234',
+    projectLanguages: [
+        'en',
+    ],
+    fallbackLang: 'en',
+    existingStoryGroups: [],
+    wipeCurrent: undefined,
+    wipeFragments: undefined,
+    wipeNluData: [],
+};
+
 
 export const multipleFiles = [
     {
@@ -53,15 +67,8 @@ export const multipleFiles = [
             ],
         }],
         expectedParams: {
-            projectId,
+            ...expectedParams,
             summary: ['Credentials will be imported from credentialstest.yml.'],
-            defaultDomain,
-            instanceHost: 'http://localhost:1234',
-            projectLanguages: [
-                'en',
-            ],
-            fallbackLang: 'en',
-            existingStoryGroups: [],
         },
     },
     {
@@ -86,15 +93,8 @@ export const multipleFiles = [
             ],
         }],
         expectedParams: {
-            projectId,
+            ...expectedParams,
             summary: ['Endpoints will be imported from endpointstest.yml.'],
-            defaultDomain,
-            instanceHost: 'http://localhost:1234',
-            projectLanguages: [
-                'en',
-            ],
-            fallbackLang: 'en',
-            existingStoryGroups: [],
         },
     },
     {
@@ -119,15 +119,9 @@ export const multipleFiles = [
             ],
         }],
         expectedParams: {
-            projectId,
-            summary: ['Botfront config will be imported from bfconfigtest.yml.'],
-            defaultDomain,
+            ...expectedParams,
             instanceHost: 'http://localhost:6005',
-            projectLanguages: [
-                'en',
-            ],
-            fallbackLang: 'en',
-            existingStoryGroups: [],
+            summary: ['Botfront config will be imported from bfconfigtest.yml.'],
         },
     },
     {
@@ -149,15 +143,9 @@ export const multipleFiles = [
             conversations: validConversationsParsed,
         }],
         expectedParams: {
-            projectId,
+            ...expectedParams,
+            
             summary: ['You will add 4 conversations'],
-            defaultDomain,
-            instanceHost: 'http://localhost:1234',
-            projectLanguages: [
-                'en',
-            ],
-            fallbackLang: 'en',
-            existingStoryGroups: [],
         },
     },
     {
@@ -178,19 +166,12 @@ export const multipleFiles = [
             incoming: validIncomingParsed,
         }],
         expectedParams: {
-            projectId,
+            ...expectedParams,
             summary: ['You will add 4 incoming'],
-            defaultDomain,
-            instanceHost: 'http://localhost:1234',
-            projectLanguages: [
-                'en',
-            ],
-            fallbackLang: 'en',
-            existingStoryGroups: [],
         },
     },
     {
-        name: 'should merge default domains excluding those with erros',
+        name: 'should merge default domains excluding those with errors',
         files: [invalidDefaultDomain, validDefaultDomain, validDefaultDomain2, invalidDefaultDomain],
         params: {
             projectId,
@@ -213,23 +194,20 @@ export const multipleFiles = [
                 ...validDefaultDomain2,
                 ...validDefaultDomainParsed2,
                 bfForms: [],
-                newLanguages: [],
-                warnings: ['You have multiple default domain files. if some data conflicts, the one from the first file with that data will be used (same way has rasa merges domains)'],
+                newLanguages: ['fr'],
+                warnings: [{
+                    text: 'those reponses will add the support for the language fr :',
+                    longText: 'utter_greet',
+                }, 'You have multiple default domain files. if some data conflicts, the one from the first file with that data will be used (same way has rasa merges domains)'],
             },
             {
                 ...invalidDefaultDomain,
                 errors: ['Not valid yaml'],
             }],
         expectedParams: {
-            projectId,
+            ...expectedParams,
             summary: ['You will remplace the default domain by default-domain1.yml, default-domain2.yml'],
             defaultDomain: mergedDefaultDomains,
-            instanceHost: 'http://localhost:1234',
-            projectLanguages: [
-                'en',
-            ],
-            fallbackLang: 'en',
-            existingStoryGroups: [],
         },
     },
     {
@@ -279,16 +257,10 @@ export const multipleFiles = [
             warnings: [],
         }],
         expectedParams: {
-            projectId,
+            ...expectedParams,
             summary: ['You will remplace the default domain by default-domain1.yml',
                 'From domain.yml you will add: 1 slots, 1 responses, 1 actions'],
             defaultDomain: validDefaultDomainParsed,
-            instanceHost: 'http://localhost:1234',
-            projectLanguages: [
-                'en',
-            ],
-            fallbackLang: 'en',
-            existingStoryGroups: [],
         },
     },
     {
@@ -337,16 +309,10 @@ export const multipleFiles = [
             newLanguages: [],
         }],
         expectedParams: {
-            projectId,
+            ...expectedParams,
             summary: ['You will remplace the default domain by default-domain1.yml',
                 'From domain.yml you will add: 1 slots, 1 responses, 1 actions'],
             defaultDomain: validDefaultDomainParsed,
-            instanceHost: 'http://localhost:1234',
-            projectLanguages: [
-                'en',
-            ],
-            fallbackLang: 'en',
-            existingStoryGroups: [],
         },
     },
     {
@@ -379,16 +345,9 @@ export const multipleFiles = [
                 'Dropped policies, since policies are already found in file configtest.yml.'],
         }],
         expectedParams: {
-            projectId,
+            ...expectedParams,
             summary: ['Pipeline for language \'en\' will be overwritten by configtest.yml.',
                 'Policies will be overwritten by configtest.yml.'],
-            defaultDomain,
-            instanceHost: 'http://localhost:1234',
-            projectLanguages: [
-                'en',
-            ],
-            fallbackLang: 'en',
-            existingStoryGroups: [],
         },
     },
 ];

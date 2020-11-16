@@ -111,10 +111,6 @@ export const validDomainParsed = {
             name: 'disambiguation_message',
             type: 'unfeaturized',
         },
-        {
-            name: 'bla_message',
-            type: 'unfeaturized',
-        },
     ],
     forms: {},
 };
@@ -160,6 +156,10 @@ export const validDomainFrParsed = {
         },
         {
             name: 'disambiguation_message',
+            type: 'unfeaturized',
+        },
+        {
+            name: 'bla_message',
             type: 'unfeaturized',
         },
         

@@ -146,6 +146,7 @@ if (Meteor.isServer) {
                     _id: 'bf',
                     disabled: false,
                     enableSharing: false,
+                    storyGroups: [],
                     ...config,
                 },
             ])[0];
@@ -174,7 +175,7 @@ if (Meteor.isServer) {
                     defaultDomain: {
                         content:
                             // eslint-disable-next-line max-len
-                            'slots:\n  disambiguation_message:\n    type: unfeaturized\nresponses:\n  utter_goodbye:\n    - language: en\n      text: \'Goodbye :(\'\n  utter_greet:\n    - language: en\n      text: Hey there!\nforms:\n  restaurant_form:\n    cuisine:\n      - entity: cuisine\n        type: from_entity\nactions:\n  - action_aaa',
+                            'slots:\n  disambiguation_message:\n    type: unfeaturized\nresponses:\n  utter_goodbye:\n    - language: en\n      text: \'Goodbye :(\'\n  utter_greet:\n    - language: en\n      text: Hey there!\n  utter_double:\n    - language: en\n      text: Hey there!1\nforms:\n  restaurant_form:\n    cuisine:\n      - entity: cuisine\n        type: from_entity\nactions:\n  - action_aaa',
                     },
                     name: 'test',
                     languages: ['fr'],
@@ -186,6 +187,7 @@ if (Meteor.isServer) {
             await expect(project).to.eql(compProject);
         });
         it('should import rasaConfig', async () => {
+            await Projects.remove({});
             const settings = {
                 public: {
                     defaultNLUConfig: 'test',
@@ -234,6 +236,7 @@ if (Meteor.isServer) {
             await expect(modelru.config).to.eql('test');
         });
         it('should import domain', async () => {
+            await Projects.remove({});
             await Projects.insert({
                 _id: 'bf',
                 name: 'test',

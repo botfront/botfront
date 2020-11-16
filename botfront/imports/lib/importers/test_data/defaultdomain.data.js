@@ -139,6 +139,7 @@ export const validDefaultDomainParsed2 = {
         ],
     },
     forms: {},
+
     actions: [
         'action_bbb',
         'action_aaa',
@@ -154,6 +155,12 @@ export const mergedDefaultDomains = {
             info_message: { type: 'unfeaturized' },
         },
     responses: {
+        utter_double: [
+            {
+                language: 'en',
+                text: 'Hey there!1',
+            },
+        ],
         utter_goodbye: [
             {
                 language: 'en',
