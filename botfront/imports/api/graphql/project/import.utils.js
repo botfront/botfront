@@ -1,5 +1,6 @@
 import { determineDataType } from '../../../lib/importers/common';
 import { StoryGroups } from '../../storyGroups/storyGroups.collection';
+import { Projects } from '../../project/project.collection';
 import {
     validateEndpoints,
     validateCredentials,
@@ -116,17 +117,30 @@ export async function importSteps({
     files,
     onlyValidate,
     wipeInvolvedCollections,
-    fallbackLang,
+    fallbackLang: providedFallbackLanguage,
 }) {
-    const existingStoryGroups = StoryGroups.find({ projectId }, { fields: { name: 1, _id: 1 } }).fetch();
+    const existingStoryGroups = StoryGroups.find(
+        { projectId },
+        { fields: { name: 1, _id: 1 } },
+    ).fetch();
+    const { languages: projectLanguages, defaultLanguage } = Projects.findOne(
+        { _id: projectId },
+        { fields: { languages: 1, defaultLanguage: 1 } },
+    );
+    const fallbackLang = projectLanguages.includes(providedFallbackLanguage)
+        ? providedFallbackLanguage
+        : defaultLanguage;
     const filesAndValidationData = await readAndValidate(files, {
         onlyValidate,
         projectId,
         existingStoryGroups,
         wipeInvolvedCollections,
         fallbackLang,
+        projectLanguages,
     });
-    if (onlyValidate || hasErrors(filesAndValidationData.fileMessages)) { return filesAndValidationData; }
+    if (onlyValidate || hasErrors(filesAndValidationData.fileMessages)) {
+        return filesAndValidationData;
+    }
     const { fileMessages: filesToImport, params } = filesAndValidationData;
     const importResult = await handleImportAll(filesToImport, params);
     return { summary: importResult.map(text => ({ text })) };
