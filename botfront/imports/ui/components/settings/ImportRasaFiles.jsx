@@ -30,6 +30,8 @@ const ImportRasaFiles = () => {
     const [importResults, setImportResults] = useState([]);
     useEffect(() => setFallbackImportLanguage(language), [language]);
     const [wipeCurrent, setWipeCurrent] = useState(false);
+    const [wipeProject, setWipeProject] = useState(false);
+
     const [importSummary, setImportSummary] = useState([]);
 
     const [filesImporting, setFilesImporting] = useState(false);
@@ -51,6 +53,7 @@ const ImportRasaFiles = () => {
                 files: filesToSend,
                 onlyValidate: true,
                 wipeCurrent,
+                wipeProject,
                 fallbackLang: fallbackImportLanguage,
             },
         });
@@ -75,7 +78,7 @@ const ImportRasaFiles = () => {
             variables: {
                 projectId,
                 files: filesToImport,
-                wipeCurrent,
+                wipeProject,
                 fallbackLang: fallbackImportLanguage,
             },
         });
@@ -329,13 +332,20 @@ const ImportRasaFiles = () => {
                     onChange={(_e, { value }) => setFallbackImportLanguage(value)}
                 />
             </div>
-            <div className='side-by-side right'>
+            <div className='wipes side-by-side left'>
                 <Checkbox
                     toggle
-                    checked={wipeCurrent}
-                    onChange={() => setWipeCurrent(!wipeCurrent)}
+                    checked={wipeInvolvedCollections}
+                    onChange={() => setwipeInvolvedCollections(!wipeInvolvedCollections)}
                     label='Delete existing data first'
                     data-cy='wipe-data'
+                />
+                <Checkbox
+                    toggle
+                    checked={wipeProject}
+                    onChange={() => setWipeProject(!wipeInvolvedCollections)}
+                    label='Reset complete project'
+                    data-cy='wipe-project'
                 />
             </div>
         </Segment>
