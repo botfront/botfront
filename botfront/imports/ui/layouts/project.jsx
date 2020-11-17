@@ -90,8 +90,8 @@ function Project(props) {
                 : {}
             : intentsList;
         return Object.keys(filtered).map(
-            i => findExactMatch(filtered[i], entities) || { intent: i },
-        );
+            i => findExactMatch(filtered[i], entities),
+        ).filter(ex => ex);
     };
 
     const parseUtterance = utterance => Meteor.callWithPromise('rasa.parse', instance, [
