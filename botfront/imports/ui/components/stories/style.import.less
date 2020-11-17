@@ -268,6 +268,7 @@
             }
         }
         .icon.top-menu-clickable {
+            margin-left: 30px;
             color: #767676;
             &:hover {
                 color: #5c5c5c;
@@ -635,6 +636,12 @@
                 animation-name: height-change;
                 animation-duration: 0.3s;
                 * { opacity: 1; }
+                .ace_editor {
+                    min-height: 4em;
+                }
+                .story-visual-editor {
+                    min-height: 1.75em;
+                }
             }
         }
         &:not(:hover) {
@@ -652,7 +659,7 @@
 @keyframes height-change {
     0%   { height: 0; }
     40%  { height: 0; }
-    99%  { height: 10em; }
+    99%  { height: 8em; }
     100% { height: max-content; }
 }
 
@@ -670,4 +677,8 @@
 
 .ui.active.loader {
     z-index: 50;
+}
+
+.ui.toggle.checkbox.story-box-toggle label {
+    padding-top: 0 !important;
 }

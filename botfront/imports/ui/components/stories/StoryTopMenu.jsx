@@ -133,6 +133,7 @@ const StoryTopMenu = ({
                     <Checkbox
                         toggle
                         label='conversation start'
+                        className='story-box-toggle'
                         checked={convStart}
                         data-cy='toggle-conversation-start'
                         onClick={(e) => {
@@ -147,7 +148,7 @@ const StoryTopMenu = ({
 
     const renderConditionSection = () => (
         <>
-            <Header as='h5' dividing>&nbsp;Conditions</Header>
+            <Header as='h5' dividing>&nbsp;&nbsp;Conditions</Header>
             {storyMode !== 'visual'
                 ? renderAceEditor()
                 : (

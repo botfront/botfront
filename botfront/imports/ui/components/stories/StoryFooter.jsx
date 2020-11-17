@@ -144,6 +144,7 @@ class StoryFooter extends React.Component {
                 <Checkbox
                     toggle
                     label='wait for user input'
+                    className='story-box-toggle'
                     checked={waitInput}
                     onChange={() => updateStory({ _id, wait_for_user_input: !waitInput })}
                 />
