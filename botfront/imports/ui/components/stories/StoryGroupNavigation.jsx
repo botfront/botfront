@@ -9,6 +9,7 @@ import { setStoryMode } from '../../store/actions/actions';
 import { Slots } from '../../../api/slots/slots.collection';
 import { ConversationOptionsContext } from './Context';
 import { formNameIsValid } from '../../../lib/client.safe.utils';
+import { tooltipWrapper } from '../utils/Utils';
 
 class StoryGroupNavigation extends React.Component {
     constructor(props) {
@@ -68,9 +69,6 @@ class StoryGroupNavigation extends React.Component {
         this.setState({ editing: -1 });
     };
 
-    tooltipWrapper = (trigger, tooltip) => (
-        <Popup size='mini' inverted content={tooltip} trigger={trigger} />
-    );
 
     renderNavigation = () => {
         const {
@@ -79,7 +77,7 @@ class StoryGroupNavigation extends React.Component {
         return (
             <div className='navigation'>
                 <Button.Group fluid>
-                    {this.tooltipWrapper(
+                    {tooltipWrapper(
                         <Button
                             key='newItem'
                             onClick={() => this.setState({ addMode: true })}
@@ -91,7 +89,7 @@ class StoryGroupNavigation extends React.Component {
                         />,
                         'New story group',
                     )}
-                    {this.tooltipWrapper(
+                    {tooltipWrapper(
                         <Button
                             content='Slots'
                             onClick={() => modals.setSlotsModal(true)}
@@ -99,7 +97,7 @@ class StoryGroupNavigation extends React.Component {
                         />,
                         'Manage slots',
                     )}
-                    {this.tooltipWrapper(
+                    {tooltipWrapper(
                         <Button
                             content='Policies'
                             onClick={() => modals.setPoliciesModal(true)}
@@ -107,7 +105,7 @@ class StoryGroupNavigation extends React.Component {
                         />,
                         'Edit Policies',
                     )}
-                    {this.tooltipWrapper(
+                    {tooltipWrapper(
                         <Button
                             data-cy={storyMode === 'visual' ? 'toggle-md' : 'toggle-visual'}
                             icon

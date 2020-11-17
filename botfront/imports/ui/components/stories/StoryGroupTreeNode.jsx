@@ -4,6 +4,7 @@ import {
     Icon, Menu, Input, Popup, Dropdown,
 } from 'semantic-ui-react';
 import { formNameIsValid } from '../../../lib/client.safe.utils';
+import { tooltipWrapper } from '../utils/Utils';
 
 const StoryGroupTreeNode = (props) => {
     const {
@@ -110,10 +111,7 @@ const StoryGroupTreeNode = (props) => {
             'data-react-beautiful-dnd-drag-handle':
                     provided.dragHandleProps['data-react-beautiful-dnd-drag-handle'],
         };
-
-    const tooltipWrapper = (trigger, tooltip) => (
-        <Popup size='mini' inverted content={tooltip} trigger={trigger} />
-    );
+  
 
     const cleanStoryId = id => id.replace(/^.*_SMART_/, '');
 

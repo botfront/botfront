@@ -7,13 +7,13 @@ export default {
     Mutation: {
         async import(_, args, context) {
             const {
-                files, onlyValidate, projectId, wipeInvolvedCollections, fallbackLang,
+                files, onlyValidate, projectId, wipeInvolvedCollections, fallbackLang, wipeProject,
             } = args;
             checkIfCan('projects:w', projectId, context.user._id);
             // files is a list of promises as the files gets uploaded to the server
             const filesData = await Promise.all(files);
             return importSteps({
-                projectId, files: filesData, onlyValidate, wipeInvolvedCollections, fallbackLang,
+                projectId, files: filesData, onlyValidate, fallbackLang, wipeInvolvedCollections, wipeProject,
             });
         },
     },

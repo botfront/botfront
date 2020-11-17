@@ -1,14 +1,21 @@
 import { safeLoad, safeDump } from 'js-yaml';
 import botResponses from '../botResponses/botResponses.model';
-import { saveEndpoints } from '../../endpoints/endpoints.methods';
+import { saveEndpoints, createEndpoints } from '../../endpoints/endpoints.methods';
 import Conversations from '../conversations/conversations.model';
 import Activity from '../activity/activity.model';
 import { indexBotResponse } from '../botResponses/mongo/botResponses';
 import { Slots } from '../../slots/slots.collection';
 import { Projects } from '../../project/project.collection';
 import { mergeDomains, deduplicateAndMergeResponses } from '../../../lib/importers/validateDomain';
+import { Credentials, createCredentials } from '../../credentials';
 
+
+import { Endpoints } from '../../endpoints/endpoints.collection';
+import { Stories } from '../../story/stories.collection';
 import handleImportTrainingData from './trainingDataFileImporter';
+import Examples from '../examples/examples.model';
+import NLUModels from '../../nlu_model/nlu_model.collection';
+
 
 export const handleImportForms = async (forms, projectId) => {
     const { defaultDomain } = Projects.findOne({ _id: projectId });
@@ -60,6 +67,27 @@ const wipeDomain = async (projectId) => {
         await Slots.remove({ projectId });
     } catch (e) {
         throw new Error('Could not wipe the slots responses');
+    }
+    return true;
+};
+
+
+const resetProject = async (projectId) => {
+    try {
+        wipeDomain(projectId);
+        await Conversations.deleteMany({ projectId });
+        await Activity.deleteMany({ projectId });
+        await Credentials.remove({ projectId });
+        await Endpoints.remove({ projectId });
+        await Stories.remove({ projectId });
+        await NLUModels.remove({ projectId });
+        await Examples.deleteMany({ projectId });
+        await createCredentials({ _id: projectId });
+        await createEndpoints({ _id: projectId });
+        const { languages } = await Projects.findOne({ _id: projectId });
+        await Promise.all(languages.map(lang => Meteor.callWithPromise('nlu.insert', projectId, lang)));
+    } catch (e) {
+        throw new Error('Could not reset the project back to default');
     }
     return true;
 };
@@ -291,7 +319,10 @@ export const handleImportIncoming = async (files, { projectId, wipeInvolvedColle
 // the files should have been processed before by the validation step
 export const handleImportAll = async (files, params) => {
     const importers = [];
-    // handleImportStoryGroups(files.filter(f => f.dataType === 'stories'), params);
+    const { projectId, wipeProject } = params;
+    if (wipeProject) {
+        resetProject(projectId);
+    }
 
     // this function is there to force the order of import: rasaconfig, default domain then domain
     // rasaconfig might add support for languages that have data in the domain

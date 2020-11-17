@@ -22,6 +22,7 @@ import { useFileReader } from './fileReaders';
 import { ProjectContext } from '../../layouts/context';
 import { unZipFile } from '../../../lib/importers/common';
 import { importFilesMutation } from './graphql';
+import { tooltipWrapper } from '../utils/Utils';
 
 const ImportRasaFiles = () => {
     const { projectLanguages, project: { _id: projectId }, language } = useContext(ProjectContext);
@@ -334,20 +335,21 @@ const ImportRasaFiles = () => {
                 />
             </div>
             <div className='wipes side-by-side left'>
-                <Checkbox
+                {tooltipWrapper(<Checkbox
                     toggle
                     checked={wipeInvolvedCollections}
                     onChange={() => setwipeInvolvedCollections(!wipeInvolvedCollections)}
-                    label='Delete existing data first'
+                    label='Delete existing data'
                     data-cy='wipe-data'
-                />
-                <Checkbox
+                />, `This will clear the existing data for the type of data you are importing.
+                e.g : importing stories with this switch on will remove the previous stories, but keep everything else, NLU, responses, etc`)}
+                {tooltipWrapper(<Checkbox
                     toggle
                     checked={wipeProject}
                     onChange={() => setWipeProject(!wipeInvolvedCollections)}
                     label='Reset complete project'
                     data-cy='wipe-project'
-                />
+                />, 'this will remove ALL project\'s data - including conversations - before importing')}
             </div>
         </Segment>
     );

@@ -41,7 +41,6 @@ export async function getRawTextAndType(files) {
                     errors: [{ text: 'File is not parseable text.' }],
                 };
             }
-
             return {
                 file,
                 filename,
@@ -117,6 +116,7 @@ export async function importSteps({
     files,
     onlyValidate,
     wipeInvolvedCollections,
+    wipeProject,
     fallbackLang: providedFallbackLanguage,
 }) {
     const existingStoryGroups = StoryGroups.find(
@@ -130,18 +130,22 @@ export async function importSteps({
     const fallbackLang = projectLanguages.includes(providedFallbackLanguage)
         ? providedFallbackLanguage
         : defaultLanguage;
-    const filesAndValidationData = await readAndValidate(files, {
+
+    const params = {
         onlyValidate,
         projectId,
         existingStoryGroups,
         wipeInvolvedCollections,
         fallbackLang,
+        wipeProject,
         projectLanguages,
-    });
+    };
+    const filesAndValidationData = await readAndValidate(files, params);
+
     if (onlyValidate || hasErrors(filesAndValidationData.fileMessages)) {
         return filesAndValidationData;
     }
-    const { fileMessages: filesToImport, params } = filesAndValidationData;
-    const importResult = await handleImportAll(filesToImport, params);
+    const { fileMessages: filesToImport, params: newParams } = filesAndValidationData;
+    const importResult = await handleImportAll(filesToImport, newParams);
     return { summary: importResult.map(text => ({ text })) };
 }
