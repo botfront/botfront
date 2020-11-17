@@ -9,24 +9,6 @@ import { ProjectContext } from '../../../layouts/context';
 import UtteranceInput from '../../utils/UtteranceInput';
 import NluModalContent from './nlu_editor/NluModalContent';
 
-const convertUserToText = ({ user, entities, ...payload } = {}) => ({
-    ...payload,
-    ...(user ? { text: user } : {}),
-    ...(entities
-        ? {
-            entities: entities.map(e => ({
-                entity: Object.keys(e)[0],
-                value: e[Object.keys(e)[0]],
-            })),
-        }
-        : {}),
-});
-const convertTextToUser = ({ text, entities, ...payload } = {}) => ({
-    ...payload,
-    ...(text ? { user: text } : {}),
-    ...(entities ? { entities: entities.map(({ entity: k, value: v }) => ({ [k]: v })) } : {}),
-});
-
 const UtteranceContainer = (props) => {
     const {
         value, onInput, onAbort, onDelete,
@@ -40,9 +22,8 @@ const UtteranceContainer = (props) => {
     const modalContentRef = useRef();
 
     useEffect(() => {
-        const converted = convertUserToText(value);
-        if (value.user || !value.intent) setStateValue(converted);
-        else setStateValue([...getCanonicalExamples(converted), converted][0]);
+        if (value.user || !value.intent) setStateValue(value);
+        else setStateValue([...getCanonicalExamples(value), value][0]);
     }, [JSON.stringify(value)]);
 
     const validateInput = async () => {
@@ -63,7 +44,7 @@ const UtteranceContainer = (props) => {
     const saveInput = () => {
         if (stateValue.intent !== OOS_LABEL) {
             containerBody.current.wasSaved = true;
-            onInput(convertTextToUser(stateValue));
+            onInput(stateValue);
         }
     };
 

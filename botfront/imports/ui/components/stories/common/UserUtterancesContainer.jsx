@@ -14,6 +14,24 @@ const UserUtterancesContainer = (props) => {
 
     const somethingIsBeingInput = useMemo(() => value.some(disjunct => disjunct === null), [value]);
 
+    const convertCoreToNlu = ({ user, entities, ...payload } = {}) => ({
+        ...payload,
+        ...(user ? { text: user } : {}),
+        ...(entities
+            ? {
+                entities: entities.map(e => ({
+                    entity: Object.keys(e)[0],
+                    value: e[Object.keys(e)[0]],
+                })),
+            }
+            : {}),
+    });
+    const convertNluToCore = ({ text, entities, ...payload } = {}) => ({
+        ...payload,
+        ...(text ? { user: text } : {}),
+        ...(entities ? { entities: entities.map(({ entity: k, value: v }) => ({ [k]: v })) } : {}),
+    });
+
     const handleDeleteDisjunct = (index) => {
         if (value.length > 1) {
             return onChange([...value.slice(0, index), ...value.slice(index + 1)]);
@@ -21,7 +39,8 @@ const UserUtterancesContainer = (props) => {
         return onDelete();
     };
 
-    const handleUpdateDisjunct = (index, content) => {
+    const handleUpdateDisjunct = (index, contentInNluFormat) => {
+        const content = convertNluToCore(contentInNluFormat);
         const identicalPayload = value
             .filter(v => v)
             .find(
@@ -32,8 +51,7 @@ const UserUtterancesContainer = (props) => {
                         || !(content.entities || []).length),
             );
         if (identicalPayload) return handleDeleteDisjunct(index);
-        const { user: text, ...contentWithoutUserKey } = content;
-        return addUtterancesToTrainingData([{ ...contentWithoutUserKey, text }], (err) => {
+        return addUtterancesToTrainingData([contentInNluFormat], (err) => {
             if (!err) onChange([...value.slice(0, index), content, ...value.slice(index + 1)]);
         });
     };
@@ -52,7 +70,7 @@ const UserUtterancesContainer = (props) => {
         >
             <div className='story-line'>
                 <UserUtteranceContainer
-                    value={payload}
+                    value={convertCoreToNlu(payload)}
                     onInput={content => handleUpdateDisjunct(index, content)}
                     onAbort={() => { if (value.length > 1) handleDeleteDisjunct(index); }}
                     onDelete={() => { handleDeleteDisjunct(index); }}
