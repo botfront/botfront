@@ -439,7 +439,7 @@ describe('mixed data importing', function () {
                 { text: 'Group \'stories02.yml\' will be created with 2 stories.' },
                 { text: 'Group \'stories01.yml\' will be created with 1 story.' },
             ]);
-            expect(summary[summary.length - 2].text).to.match(
+            expect(summary[summary.length - 1].text).to.match(
                 /Group 'stock group (.*)' will be created with 1 story./,
             );
         }),
