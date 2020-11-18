@@ -43,10 +43,12 @@ export class TrainingDataValidator {
         projectLanguages,
         existingStoryGroups = [],
         wipeInvolvedCollections,
+        wipeProject,
         summary,
         ...rest
     }) {
         this.wipeInvolvedCollections = wipeInvolvedCollections;
+        this.wipeProject = wipeProject;
         this.instanceHost = instanceHost;
         this.fallbackLang = fallbackLang;
         this.projectLanguagesBefore = [...projectLanguages];
@@ -88,7 +90,7 @@ export class TrainingDataValidator {
     };
 
     getNonConflictingGroupName = (name) => {
-        if (this.wipeInvolvedCollections) return name;
+        if (this.wipeInvolvedCollections || this.wipeFragments) return name;
         let newName = name;
         if (name in this.groupNameMappings) {
             return this.groupNameMappings[name];
@@ -554,10 +556,14 @@ export class TrainingDataValidator {
         // commented line is to delete only data for languages that are being imported,
         // for now we delete all data for preexisting languages
         // this.wipeNluData = Object.keys(this.existingNlu).filter(l => this.wipeInvolvedCollections && this.projectLanguagesBefore.includes(l));
-        this.wipeNluData = this.wipeInvolvedCollections && !!Object.keys(this.existingNlu).length
+        this.wipeNluData = !this.wipeProject
+            && this.wipeInvolvedCollections
+            && !!Object.keys(this.existingNlu).length
             ? this.projectLanguagesBefore
             : [];
-        this.wipeFragments = this.wipeInvolvedCollections && !!Object.keys(this.existingFragments).length;
+        this.wipeFragments = !this.wipeProject
+            && this.wipeInvolvedCollections
+            && !!Object.keys(this.existingFragments).length;
         if (this.wipeNluData.length) {
             this.summary.push({
                 text: `ALL EXISTING NLU DATA for ${this.wipeNluData
@@ -635,7 +641,8 @@ export class TrainingDataValidator {
     };
 
     rehydrateStories = (files) => {
-        const stories = files.filter(f => !f.errors?.length)
+        const stories = files
+            .filter(f => !f.errors?.length)
             .reduce((acc, f) => [...acc, ...(f.stories || [])], []);
         const rehydrated = files.map(f => ({ ...f, stories: [] }));
 
@@ -696,13 +703,15 @@ export class TrainingDataValidator {
                     this.incrementFragmentsForGroup(metadata.group, 'stories');
                     const resolvedCheckpoints = [];
                     checkpoints.forEach((c) => {
-                        (this.links.filter(l => l.name === c) || [{}]).forEach((link) => {
-                            if (!link.value) {
-                                rehydrated[index].warnings.push({
-                                    text: `Story '${title}' refers to a checkpoint '${c}', but no origin counterpart was found.`,
-                                });
-                            } else resolvedCheckpoints.push(link.value);
-                        });
+                        (this.links.filter(l => l.name === c) || [{}]).forEach(
+                            (link) => {
+                                if (!link.value) {
+                                    rehydrated[index].warnings.push({
+                                        text: `Story '${title}' refers to a checkpoint '${c}', but no origin counterpart was found.`,
+                                    });
+                                } else resolvedCheckpoints.push(link.value);
+                            },
+                        );
                     });
                     rehydrated[index].stories[
                         storyIndex
@@ -772,6 +781,7 @@ export class TrainingDataValidator {
             {
                 ...this.unUsedParams,
                 wipeInvolvedCollections: this.wipeInvolvedCollections,
+                wipeProject: this.wipeProject,
                 wipeNluData: this.wipeNluData,
                 wipeFragments: this.wipeFragments,
                 instanceHost: this.instanceHost,
