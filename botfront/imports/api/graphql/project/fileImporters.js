@@ -12,6 +12,8 @@ import { Credentials, createCredentials } from '../../credentials';
 
 import { Endpoints } from '../../endpoints/endpoints.collection';
 import { Stories } from '../../story/stories.collection';
+import { StoryGroups } from '../../storyGroups/storyGroups.collection';
+
 import handleImportTrainingData from './trainingDataFileImporter';
 import Examples from '../examples/examples.model';
 import NLUModels from '../../nlu_model/nlu_model.collection';
@@ -93,6 +95,7 @@ const resetProject = async (projectId) => {
         await Credentials.remove({ projectId });
         await Endpoints.remove({ projectId });
         await Stories.remove({ projectId });
+        await StoryGroups.remove({ projectId });
         await NLUModels.remove({ projectId });
         await Examples.deleteMany({ projectId });
         await createCredentials({ _id: projectId });
