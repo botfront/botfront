@@ -139,7 +139,9 @@ export const mergeDomainsRasaFormat = (files) => {
 
 const validateADomain = (
     file,
-    { defaultDomain = {}, projectLanguages = [], fallbackLang },
+    {
+        defaultDomain = {}, projectLanguages = [], actionsFromFragments = [], fallbackLang,
+    },
     // we validate domain and default domain with the same function
     // isDefaultDomain allow us to get the domain in rasaformat
     // and also trigget specific warning linked with default domain
@@ -257,12 +259,20 @@ const validateADomain = (
         );
     }
 
-    const actionsWithoutResponses = actionsFromFile.filter(action => (/^action_/.test(action)));
+    const actionsWithoutResponses = actionsFromFile.filter(action => !(/^utter_/.test(action)));
+    const actionNotInFragments = actionsWithoutResponses.filter(action => !actionsFromFragments.includes(action));
+
+    if (actionNotInFragments && actionNotInFragments.length > 0 && !isDefaultDomain) {
+        warnings.push({
+            text: 'Some actions defined in this file will be added to the default domain on import',
+            longText: 'the actions that will be added to the default domain are the one that are in this file and not used directly by the rules or stories',
+        });
+    }
     const newDomain = {
         slots: isDefaultDomain ? slotsFromFile : slots,
         bfForms,
         responses: isDefaultDomain ? responsesRasaFormat : responses,
-        actions: actionsWithoutResponses,
+        actions: isDefaultDomain ? actionsWithoutResponses : actionNotInFragments,
         forms: formsFromFile,
     };
 

@@ -5,6 +5,8 @@ import shortid from 'shortid';
 import axios from 'axios';
 import { languages as LANGUAGES, langFromCode } from '../languages';
 import { DialogueFragmentValidator } from '../dialogue_fragment_validator';
+import { extractDomain, addCheckpoints } from '../story.utils';
+import { Stories } from '../../api/story/stories.collection';
 
 const NLU_ENGLISH_MAPPINGS = {
     common_examples: 'example',
@@ -45,6 +47,7 @@ export class TrainingDataValidator {
         wipeInvolvedCollections,
         wipeProject,
         summary,
+        projectId,
         ...rest
     }) {
         this.wipeInvolvedCollections = wipeInvolvedCollections;
@@ -56,6 +59,7 @@ export class TrainingDataValidator {
         this.existingStoryGroups = existingStoryGroups;
         this.summary = summary;
         this.unUsedParams = rest;
+        this.projectId = projectId;
         // various state variables to count, deduplicate and validate
         this.existingFragments = {};
         this.existingNlu = {};
@@ -722,8 +726,20 @@ export class TrainingDataValidator {
         return rehydrated;
     };
 
+    extractDomainFromDB = async (projectId) => {
+        const allFragments = await Stories.find({
+            projectId,
+        }).fetch();
+        const fragmentsWithCheckpoints = addCheckpoints(allFragments);
+        const domain = extractDomain({
+            fragments: fragmentsWithCheckpoints,
+        });
+        return domain;
+    }
+
     validateTrainingData = async (files) => {
         // to do: batch it in chunks
+        const allAction = [];
         let trainingDataFiles = await Promise.all(
             files.filter(f => f?.dataType === 'training_data').map(this.loadFile),
         );
@@ -758,6 +774,9 @@ export class TrainingDataValidator {
                 }
                 ['entity_synonyms', 'regex_features', 'fuzzy_gazette'].forEach(key => this.validateGenericNluData(nlu, key));
             }
+            allAction.push(...extractDomain({ fragments: stories }).actions);
+            allAction.push(...extractDomain({ fragments: rules }).actions);
+
             return {
                 ...file,
                 nlu,
@@ -767,12 +786,15 @@ export class TrainingDataValidator {
                 warnings,
             };
         });
-
         trainingDataFiles = this.rehydrateStories(trainingDataFiles);
         this.addWipingWarnings();
         this.addGlobalNluSummaryLines();
         this.addGlobalCoreSummaryLines();
 
+        if (trainingDataFiles.length === 0 && !(this.wipeInvolvedCollections || this.wipeProject)) {
+            allAction.push(...(await this.extractDomainFromDB(this.projectId)).actions);
+        }
+        const actionsFromFragments = Array.from(new Set(allAction.filter(action => !/^utter_/.test(action))));
         return [
             files.map((file) => {
                 if (file?.dataType !== 'training_data') return file;
@@ -789,6 +811,9 @@ export class TrainingDataValidator {
                 projectLanguages: this.projectLanguages,
                 existingStoryGroups: this.existingStoryGroups,
                 summary: this.summary,
+                projectId: this.projectId,
+                actionsFromFragments,
+
             },
         ];
     };

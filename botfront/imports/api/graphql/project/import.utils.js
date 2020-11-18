@@ -61,15 +61,16 @@ export async function validateFiles(files, params) {
     [filesWithMessages, newParams] = validateDefaultDomains(filesWithMessages, newParams);
     [filesWithMessages, newParams] = validateRasaConfig(filesWithMessages, newParams);
     [filesWithMessages, newParams] = validateBfConfig(filesWithMessages, newParams);
+    [filesWithMessages, newParams] = await validateTrainingData(
+        filesWithMessages,
+        newParams,
+    );
     [filesWithMessages, newParams] = validateEndpoints(filesWithMessages, newParams);
     [filesWithMessages, newParams] = validateCredentials(filesWithMessages, newParams);
     [filesWithMessages, newParams] = validateDomain(filesWithMessages, newParams);
     [filesWithMessages, newParams] = validateConversations(filesWithMessages, newParams);
     [filesWithMessages, newParams] = validateIncoming(filesWithMessages, newParams);
-    [filesWithMessages, newParams] = await validateTrainingData(
-        filesWithMessages,
-        newParams,
-    );
+  
 
     return [filesWithMessages, newParams];
 }

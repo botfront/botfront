@@ -64,3 +64,43 @@ export const stories01_02 = [
         checkpoints: [],
     },
 ];
+
+
+export const storyWithAction = {
+    filename: 'stories.yml',
+    rawText:
+    `stories:
+- story: greet help
+  steps:
+   - intent: greet
+   - action: utter_greet
+   - action: action_get_help`,
+    dataType: 'training_data',
+};
+
+
+export const storyWithActionParsed = {
+    nlu: {},
+    rules: [],
+    stories: [
+        {
+            branches: [],
+            checkpoints: [],
+            metadata: {
+                group: 'stories.yml',
+            },
+            steps: [
+                {
+                    intent: 'greet',
+                },
+                {
+                    action: 'utter_greet',
+                },
+                {
+                    action: 'action_get_help',
+                },
+            ],
+            title: 'greet help',
+        },
+    ],
+};

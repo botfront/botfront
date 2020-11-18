@@ -13,6 +13,7 @@ import {
 } from './defaultdomain.data.js';
 import { validDomain, validDomainParsed } from './domain.data.js';
 import { validConversations, validConversationsParsed } from './conversation.data.js';
+import { storyWithAction, storyWithActionParsed } from './training_data.data';
 
 import { validIncoming, validIncomingParsed } from './incoming.data.js';
 
@@ -348,6 +349,51 @@ export const multipleFiles = [
             ...expectedParams,
             summary: ['Pipeline for language \'en\' will be overwritten by configtest.yml.',
                 'Policies will be overwritten by configtest.yml.'],
+        },
+    },
+    {
+        name: 'should keep actions from a domain that are not in stories',
+        files: [storyWithAction, validDomain],
+        params: {
+            projectId,
+            projectLanguages: [
+                'en',
+            ],
+            fallbackLang: 'en',
+        },
+        expectedFiles: [{
+            ...storyWithAction,
+            ...storyWithActionParsed,
+            errors: [],
+            warnings: [],
+        },
+        {
+            ...validDomain,
+            ...validDomainParsed,
+            newLanguages: [],
+            actions: ['action_aaa'],
+            bfForms: [],
+            warnings: [
+                {
+                    longText: 'the actions that will be added to the default domain are the one that are in this file and not used directly by the rules or stories',
+                    text: 'Some actions defined in this file will be added to the default domain on import',
+                },
+            ],
+        }],
+        expectedParams: {
+            ...expectedParams,
+            summary: [{
+                text: 'Group \'stories.yml\' will be created with 1 story.',
+            },
+            'From domain.yml you will add: 2 slots, 2 responses, 1 actions to the default domain'],
+            existingStoryGroups: [
+                {
+                    name: 'stories.yml',
+                },
+            ],
+            actionsFromFragments: [
+                'action_get_help',
+            ],
         },
     },
 ];

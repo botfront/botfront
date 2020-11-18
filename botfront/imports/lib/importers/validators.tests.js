@@ -8,6 +8,11 @@ import { multipleFiles } from './test_data/multipleFiles.data';
 import { validateFiles } from '../../api/graphql/project/import.utils.js';
 
 
+export function clearIdField(object) {
+    const omitTypename = (key, value) => (key === '_id' ? undefined : value);
+    const cleanedObject = JSON.parse(JSON.stringify(object), omitTypename);
+    return cleanedObject;
+}
 const projectId = 'bf';
 
 
@@ -71,8 +76,8 @@ if (Meteor.isServer) {
             } = test;
             it(name, (done) => {
                 validateFiles(files, params).then(([newFiles, newParams]) => {
-                    expect(newFiles).to.eql(expectedFiles);
-                    expect(newParams).to.eql(expectedParams);
+                    expect(clearIdField(newFiles)).to.eql(clearIdField(expectedFiles));
+                    expect(clearIdField(newParams)).to.eql(clearIdField(expectedParams));
                     done();
                 }).catch(done);
             });
