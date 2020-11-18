@@ -28,6 +28,19 @@ export const handleImportForms = async (forms, projectId) => {
         _id: projectId,
     });
 };
+
+
+export const handleImportActions = async (actions, projectId) => {
+    const { defaultDomain } = Projects.findOne({ _id: projectId });
+    const parsedDomain = safeLoad(defaultDomain.content);
+    const newForms = [...(parsedDomain?.actions || []), ...actions];
+    parsedDomain.actions = newForms;
+    const newDomain = safeDump(parsedDomain);
+    await Meteor.callWithPromise('project.update', {
+        defaultDomain: { content: newDomain },
+        _id: projectId,
+    });
+};
 export const handleImportResponse = async (responses, projectId) => {
     const preparedResponses = responses.map((response) => {
         const index = indexBotResponse(response);
@@ -94,7 +107,9 @@ const resetProject = async (projectId) => {
 
 export const handleImportDomain = async (files, { projectId, wipeInvolvedCollections }) => {
     if (!files.length) return [];
-    const { slots, responses, forms } = mergeDomains(files);
+    const {
+        slots, responses, forms, actions,
+    } = mergeDomains(files);
 
     const errors = [];
     const insert = async () => {
@@ -115,8 +130,15 @@ export const handleImportDomain = async (files, { projectId, wipeInvolvedCollect
         } catch (e) {
             errors.push(`error when importing forms ${e.message}`);
         }
+        try {
+            if (actions && actions.length > 0) {
+                await handleImportActions(actions, projectId);
+            }
+        } catch (e) {
+            errors.push(`error when importing actions ${e.message}`);
+        }
     };
-
+  
     if (wipeInvolvedCollections) {
         await wipeDomain(projectId);
     }
@@ -337,7 +359,7 @@ export const handleImportAll = async (files, params) => {
             files.filter(f => f.dataType === 'defaultdomain'),
             params,
         );
-        const trainingDataErrors = handleImportTrainingData(
+        const trainingDataErrors = await handleImportTrainingData(
             files.filter(f => f.dataType === 'training_data'),
             params,
         );

@@ -4,6 +4,8 @@ import { Projects } from '../../api/project/project.collection';
 
 const INTERNAL_SLOTS = ['bf_forms', 'fallback_language'];
 
+const onlyValidFiles = files => files.filter(file => !(file.errors && file.errors.length > 0));
+
 const deduplicate = (listOfObjects, key) => {
     const seen = new Set();
     return listOfObjects.filter((obj) => {
@@ -61,7 +63,14 @@ const deduplicateArray = (array) => {
 
 export const mergeDomains = (files) => {
     const filesToProcess = files.filter(file => !(file.errors && file.errors.length > 0));
-    if (!filesToProcess.length) return [];
+    if (!filesToProcess.length) {
+        return {
+            slots: [],
+            responses: [],
+            forms: [],
+            actions: [],
+        };
+    }
 
     const allResponses = filesToProcess.reduce(
         (all, { responses = [] }) => [...all, ...responses],
@@ -87,8 +96,15 @@ export const mergeDomains = (files) => {
 
 
 export const mergeDomainsRasaFormat = (files) => {
-    const filesToProcess = files.filter(file => !(file.errors && file.errors.length > 0));
-    if (!filesToProcess.length) return [];
+    const filesToProcess = onlyValidFiles(files);
+    if (!filesToProcess.length) {
+        return {
+            slots: [],
+            responses: [],
+            forms: [],
+            actions: [],
+        };
+    }
     // the order of merging is important
     // for arrays [...all, ...slots] => will keep the first one during deduplication
     // for obj { ...forms, ...all } => the first one found erase the new one
@@ -284,18 +300,19 @@ export const validateDefaultDomains = (files, params) => {
         });
     }
 
+    const defaultDomainValidFiles = onlyValidFiles(defaultDomainFiles);
 
-    if (defaultDomainFiles.length === 0) {
+    if (defaultDomainValidFiles.length === 0) {
         defaultDomain = safeLoad(
             Projects.findOne({ _id: projectId }).defaultDomain.content,
         );
     } else {
-        defaultDomain = mergeDomainsRasaFormat(defaultDomainFiles);
+        defaultDomain = mergeDomainsRasaFormat(defaultDomainValidFiles);
     }
     const newSummary = params.summary;
 
-    if (defaultDomainFiles.length > 0) {
-        const nameList = defaultDomainFiles.filter(file => !(file.errors && file.errors.length > 0)).map(file => file.filename).join(', ');
+    if (defaultDomainValidFiles.length > 0) {
+        const nameList = defaultDomainValidFiles.map(file => file.filename).join(', ');
         newSummary.push(`You will remplace the default domain by ${nameList}`);
     }
     const newFiles = files.map((file) => {
@@ -333,9 +350,9 @@ export const validateDomain = (files, params) => {
    
     const newSummary = params.summary;
     let newLanguages = params.projectLanguages;
-
-    if (domainFiles.length > 0) {
-        const newLangs = domainFiles.reduce((all, file) => [...file.newLanguages, ...all], []);
+    const validDomainFiles = domainFiles.filter(file => !(file.errors && file.errors.length > 0));
+    if (validDomainFiles.length > 0) {
+        const newLangs = domainFiles.reduce((all, file) => [...(file.newLanguages || []), ...all], []);
         const merged = mergeDomains(domainFiles);
         const nameList = domainFiles.map(file => file.filename).join(', ');
         const slotsLen = merged.slots.length;
@@ -346,7 +363,7 @@ export const validateDomain = (files, params) => {
         if (slotsLen > 0) tempSummary.push(`${slotsLen} slots`);
         if (responsesLen > 0) tempSummary.push(`${responsesLen} responses`);
         if (formsLen > 0) tempSummary.push(`${formsLen} forms`);
-        if (actionsLen > 0) tempSummary.push(`${actionsLen} actions`);
+        if (actionsLen > 0) tempSummary.push(`${actionsLen} actions to the default domain`);
         newSummary.push(`From ${nameList} you will add: ${tempSummary.join(', ')}`);
         newLanguages = Array.from(new Set([...params.projectLanguages, ...newLangs]));
     }

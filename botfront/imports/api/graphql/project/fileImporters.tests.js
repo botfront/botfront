@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
-import { expect } from 'chai';
 import { safeLoad } from 'js-yaml';
-
+import chai from 'chai';
+import deepEqualInAnyOrder from 'deep-equal-in-any-order';
 import Conversations from '../conversations/conversations.model.js';
 import Activity from '../activity/activity.model';
 import { Credentials } from '../../credentials';
@@ -68,6 +68,12 @@ import {
     validDomainsMerged,
 } from '../../../lib/importers/test_data/domain.data.js';
 
+
+chai.use(deepEqualInAnyOrder);
+
+const { expect } = chai;
+
+
 const params = { projectId: 'bf' };
 
 const removeDates = arr => arr.map((obj) => {
@@ -81,17 +87,20 @@ const removeId = (obj) => {
 };
 
 if (Meteor.isServer) {
-    describe('file importers', () => {
+    describe.only('file importers', () => {
         it('should import conversations', async () => {
+            await Conversations.deleteMany({});
             const importResult = await handleImportConversations(
                 [{ ...validConversations, conversations: validConversationsParsed }],
                 params,
             );
             const conversations = await Conversations.find({ projectId: 'bf' }).lean();
             await expect(importResult).to.eql([]);
-            await expect(conversations).to.eql(validConversationsParsed);
+            // we use equalInAnyOrder because the conversation are send to the db in parrallel, so we don't know the order
+            await expect(conversations).to.deep.equalInAnyOrder(validConversationsParsed);
         });
         it('should import Incoming', async () => {
+            await Activity.deleteMany({});
             const importResult = await handleImportIncoming(
                 [{ ...validIncoming, incoming: validIncomingParsed }],
                 params,
@@ -100,7 +109,8 @@ if (Meteor.isServer) {
             const incomingNoDates = removeDates(incoming);
             const validIncomingNoDates = removeDates(validIncomingParsed);
             await expect(importResult).to.eql([]);
-            await expect(incomingNoDates).to.eql(validIncomingNoDates);
+            // we use equalInAnyOrder because the incoming are send to the db in parrallel, so we don't know the order
+            await expect(incomingNoDates).to.deep.equalInAnyOrder(validIncomingNoDates);
         });
         it('should import Credentials', async () => {
             const importResult = await handleImportCredentials(
@@ -282,7 +292,10 @@ if (Meteor.isServer) {
   restaurant_form:
     cuisine:
       - entity: cuisine
-        type: from_entity`);
+        type: from_entity
+actions:
+  - action_aaa
+  - action_get_help`);
         });
     });
 }

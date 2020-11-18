@@ -36,6 +36,7 @@ export const validDomainFr = {
     rawText:
     `actions:
     - action_aaa
+    - action_get_help
     - utter_cgMeFnuj5
     - utter_uCag8LL6z
     - utter_J5MMvow26
@@ -73,6 +74,8 @@ forms:
 export const validDomainParsed = {
     actions: [
         'action_aaa',
+        'action_get_help',
+
     ],
     responses: [
         {
