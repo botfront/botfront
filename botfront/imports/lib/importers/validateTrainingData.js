@@ -696,12 +696,13 @@ export class TrainingDataValidator {
                     this.incrementFragmentsForGroup(metadata.group, 'stories');
                     const resolvedCheckpoints = [];
                     checkpoints.forEach((c) => {
-                        const link = this.links.find(l => l.name === c) || {};
-                        if (!link.value) {
-                            rehydrated[index].warnings.push({
-                                text: `Story '${title}' refers to a checkpoint '${c}', but no origin counterpart was found.`,
-                            });
-                        } else resolvedCheckpoints.push(link.value);
+                        (this.links.filter(l => l.name === c) || [{}]).forEach((link) => {
+                            if (!link.value) {
+                                rehydrated[index].warnings.push({
+                                    text: `Story '${title}' refers to a checkpoint '${c}', but no origin counterpart was found.`,
+                                });
+                            } else resolvedCheckpoints.push(link.value);
+                        });
                     });
                     rehydrated[index].stories[
                         storyIndex
