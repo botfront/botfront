@@ -36,26 +36,6 @@ jobs:
         working-directory: ./cli
         run: npm run test
 
-  unit-api:
-    runs-on: ubuntu-latest
-    # if: contains(github.event.head_commit.modified, 'api/')
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '10.x'
-      - uses: actions/cache@v1
-        id: cache
-        with:
-          path: ./api/node_modules
-          key: api-${{ hashFiles('**/package-lock.json') }}
-      - working-directory: ./api
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: npm ci
-      - name: tests
-        working-directory: ./api
-        run: npm run test
-
   unit-bf:
     runs-on: ubuntu-latest
     steps:
@@ -80,21 +60,6 @@ jobs:
     - name: mocha tests
       working-directory: ./botfront
       run: npm run test-once
-
-  build-api:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - name: build api image
-        run: |
-          docker build \
-          -t botfront-api-local \
-          ./api
-      - run: docker save botfront-api-local $(docker history -q botfront-api-local | awk '!/<missing>/{print}') > botfront-api-local.tar
-      - uses: actions/upload-artifact@v1
-        with:
-          name: botfront-api-local
-          path: botfront-api-local.tar
 
   build-bf: # to do: run meteor build in previous step and build from simplified dockerfile
     runs-on: ubuntu-latest
@@ -132,18 +97,12 @@ jobs:
 
   integration:
     runs-on: ubuntu-latest
-    needs: [build-api, build-bf]
+    needs: [build-bf]
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/download-artifact@v1
-        with:
-          name: botfront-api-local
-          path: .
       - uses: actions/download-artifact@v1
         with:
           name: botfront-local
           path: .
-      - run: docker load < botfront-api-local.tar
       - run: docker load < botfront-local.tar
       - name: get versions
         id: versions
@@ -166,35 +125,6 @@ jobs:
         with:
           name: screenshots
           path: ./botfront/cypress/screenshots
-
-  push-api:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && (contains(github.ref, 'master') || contains(github.ref, 'tags'))
-    needs: [unit-api, build-api, integration]
-    steps:
-      - name: log in
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-      - name: download image
-        uses: actions/download-artifact@v1
-        with:
-          name: botfront-api-local
-          path: .
-      - run: docker load < botfront-api-local.tar
-      - name: push image
-        run: |
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          # Add branch- prefix for branch pushes
-          [[ "${{ github.ref }}" == "refs/heads/"* ]] && VERSION=branch-$VERSION
-          echo VERSION=$VERSION
-          docker tag botfront-api-local botfront/botfront-api:$VERSION
-          docker push botfront/botfront-api:$VERSION
-      - run: touch empty
-      - name: overwrite api artifact with empty file
-        uses: actions/upload-artifact@v1
-        with:
-          name: botfront-api-local
-          path: empty
 
   push-bf:
     runs-on: ubuntu-latest

@@ -17,6 +17,6 @@
         "RASA_URL": "http://localhost:5005",
         "VIDEO": "false",
         "SCREENSHOTS": "true",
-        "RETRIES": 2
+        "RETRIES": 0
     }
 }
