@@ -17,8 +17,8 @@ Meteor.methods({
         let result;
         const storyGroups = {};
         if (Array.isArray(story)) {
-            if (story.some(s => s.projectId !== projectId)) throw new Error(); // ensure homegeneous set
             const stories = story.map((s) => {
+                if (s.projectId !== projectId) throw new Error(); // ensure homegeneous set
                 const _id = s._id || uuidv4();
                 storyGroups[s.storyGroupId] = [...(storyGroups[s.storyGroupId] || []), _id];
                 return {

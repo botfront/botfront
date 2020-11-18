@@ -22,6 +22,7 @@ import { useFileReader } from './fileReaders';
 import { ProjectContext } from '../../layouts/context';
 import { unZipFile } from '../../../lib/importers/common';
 import { importFilesMutation } from './graphql';
+import { tooltipWrapper } from '../utils/Utils';
 
 const ImportRasaFiles = () => {
     const { projectLanguages, project: { _id: projectId }, language } = useContext(ProjectContext);
@@ -29,7 +30,9 @@ const ImportRasaFiles = () => {
     const [fallbackImportLanguage, setFallbackImportLanguage] = useState();
     const [importResults, setImportResults] = useState([]);
     useEffect(() => setFallbackImportLanguage(language), [language]);
-    const [wipeCurrent, setWipeCurrent] = useState(false);
+    const [wipeInvolvedCollections, setwipeInvolvedCollections] = useState(false);
+    const [wipeProject, setWipeProject] = useState(false);
+
     const [importSummary, setImportSummary] = useState([]);
 
     const [filesImporting, setFilesImporting] = useState(false);
@@ -50,7 +53,8 @@ const ImportRasaFiles = () => {
                 projectId,
                 files: filesToSend,
                 onlyValidate: true,
-                wipeCurrent,
+                wipeInvolvedCollections,
+                wipeProject,
                 fallbackLang: fallbackImportLanguage,
             },
         });
@@ -75,7 +79,8 @@ const ImportRasaFiles = () => {
             variables: {
                 projectId,
                 files: filesToImport,
-                wipeCurrent,
+                wipeInvolvedCollections,
+                wipeProject,
                 fallbackLang: fallbackImportLanguage,
             },
         });
@@ -206,7 +211,7 @@ const ImportRasaFiles = () => {
     const [fileList, setFileList] = fileReader;
     const [{ canDrop, isOver }, drop] = useFileDrop(fileReader);
     const fileField = useRef();
-    useEffect(() => setFileList({ reload: true }), [wipeCurrent, fallbackImportLanguage]);
+    useEffect(() => setFileList({ reload: true }), [wipeInvolvedCollections, fallbackImportLanguage]);
 
     const renderImportSection = () => (
         <Segment
@@ -329,14 +334,22 @@ const ImportRasaFiles = () => {
                     onChange={(_e, { value }) => setFallbackImportLanguage(value)}
                 />
             </div>
-            <div className='side-by-side right'>
-                <Checkbox
+            <div className='wipes side-by-side left'>
+                {tooltipWrapper(<Checkbox
                     toggle
-                    checked={wipeCurrent}
-                    onChange={() => setWipeCurrent(!wipeCurrent)}
-                    label='Delete existing data first'
+                    checked={wipeInvolvedCollections}
+                    onChange={() => setwipeInvolvedCollections(!wipeInvolvedCollections)}
+                    label='Delete existing data'
                     data-cy='wipe-data'
-                />
+                />, `This will clear the existing data for the type of data you are importing.
+                e.g : importing stories with this switch on will remove the previous stories, but keep everything else, NLU, responses, etc`)}
+                {tooltipWrapper(<Checkbox
+                    toggle
+                    checked={wipeProject}
+                    onChange={() => setWipeProject(!wipeInvolvedCollections)}
+                    label='Reset complete project'
+                    data-cy='wipe-project'
+                />, 'this will remove ALL project\'s data - including conversations - before importing')}
             </div>
         </Segment>
     );

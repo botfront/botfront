@@ -1,5 +1,4 @@
 import yaml from 'js-yaml';
-import { Projects } from '../../api/project/project.collection';
 
 export const validateARasaConfig = (file, fallbackLang) => {
     let { pipeline, language, policies } = {};
@@ -38,8 +37,8 @@ const langSummary = (rasaConfigFile, projectLangs) => {
     return `Pipeline for new language model '${rasaConfigFile.language}' will be imported from ${rasaConfigFile.filename}.`;
 };
 
-const validateRasaConfigTogether = (files, projectId) => {
-    const languagesFromProject = new Set(Projects.findOne({ _id: projectId }).languages);
+const validateRasaConfigTogether = (files, projectLanguages) => {
+    const languagesFromProject = new Set(projectLanguages);
     const languagesFromFiles = new Set();
     const summary = [];
     let policiesFoundIn = '';
@@ -76,21 +75,20 @@ const validateRasaConfigTogether = (files, projectId) => {
             warnings: [...(warnings || []), ...newWarnings],
         };
     });
-    const projectLanguages = Array.from(new Set([...languagesFromProject, ...languagesFromFiles]));
-    return [configFiles, summary, projectLanguages];
+    return [configFiles, summary, Array.from(new Set([...languagesFromProject, ...languagesFromFiles]))];
 };
 
 export const validateRasaConfig = (files, params) => {
-    const { projectId, fallbackLang } = params;
+    const { fallbackLang } = params;
     let summary = [];
-    let projectLanguages = [];
+    let { projectLanguages } = params;
 
     let rasaConfigFiles = files.filter(f => f?.dataType === 'rasaconfig');
 
     rasaConfigFiles = rasaConfigFiles.map(rasaConfigFile => validateARasaConfig(rasaConfigFile, fallbackLang));
     [rasaConfigFiles, summary, projectLanguages] = validateRasaConfigTogether(
         rasaConfigFiles,
-        projectId,
+        projectLanguages,
     );
 
     const newFiles = files.map((file) => {

@@ -1,5 +1,6 @@
 import { determineDataType } from '../../../lib/importers/common';
 import { StoryGroups } from '../../storyGroups/storyGroups.collection';
+import { Projects } from '../../project/project.collection';
 import {
     validateEndpoints,
     validateCredentials,
@@ -40,7 +41,6 @@ export async function getRawTextAndType(files) {
                     errors: [{ text: 'File is not parseable text.' }],
                 };
             }
-
             return {
                 file,
                 filename,
@@ -61,15 +61,16 @@ export async function validateFiles(files, params) {
     [filesWithMessages, newParams] = validateDefaultDomains(filesWithMessages, newParams);
     [filesWithMessages, newParams] = validateRasaConfig(filesWithMessages, newParams);
     [filesWithMessages, newParams] = validateBfConfig(filesWithMessages, newParams);
+    [filesWithMessages, newParams] = await validateTrainingData(
+        filesWithMessages,
+        newParams,
+    );
     [filesWithMessages, newParams] = validateEndpoints(filesWithMessages, newParams);
     [filesWithMessages, newParams] = validateCredentials(filesWithMessages, newParams);
     [filesWithMessages, newParams] = validateDomain(filesWithMessages, newParams);
     [filesWithMessages, newParams] = validateConversations(filesWithMessages, newParams);
     [filesWithMessages, newParams] = validateIncoming(filesWithMessages, newParams);
-    [filesWithMessages, newParams] = await validateTrainingData(
-        filesWithMessages,
-        newParams,
-    );
+  
 
     return [filesWithMessages, newParams];
 }
@@ -115,21 +116,37 @@ export async function importSteps({
     projectId,
     files,
     onlyValidate,
-    wipeCurrent,
-    fallbackLang,
+    wipeInvolvedCollections,
+    wipeProject,
+    fallbackLang: providedFallbackLanguage,
 }) {
-    const existingStoryGroups = wipeCurrent
-        ? []
-        : StoryGroups.find({ projectId }, { fields: { name: 1, _id: 1 } }).fetch();
-    const filesAndValidationData = await readAndValidate(files, {
+    const existingStoryGroups = StoryGroups.find(
+        { projectId },
+        { fields: { name: 1, _id: 1 } },
+    ).fetch();
+    const { languages: projectLanguages, defaultLanguage } = Projects.findOne(
+        { _id: projectId },
+        { fields: { languages: 1, defaultLanguage: 1 } },
+    );
+    const fallbackLang = projectLanguages.includes(providedFallbackLanguage)
+        ? providedFallbackLanguage
+        : defaultLanguage;
+
+    const params = {
         onlyValidate,
         projectId,
         existingStoryGroups,
-        wipeCurrent,
+        wipeInvolvedCollections,
         fallbackLang,
-    });
-    if (onlyValidate || hasErrors(filesAndValidationData.fileMessages)) { return filesAndValidationData; }
-    const { fileMessages: filesToImport, params } = filesAndValidationData;
-    const importResult = await handleImportAll(filesToImport, params);
+        wipeProject,
+        projectLanguages,
+    };
+    const filesAndValidationData = await readAndValidate(files, params);
+
+    if (onlyValidate || hasErrors(filesAndValidationData.fileMessages)) {
+        return filesAndValidationData;
+    }
+    const { fileMessages: filesToImport, params: newParams } = filesAndValidationData;
+    const importResult = await handleImportAll(filesToImport, newParams);
     return { summary: importResult.map(text => ({ text })) };
 }

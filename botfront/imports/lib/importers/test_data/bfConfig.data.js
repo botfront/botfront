@@ -5,8 +5,7 @@ export const validBfConfig = {
 defaultLanguage: en
 languages:
       - en
-storyGroups:
-      - taFAX533Ch9s72oAL
+
 instance:
       _id: BWRbPAQEYiH5AddHW
       name: Default Instance
@@ -27,8 +26,4 @@ export const validBfConfigParsed = {
         'en',
     ],
     name: 'My Projectaa',
-    storyGroups: [
-        'taFAX533Ch9s72oAL',
-    ],
-       
 };

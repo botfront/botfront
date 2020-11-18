@@ -4,6 +4,8 @@ import { Projects } from '../../api/project/project.collection';
 
 const INTERNAL_SLOTS = ['bf_forms', 'fallback_language'];
 
+const onlyValidFiles = files => files.filter(file => !(file.errors && file.errors.length > 0));
+
 const deduplicate = (listOfObjects, key) => {
     const seen = new Set();
     return listOfObjects.filter((obj) => {
@@ -14,6 +16,37 @@ const deduplicate = (listOfObjects, key) => {
         seen.add(value);
         return true;
     });
+};
+
+// deduplicate response and merge them by lang
+export const deduplicateAndMergeResponses = (listOfResponse) => {
+    // for a said key, seen will store supported lang and where the response is in the final array
+    // eg. { utter_test: { langs :['en','fr'], index: 2 }};
+    const seen = {};
+    return listOfResponse.reduce((all, resp) => {
+        const { key } = resp;
+        const respSeen = seen[key];
+        if (respSeen) { // the reponse was already added
+            const insertIndex = respSeen.index;
+            // we filter out lang already supported for a said key
+            const langToAdd = resp.values.filter(val => (
+                !respSeen.langs.includes(val.lang)));
+            // add newly supported lang to the seen ones
+            const newLangs = langToAdd.map(val => val.lang);
+            seen[key] = { langs: [...respSeen.langs, ...newLangs], index: insertIndex };
+            // update the final array
+            const updatedResp = all[insertIndex];
+            updatedResp.values.push(...langToAdd);
+            return [...all.slice(0, insertIndex), updatedResp, ...all.slice(insertIndex + 1)];
+        }
+        // it's the first time we see this response
+        // list all lang supported
+        const langs = resp.values.map(val => val.lang);
+        //  add those to the seen, as well as the index
+        seen[key] = { langs, index: all.length };
+        // add the response
+        return [...all, resp];
+    }, []);
 };
 
 
@@ -30,16 +63,27 @@ const deduplicateArray = (array) => {
 
 export const mergeDomains = (files) => {
     const filesToProcess = files.filter(file => !(file.errors && file.errors.length > 0));
-    if (!filesToProcess.length) return [];
+    if (!filesToProcess.length) {
+        return {
+            slots: [],
+            responses: [],
+            forms: [],
+            actions: [],
+        };
+    }
 
     const allResponses = filesToProcess.reduce(
-        (all, { responses = [] }) => [...responses, ...all],
+        (all, { responses = [] }) => [...all, ...responses],
         [],
     );
-    const allSlots = filesToProcess.reduce((all, { slots = {} }) => [...slots, ...all], []);
+    // the order of merging is important
+    // for arrays [...all, ...slots] => will keep the first one during deduplication
+    // for obj { ...forms, ...all } => the first one found erase the new one
+
+    const allSlots = filesToProcess.reduce((all, { slots = {} }) => [...all, ...slots], []);
     const allForms = filesToProcess.reduce((all, { forms = {} }) => ({ ...forms, ...all }), {});
     const allAction = filesToProcess.reduce((all, { actions = [] }) => [...all, ...actions], []);
-    const mergedResponses = deduplicate(allResponses, 'key');
+    const mergedResponses = deduplicateAndMergeResponses(allResponses);
     const mergedSlots = deduplicate(allSlots, 'name');
     const mergedActions = deduplicateArray(allAction);
     return {
@@ -52,13 +96,39 @@ export const mergeDomains = (files) => {
 
 
 export const mergeDomainsRasaFormat = (files) => {
-    const filesToProcess = files.filter(file => !(file.errors && file.errors.length > 0));
-    if (!filesToProcess.length) return [];
-    const allResponses = filesToProcess.reduce((all, { responses = {} }) => ({ ...responses, ...all }), {});
-    const allSlots = filesToProcess.reduce((all, { slots = {} }) => ({ ...all, ...slots }), {});
+    const filesToProcess = onlyValidFiles(files);
+    if (!filesToProcess.length) {
+        return {
+            slots: [],
+            responses: [],
+            forms: [],
+            actions: [],
+        };
+    }
+    // the order of merging is important
+    // for arrays [...all, ...slots] => will keep the first one during deduplication
+    // for obj { ...forms, ...all } => the first one found erase the new one
+
+    const allResponses = filesToProcess.reduce((all, { responses = {} }) => {
+        let toInsert = {};
+        Object.keys(responses).forEach((respKey) => {
+            const currentResp = responses[respKey];
+            if (all[respKey]) {
+                const existingResps = all[respKey];
+                // the existing one are put in first so during deduplication they will be kept
+                const newResp = deduplicate([...existingResps, ...currentResp], 'lang');
+                toInsert = { ...toInsert, [respKey]: newResp };
+            } else {
+                toInsert = { ...toInsert, [respKey]: currentResp };
+            }
+        });
+        // "toInsert" is after "all", because "toInsert" might contain an updated version of a respone in "all"
+        return { ...all, ...toInsert };
+    }, {});
+    const allSlots = filesToProcess.reduce((all, { slots = {} }) => ({ ...slots, ...all }), {});
     const allForms = filesToProcess.reduce((all, { forms = {} }) => ({ ...forms, ...all }), {});
     const allAction = filesToProcess.reduce((all, { actions = [] }) => [...all, ...actions], []);
-    const mergedActions = deduplicateArray(allAction); // we are not using a set to deduplicate to keep the order
+    const mergedActions = deduplicateArray(allAction); // we are not using a set to deduplicate to keep the order of the actions
     return {
         slots: allSlots,
         responses: allResponses,
@@ -69,7 +139,9 @@ export const mergeDomainsRasaFormat = (files) => {
 
 const validateADomain = (
     file,
-    { defaultDomain = {}, projectLanguages = [], fallbackLang },
+    {
+        defaultDomain = {}, projectLanguages = [], actionsFromFragments = [], fallbackLang,
+    },
     // we validate domain and default domain with the same function
     // isDefaultDomain allow us to get the domain in rasaformat
     // and also trigget specific warning linked with default domain
@@ -163,7 +235,7 @@ const validateADomain = (
     });
     if (Object.keys(newLangsResponses).length > 0) {
         Object.keys(newLangsResponses).forEach((lang) => {
-            warnings.push({ text: `those reponses will add the support for the language ${lang} :` }, { longText: newLangsResponses[lang].join(', ') });
+            warnings.push({ text: `those reponses will add the support for the language ${lang} :`, longText: newLangsResponses[lang].join(', ') });
         });
     }
     
@@ -187,12 +259,20 @@ const validateADomain = (
         );
     }
 
-    const actionsWithoutResponses = actionsFromFile.filter(action => (/^action_/.test(action)));
+    const actionsWithoutResponses = actionsFromFile.filter(action => !(/^utter_/.test(action)));
+    const actionNotInFragments = actionsWithoutResponses.filter(action => !actionsFromFragments.includes(action));
+
+    if (actionNotInFragments && actionNotInFragments.length > 0 && !isDefaultDomain) {
+        warnings.push({
+            text: 'Some actions defined in this file will be added to the default domain on import',
+            longText: 'the actions that will be added to the default domain are the one that are in this file and not used directly by the rules or stories',
+        });
+    }
     const newDomain = {
         slots: isDefaultDomain ? slotsFromFile : slots,
         bfForms,
         responses: isDefaultDomain ? responsesRasaFormat : responses,
-        actions: actionsWithoutResponses,
+        actions: isDefaultDomain ? actionsWithoutResponses : actionNotInFragments,
         forms: formsFromFile,
     };
 
@@ -230,18 +310,19 @@ export const validateDefaultDomains = (files, params) => {
         });
     }
 
+    const defaultDomainValidFiles = onlyValidFiles(defaultDomainFiles);
 
-    if (defaultDomainFiles.length === 0) {
+    if (defaultDomainValidFiles.length === 0) {
         defaultDomain = safeLoad(
             Projects.findOne({ _id: projectId }).defaultDomain.content,
         );
     } else {
-        defaultDomain = mergeDomainsRasaFormat(defaultDomainFiles);
+        defaultDomain = mergeDomainsRasaFormat(defaultDomainValidFiles);
     }
     const newSummary = params.summary;
 
-    if (defaultDomainFiles.length > 0) {
-        const nameList = defaultDomainFiles.filter(file => !(file.errors && file.errors.length > 0)).map(file => file.filename).join(', ');
+    if (defaultDomainValidFiles.length > 0) {
+        const nameList = defaultDomainValidFiles.map(file => file.filename).join(', ');
         newSummary.push(`You will remplace the default domain by ${nameList}`);
     }
     const newFiles = files.map((file) => {
@@ -279,9 +360,9 @@ export const validateDomain = (files, params) => {
    
     const newSummary = params.summary;
     let newLanguages = params.projectLanguages;
-
-    if (domainFiles.length > 0) {
-        const newLangs = domainFiles.reduce((all, file) => [...file.newLanguages, ...all], []);
+    const validDomainFiles = domainFiles.filter(file => !(file.errors && file.errors.length > 0));
+    if (validDomainFiles.length > 0) {
+        const newLangs = domainFiles.reduce((all, file) => [...(file.newLanguages || []), ...all], []);
         const merged = mergeDomains(domainFiles);
         const nameList = domainFiles.map(file => file.filename).join(', ');
         const slotsLen = merged.slots.length;
@@ -292,7 +373,7 @@ export const validateDomain = (files, params) => {
         if (slotsLen > 0) tempSummary.push(`${slotsLen} slots`);
         if (responsesLen > 0) tempSummary.push(`${responsesLen} responses`);
         if (formsLen > 0) tempSummary.push(`${formsLen} forms`);
-        if (actionsLen > 0) tempSummary.push(`${actionsLen} actions`);
+        if (actionsLen > 0) tempSummary.push(`${actionsLen} actions to the default domain`);
         newSummary.push(`From ${nameList} you will add: ${tempSummary.join(', ')}`);
         newLanguages = Array.from(new Set([...params.projectLanguages, ...newLangs]));
     }

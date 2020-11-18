@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { assert, expect } from 'chai';
+import { expect } from 'chai';
 import { Projects } from '../../api/project/project.collection';
 import { Instances } from '../../api/instances/instances.collection';
 
@@ -8,6 +8,11 @@ import { multipleFiles } from './test_data/multipleFiles.data';
 import { validateFiles } from '../../api/graphql/project/import.utils.js';
 
 
+export function clearIdField(object) {
+    const omitTypename = (key, value) => (key === '_id' ? undefined : value);
+    const cleanedObject = JSON.parse(JSON.stringify(object), omitTypename);
+    return cleanedObject;
+}
 const projectId = 'bf';
 
 
@@ -25,8 +30,7 @@ const instance = {
     host: 'http://localhost:1234',
     projectId: 'bf',
 };
-
-if (false) {
+if (Meteor.isServer) {
     describe('validation pipeline with single files', () => {
         before(async(done) => {
             await Projects.insert(project);
@@ -72,23 +76,11 @@ if (false) {
             } = test;
             it(name, (done) => {
                 validateFiles(files, params).then(([newFiles, newParams]) => {
-                    expect(newFiles).to.eql(expectedFiles);
-                    expect(newParams).to.eql(expectedParams);
+                    expect(clearIdField(newFiles)).to.eql(clearIdField(expectedFiles));
+                    expect(clearIdField(newParams)).to.eql(clearIdField(expectedParams));
                     done();
                 }).catch(done);
             });
         });
     });
-    // describe('validation pipeline with bad files', () => {
-    //     testDataFiles.forEach((test) => {
-    //         const {
-    //             name, files, params, expectedFiles, expectedParams,
-    //         } = test;
-    //         it(name, () => {
-    //             const [newFiles, newParams] = validateFiles(files, params);
-    //             expect(newFiles).to.equal(expectedFiles);
-    //             expect(newParams).to.equal(expectedParams);
-    //         });
-    //     });
-    // });
 }

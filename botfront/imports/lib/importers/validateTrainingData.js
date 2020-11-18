@@ -5,6 +5,8 @@ import shortid from 'shortid';
 import axios from 'axios';
 import { languages as LANGUAGES, langFromCode } from '../languages';
 import { DialogueFragmentValidator } from '../dialogue_fragment_validator';
+import { extractDomain, addCheckpoints } from '../story.utils';
+import { Stories } from '../../api/story/stories.collection';
 
 const NLU_ENGLISH_MAPPINGS = {
     common_examples: 'example',
@@ -34,7 +36,7 @@ const NLU_HEADERS_IN_MD = [
     '## gazette:',
 ];
 const NLU_LINES = new RegExp(`(?:${NLU_HEADERS_IN_MD.join('|')})`, 'm');
-const axiosClient = axios.create();
+export const axiosClient = axios.create();
 
 export class TrainingDataValidator {
     constructor({
@@ -42,18 +44,22 @@ export class TrainingDataValidator {
         fallbackLang,
         projectLanguages,
         existingStoryGroups = [],
-        wipeCurrent,
+        wipeInvolvedCollections,
+        wipeProject,
         summary,
+        projectId,
         ...rest
     }) {
-        this.wipeCurrent = wipeCurrent;
+        this.wipeInvolvedCollections = wipeInvolvedCollections;
+        this.wipeProject = wipeProject;
         this.instanceHost = instanceHost;
         this.fallbackLang = fallbackLang;
-        this.projectLanguagesBefore = projectLanguages;
+        this.projectLanguagesBefore = [...projectLanguages];
         this.projectLanguages = projectLanguages;
         this.existingStoryGroups = existingStoryGroups;
         this.summary = summary;
         this.unUsedParams = rest;
+        this.projectId = projectId;
         // various state variables to count, deduplicate and validate
         this.existingFragments = {};
         this.existingNlu = {};
@@ -88,6 +94,7 @@ export class TrainingDataValidator {
     };
 
     getNonConflictingGroupName = (name) => {
+        if (this.wipeInvolvedCollections || this.wipeFragments) return name;
         let newName = name;
         if (name in this.groupNameMappings) {
             return this.groupNameMappings[name];
@@ -128,13 +135,15 @@ export class TrainingDataValidator {
             : noun
     }`;
 
-    convertNluToJson = (rawText, extension) => Meteor.callWithPromise(
-        'rasa.convertToJson',
-        rawText,
-        'en',
-        extension,
-        this.instanceHost,
-    );
+    convertNluToJson = async (rawText, extension) => {
+        const { data } = await axiosClient.post(`${this.instanceHost}/data/convert/nlu`, {
+            data: rawText,
+            input_format: extension,
+            output_format: 'json',
+            language: 'en',
+        });
+        return data;
+    };
 
     static isNluEmpty = ({
         common_examples = [],
@@ -195,9 +204,8 @@ export class TrainingDataValidator {
     };
 
     loadFromYaml = async (file) => {
-        let {
-            stories, rules, nlu, errors,
-        } = {};
+        let { stories, rules, nlu } = file;
+        const { errors = [], warnings = [] } = file;
         try {
             ({ nlu, stories, rules } = safeLoad(file.rawText));
             if (!nlu && !stories && !rules) throw new Error();
@@ -205,9 +213,17 @@ export class TrainingDataValidator {
             return false;
         }
         try {
-            nlu = nlu ? await this.getNluFromFile(safeDump({ nlu }), 'yaml') : {};
+            // Since nlu examples are actually serialized as Md and not as YAML lists, we
+            // use the original text for maximum fidelity
+            const nluSection = file.rawText
+                .split(/(?<=(^|\n))(?=[a-z]+:)/)
+                .find(el => el.startsWith('nlu:\n'));
+            nlu = nlu ? await this.getNluFromFile(nluSection, 'yaml') : {};
         } catch (error) {
-            errors = [error.message];
+            nlu = {};
+            if (stories || rules) {
+                warnings.push(`NLU data dropped: ${error.message}`);
+            } else errors.push(error.message);
         }
         return {
             ...this.formatRulesAndStoriesFromLoadedYaml(
@@ -216,6 +232,7 @@ export class TrainingDataValidator {
             ),
             nlu,
             errors,
+            warnings,
         };
     };
 
@@ -238,12 +255,14 @@ export class TrainingDataValidator {
         const canonicalText = TrainingDataValidator.getCanonicalFromMdNluFile(
             file.rawText,
         );
+        const text = file.rawText.substring(file.rawText.search(/\n+##/) + 1);
         try {
-            const nlu = await this.getNluFromFile(file.rawText, 'md', {
-                language,
-                canonicalText,
-            });
-            return nlu;
+            return {
+                nlu: await this.getNluFromFile(text, 'md', {
+                    language,
+                    canonicalText,
+                }),
+            };
         } catch (error) {
             return { errors: [error.message] };
         }
@@ -314,7 +333,7 @@ export class TrainingDataValidator {
     };
 
     loadFromMd = async (file) => {
-        if (file.rawText.match(NLU_LINES)) return { nlu: await this.loadNluFromMd(file) };
+        if (file.rawText.match(NLU_LINES)) return this.loadNluFromMd(file);
         return this.loadStoriesFromMd(file);
     };
 
@@ -538,13 +557,23 @@ export class TrainingDataValidator {
     };
 
     addWipingWarnings = () => {
-        this.wipeNluData = Object.keys(this.existingNlu).filter(l => this.wipeCurrent && this.projectLanguagesBefore.includes(l));
-        this.wipeFragments = this.wipeCurrent && !!Object.keys(this.existingFragments).length;
+        // commented line is to delete only data for languages that are being imported,
+        // for now we delete all data for preexisting languages
+        // this.wipeNluData = Object.keys(this.existingNlu).filter(l => this.wipeInvolvedCollections && this.projectLanguagesBefore.includes(l));
+        this.wipeNluData = !this.wipeProject
+            && this.wipeInvolvedCollections
+            && !!Object.keys(this.existingNlu).length
+            ? this.projectLanguagesBefore
+            : [];
+        this.wipeFragments = !this.wipeProject
+            && this.wipeInvolvedCollections
+            && !!Object.keys(this.existingFragments).length;
         if (this.wipeNluData.length) {
             this.summary.push({
                 text: `ALL EXISTING NLU DATA for ${this.wipeNluData
                     .map(langFromCode)
-                    .join(', ')} will be deleted.`,
+                    .join(', ')
+                    .toUpperCase()} will be deleted.`,
             });
         }
         if (this.wipeFragments) {
@@ -589,7 +618,7 @@ export class TrainingDataValidator {
                 : []),
         ];
         this.summary.push({
-            text: `Group '${group}' will be created with ${nByType}.`,
+            text: `Group '${group}' will be created with ${nByType.join(' and ')}.`,
         });
     });
 
@@ -616,7 +645,9 @@ export class TrainingDataValidator {
     };
 
     rehydrateStories = (files) => {
-        const stories = files.reduce((acc, f) => [...acc, ...(f.stories || [])], []);
+        const stories = files
+            .filter(f => !f.errors?.length)
+            .reduce((acc, f) => [...acc, ...(f.stories || [])], []);
         const rehydrated = files.map(f => ({ ...f, stories: [] }));
 
         const output = { '': [] };
@@ -676,12 +707,15 @@ export class TrainingDataValidator {
                     this.incrementFragmentsForGroup(metadata.group, 'stories');
                     const resolvedCheckpoints = [];
                     checkpoints.forEach((c) => {
-                        const link = this.links.find(l => l.name === c) || {};
-                        if (!link.value) {
-                            rehydrated[index].warnings.push({
-                                text: `Story '${title}' refers to a checkpoint '${c}', but no origin counterpart was found.`,
-                            });
-                        } else resolvedCheckpoints.push(link.value);
+                        (this.links.filter(l => l.name === c) || [{}]).forEach(
+                            (link) => {
+                                if (!link.value) {
+                                    rehydrated[index].warnings.push({
+                                        text: `Story '${title}' refers to a checkpoint '${c}', but no origin counterpart was found.`,
+                                    });
+                                } else resolvedCheckpoints.push(link.value);
+                            },
+                        );
                     });
                     rehydrated[index].stories[
                         storyIndex
@@ -692,7 +726,20 @@ export class TrainingDataValidator {
         return rehydrated;
     };
 
+    extractDomainFromDB = async (projectId) => {
+        const allFragments = await Stories.find({
+            projectId,
+        }).fetch();
+        const fragmentsWithCheckpoints = addCheckpoints(allFragments);
+        const domain = extractDomain({
+            fragments: fragmentsWithCheckpoints,
+        });
+        return domain;
+    }
+
     validateTrainingData = async (files) => {
+        // to do: batch it in chunks
+        const allAction = [];
         let trainingDataFiles = await Promise.all(
             files.filter(f => f?.dataType === 'training_data').map(this.loadFile),
         );
@@ -727,6 +774,9 @@ export class TrainingDataValidator {
                 }
                 ['entity_synonyms', 'regex_features', 'fuzzy_gazette'].forEach(key => this.validateGenericNluData(nlu, key));
             }
+            allAction.push(...extractDomain({ fragments: stories }).actions);
+            allAction.push(...extractDomain({ fragments: rules }).actions);
+
             return {
                 ...file,
                 nlu,
@@ -736,12 +786,15 @@ export class TrainingDataValidator {
                 warnings,
             };
         });
-
         trainingDataFiles = this.rehydrateStories(trainingDataFiles);
         this.addWipingWarnings();
         this.addGlobalNluSummaryLines();
         this.addGlobalCoreSummaryLines();
 
+        if (trainingDataFiles.length === 0 && !(this.wipeInvolvedCollections || this.wipeProject)) {
+            allAction.push(...(await this.extractDomainFromDB(this.projectId)).actions);
+        }
+        const actionsFromFragments = Array.from(new Set(allAction.filter(action => !/^utter_/.test(action))));
         return [
             files.map((file) => {
                 if (file?.dataType !== 'training_data') return file;
@@ -749,7 +802,8 @@ export class TrainingDataValidator {
             }),
             {
                 ...this.unUsedParams,
-                wipeCurrent: this.wipeCurrent,
+                wipeInvolvedCollections: this.wipeInvolvedCollections,
+                wipeProject: this.wipeProject,
                 wipeNluData: this.wipeNluData,
                 wipeFragments: this.wipeFragments,
                 instanceHost: this.instanceHost,
@@ -757,6 +811,9 @@ export class TrainingDataValidator {
                 projectLanguages: this.projectLanguages,
                 existingStoryGroups: this.existingStoryGroups,
                 summary: this.summary,
+                projectId: this.projectId,
+                actionsFromFragments,
+
             },
         ];
     };

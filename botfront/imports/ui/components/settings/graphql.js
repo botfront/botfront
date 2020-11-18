@@ -6,14 +6,14 @@ mutation (
     $projectId: String!
     $files: [Upload]!
     $onlyValidate: Boolean
-    $wipeCurrent: Boolean
+    $wipeInvolvedCollections: Boolean
     $fallbackLang: String!
 ) {
     import(
         projectId: $projectId
         files: $files
         onlyValidate: $onlyValidate
-        wipeCurrent: $wipeCurrent
+        wipeInvolvedCollections: $wipeInvolvedCollections
         fallbackLang: $fallbackLang
     ) {
         fileMessages {

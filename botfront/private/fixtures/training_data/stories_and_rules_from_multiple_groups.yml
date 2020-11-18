@@ -1,0 +1,23 @@
+version: "2.0"
+stories:
+- story: Story1
+  steps:
+  - intent: intent1
+  - action: utter_nothing
+  metadata:
+    group: group1
+- story: Story2
+  steps:
+  - intent: intent1
+  - action: utter_something
+  metadata:
+    group: stock group
+rules:
+- rule: Rule1
+  condition:
+  - active_loop: loopy
+  steps:
+  - intent: intent1
+  - action: utter_it_fast
+  metadata:
+    group: group1

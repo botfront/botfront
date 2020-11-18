@@ -285,19 +285,19 @@ Cypress.Commands.add('getWindowMethod', (methodName) => {
     }));
 });
 
-Cypress.Commands.add('import', (projectId = 'bf', fixture, fallbackLang = 'en', wipeCurrent = false) => {
+Cypress.Commands.add('import', (projectId = 'bf', fixture, fallbackLang = 'en', wipeInvolvedCollections = false) => {
     cy.fixture(fixture, 'utf8').then((loadedFixture) => {
         let file = typeof loadedFixture === 'string' ? loadedFixture : JSON.stringify(loadedFixture);
         file = new File([file], fixture);
         file.filename = fixture;
         cy.graphQlQuery(
-            `mutation import($projectId: String!, $files: [Upload]!, $wipeCurrent: Boolean = false, $fallbackLang: String!) {
-                import(projectId: $projectId, files: $files, wipeCurrent: $wipeCurrent, fallbackLang: $fallbackLang) {  
+            `mutation import($projectId: String!, $files: [Upload]!, $wipeInvolvedCollections: Boolean = false, $fallbackLang: String!) {
+                import(projectId: $projectId, files: $files, wipeInvolvedCollections: $wipeInvolvedCollections, fallbackLang: $fallbackLang) {  
                     summary { text, longText }
                 }
             }`,
             {
-                projectId, fallbackLang, wipeCurrent, files: [file],
+                projectId, fallbackLang, wipeInvolvedCollections, files: [file],
             },
         );
     });

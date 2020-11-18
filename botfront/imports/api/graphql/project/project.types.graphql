@@ -4,7 +4,8 @@ type Mutation {
         projectId: String!
         files: [Upload]!
         onlyValidate: Boolean
-        wipeCurrent: Boolean = False
+        wipeInvolvedCollections: Boolean = False
+        wipeProject: Boolean = False
         fallbackLang: String!
     ): ImportReport
 }
