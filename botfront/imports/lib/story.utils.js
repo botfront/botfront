@@ -42,7 +42,10 @@ export const storyReducer = (input, priorPath = '', priorGroupId = '') => input.
     return {
         ...acc,
         [path]: {
-            ...rest, _id, storyGroupId, branches,
+            ...rest,
+            _id,
+            storyGroupId,
+            branches,
         },
         ...storyReducer(branches, path, storyGroupId),
     };
@@ -56,10 +59,15 @@ export const addCheckpoints = (fragments) => {
         const checkpoints = story.checkpoints || [];
         if (checkpoints.length) {
             const checkpoint = `link-to-${story.title}/${story._id}`;
-            map[path].steps = [{ checkpoint }, ...(story.steps || [])];
+            map[path].steps = [
+                { checkpoint },
+                ...(story.steps || [{ action: 'action_listen' }]),
+            ];
             checkpoints.forEach((checkpointPath) => {
                 map[checkpointPath.join()].steps = [
-                    ...(map[checkpointPath.join()].steps || []),
+                    ...(map[checkpointPath.join()].steps || [
+                        { action: 'action_listen' },
+                    ]),
                     { checkpoint },
                 ];
             });
@@ -79,12 +87,18 @@ export const addCheckpoints = (fragments) => {
                 .slice(0, resolvedPath.length - 1)
                 .join('__')
                 .replace(/ /g, '_')}__branches`;
-            map[path].steps = [{ checkpoint }, ...(story.steps || [])];
+            map[path].steps = [
+                { checkpoint },
+                ...(story.steps || [{ action: 'action_listen' }]),
+            ];
         }
         // add branch destination checkpoints
         if ((story.branches || []).length) {
             const checkpoint = `${resolvedPath.join('__').replace(/ /g, '_')}__branches`;
-            map[path].steps = [...(story.steps || []), { checkpoint }];
+            map[path].steps = [
+                ...(story.steps || [{ action: 'action_listen' }]),
+                { checkpoint },
+            ];
         }
     });
     return Object.values(map).map(
@@ -119,10 +133,7 @@ export const extractDomain = ({
     defaultDomain = {},
 }) => {
     const initialDomain = {
-        actions: new Set([
-            ...(defaultDomain.actions || []),
-            ...Object.keys(responses),
-        ]),
+        actions: new Set([...(defaultDomain.actions || []), ...Object.keys(responses)]),
         intents: new Set(defaultDomain.intents || []),
         entities: new Set(defaultDomain.entities || []),
         responses: { ...(defaultDomain.responses || {}), ...responses },
@@ -237,7 +248,7 @@ export const getFragmentsAndDomain = async (projectId, language) => {
     };
 };
 
-export const stringPayloadToObject = function(stringPayload = '') {
+export const stringPayloadToObject = function (stringPayload = '') {
     const payloadRegex = /([^{]*) *({.*}|)/;
     const matches = payloadRegex.exec(stringPayload.substring(1));
     const intent = matches[1];
@@ -248,7 +259,10 @@ export const stringPayloadToObject = function(stringPayload = '') {
     };
     if (entities && entities !== '') {
         const parsed = JSON.parse(entities);
-        entities = Object.keys(parsed).map(key => ({ entity: key, value: parsed[key] }));
+        entities = Object.keys(parsed).map(key => ({
+            entity: key,
+            value: parsed[key],
+        }));
     } else {
         entities = [];
     }
@@ -256,8 +270,10 @@ export const stringPayloadToObject = function(stringPayload = '') {
     return objectPayload;
 };
 
-export const objectPayloadToString = function({ intent, entities }) {
-    const entitiesMap = entities ? entities.reduce((map, obj) => (map[obj.entity] = obj.value, map), {}) : {};
+export const objectPayloadToString = function ({ intent, entities }) {
+    const entitiesMap = entities
+        ? entities.reduce((map, obj) => ((map[obj.entity] = obj.value), map), {})
+        : {};
     const entitiesString = Object.keys(entitiesMap).length > 0 ? JSON.stringify(entitiesMap) : '';
     return `/${intent}${entitiesString}`;
 };
