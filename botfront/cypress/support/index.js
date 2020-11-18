@@ -285,16 +285,6 @@ Cypress.Commands.add('getWindowMethod', (methodName) => {
     }));
 });
 
-Cypress.Commands.add('importProject', (projectId = 'bf', fixture) => cy.fixture(fixture, 'utf8')
-    .then((data) => {
-        axios.put(
-            `${Cypress.env('API_URL')}/project/${projectId}/import`,
-            data,
-        ).then((response) => {
-            if (response.status !== 200) throw new Error();
-        });
-    }));
-
 Cypress.Commands.add('import', (projectId = 'bf', fixture, fallbackLang = 'en', wipeCurrent = false) => {
     cy.fixture(fixture, 'utf8').then((loadedFixture) => {
         let file = typeof loadedFixture === 'string' ? loadedFixture : JSON.stringify(loadedFixture);
@@ -413,30 +403,6 @@ Cypress.Commands.add('getBranchContainer', (depth) => {
 
 // get the contents of the visual editor for a branch
 Cypress.Commands.add('getBranchEditor', depth => cy.getBranchContainer(depth).find('.story-visual-editor').first());
-
-
-// get the contents of the visual editor for a branch
-Cypress.Commands.add('importViaUi', (fixtureName, projectId) => {
-    cy.visit(`/project/${projectId}/settings`);
-        
-    cy.contains('Import/Export').click();
-    cy.dataCy('import-type-dropdown')
-        .click();
-    cy.dataCy('import-type-dropdown')
-        .find('span')
-        .contains('Botfront')
-        .click();
-    cy.fixture(fixtureName, 'utf8').then((content) => {
-        cy.dataCy('upload-dropzone').upload(content, 'data.json');
-    });
-    cy.dataCy('export-with-conversations')
-        .click();
-    cy.dataCy('import-button')
-        .click();
-    cy.wait(2000);
-    cy.dataCy('project-import-success').should('exist');
-});
-
 
 Cypress.Commands.add('fill', {
     prevSubject: 'element',

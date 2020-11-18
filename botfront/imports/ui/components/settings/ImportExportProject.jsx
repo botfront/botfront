@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Menu, Tab } from 'semantic-ui-react';
 
-import ImportProject from './ImportProject.jsx';
+import ImportRasaFiles from './ImportRasaFiles.jsx';
 import ExportProject from './ExportProject.jsx';
 
 class ImportExportProject extends React.Component {
@@ -36,7 +36,7 @@ class ImportExportProject extends React.Component {
                 menuItem: this.renderMenuItem('Import'),
                 render: () => (
                     <Tab.Pane loading={loading} key='Import' data-cy='import-project-tab'>
-                        <ImportProject setLoading={this.setLoading} />
+                        <ImportRasaFiles />
                     </Tab.Pane>
                 ),
             },

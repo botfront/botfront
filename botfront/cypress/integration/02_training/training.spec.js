@@ -81,7 +81,7 @@ describe('Training', function() {
     });
     
     it('Should train and serve a model containing branches and links', function() {
-        cy.importViaUi('branch_link_project.json', 'bf');
+        cy.import('branch_link_project.yml', 'bf');
         cy.train();
         cy.newChatSesh();
         // coffee path
