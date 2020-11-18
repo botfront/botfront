@@ -61,6 +61,36 @@ export class DialogueFragmentValidator {
         DialogueFragmentValidator.generateAnnotation(row, text, type),
     );
 
+    checkKeyAndValuesOfStep = (
+        step,
+        index,
+        allowedKeyNames,
+        dontCheckValue = [],
+        allowNull = false,
+    ) => {
+        Object.keys(step).forEach((k) => {
+            const subindex = safeDump(step)
+                .split('\n')
+                .findIndex(l => l.match(new RegExp(`^${k}: `)));
+            if (
+                !dontCheckValue.includes(k)
+                && typeof step[k] !== 'string'
+                && (!allowNull || step[k] !== null)
+            ) {
+                this.addAnnotation(
+                    index + subindex,
+                    `Value must be${allowNull ? ' null or' : ''} a string`,
+                );
+            }
+            if (!allowedKeyNames.includes(k)) {
+                this.addAnnotation(
+                    index + subindex,
+                    `Key '${k}' not supported for '${allowedKeyNames[0]}' step`,
+                );
+            }
+        });
+    };
+
     validateEntityOrSlotList = (list, index, message) => {
         if (!Array.isArray(list)) {
             this.addAnnotation(index, message);
@@ -68,7 +98,8 @@ export class DialogueFragmentValidator {
         }
         list.forEach((element, subindex) => {
             const actualIndex = index + 1 + subindex;
-            if (!element
+            if (
+                !element
                 || typeof element !== 'object'
                 || Array.isArray(element)
                 || Object.keys(element).length !== 1
@@ -76,28 +107,30 @@ export class DialogueFragmentValidator {
                 this.addAnnotation(actualIndex, message);
             }
         });
-    }
+    };
 
     validateIntentStep = (step, index) => {
         if (this.mode === 'rule_condition') {
             this.addAnnotation(index, 'Intent step not supported in rule condition');
             return;
         }
-        const unsupportedKeys = Object.keys(step).filter(k => !INTENT_KEYS.includes(k));
-        unsupportedKeys.forEach((k) => {
-            const subindex = safeDump(step).split('\n').findIndex(l => l.match(new RegExp(`^${k}: `)));
-            this.addAnnotation(
-                index + subindex,
-                `Key '${k}' not supported for intent step`,
-            );
-        });
+        this.checkKeyAndValuesOfStep(step, index, INTENT_KEYS, ['entities']);
         const entities = Object.keys(step).findIndex(k => k === 'entities');
-        if (entities > -1) this.validateEntityOrSlotList(step.entities, index + entities, 'Entities should be key-value pairs');
+        if (entities > -1) {
+            this.validateEntityOrSlotList(
+                step.entities,
+                index + entities,
+                'Entities should be key-value pairs',
+            );
+        }
     };
 
     validateOrStep = (step, index) => {
         if (this.mode === 'rule_condition') {
-            this.addAnnotation(index, 'Intent disjunction step not supported in rule condition');
+            this.addAnnotation(
+                index,
+                'Intent disjunction step not supported in rule condition',
+            );
             return;
         }
         const value = Object.values(step)[0];
@@ -108,15 +141,21 @@ export class DialogueFragmentValidator {
             );
         }
         if (!Array.isArray(value)) {
-            this.addAnnotation(index, 'Disjunction step should be a list of intent steps');
+            this.addAnnotation(
+                index,
+                'Disjunction step should be a list of intent steps',
+            );
             return; // fatal
         }
         value.forEach((substep, subindex) => {
-            const actualIndex = value.slice(0, subindex).reduce(
-                (acc, curr) => acc + Object.keys(curr).length, index + 1,
-            );
+            const actualIndex = value
+                .slice(0, subindex)
+                .reduce((acc, curr) => acc + Object.keys(curr).length, index + 1);
             if (!substep || typeof substep !== 'object' || Array.isArray(step)) {
-                this.addAnnotation(actualIndex, 'Disjunction step should be a list of intent steps');
+                this.addAnnotation(
+                    actualIndex,
+                    'Disjunction step should be a list of intent steps',
+                );
                 return; // fatal
             }
             this.validateIntentStep(substep, actualIndex);
@@ -124,16 +163,7 @@ export class DialogueFragmentValidator {
     };
 
     validateActiveLoopStep = (step, index) => {
-        const value = Object.values(step)[0];
-        if (Object.keys(step).length !== 1) {
-            this.addAnnotation(
-                index,
-                'Additional keys not supported for active_loop step',
-            );
-        }
-        if (typeof value !== 'string' && value !== null) {
-            this.addAnnotation(index, 'Active_loop should be null or a string');
-        }
+        this.checkKeyAndValuesOfStep(step, index, ['active_loop'], [], true);
     };
 
     validateActionStep = (step, index) => {
@@ -141,24 +171,16 @@ export class DialogueFragmentValidator {
             this.addAnnotation(index, 'Action step not supported in rule condition');
             return;
         }
-        const value = Object.values(step)[0];
-        if (Object.keys(step).length !== 1) {
-            this.addAnnotation(index, 'Additional keys not supported for action step');
-        }
-        if (typeof value !== 'string') {
-            this.addAnnotation(index, 'Action should be a string');
-        }
+        this.checkKeyAndValuesOfStep(step, index, ['action']);
     };
 
     validateSlotWasSetStep = (step, index) => {
-        const value = Object.values(step)[0];
-        if (Object.keys(step).length !== 1) {
-            this.addAnnotation(
-                index,
-                'Additional keys not supported for slot_was_set step',
-            );
-        }
-        this.validateEntityOrSlotList(value, index, 'Slot_was_set step should be a list of slot-value pairs');
+        this.checkKeyAndValuesOfStep(step, index, ['slot_was_set'], ['slot_was_set']);
+        this.validateEntityOrSlotList(
+            step.slot_was_set,
+            index,
+            'Slot_was_set step should be a list of slot-value pairs',
+        );
     };
 
     incrementAndCheckIntentLineCount = (index) => {
@@ -168,7 +190,7 @@ export class DialogueFragmentValidator {
             return true;
         }
         return false;
-    }
+    };
 
     validateStep = (step, index) => {
         if (!step || typeof step !== 'object' || Array.isArray(step)) {
@@ -187,7 +209,11 @@ export class DialogueFragmentValidator {
             this.validateActionStep(step, index);
         } else if (Object.keys(step).includes('slot_was_set')) {
             this.validateSlotWasSetStep(step, index);
-        } else if (this.allowCheckpoints && Object.keys(step).length === 1 && 'checkpoint' in step) {
+        } else if (
+            this.allowCheckpoints
+            && Object.keys(step).length === 1
+            && 'checkpoint' in step
+        ) {
             // ok
         } else {
             this.addAnnotation(index, 'Step type not supported');
