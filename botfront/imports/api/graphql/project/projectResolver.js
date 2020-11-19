@@ -10,7 +10,7 @@ export default {
                 files, onlyValidate, projectId, wipeInvolvedCollections, fallbackLang, wipeProject,
             } = args;
             checkIfCan('projects:w', projectId, context.user._id);
-            // files is a list of promises as the files gets uploaded to the server
+            // files is a list of promises as the files get uploaded to the server
             const filesData = await Promise.all(files);
             return importSteps({
                 projectId, files: filesData, onlyValidate, fallbackLang, wipeInvolvedCollections, wipeProject,

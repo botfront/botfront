@@ -160,7 +160,7 @@ export const handleImportDefaultDomain = async (
         return [];
     } catch (e) {
         const nameList = files.map(f => f.filename).join(', ');
-        return [`error when import default domain from ${nameList}`];
+        return [`error when importing default domain from ${nameList}`];
     }
 };
 
@@ -188,7 +188,7 @@ export const handleImportBfConfig = async (files, { projectId }) => {
 
 export const handleImportEndpoints = async (files, { projectId }) => {
     if (!files.length) return [];
-    const toImport = [files[0]]; // there could only be one file os, but the map is there for ee
+    const toImport = [files[0]]; // it's always only one file on os, but the map is there for ee
     const importResult = await Promise.all(
         toImport.map(async (f) => {
             try {
@@ -234,7 +234,7 @@ export const handleImportRasaConfig = async (files, { projectId, projectLanguage
         files.map(async (f) => {
             const { pipeline, policies, language } = f;
             // we only use the policies from the first one
-            // this is something decided arbitrarily, there is a warning about it in validation so the user aware of this behavior
+            // this is something decided arbitrarily, there is a warning about it in validation so the user is aware of this behavior
             if (policies && !policiesImported) {
                 try {
                     await Meteor.callWithPromise('policies.save', {
@@ -280,7 +280,7 @@ export const handleImportRasaConfig = async (files, { projectId, projectLanguage
             }
         }),
     );
-    // return only the results with data in it (if nothing bad happen it shoudl be and array of null)
+    // return only the results with data in it (if nothing bad happened it shoudl be an array of null)
     return [...importResult, ...createResult].filter(r => r);
 };
 
@@ -308,7 +308,7 @@ export const handleImportConversations = async (files, { projectId, wipeInvolved
             }
         }),
     );
-    // return only the results with data in it (if nothing bad happen it shoudl be and array of null)
+    // return only the results with data in it (if nothing bad happen it should be an array of null)
     return importResult.filter(r => r);
 };
 
@@ -340,7 +340,7 @@ export const handleImportIncoming = async (files, { projectId, wipeInvolvedColle
     return importResult.filter(r => r);
 };
 
-// import all file in the array of files
+// import all files in the array of files
 // the files should have been processed before by the validation step
 export const handleImportAll = async (files, params) => {
     const importers = [];

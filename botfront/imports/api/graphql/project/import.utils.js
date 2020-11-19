@@ -26,7 +26,7 @@ function streamToString(stream) {
 }
 
 // extract the raw text from the files and infer types
-// if there is a bfconfig file it process it, because we need the data from that file for the validation later
+// if there is a bfconfig file, it processes it, because we need the data from that file for the validation later
 // (eg: the default domain, the project languages)
 export async function getRawTextAndType(files) {
     const filesDataAndTypes = await Promise.all(
@@ -79,7 +79,7 @@ export async function readAndValidate(files, params) {
     // get raw text and type from every file,
     const filesDataAndTypes = await getRawTextAndType(files, params);
 
-    // send all file to the validation pipeline
+    // send all files to the validation pipeline
     const [
         mixedFileMessages,
         { summary: mixedSummary, ...finalParams },
@@ -110,7 +110,7 @@ export function hasErrors(messages) {
     return containsErrors;
 }
 
-// this function validate then import the files if there is not errors
+// this function validates then import the files if there are no errors
 // onlyValidate are boolean switches to alter the steps of the validation
 export async function importSteps({
     projectId,
