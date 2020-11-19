@@ -256,13 +256,11 @@ BotResponsesContainer.propTypes = {
     tag: PropTypes.string,
     responseLocations: PropTypes.array,
     loadingResponseLocations: PropTypes.bool,
-    isNew: PropTypes.bool,
 };
 
 BotResponsesContainer.defaultProps = {
     deletable: true,
     name: null,
-    isNew: false,
     initialValue: null,
     onChange: () => {},
     onDeleteAllResponses: null,
