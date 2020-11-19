@@ -29,6 +29,7 @@ import { Credentials } from '../../api/credentials';
 import { NLUModels } from '../../api/nlu_model/nlu_model.collection';
 import { Instances } from '../../api/instances/instances.collection';
 import { Slots } from '../../api/slots/slots.collection';
+import { Stories } from '../../api/story/stories.collection';
 import 'semantic-ui-css/semantic.min.css';
 import { ProjectContext } from './context';
 import { setsAreIdentical, cleanDucklingFromExamples } from '../../lib/utils';
@@ -50,6 +51,7 @@ function Project(props) {
         changeShowChat,
         instance,
         slots,
+        dialogueActions,
         channel,
         children,
         hasNoWhitespace,
@@ -184,6 +186,7 @@ function Project(props) {
                                 intents: Object.keys(intentsList || {}),
                                 entities: entitiesList || [],
                                 slots,
+                                dialogueActions,
                                 language: workingLanguage,
                                 upsertResponse,
                                 responses,
@@ -246,6 +249,7 @@ Project.propTypes = {
     workingLanguage: PropTypes.string,
     projectLanguages: PropTypes.array.isRequired,
     slots: PropTypes.array.isRequired,
+    dialogueActions: PropTypes.array.isRequired,
     loading: PropTypes.bool.isRequired,
     channel: PropTypes.object,
     showChat: PropTypes.bool.isRequired,
@@ -282,6 +286,9 @@ const ProjectContainer = withTracker((props) => {
     const slotsHandler = Meteor.subscribe('slots', projectId);
     const nluModelsHandler = Meteor.subscribe('nlu_models', projectId, workingLanguage);
     const { hasNoWhitespace } = NLUModels.findOne({ projectId, language: workingLanguage }, { fields: { hasNoWhitespace: 1 } }) || {};
+    const storiesHandler = Meteor.subscribe('stories.events', projectId);
+    const dialogueActions = Array.from(new Set((Stories
+        .find().fetch() || []).flatMap(story => story.events)));
     const instance = Instances.findOne({ projectId });
     const readyHandler = handler => handler;
     const readyHandlerList = [
@@ -290,6 +297,7 @@ const ProjectContainer = withTracker((props) => {
         projectHandler.ready(),
         instanceHandler.ready(),
         slotsHandler.ready(),
+        storiesHandler.ready(),
         nluModelsHandler.ready(),
     ];
     const ready = readyHandlerList.every(readyHandler);
@@ -340,6 +348,7 @@ const ProjectContainer = withTracker((props) => {
         channel,
         instance,
         slots: Slots.find({}).fetch(),
+        dialogueActions,
         projectLanguages,
         hasNoWhitespace,
     };
