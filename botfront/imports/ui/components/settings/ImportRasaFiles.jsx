@@ -18,20 +18,27 @@ import {
 import { NativeTypes } from 'react-dnd-html5-backend-cjs';
 import { useDrop } from 'react-dnd-cjs';
 import { useMutation } from '@apollo/react-hooks';
+import JSZIP from 'jszip';
+import { saveAs } from 'file-saver';
+import Alert from 'react-s-alert';
 import { useFileReader } from './fileReaders';
 import { ProjectContext } from '../../layouts/context';
 import { unZipFile } from '../../../lib/importers/common';
 import { importFilesMutation } from './graphql';
 import { tooltipWrapper } from '../utils/Utils';
+import 'react-s-alert/dist/s-alert-default.css';
 
 const ImportRasaFiles = () => {
-    const { projectLanguages, project: { _id: projectId }, language } = useContext(ProjectContext);
+    const {
+        projectLanguages, project: { _id: projectId, name: projectName }, language,
+    } = useContext(ProjectContext);
     const [importFiles] = useMutation(importFilesMutation);
-    const [fallbackImportLanguage, setFallbackImportLanguage] = useState();
+    const [fallbackImportLanguage, setFallbackImportLanguage] = useState(language);
     const [importResults, setImportResults] = useState([]);
     useEffect(() => setFallbackImportLanguage(language), [language]);
     const [wipeInvolvedCollections, setwipeInvolvedCollections] = useState(false);
     const [wipeProject, setWipeProject] = useState(false);
+    const [downloadBackup, setDownloadBackup] = useState(true);
 
     const [importSummary, setImportSummary] = useState([]);
 
@@ -71,6 +78,24 @@ const ImportRasaFiles = () => {
     };
 
     const handleImport = async ([files, setFileList]) => {
+        if (downloadBackup) {
+            const options = { conversations: true, incoming: true };
+            const noSpaceName = projectName.replace(/ +/g, '_');
+            try {
+                const zipData = await Meteor.callWithPromise('exportRasa', projectId, 'all', options);
+                const zip = new JSZIP();
+                const date = (new Date()).toISOString();
+                zip.loadAsync(zipData, { base64: true }).then((newZip) => {
+                    newZip.generateAsync({ type: 'blob' })
+                        .then((blob) => {
+                            saveAs(blob, `${noSpaceName}_${date}.zip`);
+                        });
+                });
+            } catch (e) {
+                Alert.error('Exporting the project failed, so import was aborted to preserve data', { timeout: 10000, position: 'top-right' });
+                return;
+            }
+        }
         setFilesImporting(true);
         const filesToImport = files.filter(
             file => !(file.errors && file.errors.length),
@@ -143,6 +168,7 @@ const ImportRasaFiles = () => {
     const renderFileList = ([fileList, setFileList]) => {
         const filesWithErrors = fileList.filter(f => (f.errors || []).length);
         const filesWithWarnings = fileList.filter(f => (f.warnings || []).length);
+    
         const colorOfLabel = (f) => {
             if (f.errors && f.errors.length) return { color: 'red' };
             if (f.warnings && f.warnings.length) return { color: 'yellow' };
@@ -153,6 +179,7 @@ const ImportRasaFiles = () => {
             <div>
                 {fileList.map(f => (
                     <Label
+                        data-cy='label'
                         key={`${f.name}${f.lastModified}`}
                         className='file-label'
                         {...colorOfLabel(f)}
@@ -178,29 +205,38 @@ const ImportRasaFiles = () => {
                 {filesWithErrors.length > 0 && (
                     <>
                         <h4>The following files cannot be parsed and will be ignored:</h4>
-                        {filesWithErrors.map(f => (
-                            <Message color='red' key={`errors-${f.name}`}>
-                                <Message.Header>{f.name}</Message.Header>
-                                <Message.List
-                                    items={f.errors.map(unpackSummaryEntry)}
-                                    className='import-summary-accordion'
-                                />
-                            </Message>
-                        ))}
+                        {filesWithErrors.map((f) => {
+                            const { name } = f;
+                            const nameNoDot = name.replace(/\./g, '');
+
+                            return (
+                                <Message data-cy={`message-error-${nameNoDot}`} color='red' key={`errors-${name}`}>
+                                    <Message.Header>{name}</Message.Header>
+                                    <Message.List
+                                        items={f.errors.map(unpackSummaryEntry)}
+                                        className='import-summary-accordion'
+                                    />
+                                </Message>
+                            );
+                        })}
                     </>
                 )}
                 {filesWithWarnings.length > 0 && (
                     <>
                         <h4>The following files have warnings associated with them:</h4>
-                        {filesWithWarnings.map(f => (
-                            <Message color='yellow' key={`warnings-${f.name}`}>
-                                <Message.Header>{f.name}</Message.Header>
-                                <Message.List
-                                    items={f.warnings.map(unpackSummaryEntry)}
-                                    className='import-summary-accordion'
-                                />
-                            </Message>
-                        ))}
+                        {filesWithWarnings.map((f) => {
+                            const { name } = f;
+                            const nameNoDot = name.replace(/\./g, '');
+                            return (
+                                <Message data-cy={`message-warning-${nameNoDot}`} color='yellow' key={`warnings-${name}`}>
+                                    <Message.Header>{name}</Message.Header>
+                                    <Message.List
+                                        items={f.warnings.map(unpackSummaryEntry)}
+                                        className='import-summary-accordion'
+                                    />
+                                </Message>
+                            );
+                        })}
                     </>
                 )}
             </div>
@@ -265,7 +301,7 @@ const ImportRasaFiles = () => {
 
     const renderBottom = () => (
         <>
-            <Message info>
+            <Message data-cy='message-summary' info>
                 <Message.Header>Import summary</Message.Header>
                 <Message.List
                     items={importSummary.map(unpackSummaryEntry)}
@@ -334,6 +370,13 @@ const ImportRasaFiles = () => {
                     onChange={(_e, { value }) => setFallbackImportLanguage(value)}
                 />
             </div>
+            <Checkbox
+                toggle
+                checked={downloadBackup}
+                onChange={() => setDownloadBackup(!downloadBackup)}
+                label='Download backup before the import'
+                data-cy='backup-project'
+            />
             <div className='wipes side-by-side left'>
                 {tooltipWrapper(<Checkbox
                     toggle
@@ -346,11 +389,12 @@ const ImportRasaFiles = () => {
                 {tooltipWrapper(<Checkbox
                     toggle
                     checked={wipeProject}
-                    onChange={() => setWipeProject(!wipeInvolvedCollections)}
+                    onChange={() => setWipeProject(!wipeProject)}
                     label='Reset complete project'
                     data-cy='wipe-project'
                 />, 'this will remove ALL project\'s data - including conversations - before importing')}
             </div>
+
         </Segment>
     );
 
