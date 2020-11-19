@@ -41,11 +41,21 @@ export async function getRawTextAndType(files) {
                     errors: [{ text: 'File is not parseable text.' }],
                 };
             }
+            const dataType = determineDataType(file, rawText);
+            if (dataType === 'unknown') {
+                return {
+                    file,
+                    filename,
+                    rawText,
+                    errors: [{ text: 'Unknown file type' }],
+                    dataType,
+                };
+            }
             return {
                 file,
                 filename,
                 rawText,
-                dataType: determineDataType(file, rawText),
+                dataType,
             };
         }),
     );

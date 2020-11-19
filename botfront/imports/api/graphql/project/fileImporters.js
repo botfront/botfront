@@ -6,9 +6,8 @@ import Activity from '../activity/activity.model';
 import { indexBotResponse } from '../botResponses/mongo/botResponses';
 import { Slots } from '../../slots/slots.collection';
 import { Projects } from '../../project/project.collection';
-import { mergeDomains, deduplicateAndMergeResponses } from '../../../lib/importers/validateDomain';
+import { mergeDomains, deduplicateAndMergeResponses, deduplicateArray } from '../../../lib/importers/validateDomain';
 import { Credentials, createCredentials } from '../../credentials';
-
 
 import { Endpoints } from '../../endpoints/endpoints.collection';
 import { Stories } from '../../story/stories.collection';
@@ -35,8 +34,8 @@ export const handleImportForms = async (forms, projectId) => {
 export const handleImportActions = async (actions, projectId) => {
     const { defaultDomain } = Projects.findOne({ _id: projectId });
     const parsedDomain = safeLoad(defaultDomain.content);
-    const newForms = [...(parsedDomain?.actions || []), ...actions];
-    parsedDomain.actions = newForms;
+    const newActions = deduplicateArray([...(parsedDomain?.actions || []), ...actions]);
+    parsedDomain.actions = newActions;
     const newDomain = safeDump(parsedDomain);
     await Meteor.callWithPromise('project.update', {
         defaultDomain: { content: newDomain },

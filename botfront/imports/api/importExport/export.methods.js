@@ -12,12 +12,9 @@ import { Credentials } from '../credentials';
 import { generateErrorText } from './importExport.utils';
 import { ZipFolder } from './ZipFolder';
 import { Projects } from '../project/project.collection';
-// import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { Instances } from '../instances/instances.collection';
 import Conversations from '../graphql/conversations/conversations.model';
 import Activity from '../graphql/activity/activity.model';
-
-// import { StoryGroups } from '../storyGroups/storyGroups.collection';
 
 
 if (Meteor.isServer) {

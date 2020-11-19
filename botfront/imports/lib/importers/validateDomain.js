@@ -50,7 +50,7 @@ export const deduplicateAndMergeResponses = (listOfResponse) => {
 };
 
 
-const deduplicateArray = (array) => {
+export const deduplicateArray = (array) => {
     const seen = new Set();
     return array.filter((value) => {
         if (seen.has(value)) {
@@ -323,7 +323,7 @@ export const validateDefaultDomains = (files, params) => {
 
     if (defaultDomainValidFiles.length > 0) {
         const nameList = defaultDomainValidFiles.map(file => file.filename).join(', ');
-        newSummary.push(`You will remplace the default domain by ${nameList}`);
+        newSummary.push(`The default domain will be replaced by ${nameList}`);
     }
     const newFiles = files.map((file) => {
         if (file?.dataType !== 'defaultdomain') return file;
@@ -352,7 +352,7 @@ export const validateDomain = (files, params) => {
                 ...domainFile,
                 warnings: [
                     ...(domainFile?.warnings || []),
-                    'You have multiple default domain files. if some data conflicts, the one from the first file with that data will be used (same way has rasa merges domains)',
+                    'You have multiple domain files. if some data conflicts, the one from the first file with that data will be used (same way has rasa merges domains)',
                 ],
             };
         });
@@ -375,6 +375,7 @@ export const validateDomain = (files, params) => {
         if (formsLen > 0) tempSummary.push(`${formsLen} forms`);
         if (actionsLen > 0) tempSummary.push(`${actionsLen} actions to the default domain`);
         newSummary.push(`From ${nameList} you will add: ${tempSummary.join(', ')}`);
+        newSummary.push(...newLangs.map(lang => `Support for the lang '${lang}' will be added using the default config`));
         newLanguages = Array.from(new Set([...params.projectLanguages, ...newLangs]));
     }
     return [
