@@ -118,11 +118,13 @@ PageMenu.defaultProps = {
     className: '',
     headerDataCy: null,
     withTraining: false,
+    icon: null,
+    title: '',
 };
 
 PageMenu.propTypes = {
-    title: PropTypes.string.isRequired,
-    icon: PropTypes.string.isRequired,
+    title: PropTypes.string,
+    icon: PropTypes.string,
     children: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
     className: PropTypes.string,
     headerDataCy: PropTypes.string,
