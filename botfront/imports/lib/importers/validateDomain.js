@@ -67,11 +67,10 @@ export const mergeDomains = (files) => {
         return {
             slots: [],
             responses: [],
-            forms: [],
+            forms: {},
             actions: [],
         };
     }
-
     const allResponses = filesToProcess.reduce(
         (all, { responses = [] }) => [...all, ...responses],
         [],
@@ -79,8 +78,7 @@ export const mergeDomains = (files) => {
     // the order of merging is important
     // for arrays [...all, ...slots] => will keep the first one during deduplication
     // for obj { ...forms, ...all } => the first one found erase the new one
-
-    const allSlots = filesToProcess.reduce((all, { slots = {} }) => [...all, ...slots], []);
+    const allSlots = filesToProcess.reduce((all, { slots = [] }) => [...all, ...slots], []);
     const allForms = filesToProcess.reduce((all, { forms = {} }) => ({ ...forms, ...all }), {});
     const allAction = filesToProcess.reduce((all, { actions = [] }) => [...all, ...actions], []);
     const mergedResponses = deduplicateAndMergeResponses(allResponses);
@@ -99,9 +97,9 @@ export const mergeDomainsRasaFormat = (files) => {
     const filesToProcess = onlyValidFiles(files);
     if (!filesToProcess.length) {
         return {
-            slots: [],
-            responses: [],
-            forms: [],
+            slots: {},
+            responses: {},
+            forms: {},
             actions: [],
         };
     }
@@ -144,7 +142,7 @@ const validateADomain = (
     },
     // we validate domain and default domain with the same function
     // isDefaultDomain allow us to get the domain in rasaformat
-    // and also trigget specific warning linked with default domain
+    // and also triggers specific warning linked to default domain
     isDefaultDomain = false,
 ) => {
     const { rawText } = file;
@@ -154,7 +152,7 @@ const validateADomain = (
     } catch (e) {
         return {
             ...file,
-            errors: [...(file?.errors || []), 'Not valid yaml'],
+            errors: [...(file?.errors || []), `Not valid yaml: ${e.message}`],
         };
     }
     const {
@@ -176,6 +174,7 @@ const validateADomain = (
     // get forms MIGHT NEED TO UPDATE WITH RASA 2
     const bfForms = 'bf_forms' in (slotsFromFile || {}) ? slotsFromFile.bf_forms.initial_value : [];
     // do not import slots that are in current default domain or are programmatically generated
+
     [...Object.keys(defaultSlots), ...INTERNAL_SLOTS].forEach((k) => {
         delete slotsFromFile[k];
     });
@@ -238,8 +237,8 @@ const validateADomain = (
             warnings.push({ text: `those reponses will add the support for the language ${lang} :`, longText: newLangsResponses[lang].join(', ') });
         });
     }
-    
-    // MIGHT NEED TO UPDATE WITH RASA 2
+  
+  
     Object.keys(slotsFromFile || {}).forEach((name) => {
         const slot = slotsFromFile[name];
         const options = {};
@@ -253,6 +252,7 @@ const validateADomain = (
             ...options,
         });
     });
+    
     if (!isDefaultDomain && Object.keys(formsFromFile).length > 0) {
         warnings.push(
             'forms defined in this file will be added to the default domain on import',
@@ -373,7 +373,7 @@ export const validateDomain = (files, params) => {
         if (slotsLen > 0) tempSummary.push(`${slotsLen} slots`);
         if (responsesLen > 0) tempSummary.push(`${responsesLen} responses`);
         if (formsLen > 0) tempSummary.push(`${formsLen} forms`);
-        if (actionsLen > 0) tempSummary.push(`${actionsLen} actions to the default domain`);
+        if (actionsLen > 0) tempSummary.push(`${actionsLen} actions (actions ends up in the default domain)`);
         newSummary.push(`From ${nameList} you will add: ${tempSummary.join(', ')}`);
         newSummary.push(...newLangs.map(lang => `Support for the lang '${lang}' will be added using the default config`));
         newLanguages = Array.from(new Set([...params.projectLanguages, ...newLangs]));
