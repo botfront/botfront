@@ -85,12 +85,14 @@ const ImportRasaFiles = () => {
                 const zipData = await Meteor.callWithPromise('exportRasa', projectId, 'all', options);
                 const zip = new JSZIP();
                 const date = (new Date()).toISOString();
-                zip.loadAsync(zipData, { base64: true }).then((newZip) => {
-                    newZip.generateAsync({ type: 'blob' })
-                        .then((blob) => {
-                            saveAs(blob, `${noSpaceName}_${date}.zip`);
-                        });
-                });
+                if (!window.Cypress) {
+                    zip.loadAsync(zipData, { base64: true }).then((newZip) => {
+                        newZip.generateAsync({ type: 'blob' })
+                            .then((blob) => {
+                                saveAs(blob, `${noSpaceName}_${date}.zip`);
+                            });
+                    });
+                }
             } catch (e) {
                 Alert.error('Exporting the project failed, so import was aborted to preserve data', { timeout: 10000, position: 'top-right' });
                 return;
@@ -311,7 +313,7 @@ const ImportRasaFiles = () => {
                 <Button
                     disabled={fileReader[0].some(f => !f.validated)}
                     content='Import'
-                    data-cy='import-rasa-files'
+                    data-cy='import-files'
                     primary
                     onClick={() => handleImport(fileReader)}
                 />

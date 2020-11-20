@@ -53,7 +53,9 @@ const AceField = ({
             readOnly={readOnly}
             width='100%'
             minLines={25}
-            maxLines={25}
+            /* when a scroll bar appears, ace remove from htlm the lines that are not displayed,
+            so when testing you want to access the whole text to check its value you can't , that's why were setting 200 lines max when using cypress */
+            maxLines={window.Cypress ? 200 : 25}
             mode={mode || 'yaml'}
             theme='xcode'
             name={name}
