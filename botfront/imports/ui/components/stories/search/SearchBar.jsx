@@ -142,7 +142,7 @@ const SearchBar = (props) => {
 
     const renderSearchItem = (resultProps) => {
         const {
-            title, _id, gid: storyGroupId, type,
+            title, name, _id, gid: storyGroupId, type,
         } = resultProps;
         const storyGroup = storyGroups.find(({ _id: gid }) => gid === storyGroupId);
         const isOpen = activeStories === _id
@@ -157,7 +157,7 @@ const SearchBar = (props) => {
                 fitted
             >
                 <span className='small story-title-prefix'>{prefix}</span>
-                <span className='story-name'>{title}</span>
+                <span className='story-name'>{name || title}</span>
                 <span className='story-group-name'>{storyGroup && storyGroup.name}</span>
                 <Icon
                     className={`push-story-icon ${

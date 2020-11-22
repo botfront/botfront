@@ -37,14 +37,13 @@ const StoryGroupTreeNode = (props) => {
 
     const trimLong = string => (string.length > 50 ? `${string.substring(0, 48)}...` : string);
     const isInSelection = activeStories.includes(item.id);
-    const disableEdit = disabled || isSmartNode || item.smartGroup || type === 'form-slot';
+    const disableEdit = disabled || isSmartNode || item.smartGroup;
     const disableDrag = disabled
         || isSmartNode
         || (selectionIsNonContiguous && activeStories.includes(item.id));
-
-    const icon = ['story-group', 'form'].includes(type) ? (
+    const icon = type === 'story-group' ? (
         <Icon
-            name={`caret ${item.isExpanded ? 'down' : 'right'}`}
+            name={`caret ${!!item && item.isExpanded ? 'down' : 'right'}`}
             {...(!somethingIsMutating
                 ? {
                     onClick: () => handleToggleExpansion(item),
@@ -102,7 +101,7 @@ const StoryGroupTreeNode = (props) => {
             onMouseDown: (e, ...args) => {
                 e.preventDefault();
                 e.stopPropagation();
-                if (item.isExpanded) handleCollapse(item.id);
+                if (item && item.isExpanded) handleCollapse(item.id);
                 provided.dragHandleProps.onMouseDown(e, ...args);
             },
         }
@@ -111,7 +110,6 @@ const StoryGroupTreeNode = (props) => {
             'data-react-beautiful-dnd-drag-handle':
                     provided.dragHandleProps['data-react-beautiful-dnd-drag-handle'],
         };
-  
 
     const cleanStoryId = id => id.replace(/^.*_SMART_/, '');
 
@@ -265,24 +263,33 @@ const StoryGroupTreeNode = (props) => {
                     />
                     <div className='item-chevron'>{icon}</div>
                     {isBeingRenamed ? (
-                        <Input
-                            onChange={(_, { value }) => setNewTitle(value)}
-                            value={newTitle}
-                            onKeyDown={handleKeyDownInput}
-                            autoFocus
-                            onBlur={submitNameChange}
-                            data-cy='edit-name'
-                            className='item-edit-box'
-                            {...(renamerRef.current
-                                ? {
-                                    style: {
-                                        width: `${
-                                            renamerRef.current.clientWidth - 25
-                                        }px`,
-                                    },
-                                }
-                                : {})}
-                        />
+                        <>
+                            <Popup
+                                content='Form names must end with _form and may not contain any special characters'
+                                trigger={(
+                                    <Input
+                                        onChange={(_, { value }) => setNewTitle(value)}
+                                        value={newTitle}
+                                        onKeyDown={handleKeyDownInput}
+                                        autoFocus
+                                        onBlur={submitNameChange}
+                                        data-cy='edit-name'
+                                        className='item-edit-box'
+                                        {...(renamerRef.current
+                                            ? {
+                                                style: {
+                                                    width: `${
+                                                        renamerRef.current.clientWidth - 25
+                                                    }px`,
+                                                },
+                                            }
+                                            : {})}
+                                    />
+                                )}
+                                open={type === 'form'}
+                                inverted
+                            />
+                        </>
                     ) : (
                         <span
                             className={`item-name ${
@@ -294,7 +301,7 @@ const StoryGroupTreeNode = (props) => {
                                 ? { onDoubleClick: () => setRenamingModalPosition(item) }
                                 : {})}
                         >
-                            {trimLong(item.title)}
+                            {trimLong(item.title || '')}
                         </span>
                     )}
                     {renderItemActions()}
@@ -316,6 +323,7 @@ StoryGroupTreeNode.propTypes = {
     handleToggleExpansion: PropTypes.func.isRequired,
     handleCollapse: PropTypes.func.isRequired,
     handleAddStory: PropTypes.func.isRequired,
+    handleAddForm: PropTypes.func.isRequired,
     handleToggleFocus: PropTypes.func.isRequired,
     handleRenameItem: PropTypes.func.isRequired,
     handleTogglePublish: PropTypes.func.isRequired,

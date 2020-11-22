@@ -13,6 +13,7 @@ const SlotsContainer = (props) => {
         onChange,
         onDelete,
         deletable,
+        className,
     } = props;
 
     const handleReplaceLine = (index, content) => {
@@ -30,7 +31,7 @@ const SlotsContainer = (props) => {
     return (
         <div className='utterances-container exception-wrapper-target'>
             {value.map((slot, i) => (
-                <div className='story-line' key={i}>
+                <div className={`story-line ${className}`} key={i}>
                     <SlotLabel
                         value={slot}
                         onChange={({ name, slotValue }) => handleReplaceLine(i, { [name]: slotValue })}
@@ -56,10 +57,12 @@ SlotsContainer.propTypes = {
     onChange: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
     deletable: PropTypes.bool,
+    className: PropTypes.string,
 };
 
 SlotsContainer.defaultProps = {
     deletable: true,
+    className: '',
 };
 
 export default SlotsContainer;

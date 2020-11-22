@@ -121,7 +121,9 @@ Meteor.methods({
         return result;
     },
 
-    'stories.addCheckpoints'(destinationStory, branchPath) {
+    'stories.addCheckpoints'(projectId, destinationStory, branchPath) {
+        checkIfCan('stories:w', projectId);
+        check(projectId, String);
         check(destinationStory, String);
         check(branchPath, Array);
         return Stories.update(
@@ -129,7 +131,9 @@ Meteor.methods({
             { $addToSet: { checkpoints: branchPath } },
         );
     },
-    'stories.removeCheckpoints'(destinationStory, branchPath) {
+    'stories.removeCheckpoints'(projectId, destinationStory, branchPath) {
+        checkIfCan('stories:w', projectId);
+        check(projectId, String);
         check(destinationStory, String);
         check(branchPath, Array);
         return Stories.update(

@@ -49,6 +49,7 @@ const StoryEditorContainer = ({
     branchPath,
     changeStoryPath,
     collapsed,
+    projectId,
 }) => {
     const { stories, getResponseLocations, updateStory } = useContext(
         ConversationOptionsContext,
@@ -89,7 +90,9 @@ const StoryEditorContainer = ({
         Object.keys(newAnnotations).forEach((path) => {
             const editor = editors.current[path];
             if (editor) {
-                if (newAnnotations[path].length) { editor.getSession().setAnnotations(newAnnotations[path]); } else editor.getSession().clearAnnotations();
+                if (newAnnotations[path].length) {
+                    editor.getSession().setAnnotations(newAnnotations[path]);
+                } else editor.getSession().clearAnnotations();
             }
         });
     };
@@ -143,7 +146,9 @@ const StoryEditorContainer = ({
         }
         if (typeof callback === 'function') callback();
     });
-    const saveStoryDebounced = useCallback(debounce(saveStory, 500), []);
+    const saveStoryDebounced = disabled
+        ? useCallback(debounce(saveStory, 500), [])
+        : () => {};
 
     const isBranchLinked = branchId => destinationStories.some(aStory => (aStory.checkpoints || []).some(checkpointPath => checkpointPath.includes(branchId)));
 
@@ -159,16 +164,22 @@ const StoryEditorContainer = ({
 
     function onDestinationStorySelection(event, { value }) {
         if (value === '') {
-            Meteor.call('stories.removeCheckpoints', destinationStory._id, branchPath);
+            Meteor.call(
+                'stories.removeCheckpoints',
+                projectId,
+                destinationStory._id,
+                branchPath,
+            );
         } else if (value && destinationStory) {
             Meteor.call(
                 'stories.removeCheckpoints',
+                projectId,
                 destinationStory._id,
                 branchPath,
-                () => Meteor.call('stories.addCheckpoints', value, branchPath),
+                () => Meteor.call('stories.addCheckpoints', projectId, value, branchPath),
             );
         } else {
-            Meteor.call('stories.addCheckpoints', value, branchPath);
+            Meteor.call('stories.addCheckpoints', projectId, value, branchPath);
         }
     }
 
@@ -396,14 +407,16 @@ const StoryEditorContainer = ({
                                 />
                             );
                         })}
-                        <Menu.Item
-                            key={`${pathToRender.join()}-add`}
-                            className='add-tab'
-                            onClick={() => handleCreateBranch(pathToRender, false)}
-                            data-cy='add-branch'
-                        >
-                            <Icon name='plus' />
-                        </Menu.Item>
+                        {!disabled && (
+                            <Menu.Item
+                                key={`${pathToRender.join()}-add`}
+                                className='add-tab'
+                                onClick={() => handleCreateBranch(pathToRender, false)}
+                                data-cy='add-branch'
+                            >
+                                <Icon name='plus' />
+                            </Menu.Item>
+                        )}
                     </Menu>
                 )}
                 {localBranches.length > 0
@@ -443,6 +456,7 @@ StoryEditorContainer.propTypes = {
     branchPath: PropTypes.array,
     changeStoryPath: PropTypes.func.isRequired,
     collapsed: PropTypes.bool.isRequired,
+    projectId: PropTypes.string.isRequired,
 };
 
 StoryEditorContainer.defaultProps = {
@@ -461,6 +475,7 @@ const mapStateToProps = (state, ownProps) => ({
         .toJS(),
     collapsed: state.stories.getIn(['storiesCollapsed', ownProps.story._id], false),
     storyMode: state.stories.get('storyMode'),
+    projectId: state.settings.get('projectId'),
 });
 
 const mapDispatchToProps = {

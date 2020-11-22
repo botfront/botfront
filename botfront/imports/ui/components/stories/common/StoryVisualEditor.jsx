@@ -159,26 +159,12 @@ export default class StoryVisualEditor extends React.Component {
         <React.Fragment key={`slot${i + JSON.stringify(l.slot_was_set)}`}>
             <ExceptionWrapper exceptions={exceptions}>
                 <SlotsContainer
+                    className={this.getReadOnlyClass()}
                     deletable
                     value={l.slot_was_set}
                     onChange={slot_was_set => this.handleReplaceLine(i, { slot_was_set })}
                     onDelete={() => this.handleDeleteLine(i)}
                 />
-            </ExceptionWrapper>
-            {this.renderAddLine(i)}
-        </React.Fragment>
-    );
-
-    renderEllipsisLine = (i, l, exceptions) => (
-        <React.Fragment key={`ellipsis${i}`}>
-            <ExceptionWrapper exceptions={exceptions}>
-                <div data-cy='ellipsis' className='story-line'>
-                    <GenericLabel
-                        label={<Icon name='ellipsis horizontal' style={{ margin: '0 10px' }} />}
-                        color='light-grey'
-                    />
-                    <IconButton onClick={() => this.handleDeleteLine(i)} icon='trash' />
-                </div>
             </ExceptionWrapper>
             {this.renderAddLine(i)}
         </React.Fragment>

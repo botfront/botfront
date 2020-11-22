@@ -11,6 +11,7 @@ import ConfirmPopup from '../common/ConfirmPopup';
 import { setStoryCollapsed } from '../../store/actions/actions';
 import StoryVisualEditor from './common/StoryVisualEditor';
 import { ConversationOptionsContext } from './Context';
+import { can } from '../../../lib/scopes';
 
 const StoryTopMenu = ({
     fragment,
@@ -20,6 +21,7 @@ const StoryTopMenu = ({
     errors,
     storyMode,
     renderAceEditor,
+    projectId,
 }) => {
     const {
         type,
@@ -29,6 +31,7 @@ const StoryTopMenu = ({
         steps,
         condition = [],
         conversation_start: convStart,
+        status,
     } = fragment;
     const initPayload = steps?.[0]?.intent;
     const [newTitle, setNewTitle] = useState(title);
@@ -116,7 +119,7 @@ const StoryTopMenu = ({
             <Popup
                 on='click'
                 open={confirmPopupOpen}
-                disabled={!condition.length || !!convStart}
+                disabled={!can('stories:w', projectId) || !condition.length || !!convStart}
                 onOpen={() => setConfirmPopupOpen(true)}
                 onClose={() => setConfirmPopupOpen(false)}
                 content={(
@@ -132,6 +135,7 @@ const StoryTopMenu = ({
                 trigger={(
                     <Checkbox
                         toggle
+                        disabled={!can('stories:w', projectId)}
                         label='conversation start'
                         className='story-box-toggle'
                         checked={convStart}
@@ -182,6 +186,7 @@ const StoryTopMenu = ({
                     ) : (
                         <span className='story-title-prefix'>{type === 'rule' ? <>&gt;&gt;</> : '##'}</span>
                     )}
+                    {status === 'unpublished' && <Label content='Unpublished' /> }
                     <input
                         data-cy='story-title'
                         value={newTitle}
@@ -246,12 +251,14 @@ StoryTopMenu.propTypes = {
     errors: PropTypes.number.isRequired,
     storyMode: PropTypes.string.isRequired,
     renderAceEditor: PropTypes.func.isRequired,
+    projectId: PropTypes.string.isRequired,
 };
 StoryTopMenu.defaultProps = {};
 
 const mapStateToProps = (state, ownProps) => ({
     collapsed: state.stories.getIn(['storiesCollapsed', ownProps.fragment?._id], false),
     storyMode: state.stories.get('storyMode'),
+    projectId: state.settings.get('projectId'),
 });
 
 const mapDispatchToProps = {
