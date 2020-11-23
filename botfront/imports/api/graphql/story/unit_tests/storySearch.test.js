@@ -40,16 +40,12 @@ if (Meteor.isServer) {
         Stories.update({ _id: storyId }, { $set: { textIndex, type: 'story' } });
     };
 
-    const insertDataAndIndex = async (done) => {
+    const insertDataAndIndex = async () => {
         await cleanup();
         await addData();
-        done();
     };
 
-    const removeTestData = async (done) => {
-        await cleanup();
-        done();
-    };
+    const removeTestData = cleanup;
 
     const searchStories = async (language, queryString, reject) => {
         try {
@@ -75,31 +71,31 @@ if (Meteor.isServer) {
         }
     };
 
+    const caught = func => async (done) => {
+        try {
+            await func();
+            done();
+        } catch (e) {
+            done(e);
+        }
+    };
+
     describe('test searching stories by their index', () => {
-        before((done) => {
-            insertDataAndIndex(done);
-        });
-        after((done) => {
-            removeTestData(done);
-        });
-        it('should get the expected results from a search string', async (done) => {
-            try {
-                await searchStories('en', 'morning');
-                await searchStories('fr', 'matin');
-                await searchStories('en', 'timeOfDay');
-                await searchStories('en', '123');
-                await searchStories('en', 'button_intent');
-                await searchStories('en', 'buttonEntity');
-                await searchStories('en', 'second');
-                await searchStories('en', 'http://google.com');
-                await searchStories('en', 'Canada');
-                await searchStories('en', 'test_slot');
-                await searchStories('en', 'story fixture'); // (title)
-                await searchStories('en', 'term does not exist', true);
-                done();
-            } catch (e) {
-                done(e);
-            }
-        });
+        before(caught(insertDataAndIndex));
+        after(caught(removeTestData));
+        it('should get the expected results from a search string', caught(async () => {
+            await searchStories('en', 'morning');
+            await searchStories('fr', 'matin');
+            await searchStories('en', 'timeOfDay');
+            await searchStories('en', '123');
+            await searchStories('en', 'button_intent');
+            await searchStories('en', 'buttonEntity');
+            await searchStories('en', 'second');
+            await searchStories('en', 'http://google.com');
+            await searchStories('en', 'Canada');
+            await searchStories('en', 'test_slot');
+            await searchStories('en', 'story fixture'); // (title)
+            await searchStories('en', 'term does not exist', true);
+        }));
     });
 }

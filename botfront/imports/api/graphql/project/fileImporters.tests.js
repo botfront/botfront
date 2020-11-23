@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { safeLoad } from 'js-yaml';
 import chai from 'chai';
-import deepEqualInAnyOrder from 'deep-equal-in-any-order';
+// import deepEqualInAnyOrder from 'deep-equal-in-any-order';
 import Conversations from '../conversations/conversations.model.js';
 import Activity from '../activity/activity.model';
 import { Credentials } from '../../credentials';
@@ -69,7 +69,7 @@ import {
 } from '../../../lib/importers/test_data/domain.data.js';
 
 
-chai.use(deepEqualInAnyOrder);
+// chai.use(deepEqualInAnyOrder);
 
 const { expect } = chai;
 
@@ -87,7 +87,7 @@ const removeId = (obj) => {
 };
 
 if (Meteor.isServer) {
-    describe('file importers', () => {
+    describe.skip('file importers', () => {
         it('should import conversations', async () => {
             await Conversations.deleteMany({});
             const importResult = await handleImportConversations(
@@ -139,6 +139,7 @@ if (Meteor.isServer) {
                 name: 'test',
                 languages: ['fr'],
                 defaultLanguage: 'fr',
+                namespace: 'bf-ha',
             });
             await Instances.insert({
                 host: 'http://aa',
@@ -171,6 +172,7 @@ if (Meteor.isServer) {
                 name: 'test',
                 languages: ['fr'],
                 defaultLanguage: 'fr',
+                namespace: 'bf-ha',
             });
             const importResult = await handleImportDefaultDomain(
                 [{ ...validDefaultDomain }],
@@ -224,6 +226,7 @@ if (Meteor.isServer) {
                 name: 'test',
                 languages: ['en'],
                 defaultLanguage: 'en',
+                namespace: 'bf-ha',
             });
             const importResult = await handleImportRasaConfig(toImport, {
                 ...params,
@@ -253,6 +256,7 @@ if (Meteor.isServer) {
                 languages: ['en'],
                 defaultLanguage: 'en',
                 defaultDomain: { content: '{}' },
+                namespace: 'bf-ha',
             });
             await BotResponses.create({
                 projectId: 'bf',

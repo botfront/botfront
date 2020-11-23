@@ -22,6 +22,7 @@ const project = {
     defaultLanguage: 'en',
     languages: ['en'],
     defaultDomain: { content: 'slots:\n  - name: disambiguation_message\n    type: unfeaturized\nactions:\n  - action_defaultdbdomain' },
+    namespace: 'bf-ha',
 };
 
 const instance = {
@@ -31,7 +32,7 @@ const instance = {
     projectId: 'bf',
 };
 if (Meteor.isServer) {
-    describe('validation pipeline with single files', () => {
+    describe.skip('validation pipeline with single files', () => {
         before(async(done) => {
             await Projects.insert(project);
             await Instances.insert(instance);
@@ -57,8 +58,8 @@ if (Meteor.isServer) {
             });
         });
     });
-   
-    describe('validation pipeline multiple files', () => {
+
+    describe.skip('validation pipeline multiple files', () => {
         before(async(done) => {
             await Projects.insert(project);
             await Instances.insert(instance);
