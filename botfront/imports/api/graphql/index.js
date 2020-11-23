@@ -19,8 +19,6 @@ import examplesTypes from './examples/schemas';
 import projectResolver from './project/projectResolver';
 import projectTypes from './project/project.types.graphql';
 
-const uploadType = gql` scalar Upload`;
-
 export const resolvers = [
     conversationsResolver,
     ...botResponsesResolvers,
@@ -33,7 +31,7 @@ export const resolvers = [
     projectResolver,
 ];
 
-export const typeDefs = mergeTypeDefs([
+const typeList = [
     ...conversationTypes,
     ...botResponsesTypes,
     ...activityTypes,
@@ -43,8 +41,16 @@ export const typeDefs = mergeTypeDefs([
     configTypes,
     storiesTypes,
     projectTypes,
-    uploadType,
-], { all: true });
+];
 
-export const schemaDirectives = {
-};
+export const typeDefs = mergeTypeDefs(typeList, { all: true });
+
+export const typeDefsWithUpload = mergeTypeDefs(
+    [
+        ...typeList,
+        gql`scalar Upload`,
+    ],
+    { all: true },
+);
+
+export const schemaDirectives = {};
