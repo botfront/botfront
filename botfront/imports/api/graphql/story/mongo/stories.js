@@ -16,16 +16,19 @@ const escape = string => string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 export const searchStories = async (projectId, language, search) => {
     const escapedSearch = escape(search);
     const searchRegex = new RegExp(escape(search), 'i');
-    const modelExamples = await Examples.find({ projectId, 'metadata.language': language }).lean();
+    const modelExamples = await Examples.find({
+        projectId,
+        'metadata.language': language,
+    }).lean();
     const intents = modelExamples.reduce((filtered, option) => {
         if (searchRegex.test(option.text)) {
             return [...filtered, option.intent];
         }
         return filtered;
     }, []);
-    const matchedResponses = await BotResponses.find(
-        { textIndex: { $regex: escapedSearch, $options: 'i' } },
-    ).lean();
+    const matchedResponses = await BotResponses.find({
+        textIndex: { $regex: escapedSearch, $options: 'i' },
+    }).lean();
     const responseKeys = matchedResponses.map(({ key }) => key);
     const fullSearch = combineSearches(escapedSearch, responseKeys, intents);
     const storiesFilter = {
@@ -35,14 +38,14 @@ export const searchStories = async (projectId, language, search) => {
             { textIndex: { $regex: fullSearch, $options: 'i' } },
         ],
     };
-    const matched = Stories.find(
-        storiesFilter,
-        {
-            fields: {
-                _id: 1, title: 1, storyGroupId: 1, type: 1,
-            },
+    const matched = Stories.find(storiesFilter, {
+        fields: {
+            _id: 1,
+            title: 1,
+            storyGroupId: 1,
+            type: 1,
         },
-    ).fetch();
+    }).fetch();
     return { dialogueFragments: matched };
 };
 
@@ -60,13 +63,18 @@ export const replaceStoryLines = (projectId, lineToReplace, newLine) => {
         {
             projectId,
             textIndex: { $regex: escape(lineToReplace) },
-
         },
         { fields: { _id: 1 } },
     ).fetch();
-    return Promise.all(matchingStories.map(({ _id }) => {
-        const story = Stories.findOne({ _id });
-        const { _id: excludeId, ...rest } = traverseReplaceLine(story, lineToReplace, newLine);
-        return Stories.update({ _id }, { $set: { ...rest, ...indexStory(rest) } });
-    }));
+    return Promise.all(
+        matchingStories.map(({ _id }) => {
+            const story = Stories.findOne({ _id });
+            const { _id: excludeId, ...rest } = traverseReplaceLine(
+                story,
+                lineToReplace,
+                newLine,
+            );
+            return Stories.update({ _id }, { $set: { ...rest, ...indexStory(rest) } });
+        }),
+    );
 };

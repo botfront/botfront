@@ -24,6 +24,7 @@ import StoryResolver from '../resolvers/storiesResolver';
 if (Meteor.isServer) {
     const cleanup = async () => {
         await Stories.remove({});
+        await Examples.remove({});
         await BotResponses.deleteMany({ projectId });
         await Projects.remove({ _id: projectId });
         await NLUModels.remove({ _id: enModelId });

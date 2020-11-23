@@ -1,5 +1,4 @@
 import uuidv4 from 'uuid/v4';
-import mongoose from 'mongoose';
 import Conversations from '../../conversations/conversations.model';
 import Activity from '../../activity/activity.model';
 import Projects from '../../project/project.model';
@@ -121,10 +120,10 @@ const logUtterancesFromTracker = async function (projectId, events, env, convId)
             userUtterances.forEach(utterance => logUtterance(
                 utterance,
                 projectId,
-                language,
+                language || defaultLanguage,
                 convId,
                 env,
-                (_, e) => e && console.log('Logging failed: ', e, utterance),
+                (_, e) => e && console.log('Logging failed: ', e.errmsg),
             ));
         }
     } catch (e) {

@@ -16,12 +16,23 @@ export const storyFixture = {
         { action: 'utter_image' },
         { action: 'utter_quick' },
         { action: 'utter_custom' },
+        { action: 'utter_highlight' },
+        { action: 'utter_css' },
+        { action: 'utter_observe' },
     ],
     title: 'story fixture',
     storyGroupId: 'TEST_STORY_GROUP',
     projectId: 'bf',
     events: ['utter_get_started', 'utter_h_0GF2S1'],
     branches: [],
+    triggerIntent: 'trigger_5viQv2qaf6kHaHfca',
+    rules: [{
+        trigger: {
+            when: 'always',
+            timeOnPage: 2,
+        },
+    }],
+    status: 'published',
 };
 
 export const examplesFixture = [
