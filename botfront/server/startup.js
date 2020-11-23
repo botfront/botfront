@@ -5,7 +5,7 @@ import { createGraphQLPublication } from 'meteor/swydo:ddp-apollo';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import axios from 'axios';
 import { get } from 'lodash';
-import { typeDefsWithUpload, resolvers } from '../imports/api/graphql/index';
+import { typeDefs, resolvers } from '../imports/api/graphql/index';
 import { getAppLoggerForFile } from './logger';
 import { Projects } from '../imports/api/project/project.collection';
 import { Instances } from '../imports/api/instances/instances.collection';
@@ -16,7 +16,7 @@ Meteor.startup(function() {
     if (Meteor.isServer) {
         const packageInfo = require('./../package.json');
         const schema = makeExecutableSchema({
-            typeDefs: typeDefsWithUpload, // makeExecutableSchema need to define upload when working with files
+            typeDefs, // makeExecutableSchema need to define upload when working with files
             resolvers,
         });
 

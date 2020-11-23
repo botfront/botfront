@@ -43,19 +43,6 @@ export const typeDefs = mergeTypeDefs([
     configTypes,
     storiesTypes,
     projectTypes,
-], { all: true });
-
-
-export const typeDefsWithUpload = mergeTypeDefs([
-    ...conversationTypes,
-    ...botResponsesTypes,
-    ...activityTypes,
-    ...trackerStoreTypes,
-    ...examplesTypes,
-    commonTypes,
-    configTypes,
-    storiesTypes,
-    projectTypes,
     uploadType,
 ], { all: true });
 
