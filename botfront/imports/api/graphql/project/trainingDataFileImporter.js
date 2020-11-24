@@ -140,6 +140,27 @@ const insertNluData = ({
     return ops;
 };
 
+const removeTriggerIntents = ({
+    metadata: { triggerIntent, rules, ...metadata },
+    ...frag
+}) => {
+    const steps = frag.steps || [];
+    if (triggerIntent) {
+        if (steps[0]?.intent === triggerIntent) {
+            steps.shift();
+        } else if (steps[0]?.or) {
+            steps[0].or = steps[0].or.filter(({ intent }) => intent !== triggerIntent);
+        }
+    }
+    return {
+        ...frag,
+        steps,
+        metadata,
+        // ...(triggerIntent ? { triggerIntent } : {}), // ee-specific field
+        // ...(rules ? { rules } : {}), // ee-specific field
+    };
+};
+
 const handleImportTrainingData = async (
     files,
     {
@@ -165,7 +186,7 @@ const handleImportTrainingData = async (
             const fragments = [
                 ...stories.map(s => ({ ...s, type: 'story' })),
                 ...rules.map(r => ({ ...r, type: 'rule' })),
-            ].map(({ metadata: { group, ...metadata }, ...frag }) => ({
+            ].map(({ metadata: { group, ...metadata }, ...frag }) => removeTriggerIntents({
                 ...frag,
                 metadata,
                 storyGroupId: storyGroupIdMapping[group],

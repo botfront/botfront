@@ -219,10 +219,15 @@ export const getFragmentsAndDomain = async (projectId, language) => {
     return {
         stories: fragmentsWithCheckpoints
             .filter(({ type }) => !type || type === 'story')
-            .map(({ storyGroupId, title: story, steps }) => ({
+            .map(({
+                storyGroupId, title: story, steps, metadata = {},
+            }) => ({
                 story,
                 steps,
-                metadata: { group: groups.find(g => g._id === storyGroupId)?.name },
+                metadata: {
+                    ...metadata,
+                    group: groups.find(g => g._id === storyGroupId)?.name,
+                },
             })),
         rules: fragmentsWithCheckpoints
             .filter(({ type }) => type === 'rule')
@@ -234,13 +239,17 @@ export const getFragmentsAndDomain = async (projectId, language) => {
                     steps,
                     conversation_start,
                     wait_for_user_input,
+                    metadata = {},
                 }) => ({
                     rule,
                     condition,
                     steps,
                     ...(conversation_start ? { conversation_start } : {}),
                     ...(!wait_for_user_input ? { wait_for_user_input } : {}),
-                    metadata: { group: groups.find(g => g._id === storyGroupId)?.name },
+                    metadata: {
+                        ...metadata,
+                        group: groups.find(g => g._id === storyGroupId)?.name,
+                    },
                 }),
             ),
         domain,
