@@ -106,6 +106,20 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
                 type: 'form',
             };
         });
+
+        storyGroups.sort((a, b) => !!b.pinned - !!a.pinned).forEach(({
+            _id, name, children, ...n
+        }) => {
+            const verififedChildren = children.filter(childId => !!newTree.items[childId]);
+            newTree.items[_id] = {
+                ...n,
+                id: _id,
+                children: verififedChildren,
+                parentId: 'root',
+                title: name,
+                type: 'story-group',
+            };
+        });
         storyGroups.sort((a, b) => !!b.pinned - !!a.pinned).forEach(({
             _id, name, children, ...n
         }) => {

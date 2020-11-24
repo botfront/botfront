@@ -17,6 +17,28 @@
         }
     }
 }
+.ui.attached.segment.single-story-container {
+    &:hover {
+        .type.story-comparison {
+            .story-visual-editor {
+                .add-story-line {
+                    opacity: 1;
+                }
+                .utterances-container {
+                    border-color: #eee;
+                    
+                    .response-name-container {
+                        visibility: visible;
+                        white-space: nowrap;
+                    }
+                    .side-by-side {
+                        visibility: visible;
+                    }
+                }
+            }
+        }
+    }
+}
 
 .story-visual-editor {
     display: flex;
@@ -99,6 +121,12 @@
 
 }
 
+.story-title-prefix {
+    &.failing-test-case-prefix {
+        color: #9f3a38;
+    }
+}
+
 .dropdown-button-trigger > i.dropdown.icon {
     display: none;
 }
@@ -127,16 +155,42 @@
     align-items: center;
 }
 
-&.invalid {
-    .utterances-container {
-        background-color: rgba(255, 212, 212, 0.5);
+.story-visual-editor {
+    &.actual {
+        .utterances-container {
+            background-color: rgba(255,3,3,0.26);
+        }
+    }
+    &.expected {
+        .utterances-container {
+            background-color: rgba(3, 255, 3, 0.26);
+        }
+    }
+    &.actual,
+    &.expected {
+        .utterances-container {
+            .response-name-container {
+                .response-name {
+                    &.locations-link {
+                        .response-name-input {
+                            color: #306c99;
+                            input {
+                                color: #306c99;
+                            }
+                        }
+                    }
+                    .response-name-input {
+                        color: #7a7a7a;
+                        input {
+                            color: #7a7a7a;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
-&.valid {
-    .utterances-container {
-        background-color: rgba(228, 255, 228, 0.5);
-    }
-}
+
 
 .utterances-container {
     max-width: 90%;
@@ -190,6 +244,7 @@
             .response-name-input {
                 color: #cdcdcd;
                 input {
+                    background-color: rgba(0, 0, 0, 0);
                     color: #cdcdcd;
                     white-space: nowrap;
                     overflow: hidden;

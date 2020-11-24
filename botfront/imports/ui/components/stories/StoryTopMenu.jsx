@@ -1,8 +1,10 @@
 import {
-    Popup, Icon, Menu, Label, Message, Checkbox, Header, List, Button,
+    Popup, Icon, Menu, Label, Message, Checkbox, Header, List, Confirm, Button,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
-import React, { useState, useContext, useEffect } from 'react';
+import React, {
+    useState, useContext, useEffect, useMemo,
+} from 'react';
 import PropTypes from 'prop-types';
 import 'brace/theme/github';
 import 'brace/mode/text';
@@ -13,6 +15,7 @@ import StoryVisualEditor from './common/StoryVisualEditor';
 import { ConversationOptionsContext } from './Context';
 import { can } from '../../../lib/scopes';
 import { storyTypeCustomizations } from '../../../lib/story.types';
+import StoryPrefix from './common/StoryPrefix';
 
 const StoryTopMenu = ({
     fragment,
@@ -35,11 +38,14 @@ const StoryTopMenu = ({
     } = fragment;
     const [newTitle, setNewTitle] = useState(title);
     const [confirmPopupOpen, setConfirmPopupOpen] = useState(false);
+    const [confirmOverwriteOpen, setConfirmOverwriteOpen] = useState(false);
+
+    const testCaseFailing = useMemo(() => type === 'test_case' && fragment?.testResults?.success === false, [type, fragment]);
 
     useEffect(() => setNewTitle(title), [title]);
 
     const {
-        stories, updateStory, getResponseLocations, linkToStory,
+        stories, updateStory, getResponseLocations, linkToStory, deleteStory,
     } = useContext(ConversationOptionsContext);
     const isDestinationStory = !!(checkpoints || []).length;
 
@@ -166,12 +172,55 @@ const StoryTopMenu = ({
         </>
     );
 
+    const renderTestCaseButtons = () => testCaseFailing && (
+        <span className='test-case-buttons-container'>
+            <Button
+                onClick={() => setConfirmOverwriteOpen(true)}
+                className='overwrite-expected-button'
+                basic
+                color='green'
+                content='Set actual as expected'
+                icon='check'
+                labelPosition='right'
+                size='mini'
+            />
+            <Button
+                onClick={() => deleteStory(fragment)}
+                className='remove-test-button'
+                basic
+                color='red'
+                content='Remove test case'
+                icon='trash'
+                labelPosition='right'
+                size='mini'
+            />
+        </span>
+    );
+
+    const renderConfirmOverwrite = () => (
+        <Confirm
+            header='Warning'
+            className='warning'
+            content='The current expected results will be overwritten. This action cannot be undone.'
+            cancelButton='Cancel'
+            confirmButton='Overwrite'
+            open={confirmOverwriteOpen && testCaseFailing}
+            onCancel={() => setConfirmOverwriteOpen(false)}
+            onConfirm={() => {
+                Meteor.call('stories.update', {
+                    ...fragment, steps: fragment.testResults.steps, testResults: { ...fragment.testResults, success: true },
+                });
+                setConfirmOverwriteOpen(false);
+            }}
+        />
+    );
+
     return (
         <>
             <Menu
                 attached='top'
                 data-cy='story-top-menu'
-                className={`${collapsed ? 'collapsed' : ''}`}
+                className={`${collapsed ? 'collapsed' : ''} ${testCaseFailing ? 'test-case-failing' : ''}`}
             >
                 <Menu.Item header>
                     <Icon
@@ -184,7 +233,7 @@ const StoryTopMenu = ({
                     {isDestinationStory ? (
                         <Icon name='arrow alternate circle right' color='green' fitted />
                     ) : (
-                        <span className='story-title-prefix'>{storyTypeCustomizations[type].prefix}</span>
+                        <StoryPrefix fragment={fragment} />
                     )}
                     {status === 'unpublished' && <Label content='Unpublished' /> }
                     <input
@@ -196,13 +245,16 @@ const StoryTopMenu = ({
                     />
                 </Menu.Item>
                 <Menu.Item position='right'>
-                    {renderWarnings()}
-                    {renderErrors()}
+                    {!testCaseFailing && renderWarnings()}
+                    {!testCaseFailing && renderErrors()}
                     {renderConvStartToggle()}
+                    {renderTestCaseButtons()}
                     <StoryPlayButton
                         fragment={fragment}
                         className='top-menu-clickable'
                         type={fragment.type}
+                        storyId={fragment._id}
+                        projectId={projectId}
                     />
                 </Menu.Item>
             </Menu>
@@ -214,7 +266,7 @@ const StoryTopMenu = ({
                     position='bottom left'
                     trigger={(
                         <Message
-                            className='top-menu-yellow-banner with-popup'
+                            className='top-menu-banner with-popup'
                             attached
                             warning
                             size='tiny'
@@ -231,7 +283,7 @@ const StoryTopMenu = ({
             )}
             {type === 'rule' && !convStart && (
                 <Message
-                    className={`top-menu-yellow-banner condition-container ${!condition.length ? 'empty' : ''}`}
+                    className={`top-menu-banner condition-container ${!condition.length ? 'empty' : ''}`}
                     attached
                     warning
                     size='tiny'
@@ -240,22 +292,19 @@ const StoryTopMenu = ({
                     {renderConditionSection()}
                 </Message>
             )}
-            {type === 'test_case' && fragment?.testResults?.success === false && (
+            {testCaseFailing && (
                 <Message
-                    className='top-menu-yellow-banner'
+                    className='top-menu-banner test-case-failing-message'
                     attached
-                    warning
+                    error
+                    data-cy='connected-to'
                 >
-                    The most recent run of this test failed.
-                    <Button
-                        onClick={() => {
-                            Meteor.call('stories.update', { ...fragment, steps: fragment.testResults.steps, testResults: { success: true, steps: [] } });
-                        }}
-                        compact
-                    >Overwrite
-                    </Button>
+                    <span className='failure-message'>
+                        The most recent run of this test failed.
+                    </span>
                 </Message>
             )}
+            {renderConfirmOverwrite()}
         </>
     );
 };

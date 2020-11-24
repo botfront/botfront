@@ -1,15 +1,19 @@
 import { Meteor } from 'meteor/meteor';
 import { check, Match } from 'meteor/check';
 import uuidv4 from 'uuid/v4';
+import axios from 'axios';
 import { indexStory } from './stories.index';
+import { Instances } from '../instances/instances.collection';
 
 import { Stories } from './stories.collection';
 import Conversations from '../graphql/conversations/conversations.model';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo/botResponses';
 import { checkIfCan } from '../../lib/scopes';
+import { convertTrackerToStory } from '../../lib/test_case.utils';
 
 export const checkStoryNotEmpty = story => story.story && !!story.story.replace(/\s/g, '').length;
+
 
 Meteor.methods({
     async 'stories.insert'(story) {
@@ -181,29 +185,47 @@ Meteor.methods({
         check(projectId, String);
         check(trackerId, String);
         const convo = await Conversations.findOne({ _id: trackerId, projectId }).lean();
+        const { metadata: { language } = {} } = convo.tracker.events.find(event => event.metadata?.language) || {};
         if (!convo) throw new Meteor.Error(404, 'Conversation not found');
-        const steps = [];
-        convo.tracker.events.forEach((event) => {
-            if (event.event === 'user') {
-                steps.push({
-                    user: event.text,
-                    intent: event.parse_data.intent.name,
-                });
-            }
-            if (event.event === 'action' && event.name.startsWith('utter')) {
-                steps.push({
-                    action: event.name,
-                });
-            }
-        });
-        const storyGroup = await StoryGroups.findOne({ projectId, pinned: false });
+        if (!language) throw new Meteor.Error(404, 'Could not find conversation language');
+        const steps = convertTrackerToStory(convo.tracker);
+        const storyGroup = await StoryGroups.findOne({ projectId, pinned: false }, { sort: { updatedAt: -1 } });
         const newTestStory = {
             type: 'test_case',
             storyGroupId: storyGroup._id,
             title: `test_story_${uuidv4()}`,
             projectId,
             steps,
+            language,
         };
         await Meteor.callWithPromise('stories.insert', newTestStory);
+    },
+
+    async 'stories.test'(projectId, ids) {
+        check(projectId, String);
+        check(ids, Match.Maybe(Array));
+        const query = {
+            type: 'test_case',
+            projectId,
+            ...(ids?.length > 0 ? { _id: { $in: ids } } : {}),
+        };
+        const testCases = Stories.find({ ...query }, { fields: { _id: 1, steps: 1 } })
+            .map(({ _id, steps, language }) => ({
+                _id,
+                steps,
+                language,
+            }));
+        const instance = await Instances.findOne({ projectId });
+
+        const client = axios.create({
+            baseURL: instance.host,
+            timeout: 100 * 1000,
+        });
+        await client.request({
+            url: '/webhooks/test_case/run',
+            data: { test_cases: testCases, language: 'en' },
+            method: 'post',
+        });
+        return { testsFinished: true };
     },
 });

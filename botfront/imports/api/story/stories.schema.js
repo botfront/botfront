@@ -109,8 +109,12 @@ export const TestSchema = new SimpleSchema({
         type: String,
         allowedValues: ['test_case'],
     },
-    testResult: {
-        type: TestResult,
+    testResults: {
+        type: Object,
+        blackbox: true,
         optional: true,
+    },
+    language: {
+        type: String,
     },
 });

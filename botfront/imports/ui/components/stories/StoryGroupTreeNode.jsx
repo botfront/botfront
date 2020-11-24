@@ -6,6 +6,7 @@ import {
 import { formNameIsValid } from '../../../lib/client.safe.utils';
 import { tooltipWrapper } from '../utils/Utils';
 import { storyTypeCustomizations } from '../../../lib/story.types';
+import StoryPrefix from './common/StoryPrefix';
 
 const StoryGroupTreeNode = (props) => {
     const {
@@ -115,12 +116,12 @@ const StoryGroupTreeNode = (props) => {
     const cleanStoryId = id => id.replace(/^.*_SMART_/, '');
 
     const addStoryOrRule = (fragmentType) => {
-        const { title, prefix } = storyTypeCustomizations[fragmentType];
+        const { title } = storyTypeCustomizations[fragmentType];
         return (
             <Dropdown.Item
                 content={(
                     <>
-                        <span className='small story-title-prefix'>{prefix}</span>
+                        <StoryPrefix type={fragmentType} />
                         {title}
                     </>
                 )}

@@ -38,9 +38,16 @@ if (Meteor.isServer) {
         return Stories.find({ projectId, _id: { $in: selectedIds } });
     });
 
-    Meteor.publish('stories.light', function(projectId) {
+    Meteor.publish('stories.light', function(projectId, language) {
         check(projectId, String);
-        return Stories.find({ projectId }, {
+        check(language, String);
+        return Stories.find({
+            $or: [
+                { projectId: 'bf', type: 'test_case', language },
+                { projectId: 'bf', type: 'test_case', 'testResults.success': false },
+                { projectId: 'bf', type: { $not: { $eq: 'test_case' } } },
+            ],
+        }, {
             fields: {
                 title: true, checkpoints: true, storyGroupId: true, type: true,
             },
@@ -52,6 +59,7 @@ if (Meteor.isServer) {
     });
 }
 
+Stories.attachSchema(TestSchema.tetsResults);
 Stories.attachSchema(TestSchema, { selector: { type: 'test_case' } });
 Stories.attachSchema(RuleSchema, { selector: { type: 'rule' } });
 Stories.attachSchema(StorySchema, { selector: { type: 'story' } });

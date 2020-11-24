@@ -6,6 +6,20 @@ type Query {
     ): DialogueSearchResults
 }
 
+type Mutation {
+    upsertTestResults(results: [TestResult]): AllGood,
+    testMutation(data: Boolean!): AllGood
+}
+
+type AllGood { 
+    success: Boolean!
+}
+input TestResult {
+    _id: String!,
+    success: Boolean!,
+    steps: [Any]
+}
+
 type DialogueSearchResults {
     dialogueFragments: [Story]
     forms: [Any]

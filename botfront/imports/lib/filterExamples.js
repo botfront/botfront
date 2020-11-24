@@ -48,15 +48,16 @@ export const parseTextEntities = (value) => {
         const pickupAfter = matchedText.indexOf('"}') + 2;
         const entityValue = matchedText.slice(1, end);
         const entityName = matchedText.split(/{"entity":\s*"/)[1].split('"}')[0];
+        const valueLength = end - 1;
 
         parsedEntities.push({
-            start, end: end + start - 1, entity: entityName, value: entityValue,
+            start, end: start + valueLength, entity: entityName, value: entityValue,
         });
 
         let newText = `${matchedText.slice(1, end)}${matchedText.slice(pickupAfter)}`;
 
         if (hasEntity.test(newText)) {
-            charIndex = end + charIndex;
+            charIndex += relativeStart;
             newText = newText.replace(hasEntity, replaceEntities);
         }
         return newText;

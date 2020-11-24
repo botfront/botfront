@@ -17,6 +17,8 @@ const StoryPlayButton = (props) => {
         fragment: { steps = [], rules = [] } = {},
         className,
         type,
+        storyId,
+        projectId,
     } = props;
 
     const getInitialPayload = () => {
@@ -37,11 +39,13 @@ const StoryPlayButton = (props) => {
     };
 
     const runTestCase = () => {
-        console.log('running test case');
+        if (!storyId) throw new Error('a storyId is required to run a single test');
+        Meteor.call('stories.test', projectId, storyId);
     };
 
     return (
         <Popup
+            basic
             trigger={(
                 <Icon
                     name='play'
@@ -55,7 +59,11 @@ const StoryPlayButton = (props) => {
                     data-cy='play-story'
                 />
             )}
-            content={(
+            content={type === 'test_case' ? (
+                <>
+                    Run this test
+                </>
+            ) : (
                 <>
                     To start a conversation from the story editor, the story must start
                     with a user utterance.
@@ -73,10 +81,13 @@ StoryPlayButton.propTypes = {
     fragment: PropTypes.object.isRequired,
     className: PropTypes.string,
     type: PropTypes.oneOf(['story', 'rule', 'test_case']).isRequired,
+    storyId: PropTypes.string,
+    projectId: PropTypes.string.isRequired,
 };
 
 StoryPlayButton.defaultProps = {
     className: '',
+    storyId: null,
 };
 
 const mapStateToProps = () => ({});

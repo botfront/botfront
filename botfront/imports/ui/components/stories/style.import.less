@@ -261,6 +261,9 @@
         .item {
             padding: 0px 16px;
         }
+        &.test-case-failing{
+            background-color: rgba(255,3,3,0.38);
+        }
 
         .icon.triangle.right {
             margin-left: 0;
@@ -286,8 +289,21 @@
             }
         }
 
+        .test-case-buttons-container {
+            .ui.basic.button.remove-test-button,
+            .ui.basic.button.overwrite-expected-button {
+                font-size: 0.8rem;
+                margin-right: 0.5em;
+                background-color: white !important;
+                &:hover {
+                    background-color: white !important;
+                }
+            }
+        }
+
         .header {
-            width: 60%;
+            width: ~"calc(100% - 425px)";
+            padding-right: 0;
             input {
                 margin: 0 5px;
                 border-style: solid;
@@ -297,12 +313,12 @@
                 border-radius: 6px;
                 padding: 4px 9px;
                 border-width: 1px;
-                background-color: #f9f9f9;
+                background-color: rgba(0,0,0,0);
                 color: #212121;
                 outline: none;
                 &:hover, &:focus {
                     border-color: rgba(176, 176, 176, 0.4);
-                    background-color: #fff;
+                    background-color: rgba(255, 255, 255, 0.699);
                     color: rgba(0, 0, 0, 1);
                 }
             }
@@ -315,6 +331,16 @@
         //removes borders b/w menu items
         .item::before {
             width: 0;
+        }
+        .test-case-actions {
+            top: -2px;
+            margin-right: 0.25em;
+            .dropdown.icon {
+                margin-left: 0;
+            }
+            &.icon.file {
+                margin-top: -2px;
+            }
         }
     }
 
@@ -613,7 +639,7 @@
     padding: 0px;
 }
 
-.ui.tiny.attached.message.top-menu-yellow-banner {
+.ui.attached.message.top-menu-banner {
     padding: 0.75em 0;
     min-height: 0;
     box-shadow: none;

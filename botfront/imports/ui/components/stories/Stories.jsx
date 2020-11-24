@@ -327,25 +327,24 @@ Stories.propTypes = {
 
 Stories.defaultProps = {};
 
-const StoriesWithTracker = withRouter(
-    withTracker((props) => {
-        const { projectId } = props;
-        const storiesHandler = Meteor.subscribe('stories.light', projectId);
-        const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
+const StoriesWithTracker = withRouter(withTracker((props) => {
+    const { projectId, selectedLanguage } = props;
+    const storiesHandler = Meteor.subscribe('stories.light', projectId, selectedLanguage);
+    const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
 
-        const storyGroups = StoryGroups.find().fetch();
-        const stories = StoriesCollection.find().fetch();
+    const storyGroups = StoryGroups.find().fetch();
+    const stories = StoriesCollection.find().fetch();
 
-        return {
-            ready: storyGroupsHandler.ready() && storiesHandler.ready(),
-            storyGroups,
-            stories,
-        };
-    })(Stories),
-);
+    return {
+        ready: storyGroupsHandler.ready() && storiesHandler.ready(),
+        storyGroups,
+        stories,
+    };
+})(Stories));
 
 const mapStateToProps = state => ({
     storyMenuSelection: state.stories.get('storiesCurrent').toJS(),
+    selectedLanguage: state.settings.get('workingLanguage'),
 });
 
 export default connect(mapStateToProps, { setStoryMenuSelection: setStoriesCurrent })(

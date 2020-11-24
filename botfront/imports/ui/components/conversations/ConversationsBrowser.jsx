@@ -17,7 +17,7 @@ import { updateIncomingPath } from '../incoming/incoming.utils';
 
 function ConversationsBrowser(props) {
     const {
-        page, pages, trackers, activeConversationId, refetch, router,
+        page, pages, trackers, activeConversationId, refetch, router, projectId,
     } = props;
 
     const [deleteConv, { data }] = useMutation(DELETE_CONV);
@@ -113,6 +113,10 @@ function ConversationsBrowser(props) {
         refetch();
     }
 
+    const createTestCase = (trackerId) => {
+        Meteor.call('stories.addTestCase', projectId, trackerId);
+    };
+
     const renderNoMessages = () => (
         <Grid.Row>
             <Message data-cy='no-conv' info>
@@ -148,6 +152,7 @@ function ConversationsBrowser(props) {
                     onDelete={deleteConversation}
                     removeReadMark={optimisticRemoveMarker}
                     optimisticlyRemoved={optimisticRemoveReadMarker}
+                    onCreateTestCase={createTestCase}
                 />
             </Grid.Column>
         </>
@@ -163,6 +168,7 @@ ConversationsBrowser.propTypes = {
     pages: PropTypes.number,
     refetch: PropTypes.func.isRequired,
     router: PropTypes.object.isRequired,
+    projectId: PropTypes.string.isRequired,
 };
 
 ConversationsBrowser.defaultProps = {
