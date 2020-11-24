@@ -7,6 +7,7 @@ mutation (
     $files: [Upload]!
     $onlyValidate: Boolean
     $wipeInvolvedCollections: Boolean
+    $wipeProject: Boolean
     $fallbackLang: String!
 ) {
     import(
@@ -15,6 +16,7 @@ mutation (
         onlyValidate: $onlyValidate
         wipeInvolvedCollections: $wipeInvolvedCollections
         fallbackLang: $fallbackLang
+        wipeProject:$wipeProject
     ) {
         fileMessages {
             errors { text, longText }
