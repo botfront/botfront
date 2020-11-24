@@ -40,7 +40,9 @@ const expectedParams = {
     existingStoryGroups: [],
     wipeInvolvedCollections: undefined,
     wipeFragments: undefined,
+    wipeProject: undefined,
     wipeNluData: [],
+    actionsFromFragments: [],
 };
 
 export const singlesFiles = [
@@ -196,7 +198,7 @@ export const singlesFiles = [
         expectedParams: {
             ...expectedParams,
 
-            summary: ['You will remplace the default domain by default-domain1.yml'],
+            summary: ['The default domain will be replaced by default-domain1.yml'],
             defaultDomain: validDefaultDomainParsed,
         },
     },
@@ -213,13 +215,18 @@ export const singlesFiles = [
                 ...validDomain,
                 ...validDomainParsed,
                 bfForms: [],
-                warnings: [],
+                warnings: [
+                    {
+                        longText: 'the actions that will be added to the default domain are the one that are in this file and not used directly by the rules or stories',
+                        text: 'Some actions defined in this file will be added to the default domain on import',
+                    },
+                ],
                 newLanguages: [],
             },
         ],
         expectedParams: {
             ...expectedParams,
-            summary: ['From domain.yml you will add: 2 slots, 2 responses, 1 actions'],
+            summary: ['From domain.yml you will add: 2 slots, 2 responses, 1 actions (actions ends up in the default domain)'],
         },
     },
     {
@@ -280,13 +287,18 @@ export const singlesFiles = [
                         longText: 'utter_greet, utter_aaa',
                     },
                     'forms defined in this file will be added to the default domain on import',
+                    {
+                        longText: 'the actions that will be added to the default domain are the one that are in this file and not used directly by the rules or stories',
+                        text: 'Some actions defined in this file will be added to the default domain on import',
+                    },
                 ],
             },
         ],
         expectedParams: {
             ...expectedParams,
             summary: [
-                'From domain.yml you will add: 3 slots, 2 responses, 1 forms, 1 actions',
+                'From domain.yml you will add: 3 slots, 2 responses, 1 forms, 2 actions (actions ends up in the default domain)',
+                'Support for the lang \'fr\' will be added using the default config',
             ],
 
             projectLanguages: ['en', 'fr'],

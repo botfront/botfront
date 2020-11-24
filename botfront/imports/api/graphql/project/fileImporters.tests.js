@@ -159,6 +159,7 @@ if (Meteor.isServer) {
                     enableSharing: false,
                     storyGroups: [],
                     ...config,
+                    languages: ['fr'],
                 },
             ])[0];
             await expect(importResult).to.eql([]);
@@ -237,13 +238,13 @@ if (Meteor.isServer) {
             const modelen = await NLUModels.findOne({ projectId: 'bf', language: 'en' });
             const modelru = await NLUModels.findOne({ projectId: 'bf', language: 'ru' });
             await expect(importResult).to.eql([]);
-            await expect(safeLoad(policiesDb.policies)).to.eql(
+            await expect(safeLoad(policiesDb.policies).policies).to.eql(
                 validRasaConfigPoliciesParsed.policies,
             );
-            await expect(safeLoad(modelfr.config)).to.eql(
+            await expect(safeLoad(modelfr.config).pipeline).to.eql(
                 validRasaConfigFrParsed.pipeline,
             );
-            await expect(safeLoad(modelen.config)).to.eql(
+            await expect(safeLoad(modelen.config).pipeline).to.eql(
                 validRasaConfigPipelineParsed.pipeline,
             );
             await expect(modelru.config).to.eql('test');
@@ -282,6 +283,7 @@ if (Meteor.isServer) {
                     {
                         ...validDomain,
                         ...validDomainParsed,
+                        actions: [...validDomainParsed.actions, 'action_get_help'],
                     },
                 ],
                 params,
@@ -291,7 +293,7 @@ if (Meteor.isServer) {
             const project = Projects.findOne({ _id: 'bf' });
             await expect(importResult).to.eql([]);
             await expect(reponses.map(removeId)).to.eql(validDomainsMerged.responses);
-            await expect(slots.map(removeId)).to.eql(validDomainsMerged.slots);
+            await expect(slots.map(removeId)).to.deep.equalInAnyOrder(validDomainsMerged.slots);
             await expect(project.defaultDomain.content).to.eql(`forms:
   restaurant_form:
     cuisine:

@@ -74,8 +74,6 @@ forms:
 export const validDomainParsed = {
     actions: [
         'action_aaa',
-        'action_get_help',
-
     ],
     responses: [
         {
@@ -122,6 +120,7 @@ export const validDomainParsed = {
 export const validDomainFrParsed = {
     actions: [
         'action_aaa',
+        'action_get_help',
     ],
   
     responses: [
@@ -251,12 +250,12 @@ export const validDomainsMerged = {
         },
         {
             projectId: 'bf',
-            name: 'disambiguation_message',
+            name: 'bla_message',
             type: 'unfeaturized',
         },
         {
             projectId: 'bf',
-            name: 'bla_message',
+            name: 'disambiguation_message',
             type: 'unfeaturized',
         },
     ],

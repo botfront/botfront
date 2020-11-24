@@ -42,6 +42,7 @@ const expectedParams = {
     wipeInvolvedCollections: undefined,
     wipeFragments: undefined,
     wipeNluData: [],
+    actionsFromFragments: [],
 };
 
 
@@ -145,7 +146,7 @@ export const multipleFiles = [
         }],
         expectedParams: {
             ...expectedParams,
-            
+           
             summary: ['You will add 4 conversations'],
         },
     },
@@ -184,7 +185,7 @@ export const multipleFiles = [
         expectedFiles: [
             {
                 ...invalidDefaultDomain,
-                errors: ['Not valid yaml'],
+                errors: ['Not valid yaml: end of the stream or a document separator is expected at line 3, column 1:\n    a_message:\n    ^'],
             }, {
                 ...validDefaultDomain,
                 ...validDefaultDomainParsed,
@@ -203,11 +204,11 @@ export const multipleFiles = [
             },
             {
                 ...invalidDefaultDomain,
-                errors: ['Not valid yaml'],
+                errors: ['Not valid yaml: end of the stream or a document separator is expected at line 3, column 1:\n    a_message:\n    ^'],
             }],
         expectedParams: {
             ...expectedParams,
-            summary: ['You will remplace the default domain by default-domain1.yml, default-domain2.yml'],
+            summary: ['The default domain will be replaced by default-domain1.yml, default-domain2.yml'],
             defaultDomain: mergedDefaultDomains,
         },
     },
@@ -220,7 +221,6 @@ export const multipleFiles = [
                 'en',
             ],
             fallbackLang: 'en',
-            
         },
         expectedFiles: [{
             ...validDomain,
@@ -247,59 +247,12 @@ export const multipleFiles = [
                 ],
             }],
             bfForms: [],
-            warnings: [],
-            newLanguages: [],
-        },
-        {
-            ...validDefaultDomain,
-            ...validDefaultDomainParsed,
-            bfForms: [],
-            newLanguages: [],
-            warnings: [],
-        }],
-        expectedParams: {
-            ...expectedParams,
-            summary: ['You will remplace the default domain by default-domain1.yml',
-                'From domain.yml you will add: 1 slots, 1 responses, 1 actions'],
-            defaultDomain: validDefaultDomainParsed,
-        },
-    },
-    {
-        name: 'should remove data of domain that already exists in the default domain',
-        files: [validDomain, validDefaultDomain],
-        params: {
-            projectId,
-            projectLanguages: [
-                'en',
-            ],
-            fallbackLang: 'en',
-        },
-        expectedFiles: [{
-            ...validDomain,
-            ...validDomainParsed,
-            slots:
-            [
+            warnings: [
                 {
-                    initialValue: 'fr',
-                    name: 'a_language',
-                    type: 'unfeaturized',
+                    longText: 'the actions that will be added to the default domain are the one that are in this file and not used directly by the rules or stories',
+                    text: 'Some actions defined in this file will be added to the default domain on import',
                 },
             ],
-            responses: [{
-                key: 'utter_aaa',
-                values: [
-                    {
-                        lang: 'en',
-                        sequence: [
-                            {
-                                content: 'text: aaaa\n',
-                            },
-                        ],
-                    },
-                ],
-            }],
-            bfForms: [],
-            warnings: [],
             newLanguages: [],
         },
         {
@@ -311,8 +264,8 @@ export const multipleFiles = [
         }],
         expectedParams: {
             ...expectedParams,
-            summary: ['You will remplace the default domain by default-domain1.yml',
-                'From domain.yml you will add: 1 slots, 1 responses, 1 actions'],
+            summary: ['The default domain will be replaced by default-domain1.yml',
+                'From domain.yml you will add: 1 slots, 1 responses, 1 actions (actions ends up in the default domain)'],
             defaultDomain: validDefaultDomainParsed,
         },
     },
@@ -385,7 +338,7 @@ export const multipleFiles = [
             summary: [{
                 text: 'Group \'stories.yml\' will be created with 1 story.',
             },
-            'From domain.yml you will add: 2 slots, 2 responses, 1 actions to the default domain'],
+            'From domain.yml you will add: 2 slots, 2 responses, 1 actions (actions ends up in the default domain)'],
             existingStoryGroups: [
                 {
                     name: 'stories.yml',
