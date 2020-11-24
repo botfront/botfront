@@ -57,7 +57,7 @@ const tests = [{ filename: 'test.png', rawText: '', expectedType: 'unknown' },
 ];
 
 if (Meteor.isServer) {
-    describe.only('Inference of files types', () => {
+    describe('Inference of files types', () => {
         tests.forEach((test) => {
             const {
                 rawText, expectedType, filename,
