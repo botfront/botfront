@@ -147,12 +147,21 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
             parentId,
         };
         setSomethingIsMutating(true);
-        addStory(convertId({
-            id, parentId, title, status,
-        }, type), () => {
-            setRenamingModalPosition({ id, title });
-            setSomethingIsMutating(false);
-        });
+        addStory(
+            convertId(
+                {
+                    id,
+                    parentId,
+                    title,
+                    status,
+                },
+                type,
+            ),
+            () => {
+                setRenamingModalPosition({ id, title });
+                setSomethingIsMutating(false);
+            },
+        );
         return mutateTree({ ...tree, items }, parentId, { isExpanded: true }); // make sure destination is open
     }
     if (newForm) {
@@ -167,9 +176,18 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
             parentId,
         };
         setSomethingIsMutating(true);
-        upsertForm(convertId({
-            id, title, parentId, slots: [],
-        }, 'form'), setSomethingIsMutating(false));
+        upsertForm(
+            convertId(
+                {
+                    id,
+                    title,
+                    parentId,
+                    slots: [],
+                },
+                'form',
+            ),
+            setSomethingIsMutating(false),
+        );
         return mutateTree({ ...tree, items }, parentId, { isExpanded: true }); // make sure destination is open
     }
     if (toggleFocus) {
@@ -215,7 +233,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
             destination = { index, parentId: parentParentId };
             destinationNode = getDestinationNode(tree, destination);
         }
-        
+
         /* keep moving pinned nodes back until they reach a pinned node, and
             keep moving non-pinned nodes forward until they reach a non-pinned node */
         const acceptanceCriterionTwo = sourceNodes[0].pinned
@@ -292,32 +310,60 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
         const newSource = movedTree.items[sourceNode.parentId];
         setSomethingIsMutating(true);
         const updateDestination = () => mutatorMapping(newDestination.type, 'reorder')(
-            convertId({
-                id: newDestination.id,
-                children: newDestination.children,
-                isExpanded: true,
-            }, newDestination.type),
+            convertId(
+                {
+                    id: newDestination.id,
+                    children: newDestination.children,
+                    isExpanded: true,
+                },
+                newDestination.type,
+            ),
             () => setSomethingIsMutating(false),
         );
         if (newDestination.id !== newSource.id) {
             // mother changed
             updateGroup(
-                convertId({
-                    id: newSource.id,
-                    children: newSource.children,
-                }, 'story-group'),
+                convertId(
+                    {
+                        id: newSource.id,
+                        children: newSource.children,
+                    },
+                    'story-group',
+                ),
                 () => {
-                    const { stories, forms } = sourceNodes.reduce((acc, node) => {
-                        if (node.type === 'form') return { ...acc, forms: [...acc.forms, convertId({ id: node.id, parentId: newDestination.id }, 'form')] };
-                        if (node.type === 'story') return { ...acc, stories: [...acc.stories, convertId({ id: node.id, parentId: newDestination.id }, 'story')] };
-                        return acc;
-                    }, { stories: [], forms: [] });
+                    const { stories, forms } = sourceNodes.reduce(
+                        (acc, node) => {
+                            if (node.type === 'form') {
+                                return {
+                                    ...acc,
+                                    forms: [
+                                        ...acc.forms,
+                                        convertId(
+                                            { id: node.id, parentId: newDestination.id },
+                                            'form',
+                                        ),
+                                    ],
+                                };
+                            }
+                            if (['story', 'rule'].includes(node.type)) {
+                                return {
+                                    ...acc,
+                                    stories: [
+                                        ...acc.stories,
+                                        convertId(
+                                            { id: node.id, parentId: newDestination.id },
+                                            node.type,
+                                        ),
+                                    ],
+                                };
+                            }
+                            return acc;
+                        },
+                        { stories: [], forms: [] },
+                    );
                     Promise.all(forms.map(form => upsertForm(form))).then(() => {
                         if (stories.length) {
-                            updateStory(
-                                stories,
-                                updateDestination,
-                            );
+                            updateStory(stories, updateDestination);
                         } else updateDestination();
                     });
                 },
@@ -328,7 +374,11 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
     return tree;
 };
 
-export const useStoryGroupTree = (treeFromProps, activeStories, setRenamingModalPosition) => {
+export const useStoryGroupTree = (
+    treeFromProps,
+    activeStories,
+    setRenamingModalPosition,
+) => {
     const [somethingIsDragging, setSomethingIsDragging] = useState(false);
     const [somethingIsMutating, setSomethingIsMutating] = useState(false);
     const {
