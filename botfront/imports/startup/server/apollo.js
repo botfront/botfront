@@ -35,7 +35,6 @@ export const runAppolloServer = () => {
             }
             return ({ user });
         },
-        // schemaDirectives,
     });
 
     server.applyMiddleware({

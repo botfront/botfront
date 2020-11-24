@@ -247,6 +247,52 @@ Cypress.Commands.add(
     },
 );
 
+
+Cypress.Commands.add(
+    'uploadTxt',
+    {
+        prevSubject: 'element',
+    },
+    (subject, text, fileName) => {
+        // we need access window to create a file below
+
+        cy.window().then((window) => {
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            // Please note that we need to create a file using window.File,
+            // cypress overwrites File and this is not compatible with our change handlers in React Code
+            const testFile = new window.File([blob], fileName);
+            const dataTransfer = {
+                dataTransfer: { files: [testFile], types: ['Files'] },
+            };
+            cy.wrap(subject).trigger('dragenter', dataTransfer);
+            cy.wrap(subject).trigger('drop', dataTransfer);
+        });
+    },
+);
+
+
+Cypress.Commands.add(
+    'uploadBlob',
+    {
+        prevSubject: 'element',
+    },
+    (subject, blob, fileName) => {
+        // we need access window to create a file below
+
+        cy.window().then((window) => {
+            // Please note that we need to create a file using window.File,
+            // cypress overwrites File and this is not compatible with our change handlers in React Code
+            const testFile = new window.File([blob], fileName);
+            const dataTransfer = {
+                dataTransfer: { files: [testFile], types: ['Files'] },
+            };
+            cy.wrap(subject).trigger('dragenter', dataTransfer);
+            cy.wrap(subject).trigger('drop', dataTransfer);
+        });
+    },
+);
+
+
 Cypress.Commands.add(
     'dragTo',
     { prevSubject: 'element' },

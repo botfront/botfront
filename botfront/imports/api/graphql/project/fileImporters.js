@@ -6,9 +6,8 @@ import Activity from '../activity/activity.model';
 import { indexBotResponse } from '../botResponses/mongo/botResponses';
 import { Slots } from '../../slots/slots.collection';
 import { Projects } from '../../project/project.collection';
-import { mergeDomains, deduplicateAndMergeResponses } from '../../../lib/importers/validateDomain';
+import { mergeDomains, deduplicateAndMergeResponses, deduplicateArray } from '../../../lib/importers/validateDomain';
 import { Credentials, createCredentials } from '../../credentials';
-
 
 import { Endpoints } from '../../endpoints/endpoints.collection';
 import { Stories } from '../../story/stories.collection';
@@ -35,8 +34,8 @@ export const handleImportForms = async (forms, projectId) => {
 export const handleImportActions = async (actions, projectId) => {
     const { defaultDomain } = Projects.findOne({ _id: projectId });
     const parsedDomain = safeLoad(defaultDomain.content);
-    const newForms = [...(parsedDomain?.actions || []), ...actions];
-    parsedDomain.actions = newForms;
+    const newActions = deduplicateArray([...(parsedDomain?.actions || []), ...actions]);
+    parsedDomain.actions = newActions;
     const newDomain = safeDump(parsedDomain);
     await Meteor.callWithPromise('project.update', {
         defaultDomain: { content: newDomain },
@@ -169,6 +168,15 @@ export const handleImportBfConfig = async (files, { projectId }) => {
     const toImport = files[0]; // we use the first file, as there could be only one instance
     const { bfconfig } = toImport;
     const { instance, ...bfconfigData } = bfconfig;
+    // all we want to be sure to not import one of those keys as it could break the import other parts (stories, models or defaultdomain)
+    delete bfconfigData.training;
+    delete bfconfigData.disabled;
+    delete bfconfigData.enableSharing;
+    delete bfconfigData._id;
+    delete bfconfigData.defaultDomain;
+    delete bfconfigData.storyGroups;
+    delete bfconfigData.languages;
+
     const errors = [];
     try {
         await Meteor.callWithPromise('instance.update', { ...instance, projectId });
@@ -228,7 +236,7 @@ export const handleImportCredentials = async (files, { projectId }) => {
 export const handleImportRasaConfig = async (files, { projectId, projectLanguages }) => {
     const languagesNotImported = new Set(projectLanguages);
     let policiesImported = false;
-    const existingLanguages = Projects.findOne({ _id: projectId }).languages;
+    const { languages: existingLanguages } = Projects.findOne({ _id: projectId });
     const pipelineImported = {};
     const importResult = await Promise.all(
         files.map(async (f) => {
@@ -238,7 +246,7 @@ export const handleImportRasaConfig = async (files, { projectId, projectLanguage
             if (policies && !policiesImported) {
                 try {
                     await Meteor.callWithPromise('policies.save', {
-                        policies: safeDump(policies),
+                        policies: safeDump({ policies }),
                         projectId,
                     });
                     policiesImported = true;
@@ -253,12 +261,12 @@ export const handleImportRasaConfig = async (files, { projectId, projectLanguage
                             'nlu.update.pipeline',
                             projectId,
                             language,
-                            safeDump(pipeline),
+                            safeDump({ pipeline }),
                         );
                     } else {
-                        await Meteor.callWithPromise('nlu.insert', projectId, language, safeDump(pipeline));
+                        await Meteor.callWithPromise('nlu.insert', projectId, language, safeDump({ pipeline }));
                     }
-                                       
+                    pipelineImported[language] = true;
                     languagesNotImported.delete(language);
                     return null;
                 } catch (e) {
@@ -270,6 +278,7 @@ export const handleImportRasaConfig = async (files, { projectId, projectLanguage
     );
     const { languages } = await Projects.findOne({ _id: projectId });
     languages.forEach(lang => languagesNotImported.delete(lang));
+
     const createResult = await Promise.all(
         [...languagesNotImported].map(async (lang) => {
             try {
