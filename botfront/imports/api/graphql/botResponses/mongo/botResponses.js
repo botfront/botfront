@@ -2,7 +2,7 @@ import { safeDump } from 'js-yaml/lib/js-yaml';
 import shortid from 'shortid';
 import { safeLoad } from 'js-yaml';
 import BotResponses from '../botResponses.model';
-import { clearTypenameField } from '../../../../lib/client.safe.utils';
+import { cleanPayload } from '../../../../lib/client.safe.utils';
 import { Stories } from '../../../story/stories.collection';
 import { addTemplateLanguage, modifyResponseType } from '../../../../lib/botResponse.utils';
 import { replaceStoryLines } from '../../story/mongo/stories';
@@ -65,9 +65,9 @@ const mergeAndIndexBotResponse = async ({
     }
     const valueIndex = botResponse.values.findIndex(({ lang }) => lang === language);
     if (valueIndex > -1) { // add to existing language
-        botResponse.values[valueIndex].sequence[index] = { content: safeDump(clearTypenameField(newPayload)) };
+        botResponse.values[valueIndex].sequence[index] = { content: safeDump(cleanPayload(newPayload)) };
     } else { // add a new language
-        botResponse.values = [...botResponse.values, { lang: language, sequence: [{ content: safeDump(clearTypenameField(newPayload)) }] }];
+        botResponse.values = [...botResponse.values, { lang: language, sequence: [{ content: safeDump(cleanPayload(newPayload)) }] }];
     }
     return indexBotResponse(botResponse);
 };
@@ -186,12 +186,12 @@ export const upsertResponse = async ({
         ? {
             $push: {
                 'values.$.sequence': {
-                    $each: [{ content: safeDump(clearTypenameField(newPayload)) }],
+                    $each: [{ content: safeDump(cleanPayload(newPayload)) }],
                 },
             },
             $set: { textIndex, ...(newKey ? { key: newKey } : {}) },
         }
-        : { $set: { [`values.$.sequence.${index}`]: { content: safeDump(clearTypenameField(newPayload)) }, textIndex, ...(newKey ? { key: newKey } : {}) } };
+        : { $set: { [`values.$.sequence.${index}`]: { content: safeDump(cleanPayload(newPayload)) }, textIndex, ...(newKey ? { key: newKey } : {}) } };
     const updatedResponse = await BotResponses.findOneAndUpdate(
         { projectId, key, 'values.lang': language },
         update,
@@ -201,7 +201,7 @@ export const upsertResponse = async ({
     || BotResponses.findOneAndUpdate(
         { projectId, key },
         {
-            $push: { values: { lang: language, sequence: [{ content: safeDump(clearTypenameField(newPayload)) }] } },
+            $push: { values: { lang: language, sequence: [{ content: safeDump(cleanPayload(newPayload)) }] } },
             $setOnInsert: {
                 _id: shortid.generate(),
                 projectId,

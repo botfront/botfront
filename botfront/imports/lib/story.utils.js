@@ -4,6 +4,7 @@ import { Stories } from '../api/story/stories.collection';
 import { Projects } from '../api/project/project.collection';
 import { Slots } from '../api/slots/slots.collection';
 import { StoryGroups } from '../api/storyGroups/storyGroups.collection';
+import { cleanPayload } from './client.safe.utils';
 import { newGetBotResponses } from '../api/graphql/botResponses/mongo/botResponses';
 
 let storyAppLogger;
@@ -160,7 +161,8 @@ export const getAllResponses = async (projectId, language = '') => {
     const responses = await newGetBotResponses({ projectId, language });
     return responses.reduce((acc, curr) => {
         const { key, payload, ...rest } = curr;
-        const content = { ...yaml.safeLoad(payload), ...rest };
+        // we do this at the source too, but to be safe here too
+        const content = { ...cleanPayload(yaml.safeLoad(payload)), ...rest };
         if (!(key in acc)) return { ...acc, [key]: [content] };
         return { ...acc, [key]: [...acc[key], content] };
     }, {});

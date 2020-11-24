@@ -82,7 +82,6 @@ export default {
         image: ({ image }) => image,
     },
     CarouselPayload: {
-        template_type: ({ template_type: templateType }) => templateType,
         text: ({ text }) => text,
         elements: ({ elements }) => elements,
     },
