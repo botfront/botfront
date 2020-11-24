@@ -11,6 +11,8 @@ import {
 
 if (Meteor.isServer) {
     import Conversations from '../../conversations/conversations.model';
+    import Activity from '../../activity/activity.model';
+
     import Project from '../../project/project.model';
     
     const projectId = 'bf';
@@ -29,6 +31,8 @@ if (Meteor.isServer) {
 
     const cleanUpDB = async (done) => {
         await Conversations.deleteMany({ projectId });
+        await Activity.deleteMany({ projectId });
+
         done();
     };
 

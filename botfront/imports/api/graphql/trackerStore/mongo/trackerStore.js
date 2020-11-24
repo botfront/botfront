@@ -89,7 +89,7 @@ async function logUtterance(utterance, projectId, language, convId, env, callbac
     const { _id, ...newUtterance } = { ...new Activity(newData) }._doc;
     if (!parseData.intent) newUtterance.intent = null;
 
-    Activity.updateOne(
+    await Activity.updateOne(
         {
             projectId, language, text, env,
         },
@@ -117,7 +117,7 @@ const logUtterancesFromTracker = async function (projectId, events, env, convId)
             ).lean();
             const { defaultLanguage } = project;
             if (!language && !defaultLanguage) return;
-            userUtterances.forEach(utterance => logUtterance(
+            const userUtterancesLogging = userUtterances.map(utterance => logUtterance(
                 utterance,
                 projectId,
                 language || defaultLanguage,
@@ -125,6 +125,7 @@ const logUtterancesFromTracker = async function (projectId, events, env, convId)
                 env,
                 (_, e) => e && console.log('Logging failed: ', e.errmsg),
             ));
+            await Promise.all(userUtterancesLogging);
         }
     } catch (e) {
         console.log('Logging failed: ', e);
@@ -143,7 +144,7 @@ export const upsertTrackerStore = async ({
     const { events = [] } = tracker;
 
     if (!importConversationsOnly && !process.argv.includes('--logConversationsOnly')) {
-        logUtterancesFromTracker(projectId, events, env, senderId);
+        await logUtterancesFromTracker(projectId, events, env, senderId);
     }
 
     let failed = false;
