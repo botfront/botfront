@@ -80,7 +80,7 @@ const insertNluData = ({
     nlu: {
         common_examples: commonExamples = [],
         entity_synonyms: synonyms = [],
-        fuzzy_gazette: gazette = [],
+        gazette = [],
         regex_features: regex = [],
         language: languageFromFile,
     } = {},

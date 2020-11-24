@@ -12,7 +12,7 @@ const NLU_ENGLISH_MAPPINGS = {
     common_examples: 'example',
     entity_synonyms: 'synonym',
     regex_features: 'regex feature',
-    fuzzy_gazette: 'gazette',
+    gazette: 'gazette',
 };
 
 const CORE_ENGLISH_MAPPINGS = {
@@ -772,7 +772,7 @@ export class TrainingDataValidator {
                     stories = filtered;
                     warnings = [...warnings, ...newWarnings];
                 }
-                ['entity_synonyms', 'regex_features', 'fuzzy_gazette'].forEach(key => this.validateGenericNluData(nlu, key));
+                ['entity_synonyms', 'regex_features', 'gazette'].forEach(key => this.validateGenericNluData(nlu, key));
             }
             allAction.push(...extractDomain({ fragments: stories }).actions);
             allAction.push(...extractDomain({ fragments: rules }).actions);
