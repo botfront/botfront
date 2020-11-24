@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { safeLoad } from 'js-yaml';
 import chai from 'chai';
-// import deepEqualInAnyOrder from 'deep-equal-in-any-order';
+import deepEqualInAnyOrder from 'deep-equal-in-any-order';
 import Conversations from '../conversations/conversations.model.js';
 import Activity from '../activity/activity.model';
 import { Credentials } from '../../credentials';
@@ -69,7 +69,7 @@ import {
 } from '../../../lib/importers/test_data/domain.data.js';
 
 
-// chai.use(deepEqualInAnyOrder);
+chai.use(deepEqualInAnyOrder);
 
 const { expect } = chai;
 
