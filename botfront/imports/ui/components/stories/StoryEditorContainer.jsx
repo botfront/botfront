@@ -147,8 +147,8 @@ const StoryEditorContainer = ({
         if (typeof callback === 'function') callback();
     });
     const saveStoryDebounced = disabled
-        ? useCallback(debounce(saveStory, 500), [])
-        : () => {};
+        ? () => {}
+        : useCallback(debounce(saveStory, 500), []);
 
     const isBranchLinked = branchId => destinationStories.some(aStory => (aStory.checkpoints || []).some(checkpointPath => checkpointPath.includes(branchId)));
 
