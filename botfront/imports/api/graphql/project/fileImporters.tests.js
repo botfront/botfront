@@ -87,7 +87,7 @@ const removeId = (obj) => {
 };
 
 if (Meteor.isServer) {
-    describe.skip('file importers', () => {
+    describe('file importers', () => {
         it('should import conversations', async () => {
             await Conversations.deleteMany({});
             const importResult = await handleImportConversations(

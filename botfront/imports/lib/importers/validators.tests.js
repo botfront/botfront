@@ -32,7 +32,7 @@ const instance = {
     projectId: 'bf',
 };
 if (Meteor.isServer) {
-    describe.skip('validation pipeline with single files', () => {
+    describe('validation pipeline with single files', () => {
         before(async(done) => {
             await Projects.insert(project);
             await Instances.insert(instance);
@@ -59,7 +59,7 @@ if (Meteor.isServer) {
         });
     });
 
-    describe.skip('validation pipeline multiple files', () => {
+    describe('validation pipeline multiple files', () => {
         before(async(done) => {
             await Projects.insert(project);
             await Instances.insert(instance);
