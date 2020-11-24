@@ -22,3 +22,4 @@ export const Meteor = {
     call: () => {},
     subscribe: () => {},
 };
+export const stringPayloadToObject = () => ({ intent: true });

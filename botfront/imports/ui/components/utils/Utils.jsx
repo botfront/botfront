@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Loader, Popup } from 'semantic-ui-react';
 
 
+// eslint-disable-next-line react/prop-types
 export function Loading({ loading, children }) {
     return !loading ? children : <Loader active inline='centered' />;
 }

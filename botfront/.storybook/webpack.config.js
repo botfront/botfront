@@ -33,6 +33,10 @@ module.exports = async ({ config, mode }) => {
             /NluModalContent\.jsx/,
             `${__dirname}/EmptyComponent.jsx`,
         ),
+        new webpack.NormalModuleReplacementPlugin(
+            /story.utils/,
+            resolve(__dirname, './emptyMethods'),
+        ),
     ]
     
     // Return the altered config
