@@ -212,12 +212,12 @@ describe('story tree navigation', function() {
         cy.contains('Train NLU and stories from 1 focused story group.').should('not.exist');
     });
 
-    // it('should remember selected story', () => {
-    //     populateMenu();
-    //     cy.visit('/project/bf/dialogue');
-    //     cy.browseToStory('Groupo (1)');
-    //     cy.dataCy('incoming-sidebar-link').click({ force: true });
-    //     cy.dataCy('dialogue-sidebar-link').click({ force: true });
-    //     cy.dataCy('story-title').should('have.value', 'Groupo (1)');
-    // });
+    it('should remember selected story', () => {
+        populateMenu();
+        cy.visit('/project/bf/dialogue');
+        cy.browseToStory('Groupo (1)');
+        cy.dataCy('incoming-sidebar-link').click({ force: true });
+        cy.dataCy('dialogue-sidebar-link').click({ force: true });
+        cy.dataCy('story-title').should('have.value', 'Groupo (1)');
+    });
 });
