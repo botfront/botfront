@@ -12,7 +12,7 @@ describe('stories', function() {
 
     it('should autosave stories as you edit them', function() {
         cy.visit('/project/bf/dialogue');
-        cy.dataCy('toggle-md').click({ force: true });
+        cy.dataCy('toggle-yaml').click({ force: true });
         cy.browseToStory('Greetings');
         cy.dataCy('story-editor')
             .get('textarea')
@@ -28,7 +28,7 @@ describe('stories', function() {
 
     it('should be able to collapse stories and to persist that across application state', function() {
         cy.visit('/project/bf/dialogue');
-        cy.dataCy('toggle-md').click({ force: true });
+        cy.dataCy('toggle-yaml').click({ force: true });
         cy.browseToStory('Farewells');
         cy.dataCy('single-story-editor');
         cy.dataCy('collapse-story-button').click({ force: true });
@@ -55,7 +55,7 @@ describe('stories', function() {
 
     it('should be only possible to link of leaf stories', function() {
         cy.visit('/project/bf/dialogue');
-        cy.dataCy('toggle-md').click({ force: true });
+        cy.dataCy('toggle-yaml').click({ force: true });
         cy.createStoryInGroup({ groupName: 'Example group', storyName: 'Hmm1' });
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('branch-label').should('have.length', 2);
@@ -89,7 +89,7 @@ describe('stories', function() {
 
     it('should be possible to link and unlink stories, and change the linked story', function() {
         cy.visit('/project/bf/dialogue');
-        cy.dataCy('toggle-md').click({ force: true });
+        cy.dataCy('toggle-yaml').click({ force: true });
         cy.createStoryInGroup({ groupName: 'Example group', storyName: 'Hmm1' });
         cy.createStoryInGroup({ groupName: 'Example group', storyName: 'Hmm3' });
         cy.createStoryInGroup({ groupName: 'Example group', storyName: 'Hmm2' });
@@ -148,7 +148,7 @@ describe('stories', function() {
 
     it('should be possible to self link when a story has branches', function() {
         cy.visit('/project/bf/dialogue');
-        cy.dataCy('toggle-md').click({ force: true });
+        cy.dataCy('toggle-yaml').click({ force: true });
         cy.createStoryInGroup({ groupName: 'Example group', storyName: 'Hmm1' });
         cy.dataCy('stories-linker')
             .find('div.item')
@@ -170,7 +170,7 @@ describe('stories', function() {
 
     it('should disable the delete button in the branch tab for a linked branch and its parent branches', function () {
         cy.visit('/project/bf/dialogue');
-        cy.dataCy('toggle-md').click({ force: true });
+        cy.dataCy('toggle-yaml').click({ force: true });
         cy.createStoryInGroup({ groupName: 'Example group', storyName: 'Hmm1' });
         cy.createStoryInGroup({ groupName: 'Example group', storyName: 'Hmm2' });
         cy.dataCy('create-branch').click({ force: true });

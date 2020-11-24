@@ -53,7 +53,7 @@ describe('branches', function() {
     };
 
     it('should be able to add a branch, edit the content and it should be saved', function() {
-        cy.dataCy('toggle-md').click({ force: true });
+        cy.dataCy('toggle-yaml').click({ force: true });
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('branch-label').should('have.lengthOf', 2);
         cy.dataCy('story-editor')
@@ -69,7 +69,7 @@ describe('branches', function() {
         cy.wait(700);
         cy.visit('/project/bf/dialogue'); // reload page
         cy.browseToStory();
-        cy.dataCy('toggle-md').click({ force: true });
+        cy.dataCy('toggle-yaml').click({ force: true });
         cy.dataCy('branch-label').should('have.lengthOf', 2);
         cy.dataCy('branch-label')
             .first()
@@ -125,7 +125,7 @@ describe('branches', function() {
     });
 
     it('should be able to merge deleted story branches', function() {
-        cy.dataCy('toggle-md').click({ force: true });
+        cy.dataCy('toggle-yaml').click({ force: true });
         cy.dataCy('create-branch').click({ force: true });
 
         cy.dataCy('branch-label').should('have.lengthOf', 2);

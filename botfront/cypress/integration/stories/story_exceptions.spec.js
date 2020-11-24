@@ -6,7 +6,7 @@ describe('story exceptions', function() {
         cy.createStoryGroup({ groupName: 'Exception test group' });
         cy.createStoryInGroup({ storyName: 'Exception test story', groupName: 'Exception test group' });
         cy.browseToStory('Exception test story', 'Exception test group');
-        cy.dataCy('toggle-md').click({ force: true });
+        cy.dataCy('toggle-yaml').click({ force: true });
     };
     afterEach(function() {
         // cy.logout();

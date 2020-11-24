@@ -111,7 +111,7 @@ if (Meteor.isServer) {
                 .map(({ fragments, group }) => {
                     const stories = fragments.filter(f => f.story);
                     const rules = fragments.filter(f => f.rule);
-                    const fragmentsByType = safeDump({ stories, rules });
+                    const fragmentsByType = safeDump({ stories, rules }, { skipInvalid: true });
                     return { group, fragments: fragmentsByType };
                 });
             const exportData = {
@@ -127,7 +127,6 @@ if (Meteor.isServer) {
                 fragments: fragmentsByGroup,
             };
 
-           
             const defaultDomain = project?.defaultDomain?.content || '';
             const configData = project;
             // exported separately

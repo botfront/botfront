@@ -7,7 +7,7 @@ describe('rename responses in the visual editor', () => {
         });
         cy.visit('project/bf/dialogue');
         cy.createStoryGroup();
-        cy.dataCy('toggle-md').click({ force: true });
+        cy.dataCy('toggle-yaml').click({ force: true });
         cy.createStoryInGroup();
         cy.dataCy('single-story-editor').find('textarea').focus({ force: true });
         cy.dataCy('single-story-editor').find('textarea')

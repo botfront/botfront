@@ -107,7 +107,7 @@ class StoryGroupNavigation extends React.Component {
                     )}
                     {tooltipWrapper(
                         <Button
-                            data-cy={storyMode === 'visual' ? 'toggle-md' : 'toggle-visual'}
+                            data-cy={storyMode === 'visual' ? 'toggle-yaml' : 'toggle-visual'}
                             icon
                             onClick={() => onSwitchStoryMode(storyMode === 'visual' ? 'yaml' : 'visual')}
                         >

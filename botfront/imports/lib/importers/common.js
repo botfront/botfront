@@ -46,7 +46,7 @@ export const determineDataType = (f, rawText) => {
         }
         return 'unknown';
     } catch (e) {
-        console.log(e);
+        console.log(e); // eslint-disable-line no-console
         return 'unknown';
     }
 };

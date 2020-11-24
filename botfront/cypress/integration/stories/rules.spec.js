@@ -39,7 +39,7 @@ describe('Rule-specific behavior', function () {
     });
     it('should not be possible to add an action line as a condition', () => {
         cy.dataCy('connected-to').findCy('add-action-line').should('not.exist');
-        cy.dataCy('toggle-md').click();
+        cy.dataCy('toggle-yaml').click();
         cy.dataCy('connected-to')
             .get('textarea')
             .first()

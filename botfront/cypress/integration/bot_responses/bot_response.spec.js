@@ -144,7 +144,7 @@ describe('Bot responses', function() {
         cy.visit('/project/bf/dialogue');
         cy.createStoryInGroup({ groupName: 'Example group', storyName: 'myTest' });
         cy.dataCy('story-title').should('have.value', 'myTest');
-        cy.dataCy('toggle-md').click();
+        cy.dataCy('toggle-yaml').click();
         cy.get('.ace_content').click({ force: true });
         cy.get('textarea').type('- action: utter_test_A')
             .blur();
@@ -186,7 +186,7 @@ describe('Bot responses', function() {
         cy.createStoryInGroup();
         cy.createStoryInGroup();
         cy.dataCy('story-title').should('have.value', 'Groupo (2)');
-        cy.dataCy('toggle-md').click();
+        cy.dataCy('toggle-yaml').click();
         cy.get('.ace_content').click({ force: true });
         cy.get('textarea').type('- action: utter_test')
             .blur();

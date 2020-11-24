@@ -228,7 +228,7 @@ if (Meteor.isServer) {
                 config[lang] = `${configForLang}\n\n${corePolicies}`;
             }
             const payload = {
-                domain: yaml.safeDump(domain),
+                domain: yaml.safeDump(domain, { skipInvalid: true }),
                 stories,
                 rules,
                 nlu,
@@ -236,7 +236,7 @@ if (Meteor.isServer) {
                 fixed_model_name: getProjectModelFileName(projectId),
                 augmentation_factor: augmentationFactor,
             };
-            return JSON.parse(JSON.stringify(payload)); // get rid of undefineds
+            return payload;
         },
 
         async 'rasa.train'(projectId) {
@@ -252,7 +252,7 @@ if (Meteor.isServer) {
             const t0 = performance.now();
             try {
                 const { stories = [], rules = [], ...payload } = await Meteor.call('rasa.getTrainingPayload', projectId);
-                payload.fragments = yaml.safeDump({ stories, rules });
+                payload.fragments = yaml.safeDump({ stories, rules }, { skipInvalid: true });
                 
                 const instance = await Instances.findOne({ projectId });
                 const trainingClient = axios.create({
@@ -303,7 +303,7 @@ if (Meteor.isServer) {
                 }
                 Meteor.call('project.markTrainingStopped', projectId, 'success');
             } catch (e) {
-                console.log(e);
+                console.log(e); // eslint-disable-line no-console
                 const error = `${e.message || e.reason} ${(
                     e.stack.split('\n')[2] || ''
                 ).trim()}`;

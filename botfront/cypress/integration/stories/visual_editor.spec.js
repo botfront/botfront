@@ -17,7 +17,7 @@ describe('story visual editor', function () {
     });
 
     const writeStoryWithIntent = (intent) => {
-        cy.dataCy('toggle-md').click({ force: true });
+        cy.dataCy('toggle-yaml').click({ force: true });
         cy.dataCy('story-editor')
             .get('textarea')
             .focus()
@@ -72,7 +72,7 @@ describe('story visual editor', function () {
         cy.addButtonOrSetPayload('postback option', { payload: { intent: 'get_started' } }, 'button_title');
         cy.addButtonOrSetPayload('web_url option', { url: 'https://myurl.com/' }, 0);
 
-        cy.dataCy('toggle-md').click({ force: true });
+        cy.dataCy('toggle-yaml').click({ force: true });
         cy.dataCy('story-editor')
             .find('.ace_line').eq(0)
             .should('have.text', '- intent: chitchat.greet');
@@ -184,14 +184,14 @@ describe('story visual editor', function () {
         cy.dataCy('icon-add').click({ force: true });
         cy.dataCy('user-line-from-input').first().click({ force: true });
         cy.addUserUtterance('Bye', 'chitchat.bye', 1);
-        cy.dataCy('toggle-md').click();
+        cy.dataCy('toggle-yaml').click();
         cy.dataCy('story-editor')
             .should('contain.text', 'or:')
             .should('contain.text', 'intent: chitchat.greet')
             .should('contain.text', 'intent: chitchat.bye');
         cy.dataCy('toggle-visual').click();
         cy.dataCy('icon-trash').first().click({ force: true });
-        cy.dataCy('toggle-md').click();
+        cy.dataCy('toggle-yaml').click();
         cy.dataCy('story-editor')
             .should('not.contain.text', 'or:')
             .should('not.contain.text', 'intent: chitchat.greet')
