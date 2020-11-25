@@ -75,26 +75,36 @@ function Stories(props) {
     const treeRef = useRef();
 
     const getQueryParams = () => {
-        const { location: { query } } = router;
+        const {
+            location: { query },
+        } = router;
         let queriedIds = query['ids[]'] || [];
         queriedIds = Array.isArray(queriedIds) ? queriedIds : [queriedIds];
-        
+
         return queriedIds;
     };
 
     const cleanId = id => id.replace(/^.*_SMART_/, '');
 
-
     const setStoryMenuSelection = (newSelection) => {
-        if (!getQueryParams().every(id => newSelection.includes(id))
-        || !newSelection.every(id => getQueryParams().includes(id))) {
-            const { location: { pathname } } = router;
+        if (
+            !getQueryParams().every(id => newSelection.includes(id))
+            || !newSelection.every(id => getQueryParams().includes(id))
+        ) {
+            const {
+                location: { pathname },
+            } = router;
             router.replace({ pathname, query: { 'ids[]': newSelection.map(cleanId) } });
         }
         doSetStoryMenuSelection(newSelection);
     };
 
-    useEffect(() => setStoryMenuSelection(getQueryParams().length ? getQueryParams() : storyMenuSelection), []);
+    useEffect(
+        () => setStoryMenuSelection(
+            getQueryParams().length ? getQueryParams() : storyMenuSelection,
+        ),
+        [],
+    );
 
     const closeModals = () => {
         setSlotsModal(false);
@@ -118,7 +128,7 @@ function Stories(props) {
             if (storyA.text > storyB.text) return 1;
             return 0;
         });
-    
+
     const injectProjectIdInStory = useCallback(story => ({ ...story, projectId }), [
         projectId,
     ]);
@@ -194,12 +204,20 @@ function Stories(props) {
         );
     };
 
-    const handleLinkToStory = useCallback((id) => {
-        const { location: { pathname } } = router;
-        const newSelection = [id, ...storyMenuSelection.filter(storyId => storyId !== id)];
-        router.replace({ pathname, query: { 'ids[]': newSelection } });
-        setStoryMenuSelection(newSelection);
-    }, [storyMenuSelection]);
+    const handleLinkToStory = useCallback(
+        (id) => {
+            const {
+                location: { pathname },
+            } = router;
+            const newSelection = [
+                id,
+                ...storyMenuSelection.filter(storyId => storyId !== id),
+            ];
+            router.replace({ pathname, query: { 'ids[]': newSelection } });
+            setStoryMenuSelection(newSelection);
+        },
+        [storyMenuSelection],
+    );
 
     const handleNewStory = useCallback(
         (story, f) => Meteor.call(
@@ -305,23 +323,27 @@ Stories.propTypes = {
 
 Stories.defaultProps = {};
 
-const StoriesWithTracker = withRouter(withTracker((props) => {
-    const { projectId } = props;
-    const storiesHandler = Meteor.subscribe('stories.light', projectId);
-    const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
+const StoriesWithTracker = withRouter(
+    withTracker((props) => {
+        const { projectId } = props;
+        const storiesHandler = Meteor.subscribe('stories.light', projectId);
+        const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
 
-    const storyGroups = StoryGroups.find().fetch();
-    const stories = StoriesCollection.find().fetch();
+        const storyGroups = StoryGroups.find().fetch();
+        const stories = StoriesCollection.find().fetch();
 
-    return {
-        ready: storyGroupsHandler.ready() && storiesHandler.ready(),
-        storyGroups,
-        stories,
-    };
-})(Stories));
+        return {
+            ready: storyGroupsHandler.ready() && storiesHandler.ready(),
+            storyGroups,
+            stories,
+        };
+    })(Stories),
+);
 
 const mapStateToProps = state => ({
     storyMenuSelection: state.stories.get('storiesCurrent').toJS(),
 });
 
-export default connect(mapStateToProps, { setStoryMenuSelection: setStoriesCurrent })(StoriesWithTracker);
+export default connect(mapStateToProps, { setStoryMenuSelection: setStoriesCurrent })(
+    StoriesWithTracker,
+);

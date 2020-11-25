@@ -28,12 +28,10 @@ const StoryTopMenu = ({
         _id,
         title,
         checkpoints,
-        steps,
         condition = [],
         conversation_start: convStart,
         status,
     } = fragment;
-    const initPayload = steps?.[0]?.intent;
     const [newTitle, setNewTitle] = useState(title);
     const [confirmPopupOpen, setConfirmPopupOpen] = useState(false);
 
@@ -200,7 +198,7 @@ const StoryTopMenu = ({
                     {renderErrors()}
                     {renderConvStartToggle()}
                     <StoryPlayButton
-                        initPayload={initPayload}
+                        fragment={fragment}
                         className='top-menu-clickable'
                     />
                 </Menu.Item>
