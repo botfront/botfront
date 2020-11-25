@@ -2,6 +2,46 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-beta.2](https://github.com/botfront/botfront/compare/v0.27.5...v1.0.0-beta.2) (2020-11-25)
+
+
+### Features
+
+* import training data initial commit ([74b81fa](https://github.com/botfront/botfront/commit/74b81fafa5084ff77535e92f53f6f7c3e83de208))
+
+
+### Bug Fixes
+
+* login issues ([aa81fae](https://github.com/botfront/botfront/commit/aa81fae869731b5497efc717129367bcfc0ce30b))
+* pad empty story legs with action_listen ([650b84a](https://github.com/botfront/botfront/commit/650b84a1d4e82fd375e44d08fc701a57f96e4aaf))
+* put files at the end of formData ([2cf3c15](https://github.com/botfront/botfront/commit/2cf3c15593a5114d3f7463a7b066d03b7ca047f7))
+
+## [1.0.0-alpha.2](https://github.com/botfront/botfront/compare/v0.27.4...v1.0.0-alpha.2) (2020-11-05)
+
+## [1.0.0-alpha.1](https://github.com/botfront/botfront/compare/v0.27.3...v1.0.0-alpha.1) (2020-11-02)
+
+
+### Features
+
+* add loop line menu ([a4bf21c](https://github.com/botfront/botfront/commit/a4bf21cc190314a969280fe83b451149decf5f60))
+* add loop line menu ([7ab3758](https://github.com/botfront/botfront/commit/7ab3758944d8fec5deefdfd0a26e58c2f308be94))
+* auto select new fragment title input ([8e5350b](https://github.com/botfront/botfront/commit/8e5350b7213f9ea28a65de11fd5cbfa162aef3e6))
+* auto select new fragment title input ([266581c](https://github.com/botfront/botfront/commit/266581c3ffe0e0e7d09ada121a31cce8a3e740e8))
+* generalize fragment linking behavior ([6e9c836](https://github.com/botfront/botfront/commit/6e9c836d46cb8fc61091e8b22abcfbe76112ddd2))
+* generalize fragment linking behavior ([7bc41d5](https://github.com/botfront/botfront/commit/7bc41d57f8d2b8e26497f1ffe376859d772c0553))
+* migration to rasa 2.0 story format ([7f6d5b8](https://github.com/botfront/botfront/commit/7f6d5b8d612199dee66dbf0b3c791079919346ca))
+* migration to rasa 2.0 story format ([8115307](https://github.com/botfront/botfront/commit/8115307e00bf0d1391b6c1e13aeb34dbf33c8c20))
+* yaml mode ([fa3fb19](https://github.com/botfront/botfront/commit/fa3fb1927f61bf2c148d9498040b5d679759b226))
+* yaml mode ([bdfb6f0](https://github.com/botfront/botfront/commit/bdfb6f08a0e4b21ee9ef298db87366803b9a901c))
+
+
+### Bug Fixes
+
+* autofocus new response text ([116e247](https://github.com/botfront/botfront/commit/116e24729e8a8b920e92079483b1cc49333d9fd7))
+* autofocus new response text ([1045b87](https://github.com/botfront/botfront/commit/1045b87242c36cfb6b0fde63926b8fd3f029e18d))
+* fix broken canonical example logic ([3bde4a9](https://github.com/botfront/botfront/commit/3bde4a94a938054aea5f2e6ee7f8c45507bc7b59))
+* fix broken canonical example logic ([6b3e810](https://github.com/botfront/botfront/commit/6b3e810970ebb603cc05a98630b7109ba64cd45a))
+
 ### [1.0.0-alpha.3](https://github.com/botfront/botfront/compare/v0.27.5...v1.0.0-alpha.3) (2020-11-11)
 
 ### [1.0.0-alpha.2](https://github.com/botfront/botfront/compare/v0.27.4...v1.0.0-alpha.2) (2020-11-05)
