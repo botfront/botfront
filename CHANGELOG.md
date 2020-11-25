@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.27.5-ee.3](https://github.com/botfront/botfront-ee/compare/v0.27.5-ee.2...v0.27.5-ee.3) (2020-11-25)
+
+
+### Features
+
+* form slot set node ([14398cb](https://github.com/botfront/botfront-ee/commit/14398cb718eaf348c205dec16bc4bd9b377d62b0))
+
 ### [0.27.5-ee.2](https://github.com/botfront/botfront/compare/v0.27.5-ee.1...v0.27.5-ee.2) (2020-11-10)
 
 
