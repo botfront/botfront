@@ -101,7 +101,7 @@ describe('Bot responses', function() {
         cy.createNLUModelProgramatically('bf', '', 'fr');
         cy.visit('/project/bf/dialogue');
         cy.createStoryGroup();
-        cy.createStoryInGroup();
+        cy.createFragmentInGroup();
         cy.dataCy('single-story-editor').trigger('mouseover');
         cy.dataCy('add-bot-line').click({ force: true });
         cy.dataCy('from-qr-template').click({ force: true });
@@ -114,7 +114,7 @@ describe('Bot responses', function() {
         cy.createNLUModelProgramatically('bf', '', 'fr');
         cy.visit('/project/bf/dialogue');
         cy.createStoryGroup();
-        cy.createStoryInGroup();
+        cy.createFragmentInGroup();
         cy.dataCy('story-title').should('have.value', 'Groupo (1)');
         cy.dataCy('from-qr-template').click({ force: true });
         cy.dataCy('bot-response-input').find('textarea').click();

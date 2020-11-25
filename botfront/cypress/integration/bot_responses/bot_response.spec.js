@@ -142,7 +142,7 @@ describe('Bot responses', function() {
 
     it('be able to edit a response with the response editor in the visual story editor', function() {
         cy.visit('/project/bf/dialogue');
-        cy.createStoryInGroup({ groupName: 'Example group', storyName: 'myTest' });
+        cy.createFragmentInGroup({ groupName: 'Example group', storyName: 'myTest' });
         cy.dataCy('story-title').should('have.value', 'myTest');
         cy.dataCy('toggle-yaml').click();
         cy.get('.ace_content').click({ force: true });
@@ -183,8 +183,8 @@ describe('Bot responses', function() {
 
         cy.visit('/project/bf/dialogue');
         cy.createStoryGroup();
-        cy.createStoryInGroup();
-        cy.createStoryInGroup();
+        cy.createFragmentInGroup();
+        cy.createFragmentInGroup();
         cy.dataCy('story-title').should('have.value', 'Groupo (2)');
         cy.dataCy('toggle-yaml').click();
         cy.get('.ace_content').click({ force: true });

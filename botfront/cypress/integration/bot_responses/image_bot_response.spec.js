@@ -47,7 +47,7 @@ describe('Bot responses', function() {
         cy.createNLUModelProgramatically('bf', '', 'fr');
         cy.visit('/project/bf/dialogue');
         cy.createStoryGroup();
-        cy.createStoryInGroup();
+        cy.createFragmentInGroup();
         cy.dataCy('single-story-editor').trigger('mouseover');
         cy.dataCy('add-bot-line').click({ force: true });
         cy.dataCy('from-image-template').click({ force: true });

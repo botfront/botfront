@@ -36,7 +36,7 @@ describe('test stories searching ui', () => {
     it('should index stories that are created and edited in the app', () => {
         cy.visit('project/bf/dialogue');
         cy.createStoryGroup({ groupName: 'test group' });
-        cy.createStoryInGroup({ groupName: 'test group', storyName: 'types of fruit' });
+        cy.createFragmentInGroup({ groupName: 'test group', storyName: 'types of fruit' });
         searchStories('types', 'types of fruit');
         cy.dataCy('story-title').should('have.value', 'types of fruit');
         cy.dataCy('user-line-from-input').last().click({ force: true });
@@ -52,9 +52,9 @@ describe('test stories searching ui', () => {
     it('should find stories created on project init', () => {
         cy.visit('project/bf/dialogue');
         cy.createStoryGroup({ groupName: 'test group A' });
-        cy.createStoryInGroup({ groupName: 'test group A', storyName: 'title A' });
+        cy.createFragmentInGroup({ groupName: 'test group A', storyName: 'title A' });
         cy.createStoryGroup({ groupName: 'test group B' });
-        cy.createStoryInGroup({ groupName: 'test group B', storyName: 'title B' });
+        cy.createFragmentInGroup({ groupName: 'test group B', storyName: 'title B' });
         cy.toggleStoryGroupCollapsed({ groupName: 'test group A' });
         cy.toggleStoryGroupCollapsed({ groupName: 'test group B' });
         searchStories('title', 'title A', { addToOpen: true });

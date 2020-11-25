@@ -13,7 +13,7 @@ describe('Bot responses copy between languages', function() {
         cy.login();
         cy.visit('/project/bf/dialogue');
         cy.createStoryGroup();
-        cy.createStoryInGroup();
+        cy.createFragmentInGroup();
     });
 
     

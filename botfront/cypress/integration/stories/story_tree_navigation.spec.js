@@ -68,7 +68,7 @@ describe('story tree navigation', function() {
         cy.get('#storygroup-tree').should('contain.text', storyGroupOne);
         cy.renameStoryOrGroup(storyGroupOne, 'HALLO');
         cy.get('#storygroup-tree').should('not.contain.text', storyGroupOne);
-        cy.createStoryInGroup({ groupName: 'HALLO' });
+        cy.createFragmentInGroup({ groupName: 'HALLO' });
         cy.dataCy('story-title').should('exist').should('have.value', 'HALLO (4)');
         cy.renameStoryOrGroup('HALLO (4)', 'BYE');
         cy.dataCy('story-title').should('exist').should('have.value', 'BYE');
@@ -76,7 +76,7 @@ describe('story tree navigation', function() {
 
     it('should be able to add and delete stories', function() {
         cy.dataCy('story-group-menu-item', null, ':not([type="story-group"])').should('have.length', 3);
-        cy.createStoryInGroup({ groupName: 'Example group' });
+        cy.createFragmentInGroup({ groupName: 'Example group' });
         cy.dataCy('story-group-menu-item', null, ':not([type="story-group"])').should('have.length', 4);
         cy.deleteStoryOrGroup('Example group (4)');
         cy.dataCy('story-group-menu-item', null, ':not([type="story-group"])').should('have.length', 3);
@@ -84,7 +84,7 @@ describe('story tree navigation', function() {
 
     it('should be able to select multiple stories and show them in the right order', function() {
         populateMenu();
-        cy.createStoryInGroup();
+        cy.createFragmentInGroup();
         cy.selectStories('Groupo (3)', 2);
         cy.dataCy('story-title').should('have.length', 2);
         cy.dataCy('story-title').eq(0).should('have.value', 'Groupo (3)');

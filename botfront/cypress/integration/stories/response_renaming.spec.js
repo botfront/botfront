@@ -8,12 +8,12 @@ describe('rename responses in the visual editor', () => {
         cy.visit('project/bf/dialogue');
         cy.createStoryGroup();
         cy.dataCy('toggle-yaml').click({ force: true });
-        cy.createStoryInGroup();
+        cy.createFragmentInGroup();
         cy.dataCy('single-story-editor').find('textarea').focus({ force: true });
         cy.dataCy('single-story-editor').find('textarea')
             .type('- action: utter_test_response', { force: true });
         cy.dataCy('single-story-editor').find('textarea').blur({ force: true });
-        cy.createStoryInGroup();
+        cy.createFragmentInGroup();
         cy.dataCy('single-story-editor').find('textarea').focus({ force: true });
         cy.dataCy('single-story-editor').find('textarea')
             .type('- action: utter_test_response{enter}- action: utter_exists', { force: true });

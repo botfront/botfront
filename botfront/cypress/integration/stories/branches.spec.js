@@ -36,7 +36,7 @@ describe('branches', function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
         cy.visit('/project/bf/dialogue');
         cy.createStoryGroup();
-        cy.createStoryInGroup();
+        cy.createFragmentInGroup();
     });
 
     afterEach(function() {

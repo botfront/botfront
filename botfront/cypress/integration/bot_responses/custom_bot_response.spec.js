@@ -56,7 +56,7 @@ describe('Bot responses', function() {
     });
     it('should add a custom response in the visual story editor', function() {
         cy.visit('/project/bf/dialogue');
-        cy.createStoryInGroup({ groupName: 'Example group', storyName: 'myTest' });
+        cy.createFragmentInGroup({ groupName: 'Example group', storyName: 'myTest' });
         cy.dataCy('story-title').should('have.value', 'myTest');
 
         cy.dataCy('single-story-editor').trigger('mouseover');
@@ -76,7 +76,7 @@ describe('Bot responses', function() {
         cy.createNLUModelProgramatically('bf', '', 'fr');
         cy.visit('/project/bf/dialogue');
         cy.createStoryGroup();
-        cy.createStoryInGroup();
+        cy.createFragmentInGroup();
         cy.dataCy('single-story-editor').trigger('mouseover');
         cy.dataCy('add-bot-line').click({ force: true });
         cy.dataCy('from-custom-template').click({ force: true });

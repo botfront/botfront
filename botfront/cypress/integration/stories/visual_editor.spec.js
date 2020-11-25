@@ -13,7 +13,7 @@ describe('story visual editor', function () {
         cy.import('bf', 'nlu_sample_en.json', 'en');
         cy.visit('/project/bf/dialogue');
         cy.createStoryGroup();
-        cy.createStoryInGroup();
+        cy.createFragmentInGroup();
     });
 
     const writeStoryWithIntent = (intent) => {
