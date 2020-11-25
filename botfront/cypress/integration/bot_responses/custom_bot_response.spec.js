@@ -56,7 +56,7 @@ describe('Bot responses', function() {
     });
     it('should add a custom response in the visual story editor', function() {
         cy.visit('/project/bf/dialogue');
-        cy.createFragmentInGroup({ groupName: 'Example group', storyName: 'myTest' });
+        cy.createFragmentInGroup({ groupName: 'Example group', fragmentName: 'myTest' });
         cy.dataCy('story-title').should('have.value', 'myTest');
 
         cy.dataCy('single-story-editor').trigger('mouseover');

@@ -11,8 +11,8 @@ const findGroupAndOpenIfClosed = (groupName, saveToAlias = 'alias') => {
         .should('have.class', 'down');
 };
 
-const findStoryAndSelect = (storyName, saveToAlias = 'alias') => {
-    cy.dataCy('story-group-menu-item', storyName, ':not([type="story-group"])')
+const findStoryAndSelect = (fragmentName, saveToAlias = 'alias') => {
+    cy.dataCy('story-group-menu-item', fragmentName, ':not([type="story-group"])')
         .first()
         .as(saveToAlias)
         .click();
@@ -26,16 +26,16 @@ const renameStoryOrGroup = (alias, newName) => {
         .type(`{selectAll}{backSpace}{selectAll}{backSpace}${newName}{enter}`);
 };
 
-Cypress.Commands.add('browseToStory', (storyName = 'Groupo (1)', groupName) => {
+Cypress.Commands.add('browseToStory', (fragmentName = 'Groupo (1)', groupName) => {
     if (groupName) findGroupAndOpenIfClosed(groupName);
-    findStoryAndSelect(storyName);
+    findStoryAndSelect(fragmentName);
 });
 
-Cypress.Commands.add('linkStory', (storyName, linkTo) => {
+Cypress.Commands.add('linkStory', (fragmentName, linkTo) => {
     cy.dataCy('story-title')
         .should('exist')
         .then((title) => {
-            if (title.attr('value') !== storyName) cy.browseToStory(storyName); // or .text()
+            if (title.attr('value') !== fragmentName) cy.browseToStory(fragmentName); // or .text()
         });
     cy.dataCy('stories-linker').first().click();
     cy.dataCy('stories-linker')
@@ -51,7 +51,7 @@ Cypress.Commands.add('createStoryGroup', ({ groupName = 'Groupo' } = {}) => {
 
 Cypress.Commands.add(
     'createFragmentInGroup',
-    ({ groupName = 'Groupo', storyName = null, type = 'story' } = {}) => {
+    ({ groupName = 'Groupo', fragmentName = null, type = 'story' } = {}) => {
         findGroupAndOpenIfClosed(groupName);
         cy.dataCy('story-group-menu-item').then((storyItems) => {
             // count of nodes in the tree
@@ -68,7 +68,7 @@ Cypress.Commands.add(
 
             // rename if needed
             cy.wait(150);
-            cy.get('body').type(`${storyName || ''}{enter}`);
+            cy.get('body').type(`${fragmentName || ''}{enter}`);
             cy.wait(150);
 
             // this part might execute before the add story complete, that why we are checking the length just above
@@ -77,7 +77,14 @@ Cypress.Commands.add(
                 if (n.next().attr('type') === 'story-group') cy.wrap([]).as('stories');
                 else cy.wrap(n.nextUntil('[type="story-group"]')).as('stories');
                 cy.get('@stories').then((stories) => {
-                    const name = storyName || `${groupName} (${stories.length})`;
+                    // Forms and stories/rules have a different default naming scheme
+                    const forms = Array.from(stories).filter(node => new RegExp(
+                        `^${groupName.replace(/ /g, '')}(?:_\\d+)?_form$`,
+                    ).test(node.textContent));
+                    const formSuffix = forms.length - 1 ? `_${forms.length - 1}` : '';
+                    const name = fragmentName || type === 'form'
+                        ? `${groupName.replace(/ /g, '')}${formSuffix}_form`
+                        : `${groupName} (${stories.length})`;
                     cy.dataCy('story-group-menu-item').contains(name);
                     findStoryAndSelect(name, 'new-story');
                 });

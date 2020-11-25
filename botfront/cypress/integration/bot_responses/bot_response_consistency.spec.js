@@ -29,7 +29,7 @@ describe('Bot responses', function() {
             .blur();
 
         cy.createStoryGroup({ groupName: GROUP_NAME });
-        cy.createFragmentInGroup({ groupName: GROUP_NAME, storyName: STORY_NAME });
+        cy.createFragmentInGroup({ groupName: GROUP_NAME, fragmentName: STORY_NAME });
     });
 
     afterEach(function() {

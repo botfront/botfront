@@ -9,7 +9,7 @@ describe('test stories searching ui', () => {
         cy.deleteProject('bf');
     });
 
-    const searchStories = (searchString, storyName /* used to click on the right result */, options = {}) => {
+    const searchStories = (searchString, fragmentName /* used to click on the right result */, options = {}) => {
         const { addToOpen } = options;
         cy.dataCy('stories-search-bar').find('input').clear({ force: true });
         cy.dataCy('stories-search-item').should('have.length', 0);
@@ -18,10 +18,10 @@ describe('test stories searching ui', () => {
         cy.dataCy('stories-search-bar').should('not.have.class', 'loading');
         cy.wait(1000);
         if (addToOpen) {
-            cy.dataCy('stories-search-item').contains(storyName).parent().find('[data-cy=add-search-result-to-open]')
+            cy.dataCy('stories-search-item').contains(fragmentName).parent().find('[data-cy=add-search-result-to-open]')
                 .click({ force: true });
         } else {
-            cy.dataCy('stories-search-item').contains(storyName).click();
+            cy.dataCy('stories-search-item').contains(fragmentName).click();
         }
         cy.dataCy('stories-search-bar').find('input').trigger('keydown', { key: 'Escape' });
     };
@@ -36,7 +36,7 @@ describe('test stories searching ui', () => {
     it('should index stories that are created and edited in the app', () => {
         cy.visit('project/bf/dialogue');
         cy.createStoryGroup({ groupName: 'test group' });
-        cy.createFragmentInGroup({ groupName: 'test group', storyName: 'types of fruit' });
+        cy.createFragmentInGroup({ groupName: 'test group', fragmentName: 'types of fruit' });
         searchStories('types', 'types of fruit');
         cy.dataCy('story-title').should('have.value', 'types of fruit');
         cy.dataCy('user-line-from-input').last().click({ force: true });
@@ -52,9 +52,9 @@ describe('test stories searching ui', () => {
     it('should find stories created on project init', () => {
         cy.visit('project/bf/dialogue');
         cy.createStoryGroup({ groupName: 'test group A' });
-        cy.createFragmentInGroup({ groupName: 'test group A', storyName: 'title A' });
+        cy.createFragmentInGroup({ groupName: 'test group A', fragmentName: 'title A' });
         cy.createStoryGroup({ groupName: 'test group B' });
-        cy.createFragmentInGroup({ groupName: 'test group B', storyName: 'title B' });
+        cy.createFragmentInGroup({ groupName: 'test group B', fragmentName: 'title B' });
         cy.toggleStoryGroupCollapsed({ groupName: 'test group A' });
         cy.toggleStoryGroupCollapsed({ groupName: 'test group B' });
         searchStories('title', 'title A', { addToOpen: true });

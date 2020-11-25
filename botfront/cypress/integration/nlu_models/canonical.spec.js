@@ -74,7 +74,7 @@ describe('NLU canonical examples', function () {
     
     it('should tag the first example for an intent created in the visual editor as canonical', function () {
         cy.visit('/project/bf/dialogue');
-        cy.createFragmentInGroup({ groupName: 'Example group', storyName: 'Hmm1' });
+        cy.createFragmentInGroup({ groupName: 'Example group', fragmentName: 'Hmm1' });
         cy.dataCy('add-user-line').click({ force: true });
         cy.dataCy('user-line-from-input').last().click({ force: true });
         cy.addUserUtterance('this example should be canonical', 'intenttest');
