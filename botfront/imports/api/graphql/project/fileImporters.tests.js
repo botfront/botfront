@@ -11,9 +11,7 @@ import { GlobalSettings } from '../../globalSettings/globalSettings.collection';
 import { Slots } from '../../slots/slots.collection';
 import BotResponses from '../botResponses/botResponses.model';
 
-import '../../project/project.methods';
-import '../../nlu_model/nlu_model.methods';
-import '../../slots/slots.methods';
+
 import { CorePolicies } from '../../core_policies';
 import { Projects } from '../../project/project.collection';
 import { NLUModels } from '../../nlu_model/nlu_model.collection';
@@ -87,6 +85,11 @@ const removeId = (obj) => {
 };
 
 if (Meteor.isServer) {
+    // we only import those here otherwise they  will be loaded when doing client test and make the client side test fail
+    import '../../project/project.methods';
+    import '../../nlu_model/nlu_model.methods';
+    import '../../slots/slots.methods';
+
     describe('file importers', () => {
         it('should import conversations', async () => {
             await Conversations.deleteMany({});
