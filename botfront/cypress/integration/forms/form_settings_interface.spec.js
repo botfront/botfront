@@ -22,7 +22,7 @@ const form = {
         },
         position: { x: 120, y: 350 },
         type: 'slot',
-        className: 'slot-node',
+        className: 'slot-node expanding-node',
     }, {
         id: 'e1-slot1', source: '1', target: 'slot1', animated: true, type: 'condition', arrowHeadType: 'arrowclosed', data: { condition: null },
     }, {
@@ -32,7 +32,7 @@ const form = {
         },
         position: { x: 120, y: 500 },
         type: 'slot',
-        className: 'slot-node',
+        className: 'slot-node expanding-node',
     }, {
         id: 'eslot1-oui',
         source: 'slot1',
@@ -96,6 +96,7 @@ describe('use the main form editor interface to', () => {
         cy.dataCy('form-collection-togglefield').click();
         
         cy.reload();
+        cy.selectForm(newFormName);
 
         cy.dataCy('start-node').click();
         cy.dataCy('form-description-field').find('textarea').should('have.value', description);
@@ -149,6 +150,28 @@ describe('use the main form editor interface to', () => {
         cy.get('.loader').should('not.exist');
         cy.selectForm(newFormName);
         cy.dataCy('slot-node-wrapper-slot1').find('[data-cy=bot-response-input]').find('textarea').should('have.text', 'categorical slot');
+    });
+
+    it('should create a delete a set a slot node', () => {
+        cy.visit('project/bf/dialogue');
+        cy.createFormInGroup({ groupName: 'Default stories' });
+        cy.createFormInGroup({ groupName: 'Default stories' });
+        cy.meteorAddSlot('bool_slot', 'bool');
+        cy.selectForm(newFormName);
+
+        cy.dataCy('start-node').click();
+        cy.dataCy('side-questions').click();
+        cy.dataCy('form-collection-togglefield').click();
+        cy.dataCy('toggled-true').should('exist');
+
+        cy.dataCy('add-node-1').click();
+        cy.dataCy('add-node-1').find('[data-cy=set-slot]').click();
+        cy.get('.item.dropdown').contains('bool').click();
+        cy.get('.item.dropdown').contains('bool_slot').click();
+        cy.get('.item.dropdown').contains('true').click();
+        cy.dataCy('slot-set-node').click();
+        cy.dataCy('slot-set-node').find('[data-cy=icon-trash]').click();
+        cy.dataCy('slot-set-node').should('not.exist');
     });
     // to fix
     // it('should change the response languages', () => {

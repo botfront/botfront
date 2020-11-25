@@ -63,38 +63,6 @@
     .dropdown.dropdown-button-trigger .menu .divider {
         margin: 0;
     }
-    
-    .dropdown-button-trigger.dropdown {
-        width: max-content;
-        
-        .menu.transition.visible {
-            top: ~"calc(100% + 5px)";
-            border: 0px;
-            .item {
-                background-color: white !important;
-                border: solid 1px #eeeeee;
-                border-radius: 2px;
-                &:hover {
-                    background-color: #eeeeee !important;
-                }
-                &.dropdown {            // add class dropdown to items containing dropdowns
-                    padding: 0 !important;
-                }
-            }
-            .item.dropdown > .dropdown {
-                padding: .78571429rem 1.14285714rem;
-            }
-            .dropdown > .menu {
-                left: ~"calc(100% + 7px)";
-            }
-            .color-column {
-                color: #2185d0;
-                background-color: white !important;
-                border-right: solid 1px #eeeeee;
-                border-bottom: solid 1px #eeeeee;
-            }
-        }
-    }
 }
 
 .dropdown-button-trigger > i.dropdown.icon {
@@ -498,4 +466,42 @@ div.add-entity-wrap {
 
 .optional-entity-values-container {
     display: inline;
+}
+
+.slots-dropdown.dropdown-button-trigger.dropdown {
+    width: max-content;
+    
+    .menu.transition.visible {
+        top: ~"calc(100% + 5px)";
+        border: 0px;
+        .header {
+            border-bottom: solid 1px #eeeeee9d;
+            margin-bottom: 0;
+            padding-bottom: 0.5em;
+            margin-top: 0.6em;
+        }
+        .item {
+            background-color: white !important;
+            border-bottom: solid 1px #eeeeee9d;
+            border-radius: 2px;
+            &:hover {
+                background-color: #eeeeee !important;
+            }
+            &.dropdown {            // add class dropdown to items containing dropdowns
+                padding: 0 !important;
+            }
+        }
+        .item.dropdown > .dropdown {
+            padding: .78571429rem 1.14285714rem;
+        }
+        .dropdown > .menu {
+            left: ~"calc(100% + 7px)";
+        }
+        .color-column {
+            color: #2185d0;
+            background-color: white !important;
+            border-right: solid 1px #eeeeee;
+            border-bottom: solid 1px #eeeeee;
+        }
+    }
 }

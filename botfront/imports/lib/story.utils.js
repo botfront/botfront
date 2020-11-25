@@ -502,6 +502,14 @@ export const getStoriesAndDomain = async (projectId, language, env = 'developmen
                             slotName: elm.data.slotName,
                         });
                     }
+                    if (elm.type === 'slotSet') {
+                        newElements.nodes.push({
+                            id: elm.id,
+                            type: elm.type,
+                            slotName: elm.data.slotName,
+                            slotValue: elm.data.slotValue,
+                        });
+                    }
                     if (elm.type === 'condition') {
                         newElements.edges.push({
                             id: elm.id,

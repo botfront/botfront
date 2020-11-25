@@ -13,7 +13,7 @@ import { GraphContext } from './graph.utils';
 const SlotNode = (props) => {
     const {
         id,
-        data: { onAddSlot, slotName },
+        data: { onAddSlot, slotName, onAddSlotSet },
         selected,
     } = props;
 
@@ -33,8 +33,9 @@ const SlotNode = (props) => {
     const handleResponseChange = (content) => {
         upsertResponse(responseName, content, 0);
     };
+
     return (
-        <div className={`slot-node-content ${selected && slotChoiceModalOpen !== id ? 'slot-node-selected' : ''}`} data-cy={`slot-node-wrapper-${slotName}`}>
+        <div className={`expanding-node-content slot-node-content ${selected && slotChoiceModalOpen !== id ? 'expanding-node-selected' : ''}`} data-cy={`slot-node-wrapper-${slotName}`}>
             <span className='slot-node-header' data-cy={`slot-node-${slotName}`}>{slotName}</span>
             <BotResponsesContainer
                 deletable={false}
@@ -79,6 +80,7 @@ const SlotNode = (props) => {
             {(!shiftKey || selected) && (
                 <SlotChoiceModal
                     onSlotChoice={slot => onAddSlot(slot, props)}
+                    onSlotSetChoice={slot => onAddSlotSet(slot, props)}
                     node={props}
                 />
             )}
@@ -90,6 +92,7 @@ SlotNode.propTypes = {
     id: PropTypes.string.isRequired,
     data: PropTypes.shape({
         onAddSlot: PropTypes.func.isRequired,
+        onAddSlotSet: PropTypes.func.isRequired,
         slotName: PropTypes.string.isRequired,
     }).isRequired,
     selected: PropTypes.bool,

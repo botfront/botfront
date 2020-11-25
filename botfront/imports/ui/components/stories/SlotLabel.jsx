@@ -10,22 +10,26 @@ export const slotValueToLabel = value => (
             : value.toString()
 );
 
-export default function SlotLabel({ value, onChange }) {
+export default function SlotLabel({ value, onChange, disableSelection }) {
     const { type, name, slotValue } = value;
-    return (
+
+    const renderLabel = () => (
+        <div className='label-container orange'>
+            <div>
+                {type || 'slot'}
+            </div>
+            <div className='slot-info'>
+                <span className='slot-name'>{name}</span>:&nbsp;<span className='slot-content'>{slotValueToLabel(slotValue)}</span>
+            </div>
+        </div>
+    );
+    return disableSelection ? renderLabel() : (
         <SlotPopupContent
-            trigger={(
-                <div className='label-container orange'>
-                    <div>
-                        {type || 'slot'}
-                    </div>
-                    <div>
-                        {name}:&nbsp; <span className='slot-content'>{slotValueToLabel(slotValue)}</span>
-                    </div>
-                </div>
-            )}
+            trigger={renderLabel()}
             onSelect={slot => onChange(slot)}
             value={value}
+            disabled={disableSelection}
+            excludeSlotsOfType={['unfeaturized']}
         />
     );
 }
@@ -33,4 +37,9 @@ export default function SlotLabel({ value, onChange }) {
 SlotLabel.propTypes = {
     value: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired,
+    disableSelection: PropTypes.bool,
+};
+
+SlotLabel.defaultProps = {
+    disableSelection: false,
 };

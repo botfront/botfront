@@ -24,7 +24,10 @@ class Slots extends React.Component {
         const { forms } = this.context;
         let slotsUsedInForms = [];
         forms.forEach((f) => {
-            slotsUsedInForms += f.slots.map(s => s.name) || [];
+            slotsUsedInForms = f.graph_elements.reduce((acc, elem) => {
+                if (['slot', 'slotSet'].includes(elem.type) && elem.data && elem.data.slotName) return [...acc, elem.data.slotName];
+                return acc;
+            }, []);
         });
         this.setState({ slotsUsedInForms });
     }

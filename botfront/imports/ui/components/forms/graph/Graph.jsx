@@ -3,20 +3,23 @@ import ReactFlow, { MiniMap, useStoreActions, useStoreState } from 'react-flow-r
 import {
     Button, Popup, Icon, Checkbox,
 } from 'semantic-ui-react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
+import { v4 as uuidv4 } from 'uuid';
 import { useEventListener } from '../../utils/hooks';
 import { GraphContext } from './graph.utils';
 import ConditionEdge from './ConditionEdge';
 import FormSettings from '../FormSettings';
 import StartNode from './StartNode';
 import SlotNode from './SlotNode';
+import SlotSetNode from './SlotSetNode';
 import FormEditorContainer from '../FormEditorContainer';
 
 const nodeTypes = {
     start: StartNode,
     slot: SlotNode,
+    slotSet: SlotSetNode,
 };
 
 const edgeTypes = {
@@ -30,8 +33,21 @@ const SlotsGraph = (props) => {
         formId,
         slots,
     } = props;
+
+    const getClassName = (type) => {
+        if (type === 'slot') return 'expanding-node slot-node';
+        if (type === 'slotSet') return 'expanding-node slot-set-node';
+        if (type === 'start') return 'start-node';
+        return '';
+    };
+
+    const elementsReducer = elm => ({
+        ...elm,
+        className: getClassName(elm.type),
+    });
     
     const [elements, setElements] = useState([]);
+    const formattedElements = useMemo(() => elements.map(elementsReducer), [elements]);
     const [shiftKey, setShiftKey] = useState(false);
     const [settingEdge, setSettingEdge] = useState(false);
     const [selectedNode, setSelectedNode] = useState(null);
@@ -86,6 +102,68 @@ const SlotsGraph = (props) => {
         };
     };
 
+    const handleSave = (newElements, newFormSettings) => {
+        const { onSave } = props;
+        onSave(newElements, newFormSettings);
+    };
+
+    const handleRemoveSlot = (id) => {
+        // eslint-disable-next-line no-alert
+        if (!window.confirm('Are you sure you want to delete this slot ?')) return;
+        setElements((els) => {
+            const newElements = els.filter((elm) => {
+                if (
+                    elm.id === id
+                    || elm.source === id
+                    || elm.target === id
+                ) return false;
+                return true;
+            });
+            handleSave(newElements);
+            return newElements;
+        });
+        setSelectedNode(null);
+    };
+
+    const handleAddSlotSet = (slot, node) => {
+        if (!slot) {
+            return;
+        }
+        setElements((els) => {
+            setSelectedElements();
+            const id = uuidv4();
+            return [
+                ...els,
+                {
+                    id,
+                    data: {
+                        type: 'slotSet',
+                        onRemoveSlot: handleRemoveSlot,
+                        slotType: slot.type,
+                        slotName: slot.name,
+                        slotValue: slot.slotValue,
+                    },
+                    position: getPosition(node, els),
+                    type: 'slotSet',
+                    className: 'slot-set-node',
+                },
+                {
+                    id: `e${node.id}-${id}`,
+                    source: node.id,
+                    target: id,
+                    animated: true,
+                    type: 'condition',
+                    arrowHeadType: 'arrowclosed',
+                    data: {
+                        condition: null,
+                        handleConditionChange,
+                        handleDisconnect,
+                    },
+                },
+            ];
+        });
+    };
+
     const handleAddSlot = (slot, node) => {
         if (!slot) {
             return;
@@ -100,6 +178,7 @@ const SlotsGraph = (props) => {
                     data: {
                         type: 'slot',
                         onAddSlot: handleAddSlot,
+                        onAddSlotSet: handleAddSlotSet,
                         slotName,
                         filling: [{ type: 'from_text' }],
                         validation: null,
@@ -141,13 +220,15 @@ const SlotsGraph = (props) => {
         setElements(
             DbElements
                 ? DbElements.map((elm) => {
-                    if (elm.type === 'start' || elm.type === 'slot') {
+                    if (elm.type === 'start' || elm.type === 'slot' || elm.type === 'slotSet') {
                         return {
                             ...elm,
                             data: {
                                 ...elm.data,
                                 ...getSlotSettingsForNode(elm),
                                 onAddSlot: handleAddSlot,
+                                onAddSlotSet: handleAddSlotSet,
+                                onRemoveSlot: handleRemoveSlot,
                             },
                         };
                     }
@@ -163,7 +244,7 @@ const SlotsGraph = (props) => {
                 : [
                     {
                         id: '1',
-                        data: { type: 'start', onAddSlot: handleAddSlot },
+                        data: { type: 'start', onAddSlot: handleAddSlot, onAddSlotSet: handleAddSlotSet },
                         position: { x: 200, y: 200 },
                         type: 'start',
                         className: 'start-node',
@@ -171,11 +252,6 @@ const SlotsGraph = (props) => {
                 ],
         );
     }, []);
-
-    const handleSave = (newElements, newFormSettings) => {
-        const { onSave } = props;
-        onSave(newElements, newFormSettings);
-    };
 
     useEffect(() => {
         handleSave(elements, formSettings);
@@ -220,7 +296,7 @@ const SlotsGraph = (props) => {
     };
 
     const handleSelectionChange = (selections) => {
-        if (selections && selections.length === 1 && (selections[0].type === 'slot' || selections[0].type === 'start')) {
+        if (selections && selections.length === 1 && (selections[0].type === 'slot' || selections[0].type === 'start' || selections[0].type === 'slotSet')) {
             const refNode = elements.find(elm => elm.id === selections[0].id);
             setSelectedNode(refNode);
 
@@ -235,24 +311,6 @@ const SlotsGraph = (props) => {
         } else {
             setSelectedNode(null);
         }
-    };
-
-    const handleRemoveSlot = () => {
-        // eslint-disable-next-line no-alert
-        if (!window.confirm('Are you sure you want to delete this slot ?')) return;
-        setElements((els) => {
-            const newElements = els.filter((elm) => {
-                if (
-                    elm.id === selectedNode.id
-                    || elm.source === selectedNode.id
-                    || elm.target === selectedNode.id
-                ) return false;
-                return true;
-            });
-            handleSave(newElements);
-            return newElements;
-        });
-        setSelectedNode(null);
     };
 
     const handleChangeSlotSettings = (_formId, data) => {
@@ -292,14 +350,14 @@ const SlotsGraph = (props) => {
                 shiftKey,
                 settingEdge,
                 elements,
-                slotsUsed: elements.filter(elm => (elm.type === 'slot' || elm.type === 'start')).map(elm => elm.id),
+                slotsUsed: elements.filter(elm => (elm.type === 'slot' || elm.type === 'start' || elm.type === 'slotSet')).map(elm => elm.id),
                 selectedNode,
                 slotChoiceModalOpen,
                 setSlotChoiceModalOpen,
             }}
         >
             <ReactFlow
-                elements={elements}
+                elements={formattedElements}
                 snapGrid={[20, 20]}
                 snapToGrid
                 nodeTypes={nodeTypes}
@@ -357,12 +415,13 @@ const SlotsGraph = (props) => {
                 onChange={() => setShiftKey(sk => !sk)}
                 className='shift-mode-toggle'
             />
-            <div className={!slotChoiceModalOpen && !!selectedNode ? 'form-graph-side-panel' : 'form-graph-side-panel not-here'}>
-                {!slotChoiceModalOpen && !!selectedNode && selectedNode.type === 'slot' && (
+            {selectedNode && selectedNode.type !== 'slotSet' && (
+                <div className={!slotChoiceModalOpen && !!selectedNode ? 'form-graph-side-panel' : 'form-graph-side-panel not-here'}>
+                    {!slotChoiceModalOpen && !!selectedNode && selectedNode.type === 'slot' && (
                     <>
                         <FormEditorContainer
                             formId={formId}
-                            slotName={selectedNode.id}
+                            slotName={selectedNode.data.slotName}
                             slotFillingProp={{
                                 name: selectedNode.id,
                                 validation: selectedNode.data && selectedNode.data.validation,
@@ -376,18 +435,18 @@ const SlotsGraph = (props) => {
                             size='large'
                             negative
                             className='remove-this-slot'
-                            onClick={handleRemoveSlot}
+                            onClick={() => handleRemoveSlot(selectedNode.id)}
                         >
                             <Icon name='trash' />
                             Remove this slot
                         </Button>
                     </>
-                )}
-                {!slotChoiceModalOpen && !!selectedNode && selectedNode.type === 'start' && (
-                    <FormSettings initialModel={formSettings} onSubmit={setFormSettings} />
-                )}
-            </div>
-
+                    )}
+                    {!slotChoiceModalOpen && !!selectedNode && selectedNode.type === 'start' && (
+                        <FormSettings initialModel={formSettings} onSubmit={setFormSettings} />
+                    )}
+                </div>
+            )}
         </GraphContext.Provider>
     );
 };

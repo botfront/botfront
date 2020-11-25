@@ -7,7 +7,7 @@ import { GraphContext } from './graph.utils';
 import SlotChoiceModal from './SlotChoiceModal';
 
 const StartNode = (props) => {
-    const { data: { onAddSlot }, selected } = props;
+    const { data: { onAddSlot, onAddSlotSet }, selected } = props;
     const { shiftKey } = useContext(GraphContext);
     return (
         <>
@@ -27,6 +27,7 @@ const StartNode = (props) => {
             {(!shiftKey || selected) && (
                 <SlotChoiceModal
                     onSlotChoice={slot => onAddSlot(slot, props)}
+                    onSlotSetChoice={slot => onAddSlotSet(slot, props)}
                     node={props}
                 />
             )}
@@ -37,6 +38,7 @@ const StartNode = (props) => {
 StartNode.propTypes = {
     data: PropTypes.shape({
         onAddSlot: PropTypes.func.isRequired,
+        onAddSlotSet: PropTypes.func.isRequired,
     }).isRequired,
     selected: PropTypes.bool,
 };

@@ -22,39 +22,15 @@
                 right: 0px;
             }
         }
-
-        &.slot-node {
-            /*
-                slot-node has a fixed width and is invisible.
-                this prevents the connecting arrows from moving
-                when it is selected and its content changes width.
-
-                the visible element is slot-node-content
-            */
+        &.expanding-node {
             max-width: 240px;
             visibility: hidden;
             height: auto;
             width: 240px;
-            .slot-node-header {
-                display: block;
+            .ui.dropdown.icon{
+                left: 115px;
             }
-            .icon.circle.plus {
-                left: 114px;
-            }
-            .utterances-container {
-                padding-top: 2px;
-                width: 226px;
-                min-width: 226px;
-                border: none;
-                .utterance-container {
-                    margin: 0px !important;
-                    margin-left: 7px;
-                    width: 226px;
-                    max-height: 55px;
-                    overflow: hidden;
-                }
-            }
-            .slot-node-content{
+            .expanding-node-content {
                 max-height: 84px;
                 width: 240px;
                 visibility: visible;
@@ -64,56 +40,119 @@
                 box-sizing: border-box;
                 background-color: rgb(249, 249, 249, 0.8);
                 color: #212121;
-                max-height: 84px;
                 margin-bottom: 2px;
                 &:hover {
                     box-shadow: 0 1px 5px 3px rgba(0,0,0,.13);;
                 }
-            }
-            .utterances-container {
-                overflow: hidden;
-            }
-            &.selected {
-                .slot-node-content.slot-node-selected{
-                    box-shadow: 0px 3px 9px 5px rgba(0, 0, 0, 0.08);
-                    max-height: none;
-                    padding-right: 40px;
-                    width: 280px;
-                    max-height: none;
-                    overflow: visible;
-                    .utterances-container {
-                        width: 240px;
-                        overflow: visible;
-                        .side-by-side.narrow.top-right {
-                            /*
-                               reverse the column to keep the
-                               metadata button in the same position
-                               when the extra option button for button
-                               and quick reply responses exists
-                            */
-                            flex-direction: column-reverse;
-                            visibility: visible;
-                            right: -20px;
-                            width: 16px;
-                            top: 2px;
+                &.slot-set-node-content {
+                    display: flex;
+                    padding: 1em 0.5em 1em 0.5em;
+                    &:not(.expanding-node-selected) {
+                        .label-container {
+                            max-width: 215px;
                             display: flex;
-                            .ui.mini.button.icon-button {
+                            .slot-info {
+                                display: flex;
+                                overflow: hidden;
+                            }
+                            .slot-content {
                                 display: block;
-                                width: 24px;
-                                margin-bottom: 0.5em;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                white-space: nowrap;
                             }
-                            .ui.button.compact.import-from-lang {
-                                width: 2.8rem;
-                                margin-bottom: 0.5em;
+                            .slot-name {
+                                max-width: 100px;
+                                display: block;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                white-space: nowrap;
                             }
                         }
+                        .inner-content {
+                            margin: auto;
+                        }
+                    }
+                    .inner-content {
+                        display: flex;
+                    }
+                    .icon-button.delete-slot-set {
+                        cursor: pointer;
+                        display: inline;
+                        margin-left: 5px;                   
+                    }
+                    &.expanding-node-selected {
+                        display: table;
+                        max-width: none;
+                    }
+                }
+                &.slot-node-content{
+                    .slot-node-header {
+                        display: block;
+                    }
+                    .ui.dropdown.icon{
+                        left: 115px;
+                    }
+                    .utterances-container {
+                        padding-top: 2px;
+                        width: 226px;
+                        min-width: 226px;
+                        border: none;
                         .utterance-container {
-                            height: auto;
-                            max-height: none;
+                            margin: 0px !important;
+                            margin-left: 7px;
+                            width: 226px;
+                            max-height: 55px;
+                            overflow: hidden;
                         }
+                    }
+                    .utterances-container {
+                        overflow: hidden;
                     }
                     .change-response-type{
                         margin-bottom: 0.8em;
+                    }
+                    &.expanding-node-selected {
+                        box-shadow: 0px 3px 9px 5px rgba(0, 0, 0, 0.08);
+                        max-height: none;
+                        padding-right: 40px;
+                        width: 280px;
+                        max-height: none;
+                        overflow: visible;
+                        .utterances-container {
+                            width: 240px;
+                            overflow: visible;
+                            .side-by-side.narrow.top-right {
+                                /*
+                                   reverse the column to keep the
+                                   metadata button in the same position
+                                   when the extra option button for button
+                                   and quick reply responses exists
+                                */
+                                flex-direction: column-reverse;
+                                visibility: visible;
+                                right: -20px;
+                                width: 16px;
+                                top: 2px;
+                                display: flex;
+                                .ui.mini.button.icon-button {
+                                    display: block;
+                                    width: 24px;
+                                    margin-bottom: 0.5em;
+                                }
+                                .ui.button.compact.import-from-lang {
+                                    width: 2.8rem;
+                                    margin-bottom: 0.5em;
+                                }
+                            }
+                            .utterance-container {
+                                height: auto;
+                                max-height: none;
+                            }
+                        }
+                        .change-response-type{
+                            margin-bottom: 0.8em;
+                        }
                     }
                 }
             }
@@ -128,24 +167,31 @@
         }
 
         // This is the icon to add nodes, situated at the bottom of nodes
-        .icon.circle.plus {
-            background-color: white;
+        .ui.dropdown.icon {
+            .plus.circle.icon {
+                margin: 0;
+                padding: 0;
+                width: 12px;
+                height: 12px;
+                background-color: white;
+                border-radius: 15px;
+                box-sizing: border-box;
+                &::before {
+                    position: relative;
+                    top: -3px;
+                    left: -3px
+                }
+                &:hover {
+                    bottom: -4px;
+                }
+
+            }
             position: absolute;
-            left: 34px;
-            bottom: -5px;
+            left: 35px;
+            bottom: -10px;
             font-size: 16px;
-            height: 12px;
-            width: 13px;
-            border-radius: 15px;
             cursor: pointer;
-            &::before {
-                position: relative;
-                top: -4px;
-                left: -2px
-            }
-            &:hover {
-                bottom: -4px;
-            }
+
             &.disabled {
                 color: #bbb;
                 opacity: 1 !important;
@@ -380,4 +426,10 @@
         padding-right: 1.7em;
         height: 36px;
     }
+}
+
+.ui.dropdown.set-slot-dropdown {
+    top: 20px;
+    left: -115px;
+    position: relative;
 }

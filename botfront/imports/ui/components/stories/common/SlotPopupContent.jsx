@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Dropdown, Button, Popup } from 'semantic-ui-react';
@@ -10,7 +10,16 @@ import { slotValueToLabel } from '../SlotLabel';
 
 const SlotPopupContent = (props) => {
     const {
-        value: active, onSelect, trigger, trackOpenMenu, chooseSlotWithoutValue, allowUnfeaturized, slotsToRemove,
+        value: active,
+        onSelect,
+        trigger,
+        trackOpenMenu,
+        chooseSlotWithoutValue,
+        slotsToRemove,
+        defaultOpen,
+        className,
+        disabled,
+        excludeSlotsOfType,
     } = props;
     const { browseToSlots } = useContext(ConversationOptionsContext);
     const { slots, requestedSlot } = useContext(ProjectContext);
@@ -18,39 +27,16 @@ const SlotPopupContent = (props) => {
     slotsToUse = slotsToUse.filter(x => !slotsToRemove.some(slot => slot === x.name));
     const [popupOpen, setPopupOpen] = useState();
     const [menuOpen, setMenuOpen] = useState();
-    const allowedTypes = ['bool', 'float', 'list', 'text', 'categorical'];
-    if (allowUnfeaturized) allowedTypes.push('unfeaturized');
+    const allowedTypes = [
+        'bool',
+        'float',
+        'list',
+        'text',
+        'categorical',
+        ...(chooseSlotWithoutValue ? ['unfeaturized'] : []),
+    ].filter(type => !excludeSlotsOfType.includes(type));
 
-    if (!slotsToUse.filter(s => allowedTypes.includes(s.type)).length) {
-        return (
-            <Popup
-                trigger={trigger}
-                wide
-                on='click'
-                open={popupOpen}
-                onOpen={() => {
-                    setPopupOpen(true);
-                    trackOpenMenu(() => setPopupOpen(false));
-                }}
-                onClose={() => setPopupOpen(false)}
-            >
-                <p>
-                    No featurized slot found to insert.
-                </p>
-                <div>
-                    <Button
-                        fluid
-                        color='orange'
-                        content='Edit slots'
-                        onClick={() => {
-                            setPopupOpen(false);
-                            browseToSlots();
-                        }}
-                    />
-                </div>
-            </Popup>
-        );
-    }
+    const hasFeaturizedSlots = useMemo(() => slotsToUse.filter(s => allowedTypes.includes(s.type)).length > 0, [slotsToUse, allowedTypes]);
 
     const { name: activeName, type: activeType, slotValue } = active || {
         name: null,
@@ -69,13 +55,16 @@ const SlotPopupContent = (props) => {
         if (type === 'categorical') return [...slot.categories, null];
         return [null];
     }
-
-    return (
+    const renderDropdown = () => (
         <Dropdown
             trigger={trigger}
-            className='dropdown-button-trigger'
-            open={menuOpen}
+            className={`slots-dropdown dropdown-button-trigger ${className}`}
+            open={disabled ? false : defaultOpen ? hasFeaturizedSlots > 0 : menuOpen}
             onOpen={() => {
+                if (!hasFeaturizedSlots) {
+                    setMenuOpen(false);
+                    return;
+                }
                 setMenuOpen(true);
                 trackOpenMenu(() => setMenuOpen(false));
             }}
@@ -85,6 +74,7 @@ const SlotPopupContent = (props) => {
                 <Dropdown.Header>Select a slot</Dropdown.Header>
                 {cats.map(c => (
                     <Dropdown.Item
+                        data-cy={`slot-category-${c}`}
                         active={activeType === c}
                         className='dropdown'
                         key={`slotcat-${c}`}
@@ -104,6 +94,7 @@ const SlotPopupContent = (props) => {
                             <Dropdown.Menu>
                                 {slotsByCat[c].map(s => (
                                     <Dropdown.Item
+                                        data-cy={`choose-${s.name}`}
                                         active={activeName === s.name}
                                         className='dropdown'
                                         key={`slotname-${s.name}`}
@@ -125,8 +116,15 @@ const SlotPopupContent = (props) => {
                                             }}
                                         >
                                             <Dropdown.Menu>
-                                                {getSlotValue(s).map(content => (
+                                                {chooseSlotWithoutValue ? (
                                                     <Dropdown.Item
+                                                        data-cy={`confirm-select-${s.name}`}
+                                                        text='Choose this slot'
+                                                        onClick={() => onSelect({ ...s })}
+                                                    />
+                                                ) : getSlotValue(s).map(content => (
+                                                    <Dropdown.Item
+                                                        data-cy={`value-${s.name}-${content}`}
                                                         onClick={() => onSelect({
                                                             ...s,
                                                             slotValue: content,
@@ -150,16 +148,58 @@ const SlotPopupContent = (props) => {
             </Dropdown.Menu>
         </Dropdown>
     );
+
+    return (
+        <Popup
+            trigger={renderDropdown()}
+            wide
+            on='click'
+            open={defaultOpen || popupOpen}
+            onOpen={() => {
+                setPopupOpen(true);
+                trackOpenMenu(() => setPopupOpen(false));
+            }}
+            onClose={() => setPopupOpen(false)}
+            disabled={hasFeaturizedSlots}
+        >
+            <p>
+            No featurized slot found to insert.
+            </p>
+            <div>
+                <Button
+                    fluid
+                    color='orange'
+                    content='Edit slots'
+                    onClick={() => {
+                        setPopupOpen(false);
+                        browseToSlots();
+                    }}
+                />
+            </div>
+        </Popup>
+    );
 };
 
 SlotPopupContent.propTypes = {
     value: PropTypes.object,
     onSelect: PropTypes.func,
-    trigger: PropTypes.element.isRequired,
+    trigger: PropTypes.element,
     trackOpenMenu: PropTypes.func,
     chooseSlotWithoutValue: PropTypes.bool,
-    allowUnfeaturized: PropTypes.bool,
     slotsToRemove: PropTypes.array,
+    defaultOpen: PropTypes.bool,
+    disabled: PropTypes.bool,
+    className: PropTypes.string,
+    excludeSlotsOfType: PropTypes.arrayOf([
+        PropTypes.oneOf([
+            'text',
+            'bool',
+            'categorical',
+            'float',
+            'list',
+            'unfeaturized',
+        ]),
+    ]),
 };
 
 SlotPopupContent.defaultProps = {
@@ -167,8 +207,12 @@ SlotPopupContent.defaultProps = {
     onSelect: () => {},
     trackOpenMenu: () => {},
     chooseSlotWithoutValue: false,
-    allowUnfeaturized: false,
     slotsToRemove: [],
+    defaultOpen: false,
+    className: '',
+    trigger: <></>,
+    disabled: false,
+    excludeSlotsOfType: [],
 };
 
 const mapStateToProps = state => ({

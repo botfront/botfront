@@ -36,14 +36,14 @@ const AddStoryLine = React.forwardRef((props, ref) => {
                         key={`formname-${f.name}`}
                         content={f.name}
                         onClick={() => {
-                            if (start) { 
+                            if (start) {
                                 onCreateGenericLines([{
                                     type: 'form_decl',
                                     data: { name: f.name },
-                                },{
+                                }, {
                                     type: 'form',
                                     data: { name: f.name },
-                                }])
+                                }]);
                             } else {
                                 onCreateGenericLine({
                                     type: 'form_decl',
@@ -121,6 +121,7 @@ const AddStoryLine = React.forwardRef((props, ref) => {
                         </DashedButton>
                     )}
                     trackOpenMenu={trackOpenMenu}
+                    excludedSlotsOfType={['unfeaturized']}
                 />
             )}
             {form && (

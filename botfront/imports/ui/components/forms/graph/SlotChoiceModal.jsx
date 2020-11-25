@@ -3,7 +3,9 @@ import React, {
     useContext,
     useMemo,
 } from 'react';
-import { Input, Icon, Popup } from 'semantic-ui-react';
+import {
+    Input, Icon, Popup, Dropdown,
+} from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { useStoreState } from 'react-flow-renderer';
 
@@ -16,8 +18,9 @@ import { ProjectContext } from '../../../layouts/context';
 const defaultSlot = { type: 'unfeaturized', name: '' };
 
 const SlotChoiceModal = (props) => {
-    const { onSlotChoice, node } = props;
+    const { onSlotChoice, onSlotSetChoice, node } = props;
     const [newSlot, setNewSlot] = useState(defaultSlot);
+    const [ddStep, setDdStep] = useState(false);
     const popupRef = useRef(null);
 
     const edges = useStoreState(state => state.edges);
@@ -71,30 +74,114 @@ const SlotChoiceModal = (props) => {
         }
     }, []);
 
-    const chooseSlot = (slot) => {
-        onSlotChoice(slot);
+    const handleClose = () => {
         setOpen(null);
         window.removeEventListener('click', handleWindowClick);
     };
 
+    const chooseAddQuestion = (slot) => {
+        onSlotChoice(slot);
+        handleClose();
+        setOpen(null);
+    };
+
+    const chooseAddSlotSet = (slot) => {
+        onSlotSetChoice(slot);
+        setDdStep(null);
+        handleClose();
+    };
+
     const handleKeyDownInput = (e) => {
         if ((e.nativeEvent.keyCode) === 13 && newSlot.name && nameIsValid) {
-            chooseSlot(newSlot);
+            chooseAddQuestion(newSlot);
             setNewSlot(defaultSlot);
+            setDdStep(null);
         }
     };
+
+    const renderAddQuestion = () => (
+        <div
+            style={{ display: open ? 'initial' : 'hidden' }}
+            className='slot-choice-modal'
+            ref={popupRef}
+            onClose={() => onSlotChoice(null)}
+        >
+            <Input
+                placeholder='Choose a slot name'
+                data-cy='slot-name'
+                size='small'
+                ref={focusOnRef}
+                value={newSlot.name}
+                onKeyDown={handleKeyDownInput}
+                // eslint-disable-next-line no-useless-escape
+                onChange={(_, { value }) => setNewSlot(ns => ({ ...ns, name: value.replace(/[-\/\\^$*+?.()|[\]{}\s]/g, '') }))}
+            />
+            <Icon name='check' color='green' size='large' className={(newSlot.name && nameIsValid) ? 'here' : 'not-here'} />
+            <Icon name='ban' color='red' size='large' className={nameIsValid ? 'not-here' : 'here'} />
+            <SlotPopupContent
+                trigger={(
+                    <span className='existing-slot'>Or use an existing one</span>
+                )}
+                onSelect={slot => chooseAddQuestion(slot)}
+                chooseSlotWithoutValue
+                slotsToRemove={slotsUsed}
+                excludeSlotsOfType={['unfeaturized']}
+            />
+        </div>
+    );
+
+    const renderDropdown = () => (
+        <Dropdown
+            icon={
+                <Icon name='circle plus' id='add-slot' />
+            }
+            className={`icon ${letUserAddEdge ? '' : 'disabled'}`}
+            id='add-slot'
+            data-cy={`add-node-${node.id}`}
+            disabled={!letUserAddEdge}
+        >
+            <Dropdown.Menu>
+                <Dropdown.Item
+                    data-cy='add-question'
+                    onClick={() => {
+                        setDdStep('add-question');
+                        handleOpen();
+                    }}
+                >
+                    Add a question
+                </Dropdown.Item>
+                <Dropdown.Item
+                    data-cy='set-slot'
+                    onClick={() => {
+                        setDdStep('set-slot');
+                        handleOpen();
+                    }}
+                >
+                    Set a slot
+                </Dropdown.Item>
+            </Dropdown.Menu>
+        </Dropdown>
+    );
+
+    const renderSetSlot = () => (
+        <SlotPopupContent
+            onSelect={slot => chooseAddSlotSet(slot)}
+            defaultOpen
+            className='set-slot-dropdown'
+            excludeSlotsOfType={[
+                'text',
+                'float',
+                'list',
+                'unfeaturized',
+            ]}
+        />
+    );
 
     return (
         <>
             <Popup
                 trigger={(
-                    <Icon
-                        name='plus circle'
-                        onClick={handleOpen}
-                        className={letUserAddEdge ? null : 'disabled'}
-                        data-cy={`add-node-${node.id}`}
-                        id='add-slot'
-                    />
+                    renderDropdown()
                 )}
                 disabled={letUserAddEdge}
                 className='add-condition-warning'
@@ -103,42 +190,15 @@ const SlotChoiceModal = (props) => {
                 <br /> <br />
                 Hover the green circle on the edge and click &quot;IF&quot; to add a condition.
             </Popup>
-            {open === node.id && (
-                <div
-                    style={{ display: open ? 'initial' : 'hidden' }}
-                    className='slot-choice-modal'
-                    ref={popupRef}
-                    onClose={() => onSlotChoice(null)}
-                >
-                    <Input
-                        placeholder='Choose a slot name'
-                        data-cy='slot-name'
-                        size='small'
-                        ref={focusOnRef}
-                        value={newSlot.name}
-                        onKeyDown={handleKeyDownInput}
-                        // eslint-disable-next-line no-useless-escape
-                        onChange={(_, { value }) => setNewSlot(ns => ({ ...ns, name: value.replace(/[-\/\\^$*+?.()|[\]{}\s]/g, '') }))}
-                    />
-                    <Icon name='check' color='green' size='large' className={(newSlot.name && nameIsValid) ? 'here' : 'not-here'} />
-                    <Icon name='ban' color='red' size='large' className={nameIsValid ? 'not-here' : 'here'} />
-                    <SlotPopupContent
-                        trigger={(
-                            <span className='existing-slot'>Or use an existing one</span>
-                        )}
-                        onSelect={slot => chooseSlot(slot)}
-                        chooseSlotWithoutValue
-                        allowUnfeaturized
-                        slotsToRemove={slotsUsed}
-                    />
-                </div>
-            )}
+            {open === node.id && ddStep === 'add-question' && renderAddQuestion()}
+            {open === node.id && ddStep === 'set-slot' && renderSetSlot()}
         </>
     );
 };
 
 SlotChoiceModal.propTypes = {
     onSlotChoice: PropTypes.func.isRequired,
+    onSlotSetChoice: PropTypes.func.isRequired,
     node: PropTypes.object.isRequired,
 };
 

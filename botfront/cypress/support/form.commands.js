@@ -13,10 +13,18 @@ Cypress.Commands.add('selectFormSlot', (slotName = defaultFormName) => {
     cy.dataCy('form-slot-name').should('include.text', slotName);
 });
 
-Cypress.Commands.add('addSlotToForm', (name) => {
-    cy.dataCy('form-slots-field').click().find('span.text').contains(name)
-        .click();
-    cy.dataCy('form-slots-field').find('input').blur();
+Cypress.Commands.add('addSlotNode', (parentNode, name) => {
+    cy.dataCy(`add-node-${parentNode}`).click();
+    cy.dataCy(`add-node-${parentNode}`).find('[data-cy=add-question]').click();
+    cy.dataCy('slot-name').find('input').type(`${name}{enter}`);
+});
+
+Cypress.Commands.add('addSlotSetNode', (parentNode, type, slotName, slotValue) => {
+    cy.dataCy(`add-node-${parentNode}`).click();
+    cy.dataCy(`add-node-${parentNode}`).find('[data-cy=set-slot]').click();
+    cy.dataCy(`slot-category-${type}`).click({ force: true });
+    cy.dataCy(`choose-${slotName}`).click({ force: true });
+    cy.dataCy(`value-${slotName}-${slotValue}`).click({ force: true });
 });
 
 Cypress.Commands.add('editFormSettings', ({
@@ -58,7 +66,7 @@ const getGraphElements = slots => slots.reduce((acc, slot, i) => {
             },
             position: { x: 120, y: 350 + (i * 150) },
             type: 'slot',
-            className: 'slot-node',
+            className: 'expanding-node slot-node',
         },
         {
             id: `${previousSlot || '1'}-${slot}`, source: previousSlot || '1', target: slot, type: 'condition', arrowHeadType: 'arrowclosed', data: { condition: null },
