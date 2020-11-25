@@ -1,5 +1,6 @@
 import yaml from 'js-yaml';
 import { Instances } from '../../api/instances/instances.collection';
+import { onlyValidFiles } from './common';
 
 export const validateSimpleYamlFiles = (files, params, type, alias = type) => {
     let filesToValid = files.filter(f => f?.dataType === type);
@@ -94,8 +95,9 @@ export const validateCredentials = (files, params) => validateSimpleYamlFiles(fi
 export const validateBfConfig = (files, params) => {
     const [newFiles, newParams] = validateSimpleYamlFiles(files, params, 'bfconfig', 'botfront config');
     const bfConfigFiles = newFiles.filter(f => f?.dataType === 'bfconfig');
-    if (bfConfigFiles.length > 0 && (!bfConfigFiles[0].errors || bfConfigFiles[0].errors.length === 0)) {
-        newParams.instanceHost = bfConfigFiles[0].bfconfig.instance.host;
+    const onlyValidConfigFiles = onlyValidFiles(bfConfigFiles);
+    if (onlyValidConfigFiles.length > 0 && onlyValidConfigFiles[0].bfconfig.instance) {
+        newParams.instanceHost = onlyValidConfigFiles[0].bfconfig.instance.host;
     } else {
         newParams.instanceHost = Instances.findOne({ projectId: params.projectId }).host;
     }

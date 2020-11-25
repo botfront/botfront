@@ -1,10 +1,10 @@
 import { safeLoad, safeDump } from 'js-yaml';
 import { isEqual } from 'lodash';
 import { Projects } from '../../api/project/project.collection';
+import { onlyValidFiles } from './common';
 
 const INTERNAL_SLOTS = ['bf_forms', 'fallback_language'];
 
-const onlyValidFiles = files => files.filter(file => !(file.errors && file.errors.length > 0));
 
 const deduplicate = (listOfObjects, key) => {
     const seen = new Set();

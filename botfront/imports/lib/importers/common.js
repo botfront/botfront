@@ -1,6 +1,10 @@
 import JSZIP from 'jszip';
 import yaml from 'js-yaml';
 
+
+export const onlyValidFiles = files => files.filter(file => !(file.errors && file.errors.length > 0));
+
+
 export const determineDataType = (f, rawText) => {
     const { dataType, filename } = f;
     try {

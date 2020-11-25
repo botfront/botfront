@@ -15,8 +15,8 @@ import { StoryGroups } from '../../storyGroups/storyGroups.collection';
 
 import handleImportTrainingData from './trainingDataFileImporter';
 import Examples from '../examples/examples.model';
-import NLUModels from '../../nlu_model/nlu_model.collection';
-
+import { NLUModels } from '../../nlu_model/nlu_model.collection';
+import { onlyValidFiles } from '../../../lib/importers/common';
 
 export const handleImportForms = async (forms, projectId) => {
     const { defaultDomain } = Projects.findOne({ _id: projectId });
@@ -178,18 +178,22 @@ export const handleImportBfConfig = async (files, { projectId }) => {
     delete bfconfigData.languages;
 
     const errors = [];
-    try {
-        await Meteor.callWithPromise('instance.update', { ...instance, projectId });
-    } catch (e) {
-        errors.push(`error when importing instance from ${toImport.filename}`);
+    if (instance) {
+        try {
+            await Meteor.callWithPromise('instance.update', { ...instance, projectId });
+        } catch (e) {
+            errors.push(`error when importing instance from ${toImport.filename}`);
+        }
     }
-    try {
-        await Meteor.callWithPromise('project.update', {
-            ...bfconfigData,
-            _id: projectId,
-        });
-    } catch (e) {
-        errors.push(`error when importing project data from  ${toImport.filename}: ${e.message}`);
+    if (bfconfigData) {
+        try {
+            await Meteor.callWithPromise('project.update', {
+                ...bfconfigData,
+                _id: projectId,
+            });
+        } catch (e) {
+            errors.push(`error when importing project data from  ${toImport.filename}: ${e.message}`);
+        }
     }
     return errors;
 };
@@ -354,6 +358,7 @@ export const handleImportIncoming = async (files, { projectId, wipeInvolvedColle
 export const handleImportAll = async (files, params) => {
     const importers = [];
     const { projectId, wipeProject } = params;
+    const toImport = onlyValidFiles(files);
     if (wipeProject) {
         resetProject(projectId);
     }
@@ -364,19 +369,19 @@ export const handleImportAll = async (files, params) => {
     // that why we want this order
     const configAndDomainImport = async () => {
         const rasaconfig = await handleImportRasaConfig(
-            files.filter(f => f.dataType === 'rasaconfig'),
+            toImport.filter(f => f.dataType === 'rasaconfig'),
             params,
         );
         const configErrors = await handleImportDefaultDomain(
-            files.filter(f => f.dataType === 'defaultdomain'),
+            toImport.filter(f => f.dataType === 'defaultdomain'),
             params,
         );
         const trainingDataErrors = await handleImportTrainingData(
-            files.filter(f => f.dataType === 'training_data'),
+            toImport.filter(f => f.dataType === 'training_data'),
             params,
         );
         const domainErrors = await handleImportDomain(
-            files.filter(f => f.dataType === 'domain'),
+            toImport.filter(f => f.dataType === 'domain'),
             params,
         );
         return [...rasaconfig, ...configErrors, ...trainingDataErrors, ...domainErrors];
@@ -385,31 +390,31 @@ export const handleImportAll = async (files, params) => {
     importers.push(configAndDomainImport());
     importers.push(
         handleImportBfConfig(
-            files.filter(f => f.dataType === 'bfconfig'),
+            toImport.filter(f => f.dataType === 'bfconfig'),
             params,
         ),
     );
     importers.push(
         handleImportEndpoints(
-            files.filter(f => f.dataType === 'endpoints'),
+            toImport.filter(f => f.dataType === 'endpoints'),
             params,
         ),
     );
     importers.push(
         handleImportCredentials(
-            files.filter(f => f.dataType === 'credentials'),
+            toImport.filter(f => f.dataType === 'credentials'),
             params,
         ),
     );
     importers.push(
         handleImportConversations(
-            files.filter(f => f.dataType === 'conversations'),
+            toImport.filter(f => f.dataType === 'conversations'),
             params,
         ),
     );
     importers.push(
         handleImportIncoming(
-            files.filter(f => f.dataType === 'incoming'),
+            toImport.filter(f => f.dataType === 'incoming'),
             params,
         ),
     );
