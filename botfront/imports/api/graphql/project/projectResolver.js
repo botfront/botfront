@@ -1,20 +1,36 @@
-import {
-    importSteps,
-} from './import.utils';
+/* eslint-disable no-underscore-dangle */
+import { DDP } from 'meteor/ddp-client';
+import { DDPCommon } from 'meteor/ddp-common';
+import { importSteps } from './import.utils';
 import { checkIfCan } from '../../../lib/scopes';
 
 export default {
     Mutation: {
         async import(_, args, context) {
             const {
-                files, onlyValidate, projectId, wipeInvolvedCollections, fallbackLang, wipeProject,
+                files,
+                onlyValidate,
+                projectId,
+                wipeInvolvedCollections,
+                fallbackLang,
+                wipeProject,
             } = args;
             checkIfCan('projects:w', projectId, context.user._id);
             // files is a list of promises as the files get uploaded to the server
             const filesData = await Promise.all(files);
-            return importSteps({
-                projectId, files: filesData, onlyValidate, fallbackLang, wipeInvolvedCollections, wipeProject,
-            });
+            // allows Meteor.userId to be called down the stack
+            // https://forums.meteor.com/t/meteor-userid-when-running-async-jobs/39822
+            return DDP._CurrentInvocation.withValue(
+                new DDPCommon.MethodInvocation({ userId: context.user._id }),
+                () => importSteps({
+                    projectId,
+                    files: filesData,
+                    onlyValidate,
+                    fallbackLang,
+                    wipeInvolvedCollections,
+                    wipeProject,
+                }),
+            );
         },
     },
     ImportReport: {
