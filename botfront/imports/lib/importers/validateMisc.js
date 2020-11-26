@@ -104,6 +104,43 @@ export const validateBfConfig = (files, params) => {
     return [newFiles, newParams];
 };
 
-export const validateIncoming = (files, params) => validateSimpleJsonFiles(files, params, 'incoming');
+export const validateIncoming = (files, params) => {
+    const { projectLanguages } = params;
+    const [newFiles, newParams] = validateSimpleJsonFiles(files, params, 'incoming');
+    let incomingFiles = newFiles.filter(f => f?.dataType === 'incoming');
+    if (incomingFiles.length > 0) {
+        incomingFiles = incomingFiles.map((file) => {
+            const { incoming } = file;
+            if (incoming && incoming.length > 0) {
+                const langInFiles = incoming.reduce((acc, { language }) => {
+                    acc.add(language);
+                    return acc;
+                }, new Set());
+                const langNotSupported = [...langInFiles].filter(lang => !projectLanguages.includes(lang));
+                if (langNotSupported.length > 0) {
+                    return {
+                        ...file,
+                        warnings: [
+                            ...(file?.warnings || []),
+                            {
+                                text: 'This file contains incoming for unsupported languages that won\'t be accessible after import',
+                                longText: `This file contains langs "${langNotSupported.join(', ')}" that are not supported by the project,
+                                 the imported utterances in those lang won't be accessible until you add those languages to the project`,
+                            },
+                        ],
+                    };
+                }
+            }
+            return file;
+        });
+    }
+      
+ 
+    const updatedFiles = newFiles.map((file) => {
+        if (file?.dataType !== 'incoming') return file;
+        return incomingFiles.shift();
+    });
+    return [updatedFiles, newParams];
+};
 
 export const validateConversations = (files, params) => validateSimpleJsonFiles(files, params, 'conversations');
