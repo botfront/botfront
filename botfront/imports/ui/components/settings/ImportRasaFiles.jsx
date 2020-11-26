@@ -35,7 +35,6 @@ const ImportRasaFiles = () => {
     const [importFiles] = useMutation(importFilesMutation);
     const [fallbackImportLanguage, setFallbackImportLanguage] = useState(language);
     const [importResults, setImportResults] = useState([]);
-    useEffect(() => setFallbackImportLanguage(language), [language]);
     const [wipeInvolvedCollections, setwipeInvolvedCollections] = useState(false);
     const [wipeProject, setWipeProject] = useState(false);
     const [downloadBackup, setDownloadBackup] = useState(true);
