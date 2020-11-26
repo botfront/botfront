@@ -240,12 +240,18 @@ Cypress.Commands.add(
     'createCustomStory',
     (projectId, storyGroupId, storyId, options = {}) => {
         const {
-            title = storyId, steps = [], branches = [], triggerIntent,
+            title = storyId,
+            steps = [],
+            branches = [],
+            triggerIntent,
+            type = 'story',
+            rules = [],
         } = options;
         const storyData = {
             title,
             steps,
-            type: 'story',
+            type,
+            rules,
             _id: storyId,
             storyGroupId,
             projectId,
