@@ -429,7 +429,7 @@ const ImportRasaFiles = () => {
         <>
             {renderKnobs()}
             {renderImportSection()}
-            {!!importSummary.length && renderBottom()}
+            {!!importSummary.length && fileList.length > 0 && renderBottom()}
             {renderImportResults()}
         </>
     );
