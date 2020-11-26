@@ -82,9 +82,10 @@ Cypress.Commands.add(
                         `^${groupName.replace(/ /g, '')}(?:_\\d+)?_form$`,
                     ).test(node.textContent));
                     const formSuffix = forms.length - 1 ? `_${forms.length - 1}` : '';
-                    const name = fragmentName || type === 'form'
-                        ? `${groupName.replace(/ /g, '')}${formSuffix}_form`
-                        : `${groupName} (${stories.length})`;
+                    const name = fragmentName
+                        || (type === 'form'
+                            ? `${groupName.replace(/ /g, '')}${formSuffix}_form`
+                            : `${groupName} (${stories.length})`);
                     cy.dataCy('story-group-menu-item').contains(name);
                     findStoryAndSelect(name, 'new-story');
                 });
