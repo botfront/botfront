@@ -31,6 +31,8 @@ const openFirstStoryIfNoneSelected = (
     let storiesFound = [];
     let groupId; let typeOfNode;
     let i = 0;
+    // if there is nothing in the tree don't try to open an item
+    if (tree.items[tree.rootId].children.length === 0) return;
     while (typeOfNode !== 'story-group' || !storiesFound.length) {
         groupId = tree.items[tree.rootId].children[i];
         typeOfNode = tree.items[groupId].type;

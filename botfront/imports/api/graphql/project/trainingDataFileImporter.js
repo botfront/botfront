@@ -11,7 +11,7 @@ const wipeAndInsertStoryGroups = async ({
 }) => {
     const storyGroupIdMapping = {};
     const errors = [];
-    const existingStoryGroups = StoryGroups.find(
+    const existingStoryGroups = await StoryGroups.find(
         { projectId },
         { fields: { _id: 1, name: 1 } },
     ).fetch();

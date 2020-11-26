@@ -791,7 +791,7 @@ export class TrainingDataValidator {
         this.addGlobalNluSummaryLines();
         this.addGlobalCoreSummaryLines();
 
-        if (trainingDataFiles.length === 0 && !(this.wipeInvolvedCollections || this.wipeProject)) {
+        if (!(this.wipeInvolvedCollections || this.wipeProject)) {
             allAction.push(...(await this.extractDomainFromDB(this.projectId)).actions);
         }
         const actionsFromFragments = Array.from(new Set(allAction.filter(action => !/^utter_/.test(action))));
@@ -813,7 +813,6 @@ export class TrainingDataValidator {
                 summary: this.summary,
                 projectId: this.projectId,
                 actionsFromFragments,
-
             },
         ];
     };

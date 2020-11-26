@@ -130,10 +130,15 @@ export async function importSteps({
     wipeProject,
     fallbackLang: providedFallbackLanguage,
 }) {
-    const existingStoryGroups = StoryGroups.find(
-        { projectId },
-        { fields: { name: 1, _id: 1 } },
-    ).fetch();
+    let existingStoryGroups;
+    if (wipeProject) {
+        existingStoryGroups = [];
+    } else {
+        existingStoryGroups = StoryGroups.find(
+            { projectId },
+            { fields: { name: 1, _id: 1 } },
+        ).fetch();
+    }
     const { languages: projectLanguages, defaultLanguage } = Projects.findOne(
         { _id: projectId },
         { fields: { languages: 1, defaultLanguage: 1 } },

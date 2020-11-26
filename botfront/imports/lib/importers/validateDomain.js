@@ -1,6 +1,8 @@
 import { safeLoad, safeDump } from 'js-yaml';
 import { isEqual } from 'lodash';
 import { Projects } from '../../api/project/project.collection';
+import { GlobalSettings } from '../../api/globalSettings/globalSettings.collection';
+
 import { onlyValidFiles } from './common';
 
 const INTERNAL_SLOTS = ['bf_forms', 'fallback_language'];
@@ -285,7 +287,7 @@ const validateADomain = (
 };
 
 export const validateDefaultDomains = (files, params) => {
-    const { projectId } = params;
+    const { projectId, wipeProject, wipeInvolvedCollections } = params;
     let defaultDomain = {};
     let defaultDomainFiles = files.filter(file => file?.dataType === 'defaultdomain');
     defaultDomainFiles = defaultDomainFiles.map(domainFile => validateADomain(domainFile, params, true));
@@ -312,7 +314,18 @@ export const validateDefaultDomains = (files, params) => {
 
     const defaultDomainValidFiles = onlyValidFiles(defaultDomainFiles);
 
-    if (defaultDomainValidFiles.length === 0) {
+    if ((wipeProject || wipeInvolvedCollections) && defaultDomainValidFiles.length === 0) {
+        const {
+            settings: {
+                private: { defaultDefaultDomain },
+            },
+        } = GlobalSettings.findOne(
+            {},
+            { fields: { 'settings.private.defaultDefaultDomain': 1 } },
+        );
+      
+        defaultDomain = defaultDefaultDomain;
+    } else if (defaultDomainValidFiles.length === 0) {
         defaultDomain = safeLoad(
             Projects.findOne({ _id: projectId }).defaultDomain.content,
         );

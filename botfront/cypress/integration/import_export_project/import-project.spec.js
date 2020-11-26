@@ -178,12 +178,49 @@ describe('Importing a Botfront project', function() {
         cy.dataCy('conversations').click();
         cy.dataCy('conversation-item').should('have.length', 8);
     });
-    // it('should import a zip with wipe project', function() {
-    //     cy.visit('/project/bf/settings/import-export');
-    //     cy.fixture('My_Project_2020-11-02T16_26_05.278Z.zip').then((b64data) => {
-    //         const blob = Cypress.Blob.base64StringToBlob(b64data, 'application/zip');
-    //         cy.dataCy('drop-zone-data').uploadBlob(blob, 'domain.yml');
-    //     });
-    //     cy.wait(10000);
-    // });
+    it('should import a file with wipe project', function() {
+        cy.visit('/project/bf/settings/import-export');
+
+        // import a project so there is something to wipe
+        cy.fixture('testProject.zip').then((b64data) => {
+            const blob = Cypress.Blob.base64StringToBlob(b64data, 'application/zip');
+            cy.dataCy('drop-zone-data').uploadBlob(blob, 'testProject.zip');
+        });
+        cy.get('.info.message').should('exist');
+        cy.dataCy('import-files').click();
+        cy.get('.info.message').should('not.exist');
+
+      
+        // this file only has one incoming, beside this one everything should be empty/default
+        // so this data is just a kind of dummy to test the wiping of projects
+        cy.fixture('incoming.json', 'utf-8').then((rawText) => {
+            cy.dataCy('drop-zone-data').upload(rawText, 'incoming.json');
+        });
+        cy.dataCy('wipe-project').click();
+        cy.get('.info.message').should('exist');
+        cy.dataCy('import-files').click();
+        cy.get('.info.message').should('not.exist');
+        cy.visit('/project/bf/dialogue');
+        // this check is to ensure that the page rendered correctly
+        cy.dataCy('add-item').should('exist');
+
+        cy.dataCy('story-group-menu-item').should('have.length', 0);
+        cy.visit('/project/bf/incoming/newutterances');
+        cy.get('.row').should('have.length', 1);
+        cy.dataCy('conversations').click();
+        cy.dataCy('conversation-item').should('have.length', 0);
+      
+        cy.visit('/project/bf/settings/endpoints');
+        cy.get('.ace_content').should('contain.text', 'rasa_addons.core.tracker_stores.botfront.BotfrontTrackerStore');
+        cy.visit('/project/bf/settings/credentials');
+        cy.get('.ace_content').should('contain.text', 'rasa_addons.core.channels.webchat.WebchatInput');
+     
+        cy.visit('/project/bf/settings/default-domain');
+        cy.get('.ace_content').should('contain.text', 'actions:  - action_botfront_disambiguation  - action_botfront_disambiguation_followup  - action_botfront_fallback  - action_botfront_mapping');
+        cy.visit('/project/bf/responses');
+        cy.dataCy('no-responses').should('exist');
+        cy.visit('/project/bf/nlu/model/en');
+        cy.dataCy('example-text-editor-input').should('exist');
+        cy.get('.row').should('not.exist');
+    });
 });

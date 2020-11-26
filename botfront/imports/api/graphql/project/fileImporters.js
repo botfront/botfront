@@ -8,7 +8,7 @@ import { Slots } from '../../slots/slots.collection';
 import { Projects } from '../../project/project.collection';
 import { mergeDomains, deduplicateAndMergeResponses, deduplicateArray } from '../../../lib/importers/validateDomain';
 import { Credentials, createCredentials } from '../../credentials';
-
+import { GlobalSettings } from '../../globalSettings/globalSettings.collection';
 import { Endpoints } from '../../endpoints/endpoints.collection';
 import { Stories } from '../../story/stories.collection';
 import { StoryGroups } from '../../storyGroups/storyGroups.collection';
@@ -85,7 +85,9 @@ const wipeDomain = async (projectId) => {
     return true;
 };
 
-
+// empty or bring back to default project data
+// we do not reset the instance as the import depends on rasa for certain part of the import
+// reseting it to default does not make sens
 const resetProject = async (projectId) => {
     try {
         wipeDomain(projectId);
@@ -100,8 +102,21 @@ const resetProject = async (projectId) => {
         await createCredentials({ _id: projectId });
         await createEndpoints({ _id: projectId });
         const { languages } = await Projects.findOne({ _id: projectId });
+        // we empty the languages supported by the project as we will be re-creating those
+        // otherwise nlu.insert will not work as it would believe that the language we are trying to insert are already supported
+        // moreover that way if a nlu.insert fails we won't have any unsupported languages in project
+        const {
+            settings: {
+                private: { defaultDefaultDomain },
+            },
+        } = GlobalSettings.findOne(
+            {},
+            { fields: { 'settings.private.defaultDefaultDomain': 1 } },
+        );
+        await Projects.update({ _id: projectId }, { $set: { languages: [], storyGroups: [], defaultDomain: { content: defaultDefaultDomain } } });
         await Promise.all(languages.map(lang => Meteor.callWithPromise('nlu.insert', projectId, lang)));
     } catch (e) {
+        console.log('e', e);
         throw new Error('Could not reset the project back to default');
     }
     return true;
@@ -360,9 +375,8 @@ export const handleImportAll = async (files, params) => {
     const { projectId, wipeProject } = params;
     const toImport = onlyValidFiles(files);
     if (wipeProject) {
-        resetProject(projectId);
+        await resetProject(projectId);
     }
-
     // this function is there to force the order of import: rasaconfig, default domain then domain
     // rasaconfig might add support for languages that have data in the domain
     // the default domain might be updated and importing the domain might add some data to it (eg. forms)
