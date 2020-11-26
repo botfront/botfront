@@ -162,6 +162,7 @@ export default class StoryVisualEditor extends React.Component {
                     className={this.getReadOnlyClass()}
                     deletable
                     value={l.slot_was_set}
+                    // eslint-disable-next-line camelcase
                     onChange={slot_was_set => this.handleReplaceLine(i, { slot_was_set })}
                     onDelete={() => this.handleDeleteLine(i)}
                 />
@@ -200,6 +201,7 @@ export default class StoryVisualEditor extends React.Component {
 
     loopLinesMatch = (firstLine, secondLine) => (
         firstLine?.action
+        // eslint-disable-next-line camelcase
         && secondLine?.active_loop
         && firstLine.action === secondLine.active_loop
     );
