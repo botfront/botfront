@@ -15,6 +15,8 @@ export const determineDataType = (f, rawText) => {
         if ((/^config(-[a-z]+)?.ya?ml$/.test(filename))) return 'rasaconfig';
         if ((/^endpoints(\.[a-z]+)?.ya?ml$/.test(filename))) return 'endpoints';
         if ((/^credentials(\.[a-z]+)?.ya?ml$/.test(filename))) return 'credentials';
+        if (filename.match(/^conversations?.json$/)) return 'conversations';
+        if (filename.match(/^incoming.json$/)) return 'incoming';
         if (filename.match(/\.json$/)) {
             let data;
             try {
@@ -26,8 +28,9 @@ export const determineDataType = (f, rawText) => {
                 // might need improving at some point
                 if (data[0].tracker) return 'conversations';
                 if (data[0].text) return 'incoming';
+            } else if (data.length > 0) {
+                return 'training_data';
             }
-            return 'training_data';
         }
         if (filename.match(/\.ya?ml$/)) {
             let data;

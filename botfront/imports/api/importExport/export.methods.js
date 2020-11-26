@@ -156,7 +156,7 @@ if (Meteor.isServer) {
                 rasaZip.addFile(exportData.fragments[0].fragments, 'data/stories.yml');
             }
             if (language === 'all') {
-                Object.keys(exportData.config).forEach(k => rasaZip.addFile(exportData.config[k], `config.${k}.yml`));
+                Object.keys(exportData.config).forEach(k => rasaZip.addFile(exportData.config[k], `config-${k}.yml`));
                 Object.keys(exportData.nlu).forEach(k => rasaZip.addFile(JSON.stringify(exportData.nlu[k]), `data/nlu/${k}.json`));
             } else {
                 rasaZip.addFile(exportData.config[language], 'config.yml');
@@ -177,11 +177,11 @@ if (Meteor.isServer) {
             
             if (options.conversations) {
                 const conversations = await Conversations.find({ projectId }).lean();
-                rasaZip.addFile(JSON.stringify(conversations, null, 2), 'botfront/conversation.json');
+                if (conversations.length > 0) rasaZip.addFile(JSON.stringify(conversations, null, 2), 'botfront/conversation.json');
             }
             if (options.incoming) {
                 const incoming = await Activity.find({ projectId }).lean();
-                rasaZip.addFile(JSON.stringify(incoming, null, 2), 'botfront/incoming.json');
+                if (incoming.length > 0) rasaZip.addFile(JSON.stringify(incoming, null, 2), 'botfront/incoming.json');
             }
 
 
