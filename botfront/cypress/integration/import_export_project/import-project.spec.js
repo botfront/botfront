@@ -143,6 +143,14 @@ describe('Importing a Botfront project', function() {
         cy.dataCy('story-group-menu-item').should('contains.text', 'stories.yml');
         cy.dataCy('story-group-menu-item').should('contains.text', 'Example group');
         cy.dataCy('story-group-menu-item').should('have.length', 28);
+
+        cy.dataCy('slots-modal').click();
+        cy.dataCy('slot-editor').should('have.length', 10);
+        cy.get('.dimmer').click({ force: true });
+
+        cy.dataCy('policies-modal').click();
+        cy.get('.ace_content').should('contain.text', '- name: AugmentedMemoizationPolicyRu');
+        cy.get('.dimmer').click({ force: true });
         cy.visit('/project/bf/nlu/model/en');
         // the default language should have changed to english, if it's not the case the user will be redirected to another language
         cy.dataCy('language-selector').find('div.text').should('have.text', 'English');
