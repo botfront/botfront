@@ -402,7 +402,10 @@ const ImportRasaFiles = () => {
                 {tooltipWrapper(<Checkbox
                     toggle
                     checked={wipeInvolvedCollections}
-                    onChange={() => setwipeInvolvedCollections(!wipeInvolvedCollections)}
+                    onChange={() => {
+                        if (wipeInvolvedCollections === false) { setWipeProject(false); }
+                        setwipeInvolvedCollections(!wipeInvolvedCollections);
+                    }}
                     label='Delete existing data'
                     data-cy='wipe-data'
                 />, `This will clear the existing data for the type of data you are importing.
@@ -410,7 +413,10 @@ const ImportRasaFiles = () => {
                 {tooltipWrapper(<Checkbox
                     toggle
                     checked={wipeProject}
-                    onChange={() => setWipeProject(!wipeProject)}
+                    onChange={() => {
+                        if (wipeProject === false) { setwipeInvolvedCollections(false); }
+                        setWipeProject(!wipeProject);
+                    }}
                     label='Reset project'
                     data-cy='wipe-project'
                 />, 'this will remove ALL project\'s data - including conversations - before importing')}
