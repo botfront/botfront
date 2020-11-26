@@ -46,7 +46,7 @@ const AddStoryLine = React.forwardRef((props, ref) => {
     };
 
     const renderLoopNameMenu = activate => (
-        <Dropdown.Menu>
+        <Dropdown.Menu data-cy='loop-selection-menu'>
             <Dropdown.Header>By name</Dropdown.Header>
             <Dropdown.Item>
                 <Input

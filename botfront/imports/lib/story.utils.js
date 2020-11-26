@@ -109,11 +109,11 @@ export const addCheckpoints = (fragments) => {
     );
 };
 
-const scrapeActionsIntentsAndEntities = (el) => {
-    if (Array.isArray(el)) return el.flatMap(scrapeActionsIntentsAndEntities);
+const scrapeActionsIntentsAndEntities = (el, exclude = []) => {
+    if (Array.isArray(el)) { return el.flatMap(c => scrapeActionsIntentsAndEntities(c, exclude)); }
     if (el && typeof el === 'object') {
         return Object.keys(el).flatMap((k) => {
-            if (k === 'action') {
+            if (k === 'action' && !exclude.includes(el[k])) {
                 return [{ action: el[k] }];
             }
             if (k === 'intent') return [{ intent: el[k] }];
@@ -126,12 +126,26 @@ const scrapeActionsIntentsAndEntities = (el) => {
     return [];
 };
 
+const formGroupIdsToGroupNames = (forms) => {
+    if (!forms || !forms.length > 0) return [];
+    const { projectId } = forms[0];
+    const storyGroups = StoryGroups.find({
+        projectId,
+        _id: { $in: forms.map(({ groupId }) => groupId) },
+    }).fetch();
+    return forms.map(({ groupId, ...form }) => ({
+        ...form,
+        groupName:
+            (storyGroups.find(({ _id }) => _id === groupId) || {}).name || 'unknown',
+    }));
+};
+
 export const extractDomain = ({
     fragments = [],
     slots = [],
-    forms = {},
     responses = {},
     defaultDomain = {},
+    bfForms = [],
 }) => {
     const initialDomain = {
         actions: new Set([...(defaultDomain.actions || []), ...Object.keys(responses)]),
@@ -139,10 +153,19 @@ export const extractDomain = ({
         entities: new Set(defaultDomain.entities || []),
         responses: { ...(defaultDomain.responses || {}), ...responses },
         slots: { ...(defaultDomain.slots || {}), ...getSlotsInRasaFormat(slots) },
-        forms: { ...(defaultDomain.forms || {}), ...forms },
+        forms: {
+            ...(defaultDomain.forms || {}),
+            ...formGroupIdsToGroupNames(bfForms).reduce(
+                (acc, { name, ...rest }) => ({ ...acc, [name]: { ...rest, name } }),
+                {},
+            ),
+        },
     };
     const domain = fragments.reduce((acc, frag) => {
-        const newEls = scrapeActionsIntentsAndEntities([frag.steps, frag.condition]);
+        const newEls = scrapeActionsIntentsAndEntities(
+            [frag.steps, frag.condition],
+            Object.keys(initialDomain.forms),
+        );
         newEls.forEach(({ action, intent, entity }) => {
             if (action) acc.actions.add(action);
             if (intent) acc.intents.add(intent);
