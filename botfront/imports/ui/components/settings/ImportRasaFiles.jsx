@@ -300,8 +300,25 @@ const ImportRasaFiles = () => {
         </Segment>
     );
 
+
+    const warnWipe = () => {
+        let message = null;
+        if (wipeProject) message = 'Reset project is enabled';
+        if (wipeInvolvedCollections) message = 'Delete existing data is enabled';
+        if (message) {
+            return (
+                <Message warning>
+                    <Message.Header>Wipe on import</Message.Header>
+                    {message}
+                </Message>
+            );
+        }
+        return null;
+    };
+
     const renderBottom = () => (
         <>
+            {warnWipe()}
             <Message data-cy='message-summary' info>
                 <Message.Header>Import summary</Message.Header>
                 <Message.List
