@@ -94,7 +94,9 @@ export class TrainingDataValidator {
     };
 
     getNonConflictingGroupName = (name) => {
-        if (this.wipeInvolvedCollections || this.wipeFragments) return name;
+        if (this.wipeProject || this.wipeInvolvedCollections || this.wipeFragments) {
+            return name;
+        }
         let newName = name;
         if (name in this.groupNameMappings) {
             return this.groupNameMappings[name];
@@ -389,10 +391,8 @@ export class TrainingDataValidator {
         if (!this.existingFragments[group]) {
             this.existingFragments[group] = freshCoreTally();
             if (!this.existingStoryGroups.find(esg => esg.name === group)) {
-                this.existingStoryGroups.push({
-                    name: group,
-                    _id: uuidv4(),
-                });
+                const newGroup = { name: group, _id: uuidv4() };
+                this.existingStoryGroups.push(newGroup);
             }
         }
         this.existingFragments[group][type] += 1;
@@ -713,9 +713,7 @@ export class TrainingDataValidator {
                                 text: `Story '${title}' refers to a checkpoint '${c}', but no origin counterpart was found.`,
                             });
                         }
-                        currentCheckpoints.forEach(
-                            link => resolvedCheckpoints.push(link.value),
-                        );
+                        currentCheckpoints.forEach(link => resolvedCheckpoints.push(link.value));
                     });
                     rehydrated[index].stories[
                         storyIndex
@@ -735,7 +733,7 @@ export class TrainingDataValidator {
             fragments: fragmentsWithCheckpoints,
         });
         return domain;
-    }
+    };
 
     validateTrainingData = async (files) => {
         // to do: batch it in chunks
@@ -791,10 +789,15 @@ export class TrainingDataValidator {
         this.addGlobalNluSummaryLines();
         this.addGlobalCoreSummaryLines();
 
-        if (!(this.wipeInvolvedCollections || this.wipeProject)) {
+        if (
+            trainingDataFiles.length === 0
+            && !(this.wipeInvolvedCollections || this.wipeProject)
+        ) {
             allAction.push(...(await this.extractDomainFromDB(this.projectId)).actions);
         }
-        const actionsFromFragments = Array.from(new Set(allAction.filter(action => !/^utter_/.test(action))));
+        const actionsFromFragments = Array.from(
+            new Set(allAction.filter(action => !/^utter_/.test(action))),
+        );
         return [
             files.map((file) => {
                 if (file?.dataType !== 'training_data') return file;
@@ -810,6 +813,7 @@ export class TrainingDataValidator {
                 fallbackLang: this.fallbackLang,
                 projectLanguages: this.projectLanguages,
                 existingStoryGroups: this.existingStoryGroups,
+                storyGroupsUsed: this.existingStoryGroups.filter(({ name }) => Object.keys(this.existingFragments).includes(name)),
                 summary: this.summary,
                 projectId: this.projectId,
                 actionsFromFragments,

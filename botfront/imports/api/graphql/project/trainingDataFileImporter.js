@@ -156,8 +156,8 @@ const removeTriggerIntents = ({
         ...frag,
         steps,
         metadata,
-        // ...(triggerIntent ? { triggerIntent } : {}), // ee-specific field
-        // ...(rules ? { rules } : {}), // ee-specific field
+        ...(triggerIntent ? { triggerIntent } : {}),
+        ...(rules ? { rules } : {}),
     };
 };
 
@@ -167,13 +167,11 @@ const handleImportTrainingData = async (
         projectId,
         wipeFragments = false,
         wipeNluData: languagesToWipe = [],
-        existingStoryGroups: storyGroupsUsed,
+        storyGroupsUsed,
     },
 ) => {
     const [errorsFromGroups, storyGroupIdMapping] = await wipeAndInsertStoryGroups({
-        projectId,
-        wipeFragments,
-        storyGroupsUsed,
+        projectId, wipeFragments, storyGroupsUsed,
     });
     if (errorsFromGroups.length) return errorsFromGroups;
     const errorsFromNlu = await wipeNluData({ projectId, languages: languagesToWipe });
