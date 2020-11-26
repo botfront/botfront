@@ -26,7 +26,8 @@ function streamToString(stream) {
 }
 
 // extract the raw text from the files and infer types
-// if there is a bfconfig file, it processes it, because we need the data from that file for the validation later
+// if there is a bfconfig file, it processes it, because we need the data
+// from that file for the validation later
 // (eg: the default domain, the project languages)
 export async function getRawTextAndType(files) {
     const filesDataAndTypes = await Promise.all(
@@ -42,12 +43,14 @@ export async function getRawTextAndType(files) {
                 };
             }
             const dataType = determineDataType(file, rawText);
-            if (dataType === 'unknown') {
+            if (['unknown', 'empty'].includes(dataType)) {
+                const text = dataType === 'unknown'
+                    ? 'Unknown file type' : 'Empty file';
                 return {
                     file,
                     filename,
                     rawText,
-                    errors: [{ text: 'Unknown file type' }],
+                    errors: [{ text }],
                     dataType,
                 };
             }
@@ -80,7 +83,6 @@ export async function validateFiles(files, params) {
     [filesWithMessages, newParams] = validateDomain(filesWithMessages, newParams);
     [filesWithMessages, newParams] = validateConversations(filesWithMessages, newParams);
     [filesWithMessages, newParams] = validateIncoming(filesWithMessages, newParams);
-  
 
     return [filesWithMessages, newParams];
 }

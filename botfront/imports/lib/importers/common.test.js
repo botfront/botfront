@@ -53,7 +53,26 @@ const tests = [{ filename: 'test.png', rawText: '', expectedType: 'unknown' },
         rawText: 'ahah',
         expectedType: 'training_data',
     },
-
+    {
+        filename: 'aaaa.json',
+        rawText: '{}',
+        expectedType: 'empty',
+    },
+    {
+        filename: 'aaaa.json',
+        rawText: '[]',
+        expectedType: 'empty',
+    },
+    {
+        filename: 'aaaa.json',
+        rawText: '{"hey": "1"}',
+        expectedType: 'training_data',
+    },
+    {
+        filename: 'aaaa.json',
+        rawText: '{"hey"}',
+        expectedType: 'unknown',
+    },
 ];
 
 if (Meteor.isServer) {
