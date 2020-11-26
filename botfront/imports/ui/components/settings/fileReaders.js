@@ -54,6 +54,11 @@ export const useFileReader = (params) => {
                         errors: [{ text: 'File is not .zip, .json, .md or .yaml.' }],
                     });
                 }
+                if (f.size > 50 * 1000 * 1000) { // 50Mo
+                    return addDataToFile(f, {
+                        errors: [{ text: 'File is too heavy (more than 50Mo)' }],
+                    });
+                }
                 return f;
             });
             const newFileList = [...fileList, ...addFileNameCheck];
