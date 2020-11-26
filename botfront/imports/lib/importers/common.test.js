@@ -58,7 +58,7 @@ const tests = [{ filename: 'test.png', rawText: '', expectedType: 'unknown' },
     {
         filename: 'nlu.json',
         rawText: JSON.stringify([]),
-        expectedType: 'unknown',
+        expectedType: 'empty',
     },
     {
         filename: 'nlu.json',
