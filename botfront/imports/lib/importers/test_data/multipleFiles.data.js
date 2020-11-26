@@ -248,10 +248,12 @@ export const multipleFiles = [
             }],
             bfForms: [],
             warnings: [
+                'forms defined in this file will be added to the default domain on import',
                 {
                     longText: 'the actions that will be added to the default domain are the one that are in this file and not used directly by the rules or stories',
                     text: 'Some actions defined in this file will be added to the default domain on import',
                 },
+                
             ],
             newLanguages: [],
         },
@@ -265,7 +267,7 @@ export const multipleFiles = [
         expectedParams: {
             ...expectedParams,
             summary: ['The default domain will be replaced by default-domain1.yml',
-                'From domain.yml you will add: 1 slots, 1 responses, 1 actions (actions ends up in the default domain)'],
+                'From domain.yml you will add: 1 slots, 1 responses, 1 forms, 1 actions (actions ends up in the default domain)'],
             defaultDomain: validDefaultDomainParsed,
         },
     },
@@ -327,6 +329,7 @@ export const multipleFiles = [
             actions: ['action_aaa'],
             bfForms: [],
             warnings: [
+                'forms defined in this file will be added to the default domain on import',
                 {
                     longText: 'the actions that will be added to the default domain are the one that are in this file and not used directly by the rules or stories',
                     text: 'Some actions defined in this file will be added to the default domain on import',
@@ -338,7 +341,7 @@ export const multipleFiles = [
             summary: [{
                 text: 'Group \'stories.yml\' will be created with 1 story.',
             },
-            'From domain.yml you will add: 2 slots, 2 responses, 1 actions (actions ends up in the default domain)'],
+            'From domain.yml you will add: 2 slots, 2 responses, 1 forms, 1 actions (actions ends up in the default domain)'],
             existingStoryGroups: [
                 {
                     name: 'stories.yml',

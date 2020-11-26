@@ -259,7 +259,13 @@ if (Meteor.isServer) {
                 name: 'test',
                 languages: ['en'],
                 defaultLanguage: 'en',
-                defaultDomain: { content: '{}' },
+                defaultDomain: {
+                    content: `forms:
+  restaurant_form:
+    cuisineold:
+      - entity: cuisine
+        type: from_entity`,
+                },
                 namespace: 'bf-ha',
             });
             await BotResponses.create({

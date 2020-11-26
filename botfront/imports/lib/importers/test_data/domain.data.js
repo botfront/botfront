@@ -27,7 +27,11 @@ slots:
       initial_value: fr
     disambiguation_message:
       type: unfeaturized
-forms: {}`,
+forms:
+    restaurant_form:
+      cuisine:
+          - type: from_entity
+            entity: cuisine`,
     dataType: 'domain',
 };
 
@@ -113,7 +117,16 @@ export const validDomainParsed = {
             type: 'unfeaturized',
         },
     ],
-    forms: {},
+    forms: {
+        restaurant_form: {
+            cuisine: [
+                {
+                    entity: 'cuisine',
+                    type: 'from_entity',
+                },
+            ],
+        },
+    },
 };
 
 

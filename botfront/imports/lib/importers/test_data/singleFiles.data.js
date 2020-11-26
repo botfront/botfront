@@ -216,6 +216,7 @@ export const singlesFiles = [
                 ...validDomainParsed,
                 bfForms: [],
                 warnings: [
+                    'forms defined in this file will be added to the default domain on import',
                     {
                         longText: 'the actions that will be added to the default domain are the one that are in this file and not used directly by the rules or stories',
                         text: 'Some actions defined in this file will be added to the default domain on import',
@@ -226,7 +227,7 @@ export const singlesFiles = [
         ],
         expectedParams: {
             ...expectedParams,
-            summary: ['From domain.yml you will add: 2 slots, 2 responses, 1 actions (actions ends up in the default domain)'],
+            summary: ['From domain.yml you will add: 2 slots, 2 responses, 1 forms, 1 actions (actions ends up in the default domain)'],
         },
     },
     {

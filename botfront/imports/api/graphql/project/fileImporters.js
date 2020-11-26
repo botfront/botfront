@@ -20,12 +20,12 @@ import { onlyValidFiles } from '../../../lib/importers/common';
 
 export const handleImportForms = async (forms, projectId) => {
     const { defaultDomain } = Projects.findOne({ _id: projectId });
-    const parsedDomain = safeLoad(defaultDomain.content);
-    const newForms = { ...(parsedDomain?.forms || {}), ...forms };
-    parsedDomain.forms = newForms;
-    const newDomain = safeDump(parsedDomain);
+    const parsedDefaultDomain = safeLoad(defaultDomain.content);
+    const newForms = { ...(parsedDefaultDomain?.forms || {}), ...forms };
+    parsedDefaultDomain.forms = newForms;
+    const newDefaultDomain = safeDump(parsedDefaultDomain);
     await Meteor.callWithPromise('project.update', {
-        defaultDomain: { content: newDomain },
+        defaultDomain: { content: newDefaultDomain },
         _id: projectId,
     });
 };

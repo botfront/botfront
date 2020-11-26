@@ -167,7 +167,6 @@ const validateADomain = (
     const {
         slots: defaultSlots = {},
         responses: defaultResponses = {},
-        forms: defaultForms = {},
     } = defaultDomain;
     const responsesFromFile = {
         ...(legacyResponsesFromFile || {}),
@@ -184,10 +183,7 @@ const validateADomain = (
     Object.keys(defaultResponses).forEach((k) => {
         delete responsesFromFile[k];
     });
-    // do not import forms that are in current default domain
-    Object.keys(defaultForms).forEach((k) => {
-        delete formsFromFile[k];
-    });
+  
 
     const warnings = [];
     const responses = [];
