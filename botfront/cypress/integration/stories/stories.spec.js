@@ -26,20 +26,6 @@ describe('stories', function() {
         cy.contains('- intent: ha').should('exist');
     });
 
-    it('should be able to collapse stories and to persist that across application state', function() {
-        cy.visit('/project/bf/dialogue');
-        cy.dataCy('toggle-yaml').click({ force: true });
-        cy.browseToStory('Farewells');
-        cy.dataCy('single-story-editor');
-        cy.dataCy('collapse-story-button').click({ force: true });
-        cy.dataCy('single-story-editor').should('not.exist');
-        cy.contains('NLU').click({ force: true });
-        cy.dataCy('dialogue-sidebar-link').click({ force: true });
-        cy.dataCy('single-story-editor').should('not.exist');
-        cy.dataCy('collapse-story-button').click({ force: true });
-        cy.dataCy('single-story-editor').should('exist');
-    });
-
     it('should list all linkable stories', function() {
         cy.visit('/project/bf/dialogue');
         cy.createFragmentInGroup({ groupName: 'Example group', fragmentName: 'Hmm1' });
