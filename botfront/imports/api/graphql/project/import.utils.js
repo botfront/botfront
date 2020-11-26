@@ -68,7 +68,7 @@ export async function getRawTextAndType(files) {
 
 export async function validateFiles(files, params) {
     let filesWithMessages = files;
-    let newParams = { ...params, summary: [] };
+    let newParams = { ...params };
     // this is the validation pipeline each step only add errors to the files it should validate
     // each step can also add data to the params, eg : the default domain, the summary of changes etc,
     [filesWithMessages, newParams] = validateDefaultDomains(filesWithMessages, newParams);
@@ -157,6 +157,7 @@ export async function importSteps({
         fallbackLang,
         wipeProject,
         projectLanguages,
+        summary: wipeProject ? [{ text: 'ALL PROJECT DATA WILL BE ERASED.' }] : [],
     };
     const filesAndValidationData = await readAndValidate(files, params);
 

@@ -30,7 +30,9 @@ import 'react-s-alert/dist/s-alert-default.css';
 
 const ImportRasaFiles = () => {
     const {
-        projectLanguages, project: { _id: projectId, name: projectName }, language,
+        projectLanguages,
+        project: { _id: projectId, name: projectName },
+        language,
     } = useContext(ProjectContext);
     const [importFiles] = useMutation(importFilesMutation);
     const [fallbackImportLanguage, setFallbackImportLanguage] = useState(language);
@@ -81,19 +83,26 @@ const ImportRasaFiles = () => {
             const options = { conversations: true, incoming: true };
             const noSpaceName = projectName.replace(/ +/g, '_');
             try {
-                const zipData = await Meteor.callWithPromise('exportRasa', projectId, 'all', options);
+                const zipData = await Meteor.callWithPromise(
+                    'exportRasa',
+                    projectId,
+                    'all',
+                    options,
+                );
                 const zip = new JSZIP();
-                const date = (new Date()).toISOString();
+                const date = new Date().toISOString();
                 if (!window.Cypress) {
                     zip.loadAsync(zipData, { base64: true }).then((newZip) => {
-                        newZip.generateAsync({ type: 'blob' })
-                            .then((blob) => {
-                                saveAs(blob, `${noSpaceName}_${date}.zip`);
-                            });
+                        newZip.generateAsync({ type: 'blob' }).then((blob) => {
+                            saveAs(blob, `${noSpaceName}_${date}.zip`);
+                        });
                     });
                 }
             } catch (e) {
-                Alert.error('Exporting the project failed, so import was aborted to preserve data', { timeout: 10000, position: 'top-right' });
+                Alert.error(
+                    'Exporting the project failed, so import was aborted to preserve data',
+                    { timeout: 10000, position: 'top-right' },
+                );
                 return;
             }
         }
@@ -169,7 +178,7 @@ const ImportRasaFiles = () => {
     const renderFileList = ([fileList, setFileList]) => {
         const filesWithErrors = fileList.filter(f => (f.errors || []).length);
         const filesWithWarnings = fileList.filter(f => (f.warnings || []).length);
-    
+
         const colorOfLabel = (f) => {
             if (f.errors && f.errors.length) return { color: 'red' };
             if (f.warnings && f.warnings.length) return { color: 'yellow' };
@@ -211,7 +220,11 @@ const ImportRasaFiles = () => {
                             const nameNoDot = name.replace(/\./g, '');
 
                             return (
-                                <Message data-cy={`message-error-${nameNoDot}`} color='red' key={`errors-${name}`}>
+                                <Message
+                                    data-cy={`message-error-${nameNoDot}`}
+                                    color='red'
+                                    key={`errors-${name}`}
+                                >
                                     <Message.Header>{name}</Message.Header>
                                     <Message.List
                                         items={f.errors.map(unpackSummaryEntry)}
@@ -229,7 +242,11 @@ const ImportRasaFiles = () => {
                             const { name } = f;
                             const nameNoDot = name.replace(/\./g, '');
                             return (
-                                <Message data-cy={`message-warning-${nameNoDot}`} color='yellow' key={`warnings-${name}`}>
+                                <Message
+                                    data-cy={`message-warning-${nameNoDot}`}
+                                    color='yellow'
+                                    key={`warnings-${name}`}
+                                >
                                     <Message.Header>{name}</Message.Header>
                                     <Message.List
                                         items={f.warnings.map(unpackSummaryEntry)}
@@ -248,7 +265,11 @@ const ImportRasaFiles = () => {
     const [fileList, setFileList] = fileReader;
     const [{ canDrop, isOver }, drop] = useFileDrop(fileReader);
     const fileField = useRef();
-    useEffect(() => setFileList({ reload: true }), [wipeInvolvedCollections, fallbackImportLanguage]);
+    useEffect(() => setFileList({ reload: true }), [
+        wipeInvolvedCollections,
+        wipeProject,
+        fallbackImportLanguage,
+    ]);
 
     const renderImportSection = () => (
         <Segment
@@ -256,7 +277,11 @@ const ImportRasaFiles = () => {
                 canDrop && isOver && !filesImporting ? 'upload-target' : ''
             }`}
         >
-            <div {...(!filesImporting ? { ref: drop } : {})} data-cy='drop-zone-data' className='drop-zone-data'>
+            <div
+                {...(!filesImporting ? { ref: drop } : {})}
+                data-cy='drop-zone-data'
+                className='drop-zone-data'
+            >
                 {filesImporting ? (
                     <Dimmer active inverted>
                         <Loader>Importing data...</Loader>
@@ -299,7 +324,6 @@ const ImportRasaFiles = () => {
             </div>
         </Segment>
     );
-
 
     const warnWipe = () => {
         let message = null;
@@ -353,7 +377,9 @@ const ImportRasaFiles = () => {
                 <Message error>
                     <Message.Header>Import Error</Message.Header>
                     <Message.List className='import-summary-accordion'>
-                        {importResults.map(message => (<Message.Item>{message.text}</Message.Item>))}
+                        {importResults.map(message => (
+                            <Message.Item>{message.text}</Message.Item>
+                        ))}
                     </Message.List>
                 </Message>
             );
@@ -368,15 +394,15 @@ const ImportRasaFiles = () => {
                     content={(
                         <>
                             <p>
-                                        Bot responses found in domain files will use the
-                                        &apos;language&apos; attribute if it exists; if
-                                        not, the fallback import language will be used.
+                                Bot responses found in domain files will use the
+                                &apos;language&apos; attribute if it exists; if not, the
+                                fallback import language will be used.
                             </p>
 
                             <p>
-                                        Likewise, the language of a NLU file can be
-                                        specified in its first line; if it isn&apos;t, the
-                                        fallback import language will be used.
+                                Likewise, the language of a NLU file can be specified in
+                                its first line; if it isn&apos;t, the fallback import
+                                language will be used.
                             </p>
 
                             <p>For more information, read the docs.</p>
@@ -398,31 +424,40 @@ const ImportRasaFiles = () => {
                     onChange={(_e, { value }) => setFallbackImportLanguage(value)}
                 />
             </div>
-          
-            <div className='wipes side-by-side left'>
-                {tooltipWrapper(<Checkbox
-                    toggle
-                    checked={wipeInvolvedCollections}
-                    onChange={() => {
-                        if (wipeInvolvedCollections === false) { setWipeProject(false); }
-                        setwipeInvolvedCollections(!wipeInvolvedCollections);
-                    }}
-                    label='Delete existing data'
-                    data-cy='wipe-data'
-                />, `This will clear the existing data for the type of data you are importing.
-                e.g : importing stories with this switch on will remove the previous stories, but keep everything else, NLU, responses, etc`)}
-                {tooltipWrapper(<Checkbox
-                    toggle
-                    checked={wipeProject}
-                    onChange={() => {
-                        if (wipeProject === false) { setwipeInvolvedCollections(false); }
-                        setWipeProject(!wipeProject);
-                    }}
-                    label='Reset project'
-                    data-cy='wipe-project'
-                />, 'this will remove ALL project\'s data - including conversations - before importing')}
-            </div>
 
+            <div className='wipes side-by-side left'>
+                {tooltipWrapper(
+                    <Checkbox
+                        toggle
+                        checked={wipeInvolvedCollections}
+                        onChange={() => {
+                            if (wipeInvolvedCollections === false) {
+                                setWipeProject(false);
+                            }
+                            setwipeInvolvedCollections(!wipeInvolvedCollections);
+                        }}
+                        label='Delete existing data'
+                        data-cy='wipe-data'
+                    />,
+                    `This will clear the existing data for the type of data you are importing.
+                e.g : importing stories with this switch on will remove the previous stories, but keep everything else, NLU, responses, etc`,
+                )}
+                {tooltipWrapper(
+                    <Checkbox
+                        toggle
+                        checked={wipeProject}
+                        onChange={() => {
+                            if (wipeProject === false) {
+                                setwipeInvolvedCollections(false);
+                            }
+                            setWipeProject(!wipeProject);
+                        }}
+                        label='Reset project'
+                        data-cy='wipe-project'
+                    />,
+                    'this will remove ALL project\'s data - including conversations - before importing',
+                )}
+            </div>
         </Segment>
     );
 
