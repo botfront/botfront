@@ -27,6 +27,8 @@ export const determineDataType = (f, rawText) => {
                 if (!data.length) return 'empty';
                 if (data[0].tracker) return 'conversations';
                 if (data[0].text) return 'incoming';
+            } else if (Object.keys(data).length > 0) {
+                return 'training_data';
             }
             if (typeof data === 'object' && !Object.keys(data)) return 'empty';
             return 'training_data';

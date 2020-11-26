@@ -18,6 +18,8 @@ const tests = [{ filename: 'test.png', rawText: '', expectedType: 'unknown' },
     { filename: 'credentials.yaml', rawText: '', expectedType: 'credentials' },
     { filename: 'aaa.json', rawText: 'fwiohfyuweyugfuwyeg', expectedType: 'unknown' },
     { filename: 'aaa.json', rawText: JSON.stringify([{ tracker: ['test'] }]), expectedType: 'conversations' },
+    { filename: 'conversation.json', rawText: JSON.stringify([{ tracker: ['test'] }]), expectedType: 'conversations' },
+    { filename: 'conversations.json', rawText: JSON.stringify([{ tracker: ['test'] }]), expectedType: 'conversations' },
     { filename: 'ooo.json', rawText: JSON.stringify([{ text: 'héhé' }]), expectedType: 'incoming' },
     { filename: 'wfwef.yaml', rawText: 'fwiohfyuweyugfuwyeg', expectedType: 'unknown' },
     {
@@ -54,25 +56,16 @@ const tests = [{ filename: 'test.png', rawText: '', expectedType: 'unknown' },
         expectedType: 'training_data',
     },
     {
-        filename: 'aaaa.json',
-        rawText: '{}',
-        expectedType: 'empty',
-    },
-    {
-        filename: 'aaaa.json',
-        rawText: '[]',
-        expectedType: 'empty',
-    },
-    {
-        filename: 'aaaa.json',
-        rawText: '{"hey": "1"}',
-        expectedType: 'training_data',
-    },
-    {
-        filename: 'aaaa.json',
-        rawText: '{"hey"}',
+        filename: 'nlu.json',
+        rawText: JSON.stringify([]),
         expectedType: 'unknown',
     },
+    {
+        filename: 'nlu.json',
+        rawText: JSON.stringify({ a: 'b' }),
+        expectedType: 'training_data',
+    },
+
 ];
 
 if (Meteor.isServer) {
