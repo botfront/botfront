@@ -36,7 +36,6 @@ export const useFileReader = (params) => {
             reset: resetInstruction,
             reload: reloadInstruction,
         } = instruction;
-
         if (deleteInstruction) {
             const index = findFileInFileList(fileList, deleteInstruction);
             if (index < 0) return fileList;
@@ -44,6 +43,8 @@ export const useFileReader = (params) => {
                 ...fileList.slice(0, index),
                 ...fileList.slice(index + 1),
             ];
+            // no need to validate an empty file list
+            if (newFileList.length === 0) return newFileList;
             setFileListAfterRecompute(newFileList);
             return newFileList.map(f => addDataToFile(f, { validated: false }));
         }
@@ -66,6 +67,8 @@ export const useFileReader = (params) => {
             return newFileList.map(f => addDataToFile(f, { validated: false }));
         }
         if (reloadInstruction) {
+            // no need to validate an empty file list
+            if (fileList.length === 0) return fileList;
             setFileListAfterRecompute(fileList);
             return fileList.map(f => addDataToFile(f, { validated: false }));
         }
