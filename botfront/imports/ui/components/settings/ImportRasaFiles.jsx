@@ -310,6 +310,15 @@ const ImportRasaFiles = () => {
                     className='import-summary-accordion'
                 />
                 <br />
+                <Checkbox
+                    toggle
+                    className='download-backup'
+                    checked={downloadBackup}
+                    onChange={() => setDownloadBackup(!downloadBackup)}
+                    label='Download backup before the import'
+                    data-cy='backup-project'
+                />
+                <br />
                 <Button
                     disabled={fileReader[0].some(f => !f.validated)}
                     content='Import'
@@ -372,13 +381,7 @@ const ImportRasaFiles = () => {
                     onChange={(_e, { value }) => setFallbackImportLanguage(value)}
                 />
             </div>
-            <Checkbox
-                toggle
-                checked={downloadBackup}
-                onChange={() => setDownloadBackup(!downloadBackup)}
-                label='Download backup before the import'
-                data-cy='backup-project'
-            />
+          
             <div className='wipes side-by-side left'>
                 {tooltipWrapper(<Checkbox
                     toggle
@@ -392,7 +395,7 @@ const ImportRasaFiles = () => {
                     toggle
                     checked={wipeProject}
                     onChange={() => setWipeProject(!wipeProject)}
-                    label='Reset complete project'
+                    label='Reset project'
                     data-cy='wipe-project'
                 />, 'this will remove ALL project\'s data - including conversations - before importing')}
             </div>

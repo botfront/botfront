@@ -89,40 +89,7 @@ const ExportProject = ({
     }
     return (
         <>
-            
-            
             <>
-                <Message
-                    info
-                    header='A few things to keep in mind when exporting in order to use the project with Rasa'
-                    content={(
-                        <>
-                            <h5>Languages</h5>
-                            <p>
-                                 Rasa only supports one language, You will have to handpick the files for a dedicated language if you export for all languages.
-                            </p>
-                            <h5>NLU pipeline</h5>
-                            <p>
-                                    Consider removing Botfront specific NLU components,
-                                    such as{' '}
-                                <b className='monospace'>
-                                        rasa_addons.nlu.components.gazette.Gazette
-                                </b>
-                                    .
-                            </p>
-                            <h5>Credentials and endpoints</h5>
-                            <p>
-                                    In most cases, you do not need to change credentials
-                                    or endpoints. If you need to keep credentials from
-                                    Botfront, be sure to keep the{' '}
-                                <b className='monospace'>rasa</b> and{' '}
-                                <b className='monospace'>rest</b> fields from the{' '}
-                                <b className='monospace'>credentials.yml</b> provided
-                                    by Rasa X.
-                            </p>
-                        </>
-                    )}
-                />
                 <Dropdown
                     data-cy='export-language-dropdown'
                     key='language'
@@ -148,15 +115,14 @@ const ExportProject = ({
                     toggle
                     checked={exportIncoming}
                     onChange={() => setExportIncoming(!exportIncoming)}
-                    label='Export Incoming'
+                    label='Export Incoming utterances'
                     className='export-option'
                     key='exportIncoming'
                 />
-              
             </>
             
             <br />
-             
+
             <Button
                 onClick={exportForRasa}
                 className='export-option'
