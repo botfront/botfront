@@ -27,11 +27,9 @@ describe('Importing a Botfront project', function() {
         + 'those reponses will add the support for the language ru :utter_uCag8LL6z'
         + 'Some actions defined in this file will be added to the default domain on import'
         + 'the actions that will be added to the default domain are the one that are in this file and not used directly by the rules or stories');
-        cy.dataCy('message-summary').should('have.text', 'Import summary'
-        + 'From domain.yml you will add: 3 responses, 1 actions (actions ends up in the default domain)'
+        cy.dataCy('summary-list').should('have.text', 'From domain.yml you will add: 3 responses, 1 actions (actions ends up in the default domain)'
         + 'Support for the lang \'en\' will be added using the default config'
-        + 'Support for the lang \'ru\' will be added using the default config'
-        + 'Import');
+        + 'Support for the lang \'ru\' will be added using the default config');
     });
     it('Should mark as error a file that is not json/yaml/zip/yml/md', function() {
         cy.visit('/project/bf/settings/import-export');
@@ -77,7 +75,7 @@ describe('Importing a Botfront project', function() {
 
        
         // check Summary
-        cy.dataCy('message-summary')
+        cy.dataCy('summary-list')
             .should('contain.text', 'The default domain will be replaced by default-domain.yml, default-domain-bf.yml')
             .should('contain.text', 'Pipeline for new language model \'ru\' will be imported from config-ru.yml.')
             .should('contain.text', 'Policies will be overwritten by config-ru.yml.')

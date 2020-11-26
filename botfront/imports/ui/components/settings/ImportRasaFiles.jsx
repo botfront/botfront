@@ -322,6 +322,7 @@ const ImportRasaFiles = () => {
             <Message data-cy='message-summary' info>
                 <Message.Header>Import summary</Message.Header>
                 <Message.List
+                    data-cy='summary-list'
                     items={importSummary.map(unpackSummaryEntry)}
                     className='import-summary-accordion'
                 />
