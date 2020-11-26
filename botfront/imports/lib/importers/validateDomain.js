@@ -328,7 +328,7 @@ export const validateDefaultDomains = (files, params) => {
     } else {
         defaultDomain = mergeDomainsRasaFormat(defaultDomainValidFiles);
     }
-    const newSummary = params.summary;
+    const newSummary = params.summary || [];
 
     if (defaultDomainValidFiles.length > 0) {
         const nameList = defaultDomainValidFiles.map(file => file.filename).join(', ');

@@ -43,6 +43,7 @@ const expectedParams = {
     wipeFragments: undefined,
     wipeNluData: [],
     actionsFromFragments: [],
+    storyGroupsUsed: [],
 };
 
 
@@ -338,6 +339,11 @@ export const multipleFiles = [
         }],
         expectedParams: {
             ...expectedParams,
+            storyGroupsUsed: [
+                {
+                    name: 'stories.yml',
+                },
+            ],
             summary: [{
                 text: 'Group \'stories.yml\' will be created with 1 story.',
             },

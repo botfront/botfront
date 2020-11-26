@@ -43,6 +43,7 @@ const expectedParams = {
     wipeProject: undefined,
     wipeNluData: [],
     actionsFromFragments: [],
+    storyGroupsUsed: [],
 };
 
 export const singlesFiles = [

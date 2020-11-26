@@ -38,7 +38,7 @@ export const validateSimpleYamlFiles = (files, params, type, alias = type) => {
         });
     }
 
-    const newSummary = params.summary;
+    const newSummary = params.summary || [];
     if (filesToValid.length > 0) newSummary.push(`${alias.charAt(0).toUpperCase() + alias.slice(1)} will be imported from ${filesToValid[0].filename}.`);
 
     const newFiles = files.map((file) => {
@@ -78,7 +78,7 @@ export const validateSimpleJsonFiles = (files, params, type) => {
         };
     });
     
-    const newSummary = params.summary;
+    const newSummary = params.summary || [];
     if (count > 0) newSummary.push(`You will add ${count} ${type}`);
 
     const newFiles = files.map((file) => {

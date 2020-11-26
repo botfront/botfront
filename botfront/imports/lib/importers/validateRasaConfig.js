@@ -99,7 +99,7 @@ export const validateRasaConfig = (files, params) => {
         newFiles,
         {
             ...params,
-            summary: [...params.summary, ...summary],
+            summary: [...(params.summary || []), ...summary],
             projectLanguages,
         },
     ];
