@@ -7,14 +7,14 @@ export const determineDataType = (f, rawText) => {
     const { dataType, filename } = f;
     try {
         if (dataType) return dataType;
-        if (/^default-domain(-[a-z]+)?.ya?ml$/.test(filename)) return 'defaultdomain';
-        if (/^bfconfig(-[a-z]+)?.ya?ml$/.test(filename)) return 'bfconfig';
-        if (/^domain(-[a-z]+)?.ya?ml$/.test(filename)) return 'domain';
-        if (/^config(-[a-z]+)?.ya?ml$/.test(filename)) return 'rasaconfig';
-        if (/^endpoints(\.[a-z]+)?.ya?ml$/.test(filename)) return 'endpoints';
-        if (/^credentials(\.[a-z]+)?.ya?ml$/.test(filename)) return 'credentials';
-        if (filename.match(/^conversations?.json$/)) return 'conversations';
-        if (filename.match(/^incoming.json$/)) return 'incoming';
+        if (/^default-domain((\.|-)[a-z]+)?\.ya?ml$/.test(filename)) return 'defaultdomain';
+        if (/^bfconfig((\.|-)[a-z]+)?\.ya?ml$/.test(filename)) return 'bfconfig';
+        if (/^domain((\.|-)[a-z]+)?\.ya?ml$/.test(filename)) return 'domain';
+        if (/^config((\.|-)[a-z]+)?\.ya?ml$/.test(filename)) return 'rasaconfig';
+        if (/^endpoints((\.|-)[a-z]+)?\.ya?ml$/.test(filename)) return 'endpoints';
+        if (/^credentials((\.|-)[a-z]+)?\.ya?ml$/.test(filename)) return 'credentials';
+        if (filename.match(/^conversations?((\.|-)[a-z]+)?\.json$/)) return 'conversations';
+        if (filename.match(/^incoming((\.|-)[a-z]+)?\.json$/)) return 'incoming';
         if (filename.match(/\.json$/)) {
             let data;
             try {
