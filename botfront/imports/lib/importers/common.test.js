@@ -9,9 +9,15 @@ const tests = [{ filename: 'test.png', rawText: '', expectedType: 'unknown' },
     { filename: 'default-domain-test.yml', rawText: '', expectedType: 'defaultdomain' },
     { filename: 'config.yml', rawText: '', expectedType: 'rasaconfig' },
     { filename: 'config-oo.yaml', rawText: '', expectedType: 'rasaconfig' },
+    { filename: 'config.oo.yaml', rawText: '', expectedType: 'rasaconfig' },
+
     { filename: 'bfconfig-hihi.yaml', rawText: '', expectedType: 'bfconfig' },
+    { filename: 'bfconfig.hihi.yaml', rawText: '', expectedType: 'bfconfig' },
+
     { filename: 'bfconfig.yml', rawText: '', expectedType: 'bfconfig' },
-    { filename: 'endpoints-ooo.yml', rawText: '', expectedType: 'unknown' },
+    { filename: 'endpoints-ooo.yml', rawText: '', expectedType: 'endpoints' },
+    { filename: 'endpoints_ooo.yml', rawText: '', expectedType: 'unknown' },
+
     { filename: 'endpoints.dev.yaml', rawText: '', expectedType: 'endpoints' },
     { filename: 'endpoints.yaml', rawText: '', expectedType: 'endpoints' },
     { filename: 'credentials.prod.yaml', rawText: '', expectedType: 'credentials' },
