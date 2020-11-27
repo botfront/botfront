@@ -190,16 +190,7 @@ SlotPopupContent.propTypes = {
     defaultOpen: PropTypes.bool,
     disabled: PropTypes.bool,
     className: PropTypes.string,
-    excludeSlotsOfType: PropTypes.arrayOf([
-        PropTypes.oneOf([
-            'text',
-            'bool',
-            'categorical',
-            'float',
-            'list',
-            'unfeaturized',
-        ]),
-    ]),
+    excludeSlotsOfType: PropTypes.arrayOf(PropTypes.string),
 };
 
 SlotPopupContent.defaultProps = {

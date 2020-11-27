@@ -312,7 +312,7 @@ const ProjectContainer = withTracker((props) => {
     if (!projectId) return browserHistory.replace({ pathname: '/404' });
     const projectHandler = Meteor.subscribe('projects', projectId);
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
-    const settingsHandler = Meteor.subscribe('settings');
+    const settingsHandler = Meteor.subscribe('settings', projectId);
     const settings = GlobalSettings.findOne({}, {
         fields: { 'settings.public.logoUrl': 1, 'settings.public.smallLogoUrl': 1 },
     });
