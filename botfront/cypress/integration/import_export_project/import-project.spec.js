@@ -48,6 +48,9 @@ describe('Importing a Botfront project', function() {
             cy.dataCy('drop-zone-data').uploadBlob(blob, 'testProject.zip');
         });
 
+        cy.get('.message.red').should('have.length', 2);
+        cy.get('.message.yellow').should('have.length', 6);
+
         // check Errors
         cy.dataCy('message-error-endpoints-bfyml').should('have.text', 'endpoints-bf.yml'
         + 'Unknown file type');
