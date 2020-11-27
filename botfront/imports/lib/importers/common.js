@@ -30,7 +30,7 @@ export const determineDataType = (f, rawText) => {
             } else if (Object.keys(data).length > 0) {
                 return 'training_data';
             }
-            if (typeof data === 'object' && !Object.keys(data)) return 'empty';
+            if (typeof data === 'object' && Object.keys(data).length === 0) return 'empty';
             return 'training_data';
         }
         if (filename.match(/\.ya?ml$/)) {
