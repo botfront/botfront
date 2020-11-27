@@ -340,6 +340,7 @@ export class TrainingDataValidator {
     };
 
     loadFile = async (file) => {
+        if (file.errors && file.errors.length > 0) return file;
         let loadedFile = await this.loadFromYaml(file);
         if (!loadedFile) loadedFile = await this.loadFromJson(file);
         if (!loadedFile) loadedFile = await this.loadFromMd(file);
