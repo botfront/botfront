@@ -10,6 +10,7 @@ import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { Credentials } from '../credentials';
 
 import { generateErrorText } from './importExport.utils';
+import { checkIfCan } from '../../lib/scopes';
 import { ZipFolder } from './ZipFolder';
 import { Projects } from '../project/project.collection';
 import { Instances } from '../instances/instances.collection';
@@ -55,6 +56,7 @@ if (Meteor.isServer) {
             return exportRequest;
         },
         async exportRasa(projectId, language, options) {
+            checkIfCan('export:x', projectId);
             check(projectId, String);
             check(language, String);
             check(options, Object);
@@ -64,9 +66,13 @@ if (Meteor.isServer) {
             const hasEnvs = project.deploymentEnvironments && project.deploymentEnvironments.length !== 0;
             let credentials;
             let endpoints;
+            let conversations;
+            let incoming;
+
 
             if (hasEnvs) {
-                credentials = await Promise.all(project.deploymentEnvironments.map(async (environment) => {
+                const envs = ['development', ...project.deploymentEnvironments];
+                credentials = await Promise.all(envs.map(async (environment) => {
                     const creds = await Credentials.findOne(
                         { projectId, environment },
                         { fields: { credentials: 1 } },
@@ -77,7 +83,7 @@ if (Meteor.isServer) {
                     };
                 }));
 
-                endpoints = await Promise.all(project.deploymentEnvironments.map(async (environment) => {
+                endpoints = await Promise.all(envs.map(async (environment) => {
                     const endpoint = await Endpoints.findOne(
                         { projectId, environment },
                         { fields: { endpoints: 1 } },
@@ -87,6 +93,28 @@ if (Meteor.isServer) {
                         endpoints: endpoint.endpoints,
                     };
                 }));
+                if (options.incoming) {
+                    incoming = await Promise.all(envs.map(async (environment) => {
+                        const incomingInEnv = await Activity.findOne(
+                            { projectId, environment },
+                        );
+                        return {
+                            environment,
+                            incoming: incomingInEnv,
+                        };
+                    }));
+                }
+                if (options.conversations) {
+                    conversations = await Promise.all(envs.map(async (environment) => {
+                        const conversationsInEnv = await Conversations.findOne(
+                            { projectId, environment },
+                        );
+                        return {
+                            environment,
+                            conversations: conversationsInEnv,
+                        };
+                    }));
+                }
             } else {
                 credentials = await Credentials.findOne(
                     { projectId },
@@ -96,6 +124,8 @@ if (Meteor.isServer) {
                     { projectId },
                     { fields: { endpoints: 1 } },
                 ).endpoints;
+                if (options.incoming) incoming = await Activity.find({ projectId }).lean();
+                if (options.conversations) conversations = await Conversations.find({ projectId }).lean();
             }
 
             const rasaData = await Meteor.callWithPromise(
@@ -156,7 +186,7 @@ if (Meteor.isServer) {
                 rasaZip.addFile(exportData.fragments[0].fragments, 'data/stories.yml');
             }
             if (language === 'all') {
-                Object.keys(exportData.config).forEach(k => rasaZip.addFile(exportData.config[k], `config.${k}.yml`));
+                Object.keys(exportData.config).forEach(k => rasaZip.addFile(exportData.config[k], `config-${k}.yml`));
                 Object.keys(exportData.nlu).forEach(k => rasaZip.addFile(JSON.stringify(exportData.nlu[k]), `data/nlu/${k}.json`));
             } else {
                 rasaZip.addFile(exportData.config[language], 'config.yml');
@@ -166,23 +196,22 @@ if (Meteor.isServer) {
             if (hasEnvs) {
                 endpoints.forEach((endpoint) => { rasaZip.addFile(endpoint.endpoints, `endpoints.${endpoint.environment}.yml`); });
                 credentials.forEach((credential) => { rasaZip.addFile(credential.credentials, `credentials.${credential.environment}.yml`); });
+                if (conversations) {
+                    conversations.forEach(({ conversations: conversationsPerEnv, environment }) => {
+                        rasaZip.addFile(JSON.stringify(conversationsPerEnv, null, 2), `conversations.${environment}.yml`);
+                    });
+                }
+                if (incoming) incoming.forEach(({ incoming: incomingPerEnv, environment }) => { rasaZip.addFile(JSON.stringify(incomingPerEnv, null, 2), `incoming.${environment}.yml`); });
             } else {
                 rasaZip.addFile(endpoints, 'endpoints.yml');
                 rasaZip.addFile(credentials, 'credentials.yml');
+                if (conversations) rasaZip.addFile(JSON.stringify(conversations, null, 2), 'botfront/conversations.json');
+                if (incoming) rasaZip.addFile(JSON.stringify(incoming, null, 2), 'botfront/incoming.json');
             }
             
             rasaZip.addFile(exportData.domain, 'domain.yml');
             rasaZip.addFile(bfconfigYaml, 'botfront/bfconfig.yml');
             rasaZip.addFile(defaultDomain, 'botfront/default-domain.yml');
-            
-            if (options.conversations) {
-                const conversations = await Conversations.find({ projectId }).lean();
-                if (conversations.length > 0) rasaZip.addFile(JSON.stringify(conversations, null, 2), 'botfront/conversation.json');
-            }
-            if (options.incoming) {
-                const incoming = await Activity.find({ projectId }).lean();
-                if (incoming.length > 0) rasaZip.addFile(JSON.stringify(incoming, null, 2), 'botfront/incoming.json');
-            }
 
 
             return rasaZip.generateBlob();

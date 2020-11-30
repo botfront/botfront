@@ -116,6 +116,7 @@ const resetProject = async (projectId) => {
         await Projects.update({ _id: projectId }, { $set: { languages: [], storyGroups: [], defaultDomain: { content: defaultDefaultDomain } } });
         await Promise.all(languages.map(lang => Meteor.callWithPromise('nlu.insert', projectId, lang)));
     } catch (e) {
+        // eslint-disable-next-line no-console
         console.log('e', e);
         throw new Error('Could not reset the project back to default');
     }
@@ -213,16 +214,19 @@ export const handleImportBfConfig = async (files, { projectId }) => {
     return errors;
 };
 
-export const handleImportEndpoints = async (files, { projectId }) => {
+export const handleImportEndpoints = async (files, { supportedEnvs, projectId }) => {
     if (!files.length) return [];
-    const toImport = [files[0]]; // it's always only one file on os, but the map is there for ee
     const importResult = await Promise.all(
-        toImport.map(async (f) => {
+        files.map(async (f) => {
             try {
-                await saveEndpoints({
-                    projectId,
-                    endpoints: f.rawText,
-                });
+                const { env, rawText } = f;
+                if (supportedEnvs.includes(env)) {
+                    await saveEndpoints({
+                        environment: env,
+                        projectId,
+                        endpoints: rawText,
+                    });
+                }
                 return null;
             } catch (e) {
                 return `error when importing ${f.filename}: ${e.message}`;
@@ -232,16 +236,19 @@ export const handleImportEndpoints = async (files, { projectId }) => {
     return importResult.filter(r => r);
 };
 
-export const handleImportCredentials = async (files, { projectId }) => {
+export const handleImportCredentials = async (files, { supportedEnvs, projectId }) => {
     if (!files.length) return [];
-    const toImport = [files[0]]; // there could only be one file os, but the map is there for ee
     const importResult = await Promise.all(
-        toImport.map(async (f) => {
+        files.map(async (f) => {
             try {
-                await Meteor.callWithPromise('credentials.save', {
-                    projectId,
-                    credentials: f.rawText,
-                });
+                const { env, rawText } = f;
+                if (supportedEnvs.includes(env)) {
+                    await Meteor.callWithPromise('credentials.save', {
+                        environment: env,
+                        projectId,
+                        credentials: rawText,
+                    });
+                }
                 return null;
             } catch (e) {
                 return `error when importing ${f.filename}`;
@@ -312,7 +319,7 @@ export const handleImportRasaConfig = async (files, { projectId, projectLanguage
     return [...importResult, ...createResult].filter(r => r);
 };
 
-export const handleImportConversations = async (files, { projectId, wipeInvolvedCollections }) => {
+export const handleImportConversations = async (files, { supportedEnvs, projectId, wipeInvolvedCollections }) => {
     if (!files.length) return [];
     if (wipeInvolvedCollections) {
         await Conversations.deleteMany({ projectId });
@@ -320,13 +327,20 @@ export const handleImportConversations = async (files, { projectId, wipeInvolved
     const importResult = await Promise.all(
         files.map(async (f) => {
             try {
-                const { conversations } = f;
-                const insertConv = conversations.map(conv => Conversations.update(
-                    { _id: conv._id },
-                    { ...conv, projectId },
-                    { upsert: true },
-                ));
-                await Promise.all(insertConv);
+                const { conversations, env } = f;
+                if (supportedEnvs.includes(env)) {
+                    const insertConv = conversations.map(conv => Conversations.update(
+                        { _id: conv._id },
+                        {
+                            ...conv,
+                            projectId,
+                            env,
+                        },
+                        { upsert: true },
+                    ));
+                    await Promise.all(insertConv);
+                }
+                
                 return null;
             } catch (e) {
                 if (e.code === 11000) {
@@ -340,7 +354,7 @@ export const handleImportConversations = async (files, { projectId, wipeInvolved
     return importResult.filter(r => r);
 };
 
-export const handleImportIncoming = async (files, { projectId, wipeInvolvedCollections }) => {
+export const handleImportIncoming = async (files, { supportedEnvs, projectId, wipeInvolvedCollections }) => {
     if (!files.length) return [];
     if (wipeInvolvedCollections) {
         await Activity.deleteMany({ projectId });
@@ -348,13 +362,20 @@ export const handleImportIncoming = async (files, { projectId, wipeInvolvedColle
     const importResult = await Promise.all(
         files.map(async (f) => {
             try {
-                const { incoming } = f;
-                const insertIncoming = incoming.map(utterance => Activity.update(
-                    { _id: utterance._id },
-                    { ...utterance, projectId },
-                    { upsert: true },
-                ));
-                await Promise.all(insertIncoming);
+                const { incoming, env } = f;
+                if (supportedEnvs.includes(env)) {
+                    const insertIncoming = incoming.map(utterance => Activity.update(
+                        { _id: utterance._id },
+                        {
+                            ...utterance,
+                            projectId,
+                            env,
+                        },
+                        { upsert: true },
+                    ));
+                    await Promise.all(insertIncoming);
+                }
+             
                 return null;
             } catch (e) {
                 if (e.code === 11000) {

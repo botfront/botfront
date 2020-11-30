@@ -30,6 +30,15 @@ const defaultDomain = {
     ],
 };
 
+const params = {
+    projectId,
+    projectLanguages: [
+        'en',
+    ],
+    fallbackLang: 'en',
+    supportedEnvs: ['development'],
+};
+
 const expectedParams = {
     projectId,
     defaultDomain,
@@ -38,6 +47,7 @@ const expectedParams = {
         'en',
     ],
     fallbackLang: 'en',
+    supportedEnvs: ['development'],
     existingStoryGroups: [],
     wipeInvolvedCollections: undefined,
     wipeFragments: undefined,
@@ -51,19 +61,16 @@ export const multipleFiles = [
     {
         name: 'should mark a second credentials with an error',
         files: [validCredentials, validCredentials],
-        params: {
-            projectId,
-            projectLanguages: [
-                'en',
-            ],
-            fallbackLang: 'en',
-        },
+        params,
         expectedFiles: [{
             ...validCredentials,
+            env: 'development',
             credentials: validCredentialsParsed,
+            warnings: [],
         },
         {
             ...validCredentials,
+            env: 'development',
             credentials: validCredentialsParsed,
             warnings: [
                 'Conflicts with credentialstest.yml, and thus won\'t be used in the import',
@@ -77,19 +84,16 @@ export const multipleFiles = [
     {
         name: 'should mark a second endpoints file with an error',
         files: [validEndpoints, validEndpoints],
-        params: {
-            projectId,
-            projectLanguages: [
-                'en',
-            ],
-            fallbackLang: 'en',
-        },
+        params,
         expectedFiles: [{
             ...validEndpoints,
+            env: 'development',
             endpoints: validEndpointsParsed,
+            warnings: [],
         },
         {
             ...validEndpoints,
+            env: 'development',
             endpoints: validEndpointsParsed,
             warnings: [
                 'Conflicts with endpointstest.yml, and thus won\'t be used in the import',
@@ -103,19 +107,16 @@ export const multipleFiles = [
     {
         name: 'should mark a second bfconfig file with an error',
         files: [validBfConfig, validBfConfig],
-        params: {
-            projectId,
-            projectLanguages: [
-                'en',
-            ],
-            fallbackLang: 'en',
-        },
+        params,
         expectedFiles: [{
             ...validBfConfig,
+            env: 'development',
             bfconfig: validBfConfigParsed,
+            warnings: [],
         },
         {
             ...validBfConfig,
+            env: 'development',
             bfconfig: validBfConfigParsed,
             warnings: [
                 'Conflicts with bfconfigtest.yml, and thus won\'t be used in the import',
@@ -130,20 +131,18 @@ export const multipleFiles = [
     {
         name: 'should merge the number of conversations in the files',
         files: [validConversations, validConversations],
-        params: {
-            projectId,
-            projectLanguages: [
-                'en',
-            ],
-            fallbackLang: 'en',
-        },
+        params,
         expectedFiles: [{
             ...validConversations,
             conversations: validConversationsParsed,
+            env: 'development',
+            warnings: [],
         },
         {
             ...validConversations,
             conversations: validConversationsParsed,
+            env: 'development',
+            warnings: [],
         }],
         expectedParams: {
             ...expectedParams,
@@ -154,19 +153,17 @@ export const multipleFiles = [
     {
         name: 'should merge the number of incomming in the files',
         files: [validIncoming, validIncoming],
-        params: {
-            projectId,
-            projectLanguages: [
-                'en',
-            ],
-            fallbackLang: 'en',
-        },
+        params,
         expectedFiles: [{
             ...validIncoming,
+            env: 'development',
             incoming: validIncomingParsed,
+            warnings: [],
         }, {
             ...validIncoming,
+            env: 'development',
             incoming: validIncomingParsed,
+            warnings: [],
         }],
         expectedParams: {
             ...expectedParams,
@@ -176,13 +173,7 @@ export const multipleFiles = [
     {
         name: 'should merge default domains excluding those with errors',
         files: [invalidDefaultDomain, validDefaultDomain, validDefaultDomain2, invalidDefaultDomain],
-        params: {
-            projectId,
-            projectLanguages: [
-                'en',
-            ],
-            fallbackLang: 'en',
-        },
+        params,
         expectedFiles: [
             {
                 ...invalidDefaultDomain,
@@ -216,13 +207,7 @@ export const multipleFiles = [
     {
         name: 'should remove data of domain that already exists in the default domain',
         files: [validDomain, validDefaultDomain],
-        params: {
-            projectId,
-            projectLanguages: [
-                'en',
-            ],
-            fallbackLang: 'en',
-        },
+        params,
         expectedFiles: [{
             ...validDomain,
             ...validDomainParsed,
@@ -276,13 +261,7 @@ export const multipleFiles = [
         name: 'should merge rasaconfig together',
         files: [badRasaConfig, validRasaConfigPipeline, validRasaConfigPolicies,
             validRasaConfig],
-        params: {
-            projectId,
-            projectLanguages: [
-                'en',
-            ],
-            fallbackLang: 'en',
-        },
+        params,
         expectedFiles: [{
             ...badRasaConfig,
             errors: ['Invalid YAML.'],
@@ -310,13 +289,7 @@ export const multipleFiles = [
     {
         name: 'should keep actions from a domain that are not in stories',
         files: [storyWithAction, validDomain],
-        params: {
-            projectId,
-            projectLanguages: [
-                'en',
-            ],
-            fallbackLang: 'en',
-        },
+        params,
         expectedFiles: [{
             ...storyWithAction,
             ...storyWithActionParsed,
@@ -356,6 +329,116 @@ export const multipleFiles = [
             actionsFromFragments: [
                 'action_get_help',
             ],
+        },
+    },
+    {
+        name: 'should mark a not mark a second credentials with an error when using differents envs',
+        files: [{ ...validCredentials, filename: 'credentials.development.yaml' },
+            { ...validCredentials, filename: 'credentials.production.yaml' }],
+        params: { ...params, supportedEnvs: ['development', 'production'] },
+        expectedFiles: [{
+            ...validCredentials,
+            env: 'development',
+            credentials: validCredentialsParsed,
+            filename: 'credentials.development.yaml',
+            warnings: [],
+        },
+        {
+            ...validCredentials,
+            env: 'production',
+            credentials: validCredentialsParsed,
+            filename: 'credentials.production.yaml',
+            warnings: [
+            ],
+        }],
+        expectedParams: {
+            
+            ...expectedParams,
+            supportedEnvs: ['development', 'production'],
+            summary: ['Credentials for development will be imported from credentials.development.yaml.',
+                'Credentials for production will be imported from credentials.production.yaml.'],
+        },
+    },
+    {
+        name: 'should mark a not mark a second endpoints with an error when using differents envs',
+        files: [{ ...validEndpoints, filename: 'endpoints.development.yaml' },
+            { ...validEndpoints, filename: 'endpoints.production.yaml' }],
+        params: { ...params, supportedEnvs: ['development', 'production'] },
+        expectedFiles: [{
+            ...validEndpoints,
+            env: 'development',
+            endpoints: validEndpointsParsed,
+            filename: 'endpoints.development.yaml',
+            warnings: [],
+        },
+        {
+            ...validEndpoints,
+            env: 'production',
+            endpoints: validEndpointsParsed,
+            filename: 'endpoints.production.yaml',
+            warnings: [
+            ],
+        }],
+        expectedParams: {
+            
+            ...expectedParams,
+            supportedEnvs: ['development', 'production'],
+            summary: ['Endpoints for development will be imported from endpoints.development.yaml.',
+                'Endpoints for production will be imported from endpoints.production.yaml.'],
+        },
+    },
+    {
+        name: 'should mark a not mark a second conversation with an error when using differents envs',
+        files: [{ ...validConversations, filename: 'conversations.development.json' },
+            { ...validConversations, filename: 'conversations.production.json' }],
+        params: { ...params, supportedEnvs: ['development', 'production'] },
+        expectedFiles: [{
+            ...validConversations,
+            env: 'development',
+            conversations: validConversationsParsed,
+            filename: 'conversations.development.json',
+            warnings: [],
+        },
+        {
+            ...validConversations,
+            env: 'production',
+            conversations: validConversationsParsed,
+            filename: 'conversations.production.json',
+            warnings: [
+            ],
+        }],
+        expectedParams: {
+            ...expectedParams,
+            supportedEnvs: ['development', 'production'],
+            summary: ['You will add 2 conversations in development',
+                'You will add 2 conversations in production'],
+        },
+    },
+    {
+        name: 'should mark a not mark a second incoming with an error when using differents envs',
+        files: [{ ...validIncoming, filename: 'incoming.development.json' },
+            { ...validIncoming, filename: 'incoming.production.json' }],
+        params: { ...params, supportedEnvs: ['development', 'production'] },
+        expectedFiles: [{
+            ...validIncoming,
+            env: 'development',
+            incoming: validIncomingParsed,
+            filename: 'incoming.development.json',
+            warnings: [],
+        },
+        {
+            ...validIncoming,
+            env: 'production',
+            incoming: validIncomingParsed,
+            filename: 'incoming.production.json',
+            warnings: [
+            ],
+        }],
+        expectedParams: {
+            ...expectedParams,
+            supportedEnvs: ['development', 'production'],
+            summary: ['You will add 2 incoming in development',
+                'You will add 2 incoming in production'],
         },
     },
 ];

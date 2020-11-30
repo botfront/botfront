@@ -47,6 +47,10 @@ export const CredentialsSchema = new SimpleSchema(
             optional: true,
             // autoValue: () => this.isUpdate ? this.value : new Date() //TODO find out why it's always updated
         },
+        environment: {
+            type: String,
+            optional: true,
+        },
         updatedAt: {
             type: Date,
             optional: true,
@@ -75,7 +79,9 @@ if (Meteor.isServer) {
             check(credentials, Object);
             checkIfCan('project-settings:w', credentials.projectId);
             try {
-                return Credentials.upsert({ projectId: credentials.projectId }, { $set: { credentials: credentials.credentials } });
+                return Credentials.upsert({
+                    projectId: credentials.projectId,
+                }, { $set: { credentials: credentials.credentials, environment: credentials.environment } });
             } catch (e) {
                 throw formatError(e);
             }

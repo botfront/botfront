@@ -72,7 +72,7 @@ chai.use(deepEqualInAnyOrder);
 const { expect } = chai;
 
 
-const params = { projectId: 'bf' };
+const params = { projectId: 'bf', supportedEnvs: ['development'] };
 
 const removeDates = arr => arr.map((obj) => {
     const { createdAt, updatedAt, ...newObj } = obj;
@@ -91,48 +91,91 @@ if (Meteor.isServer) {
     import '../../slots/slots.methods';
 
     describe('file importers', () => {
-        it('should import conversations', async () => {
+        it('should import conversations in  existing env', async () => {
             await Conversations.deleteMany({});
             const importResult = await handleImportConversations(
-                [{ ...validConversations, conversations: validConversationsParsed }],
-                params,
+                [{ ...validConversations, conversations: validConversationsParsed, env: 'production' }],
+                { ...params, supportedEnvs: ['development', 'production'] },
             );
             const conversations = await Conversations.find({ projectId: 'bf' }).lean();
             await expect(importResult).to.eql([]);
             // we use equalInAnyOrder because the conversation are send to the db in parrallel, so we don't know the order
-            await expect(conversations).to.deep.equalInAnyOrder(validConversationsParsed);
+            await expect(conversations).to.deep.equalInAnyOrder(validConversationsParsed.map(conv => ({ ...conv, env: 'production' })));
         });
-        it('should import Incoming', async () => {
+        it('should not import conversations if env is not supported', async () => {
+            await Conversations.deleteMany({});
+            const importResult = await handleImportConversations(
+                [{ ...validConversations, conversations: validConversationsParsed, env: 'production' }],
+                params,
+            );
+            const conversations = await Conversations.find({ projectId: 'bf' }).lean();
+            await expect(importResult).to.eql([]);
+            await expect(conversations).to.eql([]);
+        });
+        it('should import Incoming  in  existing env', async () => {
             await Activity.deleteMany({});
             const importResult = await handleImportIncoming(
-                [{ ...validIncoming, incoming: validIncomingParsed }],
-                params,
+                [{ ...validIncoming, incoming: validIncomingParsed, env: 'production' }],
+                { ...params, supportedEnvs: ['development', 'production'] },
             );
             const incoming = await Activity.find({ projectId: 'bf' }).lean();
             const incomingNoDates = removeDates(incoming);
             const validIncomingNoDates = removeDates(validIncomingParsed);
             await expect(importResult).to.eql([]);
             // we use equalInAnyOrder because the incoming are send to the db in parrallel, so we don't know the order
-            await expect(incomingNoDates).to.deep.equalInAnyOrder(validIncomingNoDates);
+            await expect(incomingNoDates).to.deep.equalInAnyOrder(validIncomingNoDates.map(inc => ({ ...inc, env: 'production' })));
         });
-        it('should import Credentials', async () => {
+        it('should not import Incoming if env is not supported', async () => {
+            await Activity.deleteMany({});
+            const importResult = await handleImportIncoming(
+                [{ ...validIncoming, incoming: validIncomingParsed, env: 'production' }],
+                params,
+            );
+            const incoming = await Activity.find({ projectId: 'bf' }).lean();
+      
+            await expect(importResult).to.eql([]);
+            // we use equalInAnyOrder because the incoming are send to the db in parrallel, so we don't know the order
+            await expect(incoming).to.deep.equalInAnyOrder([]);
+        });
+        it('should import Credentials in  existing env', async () => {
+            await Credentials.remove({});
             const importResult = await handleImportCredentials(
-                [{ ...validCredentials, credentials: validCredentialsParsed }],
+                [{ ...validCredentials, credentials: validCredentialsParsed, env: 'production' }],
+                { ...params, supportedEnvs: ['development', 'production'] },
+            );
+            const credentials = await Credentials.findOne({ projectId: 'bf', environment: 'production' });
+            await expect(importResult).to.eql([]);
+            await expect(credentials.credentials).to.eql(validCredentials.rawText);
+        });
+        it('should  not import Credentials if env is not supported', async () => {
+            await Credentials.remove({});
+            const importResult = await handleImportCredentials(
+                [{ ...validCredentials, credentials: validCredentialsParsed, env: 'production' }],
                 params,
             );
             const credentials = await Credentials.findOne({ projectId: 'bf' });
             await expect(importResult).to.eql([]);
-            await expect(credentials.credentials).to.eql(validCredentials.rawText);
+            await expect(credentials?.credentials).to.eql(undefined);
         });
-
-        it('should import Endpoints', async () => {
+        it('should import Endpoints  in  existing env', async () => {
+            await Endpoints.remove({});
             const importResult = await handleImportEndpoints(
-                [{ ...validEndpoints, endpoints: validEndpointsParsed }],
+                [{ ...validEndpoints, endpoints: validEndpointsParsed, env: 'production' }],
+                { ...params, supportedEnvs: ['development', 'production'] },
+            );
+            const endpoints = await Endpoints.findOne({ projectId: 'bf', environment: 'production' });
+            await expect(importResult).to.eql([]);
+            await expect(endpoints?.endpoints).to.eql(validEndpoints.rawText);
+        });
+        it('should not import Endpoints if env is not supported', async () => {
+            await Endpoints.remove({});
+            const importResult = await handleImportEndpoints(
+                [{ ...validEndpoints, endpoints: validEndpointsParsed, env: 'production' }],
                 params,
             );
             const endpoints = await Endpoints.findOne({ projectId: 'bf' });
             await expect(importResult).to.eql([]);
-            await expect(endpoints.endpoints).to.eql(validEndpoints.rawText);
+            await expect(endpoints?.endpoints).to.eql(undefined);
         });
         it('should import bfConfig', async () => {
             await Projects.remove({});
@@ -149,7 +192,7 @@ if (Meteor.isServer) {
                 projectId: 'bf',
             });
             const importResult = await handleImportBfConfig(
-                [{ ...validBfConfig, bfconfig: validBfConfigParsed }],
+                [{ ...validBfConfig, bfconfig: validBfConfigParsed, env: 'development' }],
                 params,
             );
             const project = removeDates([Projects.findOne({ _id: 'bf' })])[0];

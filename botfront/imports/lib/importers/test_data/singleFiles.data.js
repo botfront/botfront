@@ -31,6 +31,13 @@ const defaultDomain = {
     ],
 };
 
+const params = {
+    projectId,
+    projectLanguages: ['en'],
+    fallbackLang: 'en',
+    supportedEnvs: ['development'],
+};
+
 const expectedParams = {
     projectId,
     defaultDomain,
@@ -43,6 +50,7 @@ const expectedParams = {
     wipeProject: undefined,
     wipeNluData: [],
     actionsFromFragments: [],
+    supportedEnvs: ['development'],
     storyGroupsUsed: [],
 };
 
@@ -50,15 +58,13 @@ export const singlesFiles = [
     {
         name: 'should procces a valid credentials file',
         files: [validCredentials],
-        params: {
-            projectId,
-            projectLanguages: ['en'],
-            fallbackLang: 'en',
-        },
+        params,
         expectedFiles: [
             {
                 ...validCredentials,
                 credentials: validCredentialsParsed,
+                env: 'development',
+                warnings: [],
             },
         ],
         expectedParams: {
@@ -69,15 +75,13 @@ export const singlesFiles = [
     {
         name: 'should procces a valid endpoints file',
         files: [validEndpoints],
-        params: {
-            projectId,
-            projectLanguages: ['en'],
-            fallbackLang: 'en',
-        },
+        params,
         expectedFiles: [
             {
                 ...validEndpoints,
                 endpoints: validEndpointsParsed,
+                env: 'development',
+                warnings: [],
             },
         ],
         expectedParams: {
@@ -88,15 +92,13 @@ export const singlesFiles = [
     {
         name: 'should procces an valid bfconfig file',
         files: [validBfConfig],
-        params: {
-            projectId,
-            projectLanguages: ['en'],
-            fallbackLang: 'en',
-        },
+        params,
         expectedFiles: [
             {
                 ...validBfConfig,
                 bfconfig: validBfConfigParsed,
+                env: 'development',
+                warnings: [],
             },
         ],
         expectedParams: {
@@ -108,11 +110,7 @@ export const singlesFiles = [
     {
         name: 'should procces a valid rasaconfig',
         files: [validRasaConfig],
-        params: {
-            projectId,
-            projectLanguages: ['en'],
-            fallbackLang: 'en',
-        },
+        params,
         expectedFiles: [
             {
                 ...validRasaConfig,
@@ -132,11 +130,7 @@ export const singlesFiles = [
     {
         name: 'should procces a valid rasaconfig with a unsupported language',
         files: [validRasaConfigFr],
-        params: {
-            projectId,
-            projectLanguages: ['en'],
-            fallbackLang: 'en',
-        },
+        params,
         expectedFiles: [
             {
                 ...validRasaConfigFr,
@@ -158,11 +152,7 @@ export const singlesFiles = [
     {
         name: 'should procces a valid rasaconfig with a no language',
         files: [validRasaConfigNoLang],
-        params: {
-            projectId,
-            projectLanguages: ['en'],
-            fallbackLang: 'en',
-        },
+        params,
         expectedFiles: [
             {
                 ...validRasaConfigNoLang,
@@ -182,11 +172,7 @@ export const singlesFiles = [
     {
         name: 'should procces a valid defaultDomain',
         files: [validDefaultDomain],
-        params: {
-            projectId,
-            projectLanguages: ['en'],
-            fallbackLang: 'en',
-        },
+        params,
         expectedFiles: [
             {
                 ...validDefaultDomain,
@@ -206,11 +192,7 @@ export const singlesFiles = [
     {
         name: 'should procces a valid domain',
         files: [validDomain],
-        params: {
-            projectId,
-            projectLanguages: ['en'],
-            fallbackLang: 'en',
-        },
+        params,
         expectedFiles: [
             {
                 ...validDomain,
@@ -234,15 +216,13 @@ export const singlesFiles = [
     {
         name: 'should procces a valid conversation file',
         files: [validConversations],
-        params: {
-            projectId,
-            projectLanguages: ['en'],
-            fallbackLang: 'en',
-        },
+        params,
         expectedFiles: [
             {
                 ...validConversations,
                 conversations: validConversationsParsed,
+                env: 'development',
+                warnings: [],
             },
         ],
         expectedParams: {
@@ -253,15 +233,13 @@ export const singlesFiles = [
     {
         name: 'should procces a valid incoming file',
         files: [validIncoming],
-        params: {
-            projectId,
-            projectLanguages: ['en'],
-            fallbackLang: 'en',
-        },
+        params,
         expectedFiles: [
             {
                 ...validIncoming,
                 incoming: validIncomingParsed,
+                env: 'development',
+                warnings: [],
             },
         ],
         expectedParams: {
@@ -272,11 +250,7 @@ export const singlesFiles = [
     {
         name: 'should procces a valid domain with a non supported language',
         files: [validDomainFr],
-        params: {
-            projectId,
-            projectLanguages: ['en'],
-            fallbackLang: 'en',
-        },
+        params,
         expectedFiles: [
             {
                 ...validDomainFr,
@@ -304,6 +278,169 @@ export const singlesFiles = [
             ],
 
             projectLanguages: ['en', 'fr'],
+        },
+    },
+    {
+        name: 'should procces a valid credentials file in prod when prod is supported',
+        files: [{ ...validCredentials, filename: 'credentials.production.yaml' }],
+        params: {
+            ...params,
+            supportedEnvs: ['development', 'production'],
+        },
+        expectedFiles: [
+            {
+                ...validCredentials,
+                credentials: validCredentialsParsed,
+                env: 'production',
+                warnings: [],
+                filename: 'credentials.production.yaml',
+            },
+        ],
+        expectedParams: {
+            ...expectedParams,
+            storyGroupsUsed: [],
+            supportedEnvs: ['development', 'production'],
+            summary: ['Credentials for production will be imported from credentials.production.yaml.'],
+        },
+    },
+    {
+        name: 'should procces a valid credentials file in prod when prod is not supported',
+        files: [{ ...validCredentials, filename: 'credentials.production.yaml' }],
+        params,
+        expectedFiles: [
+            {
+                ...validCredentials,
+                credentials: validCredentialsParsed,
+                env: 'production',
+                warnings: ['The "production" environment is not supported by this project, this file won\'t be used in the import'],
+                filename: 'credentials.production.yaml',
+            },
+        ],
+        expectedParams: {
+            ...expectedParams,
+            storyGroupsUsed: [],
+            supportedEnvs: ['development'],
+            summary: [],
+        },
+    },
+    {
+        name: 'should procces a valid endpoints file in prod when prod is supported',
+        files: [{ ...validEndpoints, filename: 'endpoints.production.yaml' }],
+        params: {
+            ...params,
+            supportedEnvs: ['development', 'production'],
+        },
+        expectedFiles: [
+            {
+                ...validEndpoints,
+                endpoints: validEndpointsParsed,
+                env: 'production',
+                filename: 'endpoints.production.yaml',
+                warnings: [],
+            },
+        ],
+        expectedParams: {
+            ...expectedParams,
+            supportedEnvs: ['development', 'production'],
+            summary: ['Endpoints for production will be imported from endpoints.production.yaml.'],
+        },
+    },
+    {
+        name: 'should procces a valid endpoints file in prod when prod is not supported',
+        files: [{ ...validEndpoints, filename: 'endpoints.production.yaml' }],
+        params,
+        expectedFiles: [
+            {
+                ...validEndpoints,
+                endpoints: validEndpointsParsed,
+                env: 'production',
+                filename: 'endpoints.production.yaml',
+                warnings: ['The "production" environment is not supported by this project, this file won\'t be used in the import'],
+            },
+        ],
+        expectedParams: {
+            ...expectedParams,
+            summary: [],
+        },
+    },
+    {
+        name: 'should procces a valid conversation file in prod when prod is supported',
+        files: [{ ...validConversations, filename: 'conversations.production.json' }],
+        params: { ...params, supportedEnvs: ['development', 'production'] },
+        expectedFiles: [
+            {
+                ...validConversations,
+                conversations: validConversationsParsed,
+                warnings: [],
+                env: 'production',
+                filename: 'conversations.production.json',
+               
+            },
+        ],
+        expectedParams: {
+            ...expectedParams,
+            supportedEnvs: ['development', 'production'],
+            summary: [
+                'You will add 2 conversations in production',
+            ],
+        },
+    },
+    {
+        name: 'should procces a valid conversation file in prod when prod is not supported',
+        files: [{ ...validConversations, filename: 'conversations.production.json' }],
+        params,
+        expectedFiles: [
+            {
+                ...validConversations,
+                conversations: validConversationsParsed,
+                env: 'production',
+                filename: 'conversations.production.json',
+                warnings: ['The "production" environment is not supported by this project, this file won\'t be used in the import'],
+            },
+        ],
+        expectedParams: {
+            ...expectedParams,
+            summary: [],
+        },
+    },
+    {
+        name: 'should procces a valid incoming file in prod when prod is supported',
+        files: [{ ...validIncoming, filename: 'incoming.production.json' }],
+        params: { ...params, supportedEnvs: ['development', 'production'] },
+        expectedFiles: [
+            {
+                ...validIncoming,
+                incoming: validIncomingParsed,
+                warnings: [],
+                env: 'production',
+                filename: 'incoming.production.json',
+               
+            },
+        ],
+        expectedParams: {
+            ...expectedParams,
+            supportedEnvs: ['development', 'production'],
+            summary: [
+                'You will add 2 incoming in production',
+            ],
+        },
+    },
+    {
+        name: 'should procces a valid incoming file when prod is not supported',
+        files: [{ ...validIncoming, filename: 'incoming.production.json' }],
+        params,
+        expectedFiles: [
+            {
+                ...validIncoming,
+                incoming: validIncomingParsed,
+                env: 'production',
+                filename: 'incoming.production.json',
+                warnings: ['The "production" environment is not supported by this project, this file won\'t be used in the import'],
+            },
+        ],
+        expectedParams: {
+            ...expectedParams,
+            summary: [],
         },
     },
 ];

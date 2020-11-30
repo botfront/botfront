@@ -141,9 +141,9 @@ export async function importSteps({
             { fields: { name: 1, _id: 1 } },
         ).fetch();
     }
-    const { languages: projectLanguages, defaultLanguage } = Projects.findOne(
+    const { languages: projectLanguages, defaultLanguage, deploymentEnvironments } = Projects.findOne(
         { _id: projectId },
-        { fields: { languages: 1, defaultLanguage: 1 } },
+        { fields: { languages: 1, defaultLanguage: 1, deploymentEnvironments: 1 } },
     );
     const fallbackLang = projectLanguages.includes(providedFallbackLanguage)
         ? providedFallbackLanguage
@@ -157,6 +157,7 @@ export async function importSteps({
         fallbackLang,
         wipeProject,
         projectLanguages,
+        supportedEnvs: ['development', ...(deploymentEnvironments || [])],
         summary: wipeProject ? [{ text: 'ALL PROJECT DATA WILL BE ERASED.' }] : [],
     };
     const filesAndValidationData = await readAndValidate(files, params);

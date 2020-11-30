@@ -2,10 +2,16 @@ import yaml from 'js-yaml';
 import { Instances } from '../../api/instances/instances.collection';
 import { onlyValidFiles } from './common';
 
+
 export const validateSimpleYamlFiles = (files, params, type, alias = type) => {
+    const { supportedEnvs } = params;
+    const envInFiles = {};
+    const newSummary = params.summary;
     let filesToValid = files.filter(f => f?.dataType === type);
     filesToValid = filesToValid.map((file) => {
         let parsed;
+        const warnings = [];
+        const { filename } = file;
         try {
             parsed = yaml.safeLoad(file.rawText);
         } catch (e) {
@@ -14,32 +20,27 @@ export const validateSimpleYamlFiles = (files, params, type, alias = type) => {
                 errors: [...(file?.errors || []), `Not valid yaml: ${e.message}`],
             };
         }
+        const extractEnv = new RegExp(`(?<=${type}(\\.|-))(.*)(?=\\.ya?ml)`);
+        
+        const extractedEnv = extractEnv.exec(filename);
+        const env = extractedEnv ? extractedEnv[0] : 'development';
+        if (env) {
+            if (!supportedEnvs.includes(env)) {
+                warnings.push(`The "${env}" environment is not supported by this project, this file won't be used in the import`);
+            } else if (envInFiles[env]) {
+                warnings.push(`Conflicts with ${envInFiles[env]}, and thus won't be used in the import`);
+            } else {
+                envInFiles[env] = filename;
+                newSummary.push(`${alias.charAt(0).toUpperCase() + alias.slice(1)}${supportedEnvs.length > 1 ? ` for ${env} ` : ' '}will be imported from ${filename}.`);
+            }
+        }
         return {
             ...file,
             [type]: parsed,
+            warnings: [...(file.warnings || []), ...warnings],
+            env,
         };
     });
-    if (filesToValid.length > 1) {
-        let firstValidFileFound = false;
-        filesToValid = filesToValid.map((file) => {
-            if (!firstValidFileFound && !(file.errors && file.errors.length > 0)) {
-                firstValidFileFound = true;
-                return file;
-            } if (file.errors && file.errors.length > 0) {
-                return file; // we don't add warnings to files with errors already
-            }
-            return {
-                ...file,
-                warnings: [
-                    ...(file.warnings || []),
-                    `Conflicts with ${filesToValid[0].filename}, and thus won't be used in the import`,
-                ],
-            };
-        });
-    }
-
-    const newSummary = params.summary || [];
-    if (filesToValid.length > 0) newSummary.push(`${alias.charAt(0).toUpperCase() + alias.slice(1)} will be imported from ${filesToValid[0].filename}.`);
 
     const newFiles = files.map((file) => {
         if (file?.dataType !== type) return file;
@@ -49,10 +50,12 @@ export const validateSimpleYamlFiles = (files, params, type, alias = type) => {
 };
 
 export const validateSimpleJsonFiles = (files, params, type) => {
+    const { supportedEnvs } = params;
     let filesToValid = files.filter(f => f?.dataType === type);
-    let count = 0;
+    const countPerEnv = {};
     filesToValid = filesToValid.map((file) => {
         let parsed;
+        const warnings = [];
         try {
             parsed = JSON.parse(file.rawText);
         } catch (e) {
@@ -70,17 +73,36 @@ export const validateSimpleJsonFiles = (files, params, type) => {
                 ],
             };
         }
-        count += parsed.length;
+        const extractEnv = new RegExp(`(?<=${type}(\\.|-))(.*)(?=\\.json)`);
+        const extractedEnv = extractEnv.exec(file.filename);
+      
+        const env = extractedEnv ? extractedEnv[0] : 'development';
+
+        if (!supportedEnvs.includes(env)) {
+            warnings.push(`The "${env}" environment is not supported by this project, this file won't be used in the import`);
+        }
+
+        if (!countPerEnv[env]) {
+            countPerEnv[env] = 0;
+        }
+        countPerEnv[env] += parsed.length;
         
         return {
             ...file,
             [type]: parsed,
+            warnings: [...(file.warnings || []), ...warnings],
+            env,
         };
     });
     
-    const newSummary = params.summary || [];
-    if (count > 0) newSummary.push(`You will add ${count} ${type}`);
-
+    const newSummary = params.summary;
+    if (supportedEnvs.length > 1 && filesToValid.length > 0) {
+        supportedEnvs.forEach((env) => {
+            if (countPerEnv[env] !== undefined) newSummary.push(`You will add ${countPerEnv[env]} ${type} in ${env}`);
+        });
+    } else if (filesToValid.length > 0 && countPerEnv.development !== undefined) {
+        newSummary.push(`You will add ${countPerEnv.development} ${type}`);
+    }
     const newFiles = files.map((file) => {
         if (file?.dataType !== type) return file;
         return filesToValid.shift();
@@ -125,7 +147,7 @@ export const validateIncoming = (files, params) => {
                             {
                                 text: 'This file contains incoming for unsupported languages that won\'t be accessible after import',
                                 longText: `This file contains langs "${langNotSupported.join(', ')}" that are not supported by the project,
-                                 the imported utterances in those lang won't be accessible until you add those languages to the project`,
+                                the imported utterances in those lang won't be accessible until you add those languages to the project`,
                             },
                         ],
                     };
@@ -134,12 +156,12 @@ export const validateIncoming = (files, params) => {
             return file;
         });
     }
-      
- 
+
     const updatedFiles = newFiles.map((file) => {
         if (file?.dataType !== 'incoming') return file;
         return incomingFiles.shift();
     });
+
     return [updatedFiles, newParams];
 };
 
