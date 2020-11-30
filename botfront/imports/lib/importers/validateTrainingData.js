@@ -161,7 +161,8 @@ export class TrainingDataValidator {
         extension,
         { language: specLang, canonicalText } = {},
     ) => {
-        let language = specLang || this.fallbackLang;
+        const language = specLang || this.fallbackLang;
+        let languageFromExample = language;
         let nlu;
         if (fileData && typeof fileData === 'object' && 'rasa_nlu_data' in fileData) {
             nlu = fileData.rasa_nlu_data;
@@ -183,13 +184,13 @@ export class TrainingDataValidator {
             }
             nlu.common_examples = (nlu.common_examples || []).map((example) => {
                 if (example?.metadata?.language) {
-                    ({ language } = example.metadata);
+                    ({ language: languageFromExample } = example.metadata);
                 }
                 return {
                     ...example,
                     metadata: {
                         ...(example.metadata || {}),
-                        language,
+                        language: example?.metadata?.language || language,
                         ...(canonicalText
                             ? { canonical: canonicalText.includes(example.text) }
                             : {}),
@@ -197,12 +198,11 @@ export class TrainingDataValidator {
                 };
             });
         }
-        if (!language) language = this.fallbackLang;
         // even though language is found in individual examples metadata, we also
         // store it as a file-level property. This is because the schema for other
         // nlu data (e.g. synonyms) don't allow for metadata. For these, we have to
         // use this file level property
-        return { ...nlu, language };
+        return { ...nlu, language: languageFromExample };
     };
 
     loadFromYaml = async (file) => {

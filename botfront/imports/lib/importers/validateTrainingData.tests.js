@@ -4,6 +4,7 @@ import { expect } from 'chai';
 import MockAdapter from 'axios-mock-adapter';
 import { axiosClient, validateTrainingData } from './validateTrainingData';
 import { stories01, stories01_02 } from './test_data/training_data.data';
+import { caught } from '../client.safe.utils';
 
 if (Meteor.isClient) return;
 
@@ -85,15 +86,6 @@ const validateWrapped = (fixtureNames = [], overwrite = {}) => validateTrainingD
     generateFileListFromFixtureNames(fixtureNames),
     generateInitialParams(overwrite),
 );
-
-const caught = func => async (done) => {
-    try {
-        await func();
-        done();
-    } catch (e) {
-        done(e);
-    }
-};
 
 describe('stories and rules importing', function () {
     describe('from md', () => {
@@ -418,12 +410,12 @@ describe('mixed data importing', function () {
                     text: 'A new model with default pipeline will be created for English.',
                 },
                 {
-                    text: '4 NLU data will be imported to Chamorro model.',
-                    longText: '2 examples, 1 synonym, 1 regex feature will be imported.',
+                    text: '5 NLU data will be imported to Chamorro model.',
+                    longText: '3 examples, 1 synonym, 1 regex feature will be imported.',
                 },
                 {
-                    text: '36 NLU data will be imported to French model.',
-                    longText: '33 examples, 2 synonyms, 1 regex feature will be imported.',
+                    text: '35 NLU data will be imported to French model.',
+                    longText: '32 examples, 2 synonyms, 1 regex feature will be imported.',
                 },
                 {
                     text: '4 NLU data will be imported to English model.',

@@ -18,6 +18,7 @@ import { Projects } from '../../../project/project.collection';
 import { NLUModels } from '../../../nlu_model/nlu_model.collection';
 import { createResponses } from '../../botResponses/mongo/botResponses';
 import BotResponses from '../../botResponses/botResponses.model';
+import { caught } from '../../../../lib/client.safe.utils';
 
 import StoryResolver from '../resolvers/storiesResolver';
 
@@ -69,15 +70,6 @@ if (Meteor.isServer) {
             throw new Error(
                 `seaching stories for "${queryString}" did not return the expected results\n${e}`,
             );
-        }
-    };
-
-    const caught = func => async (done) => {
-        try {
-            await func();
-            done();
-        } catch (e) {
-            done(e);
         }
     };
 

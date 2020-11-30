@@ -154,6 +154,7 @@ if (Meteor.isServer) {
             };
 
             if (process.env.BF_PROJECT_ID) project._id = process.env.BF_PROJECT_ID;
+            if (projectData._id) project._id = projectData._id;
             
             const projectId = await Meteor.callWithPromise('project.insert', project);
 
