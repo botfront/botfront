@@ -171,7 +171,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
             && (storyMenuSelection || []).some((s, i, a) => {
                 if (!(s in tree.items)) return false;
                 const differentMother = tree.items[s].parentId
-                    !== tree.items[a[Math.min(i + 1, a.length - 1)]].parentId;
+                    !== tree.items[a[Math.min(i + 1, a.length - 1)]]?.parentId;
                 if (differentMother) return true;
                 const { children } = tree.items[tree.items[a[0]].parentId] || {};
                 if (!children) return false;
