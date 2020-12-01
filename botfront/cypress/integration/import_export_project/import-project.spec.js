@@ -52,7 +52,7 @@ describe('Importing a Botfront project', function() {
         cy.get('.message.yellow').should('have.length', 6);
 
         // check Errors
-        cy.dataCy('message-error-endpoints-bfyml').should('have.text', 'endpoints-bf.yml'
+        cy.dataCy('message-error-endpointsbfyml').should('have.text', 'endpointsbf.yml'
         + 'Unknown file type');
         // we use contain here because I'm having issue with the behavior of have text and escape charaters
         cy.dataCy('message-error-credentialsdevyml').should('contain.text', 'credentials.dev.yml'
@@ -72,7 +72,7 @@ describe('Importing a Botfront project', function() {
         + 'the actions that will be added to the default domain are the one that are in this file and not used directly by the rules or stories'
         + 'You have multiple domain files. if some data conflicts, the one from the first file with that data will be used (same way has rasa merges domains)');
         cy.dataCy('message-warning-endpointsdevyml').should('have.text', 'endpoints.dev.yml'
-        + 'Conflicts with endpoints.yml, and thus won\'t be used in the import');
+        + 'The "dev" environment is not supported by this project, this file won\'t be used in the import');
         cy.dataCy('message-warning-nlu-multilangyml').should('have.text', 'nlu-multilang.yml'
         + 'File contains data for German; a new model will be created for that language.');
 
@@ -138,20 +138,7 @@ describe('Importing a Botfront project', function() {
         cy.get('.select-wrap select').select('25');
         cy.dataCy('response-text').should('contains.text', 'bye');
         
-        cy.visit('/project/bf/dialogue');
-        cy.dataCy('story-group-menu-item').should('contains.text', 'handoff.yml');
-        cy.dataCy('story-group-menu-item').should('contains.text', 'rules.yml');
-        cy.dataCy('story-group-menu-item').should('contains.text', 'stories.yml');
-        cy.dataCy('story-group-menu-item').should('contains.text', 'Example group');
-        cy.dataCy('story-group-menu-item').should('have.length', 28);
-
-        cy.dataCy('slots-modal').click();
-        cy.dataCy('slot-editor').should('have.length', 10);
-        cy.get('.dimmer').click({ force: true });
-
-        cy.dataCy('policies-modal').click();
-        cy.get('.ace_content').should('contain.text', '- name: AugmentedMemoizationPolicyRu');
-        cy.get('.dimmer').click({ force: true });
+      
         cy.visit('/project/bf/nlu/model/en');
         // the default language should have changed to english, if it's not the case the user will be redirected to another language
         cy.dataCy('language-selector').find('div.text').should('have.text', 'English');
@@ -182,6 +169,22 @@ describe('Importing a Botfront project', function() {
         cy.dataCy('nlu-menu-settings').click();
         // Gazette  is only used in defaultpipeline lite pipeline so checking it's presence ensure that the pipeline is from default
         cy.get('.ace_content').should('contain.text', 'rasa_addons.nlu.components.gazette.Gazette');
+
+        cy.visit('/project/bf/dialogue');
+        cy.dataCy('story-group-menu-item').should('contains.text', 'handoff.yml');
+        cy.dataCy('story-group-menu-item').should('contains.text', 'rules.yml');
+        cy.dataCy('story-group-menu-item').should('contains.text', 'stories.yml');
+        cy.dataCy('story-group-menu-item').should('contains.text', 'Example group');
+        cy.dataCy('story-group-menu-item').should('have.length', 28);
+
+        cy.dataCy('slots-modal').click();
+        cy.dataCy('slot-editor').should('have.length', 10);
+        cy.get('.dimmer').click({ force: true });
+
+        cy.dataCy('policies-modal').click();
+        cy.get('.ace_content').should('contain.text', '- name: AugmentedMemoizationPolicyRu');
+        cy.get('.dimmer').click({ force: true });
+
         cy.visit('/project/bf/incoming/newutterances');
         cy.get('.row').should('have.length', 4);
         cy.dataCy('conversations').click();
