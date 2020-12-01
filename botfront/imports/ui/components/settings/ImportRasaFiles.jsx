@@ -9,7 +9,6 @@ import {
     Icon,
     Message,
     Divider,
-    Dimmer,
     Loader,
     Popup,
     Checkbox,
@@ -283,9 +282,9 @@ const ImportRasaFiles = () => {
                 className='drop-zone-data'
             >
                 {filesImporting ? (
-                    <Dimmer active inverted>
-                        <Loader>Importing data...</Loader>
-                    </Dimmer>
+                    <div className='data-import-loader'>
+                        <Loader active>Importing data...</Loader>
+                    </div>
                 ) : (
                     <>
                         <input
