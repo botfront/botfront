@@ -2,7 +2,7 @@ export const validDefaultDomain = {
     filename: 'default-domain1.yml',
     rawText:
     `slots:
-    disambiguation_message:
+    test_message:
       type: unfeaturized
 actions:
     - action_aaa
@@ -68,7 +68,7 @@ actions:
 
 export const validDefaultDomainParsed = {
     slots: {
-        disambiguation_message: { type: 'unfeaturized' },
+        test_message: { type: 'unfeaturized' },
     },
     responses: {
         utter_goodbye: [
@@ -151,7 +151,7 @@ export const validDefaultDomainParsed2 = {
 export const mergedDefaultDomains = {
     slots:
         {
-            disambiguation_message: { type: 'unfeaturized' },
+            test_message: { type: 'unfeaturized' },
             info_message: { type: 'unfeaturized' },
         },
     responses: {

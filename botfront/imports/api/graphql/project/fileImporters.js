@@ -54,17 +54,16 @@ export const handleImportResponse = async (responses, projectId) => {
                 .lean();
             if (existing) {
                 const newResponse = deduplicateAndMergeResponses([resp, existing])[0];
-                await botResponses.update(
+                return botResponses.update(
                     { key: resp.key, projectId },
-                    { ...newResponse, index: indexBotResponse(newResponse) },
-                );
-            } else {
-                await botResponses.create(
-                    {
-                        ...resp, index: indexBotResponse(resp), _id: uuidv4(), projectId,
-                    },
+                    { ...newResponse, textIndex: indexBotResponse(newResponse) },
                 );
             }
+            return botResponses.create(
+                {
+                    ...resp, textIndex: indexBotResponse(resp), _id: uuidv4(), projectId,
+                },
+            );
         });
         await Promise.all(insertResponses);
     } catch (e) {

@@ -192,7 +192,7 @@ export const multipleFiles = [
                 warnings: [{
                     text: 'those reponses will add the support for the language fr :',
                     longText: 'utter_greet',
-                }, 'You have multiple default domain files. if some data conflicts, the one from the first file with that data will be used (same way has rasa merges domains)'],
+                }, 'You have multiple domain files. In case of a conflict, data from first file will prevail.'],
             },
             {
                 ...invalidDefaultDomain,
@@ -200,7 +200,7 @@ export const multipleFiles = [
             }],
         expectedParams: {
             ...expectedParams,
-            summary: ['The default domain will be replaced by default-domain1.yml, default-domain2.yml'],
+            summary: ['The default domain will be replaced by default-domain1.yml, default-domain2.yml.'],
             defaultDomain: mergedDefaultDomains,
         },
     },
@@ -234,10 +234,9 @@ export const multipleFiles = [
             }],
             bfForms: [],
             warnings: [
-                'forms defined in this file will be added to the default domain on import',
                 {
-                    longText: 'the actions that will be added to the default domain are the one that are in this file and not used directly by the rules or stories',
-                    text: 'Some actions defined in this file will be added to the default domain on import',
+                    longText: 'They will be added to the project\'s default domain.',
+                    text: 'Some actions in domain are not explicitly mentioned in dialogue fragments.',
                 },
                 
             ],
@@ -252,8 +251,8 @@ export const multipleFiles = [
         }],
         expectedParams: {
             ...expectedParams,
-            summary: ['The default domain will be replaced by default-domain1.yml',
-                'From domain.yml you will add: 1 slots, 1 responses, 1 forms, 1 actions (actions ends up in the default domain)'],
+            summary: ['The default domain will be replaced by default-domain1.yml.',
+                '1 slots, 1 responses, 1 forms, 1 actions will be added from domain.yml.'],
             defaultDomain: validDefaultDomainParsed,
         },
     },
@@ -303,10 +302,9 @@ export const multipleFiles = [
             actions: ['action_aaa'],
             bfForms: [],
             warnings: [
-                'forms defined in this file will be added to the default domain on import',
                 {
-                    longText: 'the actions that will be added to the default domain are the one that are in this file and not used directly by the rules or stories',
-                    text: 'Some actions defined in this file will be added to the default domain on import',
+                    longText: 'They will be added to the project\'s default domain.',
+                    text: 'Some actions in domain are not explicitly mentioned in dialogue fragments.',
                 },
             ],
         }],
@@ -320,7 +318,7 @@ export const multipleFiles = [
             summary: [{
                 text: 'Group \'stories.yml\' will be created with 1 story.',
             },
-            'From domain.yml you will add: 2 slots, 2 responses, 1 forms, 1 actions (actions ends up in the default domain)'],
+            '2 slots, 2 responses, 1 forms, 1 actions will be added from domain.yml.'],
             existingStoryGroups: [
                 {
                     name: 'stories.yml',

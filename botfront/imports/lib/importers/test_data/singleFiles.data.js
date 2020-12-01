@@ -185,7 +185,7 @@ export const singlesFiles = [
         expectedParams: {
             ...expectedParams,
 
-            summary: ['The default domain will be replaced by default-domain1.yml'],
+            summary: ['The default domain will be replaced by default-domain1.yml.'],
             defaultDomain: validDefaultDomainParsed,
         },
     },
@@ -199,10 +199,9 @@ export const singlesFiles = [
                 ...validDomainParsed,
                 bfForms: [],
                 warnings: [
-                    'forms defined in this file will be added to the default domain on import',
                     {
-                        longText: 'the actions that will be added to the default domain are the one that are in this file and not used directly by the rules or stories',
-                        text: 'Some actions defined in this file will be added to the default domain on import',
+                        longText: 'They will be added to the project\'s default domain.',
+                        text: 'Some actions in domain are not explicitly mentioned in dialogue fragments.',
                     },
                 ],
                 newLanguages: [],
@@ -210,7 +209,7 @@ export const singlesFiles = [
         ],
         expectedParams: {
             ...expectedParams,
-            summary: ['From domain.yml you will add: 2 slots, 2 responses, 1 forms, 1 actions (actions ends up in the default domain)'],
+            summary: ['2 slots, 2 responses, 1 forms, 1 actions will be added from domain.yml.'],
         },
     },
     {
@@ -262,10 +261,9 @@ export const singlesFiles = [
                         text: 'those reponses will add the support for the language fr :',
                         longText: 'utter_greet, utter_aaa',
                     },
-                    'forms defined in this file will be added to the default domain on import',
                     {
-                        longText: 'the actions that will be added to the default domain are the one that are in this file and not used directly by the rules or stories',
-                        text: 'Some actions defined in this file will be added to the default domain on import',
+                        longText: 'They will be added to the project\'s default domain.',
+                        text: 'Some actions in domain are not explicitly mentioned in dialogue fragments.',
                     },
                 ],
             },
@@ -273,8 +271,8 @@ export const singlesFiles = [
         expectedParams: {
             ...expectedParams,
             summary: [
-                'From domain.yml you will add: 3 slots, 2 responses, 1 forms, 2 actions (actions ends up in the default domain)',
-                'Support for the lang \'fr\' will be added using the default config',
+                'Support for language \'fr\' will be added using the default config.',
+                '3 slots, 2 responses, 1 forms, 2 actions will be added from domain.yml.',
             ],
 
             projectLanguages: ['en', 'fr'],

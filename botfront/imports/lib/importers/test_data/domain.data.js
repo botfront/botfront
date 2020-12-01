@@ -25,7 +25,7 @@ slots:
     a_language:
       type: unfeaturized
       initial_value: fr
-    disambiguation_message:
+    test_message:
       type: unfeaturized
 forms:
     restaurant_form:
@@ -63,7 +63,7 @@ slots:
     a_language:
       type: unfeaturized
       initial_value: fr
-    disambiguation_message:
+    test_message:
       type: unfeaturized
     bla_message:
       type: unfeaturized
@@ -113,7 +113,7 @@ export const validDomainParsed = {
             initialValue: 'fr',
         },
         {
-            name: 'disambiguation_message',
+            name: 'test_message',
             type: 'unfeaturized',
         },
     ],
@@ -170,7 +170,7 @@ export const validDomainFrParsed = {
             initialValue: 'fr',
         },
         {
-            name: 'disambiguation_message',
+            name: 'test_message',
             type: 'unfeaturized',
         },
         {
@@ -200,7 +200,7 @@ export const validDomainsMerged = {
     responses: [
         {
             projectId: 'bf',
-            textIndex: 'utter_greet\nSalut!\nHey there!',
+            textIndex: 'utter_greet\nSalut!\nHey there!\nЗдравствуйте',
             key: 'utter_greet',
             values: [
                
@@ -268,7 +268,7 @@ export const validDomainsMerged = {
         },
         {
             projectId: 'bf',
-            name: 'disambiguation_message',
+            name: 'test_message',
             type: 'unfeaturized',
         },
     ],

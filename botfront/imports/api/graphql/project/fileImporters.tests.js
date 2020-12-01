@@ -234,7 +234,7 @@ if (Meteor.isServer) {
                     defaultDomain: {
                         content:
                             // eslint-disable-next-line max-len
-                            'slots:\n  disambiguation_message:\n    type: unfeaturized\nresponses:\n  utter_goodbye:\n    - language: en\n      text: \'Goodbye :(\'\n  utter_greet:\n    - language: en\n      text: Hey there!\n  utter_double:\n    - language: en\n      text: Hey there!1\nforms:\n  restaurant_form:\n    cuisine:\n      - entity: cuisine\n        type: from_entity\nactions:\n  - action_aaa',
+                            'slots:\n  test_message:\n    type: unfeaturized\nresponses:\n  utter_goodbye:\n    - language: en\n      text: \'Goodbye :(\'\n  utter_greet:\n    - language: en\n      text: Hey there!\n  utter_double:\n    - language: en\n      text: Hey there!1\nforms:\n  restaurant_form:\n    cuisine:\n      - entity: cuisine\n        type: from_entity\nactions:\n  - action_aaa',
                     },
                     name: 'test',
                     languages: ['fr'],
@@ -297,6 +297,7 @@ if (Meteor.isServer) {
         });
         it('should import domain', async () => {
             await Projects.remove({});
+            await BotResponses.deleteMany({});
             await Projects.insert({
                 _id: 'bf',
                 name: 'test',
