@@ -101,7 +101,7 @@ class BranchTabLabel extends React.Component {
         } = this.props;
         const confirmMessage = {};
         if (siblings.length < 3) {
-            const strandedBranchName = siblings.filter(s => s.title !== value)[0].title;
+            const strandedBranchName = siblings.filter(s => s.title !== value)[0]?.title;
             confirmMessage.content = (
                 <>
                     The content of <strong>{strandedBranchName}</strong> will be added to

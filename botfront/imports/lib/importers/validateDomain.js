@@ -423,7 +423,7 @@ export const validateDomain = (files, params) => {
             ),
         );
         if (tempSummary.length) {
-            newSummary.push(`From ${nameList} you will add: ${tempSummary.join(', ')}`);
+            newSummary.push(`${tempSummary.join(', ')} will be added from ${nameList}.`);
         }
         newLanguages = Array.from(new Set([...params.projectLanguages, ...newLangs]));
     }
