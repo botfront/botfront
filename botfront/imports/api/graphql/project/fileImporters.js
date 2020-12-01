@@ -96,7 +96,7 @@ const wipeDomain = async (projectId) => {
 // empty or bring back to default project data
 // we do not reset the instance as the import depends on rasa for certain part of the import
 // reseting it to default does not make sens
-const resetProject = async (projectId) => {
+const resetProject = async (projectId, projectLanguages) => {
     try {
         wipeDomain(projectId);
         await Conversations.deleteMany({ projectId });
@@ -109,10 +109,8 @@ const resetProject = async (projectId) => {
         await Examples.deleteMany({ projectId });
         await createCredentials({ _id: projectId });
         await createEndpoints({ _id: projectId });
-        const { languages } = await Projects.findOne({ _id: projectId });
-        // we empty the languages supported by the project as we will be re-creating those
-        // otherwise nlu.insert will not work as it would believe that the language we are trying to insert are already supported
-        // moreover that way if a nlu.insert fails we won't have any unsupported languages in project
+        
+        
         const {
             settings: {
                 private: { defaultDefaultDomain },
@@ -121,6 +119,9 @@ const resetProject = async (projectId) => {
             {},
             { fields: { 'settings.private.defaultDefaultDomain': 1 } },
         );
+        // we empty the languages supported by the project as we will be re-creating those
+        // otherwise nlu.insert will not work as it would believe that some language we are trying to insert are already supported
+        // moreover that way if a nlu.insert fails we won't have any unsupported languages in project
         await Projects.update(
             { _id: projectId },
             {
@@ -132,12 +133,12 @@ const resetProject = async (projectId) => {
             },
         );
         await Promise.all(
-            languages.map(lang => Meteor.callWithPromise('nlu.insert', projectId, lang)),
+            projectLanguages.map(lang => Meteor.callWithPromise('nlu.insert', projectId, lang)),
         );
     } catch (e) {
         // eslint-disable-next-line no-console
         console.log('e', e);
-        throw new Error('Could not reset the project back to default');
+        throw new Error(`Could not reset the project back to default : ${e.message}`);
     }
     return true;
 };
@@ -432,66 +433,70 @@ export const handleImportIncoming = async (
 // the files should have been processed before by the validation step
 export const handleImportAll = async (files, params) => {
     const importers = [];
-    const { projectId, wipeProject } = params;
+    const { projectId, wipeProject, projectLanguages } = params;
     const toImport = onlyValidFiles(files);
-    if (wipeProject) {
-        await resetProject(projectId);
-    }
-    // this function is there to force the order of import: rasaconfig, default domain then domain
-    // rasaconfig might add support for languages that have data in the domain
-    // the default domain might be updated and importing the domain might add some data to it (eg. forms)
-    // that why we want this order
-    const configAndDomainImport = async () => {
-        const rasaconfig = await handleImportRasaConfig(
-            toImport.filter(f => f.dataType === 'rasaconfig'),
-            params,
-        );
-        const configErrors = await handleImportDefaultDomain(
-            toImport.filter(f => f.dataType === 'defaultdomain'),
-            params,
-        );
-        const trainingDataErrors = await handleImportTrainingData(
-            toImport.filter(f => f.dataType === 'training_data'),
-            params,
-        );
-        const domainErrors = await handleImportDomain(
-            toImport.filter(f => f.dataType === 'domain'),
-            params,
-        );
-        return [...rasaconfig, ...configErrors, ...trainingDataErrors, ...domainErrors];
-    };
+    try {
+        if (wipeProject) {
+            await resetProject(projectId, projectLanguages);
+        }
+        // this function is there to force the order of import: rasaconfig, default domain then domain
+        // rasaconfig might add support for languages that have data in the domain
+        // the default domain might be updated and importing the domain might add some data to it (eg. forms)
+        // that why we want this order
+        const configAndDomainImport = async () => {
+            const rasaconfig = await handleImportRasaConfig(
+                toImport.filter(f => f.dataType === 'rasaconfig'),
+                params,
+            );
+            const configErrors = await handleImportDefaultDomain(
+                toImport.filter(f => f.dataType === 'defaultdomain'),
+                params,
+            );
+            const trainingDataErrors = await handleImportTrainingData(
+                toImport.filter(f => f.dataType === 'training_data'),
+                params,
+            );
+            const domainErrors = await handleImportDomain(
+                toImport.filter(f => f.dataType === 'domain'),
+                params,
+            );
+            return [...rasaconfig, ...configErrors, ...trainingDataErrors, ...domainErrors];
+        };
 
-    importers.push(configAndDomainImport());
-    importers.push(
-        handleImportBfConfig(
-            toImport.filter(f => f.dataType === 'bfconfig'),
-            params,
-        ),
-    );
-    importers.push(
-        handleImportEndpoints(
-            toImport.filter(f => f.dataType === 'endpoints'),
-            params,
-        ),
-    );
-    importers.push(
-        handleImportCredentials(
-            toImport.filter(f => f.dataType === 'credentials'),
-            params,
-        ),
-    );
-    importers.push(
-        handleImportConversations(
-            toImport.filter(f => f.dataType === 'conversations'),
-            params,
-        ),
-    );
-    importers.push(
-        handleImportIncoming(
-            toImport.filter(f => f.dataType === 'incoming'),
-            params,
-        ),
-    );
-    // importers return a arrays of array of errors, we flaten it and remove the null values
-    return (await Promise.all(importers)).flat().filter(r => r);
+        importers.push(configAndDomainImport());
+        importers.push(
+            handleImportBfConfig(
+                toImport.filter(f => f.dataType === 'bfconfig'),
+                params,
+            ),
+        );
+        importers.push(
+            handleImportEndpoints(
+                toImport.filter(f => f.dataType === 'endpoints'),
+                params,
+            ),
+        );
+        importers.push(
+            handleImportCredentials(
+                toImport.filter(f => f.dataType === 'credentials'),
+                params,
+            ),
+        );
+        importers.push(
+            handleImportConversations(
+                toImport.filter(f => f.dataType === 'conversations'),
+                params,
+            ),
+        );
+        importers.push(
+            handleImportIncoming(
+                toImport.filter(f => f.dataType === 'incoming'),
+                params,
+            ),
+        );
+        // importers return a arrays of array of errors, we flaten it and remove the null values
+        return (await Promise.all(importers)).flat().filter(r => r);
+    } catch (e) {
+        return [e.message];
+    }
 };

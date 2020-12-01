@@ -156,7 +156,7 @@ export async function importSteps({
         wipeInvolvedCollections,
         fallbackLang,
         wipeProject,
-        projectLanguages,
+        projectLanguages: wipeProject ? [fallbackLang] : projectLanguages,
         supportedEnvs: ['development', ...(deploymentEnvironments || [])],
         summary: wipeProject ? [{ text: 'ALL PROJECT DATA WILL BE ERASED.' }] : [],
     };

@@ -120,6 +120,7 @@ export const validateBfConfig = (files, params) => {
     const onlyValidConfigFiles = onlyValidFiles(bfConfigFiles);
     if (onlyValidConfigFiles.length > 0 && onlyValidConfigFiles[0].bfconfig.instance) {
         newParams.instanceHost = onlyValidConfigFiles[0].bfconfig.instance.host;
+        newParams.projectLanguages = Array.from(new Set([...newParams.projectLanguages, onlyValidConfigFiles[0].bfconfig.defaultLanguage]));
     } else {
         newParams.instanceHost = Instances.findOne({ projectId: params.projectId }).host;
     }

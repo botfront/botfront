@@ -81,7 +81,7 @@ const validateRasaConfigTogether = (files, projectLanguages) => {
 export const validateRasaConfig = (files, params) => {
     const { fallbackLang } = params;
     let summary = [];
-    let { projectLanguages } = params;
+    let { projectLanguages = [] } = params;
 
     let rasaConfigFiles = files.filter(f => f?.dataType === 'rasaconfig');
 
