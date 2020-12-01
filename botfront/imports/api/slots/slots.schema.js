@@ -23,6 +23,7 @@ export const SlotSchema = new SimpleSchema({
             'float',
             'list',
             'unfeaturized',
+            'any',
         ],
     },
     createdAt: {
@@ -36,7 +37,7 @@ export const SlotSchema = new SimpleSchema({
     },
 });
 
-export const slotSchemas = {
+const slotSchemas = {
     bool: new SimpleSchema({
         initialValue: { type: Boolean, defaultValue: false, optional: true },
     }).extend(SlotSchema),
@@ -78,13 +79,22 @@ export const slotSchemas = {
             { type: String, defaultValue: null, optional: true },
             { type: Boolean, defaultValue: false, optional: true },
             { type: Number, defaultValue: null, optional: true },
-            { type: Object, defaultValue: null, optional: true },
+            {
+                type: Object,
+                defaultValue: null,
+                optional: true,
+                blackbox: true,
+            },
         ),
     }).extend(SlotSchema),
 };
+
+slotSchemas.any = slotSchemas.unfeaturized;
 
 slotSchemas.float.messageBox.messages({
     en: {
         minMax: 'Maximum value must be greater than minimum value',
     },
 });
+
+export { slotSchemas };
