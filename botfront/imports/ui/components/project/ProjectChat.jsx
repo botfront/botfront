@@ -18,7 +18,9 @@ class ProjectChat extends React.Component {
             key: 0,
             languageOptions: null,
             selectedLanguage: null,
+            savedTest: false,
         };
+        this.clipboardTimeout = null;
     }
 
     componentDidMount() {
@@ -29,6 +31,10 @@ class ProjectChat extends React.Component {
 
     componentWillReceiveProps(props) {
         this.checkRefreshChat(props);
+    }
+    
+    componentWillUnmount() {
+        clearTimeout(this.clipboardTimeout);
     }
 
     loadInstance = () => {
@@ -58,13 +64,17 @@ class ProjectChat extends React.Component {
         const {
             project: { _id: projectId },
         } = this.props;
+        this.setState({ savedTest: false });
         if (this.chatRef.current && this.chatRef.current.getSessionId) {
             Meteor.call(
                 'stories.addTestCase',
                 projectId,
                 this.chatRef.current.getSessionId(),
-                wrapMeteorCallback((res) => {
-                    console.log(res);
+                wrapMeteorCallback((err) => {
+                    // adding the timeout so that it works when adding several tests, it also make it likes computing is being done.
+                    if (!err) {
+                        this.clipboardTimeout = setTimeout(() => this.setState({ savedTest: true }), 50);
+                    }
                 }),
             );
         }
@@ -105,6 +115,7 @@ class ProjectChat extends React.Component {
             selectedLanguage,
             noChannel,
             path,
+            savedTest,
         } = this.state;
         const {
             triggerChatPane, project: { _id: projectId }, initPayload,
@@ -130,11 +141,12 @@ class ProjectChat extends React.Component {
                                 trigger={(
                                     <Icon
                                         name='clipboard check'
-                                        color='grey'
+                                        color={savedTest ? 'green' : 'grey'}
                                         link={!noChannel}
                                         onClick={this.handleSaveTest}
                                         disabled={noChannel}
                                         data-cy='save-chat-as-test'
+                                        className={savedTest ? 'saved-test' : ''}
                                     />
                                 )}
                                 content='Save conversation as a test case'
