@@ -99,7 +99,7 @@ export const getNluDataAndConfig = async (projectId, language, intents) => {
                 }) => ({
                     text,
                     intent,
-                    entities: entities.map(dropNullValuesFromObject),
+                    entities: entities.map(({ _id: _, ...rest }) => dropNullValuesFromObject(rest)),
                     metadata,
                 }),
             ),
