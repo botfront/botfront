@@ -1,5 +1,6 @@
 import yaml from 'js-yaml';
 import { Instances } from '../../api/instances/instances.collection';
+import { Projects } from '../../api/project/project.collection';
 import { onlyValidFiles } from './common';
 
 
@@ -118,11 +119,16 @@ export const validateBfConfig = (files, params) => {
     const [newFiles, newParams] = validateSimpleYamlFiles(files, params, 'bfconfig', 'botfront config');
     const bfConfigFiles = newFiles.filter(f => f?.dataType === 'bfconfig');
     const onlyValidConfigFiles = onlyValidFiles(bfConfigFiles);
+    // ensure that the default language is in the project's language'
+    // sounds a bit weird but when wiping a project, we might not have a file briging the support the the default language
+    // having it in projectLanguages will check that it does exist at import
     if (onlyValidConfigFiles.length > 0 && onlyValidConfigFiles[0].bfconfig.instance) {
         newParams.instanceHost = onlyValidConfigFiles[0].bfconfig.instance.host;
         newParams.projectLanguages = Array.from(new Set([...newParams.projectLanguages, onlyValidConfigFiles[0].bfconfig.defaultLanguage]));
     } else {
         newParams.instanceHost = Instances.findOne({ projectId: params.projectId }).host;
+        const { defaultLanguage } = Projects.findOne({ _id: params.projectId });
+        newParams.projectLanguages = Array.from(new Set([...newParams.projectLanguages, defaultLanguage]));
     }
     return [newFiles, newParams];
 };

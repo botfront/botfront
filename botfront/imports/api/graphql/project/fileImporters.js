@@ -207,7 +207,7 @@ export const handleImportDefaultDomain = async (
 
 export const handleImportBfConfig = async (files, { projectId }) => {
     if (!files.length) return [];
-    const toImport = files[0]; // we use the first file, as there could be only one instance
+    const toImport = files[0]; // we use the first file, as there could be only one config
     const { bfconfig } = toImport;
     const { instance, ...bfconfigData } = bfconfig;
     // all we want to be sure to not import one of those keys as it could break the import other parts (stories, models or defaultdomain)
@@ -244,8 +244,17 @@ export const handleImportBfConfig = async (files, { projectId }) => {
 
 export const handleImportEndpoints = async (files, { supportedEnvs, projectId }) => {
     if (!files.length) return [];
+    const importedEnv = new Set();
+    const toImport = files.filter((f) => {
+        const { env } = f;
+        if (supportedEnvs.includes(env) && !importedEnv.has(env)) {
+            importedEnv.add(env);
+            return true;
+        }
+        return false;
+    });
     const importResult = await Promise.all(
-        files.map(async (f) => {
+        toImport.map(async (f) => {
             try {
                 const { env, rawText } = f;
                 if (supportedEnvs.includes(env)) {
@@ -266,8 +275,17 @@ export const handleImportEndpoints = async (files, { supportedEnvs, projectId })
 
 export const handleImportCredentials = async (files, { supportedEnvs, projectId }) => {
     if (!files.length) return [];
+    const importedEnv = new Set();
+    const toImport = files.filter((f) => {
+        const { env } = f;
+        if (supportedEnvs.includes(env) && !importedEnv.has(env)) {
+            importedEnv.add(env);
+            return true;
+        }
+        return false;
+    });
     const importResult = await Promise.all(
-        files.map(async (f) => {
+        toImport.map(async(f) => {
             try {
                 const { env, rawText } = f;
                 if (supportedEnvs.includes(env)) {
@@ -292,49 +310,49 @@ export const handleImportRasaConfig = async (files, { projectId, projectLanguage
     let policiesImported = false;
     const { languages: existingLanguages } = Projects.findOne({ _id: projectId });
     const pipelineImported = {};
-    const importResult = await Promise.all(
-        files.map(async (f) => {
-            const { pipeline, policies, language } = f;
-            // we only use the policies from the first one
-            // this is something decided arbitrarily, there is a warning about it in validation so the user is aware of this behavior
-            if (policies && !policiesImported) {
-                try {
-                    await Meteor.callWithPromise('policies.save', {
-                        policies: safeDump({ policies }),
+    const errors = [];
+    await files.reduce(async (previous, f) => {
+        await previous;
+        const { pipeline, policies, language } = f;
+        // we only use the policies from the first one
+        // this is something decided arbitrarily, there is a warning about it in validation so the user is aware of this behavior
+        if (policies && !policiesImported) {
+            try {
+                await Meteor.callWithPromise('policies.save', {
+                    policies: safeDump({ policies }),
+                    projectId,
+                });
+                policiesImported = true;
+            } catch (e) {
+                errors.push(`error when importing policies from ${f.filename}`);
+            }
+        }
+        if (pipeline && !pipelineImported[language]) {
+            try {
+                if (existingLanguages.includes(language)) {
+                    await Meteor.callWithPromise(
+                        'nlu.update.pipeline',
                         projectId,
-                    });
-                    policiesImported = true;
-                } catch (e) {
-                    return `error when importing policies from ${f.filename}`;
+                        language,
+                        safeDump({ pipeline }),
+                    );
+                } else {
+                    await Meteor.callWithPromise(
+                        'nlu.insert',
+                        projectId,
+                        language,
+                        safeDump({ pipeline }),
+                    );
                 }
+                pipelineImported[language] = true;
+                languagesNotImported.delete(language);
+            } catch (e) {
+                errors.push(`error when importing pipeline from ${f.filename}`);
             }
-            if (pipeline && !pipelineImported[language]) {
-                try {
-                    if (existingLanguages.includes(language)) {
-                        await Meteor.callWithPromise(
-                            'nlu.update.pipeline',
-                            projectId,
-                            language,
-                            safeDump({ pipeline }),
-                        );
-                    } else {
-                        await Meteor.callWithPromise(
-                            'nlu.insert',
-                            projectId,
-                            language,
-                            safeDump({ pipeline }),
-                        );
-                    }
-                    pipelineImported[language] = true;
-                    languagesNotImported.delete(language);
-                    return null;
-                } catch (e) {
-                    return `error when importing pipeline from ${f.filename}`;
-                }
-            }
-            return null;
-        }),
-    );
+        }
+        return Promise.resolve();
+    }, Promise.resolve());
+    
     const { languages } = await Projects.findOne({ _id: projectId });
     languages.forEach(lang => languagesNotImported.delete(lang));
 
@@ -349,7 +367,7 @@ export const handleImportRasaConfig = async (files, { projectId, projectLanguage
         }),
     );
     // return only the results with data in it (if nothing bad happened it shoudl be an array of null)
-    return [...importResult, ...createResult].filter(r => r);
+    return [...errors, ...createResult].filter(r => r);
 };
 
 export const handleImportConversations = async (

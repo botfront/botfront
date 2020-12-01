@@ -25,11 +25,11 @@ describe('Importing a Botfront project', function() {
         cy.dataCy('message-warning-domainyml').should('have.text', 'domain.yml'
         + 'those reponses will add the support for the language en :utter_cgMeFnuj5, utter_J5MMvow26'
         + 'those reponses will add the support for the language ru :utter_uCag8LL6z'
-        + 'Some actions defined in this file will be added to the default domain on import'
-        + 'the actions that will be added to the default domain are the one that are in this file and not used directly by the rules or stories');
-        cy.dataCy('summary-list').should('have.text', 'From domain.yml you will add: 3 responses, 1 actions (actions ends up in the default domain)'
-        + 'Support for the lang \'en\' will be added using the default config'
-        + 'Support for the lang \'ru\' will be added using the default config');
+        + 'Some actions in domain are not explicitly mentioned in dialogue fragments.'
+        + 'They will be added to the project\'s default domain.');
+        cy.dataCy('summary-list').should('have.text', 'Support for language \'en\' will be added using the default config.'
+        + 'Support for language \'ru\' will be added using the default config.'
+        + '3 responses, 1 actions will be added from domain.yml.');
     });
     it('Should mark as error a file that is not json/yaml/zip/yml/md', function() {
         cy.visit('/project/bf/settings/import-export');
@@ -62,15 +62,14 @@ describe('Importing a Botfront project', function() {
         cy.dataCy('message-warning-config-enyml').should('have.text', 'config-en.yml'
         + 'Dropped policies, since policies are already found in file config-ru.yml.');
         cy.dataCy('message-warning-domain-bfyml').should('have.text', 'domain-bf.yml'
-        + 'Some actions defined in this file will be added to the default domain on import'
-        + 'the actions that will be added to the default domain are the one that are in this file and not used directly by the rules or stories');
+        + 'Some actions in domain are not explicitly mentioned in dialogue fragments.'
+        + 'They will be added to the project\'s default domain.');
         cy.dataCy('message-warning-default-domain-bfyml').should('have.text', 'default-domain-bf.yml'
-        + 'You have multiple default domain files. if some data conflicts, the one from the first file with that data will be used (same way has rasa merges domains)');
+        + 'You have multiple domain files. In case of a conflict, data from first file will prevail.');
         cy.dataCy('message-warning-domainyml').should('have.text', 'domain.yml'
-        + 'forms defined in this file will be added to the default domain on import'
-        + 'Some actions defined in this file will be added to the default domain on import'
-        + 'the actions that will be added to the default domain are the one that are in this file and not used directly by the rules or stories'
-        + 'You have multiple domain files. if some data conflicts, the one from the first file with that data will be used (same way has rasa merges domains)');
+        + 'Some actions in domain are not explicitly mentioned in dialogue fragments.'
+        + 'They will be added to the project\'s default domain.'
+        + 'You have multiple domain files. In case of a conflict, data from first file will prevail.');
         cy.dataCy('message-warning-endpointsdevyml').should('have.text', 'endpoints.dev.yml'
         + 'The "dev" environment is not supported by this project, this file won\'t be used in the import');
         cy.dataCy('message-warning-nlu-multilangyml').should('have.text', 'nlu-multilang.yml'
@@ -90,7 +89,7 @@ describe('Importing a Botfront project', function() {
             .should('contain.text', 'Group \'handoff.yml\' will be created with 3 stories.Group \'stories.yml\' will be created with 9 stories.')
             .should('contain.text', 'Endpoints will be imported from endpoints.yml.')
             .should('contain.text', 'Credentials will be imported from credentials.yml.')
-            .should('contain.text', 'From domain-bf.yml, domain.yml you will add: 10 slots, 23 responses, 2 forms, 4 actions (actions ends up in the default domain)')
+            .should('contain.text', '10 slots, 23 responses, 2 forms, 4 actions will be added from domain-bf.yml, domain.yml')
             .should('contain.text', 'A new model with default pipeline will be created for German.')
             .should('contain.text', 'You will add 8 conversations')
             .should('contain.text', 'You will add 4 incoming')
@@ -231,7 +230,7 @@ describe('Importing a Botfront project', function() {
         cy.get('.ace_content').should('contain.text', 'actions:  - action_botfront_disambiguation  - action_botfront_disambiguation_followup  - action_botfront_fallback  - action_botfront_mapping');
         cy.visit('/project/bf/responses');
         cy.dataCy('no-responses').should('exist');
-        cy.visit('/project/bf/nlu/model/en');
+        cy.visit('/project/bf/nlu/model/fr');
         cy.dataCy('example-text-editor-input').should('exist');
         cy.get('.row').should('not.exist');
     });
