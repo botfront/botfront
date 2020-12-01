@@ -1,4 +1,5 @@
 import { safeLoad, safeDump } from 'js-yaml';
+import uuidv4 from 'uuid/v4';
 import botResponses from '../botResponses/botResponses.model';
 import { saveEndpoints, createEndpoints } from '../../endpoints/endpoints.methods';
 import Conversations from '../conversations/conversations.model';
@@ -6,7 +7,11 @@ import Activity from '../activity/activity.model';
 import { indexBotResponse } from '../botResponses/mongo/botResponses';
 import { Slots } from '../../slots/slots.collection';
 import { Projects } from '../../project/project.collection';
-import { mergeDomains, deduplicateAndMergeResponses, deduplicateArray } from '../../../lib/importers/validateDomain';
+import {
+    mergeDomains,
+    deduplicateAndMergeResponses,
+    deduplicateArray,
+} from '../../../lib/importers/validateDomain';
 import { Credentials, createCredentials } from '../../credentials';
 import { GlobalSettings } from '../../globalSettings/globalSettings.collection';
 import { Endpoints } from '../../endpoints/endpoints.collection';
@@ -30,7 +35,6 @@ export const handleImportForms = async (forms, projectId) => {
     });
 };
 
-
 export const handleImportActions = async (actions, projectId) => {
     const { defaultDomain } = Projects.findOne({ _id: projectId });
     const parsedDomain = safeLoad(defaultDomain.content);
@@ -43,19 +47,23 @@ export const handleImportActions = async (actions, projectId) => {
     });
 };
 export const handleImportResponse = async (responses, projectId) => {
-    const preparedResponses = responses.map((response) => {
-        const index = indexBotResponse(response);
-        return { ...response, textIndex: index, projectId };
-    });
     try {
-        const insertResponses = preparedResponses.map(async (resp) => {
-            const existing = await botResponses.findOne({ key: resp.key, projectId }).lean();
+        const insertResponses = responses.map(async (resp) => {
+            const existing = await botResponses
+                .findOne({ key: resp.key, projectId })
+                .lean();
             if (existing) {
                 const newResponse = deduplicateAndMergeResponses([resp, existing])[0];
-                const newIndex = indexBotResponse(newResponse);
-                await botResponses.update({ key: resp.key, projectId }, { ...newResponse, index: newIndex, projectId }, { upsert: true });
+                await botResponses.update(
+                    { key: resp.key, projectId },
+                    { ...newResponse, index: indexBotResponse(newResponse) },
+                );
             } else {
-                await botResponses.update({ key: resp.key, projectId }, resp, { upsert: true });
+                await botResponses.create(
+                    {
+                        ...resp, index: indexBotResponse(resp), _id: uuidv4(), projectId,
+                    },
+                );
             }
         });
         await Promise.all(insertResponses);
@@ -113,8 +121,19 @@ const resetProject = async (projectId) => {
             {},
             { fields: { 'settings.private.defaultDefaultDomain': 1 } },
         );
-        await Projects.update({ _id: projectId }, { $set: { languages: [], storyGroups: [], defaultDomain: { content: defaultDefaultDomain } } });
-        await Promise.all(languages.map(lang => Meteor.callWithPromise('nlu.insert', projectId, lang)));
+        await Projects.update(
+            { _id: projectId },
+            {
+                $set: {
+                    languages: [],
+                    storyGroups: [],
+                    defaultDomain: { content: defaultDefaultDomain },
+                },
+            },
+        );
+        await Promise.all(
+            languages.map(lang => Meteor.callWithPromise('nlu.insert', projectId, lang)),
+        );
     } catch (e) {
         // eslint-disable-next-line no-console
         console.log('e', e);
@@ -123,7 +142,10 @@ const resetProject = async (projectId) => {
     return true;
 };
 
-export const handleImportDomain = async (files, { projectId, wipeInvolvedCollections }) => {
+export const handleImportDomain = async (
+    files,
+    { projectId, wipeInvolvedCollections },
+) => {
     if (!files.length) return [];
     const {
         slots, responses, forms, actions,
@@ -132,12 +154,16 @@ export const handleImportDomain = async (files, { projectId, wipeInvolvedCollect
     const errors = [];
     const insert = async () => {
         try {
-            if (responses && responses.length > 0) { await handleImportResponse(responses, projectId); }
+            if (responses && responses.length > 0) {
+                await handleImportResponse(responses, projectId);
+            }
         } catch (e) {
             errors.push(`error when importing responses ${e.message}`);
         }
         try {
-            if (slots && slots.length > 0) { await Meteor.callWithPromise('slots.upsert', slots, projectId); }
+            if (slots && slots.length > 0) {
+                await Meteor.callWithPromise('slots.upsert', slots, projectId);
+            }
         } catch (e) {
             errors.push(`error when importing slots ${e.message}`);
         }
@@ -156,7 +182,7 @@ export const handleImportDomain = async (files, { projectId, wipeInvolvedCollect
             errors.push(`error when importing actions ${e.message}`);
         }
     };
-  
+
     if (wipeInvolvedCollections) {
         await wipeDomain(projectId);
     }
@@ -208,7 +234,9 @@ export const handleImportBfConfig = async (files, { projectId }) => {
                 _id: projectId,
             });
         } catch (e) {
-            errors.push(`error when importing project data from  ${toImport.filename}: ${e.message}`);
+            errors.push(
+                `error when importing project data from  ${toImport.filename}: ${e.message}`,
+            );
         }
     }
     return errors;
@@ -290,7 +318,12 @@ export const handleImportRasaConfig = async (files, { projectId, projectLanguage
                             safeDump({ pipeline }),
                         );
                     } else {
-                        await Meteor.callWithPromise('nlu.insert', projectId, language, safeDump({ pipeline }));
+                        await Meteor.callWithPromise(
+                            'nlu.insert',
+                            projectId,
+                            language,
+                            safeDump({ pipeline }),
+                        );
                     }
                     pipelineImported[language] = true;
                     languagesNotImported.delete(language);
@@ -319,7 +352,10 @@ export const handleImportRasaConfig = async (files, { projectId, projectLanguage
     return [...importResult, ...createResult].filter(r => r);
 };
 
-export const handleImportConversations = async (files, { supportedEnvs, projectId, wipeInvolvedCollections }) => {
+export const handleImportConversations = async (
+    files,
+    { supportedEnvs, projectId, wipeInvolvedCollections },
+) => {
     if (!files.length) return [];
     if (wipeInvolvedCollections) {
         await Conversations.deleteMany({ projectId });
@@ -354,7 +390,10 @@ export const handleImportConversations = async (files, { supportedEnvs, projectI
     return importResult.filter(r => r);
 };
 
-export const handleImportIncoming = async (files, { supportedEnvs, projectId, wipeInvolvedCollections }) => {
+export const handleImportIncoming = async (
+    files,
+    { supportedEnvs, projectId, wipeInvolvedCollections },
+) => {
     if (!files.length) return [];
     if (wipeInvolvedCollections) {
         await Activity.deleteMany({ projectId });
