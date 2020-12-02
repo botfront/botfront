@@ -14,7 +14,6 @@ export const createFailingTestsGroup = (projectId) => {
         'storyGroups.insert',
         {
             name: 'Failing tests',
-            _id: 'FAILING_TESTS_SMART_GROUP',
             projectId,
             smartGroup: { prefix: 'failing', query: '{ "success": false }' },
             isExpanded: false,

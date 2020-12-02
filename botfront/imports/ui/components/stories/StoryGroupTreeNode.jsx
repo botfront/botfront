@@ -258,6 +258,7 @@ const StoryGroupTreeNode = (props) => {
                 <div
                     className='side-by-side left narrow middle'
                     {...(isBeingRenamed ? { ref: renamerRef } : {})}
+                    data-cy={`story-menu-item-${type}`}
                 >
                     <Icon
                         name='bars'

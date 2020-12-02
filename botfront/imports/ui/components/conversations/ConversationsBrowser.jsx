@@ -14,6 +14,7 @@ import 'react-select/dist/react-select.css';
 import ConversationViewer from './ConversationViewer';
 import { Loading } from '../utils/Utils';
 import { updateIncomingPath } from '../incoming/incoming.utils';
+import { wrapMeteorCallback } from '../utils/Errors';
 
 function ConversationsBrowser(props) {
     const {
@@ -113,8 +114,13 @@ function ConversationsBrowser(props) {
         refetch();
     }
 
-    const createTestCase = (trackerId) => {
-        Meteor.call('stories.addTestCase', projectId, trackerId);
+    const createTestCase = (trackerId, callback) => {
+        Meteor.call(
+            'stories.addTestCase',
+            projectId,
+            trackerId,
+            wrapMeteorCallback(err => callback(err)),
+        );
     };
 
     const renderNoMessages = () => (

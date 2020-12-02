@@ -3,6 +3,8 @@ import { safeDump, safeLoad } from 'js-yaml';
 import { Log } from 'meteor/logging';
 import axios from 'axios';
 import shortid from 'shortid';
+import uuidv4 from 'uuid/v4';
+
 import { GlobalSettings } from '../imports/api/globalSettings/globalSettings.collection';
 import { Projects } from '../imports/api/project/project.collection';
 import { Instances } from '../imports/api/instances/instances.collection';
@@ -14,6 +16,7 @@ import { insertExamples } from '../imports/api/graphql/examples/mongo/examples';
 import { indexStory } from '../imports/api/story/stories.index';
 import Activity from '../imports/api/graphql/activity/activity.model';
 import { Evaluations } from '../imports/api/nlu_evaluation';
+
 /* globals Migrations */
 
 Migrations.add({
@@ -505,10 +508,10 @@ Migrations.add({
                 'smatGroup.query': '{ "testResults": { "success": false } }',
             });
             if (failingTestsGroup) return;
-            const _id = 'FAILING_TESTS_SMART_GROUP';
+            const _id = uuidv4();
             StoryGroups.insert({
                 name: 'Failing tests',
-                _id: 'FAILING_TESTS_SMART_GROUP',
+                _id,
                 projectId,
                 smartGroup: { prefix: 'failing', query: '{ "success": false }' },
                 isExpanded: false,
