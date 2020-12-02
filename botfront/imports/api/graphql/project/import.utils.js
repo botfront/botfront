@@ -1,3 +1,5 @@
+import JSZip from 'jszip';
+import { basename } from 'path';
 import { determineDataType } from '../../../lib/importers/common';
 import { StoryGroups } from '../../storyGroups/storyGroups.collection';
 import { Projects } from '../../project/project.collection';
@@ -16,12 +18,12 @@ import {
 import { validateTrainingData } from '../../../lib/importers/validateTrainingData.js';
 import { handleImportAll } from './fileImporters';
 
-function streamToString(stream) {
+function streamToBuffer(stream) {
     const chunks = [];
     return new Promise((resolve, reject) => {
         stream.on('data', chunk => chunks.push(chunk));
         stream.on('error', reject);
-        stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+        stream.on('end', () => resolve(Buffer.concat(chunks)));
     });
 }
 
@@ -32,8 +34,11 @@ function streamToString(stream) {
 export async function getRawTextAndType(files) {
     const filesDataAndTypes = await Promise.all(
         files.map(async (file) => {
+            if (file?.errors?.length) return file;
             const { filename } = file;
-            const rawText = await streamToString(file.createReadStream());
+            // files unzipped on the server already have rawText
+            const rawText = file.rawText
+                || (await streamToBuffer(file.createReadStream())).toString('utf8');
             if (/\ufffd/.test(rawText)) {
                 // out of range char test
                 return {
@@ -44,8 +49,7 @@ export async function getRawTextAndType(files) {
             }
             const dataType = determineDataType(file, rawText);
             if (['unknown', 'empty'].includes(dataType)) {
-                const text = dataType === 'unknown'
-                    ? 'Unknown file type' : 'Empty file';
+                const text = dataType === 'unknown' ? 'Unknown file type' : 'Empty file';
                 return {
                     file,
                     filename,
@@ -122,6 +126,30 @@ export function hasErrors(messages) {
     return containsErrors;
 }
 
+const unzipFiles = files => files.reduce(async (acc, file) => {
+    let filesInFile = [file];
+    if (file.filename.match(/\.zip$/)) {
+        try {
+            const loadedZip = await JSZip.loadAsync(
+                await streamToBuffer(file.createReadStream()),
+            );
+            filesInFile = await Object.entries(loadedZip.files).reduce(
+                async (acc2, [path, item]) => {
+                    if (item.dir) return acc2;
+                    const rawText = await item.async('text');
+                    if (!rawText) return acc2;
+                    const filename = basename(path);
+                    return [...(await acc2), { filename, rawText }];
+                },
+                [],
+            );
+        } catch {
+            filesInFile = [{ ...file, errors: [{ text: 'Could not unzip file.' }] }];
+        }
+    }
+    return [...(await acc), ...filesInFile];
+}, []);
+
 // this function validates then import the files if there are no errors
 // onlyValidate are boolean switches to alter the steps of the validation
 export async function importSteps({
@@ -141,7 +169,11 @@ export async function importSteps({
             { fields: { name: 1, _id: 1 } },
         ).fetch();
     }
-    const { languages: projectLanguages, defaultLanguage, deploymentEnvironments } = Projects.findOne(
+    const {
+        languages: projectLanguages,
+        defaultLanguage,
+        deploymentEnvironments,
+    } = Projects.findOne(
         { _id: projectId },
         { fields: { languages: 1, defaultLanguage: 1, deploymentEnvironments: 1 } },
     );
@@ -160,7 +192,7 @@ export async function importSteps({
         supportedEnvs: ['development', ...(deploymentEnvironments || [])],
         summary: wipeProject ? [{ text: 'ALL PROJECT DATA WILL BE ERASED.' }] : [],
     };
-    const filesAndValidationData = await readAndValidate(files, params);
+    const filesAndValidationData = await readAndValidate(await unzipFiles(files), params);
 
     if (onlyValidate || hasErrors(filesAndValidationData.fileMessages)) {
         return filesAndValidationData;
