@@ -422,7 +422,7 @@ export const handleImportIncoming = async (
                 const { incoming, env } = f;
                 if (supportedEnvs.includes(env)) {
                     const insertIncoming = incoming.map(utterance => Activity.update(
-                        { _id: utterance._id },
+                        { _id: utterance._id || uuidv4() },
                         {
                             ...utterance,
                             projectId,
@@ -432,7 +432,7 @@ export const handleImportIncoming = async (
                     ));
                     await Promise.all(insertIncoming);
                 }
-             
+                
                 return null;
             } catch (e) {
                 if (e.code === 11000) {

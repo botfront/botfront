@@ -95,9 +95,9 @@ if (Meteor.isServer) {
                 }));
                 if (options.incoming) {
                     incoming = await Promise.all(envs.map(async (environment) => {
-                        const incomingInEnv = await Activity.findOne(
+                        const incomingInEnv = await Activity.find(
                             { projectId, environment },
-                        );
+                        ).lean();
                         return {
                             environment,
                             incoming: incomingInEnv,
@@ -106,9 +106,9 @@ if (Meteor.isServer) {
                 }
                 if (options.conversations) {
                     conversations = await Promise.all(envs.map(async (environment) => {
-                        const conversationsInEnv = await Conversations.findOne(
+                        const conversationsInEnv = await Conversations.find(
                             { projectId, environment },
-                        );
+                        ).lean();
                         return {
                             environment,
                             conversations: conversationsInEnv,
@@ -185,7 +185,7 @@ if (Meteor.isServer) {
                         .toLowerCase()}.yml`,
                         
                 ));
-            } else {
+            } else if (exportData.fragments.length === 1) {
                 rasaZip.addFile(exportData.fragments[0].fragments, 'data/stories.yml');
             }
             if (language === 'all') {
