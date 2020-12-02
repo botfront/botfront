@@ -151,6 +151,9 @@ export const handleImportDomain = async (
         slots, responses, forms, actions,
     } = mergeDomains(files);
 
+    if (wipeInvolvedCollections) {
+        await wipeDomain(projectId);
+    }
     const errors = [];
     const insert = async () => {
         try {
@@ -183,9 +186,7 @@ export const handleImportDomain = async (
         }
     };
 
-    if (wipeInvolvedCollections) {
-        await wipeDomain(projectId);
-    }
+    
     await insert();
     return errors;
 };
@@ -432,7 +433,7 @@ export const handleImportIncoming = async (
                     ));
                     await Promise.all(insertIncoming);
                 }
-                
+
                 return null;
             } catch (e) {
                 if (e.code === 11000) {

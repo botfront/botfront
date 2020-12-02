@@ -91,6 +91,18 @@ if (Meteor.isServer) {
     import '../../slots/slots.methods';
 
     describe('file importers', () => {
+        it('should import conversations and wipe the previous ones in existing env', async () => {
+            await Conversations.deleteMany({});
+            await Conversations.create([{ _id: 'test', test: 'test', projectId: 'bf' }]);
+            const importResult = await handleImportConversations(
+                [{ ...validConversations, conversations: validConversationsParsed, env: 'development' }],
+                { ...params, wipeInvolvedCollections: true },
+            );
+            const conversations = await Conversations.find({ projectId: 'bf' }).lean();
+            await expect(importResult).to.eql([]);
+            // we use equalInAnyOrder because the conversation are send to the db in parrallel, so we don't know the order
+            await expect(conversations).to.deep.equalInAnyOrder(validConversationsParsed);
+        });
         it('should import conversations in  existing env', async () => {
             await Conversations.deleteMany({});
             const importResult = await handleImportConversations(
@@ -111,6 +123,20 @@ if (Meteor.isServer) {
             const conversations = await Conversations.find({ projectId: 'bf' }).lean();
             await expect(importResult).to.eql([]);
             await expect(conversations).to.eql([]);
+        });
+        it('should import Incoming and wipe the previous ones in existing env', async () => {
+            await Activity.deleteMany({});
+            await Activity.create([{ _id: 'test', test: 'test', projectId: 'bf' }]);
+            const importResult = await handleImportIncoming(
+                [{ ...validIncoming, incoming: validIncomingParsed, env: 'development' }],
+                { ...params, wipeInvolvedCollections: true },
+            );
+            const incoming = await Activity.find({ projectId: 'bf' }).lean();
+            const incomingNoDates = removeDates(incoming);
+            const validIncomingNoDates = removeDates(validIncomingParsed);
+            await expect(importResult).to.eql([]);
+            // we use equalInAnyOrder because the incoming are send to the db in parrallel, so we don't know the order
+            await expect(incomingNoDates).to.deep.equalInAnyOrder(validIncomingNoDates);
         });
         it('should import Incoming  in  existing env', async () => {
             await Activity.deleteMany({});
@@ -345,6 +371,84 @@ if (Meteor.isServer) {
             const slots = await Slots.find({ projectId: 'bf' }).fetch();
             const project = Projects.findOne({ _id: 'bf' });
             await expect(importResult).to.eql([]);
+            await expect(reponses.map(removeId)).to.eql(validDomainsMerged.responses);
+            await expect(slots.map(removeId)).to.deep.equalInAnyOrder(validDomainsMerged.slots);
+            await expect(project.defaultDomain.content).to.eql(`forms:
+  restaurant_form:
+    cuisine:
+      - entity: cuisine
+        type: from_entity
+actions:
+  - action_aaa
+  - action_get_help`);
+        });
+        it('should import domain wipe and not have duplicates', async () => {
+            await Projects.remove({});
+            await BotResponses.deleteMany({});
+            await Slots.remove({});
+
+            await Projects.insert({
+                _id: 'bf',
+                name: 'test',
+                languages: ['en'],
+                defaultLanguage: 'en',
+                defaultDomain: {
+                    content: `forms:
+  restaurant_form:
+    cuisineold:
+      - entity: cuisine
+        type: from_entity`,
+                },
+                namespace: 'bf-ha',
+            });
+            await BotResponses.create({
+                projectId: 'bf',
+                textIndex: 'utter_greet\nSalut!\nHey there!',
+                key: 'utter_greet',
+                values: [
+                    {
+                        lang: 'ru',
+                        sequence: [
+                            {
+                                content: 'text: Здравствуйте\n',
+                            },
+                        ],
+                    },
+                ],
+            });
+            const import1Result = await handleImportDomain(
+                [
+                    {
+                        ...validDomainFr,
+                        ...validDomainFrParsed,
+                    },
+                    {
+                        ...validDomain,
+                        ...validDomainParsed,
+                        actions: [...validDomainParsed.actions, 'action_get_help'],
+                    },
+                ],
+                params,
+            );
+            await expect(import1Result).to.eql([]);
+            const import2Result = await handleImportDomain(
+                [
+                    {
+                        ...validDomainFr,
+                        ...validDomainFrParsed,
+                    },
+                    {
+                        ...validDomain,
+                        ...validDomainParsed,
+                        actions: [...validDomainParsed.actions, 'action_get_help'],
+                    },
+                ],
+                { ...params, wipeInvolvedCollections: true },
+            );
+            await expect(import2Result).to.eql([]);
+            const reponses = await BotResponses.find({ projectId: 'bf' }).lean();
+            const slots = await Slots.find({ projectId: 'bf' }).fetch();
+            const project = Projects.findOne({ _id: 'bf' });
             await expect(reponses.map(removeId)).to.eql(validDomainsMerged.responses);
             await expect(slots.map(removeId)).to.deep.equalInAnyOrder(validDomainsMerged.slots);
             await expect(project.defaultDomain.content).to.eql(`forms:
