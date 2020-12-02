@@ -116,6 +116,7 @@
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.6",
     "chai": "^4.1.2",
+    "chai-exclude": "^2.0.2",
     "chromedriver": "^85.0.0",
     "commitizen": "^3.0.7",
     "core-js": "^2.5.3",
