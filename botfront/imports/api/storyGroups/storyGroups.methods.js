@@ -7,55 +7,53 @@ import { Projects } from '../project/project.collection';
 import { Stories } from '../story/stories.collection';
 import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo/botResponses';
 
-export const createDefaultStoryGroup = (projectId) => {
+export const createDefaultStoryGroup = async (projectId) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
-    Meteor.call(
-        'storyGroups.insert',
-        {
-            name: 'Example group',
+    try {
+        const storyGroupId = await Meteor.callWithPromise(
+            'storyGroups.insert',
+            {
+                name: 'Example group',
+                projectId,
+            },
+        );
+        await Meteor.callWithPromise('stories.insert', {
+            type: 'rule',
+            steps: [
+                { intent: 'chitchat.greet' },
+                { action: 'utter_hi' },
+            ],
+            title: 'Greetings',
+            storyGroupId,
             projectId,
-        },
-        (err, storyGroupId) => {
-            if (!err) {
-                Meteor.call('stories.insert', {
-                    type: 'rule',
-                    steps: [
-                        { intent: 'chitchat.greet' },
-                        { action: 'utter_hi' },
-                    ],
-                    title: 'Greetings',
-                    storyGroupId,
-                    projectId,
-                    events: ['utter_hi'],
-                });
-                Meteor.call('stories.insert', {
-                    type: 'rule',
-                    steps: [
-                        { intent: 'chitchat.bye' },
-                        { action: 'utter_bye' },
-                    ],
-                    title: 'Farewells',
-                    storyGroupId,
-                    projectId,
-                    events: ['utter_bye'],
-                });
-                Meteor.call('stories.insert', {
-                    type: 'rule',
-                    steps: [
-                        { intent: 'get_started' },
-                        { action: 'utter_get_started' },
-                    ],
-                    title: 'Get started',
-                    storyGroupId,
-                    projectId,
-                    events: ['utter_get_started'],
-                });
-            } else {
-                // eslint-disable-next-line no-console
-                console.log(err);
-            }
-        },
-    );
+            events: ['utter_hi'],
+        });
+        await Meteor.callWithPromise('stories.insert', {
+            type: 'rule',
+            steps: [
+                { intent: 'chitchat.bye' },
+                { action: 'utter_bye' },
+            ],
+            title: 'Farewells',
+            storyGroupId,
+            projectId,
+            events: ['utter_bye'],
+        });
+        await Meteor.callWithPromise('stories.insert', {
+            type: 'rule',
+            steps: [
+                { intent: 'get_started' },
+                { action: 'utter_get_started' },
+            ],
+            title: 'Get started',
+            storyGroupId,
+            projectId,
+            events: ['utter_get_started'],
+        });
+    } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(e);
+    }
 };
 
 function handleError(e) {

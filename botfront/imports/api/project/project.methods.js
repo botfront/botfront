@@ -29,7 +29,7 @@ if (Meteor.isServer) {
                 createEndpoints({ _id, ...item });
                 createCredentials({ _id, ...item });
                 createPolicies({ _id, ...item });
-                createDefaultStoryGroup(_id);
+                await createDefaultStoryGroup(_id);
                 await createInstance({ _id, ...item });
                 return _id;
             } catch (e) {
