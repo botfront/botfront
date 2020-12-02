@@ -124,7 +124,7 @@ if (Meteor.isServer) {
                     { projectId },
                     { fields: { endpoints: 1 } },
                 ).endpoints;
-                if (options.incoming) incoming = await Activity.find({ projectId }).lean();
+                if (options.incoming) incoming = await Activity.find({ projectId }, { _id: 0 }).lean();
                 if (options.conversations) conversations = await Conversations.find({ projectId }).lean();
             }
 
@@ -169,7 +169,10 @@ if (Meteor.isServer) {
             delete configData.defaultDomain;
             delete configData.storyGroups;
             delete configData.languages;
+            delete configData.nlu_models;
+            delete configData.updatedAt;
             const instance = await Instances.findOne({ projectId });
+            delete instance._id;
             const bfconfig = { ...configData, instance };
             const bfconfigYaml = safeDump(bfconfig);
 

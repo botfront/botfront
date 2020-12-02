@@ -20,7 +20,9 @@ const clearEmojisFromExample = (example) => {
 
 const createSortObject = (fieldName = 'intent', order = 'ASC') => {
     const orderMongo = order === 'ASC' ? 1 : -1;
-    return { 'metadata.draft': -1, [fieldName]: orderMongo };
+    // order (implicitly) by draft first, then using explicit sort,
+    // then (implicitly) by text
+    return { 'metadata.draft': -1, [fieldName]: orderMongo, text: 1 };
 };
 
 const createFilterObject = (

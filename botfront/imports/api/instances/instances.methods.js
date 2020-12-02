@@ -77,8 +77,8 @@ export const getNluDataAndConfig = async (projectId, language, intents) => {
         language,
         intents,
         pageSize: -1,
-        sortKey: 'metadata.canonical',
-        order: 'DESC',
+        sortKey: 'intent',
+        order: 'ASC',
     });
     const common_examples = examples.filter(e => !e?.metadata?.draft);
     const missingExamples = Math.abs(Math.min(0, common_examples.length - 2));
@@ -194,23 +194,25 @@ if (Meteor.isServer) {
             }
         },
 
-        async 'rasa.getTrainingPayload'(
-            projectId,
-            { language = '' } = {},
-        ) {
+        async 'rasa.getTrainingPayload'(projectId, { language = '' } = {}) {
             check(projectId, String);
             check(language, String);
 
-            const { policies: corePolicies, augmentationFactor } = CorePolicies.findOne({ projectId }, { policies: 1, augmentationFactor: 1 });
+            const { policies: corePolicies, augmentationFactor } = CorePolicies.findOne(
+                { projectId },
+                { policies: 1, augmentationFactor: 1 },
+            );
             const nlu = {};
             const config = {};
 
             const {
-                stories, rules, domain, wasPartial,
+                stories = [], rules = [], domain, wasPartial,
             } = await getFragmentsAndDomain(
                 projectId,
                 language,
             );
+            stories.sort((a, b) => a.story.localeCompare(b.story));
+            rules.sort((a, b) => a.rule.localeCompare(b.rule));
             const selectedIntents = wasPartial
                 ? yaml.safeLoad(domain).intents
                 : undefined;
@@ -228,7 +230,7 @@ if (Meteor.isServer) {
                 config[lang] = `${configForLang}\n\n${corePolicies}`;
             }
             const payload = {
-                domain: yaml.safeDump(domain, { skipInvalid: true }),
+                domain: yaml.safeDump(domain, { skipInvalid: true, sortKeys: true }),
                 stories,
                 rules,
                 nlu,
@@ -251,9 +253,15 @@ if (Meteor.isServer) {
             appMethodLogger.debug(`Training project ${projectId}...`);
             const t0 = performance.now();
             try {
-                const { stories = [], rules = [], ...payload } = await Meteor.call('rasa.getTrainingPayload', projectId);
-                payload.fragments = yaml.safeDump({ stories, rules }, { skipInvalid: true });
-                
+                const { stories = [], rules = [], ...payload } = await Meteor.call(
+                    'rasa.getTrainingPayload',
+                    projectId,
+                );
+                payload.fragments = yaml.safeDump(
+                    { stories, rules },
+                    { skipInvalid: true },
+                );
+
                 const instance = await Instances.findOne({ projectId });
                 const trainingClient = axios.create({
                     baseURL: instance.host,
@@ -362,10 +370,7 @@ if (Meteor.isServer) {
                     { field: { _id: 1 } },
                 );
                 if (evaluations) {
-                    Evaluations.update(
-                        { _id: evaluations._id },
-                        { $set: { results } },
-                    );
+                    Evaluations.update({ _id: evaluations._id }, { $set: { results } });
                 } else {
                     Evaluations.insert({ results, projectId, language });
                 }

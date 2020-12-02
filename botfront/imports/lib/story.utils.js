@@ -173,9 +173,9 @@ export const extractDomain = ({
         });
         return acc;
     }, initialDomain);
-    domain.actions = Array.from(domain.actions);
-    domain.intents = Array.from(domain.intents);
-    domain.entities = Array.from(domain.entities);
+    domain.actions = Array.from(domain.actions).sort();
+    domain.intents = Array.from(domain.intents).sort();
+    domain.entities = Array.from(domain.entities).sort();
     return domain;
 };
 
