@@ -38,7 +38,7 @@ export const findExampleMatch = (example, item, itemEntities) => {
 export const canonicalizeExamples = (newExamples, currentExamples) => {
     const seen = {};
     // if there are examples explicitly marked canonical, process them first
-    newExamples.sort((a, b) => b.metadata?.canonical - a.metadata?.canonical);
+    newExamples.sort((a, b) => !!b.metadata?.canonical - !!a.metadata?.canonical);
     const canonicalizedItems = newExamples.map((item) => {
         const itemEntities = getEntitySummary(item.entities);
         if (

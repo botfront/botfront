@@ -95,12 +95,15 @@ export const getNluDataAndConfig = async (projectId, language, intents) => {
         rasa_nlu_data: {
             common_examples: common_examples.map(
                 ({
-                    text, intent, entities = [], metadata = {},
+                    text, intent, entities = [], metadata: { canonical, ...metadata } = {},
                 }) => ({
                     text,
                     intent,
                     entities: entities.map(({ _id: _, ...rest }) => dropNullValuesFromObject(rest)),
-                    metadata,
+                    metadata: {
+                        ...metadata,
+                        ...(canonical ? { canonical } : {}),
+                    },
                 }),
             ),
             entity_synonyms: entity_synonyms.map(copyAndFilter),
