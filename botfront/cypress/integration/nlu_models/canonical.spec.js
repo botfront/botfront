@@ -18,25 +18,17 @@ describe('NLU canonical examples', function () {
             { text: 'hello', intent: 'chitchat.greet' },
             { text: 'BONJOUR!', intent: 'chitchat.greet' },
         ]);
-        cy.dataCy('icon-gem')
-            .last()
-            .should('not.have.class', 'black');
-        cy.dataCy('icon-gem')
-            .first()
-            .should('have.class', 'black')
+        cy.dataCy('icon-gem', null, '.black')
+            .as('initially-canonical')
             .trigger('mouseover');
         cy.get('.popup').should('exist');
         cy.get('.popup .content').should('have.text', 'This example is canonical for the intent chitchat.greet');
-        cy.dataCy('icon-gem')
-            .last()
+        cy.dataCy('icon-gem', null, '.grey')
+            .as('initially-noncanonical')
             .click({ force: true });
         cy.wait(100);
-        cy.dataCy('icon-gem')
-            .last()
-            .should('have.class', 'black');
-        cy.dataCy('icon-gem')
-            .first()
-            .should('not.have.class', 'black');
+        cy.get('@initially-canonical').should('have.class', 'grey');
+        cy.get('@initially-noncanonical').should('have.class', 'black');
     });
 
     it('should not be possible to delete or edit a canonical example', function () {

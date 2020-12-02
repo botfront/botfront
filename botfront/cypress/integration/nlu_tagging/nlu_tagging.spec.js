@@ -18,7 +18,7 @@ describe('nlu tagging in training data', function() {
     it('should be able to change the intent with a popup', function() {
         cy.visit('/project/bf/nlu/models');
         cy.get('.row:contains(chitchat.presentation)')
-            .eq(1)
+            .eq(0)
             .findCy('intent-label')
             .click({ force: true })
             .type('chitchat.tell_me_a_joke{enter}');
@@ -28,7 +28,7 @@ describe('nlu tagging in training data', function() {
     it('should delete the training data', function() {
         cy.visit('/project/bf/nlu/models');
         cy.get('.row:contains(chitchat.presentation)')
-            .eq(1)
+            .eq(0)
             .findCy('icon-trash')
             .click({ force: true });
         cy.get('.row:contains(chitchat.presentation)').should('have.length', 1);
@@ -37,7 +37,7 @@ describe('nlu tagging in training data', function() {
     it('should be able to change an entity with a popup', function() {
         cy.visit('/project/bf/nlu/models');
         cy.get('.row:contains(chitchat.presentation)')
-            .eq(1)
+            .eq(0)
             .findCy('entity-label')
             .click();
         cy.dataCy('entity-dropdown')
