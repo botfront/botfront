@@ -3,12 +3,16 @@ import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import {
-    Button, Popup, Icon, Checkbox,
+    Button, Popup, Icon, Checkbox, Dropdown,
 } from 'semantic-ui-react';
 import { get } from 'lodash';
 import { wrapMeteorCallback } from './Errors';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Projects } from '../../../api/project/project.collection';
+import { ProjectContext } from '../../layouts/context';
+import { can, Can } from '../../../lib/scopes';
+import { languages } from '../../../lib/languages';
+
 
 class TrainButton extends React.Component {
     copyToClipboard = () => {
@@ -21,37 +25,81 @@ class TrainButton extends React.Component {
         document.body.removeChild(dummy);
     }
 
-    train = () => {
+    train = (target = 'development') => {
         const { projectId } = this.props;
         Meteor.call('project.markTrainingStarted', projectId);
-        Meteor.call('rasa.train', projectId, wrapMeteorCallback());
+        Meteor.call('rasa.train', projectId, target, wrapMeteorCallback());
     };
 
-renderButton = (project, instance, popupContent, status, partialTrainning) => (
-    <Popup
-        content={popupContent}
-        trigger={
-            (
-                <div>
-                    <Button
-                        color={partialTrainning ? 'yellow' : 'blue'}
-                        icon={partialTrainning ? 'eye' : 'grid layout'}
-                        content={partialTrainning ? 'Partial training' : 'Train everything'}
-                        labelPosition='left'
-                        disabled={status === 'training' || status === 'notReachable' || !instance}
-                        loading={status === 'training'}
-                        onClick={this.train}
-                        data-cy='train-button'
-                    />
-                </div>
-            )
-        }
-        // Popup is disabled while training
-        disabled={status === 'training' || popupContent === ''}
-        inverted
-        size='tiny'
-    />
-);
+    runTests = (projectId, language) => {
+        Meteor.call('stories.runTests', projectId, { language });
+    }
+
+    showModal = (env, visible) => {
+        const modalOpen = this.state;
+        this.setState({ modalOpen: { ...modalOpen, [env]: visible } });
+    }
+
+    renderDeploymentOptions = () => (<></>);
+
+    renderTestingOptions = () => {
+        const { language, projectId } = this.props;
+        const languageName = languages[language]?.name;
+        return (
+            <>
+                <Dropdown.Item onClick={() => this.runTests(projectId)}>
+                    Run all tests
+                </Dropdown.Item>
+                {!!languageName && (
+                    <Dropdown.Item onClick={() => this.runTests(projectId, language)}>
+                    Run all {languages[language]?.name} tests
+                    </Dropdown.Item>
+                )
+                }
+            </>
+        );
+    }
+
+    renderDropdownMenu = trainingInProgress => (
+        <Dropdown
+            className='button icon'
+            data-cy='train-and-deploy'
+            floating
+            disabled={trainingInProgress}
+            trigger={<React.Fragment />}
+        >
+            <Dropdown.Menu>
+                {this.renderTestingOptions()}
+                {this.renderDeploymentOptions(trainingInProgress)}
+            </Dropdown.Menu>
+        </Dropdown>
+    )
+
+    renderButton = (instance, popupContent, status, partialTrainning) => (
+        <Popup
+            content={popupContent}
+            trigger={
+                (
+                    <Button.Group color={partialTrainning ? 'yellow' : 'blue'}>
+                        <Button
+                            icon={partialTrainning ? 'eye' : 'grid layout'}
+                            content={partialTrainning ? 'Partial training' : 'Train everything'}
+                            labelPosition='left'
+                            disabled={status === 'training' || status === 'notReachable' || !instance}
+                            loading={status === 'training'}
+                            onClick={() => { this.train(); }}
+                            data-cy='train-button'
+                        />
+                        {this.renderDropdownMenu(status === 'training' || status === 'notReachable' || !instance)}
+                    </Button.Group>
+                )
+            }
+            // Popup is disabled while training
+            disabled={status === 'training' || popupContent === ''}
+            inverted
+            size='tiny'
+        />
+    );
 
     renderShareLink = () => {
         const {
@@ -68,11 +116,13 @@ renderButton = (project, instance, popupContent, status, partialTrainning) => (
                         link
                     />
                 )}
+                basic
                 hoverable
                 content={(
                     <div>
                         <Checkbox
                             toggle
+                            disabled={!can('share:x', projectId)}
                             checked={enableSharing}
                             data-cy='toggle-bot-sharing'
                             onChange={() => Meteor.call(
@@ -99,12 +149,14 @@ renderButton = (project, instance, popupContent, status, partialTrainning) => (
 
     render() {
         const {
-            project, instance, popupContent, ready, status, partialTrainning,
+            instance, popupContent, ready, status, partialTrainning,
         } = this.props;
         return (
             ready && (
                 <div className='side-by-side middle'>
-                    {this.renderButton(project, instance, popupContent, status, partialTrainning)}
+                    <Can I='nlu-data:x'>
+                        {this.renderButton(instance, popupContent, status, partialTrainning)}
+                    </Can>
                     {this.renderShareLink()}
                 </div>
             )
@@ -120,6 +172,7 @@ TrainButton.propTypes = {
     status: PropTypes.string,
     partialTrainning: PropTypes.bool,
     ready: PropTypes.bool.isRequired,
+    language: PropTypes.string.isRequired,
 };
 
 TrainButton.defaultProps = {
@@ -128,6 +181,19 @@ TrainButton.defaultProps = {
     status: '',
     partialTrainning: false,
 };
+
+const TrainWithContext = props => (
+    <ProjectContext.Consumer>
+        {({ project, language }) => (
+            <TrainButton
+                {...props}
+                environments={project.deploymentEnvironments}
+                language={language}
+            />
+        )}
+    </ProjectContext.Consumer>
+);
+
 
 export default withTracker((props) => {
     // Gets the required number of selected storygroups and sets the content and popup for the train button
@@ -158,4 +224,4 @@ export default withTracker((props) => {
         status,
         partialTrainning,
     };
-})(TrainButton);
+})(TrainWithContext);

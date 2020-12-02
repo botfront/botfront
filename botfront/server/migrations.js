@@ -495,6 +495,32 @@ Migrations.add({
     },
 });
 
+Migrations.add({
+    version: 13,
+    up: async () => {
+        const projectIds = Projects.find({}, { fields: { _id: 1 } });
+        Promise.all(projectIds.map(({ _id: projectId }) => {
+            const failingTestsGroup = StoryGroups.findOne({
+                projectId,
+                'smatGroup.query': '{ "testResults": { "success": false } }',
+            });
+            if (failingTestsGroup) return;
+            const _id = 'FAILING_TESTS_SMART_GROUP';
+            StoryGroups.insert({
+                name: 'Failing tests',
+                _id: 'FAILING_TESTS_SMART_GROUP',
+                projectId,
+                smartGroup: { prefix: 'failing', query: '{ "success": false }' },
+                isExpanded: false,
+                pinned: true,
+                children: [],
+            });
+            // migrate
+            Projects.update({ projectId }, { $push: { storyGroups: _id } });
+        }));
+    },
+});
+
 Meteor.startup(() => {
     Migrations.migrateTo('latest');
 });

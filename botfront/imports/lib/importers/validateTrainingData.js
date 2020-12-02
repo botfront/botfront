@@ -48,6 +48,7 @@ export class TrainingDataValidator {
         wipeProject,
         summary,
         projectId,
+        timestamp,
         ...rest
     }) {
         this.wipeInvolvedCollections = wipeInvolvedCollections;
@@ -60,6 +61,7 @@ export class TrainingDataValidator {
         this.summary = summary;
         this.unUsedParams = rest;
         this.projectId = projectId;
+        this.timestamp = timestamp;
         // various state variables to count, deduplicate and validate
         this.existingFragments = {};
         this.existingNlu = {};
@@ -102,10 +104,7 @@ export class TrainingDataValidator {
             return this.groupNameMappings[name];
         }
         if (this.existingStoryGroups.find(esg => esg.name === name)) {
-            newName = `${name} (${new Date()
-                .toISOString()
-                .replace('T', ' ')
-                .replace('Z', '')})`;
+            newName = `${name} (${this.timestamp})`;
             this.groupNameMappings[name] = newName;
         }
         return newName;
@@ -819,6 +818,7 @@ export class TrainingDataValidator {
                 storyGroupsUsed: this.existingStoryGroups.filter(({ name }) => Object.keys(this.existingFragments).includes(name)),
                 summary: this.summary,
                 projectId: this.projectId,
+                timestamp: this.timestamp,
                 actionsFromFragments,
             },
         ];

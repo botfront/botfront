@@ -246,12 +246,16 @@ const StoryEditorContainer = ({
         if (!branches[path.join()]) {
             return null;
         }
-        if (story.type === 'test_case' && story.testResults?.success === false) {
+        if (story.type === 'test_case' && story.success === false) {
             return (
-                <StoryDif
-                    expected={story.steps}
-                    actual={story?.testResults?.steps || []}
-                />
+                <StoryErrorBoundary>
+                    <StoryVisualEditor
+                        onSave={steps => saveStory(path, { steps })}
+                        story={story.testResults}
+                        getResponseLocations={getResponseLocations}
+                        mode={story.type === 'rule' ? 'rule_steps' : story.type}
+                    />
+                </StoryErrorBoundary>
             );
         }
         return (

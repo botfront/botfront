@@ -288,6 +288,7 @@ export default class StoryVisualEditor extends React.Component {
                                 responseLocations={responseLocations[name]}
                                 loadingResponseLocations={loadingResponseLocations}
                                 editable={mode !== 'test_case'}
+                                theme={line.theme}
                             />
                         </ExceptionWrapper>
                         {this.renderAddLine(index)}
@@ -309,6 +310,7 @@ export default class StoryVisualEditor extends React.Component {
                             onChange={v => this.handleSaveUserUtterance(index, v)}
                             onDelete={() => this.handleDeleteLine(index)}
                             editable={mode !== 'test_case'}
+                            theme={line.theme}
                         />
                     </ExceptionWrapper>
                     {this.renderAddLine(index)}

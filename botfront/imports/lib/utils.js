@@ -173,3 +173,37 @@ export function cleanDucklingFromExamples(examples) {
         };
     });
 }
+
+
+export const parseTextEntities = (text = '') => {
+    let parsedText = text;
+    const parsedEntities = [];
+    const hasEntity = /\[.*\]{".*":\s*".*"}/g;
+    let charIndex = 0;
+
+    const replaceEntities = (matchedText, relativeStart) => {
+        const start = relativeStart + charIndex;
+        const end = matchedText.replace(/[[]]/g).indexOf(']');
+        const pickupAfter = matchedText.indexOf('"}') + 2;
+        const entityValue = matchedText.slice(1, end);
+        const entityName = matchedText.split(/{"entity":\s*"/)[1].split('"}')[0];
+        const valueLength = end - 1;
+
+        parsedEntities.push({
+            start, end: start + valueLength, entity: entityName, value: entityValue,
+        });
+
+        let newText = `${matchedText.slice(1, end)}${matchedText.slice(pickupAfter)}`;
+
+        if (hasEntity.test(newText)) {
+            charIndex += relativeStart;
+            newText = newText.replace(hasEntity, replaceEntities);
+        }
+        return newText;
+    };
+
+    if (text && hasEntity.test(text)) {
+        parsedText = text.replace(hasEntity, replaceEntities);
+    }
+    return { user: parsedText, entities: parsedEntities };
+};

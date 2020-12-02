@@ -113,7 +113,7 @@ function ConversationViewer (props) {
                     <Icon name='trash' data-cy='conversation-delete' />
                 </Menu.Item>
                 <Menu.Item name='archived' disabled={!ready} active={ready && tracker.status === 'archived'} onClick={handleSaveAsTestCase}>
-                    <Icon name='save' data-cy='save-as-test' />
+                    <Icon name='clipboard check' data-cy='save-as-test' />
                 </Menu.Item>
                 <Menu.Menu position='right'>
                     <Menu.Item name='Text' disabled={!ready} active={ready && active === 'Text'} onClick={handleItemClick}>

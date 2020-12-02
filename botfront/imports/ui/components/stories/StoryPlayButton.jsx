@@ -40,7 +40,7 @@ const StoryPlayButton = (props) => {
 
     const runTestCase = () => {
         if (!storyId) throw new Error('a storyId is required to run a single test');
-        Meteor.call('stories.test', projectId, storyId);
+        Meteor.call('stories.runTests', projectId, { ids: [storyId] });
     };
 
     return (

@@ -37,6 +37,7 @@ const BotResponsesContainer = (props) => {
         responseLocations,
         loadingResponseLocations,
         editable: initialEditable,
+        theme,
     } = props;
     const {
         project: { _id: projectId },
@@ -167,9 +168,11 @@ const BotResponsesContainer = (props) => {
         />
     );
 
+    const renderThemeTag = () => (<span className='bot-response theme-tag'>{theme}</span>);
+
     return (
         <ResponseContext.Provider value={{ name }}>
-            <div className='utterances-container exception-wrapper-target'>
+            <div className={`utterances-container exception-wrapper-target theme-${theme}`}>
                 {!template && (
                     <div className='loading-bot-response'>
                         <Placeholder fluid>
@@ -253,6 +256,7 @@ const BotResponsesContainer = (props) => {
                     )}
                 </div>
                 {renderDynamicResponseName()}
+                {theme !== 'default' && renderThemeTag()}
             </div>
         </ResponseContext.Provider>
     );
@@ -269,6 +273,7 @@ BotResponsesContainer.propTypes = {
     responseLocations: PropTypes.array,
     loadingResponseLocations: PropTypes.bool,
     editable: PropTypes.bool,
+    theme: PropTypes.string,
 };
 
 BotResponsesContainer.defaultProps = {
@@ -282,6 +287,7 @@ BotResponsesContainer.defaultProps = {
     responseLocations: [],
     loadingResponseLocations: false,
     editable: true,
+    theme: 'default',
 };
 
 export default BotResponsesContainer;

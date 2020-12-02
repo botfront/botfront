@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
-import { check } from 'meteor/check';
+import { check, Match } from 'meteor/check';
 
 import { StorySchema, RuleSchema, TestSchema } from './stories.schema';
 
@@ -44,18 +44,26 @@ if (Meteor.isServer) {
         return Stories.find({
             $or: [
                 { projectId: 'bf', type: 'test_case', language },
-                { projectId: 'bf', type: 'test_case', 'testResults.success': false },
+                { projectId: 'bf', type: 'test_case', success: false },
                 { projectId: 'bf', type: { $not: { $eq: 'test_case' } } },
             ],
         }, {
             fields: {
-                title: true, checkpoints: true, storyGroupId: true, type: true,
+                title: true, checkpoints: true, storyGroupId: true, type: true, success: true, language: true,
             },
         });
     });
-    Meteor.publish('stories.events', function(projectId) {
+    Meteor.publish('stories.events', function(projectId, language) {
         check(projectId, String);
-        return Stories.find({ projectId }, { fields: { title: true, events: true } });
+        check(language, Match.Maybe(String));
+        const query = language ? {
+            $or: [
+                { projectId: 'bf', type: 'test_case', language },
+                { projectId: 'bf', type: 'test_case', success: false },
+                { projectId: 'bf', type: { $not: { $eq: 'test_case' } } },
+            ],
+        } : { projectId };
+        return Stories.find(query, { fields: { title: true, events: true } });
     });
 }
 

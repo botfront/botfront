@@ -9,7 +9,7 @@ import { USER_LINE_EDIT_MODE } from '../../../../lib/story.utils';
 
 const UserUtterancesContainer = (props) => {
     const {
-        deletable, value, onChange, onDelete, editable: initialEditable,
+        deletable, value, onChange, onDelete, editable: initialEditable, theme,
     } = props;
     const editable = initialEditable; // EE adds permission check here
 
@@ -17,15 +17,25 @@ const UserUtterancesContainer = (props) => {
 
     const somethingIsBeingInput = useMemo(() => value.some(disjunct => disjunct === USER_LINE_EDIT_MODE), [value]);
 
+    const parseEntity = (entity) => {
+        const {
+            entity: entityName, value: entityValue, start, end,
+        } = entity;
+        if (entityName && entityValue && (start || start === 0) && (end || end === 0)) {
+            return entity;
+        }
+        return {
+            entity: Object.keys(entity)[0],
+            value: entity[Object.keys(entity)[0]],
+        };
+    };
+
     const convertCoreToNlu = ({ user, entities, ...payload } = {}) => ({
         ...payload,
         ...(user ? { text: user } : {}),
         ...(entities
             ? {
-                entities: entities.map(e => ({
-                    entity: Object.keys(e)[0],
-                    value: e[Object.keys(e)[0]],
-                })),
+                entities: entities.map(parseEntity),
             }
             : {}),
     });
@@ -67,6 +77,8 @@ const UserUtterancesContainer = (props) => {
         ]);
     };
 
+    const renderThemeTag = () => (<span className='user-utterance theme-tag'>{theme}</span>);
+
     const renderResponse = (payload, index) => (
         <React.Fragment
             key={payload ? `${payload.intent}${JSON.stringify(payload.entities)}` : 'new'}
@@ -102,11 +114,12 @@ const UserUtterancesContainer = (props) => {
     );
 
     return (
-        <div className='utterances-container exception-wrapper-target'>
+        <div className={`utterances-container exception-wrapper-target theme-${theme}`}>
             {value.map(renderResponse)}
             <div className='side-by-side right narrow top-right'>
                 {deletable && onDelete && editable && <IconButton onClick={onDelete} icon='trash' />}
             </div>
+            {theme !== 'default' && renderThemeTag()}
         </div>
     );
 };
@@ -117,6 +130,7 @@ UserUtterancesContainer.propTypes = {
     onChange: PropTypes.func,
     onDelete: PropTypes.func,
     editable: PropTypes.bool,
+    theme: PropTypes.string,
 };
 
 UserUtterancesContainer.defaultProps = {
@@ -124,6 +138,7 @@ UserUtterancesContainer.defaultProps = {
     onChange: () => {},
     onDelete: null,
     editable: true,
+    theme: 'default',
 };
 
 export default UserUtterancesContainer;

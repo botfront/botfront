@@ -94,14 +94,6 @@ export const RuleSchema = new SimpleSchema({
     },
 });
 
-const TestResult = new SimpleSchema({
-    success: {
-        type: Boolean,
-        optional: true,
-    },
-    ...stepFields,
-});
-
 export const TestSchema = new SimpleSchema({
     ...topLevelFields,
     ...commonFields,
@@ -110,8 +102,15 @@ export const TestSchema = new SimpleSchema({
         allowedValues: ['test_case'],
     },
     testResults: {
+        type: Array,
+        optional: true,
+    },
+    'testResults.$': {
         type: Object,
         blackbox: true,
+    },
+    success: {
+        type: Boolean,
         optional: true,
     },
     language: {

@@ -140,7 +140,7 @@ Statistics.propTypes = {
 
 const StatisticsWithStoryCount = withTracker((props) => {
     const { projectId, workingLanguage: language } = props;
-    const storiesHandler = Meteor.subscribe('stories.light', projectId);
+    const storiesHandler = Meteor.subscribe('stories.light', projectId, language);
     const { data } = useQuery(GET_EXAMPLE_COUNT, { variables: { projectId, language } });
     const { totalLength: examples = 0 } = data?.examples?.pageInfo || {};
 

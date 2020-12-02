@@ -327,20 +327,40 @@ Stories.propTypes = {
 
 Stories.defaultProps = {};
 
-const StoriesWithTracker = withRouter(withTracker((props) => {
-    const { projectId, selectedLanguage } = props;
-    const storiesHandler = Meteor.subscribe('stories.light', projectId, selectedLanguage);
-    const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
+const StoriesWithTracker = withRouter(
+    withTracker((props) => {
+        const { projectId, selectedLanguage } = props;
+        const storiesHandler = Meteor.subscribe('stories.light', projectId, selectedLanguage);
+        const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
 
-    const storyGroups = StoryGroups.find().fetch();
-    const stories = StoriesCollection.find().fetch();
+        const regularStoryGroups = StoryGroups.find({ smartGroup: { $exists: false } }).fetch();
+        const regularStories = StoriesCollection.find().fetch();
 
-    return {
-        ready: storyGroupsHandler.ready() && storiesHandler.ready(),
-        storyGroups,
-        stories,
-    };
-})(Stories));
+        let smartStories = [];
+        const smartStoryGroups = StoryGroups.find({ smartGroup: { $exists: true } }).fetch()
+            .map((sg) => {
+                if (!sg.smartGroup.query) return sg;
+                const results = StoriesCollection.find(JSON.parse(sg.smartGroup.query)).fetch()
+                    .map(story => ({
+                        ...story,
+                        _id: `${sg.smartGroup.prefix}_SMART_${story._id}`,
+                        storyGroupId: sg._id,
+                        smart: true,
+                    }));
+                smartStories = smartStories.concat(results);
+                return { ...sg, children: results.map(({ _id }) => _id) };
+            });
+
+        const storyGroups = [...regularStoryGroups, ...smartStoryGroups];
+        const stories = [...regularStories, ...smartStories];
+
+        return {
+            ready: storyGroupsHandler.ready() && storiesHandler.ready(),
+            storyGroups,
+            stories,
+        };
+    })(Stories),
+);
 
 const mapStateToProps = state => ({
     storyMenuSelection: state.stories.get('storiesCurrent').toJS(),

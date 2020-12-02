@@ -10,7 +10,7 @@ const StoryPrefix = (props) => {
     const getContent = () => {
         switch (fragment?.type) {
         case 'test_case':
-            if (fragment?.testResults?.success === false) {
+            if (fragment?.success === false) {
                 return '✘✘';
             }
             return '✔✔';
@@ -24,7 +24,7 @@ const StoryPrefix = (props) => {
 
     const getConditionalClassNames = () => {
         let classNames = '';
-        if (fragment?.testResults?.success === false) {
+        if (fragment?.success === false) {
             classNames = `${classNames} failing-test-case-prefix`;
         }
         return classNames;

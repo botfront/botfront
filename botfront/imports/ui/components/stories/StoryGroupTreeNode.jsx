@@ -121,7 +121,7 @@ const StoryGroupTreeNode = (props) => {
             <Dropdown.Item
                 content={(
                     <>
-                        <StoryPrefix type={fragmentType} />
+                        <StoryPrefix type={fragmentType} fragment={item} />
                         {title}
                     </>
                 )}
@@ -237,7 +237,7 @@ const StoryGroupTreeNode = (props) => {
             ref={provided.innerRef}
             {...provided.draggableProps}
             tabIndex={0} // eslint-disable-line jsx-a11y/no-noninteractive-tabindex
-            className={`item-focus-holder ${item.smartGroup ? 'blue' : ''}`}
+            className={`item-focus-holder ${item.smartGroup || isSmartNode ? 'blue' : ''}`}
             id={`story-menu-item-${item.id}`}
             type={type}
             data-pinned={!!item.pinned}
@@ -299,7 +299,7 @@ const StoryGroupTreeNode = (props) => {
                         </>
                     ) : (
                         <span
-                            className={`item-name ${
+                            className={`item-name ${item.success === false ? 'failing-test-case-title' : ''}${
                                 !isPublished && ['story', 'rule'].includes(type) && showPublish
                                     ? 'grey'
                                     : ''

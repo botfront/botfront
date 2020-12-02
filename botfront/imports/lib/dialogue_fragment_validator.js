@@ -91,7 +91,7 @@ export class DialogueFragmentValidator {
         });
     };
 
-    validateEntityOrSlotList = (list, index, message) => {
+    validateSlotList = (list, index, message) => {
         if (!Array.isArray(list)) {
             this.addAnnotation(index, message);
             return; // fatal
@@ -109,6 +109,34 @@ export class DialogueFragmentValidator {
         });
     };
 
+    EntityKeyCheck = (entity) => {
+        const {
+            start, end, entity: entityName, value,
+        } = entity;
+        return (
+            ((!start && start !== 0) || (!end && end !== 0) || !entityName || !value)
+            && Object.keys(entity).length !== 1
+        );
+    }
+
+    validateEntityList = (list, index, message) => {
+        if (!Array.isArray(list)) {
+            this.addAnnotation(index, message);
+            return; // fatal
+        }
+        list.forEach((element, subindex) => {
+            const actualIndex = index + 1 + subindex;
+            if (
+                !element
+                || typeof element !== 'object'
+                || Array.isArray(element)
+                || this.EntityKeyCheck(element)
+            ) {
+                this.addAnnotation(actualIndex, message);
+            }
+        });
+    }
+
     validateIntentStep = (step, index) => {
         if (this.mode === 'rule_condition') {
             this.addAnnotation(index, 'Intent step not supported in rule condition');
@@ -117,10 +145,10 @@ export class DialogueFragmentValidator {
         this.checkKeyAndValuesOfStep(step, index, INTENT_KEYS, ['entities']);
         const entities = Object.keys(step).findIndex(k => k === 'entities');
         if (entities > -1) {
-            this.validateEntityOrSlotList(
+            this.validateEntityList(
                 step.entities,
                 index + entities,
-                'Entities should be key-value pairs',
+                'Entities should be key-value pairs or objects with the keys entity, value, start, and end',
             );
         }
     };
@@ -176,7 +204,7 @@ export class DialogueFragmentValidator {
 
     validateSlotWasSetStep = (step, index) => {
         this.checkKeyAndValuesOfStep(step, index, ['slot_was_set'], ['slot_was_set']);
-        this.validateEntityOrSlotList(
+        this.validateSlotList(
             step.slot_was_set,
             index,
             'Slot_was_set step should be a list of slot-value pairs',

@@ -1,7 +1,7 @@
 import { isEqual } from 'lodash';
 
-export const encodeEntityAsText = (text, entities) => {
-    if (!entities) return text;
+export const encodeEntitiesAsText = (text, entities) => {
+    if (!entities || !Array.isArray(entities)) return text;
     let encodedText = '';
     let prevEnd = 0;
     const sorted = entities.sort((a, b) => {
@@ -137,4 +137,24 @@ export const compareStorySteps = (expectedSteps, actualSteps) => {
     const comparedBlocks = expectedBlocks.map((expected, i) => compareBlocks(expected, actualBlocks[i]));
     const mergedBlocks = mergeBlocks(comparedBlocks);
     return mergedBlocks;
+};
+
+export const formatTestCaseForRasa = (testCase, storyGroupName) => {
+    const story = testCase.title;
+    const steps = testCase.steps.map((step) => {
+        if (step.user) {
+            const user = encodeEntitiesAsText(step.user, step.entities);
+            return { user, intent: step.intent };
+        }
+        return step;
+    });
+    const metadata = {
+        group: storyGroupName,
+        language: testCase.language,
+    };
+    return {
+        story,
+        steps,
+        metadata,
+    };
 };

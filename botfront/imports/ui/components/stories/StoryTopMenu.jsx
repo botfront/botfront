@@ -40,7 +40,7 @@ const StoryTopMenu = ({
     const [confirmPopupOpen, setConfirmPopupOpen] = useState(false);
     const [confirmOverwriteOpen, setConfirmOverwriteOpen] = useState(false);
 
-    const testCaseFailing = useMemo(() => type === 'test_case' && fragment?.testResults?.success === false, [type, fragment]);
+    const testCaseFailing = useMemo(() => type === 'test_case' && fragment.success === false, [type, fragment]);
 
     useEffect(() => setNewTitle(title), [title]);
 
@@ -95,7 +95,7 @@ const StoryTopMenu = ({
         return (
             <Label className='exception-label' color='red' data-cy='top-menu-error-alert'>
                 <Icon name='times circle' />
-                {errors} Error{pluralize}
+                {errors}{!testCaseFailing && ` Error${pluralize}`}
             </Label>
         );
     };
@@ -207,9 +207,7 @@ const StoryTopMenu = ({
             open={confirmOverwriteOpen && testCaseFailing}
             onCancel={() => setConfirmOverwriteOpen(false)}
             onConfirm={() => {
-                Meteor.call('stories.update', {
-                    ...fragment, steps: fragment.testResults.steps, testResults: { ...fragment.testResults, success: true },
-                });
+                Meteor.call('test_case.overwrite', fragment.projectId, fragment._id);
                 setConfirmOverwriteOpen(false);
             }}
         />
@@ -294,12 +292,12 @@ const StoryTopMenu = ({
             )}
             {testCaseFailing && (
                 <Message
-                    className='top-menu-banner test-case-failing-message'
+                    className='top-menu-banner'
                     attached
                     error
                     data-cy='connected-to'
                 >
-                    <span className='failure-message'>
+                    <span className='test-failure-message'>
                         The most recent run of this test failed.
                     </span>
                 </Message>

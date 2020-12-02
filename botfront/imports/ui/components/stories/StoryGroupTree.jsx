@@ -121,7 +121,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
             };
         });
         storyGroups.sort((a, b) => !!b.pinned - !!a.pinned).forEach(({
-            _id, name, children, ...n
+            _id, name, children = [], ...n
         }) => {
             /*
                 if an there is no item corresponding to an id in children the tree crashes.

@@ -15,7 +15,7 @@ function UserUtteranceViewer(props) {
         value, onChange, disableEditing, showIntent, disabled, onClick,
     } = props;
 
-    const { text = '', intent = '', entities = [] } = useMemo(() => parseTextEntities(value), [value]);
+    const { text = '', intent = '', entities = [] } = value;
 
     const [textSelection, setSelection] = useState(null);
     const mouseDown = useRef(false);

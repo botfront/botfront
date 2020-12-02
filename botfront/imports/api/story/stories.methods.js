@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { check, Match } from 'meteor/check';
 import uuidv4 from 'uuid/v4';
+import shortid from 'shortid';
 import axios from 'axios';
 import { indexStory } from './stories.index';
 import { Instances } from '../instances/instances.collection';
@@ -193,7 +194,7 @@ Meteor.methods({
         const newTestStory = {
             type: 'test_case',
             storyGroupId: storyGroup._id,
-            title: `test_story_${uuidv4()}`,
+            title: `test_story_${shortid.generate()}`,
             projectId,
             steps,
             language,
@@ -201,31 +202,56 @@ Meteor.methods({
         await Meteor.callWithPromise('stories.insert', newTestStory);
     },
 
-    async 'stories.test'(projectId, ids) {
+    async 'stories.runTests'(projectId, options = {}) {
         check(projectId, String);
-        check(ids, Match.Maybe(Array));
+        check(options, Object);
+        const { ids, language } = options;
         const query = {
             type: 'test_case',
             projectId,
             ...(ids?.length > 0 ? { _id: { $in: ids } } : {}),
+            ...(language ? { language } : {}),
         };
         const testCases = Stories.find({ ...query }, { fields: { _id: 1, steps: 1 } })
-            .map(({ _id, steps, language }) => ({
+            .map(({
+                _id, steps, language: testLanguage,
+            }) => ({
                 _id,
                 steps,
-                language,
+                language: testLanguage,
             }));
         const instance = await Instances.findOne({ projectId });
-
+        if (!testCases.length) return;
         const client = axios.create({
             baseURL: instance.host,
             timeout: 100 * 1000,
         });
         await client.request({
             url: '/webhooks/test_case/run',
-            data: { test_cases: testCases, language: 'en' },
+            data: { test_cases: testCases, project_id: projectId },
             method: 'post',
         });
-        return { testsFinished: true };
+    },
+
+    async 'test_case.overwrite'(projectId, storyId) {
+        check(projectId, String);
+        check(storyId, String);
+        const story = Stories.findOne({ projectId, _id: storyId }, {
+            fields: {
+                _id: 1, projectId: 1, testResults: 1, success: 1,
+            },
+        });
+        const updatedSteps = story.testResults.reduce((acc, step) => {
+            const updatedStep = step;
+            if (!step.theme || step.theme === 'actual') {
+                delete updatedStep.theme;
+                return [...acc, updatedStep];
+            }
+            return acc;
+        }, []);
+        const update = {
+            ...story, steps: updatedSteps, success: true, testResults: [],
+        };
+        Meteor.call('stories.update', update);
     },
 });

@@ -7,17 +7,18 @@ type Query {
 }
 
 type Mutation {
-    upsertTestResults(results: [TestResult]): AllGood,
-    testMutation(data: Boolean!): AllGood
+    upsertTestResults(results: [TestCaseUpdate]): TestModificationResponse,
 }
 
-type AllGood { 
+type TestModificationResponse { 
     success: Boolean!
 }
-input TestResult {
+
+input TestCaseUpdate {
     _id: String!,
+    projectId: String!,
+    testResults: [Any],
     success: Boolean!,
-    steps: [Any]
 }
 
 type DialogueSearchResults {

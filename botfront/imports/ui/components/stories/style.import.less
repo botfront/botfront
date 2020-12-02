@@ -66,7 +66,11 @@
                 content: '>>';
             }
             &[type='test_case'] .item-name:before {
-                content: '✔✔'
+                content: '✔✔';
+            }
+            &[type='test_case'] .item-name.failing-test-case-title:before {
+                content: '✘✘';
+                color: #db2828;
             }
             &[type='form'] .item-name:before {
                 content: '\1F4DD\0020';
@@ -262,7 +266,30 @@
             padding: 0px 16px;
         }
         &.test-case-failing{
-            background-color: rgba(255,3,3,0.38);
+            background-color: #db2828;
+            .header.item {
+                input {
+                    color: rgb(250, 250, 250);
+                    &:hover,
+                    &:focus {
+                        background-color: rgba(255,255,255,0.5);
+                    }
+                }
+            }
+            .story-title-prefix {
+                color: rgb(250, 250, 250);
+            }
+            .icon.top-menu-clickable {
+                color: rgb(245, 245, 245);
+                opacity: 1;
+                &:hover {
+                    color: rgb(240, 240, 240);
+                }
+            }
+            .icon.triangle.right {
+                color: rgb(240, 240, 240);
+                opacity: 1;
+            }
         }
 
         .icon.triangle.right {
@@ -274,7 +301,6 @@
             }
         }
         .icon.top-menu-clickable {
-            margin-left: 30px;
             color: #767676;
             &:hover {
                 color: #5c5c5c;
@@ -639,13 +665,19 @@
     padding: 0px;
 }
 
-.ui.attached.message.top-menu-banner {
-    padding: 0.75em 0;
-    min-height: 0;
+.ui.attached.message.top-menu-banner.warning,
+.ui.attached.message.top-menu-banner.error {
     box-shadow: none;
     border-style: solid;
     border-color: rgb(238, 238, 238);
     border-width: 1px;
+    padding-top: 0.6em;
+    padding-bottom: 0.75em;
+}
+
+.ui.attached.message.top-menu-banner.warning {
+    padding: 0.75em 0;
+    min-height: 0;
     &.with-popup {
         padding-left: 1em;
     }
@@ -687,6 +719,7 @@
         padding-left: 24px;
     }
 }
+
 
 @keyframes height-change {
     0%   { height: 0; }

@@ -156,14 +156,43 @@
 }
 
 .story-visual-editor {
-    &.actual {
-        .utterances-container {
-            background-color: rgba(255,3,3,0.26);
+    .utterances-container{
+        .theme-tag {
+            position: absolute;
+            
+            top: 2px;
+            font-size: 12px;
+            &.bot-response {
+                right: 40px;
+            }
+            &.user-utterance {
+                right: 8px;
+            }
         }
-    }
-    &.expected {
-        .utterances-container {
+        &.theme-expected {
+            background-color: rgba(255,3,3,0.26);
+            .theme-tag {
+                color: rgba(159, 58, 56, 0.5);
+            }
+            .response-name-input {
+                color: #5d5d5d !important;
+                input {
+                    color: #5d5d5d !important;
+                }
+            }
+
+        }
+        &.theme-actual {
             background-color: rgba(3, 255, 3, 0.26);
+            .theme-tag {
+                color: rgba(0, 181, 0, 0.5);
+            }
+            .response-name-input {
+                color: #5d5d5d !important;
+                input {
+                    color: #5d5d5d !important;
+                }
+            }
         }
     }
     &.actual,

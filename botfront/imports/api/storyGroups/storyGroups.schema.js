@@ -14,6 +14,7 @@ export const StoryGroupSchema = new SimpleSchema(
             autoValue: () => new Date(),
         },
         selected: { type: Boolean, defaultValue: false },
+        smartGroup: { type: Object, blackbox: true, optional: true },
         children: { type: Array, defaultValue: [] },
         'children.$': String,
         isExpanded: { type: Boolean, defaultValue: true },

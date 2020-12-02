@@ -7,6 +7,22 @@ import { Projects } from '../project/project.collection';
 import { Stories } from '../story/stories.collection';
 import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo/botResponses';
 
+export const createFailingTestsGroup = (projectId) => {
+    if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
+    checkIfCan('projects:w');
+    Meteor.call(
+        'storyGroups.insert',
+        {
+            name: 'Failing tests',
+            _id: 'FAILING_TESTS_SMART_GROUP',
+            projectId,
+            smartGroup: { prefix: 'failing', query: '{ "success": false }' },
+            isExpanded: false,
+            pinned: true,
+        },
+    );
+};
+
 export const createDefaultStoryGroup = async (projectId) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
     try {
