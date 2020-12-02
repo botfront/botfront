@@ -225,7 +225,7 @@ const validateADomain = (
             if (!firstMetadataFound && metadata) firstMetadataFound = metadata;
             if (firstMetadataFound && !isEqual(firstMetadataFound, metadata)) {
                 warnings.push(
-                    `Different metadata found for single response '${key}', but Botfront does not support it.`,
+                    `Different metadata found for single response '${key}', but Botfront does not support it. The first one will prevail.`,
                 );
             }
             if (!projectLanguages.includes(lang)) {

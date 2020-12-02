@@ -15,9 +15,19 @@ responses:
     utter_greet:    
       - text: 'Hey there!'
         language: 'en'
+        metadata:
+          linkTarget: _self
+          userInput: hide
+          forceOpen: false
+          forceClose: true
     utter_aaa:  
       - text: 'aaaa'
         language: 'en'
+        metadata:
+          linkTarget: _self
+          userInput: hide
+          forceOpen: true
+          forceClose: true
 slots:
     fallback_language:
       type: unfeaturized
@@ -56,6 +66,11 @@ responses:
     utter_aaa:  
       - text: 'aaaa'
         language: 'fr'
+        metadata:
+          linkTarget: _self
+          userInput: hide
+          forceOpen: false
+          forceClose: true
 slots:
     fallback_language:
       type: unfeaturized
@@ -82,6 +97,12 @@ export const validDomainParsed = {
     responses: [
         {
             key: 'utter_greet',
+            metadata: {
+                forceClose: true,
+                forceOpen: false,
+                linkTarget: '_self',
+                userInput: 'hide',
+            },
             values: [
                 {
                     lang: 'en',
@@ -94,6 +115,12 @@ export const validDomainParsed = {
             ],
         }, {
             key: 'utter_aaa',
+            metadata: {
+                forceClose: true,
+                forceOpen: true,
+                linkTarget: '_self',
+                userInput: 'hide',
+            },
             values: [
                 {
                     lang: 'en',
@@ -151,6 +178,12 @@ export const validDomainFrParsed = {
             ],
         }, {
             key: 'utter_aaa',
+            metadata: {
+                forceClose: true,
+                forceOpen: false,
+                linkTarget: '_self',
+                userInput: 'hide',
+            },
             values: [
                 {
                     lang: 'fr',
@@ -232,6 +265,12 @@ export const validDomainsMerged = {
         }, {
             key: 'utter_aaa',
             projectId: 'bf',
+            metadata: {
+                forceClose: true,
+                forceOpen: false,
+                linkTarget: '_self',
+                userInput: 'hide',
+            },
             textIndex: 'utter_aaa\naaaa\naaaa',
             values: [
                 {

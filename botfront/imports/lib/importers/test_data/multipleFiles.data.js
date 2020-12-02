@@ -221,6 +221,12 @@ export const multipleFiles = [
             ],
             responses: [{
                 key: 'utter_aaa',
+                metadata: {
+                    forceClose: true,
+                    forceOpen: true,
+                    linkTarget: '_self',
+                    userInput: 'hide',
+                },
                 values: [
                     {
                         lang: 'en',
