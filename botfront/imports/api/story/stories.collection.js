@@ -43,9 +43,9 @@ if (Meteor.isServer) {
         check(language, String);
         return Stories.find({
             $or: [
-                { projectId: 'bf', type: 'test_case', language },
-                { projectId: 'bf', type: 'test_case', success: false },
-                { projectId: 'bf', type: { $not: { $eq: 'test_case' } } },
+                { projectId, type: 'test_case', language },
+                { projectId, type: 'test_case', success: false },
+                { projectId, type: { $not: { $eq: 'test_case' } } },
             ],
         }, {
             fields: {
@@ -58,9 +58,9 @@ if (Meteor.isServer) {
         check(language, Match.Maybe(String));
         const query = language ? {
             $or: [
-                { projectId: 'bf', type: 'test_case', language },
-                { projectId: 'bf', type: 'test_case', success: false },
-                { projectId: 'bf', type: { $not: { $eq: 'test_case' } } },
+                { projectId, type: 'test_case', language },
+                { projectId, type: 'test_case', success: false },
+                { projectId, type: { $not: { $eq: 'test_case' } } },
             ],
         } : { projectId };
         return Stories.find(query, { fields: { title: true, events: true } });
