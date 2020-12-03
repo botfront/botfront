@@ -1,23 +1,12 @@
 import { safeLoad, safeDump } from 'js-yaml';
 import { isEqual } from 'lodash';
+import uuidv4 from 'uuid/v4';
 import { Projects } from '../../api/project/project.collection';
 import { GlobalSettings } from '../../api/globalSettings/globalSettings.collection';
 
 import { onlyValidFiles } from './common';
 
 const INTERNAL_SLOTS = ['bf_forms', 'fallback_language', 'disambiguation_message'];
-
-const deduplicate = (listOfObjects, key) => {
-    const seen = new Set();
-    return listOfObjects.filter((obj) => {
-        const value = obj[key];
-        if (seen.has(value)) {
-            return false;
-        }
-        seen.add(value);
-        return true;
-    });
-};
 
 // deduplicate response and merge them by lang
 export const deduplicateAndMergeResponses = (listOfResponse) => {
@@ -56,9 +45,10 @@ export const deduplicateAndMergeResponses = (listOfResponse) => {
     }, []);
 };
 
-export const deduplicateArray = (array) => {
+export const deduplicateArray = (array, key = null) => {
     const seen = new Set();
-    return array.filter((value) => {
+    return array.filter((item) => {
+        const value = key ? item[key] : item;
         if (seen.has(value)) {
             return false;
         }
@@ -76,6 +66,7 @@ export const mergeDomains = (files) => {
             slots: [],
             responses: [],
             forms: {},
+            bfForms: [],
             actions: [],
         };
     }
@@ -94,22 +85,28 @@ export const mergeDomains = (files) => {
         (all, { forms = {} }) => ({ ...forms, ...all }),
         {},
     );
+    const allBfForms = filesToProcess.reduce(
+        (all, { bfForms = [] }) => [...all, ...bfForms],
+        [],
+    );
     const allAction = filesToProcess.reduce(
         (all, { actions = [] }) => [...all, ...actions],
         [],
     );
     const mergedResponses = deduplicateAndMergeResponses(allResponses);
-    const mergedSlots = deduplicate(allSlots, 'name');
+    const mergedSlots = deduplicateArray(allSlots, 'name');
+    const mergedBfForms = deduplicateArray(allBfForms, 'name');
     const mergedActions = deduplicateArray(allAction);
     return {
         slots: mergedSlots,
         responses: mergedResponses,
         forms: allForms,
+        bfForms: mergedBfForms,
         actions: mergedActions,
     };
 };
 
-export const mergeDomainsRasaFormat = (files) => {
+const mergeDefaultDomains = (files) => {
     const filesToProcess = onlyValidFiles(files);
     if (!filesToProcess.length) {
         return {
@@ -130,7 +127,10 @@ export const mergeDomainsRasaFormat = (files) => {
             if (all[respKey]) {
                 const existingResps = all[respKey];
                 // the existing one are put in first so during deduplication they will be kept
-                const newResp = deduplicate([...existingResps, ...currentResp], 'lang');
+                const newResp = deduplicateArray(
+                    [...existingResps, ...currentResp],
+                    'lang',
+                );
                 toInsert = { ...toInsert, [respKey]: newResp };
             } else {
                 toInsert = { ...toInsert, [respKey]: currentResp };
@@ -184,10 +184,10 @@ const validateADomain = (
         };
     }
     const {
-        slots: slotsFromFile = {},
+        slots: { bf_forms: { initial_value: bfForms = [] } = {}, ...slotsFromFile } = {},
         templates: legacyResponsesFromFile = {},
         responses: modernResponsesFromFile = {},
-        forms: formsFromFile = {},
+        forms: mixedFormsFromFile = {},
         actions: actionsFromFile = [],
     } = domain;
     const { slots: defaultSlots = {}, responses: defaultResponses = {} } = defaultDomain;
@@ -195,10 +195,16 @@ const validateADomain = (
         ...(legacyResponsesFromFile || {}),
         ...(modernResponsesFromFile || {}),
     };
-    // get forms MIGHT NEED TO UPDATE WITH RASA 2
-    const bfForms = 'bf_forms' in (slotsFromFile || {}) ? slotsFromFile.bf_forms.initial_value : [];
-    // do not import slots that are in current default domain or are programmatically generated
+    const formsFromFile = Object.entries(mixedFormsFromFile).reduce(
+        (acc, [name, spec]) => {
+            if (!('graph_elements' in spec)) return { ...acc, [name]: spec };
+            bfForms.push(spec); // "if it has graph elements, it must be a bf form!"
+            return acc;
+        },
+        {},
+    );
 
+    // do not import slots that are in current default domain or are programmatically generated
     [...Object.keys(defaultSlots), ...INTERNAL_SLOTS].forEach((k) => {
         delete slotsFromFile[k];
     });
@@ -286,8 +292,7 @@ const validateADomain = (
         warnings.push({
             text:
                 'Some actions in domain are not explicitly mentioned in dialogue fragments.',
-            longText:
-                'They will be added to the project\'s default domain.',
+            longText: 'They will be added to the project\'s default domain.',
         });
     }
     const newDomain = {
@@ -357,7 +362,7 @@ export const validateDefaultDomains = (files, params) => {
             Projects.findOne({ _id: projectId }).defaultDomain.content,
         );
     } else {
-        defaultDomain = mergeDomainsRasaFormat(defaultDomainValidFiles);
+        defaultDomain = mergeDefaultDomains(defaultDomainValidFiles);
     }
     const newSummary = params.summary || [];
 
@@ -401,16 +406,28 @@ export const validateDomain = (files, params) => {
 
     const newSummary = params.summary;
     let newLanguages = params.projectLanguages;
+    const existingStoryGroups = [...(params.existingStoryGroups || [])];
+    const storyGroupsUsed = [...(params.storyGroupsUsed || [])];
     if (domainFiles.length > 0) {
         const newLangs = domainFiles.reduce(
-            (all, file) => [...(file.newLanguages || []), ...all],
+            (all, file) => Array.from(new Set([...(file.newLanguages || []), ...all])),
             [],
         );
         const merged = mergeDomains(domainFiles);
         const nameList = domainFiles.map(file => file.filename).join(', ');
+        merged.bfForms.forEach(({ groupName }) => {
+            if (!existingStoryGroups.some(({ name }) => name === groupName)) {
+                const newGroup = { name: groupName, _id: uuidv4() };
+                existingStoryGroups.push(newGroup);
+                storyGroupsUsed.push(newGroup);
+                newSummary.push({
+                    text: `Fragment group '${groupName}' will be created.`,
+                });
+            }
+        });
         const slotsLen = merged.slots.length;
         const responsesLen = merged.responses.length;
-        const formsLen = Object.keys(merged.forms).length;
+        const formsLen = Object.keys(merged.forms).length + merged.bfForms.length;
         const actionsLen = merged.actions.length;
         const tempSummary = [];
         if (slotsLen > 0) tempSummary.push(`${slotsLen} slots`);
@@ -432,6 +449,12 @@ export const validateDomain = (files, params) => {
             if (file?.dataType !== 'domain') return file;
             return domainFiles.shift();
         }),
-        { ...params, summary: newSummary, projectLanguages: newLanguages },
+        {
+            ...params,
+            summary: newSummary,
+            projectLanguages: newLanguages,
+            existingStoryGroups,
+            storyGroupsUsed,
+        },
     ];
 };

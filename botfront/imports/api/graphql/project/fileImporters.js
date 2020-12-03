@@ -23,7 +23,19 @@ import Examples from '../examples/examples.model';
 import { NLUModels } from '../../nlu_model/nlu_model.collection';
 import { onlyValidFiles } from '../../../lib/importers/common';
 
-export const handleImportForms = async (forms, projectId) => {
+const handleImportBfForms = async () => 'CE';
+
+const handleWipeBfForms = async () => 'CE';
+
+export const handleImportForms = async (regularForms, bfForms, projectId) => {
+    const forms = regularForms;
+    const version = await handleImportBfForms(bfForms, projectId);
+    if (version === 'CE') {
+        // merge them in with the others
+        bfForms.forEach((bfForm) => {
+            forms[bfForm.name] = bfForm;
+        });
+    }
     const { defaultDomain } = Projects.findOne({ _id: projectId });
     const parsedDefaultDomain = safeLoad(defaultDomain.content);
     const newForms = { ...(parsedDefaultDomain?.forms || {}), ...forms };
@@ -47,48 +59,38 @@ export const handleImportActions = async (actions, projectId) => {
     });
 };
 export const handleImportResponse = async (responses, projectId) => {
-    try {
-        const insertResponses = responses.map(async (resp) => {
-            const existing = await botResponses
-                .findOne({ key: resp.key, projectId })
-                .lean();
-            if (existing) {
-                const newResponse = deduplicateAndMergeResponses([resp, existing])[0];
-                return botResponses.update(
-                    { key: resp.key, projectId },
-                    { ...newResponse, textIndex: indexBotResponse(newResponse) },
-                );
-            }
-            return botResponses.create(
-                {
-                    ...resp, textIndex: indexBotResponse(resp), _id: uuidv4(), projectId,
-                },
+    const insertResponses = responses.map(async (resp) => {
+        const existing = await botResponses.findOne({ key: resp.key, projectId }).lean();
+        if (existing) {
+            const newResponse = deduplicateAndMergeResponses([resp, existing])[0];
+            return botResponses.update(
+                { key: resp.key, projectId },
+                { ...newResponse, textIndex: indexBotResponse(newResponse) },
             );
-        });
-        await Promise.all(insertResponses);
-    } catch (e) {
-        if (e.code === 11000) {
-            const alreadyExist = e?.result?.result?.writeErrors
-                .map(err => `${err.err.op.key} already exist`)
-                .join(', ');
-            throw new Error(alreadyExist);
         }
-        throw new Error(e);
-    }
+        return botResponses.create({
+            ...resp,
+            textIndex: indexBotResponse(resp),
+            _id: uuidv4(),
+            projectId,
+        });
+    });
+    await Promise.all(insertResponses);
 };
 
 const wipeDomain = async (projectId) => {
     try {
         await botResponses.deleteMany({ projectId });
     } catch (e) {
-        throw new Error('Could not wipe the old responses');
+        throw new Error('Could not wipe the old responses.');
     }
 
     try {
         await Slots.remove({ projectId });
     } catch (e) {
-        throw new Error('Could not wipe the slots responses');
+        throw new Error('Could not wipe the slots responses.');
     }
+    await handleWipeBfForms(projectId);
     return true;
 };
 
@@ -108,8 +110,7 @@ const resetProject = async (projectId, projectLanguages) => {
         await Examples.deleteMany({ projectId });
         await createCredentials({ _id: projectId });
         await createEndpoints({ _id: projectId });
-        
-        
+
         const {
             settings: {
                 private: { defaultDefaultDomain },
@@ -148,7 +149,7 @@ export const handleImportDomain = async (
 ) => {
     if (!files.length) return [];
     const {
-        slots, responses, forms, actions,
+        slots, responses, forms, bfForms, actions,
     } = mergeDomains(files);
 
     if (wipeInvolvedCollections) {
@@ -161,32 +162,31 @@ export const handleImportDomain = async (
                 await handleImportResponse(responses, projectId);
             }
         } catch (e) {
-            errors.push(`error when importing responses ${e.message}`);
+            errors.push(`error when importing responses: ${e.message}`);
         }
         try {
             if (slots && slots.length > 0) {
                 await Meteor.callWithPromise('slots.upsert', slots, projectId);
             }
         } catch (e) {
-            errors.push(`error when importing slots ${e.message}`);
+            errors.push(`error when importing slots: ${e.message}`);
         }
         try {
-            if (forms) {
-                await handleImportForms(forms, projectId);
+            if (Object.keys(forms || {}).length || bfForms.length) {
+                await handleImportForms(forms, bfForms, projectId);
             }
         } catch (e) {
-            errors.push(`error when importing forms ${e.message}`);
+            errors.push(`error when importing forms: ${e.message}`);
         }
         try {
             if (actions && actions.length > 0) {
                 await handleImportActions(actions, projectId);
             }
         } catch (e) {
-            errors.push(`error when importing actions ${e.message}`);
+            errors.push(`error when importing actions: ${e.message}`);
         }
     };
 
-    
     await insert();
     return errors;
 };
@@ -212,6 +212,7 @@ export const handleImportBfConfig = async (files, { projectId }) => {
     const { bfconfig } = toImport;
     const { instance, ...bfconfigData } = bfconfig;
     // all we want to be sure to not import one of those keys as it could break the import other parts (stories, models or defaultdomain)
+    delete bfconfigData.chatWidgetSettings;
     delete bfconfigData.training;
     delete bfconfigData.disabled;
     delete bfconfigData.enableSharing;
@@ -286,7 +287,7 @@ export const handleImportCredentials = async (files, { supportedEnvs, projectId 
         return false;
     });
     const importResult = await Promise.all(
-        toImport.map(async(f) => {
+        toImport.map(async (f) => {
             try {
                 const { env, rawText } = f;
                 if (supportedEnvs.includes(env)) {
@@ -353,10 +354,9 @@ export const handleImportRasaConfig = async (files, { projectId, projectLanguage
         }
         return Promise.resolve();
     }, Promise.resolve());
-    
+
     const { languages } = await Projects.findOne({ _id: projectId });
     languages.forEach(lang => languagesNotImported.delete(lang));
-
     const createResult = await Promise.all(
         [...languagesNotImported].map(async (lang) => {
             try {
@@ -395,7 +395,7 @@ export const handleImportConversations = async (
                     ));
                     await Promise.all(insertConv);
                 }
-                
+
                 return null;
             } catch (e) {
                 if (e.code === 11000) {
@@ -478,7 +478,12 @@ export const handleImportAll = async (files, params) => {
                 toImport.filter(f => f.dataType === 'domain'),
                 params,
             );
-            return [...rasaconfig, ...configErrors, ...trainingDataErrors, ...domainErrors];
+            return [
+                ...rasaconfig,
+                ...configErrors,
+                ...trainingDataErrors,
+                ...domainErrors,
+            ];
         };
 
         importers.push(configAndDomainImport());
