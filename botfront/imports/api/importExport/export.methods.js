@@ -244,13 +244,13 @@ if (Meteor.isServer) {
                 endpoints.forEach((endpoint) => {
                     rasaZip.addFile(
                         endpoint.endpoints,
-                        `endpoints.${endpoint.environment}.yml`,
+                        `endpoints.${endpoint.environment}.json`,
                     );
                 });
                 credentials.forEach((credential) => {
                     rasaZip.addFile(
                         credential.credentials,
-                        `credentials.${credential.environment}.yml`,
+                        `credentials.${credential.environment}.json`,
                     );
                 });
                 if (conversations) {
@@ -258,7 +258,7 @@ if (Meteor.isServer) {
                         ({ conversations: conversationsPerEnv, environment }) => {
                             rasaZip.addFile(
                                 JSON.stringify(conversationsPerEnv, null, 2),
-                                `conversations.${environment}.yml`,
+                                `conversations.${environment}.json`,
                             );
                         },
                     );
@@ -267,7 +267,7 @@ if (Meteor.isServer) {
                     incoming.forEach(({ incoming: incomingPerEnv, environment }) => {
                         rasaZip.addFile(
                             JSON.stringify(incomingPerEnv, null, 2),
-                            `incoming.${environment}.yml`,
+                            `incoming.${environment}.json`,
                         );
                     });
                 }
