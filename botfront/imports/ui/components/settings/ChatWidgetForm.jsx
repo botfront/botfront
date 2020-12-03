@@ -72,6 +72,17 @@ class ChatWidgetForm extends React.Component {
         clearTimeout(this.successTimeout);
     }
 
+    getlanguageOptions = () => {
+        const { projectLanguages } = this.context;
+        const options = projectLanguages.map(lang => ({
+            text: lang.text,
+            key: lang.value,
+            // eslint-disable-next-line no-useless-escape
+            value: `{\"language\":\"${lang.value}\"}`, // we need the double quotes because it's a json
+        }));
+        return options;
+    }
+
     getSnippetString() {
         const { credentials } = this.props;
         const {
@@ -109,7 +120,6 @@ class ChatWidgetForm extends React.Component {
         }
         this.setState({ saving: true, showConfirmation: false });
         clearTimeout(this.successTimeout);
-
         Meteor.call(
             'project.update',
             {
@@ -195,7 +205,6 @@ class ChatWidgetForm extends React.Component {
 
     renderWidgetSettings = (saving, settings, projectId) => {
         const { saved, advancedVisible, showConfirmation } = this.state;
-        const { projectLanguages } = this.context;
         return (
             <>
                 <Message
@@ -207,10 +216,10 @@ class ChatWidgetForm extends React.Component {
                     disabled={!!saving || !can('projects:w', projectId)}
                     schema={new SimpleSchema2Bridge(chatWidgetSettingsSchema)}
                     model={settings}
+                   
                     onSubmit={this.onSave}
                     modelTransform={(mode, model) => {
                         const newModel = cloneDeep(model);
-
                         if (
                             typeof newModel.customData !== 'string'
                             || newModel.customData === ''
@@ -240,7 +249,8 @@ class ChatWidgetForm extends React.Component {
                         name='initPayload'
                     />
                     <SelectField
-                        options={projectLanguages}
+                        data-cy='lang-select'
+                        options={this.getlanguageOptions()}
                         name='customData'
                         label='Language'
                     />
@@ -395,7 +405,7 @@ class ChatWidgetForm extends React.Component {
         const { activeMenu } = this.state;
         if (ready) {
             return (
-                <>
+                <div data-cy='widget-form'>
                     <Menu pointing secondary>
                         <Menu.Item
                             name='Configuration'
@@ -412,7 +422,7 @@ class ChatWidgetForm extends React.Component {
                     <React.Suspense fallback={<Loader />}>
                         {this.renderContents()}
                     </React.Suspense>
-                </>
+                </div>
             );
         }
         return this.renderLoading();

@@ -16,11 +16,15 @@ describe('Project Credentials', function() {
             cy.visit('/project/bf/settings');
             cy.contains('Chat widget').click();
             cy.dataCy('widget-title').type('-test');
+            cy.get('input.search').click();
+            cy.dataCy('widget-form').find('div[role=option]').click();
+            cy.dataCy('lang-select').find('div.text').should('have.text', 'French');
             cy.get('[data-cy=save-button]').click();
             cy.get('[data-cy=changes-saved]').should('exist');
             cy.contains('Project Info').click();
             cy.contains('Chat widget').click();
             cy.get('[data-cy=widget-title] > .ui.input > input').should('have.value', 'Botfront-test');
+            cy.dataCy('lang-select').find('div.text').should('have.text', 'French');
         });
 
         it('install should not have env selector with one env', function() {
