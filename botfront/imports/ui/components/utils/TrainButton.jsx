@@ -6,6 +6,7 @@ import {
     Button, Popup, Icon, Checkbox, Dropdown,
 } from 'semantic-ui-react';
 import { get } from 'lodash';
+import Alert from 'react-s-alert';
 import { wrapMeteorCallback } from './Errors';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Projects } from '../../../api/project/project.collection';
@@ -32,7 +33,27 @@ class TrainButton extends React.Component {
     };
 
     runTests = (projectId, language) => {
-        Meteor.call('stories.runTests', projectId, { language });
+        Meteor.call('stories.runTests', projectId, { language }, (error, response) => {
+            if (error) {
+                Alert.error(error.message);
+            }
+            const { passing, failing } = response;
+            if (!failing) {
+                Alert.success(`Test run complete. ${passing} test${passing > 1 ? 's' : ''} passing`, {
+                    position: 'top-right',
+                    timeout: 3 * 1000,
+                });
+            } else {
+                Alert.error(`
+                    Test run complete.
+                    ${passing} test${passing > 1 ? 's' : ''} passing,
+                    ${failing} test${failing > 1 ? 's' : ''} failing`,
+                {
+                    position: 'top-right',
+                    timeout: 3 * 1000,
+                });
+            }
+        });
     }
 
     showModal = (env, visible) => {

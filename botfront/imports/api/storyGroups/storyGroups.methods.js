@@ -18,6 +18,7 @@ export const createFailingTestsGroup = (projectId) => {
             smartGroup: { prefix: 'failing', query: '{ "success": false }' },
             isExpanded: false,
             pinned: true,
+            hideIfEmpty: true,
         },
     );
 };

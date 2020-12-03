@@ -120,18 +120,17 @@ export const validateATestCase = (file = {}, params) => {
 };
 
 const createSummary = (testCaseFiles, params) => {
-    const { summary } = params;
-    const groups = {};
-    testCaseFiles.reduce((testCase) => {
-        const {
-            metadata: {
-                group,
-                language,
-            } = {},
-            title,
-        } = testCase;
-        groups[group];
-    });
+    // const { summary } = params;
+    // const groups = {};
+    // testCaseFiles.reduce((testCase) => {
+    //     const {
+    //         metadata: {
+    //             group,
+    //             language,
+    //         } = {},
+    //         title,
+    //     } = testCase;
+    // });
 };
 
 export const validateTestCases = (files, newParams) => {
@@ -150,7 +149,6 @@ export const validateTestCases = (files, newParams) => {
         [...otherFiles, ...validatedFiles],
         {
             ...newParams,
-            summary: newSummary,
         },
     ];
     return ret;

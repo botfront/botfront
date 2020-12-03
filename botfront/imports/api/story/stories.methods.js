@@ -12,6 +12,7 @@ import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo/botResponses';
 import { checkIfCan } from '../../lib/scopes';
 import { convertTrackerToStory } from '../../lib/test_case.utils';
+import { formatError } from '../../lib/utils';
 
 export const checkStoryNotEmpty = story => story.story && !!story.story.replace(/\s/g, '').length;
 
@@ -205,32 +206,66 @@ Meteor.methods({
     async 'stories.runTests'(projectId, options = {}) {
         check(projectId, String);
         check(options, Object);
-        const { ids, language } = options;
-        const query = {
-            type: 'test_case',
-            projectId,
-            ...(ids?.length > 0 ? { _id: { $in: ids } } : {}),
-            ...(language ? { language } : {}),
-        };
-        const testCases = Stories.find({ ...query }, { fields: { _id: 1, steps: 1 } })
-            .map(({
-                _id, steps, language: testLanguage,
-            }) => ({
-                _id,
-                steps,
-                language: testLanguage,
-            }));
-        const instance = await Instances.findOne({ projectId });
-        if (!testCases.length) return;
-        const client = axios.create({
-            baseURL: instance.host,
-            timeout: 100 * 1000,
-        });
-        await client.request({
-            url: '/webhooks/test_case/run',
-            data: { test_cases: testCases, project_id: projectId },
-            method: 'post',
-        });
+        try {
+            const { ids, language } = options;
+            const query = {
+                type: 'test_case',
+                projectId,
+                ...(ids?.length > 0 ? { _id: { $in: ids } } : {}),
+                ...(language ? { language } : {}),
+            };
+            const testCases = Stories.find({ ...query }, { fields: { _id: 1, steps: 1 } })
+                .map(({
+                    _id, steps, language: testLanguage,
+                }) => ({
+                    _id,
+                    steps,
+                    language: testLanguage,
+                }));
+            if (testCases?.length < 1) {
+                if (language) {
+                    throw new Meteor.Error(400, `No tests were found for language: ${language}`);
+                }
+                if (Array.isArray(ids)) {
+                    throw new Meteor.Error(400, `Requested test${ids?.length > 1 ? 's' : ''} not found`);
+                }
+                throw new Meteor.Error(400, 'This project contains no tests');
+            }
+            const instance = await Instances.findOne({ projectId });
+            const client = axios.create({
+                baseURL: instance.host,
+                timeout: 1000 * 1000,
+            });
+            const response = await client.request({
+                url: '/webhooks/test_case/run',
+                data: { test_cases: testCases, project_id: projectId },
+                method: 'post',
+            });
+            let report;
+            if (response.status === 200) {
+                const testResults = response.data;
+                report = testResults.reduce((acc, { success }) => {
+                    if (success) {
+                        acc.passing += 1;
+                    } else {
+                        acc.failing += 1;
+                    }
+                    return acc;
+                }, { passing: 0, failing: 0 });
+                Meteor.call('stories.update', testResults);
+            }
+            return report;
+        } catch (e) {
+            if (e?.isAxiosError) {
+                throw new Meteor.Error(
+                    e?.response?.status
+                        || 500,
+                    e?.response?.statusText
+                        || 'An unexpected error occured',
+                );
+            }
+            throw formatError(e);
+        }
     },
 
     async 'test_case.overwrite'(projectId, storyId) {
