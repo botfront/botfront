@@ -258,7 +258,7 @@ if (Meteor.isServer) {
                         ({ conversations: conversationsPerEnv, environment }) => {
                             rasaZip.addFile(
                                 JSON.stringify(conversationsPerEnv, null, 2),
-                                `conversations.${environment}.json`,
+                                `botfront/conversations.${environment}.json`,
                             );
                         },
                     );
@@ -267,7 +267,7 @@ if (Meteor.isServer) {
                     incoming.forEach(({ incoming: incomingPerEnv, environment }) => {
                         rasaZip.addFile(
                             JSON.stringify(incomingPerEnv, null, 2),
-                            `incoming.${environment}.json`,
+                            `botfront/incoming.${environment}.json`,
                         );
                     });
                 }
