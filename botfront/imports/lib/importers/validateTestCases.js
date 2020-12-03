@@ -1,6 +1,7 @@
 import { safeLoad } from 'js-yaml';
 import { v4 as uuidv4 } from 'uuid';
 import { parseTextEntities } from '../utils';
+import { languages } from '../languages';
 
 export const encodeEntitiesAsText = (text, entities) => {
     if (!entities || !Array.isArray(entities)) return text;
@@ -40,8 +41,8 @@ const getNonConflictingGroupName = (initialName, params, fallbackStoryGroup) => 
         wipeInvolvedCollections,
         wipeFragments,
         timestamp,
-        storyGroupsUsed,
-        existingStoryGroups,
+        storyGroupsUsed = [],
+        existingStoryGroups = [],
     } = params;
     const name = initialName || fallbackStoryGroup;
 
@@ -100,14 +101,14 @@ export const validateATestCase = (file = {}, params) => {
         };
         if (!projectLanguages.find(lang => lang === language)) {
             newLanguages.push(language);
-            newLangTests[language] = [...(newLangTests || []), story.title];
+            newLangTests[language] = [...(newLangTests[language] || []), story.title];
             return;
         }
         testCases.push(story);
     });
     if (Object.keys(newLangTests).length > 0) {
         Object.keys(newLangTests).forEach((lang) => {
-            warnings.push({ text: `${newLangTests[lang].length} will not be added as ${lang} is not a project language:`, longText: newLangTests[lang].join(', ') });
+            warnings.push({ text: `${newLangTests[lang].length} test will not be added as ${languages[lang]?.name || lang} is not a project language:`, longText: newLangTests[lang].join(', ') });
         });
     }
 
@@ -119,23 +120,44 @@ export const validateATestCase = (file = {}, params) => {
     };
 };
 
-const createSummary = (testCaseFiles, params) => {
-    // const { summary } = params;
-    // const groups = {};
-    // testCaseFiles.reduce((testCase) => {
-    //     const {
-    //         metadata: {
-    //             group,
-    //             language,
-    //         } = {},
-    //         title,
-    //     } = testCase;
-    // });
+const createSummary = (testCaseFiles, initialGroupsUsed = [], params) => {
+    const { summary } = params;
+    const groupSummary = {};
+    const preExistingGroupNames = initialGroupsUsed.reduce(
+        (acc, { name }) => ({ ...acc, [name]: true }),
+        {},
+    );
+    
+    testCaseFiles.forEach((testCase) => {
+        testCase.tests.forEach((test) => {
+            const { language, title, metadata: { group } = {} } = test;
+            if (!groupSummary[group]) groupSummary[group] = {};
+            groupSummary[group][language] = [
+                ...(groupSummary[group][language] || []),
+                title,
+            ];
+        });
+    });
+
+    const newSummaryLines = Object.keys(groupSummary).map((groupName) => {
+        let testsInGroup = [];
+        const groupIsNew = preExistingGroupNames[groupName];
+        const testsByLanguage = Object.keys(groupSummary[groupName]).map(((language) => {
+            const children = groupSummary[groupName][language];
+            testsInGroup = [...testsInGroup, ...children];
+            return `${children.length} new test${children.length > 1 ? 's' : ''} in ${languages[language]?.name || language}`;
+        }));
+        return {
+            text: `Group '${groupName}' will ${groupIsNew ? 'contain' : 'be added with'} ${testsByLanguage.join(', ')}`,
+        };
+    });
+    return [...summary, ...newSummaryLines];
 };
 
 export const validateTestCases = (files, newParams) => {
     const testCaseFiles = [];
     const otherFiles = [];
+    const initialUsedGroups = [...(newParams.storyGroupsUsed || {})];
     files.forEach((file) => {
         if (/^test_.*\.yml/.test(file?.filename)) {
             testCaseFiles.push(file);
@@ -144,11 +166,12 @@ export const validateTestCases = (files, newParams) => {
         }
     });
     const validatedFiles = testCaseFiles.map(v => validateATestCase(v, newParams));
-
+    const newSummary = createSummary(validatedFiles, initialUsedGroups, newParams);
     const ret = [
         [...otherFiles, ...validatedFiles],
         {
             ...newParams,
+            summary: newSummary,
         },
     ];
     return ret;
