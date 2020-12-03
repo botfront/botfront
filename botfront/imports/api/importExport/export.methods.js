@@ -199,6 +199,7 @@ if (Meteor.isServer) {
             delete configData.languages;
             delete configData.nlu_models;
             delete configData.updatedAt;
+            delete configData.deploymentEnvironments;
             const instance = await Instances.findOne({ projectId });
             delete instance._id;
             const bfconfig = { ...configData, instance };

@@ -1,7 +1,7 @@
 import { safeLoad, safeDump } from 'js-yaml';
 import uuidv4 from 'uuid/v4';
 import botResponses from '../botResponses/botResponses.model';
-import { saveEndpoints, createEndpoints } from '../../endpoints/endpoints.methods';
+import { createEndpoints } from '../../endpoints/endpoints.methods';
 import Conversations from '../conversations/conversations.model';
 import Activity from '../activity/activity.model';
 import { indexBotResponse } from '../botResponses/mongo/botResponses';
@@ -259,7 +259,7 @@ export const handleImportEndpoints = async (files, { supportedEnvs, projectId })
             try {
                 const { env, rawText } = f;
                 if (supportedEnvs.includes(env)) {
-                    await saveEndpoints({
+                    await Meteor.callWithPromise('endpoints.save', {
                         environment: env,
                         projectId,
                         endpoints: rawText,

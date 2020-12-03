@@ -70,7 +70,10 @@ if (Meteor.isServer) {
         );
 
         describe('training data import', () => {
-            const getStoryGroupNameMapping = (projectId = 'bf') => StoryGroups.find({ projectId }, { name: 1, _id: 1 })
+            const getStoryGroupNameMapping = (projectId = 'bf') => StoryGroups.find(
+                { projectId, smartGroup: { $exists: false } },
+                { name: 1, _id: 1 },
+            )
                 .fetch()
                 .reduce((acc, curr) => ({ ...acc, [curr.name]: curr._id }), {});
 

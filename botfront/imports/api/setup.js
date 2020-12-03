@@ -148,7 +148,7 @@ if (Meteor.isServer) {
             check(projectData, Object);
             const project = {
                 name: projectData.project,
-                namespace: slugify(projectData.project, { lower: true }),
+                namespace: `bf-${slugify(projectData.project, { lower: true })}`,
                 defaultLanguage: projectData.language,
                 languages: [],
             };
