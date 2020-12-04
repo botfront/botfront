@@ -4,6 +4,8 @@ import { StoryGroups } from '../../storyGroups/storyGroups.collection';
 import { NLUModels } from '../../nlu_model/nlu_model.collection';
 import { deleteExamples, getExamples, insertExamples } from '../examples/mongo/examples';
 
+const keepOrReturnEmptyObject = object => object; // on CE, () => ({}), on EE id function
+
 const wipeAndInsertStoryGroups = async ({
     projectId,
     wipeFragments,
@@ -156,8 +158,10 @@ const removeTriggerIntents = ({
         ...frag,
         steps,
         metadata,
-        ...(triggerIntent ? { triggerIntent } : {}),
-        ...(rules ? { rules } : {}),
+        ...keepOrReturnEmptyObject({
+            ...(triggerIntent ? { triggerIntent } : {}),
+            ...(rules ? { rules } : {}),
+        }),
     };
 };
 
@@ -171,7 +175,9 @@ const handleImportTrainingData = async (
     },
 ) => {
     const [errorsFromGroups, storyGroupIdMapping] = await wipeAndInsertStoryGroups({
-        projectId, wipeFragments, storyGroupsUsed,
+        projectId,
+        wipeFragments,
+        storyGroupsUsed,
     });
     if (errorsFromGroups.length) return errorsFromGroups;
     const errorsFromNlu = await wipeNluData({ projectId, languages: languagesToWipe });
@@ -184,8 +190,9 @@ const handleImportTrainingData = async (
             const fragments = [
                 ...stories.map(s => ({ ...s, type: 'story' })),
                 ...rules.map(r => ({ ...r, type: 'rule' })),
-            ].map(({ metadata: { group, ...metadata }, ...frag }) => removeTriggerIntents({
+            ].map(({ metadata: { group, status = 'published', ...metadata }, ...frag }) => removeTriggerIntents({
                 ...frag,
+                ...keepOrReturnEmptyObject({ status }),
                 metadata,
                 storyGroupId: storyGroupIdMapping[group],
                 projectId,

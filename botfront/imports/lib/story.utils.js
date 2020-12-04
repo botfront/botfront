@@ -110,7 +110,9 @@ export const addCheckpoints = (fragments) => {
 };
 
 const scrapeActionsIntentsAndEntities = (el, exclude = []) => {
-    if (Array.isArray(el)) { return el.flatMap(c => scrapeActionsIntentsAndEntities(c, exclude)); }
+    if (Array.isArray(el)) {
+        return el.flatMap(c => scrapeActionsIntentsAndEntities(c, exclude));
+    }
     if (el && typeof el === 'object') {
         return Object.keys(el).flatMap((k) => {
             if (k === 'action' && !exclude.includes(el[k])) {
@@ -244,16 +246,23 @@ export const getFragmentsAndDomain = async (projectId, language) => {
     return {
         stories: fragmentsWithCheckpoints
             .filter(({ type }) => !type || type === 'story')
-            .map(({
-                storyGroupId, title: story, steps, metadata = {},
-            }) => ({
-                story,
-                steps,
-                metadata: {
-                    ...metadata,
-                    group: groups.find(g => g._id === storyGroupId)?.name,
-                },
-            })),
+            .map(
+                ({
+                    storyGroupId,
+                    title: story,
+                    steps,
+                    status = 'published',
+                    metadata = {},
+                }) => ({
+                    story,
+                    steps,
+                    metadata: {
+                        ...metadata,
+                        ...(status !== 'published' ? { status } : {}),
+                        group: groups.find(g => g._id === storyGroupId)?.name,
+                    },
+                }),
+            ),
         rules: fragmentsWithCheckpoints
             .filter(({ type }) => type === 'rule')
             .map(
@@ -264,6 +273,7 @@ export const getFragmentsAndDomain = async (projectId, language) => {
                     steps,
                     conversation_start,
                     wait_for_user_input,
+                    status = 'published',
                     metadata = {},
                 }) => ({
                     rule,
@@ -273,6 +283,7 @@ export const getFragmentsAndDomain = async (projectId, language) => {
                     ...(!wait_for_user_input ? { wait_for_user_input } : {}),
                     metadata: {
                         ...metadata,
+                        ...(status !== 'published' ? { status } : {}),
                         group: groups.find(g => g._id === storyGroupId)?.name,
                     },
                 }),
