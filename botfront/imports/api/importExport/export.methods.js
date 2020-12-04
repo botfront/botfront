@@ -189,13 +189,13 @@ if (Meteor.isServer) {
             endpoints.forEach(({ endpoints: endpointsPerEnv, environment }) => {
                 rasaZip.addFile(
                     endpointsPerEnv,
-                    `endpoints${envSuffix(environment, endpoints)}.json`,
+                    `endpoints${envSuffix(environment, endpoints)}.yml`,
                 );
             });
             credentials.forEach(({ credentials: credentialsPerEnv, environment }) => {
                 rasaZip.addFile(
                     credentialsPerEnv,
-                    `credentials${envSuffix(environment, credentials)}.json`,
+                    `credentials${envSuffix(environment, credentials)}.yml`,
                 );
             });
             (conversations || []).forEach(
