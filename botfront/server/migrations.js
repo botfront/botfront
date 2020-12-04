@@ -469,7 +469,12 @@ Migrations.add({
                 },
             );
             const { stories: parsedStories } = safeLoad(data);
+
+            const nonsensicalStories = stories.filter(story => !parsedStories.some(pStory => pStory.story === story._id));
+            await Stories.remove({ _id: { $in: nonsensicalStories.map(story => story._id) } });
+
             const storyUpdates = generateStoryUpdates(parsedStories);
+
             Object.keys(storyUpdates).forEach(_id => Stories.update({ _id }, storyUpdates[_id]));
             // rebuild indices
             const allStories = Stories.find().fetch();
