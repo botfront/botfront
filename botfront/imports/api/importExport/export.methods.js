@@ -73,7 +73,7 @@ if (Meteor.isServer) {
                         const incomingInEnv = await Activity.find({
                             projectId,
                             ...getEnvQuery('env', environment),
-                        }).lean();
+                        }, { _id: 0 }).lean();
                         return {
                             environment,
                             incoming: incomingInEnv,
