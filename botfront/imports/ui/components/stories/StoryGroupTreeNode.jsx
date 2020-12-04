@@ -183,7 +183,6 @@ const StoryGroupTreeNode = (props) => {
                                     <Dropdown.Menu>
                                         {addStoryOrRule('story')}
                                         {addStoryOrRule('rule')}
-                                        {addStoryOrRule('test_case')}
                                     </Dropdown.Menu>
                                 </Dropdown>,
                                 'Add story or form',
