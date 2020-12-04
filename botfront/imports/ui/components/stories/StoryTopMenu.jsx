@@ -183,6 +183,7 @@ const StoryTopMenu = ({
                 icon='check'
                 labelPosition='right'
                 size='mini'
+                data-cy='overwrite-test-button'
             />
             <Button
                 onClick={() => deleteStory(fragment)}
@@ -193,6 +194,7 @@ const StoryTopMenu = ({
                 icon='trash'
                 labelPosition='right'
                 size='mini'
+                data-cy='delete-test-button'
             />
         </span>
     );

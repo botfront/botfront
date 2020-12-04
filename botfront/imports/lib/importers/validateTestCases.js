@@ -108,7 +108,7 @@ export const validateATestCase = (file = {}, params) => {
     });
     if (Object.keys(newLangTests).length > 0) {
         Object.keys(newLangTests).forEach((lang) => {
-            warnings.push({ text: `${newLangTests[lang].length} test will not be added as ${languages[lang]?.name || lang} is not a project language:`, longText: newLangTests[lang].join(', ') });
+            warnings.push({ text: `${newLangTests[lang].length} test${newLangTests[lang].length > 1 ? 's' : ''} will not be added as ${languages[lang]?.name || lang} is not a project language:`, longText: newLangTests[lang].join(', ') });
         });
     }
 

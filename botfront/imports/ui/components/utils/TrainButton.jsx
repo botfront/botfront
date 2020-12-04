@@ -39,18 +39,16 @@ class TrainButton extends React.Component {
             }
             const { passing, failing } = response;
             if (!failing) {
-                Alert.success(`Test run complete. ${passing} test${passing > 1 ? 's' : ''} passing`, {
+                Alert.success(`Test run complete. ${passing} test${passing !== 1 ? 's' : ''} passing`, {
                     position: 'top-right',
-                    timeout: 3 * 1000,
+                    timeout: 10 * 1000,
                 });
             } else {
                 Alert.error(`
-                    Test run complete.
-                    ${passing} test${passing > 1 ? 's' : ''} passing,
-                    ${failing} test${failing > 1 ? 's' : ''} failing`,
+                    Test run complete. ${passing} test${passing !== 1 ? 's' : ''} passing, ${failing} test${failing !== 1 ? 's' : ''} failing`,
                 {
                     position: 'top-right',
-                    timeout: 3 * 1000,
+                    timeout: 10 * 1000,
                 });
             }
         });
@@ -68,11 +66,11 @@ class TrainButton extends React.Component {
         const languageName = languages[language]?.name;
         return (
             <>
-                <Dropdown.Item onClick={() => this.runTests(projectId)}>
+                <Dropdown.Item onClick={() => this.runTests(projectId)} data-cy='run-all-tests'>
                     Run all tests
                 </Dropdown.Item>
                 {!!languageName && (
-                    <Dropdown.Item onClick={() => this.runTests(projectId, language)}>
+                    <Dropdown.Item onClick={() => this.runTests(projectId, language)} data-cy='run-lang-tests'>
                     Run all {languages[language]?.name} tests
                     </Dropdown.Item>
                 )
