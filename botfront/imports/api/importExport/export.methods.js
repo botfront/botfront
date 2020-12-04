@@ -3,13 +3,10 @@ import axios from 'axios';
 import _ from 'lodash';
 
 import { check } from 'meteor/check';
-
 import { safeDump } from 'js-yaml';
 import { Endpoints } from '../endpoints/endpoints.collection';
-import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import { Credentials } from '../credentials';
 
-import { generateErrorText } from './importExport.utils';
 import { checkIfCan } from '../../lib/scopes';
 import { ZipFolder } from './ZipFolder';
 import { Projects } from '../project/project.collection';
@@ -18,13 +15,6 @@ import Conversations from '../graphql/conversations/conversations.model';
 import Activity from '../graphql/activity/activity.model';
 
 if (Meteor.isServer) {
-    import {
-        getAppLoggerForFile,
-        getAppLoggerForMethod,
-        addLoggingInterceptors,
-    } from '../../../server/logger';
-
-    const exportAppLogger = getAppLoggerForFile(__filename);
     const axiosClient = axios.create();
 
     const convertJsonToYaml = async (json, instanceHost, language) => {
@@ -38,34 +28,6 @@ if (Meteor.isServer) {
     };
 
     Meteor.methods({
-        exportProject(projectId, options) {
-            check(projectId, String);
-            check(options, Object);
-
-            const apiHost = GlobalSettings.findOne(
-                { _id: 'SETTINGS' },
-                { fields: { 'settings.private.bfApiHost': 1 } },
-            ).settings.private.bfApiHost;
-
-            const appMethodLogger = getAppLoggerForMethod(
-                exportAppLogger,
-                'exportProject',
-                Meteor.userId(),
-                { apiHost, projectId, options },
-            );
-            const params = { ...options };
-            params.output = 'json';
-            const exportAxios = axios.create();
-            addLoggingInterceptors(exportAxios, appMethodLogger);
-            const exportRequest = exportAxios
-                .get(`${apiHost}/project/${projectId}/export`, { params })
-                .then(res => ({ data: JSON.stringify(res.data) }))
-                .catch(err => ({
-                    error: { header: 'Export Failed', text: generateErrorText(err) },
-                }));
-
-            return exportRequest;
-        },
         async exportRasa(projectId, language, options) {
             checkIfCan('export:x', projectId);
             check(projectId, String);
@@ -74,84 +36,63 @@ if (Meteor.isServer) {
             const passedLang = language === 'all' ? {} : { language };
 
             const project = Projects.findOne({ _id: projectId });
-            const hasEnvs = project.deploymentEnvironments
-                && project.deploymentEnvironments.length !== 0;
-            let credentials;
-            let endpoints;
-            let conversations;
-            let incoming;
+            const envs = ['development', ...project.deploymentEnvironments];
+            const getEnvQuery = (envKey, envValue) => (envValue !== 'development'
+                ? { [envKey]: envValue }
+                : {
+                    $or: [{ [envKey]: envValue }, { [envKey]: { $exists: false } }],
+                });
 
-            if (hasEnvs) {
-                const envs = ['development', ...project.deploymentEnvironments];
-                credentials = await Promise.all(
+            const credentials = await Promise.all(
+                envs.map(async (environment) => {
+                    const creds = await Credentials.findOne(
+                        { projectId, ...getEnvQuery('environment', environment) },
+                        { fields: { credentials: 1 } },
+                    );
+                    return {
+                        environment,
+                        credentials: creds.credentials,
+                    };
+                }),
+            );
+            const endpoints = await Promise.all(
+                envs.map(async (environment) => {
+                    const endpoint = await Endpoints.findOne(
+                        { projectId, ...getEnvQuery('environment', environment) },
+                        { fields: { endpoints: 1 } },
+                    );
+                    return {
+                        environment,
+                        endpoints: endpoint.endpoints,
+                    };
+                }),
+            );
+            const incoming = options.incoming
+                && (await Promise.all(
                     envs.map(async (environment) => {
-                        const creds = await Credentials.findOne(
-                            { projectId, environment },
-                            { fields: { credentials: 1 } },
-                        );
+                        const incomingInEnv = await Activity.find({
+                            projectId,
+                            ...getEnvQuery('env', environment),
+                        }).lean();
                         return {
                             environment,
-                            credentials: creds.credentials,
+                            incoming: incomingInEnv,
                         };
                     }),
-                );
-
-                endpoints = await Promise.all(
+                ));
+            const conversations = options.conversations
+                && (await Promise.all(
                     envs.map(async (environment) => {
-                        const endpoint = await Endpoints.findOne(
-                            { projectId, environment },
-                            { fields: { endpoints: 1 } },
-                        );
+                        const conversationsInEnv = await Conversations.find({
+                            projectId,
+                            ...getEnvQuery('env', environment),
+                        }).lean();
                         return {
                             environment,
-                            endpoints: endpoint.endpoints,
+                            conversations: conversationsInEnv,
                         };
                     }),
-                );
-                if (options.incoming) {
-                    incoming = await Promise.all(
-                        envs.map(async (environment) => {
-                            const incomingInEnv = await Activity.find({
-                                projectId,
-                                environment,
-                            }).lean();
-                            return {
-                                environment,
-                                incoming: incomingInEnv,
-                            };
-                        }),
-                    );
-                }
-                if (options.conversations) {
-                    conversations = await Promise.all(
-                        envs.map(async (environment) => {
-                            const conversationsInEnv = await Conversations.find({
-                                projectId,
-                                environment,
-                            }).lean();
-                            return {
-                                environment,
-                                conversations: conversationsInEnv,
-                            };
-                        }),
-                    );
-                }
-            } else {
-                credentials = await Credentials.findOne(
-                    { projectId },
-                    { fields: { credentials: 1 } },
-                ).credentials;
-                endpoints = await Endpoints.findOne(
-                    { projectId },
-                    { fields: { endpoints: 1 } },
-                ).endpoints;
-                if (options.incoming) {
-                    incoming = await Activity.find({ projectId }, { _id: 0 }).lean();
-                }
-                if (options.conversations) {
-                    conversations = await Conversations.find({ projectId }).lean();
-                }
-            }
+                ));
 
             const rasaData = await Meteor.callWithPromise(
                 'rasa.getTrainingPayload',
@@ -186,8 +127,11 @@ if (Meteor.isServer) {
             };
 
             const defaultDomain = project?.defaultDomain?.content || '';
+            const widgetSettings = project?.chatWidgetSettings || {};
+
             const configData = project;
             // exported separately
+            delete configData.widgetSettings;
             delete configData.defaultDomain;
             // all of those are state data we don't want to keep in the import
             delete configData.training;
@@ -240,57 +184,42 @@ if (Meteor.isServer) {
                 );
             }
 
-            if (hasEnvs) {
-                endpoints.forEach((endpoint) => {
+            const envSuffix = (env, collection) => (collection.length > 1 ? `.${env}` : '');
+
+            endpoints.forEach(({ endpoints: endpointsPerEnv, environment }) => {
+                rasaZip.addFile(
+                    endpointsPerEnv,
+                    `endpoints${envSuffix(environment, endpoints)}.json`,
+                );
+            });
+            credentials.forEach(({ credentials: credentialsPerEnv, environment }) => {
+                rasaZip.addFile(
+                    credentialsPerEnv,
+                    `credentials${envSuffix(environment, credentials)}.json`,
+                );
+            });
+            (conversations || []).forEach(
+                ({ conversations: conversationsPerEnv, environment }) => {
                     rasaZip.addFile(
-                        endpoint.endpoints,
-                        `endpoints.${endpoint.environment}.json`,
+                        JSON.stringify(conversationsPerEnv, null, 2),
+                        `botfront/conversations${envSuffix(
+                            environment,
+                            conversations,
+                        )}.json`,
                     );
-                });
-                credentials.forEach((credential) => {
-                    rasaZip.addFile(
-                        credential.credentials,
-                        `credentials.${credential.environment}.json`,
-                    );
-                });
-                if (conversations) {
-                    conversations.forEach(
-                        ({ conversations: conversationsPerEnv, environment }) => {
-                            rasaZip.addFile(
-                                JSON.stringify(conversationsPerEnv, null, 2),
-                                `botfront/conversations.${environment}.json`,
-                            );
-                        },
-                    );
-                }
-                if (incoming) {
-                    incoming.forEach(({ incoming: incomingPerEnv, environment }) => {
-                        rasaZip.addFile(
-                            JSON.stringify(incomingPerEnv, null, 2),
-                            `botfront/incoming.${environment}.json`,
-                        );
-                    });
-                }
-            } else {
-                rasaZip.addFile(endpoints, 'endpoints.yml');
-                rasaZip.addFile(credentials, 'credentials.yml');
-                if (conversations) {
-                    rasaZip.addFile(
-                        JSON.stringify(conversations, null, 2),
-                        'botfront/conversations.json',
-                    );
-                }
-                if (incoming) {
-                    rasaZip.addFile(
-                        JSON.stringify(incoming, null, 2),
-                        'botfront/incoming.json',
-                    );
-                }
-            }
+                },
+            );
+            (incoming || []).forEach(({ incoming: incomingPerEnv, environment }) => {
+                rasaZip.addFile(
+                    JSON.stringify(incomingPerEnv, null, 2),
+                    `botfront/incoming${envSuffix(environment, incoming)}.json`,
+                );
+            });
 
             rasaZip.addFile(exportData.domain, 'domain.yml');
             rasaZip.addFile(bfconfigYaml, 'botfront/bfconfig.yml');
             rasaZip.addFile(defaultDomain, 'botfront/default-domain.yml');
+            if (Object.keys(widgetSettings).length > 0) { rasaZip.addFile(safeDump(widgetSettings), 'botfront/widgetsettings.yml'); }
 
             return rasaZip.generateBlob();
         },
