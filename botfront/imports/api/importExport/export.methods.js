@@ -36,7 +36,7 @@ if (Meteor.isServer) {
             const passedLang = language === 'all' ? {} : { language };
 
             const project = Projects.findOne({ _id: projectId });
-            const envs = ['development', ...project.deploymentEnvironments];
+            const envs = ['development', ...(project.deploymentEnvironments || [])];
             const getEnvQuery = (envKey, envValue) => (envValue !== 'development'
                 ? { [envKey]: envValue }
                 : {
