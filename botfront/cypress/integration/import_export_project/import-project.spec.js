@@ -43,8 +43,8 @@ describe('Importing a Botfront project', function() {
 
     it('should import a zip', function() {
         cy.visit('/project/bf/settings/import-export');
-        cy.fixture('testProject.zip').then((b64data) => {
-            const blob = Cypress.Blob.base64StringToBlob(b64data, 'application/zip');
+        cy.fixture('testProject.zip').then(async (b64data) => {
+            const blob = await Cypress.Blob.base64StringToBlob(b64data, 'application/zip');
             cy.dataCy('drop-zone-data').uploadBlob(blob, 'testProject.zip');
         });
 
@@ -193,8 +193,8 @@ describe('Importing a Botfront project', function() {
         cy.visit('/project/bf/settings/import-export');
 
         // import a project so there is something to wipe
-        cy.fixture('testProject.zip').then((b64data) => {
-            const blob = Cypress.Blob.base64StringToBlob(b64data, 'application/zip');
+        cy.fixture('testProject.zip').then(async (b64data) => {
+            const blob = await Cypress.Blob.base64StringToBlob(b64data, 'application/zip');
             cy.dataCy('drop-zone-data').uploadBlob(blob, 'testProject.zip');
         });
         cy.get('.info.message').should('exist');
