@@ -1,0 +1,27 @@
+slots:
+  bf_office_hours:
+    type: unfeaturized
+    initial_value:
+      timezone: -4
+      days:
+        - day_of_week: 1
+          from: '09:00'
+          to: 1020
+        - day_of_week: 2
+          from: '09:00'
+          to: 750
+        - day_of_week: 2
+          from: 810
+          to: 750
+        - day_of_week: 3
+          from: '09:00'
+          to: 1020
+        - day_of_week: 4
+          from: '09:00'
+          to: 1020
+        - day_of_week: 5
+          from: '09:00'
+          to: 1020
+responses: {}
+forms: {}
+actions: []

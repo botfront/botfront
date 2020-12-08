@@ -1,0 +1,18 @@
+pipeline:
+  - name: WhitespaceTokenizer
+  - name: CountVectorsFeaturizer
+  - name: DIETClassifier
+  - name: rasa_addons.nlu.components.gazette.Gazette
+  - name: EntitySynonymMapper
+language: fr
+
+
+policies:
+  - name: TEDPolicy
+    epochs: 150
+    max_history: 5
+    batch_size:
+      - 32
+      - 64
+  - name: MemoizationPolicy
+    max_history: 5

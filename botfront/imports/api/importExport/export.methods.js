@@ -73,7 +73,7 @@ if (Meteor.isServer) {
                         const incomingInEnv = await Activity.find({
                             projectId,
                             ...getEnvQuery('env', environment),
-                        }, { _id: 0 }).lean();
+                        }, { _id: 0 }, { sort: { updatedAt: -1, language: 1 } }).lean();
                         return {
                             environment,
                             incoming: incomingInEnv,
@@ -86,7 +86,7 @@ if (Meteor.isServer) {
                         const conversationsInEnv = await Conversations.find({
                             projectId,
                             ...getEnvQuery('env', environment),
-                        }).lean();
+                        }, {}, { sort: { updatedAt: -1, language: 1 } }).lean();
                         return {
                             environment,
                             conversations: conversationsInEnv,

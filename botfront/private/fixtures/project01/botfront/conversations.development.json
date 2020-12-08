@@ -1,0 +1,730 @@
+[
+  {
+    "_id": "5677dc54c17743beab2ef6ad47d7f41b",
+    "env": "development",
+    "projectId": "bf",
+    "__v": 0,
+    "actions": [
+      "action_session_start",
+      "action_listen",
+      "utter_sx0MSd0U",
+      "utter_UHUTZi9Y",
+      "utter_DzmMYxB6"
+    ],
+    "createdAt": "2020-12-01T17:25:15.289Z",
+    "intents": [
+      "get_started",
+      "chitchat.this_is_good"
+    ],
+    "status": "new",
+    "tracker": {
+      "active_loop": {},
+      "events": [
+        {
+          "event": "action",
+          "timestamp": 1606843515.300985,
+          "name": "action_session_start",
+          "policy": null,
+          "confidence": null
+        },
+        {
+          "event": "session_started",
+          "timestamp": 1606843515.3010051,
+          "metadata": {
+            "language": "fr"
+          }
+        },
+        {
+          "event": "action",
+          "timestamp": 1606843515.301074,
+          "name": "action_listen",
+          "policy": null,
+          "confidence": null
+        },
+        {
+          "event": "user",
+          "timestamp": 1606843515.303778,
+          "metadata": {
+            "language": "fr"
+          },
+          "text": "/get_started",
+          "parse_data": {
+            "intent": {
+              "name": "get_started",
+              "confidence": 1
+            },
+            "entities": [],
+            "text": "/get_started",
+            "message_id": "363c91916a39457d8b4eca7b5270092b",
+            "metadata": {
+              "language": "fr"
+            },
+            "intent_ranking": [
+              {
+                "name": "get_started",
+                "confidence": 1
+              }
+            ]
+          },
+          "input_channel": "webchat",
+          "message_id": "363c91916a39457d8b4eca7b5270092b"
+        },
+        {
+          "event": "action",
+          "timestamp": 1606843515.3629708,
+          "name": "utter_sx0MSd0U",
+          "policy": "policy_4_MemoizationPolicy",
+          "confidence": 1
+        },
+        {
+          "event": "bot",
+          "timestamp": 1606843515.362992,
+          "metadata": {
+            "template_name": "utter_sx0MSd0U"
+          },
+          "text": "",
+          "data": {
+            "elements": null,
+            "quick_replies": null,
+            "buttons": null,
+            "attachment": "https://storage.googleapis.com/prod-media-bf-botfront-botfront-cloud/development/utter_sx0MSd0U_1580231513355-en.gif",
+            "image": "https://storage.googleapis.com/prod-media-bf-botfront-botfront-cloud/development/utter_sx0MSd0U_1580231513355-en.gif",
+            "custom": null
+          }
+        },
+        {
+          "event": "action",
+          "timestamp": 1606843515.416589,
+          "name": "utter_UHUTZi9Y",
+          "policy": "policy_4_MemoizationPolicy",
+          "confidence": 1
+        },
+        {
+          "event": "bot",
+          "timestamp": 1606843515.416609,
+          "metadata": {
+            "linkTarget": "_blank",
+            "userInput": "show",
+            "forceOpen": false,
+            "forceClose": false,
+            "pageChangeCallbacks": null,
+            "pageEventCallbacks": null,
+            "template_name": "utter_UHUTZi9Y"
+          },
+          "text": "Bonjour!",
+          "data": {
+            "elements": null,
+            "quick_replies": null,
+            "buttons": null,
+            "attachment": null,
+            "image": null,
+            "custom": null
+          }
+        },
+        {
+          "event": "action",
+          "timestamp": 1606843515.5641658,
+          "name": "action_listen",
+          "policy": "policy_4_MemoizationPolicy",
+          "confidence": 1
+        },
+        {
+          "event": "user",
+          "timestamp": 1606843522.48341,
+          "metadata": {
+            "language": "fr"
+          },
+          "text": "sucré!",
+          "parse_data": {
+            "intent": {
+              "id": -368406457816922240,
+              "name": "chitchat.this_is_good",
+              "confidence": 0.9999978542327881
+            },
+            "entities": [],
+            "text": "sucré!",
+            "message_id": "2fb64c1033394176be0bf88c8de35403",
+            "metadata": {
+              "language": "fr"
+            },
+            "intent_ranking": [
+              {
+                "id": -368406457816922240,
+                "name": "chitchat.this_is_good",
+                "confidence": 0.9999978542327881
+              },
+              {
+                "id": -5372834886624106000,
+                "name": "basics.yes",
+                "confidence": 0.0000011026210131603875
+              },
+              {
+                "id": 1153694283331949800,
+                "name": "chitchat.are_you_a_robot",
+                "confidence": 6.234432703422499e-7
+              },
+              {
+                "id": -3983263865511601700,
+                "name": "chitchat.i_am_good",
+                "confidence": 2.6479338544049824e-7
+              },
+              {
+                "id": -2110483926775739100,
+                "name": "chitchat.how_are_you",
+                "confidence": 5.918648326996845e-8
+              },
+              {
+                "id": -8257379078868144000,
+                "name": "chitchat.this_is_bad",
+                "confidence": 5.241341938244659e-8
+              },
+              {
+                "id": 8217667152432246000,
+                "name": "basics.no",
+                "confidence": 1.1430747903773408e-8
+              },
+              {
+                "id": 1436282970680621800,
+                "name": "chitchat.bye",
+                "confidence": 1.093741985869201e-8
+              },
+              {
+                "id": 7787948184972709000,
+                "name": "chitchat.greet",
+                "confidence": 3.0370090886577827e-9
+              }
+            ]
+          },
+          "input_channel": "webchat",
+          "message_id": "2fb64c1033394176be0bf88c8de35403"
+        },
+        {
+          "event": "action",
+          "timestamp": 1606843522.586184,
+          "name": "utter_DzmMYxB6",
+          "policy": "policy_0_TEDPolicy",
+          "confidence": 0.9352166652679443
+        },
+        {
+          "event": "bot",
+          "timestamp": 1606843522.5862122,
+          "metadata": {
+            "template_name": "utter_DzmMYxB6"
+          },
+          "text": "merci\n\nil y a tellement d'autres choses que j'aimerais vous montrer!",
+          "data": {
+            "elements": null,
+            "quick_replies": null,
+            "buttons": null,
+            "attachment": null,
+            "image": null,
+            "custom": null
+          }
+        },
+        {
+          "event": "action",
+          "timestamp": 1606843522.6417742,
+          "name": "action_listen",
+          "policy": "policy_0_TEDPolicy",
+          "confidence": 0.9997140169143677
+        }
+      ],
+      "followup_action": null,
+      "latest_action": {
+        "action_name": "action_listen"
+      },
+      "latest_action_name": "action_listen",
+      "latest_event_time": 1606843522.6417742,
+      "latest_input_channel": "webchat",
+      "latest_message": {
+        "intent": {
+          "id": -368406457816922240,
+          "name": "chitchat.this_is_good",
+          "confidence": 0.9999978542327881
+        },
+        "entities": [],
+        "text": "sucré!",
+        "message_id": "2fb64c1033394176be0bf88c8de35403",
+        "metadata": {
+          "language": "fr"
+        },
+        "intent_ranking": [
+          {
+            "id": -368406457816922240,
+            "name": "chitchat.this_is_good",
+            "confidence": 0.9999978542327881
+          },
+          {
+            "id": -5372834886624106000,
+            "name": "basics.yes",
+            "confidence": 0.0000011026210131603875
+          },
+          {
+            "id": 1153694283331949800,
+            "name": "chitchat.are_you_a_robot",
+            "confidence": 6.234432703422499e-7
+          },
+          {
+            "id": -3983263865511601700,
+            "name": "chitchat.i_am_good",
+            "confidence": 2.6479338544049824e-7
+          },
+          {
+            "id": -2110483926775739100,
+            "name": "chitchat.how_are_you",
+            "confidence": 5.918648326996845e-8
+          },
+          {
+            "id": -8257379078868144000,
+            "name": "chitchat.this_is_bad",
+            "confidence": 5.241341938244659e-8
+          },
+          {
+            "id": 8217667152432246000,
+            "name": "basics.no",
+            "confidence": 1.1430747903773408e-8
+          },
+          {
+            "id": 1436282970680621800,
+            "name": "chitchat.bye",
+            "confidence": 1.093741985869201e-8
+          },
+          {
+            "id": 7787948184972709000,
+            "name": "chitchat.greet",
+            "confidence": 3.0370090886577827e-9
+          }
+        ]
+      },
+      "paused": false,
+      "sender_id": "5677dc54c17743beab2ef6ad47d7f41b",
+      "slots": {
+        "bf_office_hours": {
+          "timezone": -4,
+          "days": [
+            {
+              "day_of_week": 1,
+              "from": "09:00",
+              "to": 1020
+            },
+            {
+              "day_of_week": 2,
+              "from": "09:00",
+              "to": 750
+            },
+            {
+              "day_of_week": 2,
+              "from": 810,
+              "to": 750
+            },
+            {
+              "day_of_week": 3,
+              "from": "09:00",
+              "to": 1020
+            },
+            {
+              "day_of_week": 4,
+              "from": "09:00",
+              "to": 1020
+            },
+            {
+              "day_of_week": 5,
+              "from": "09:00",
+              "to": 1020
+            }
+          ]
+        },
+        "company_size": null,
+        "company_website": null,
+        "context": "pricing",
+        "device_type": "computer",
+        "edition": "NA",
+        "email_disconnected": null,
+        "fallback_language": "en",
+        "feature": null,
+        "first_name": null,
+        "founding_year": null,
+        "last_name": null,
+        "message": null,
+        "no_interest_message": null,
+        "primary_service": null,
+        "project_status": null,
+        "trial_form_context": null,
+        "use_case": null,
+        "utm_keyword": null,
+        "work_email": null
+      }
+    },
+    "updatedAt": "2020-12-01T17:25:22.679Z",
+    "language": "fr"
+  },
+  {
+    "_id": "727067bffc6e4f148279b178f70503c8",
+    "env": "development",
+    "projectId": "bf",
+    "__v": 0,
+    "actions": [
+      "action_session_start",
+      "action_listen",
+      "utter_sx0MSd0U",
+      "utter_UHUTZi9Y",
+      "utter_DzmMYxB6"
+    ],
+    "createdAt": "2020-12-01T17:24:28.702Z",
+    "intents": [
+      "get_started",
+      "chitchat.this_is_good"
+    ],
+    "status": "new",
+    "tracker": {
+      "active_loop": {},
+      "events": [
+        {
+          "event": "action",
+          "timestamp": 1606843468.759583,
+          "name": "action_session_start",
+          "policy": null,
+          "confidence": null
+        },
+        {
+          "event": "session_started",
+          "timestamp": 1606843468.760921,
+          "metadata": {
+            "language": "en"
+          }
+        },
+        {
+          "event": "action",
+          "timestamp": 1606843468.7610838,
+          "name": "action_listen",
+          "policy": null,
+          "confidence": null
+        },
+        {
+          "event": "user",
+          "timestamp": 1606843468.771774,
+          "metadata": {
+            "language": "en"
+          },
+          "text": "/get_started",
+          "parse_data": {
+            "intent": {
+              "name": "get_started",
+              "confidence": 1
+            },
+            "entities": [],
+            "text": "/get_started",
+            "message_id": "87b24de8de6347dabee2922e0c4253e1",
+            "metadata": {
+              "language": "en"
+            },
+            "intent_ranking": [
+              {
+                "name": "get_started",
+                "confidence": 1
+              }
+            ]
+          },
+          "input_channel": "webchat",
+          "message_id": "87b24de8de6347dabee2922e0c4253e1"
+        },
+        {
+          "event": "action",
+          "timestamp": 1606843468.899035,
+          "name": "utter_sx0MSd0U",
+          "policy": "policy_4_MemoizationPolicy",
+          "confidence": 1
+        },
+        {
+          "event": "bot",
+          "timestamp": 1606843468.899057,
+          "metadata": {
+            "template_name": "utter_sx0MSd0U"
+          },
+          "text": "",
+          "data": {
+            "elements": null,
+            "quick_replies": null,
+            "buttons": null,
+            "attachment": "https://storage.googleapis.com/prod-media-bf-botfront-botfront-cloud/development/utter_sx0MSd0U_1580231513355-en.gif",
+            "image": "https://storage.googleapis.com/prod-media-bf-botfront-botfront-cloud/development/utter_sx0MSd0U_1580231513355-en.gif",
+            "custom": null
+          }
+        },
+        {
+          "event": "action",
+          "timestamp": 1606843468.951326,
+          "name": "utter_UHUTZi9Y",
+          "policy": "policy_4_MemoizationPolicy",
+          "confidence": 1
+        },
+        {
+          "event": "bot",
+          "timestamp": 1606843468.951344,
+          "metadata": {
+            "linkTarget": "_blank",
+            "userInput": "show",
+            "forceOpen": false,
+            "forceClose": false,
+            "pageChangeCallbacks": null,
+            "pageEventCallbacks": null,
+            "template_name": "utter_UHUTZi9Y"
+          },
+          "text": "Hello! ",
+          "data": {
+            "elements": null,
+            "quick_replies": null,
+            "buttons": null,
+            "attachment": null,
+            "image": null,
+            "custom": null
+          }
+        },
+        {
+          "event": "action",
+          "timestamp": 1606843469.0839858,
+          "name": "action_listen",
+          "policy": "policy_4_MemoizationPolicy",
+          "confidence": 1
+        },
+        {
+          "event": "user",
+          "timestamp": 1606843508.135199,
+          "metadata": {
+            "language": "en"
+          },
+          "text": "cool!",
+          "parse_data": {
+            "intent": {
+              "id": -368406457816922240,
+              "name": "chitchat.this_is_good",
+              "confidence": 0.9999992251396179
+            },
+            "entities": [],
+            "text": "cool!",
+            "message_id": "873b154088c34a2c8468de21d33f4c70",
+            "metadata": {
+              "language": "en"
+            },
+            "intent_ranking": [
+              {
+                "id": -368406457816922240,
+                "name": "chitchat.this_is_good",
+                "confidence": 0.9999992251396179
+              },
+              {
+                "id": -8037678522301422000,
+                "name": "general.continue",
+                "confidence": 1.247283165639601e-7
+              },
+              {
+                "id": 8217667152432246000,
+                "name": "basics.no",
+                "confidence": 1.1373854391649729e-7
+              },
+              {
+                "id": 6567564903537381000,
+                "name": "next",
+                "confidence": 9.902209541223783e-8
+              },
+              {
+                "id": -7681332886624055000,
+                "name": "clicdemo",
+                "confidence": 8.786083327549932e-8
+              },
+              {
+                "id": -5555255673402729000,
+                "name": "basics.why",
+                "confidence": 7.874427865317557e-8
+              },
+              {
+                "id": 1153694283331949800,
+                "name": "chitchat.are_you_a_robot",
+                "confidence": 7.861147111043465e-8
+              },
+              {
+                "id": 4966432066393601000,
+                "name": "chitchat.you_are_smart",
+                "confidence": 7.484480590846943e-8
+              },
+              {
+                "id": -4130412591863951400,
+                "name": "general.not_interested",
+                "confidence": 6.702074983877537e-8
+              },
+              {
+                "id": -2993713708625646000,
+                "name": "welcome",
+                "confidence": 6.689367637591204e-8
+              }
+            ]
+          },
+          "input_channel": "webchat",
+          "message_id": "873b154088c34a2c8468de21d33f4c70"
+        },
+        {
+          "event": "action",
+          "timestamp": 1606843508.238349,
+          "name": "utter_DzmMYxB6",
+          "policy": "policy_0_TEDPolicy",
+          "confidence": 0.9352166652679443
+        },
+        {
+          "event": "bot",
+          "timestamp": 1606843508.238369,
+          "metadata": {
+            "template_name": "utter_DzmMYxB6"
+          },
+          "text": "Thank you!\n\nAnd there's a lot more we'd love to show you!",
+          "data": {
+            "elements": null,
+            "quick_replies": null,
+            "buttons": null,
+            "attachment": null,
+            "image": null,
+            "custom": null
+          }
+        },
+        {
+          "event": "action",
+          "timestamp": 1606843508.2930171,
+          "name": "action_listen",
+          "policy": "policy_0_TEDPolicy",
+          "confidence": 0.9997140169143677
+        }
+      ],
+      "followup_action": null,
+      "latest_action": {
+        "action_name": "action_listen"
+      },
+      "latest_action_name": "action_listen",
+      "latest_event_time": 1606843508.2930171,
+      "latest_input_channel": "webchat",
+      "latest_message": {
+        "intent": {
+          "id": -368406457816922240,
+          "name": "chitchat.this_is_good",
+          "confidence": 0.9999992251396179
+        },
+        "entities": [],
+        "text": "cool!",
+        "message_id": "873b154088c34a2c8468de21d33f4c70",
+        "metadata": {
+          "language": "en"
+        },
+        "intent_ranking": [
+          {
+            "id": -368406457816922240,
+            "name": "chitchat.this_is_good",
+            "confidence": 0.9999992251396179
+          },
+          {
+            "id": -8037678522301422000,
+            "name": "general.continue",
+            "confidence": 1.247283165639601e-7
+          },
+          {
+            "id": 8217667152432246000,
+            "name": "basics.no",
+            "confidence": 1.1373854391649729e-7
+          },
+          {
+            "id": 6567564903537381000,
+            "name": "next",
+            "confidence": 9.902209541223783e-8
+          },
+          {
+            "id": -7681332886624055000,
+            "name": "clicdemo",
+            "confidence": 8.786083327549932e-8
+          },
+          {
+            "id": -5555255673402729000,
+            "name": "basics.why",
+            "confidence": 7.874427865317557e-8
+          },
+          {
+            "id": 1153694283331949800,
+            "name": "chitchat.are_you_a_robot",
+            "confidence": 7.861147111043465e-8
+          },
+          {
+            "id": 4966432066393601000,
+            "name": "chitchat.you_are_smart",
+            "confidence": 7.484480590846943e-8
+          },
+          {
+            "id": -4130412591863951400,
+            "name": "general.not_interested",
+            "confidence": 6.702074983877537e-8
+          },
+          {
+            "id": -2993713708625646000,
+            "name": "welcome",
+            "confidence": 6.689367637591204e-8
+          }
+        ]
+      },
+      "paused": false,
+      "sender_id": "727067bffc6e4f148279b178f70503c8",
+      "slots": {
+        "bf_office_hours": {
+          "timezone": -4,
+          "days": [
+            {
+              "day_of_week": 1,
+              "from": "09:00",
+              "to": 1020
+            },
+            {
+              "day_of_week": 2,
+              "from": "09:00",
+              "to": 750
+            },
+            {
+              "day_of_week": 2,
+              "from": 810,
+              "to": 750
+            },
+            {
+              "day_of_week": 3,
+              "from": "09:00",
+              "to": 1020
+            },
+            {
+              "day_of_week": 4,
+              "from": "09:00",
+              "to": 1020
+            },
+            {
+              "day_of_week": 5,
+              "from": "09:00",
+              "to": 1020
+            }
+          ]
+        },
+        "company_size": null,
+        "company_website": null,
+        "context": "pricing",
+        "device_type": "computer",
+        "edition": "NA",
+        "email_disconnected": null,
+        "fallback_language": "en",
+        "feature": null,
+        "first_name": null,
+        "founding_year": null,
+        "last_name": null,
+        "message": null,
+        "no_interest_message": null,
+        "primary_service": null,
+        "project_status": null,
+        "trial_form_context": null,
+        "use_case": null,
+        "utm_keyword": null,
+        "work_email": null
+      }
+    },
+    "updatedAt": "2020-12-01T17:25:08.320Z",
+    "language": "en"
+  }
+]

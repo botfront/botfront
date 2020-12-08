@@ -4,9 +4,10 @@ if (Meteor.isServer) {
     import chai, { expect } from 'chai';
     import deepEqualInAnyOrder from 'deep-equal-in-any-order';
     import chaiExclude from 'chai-exclude';
-    import { basename } from 'path';
+    import { basename, join, dirname } from 'path';
     import JSZip from 'jszip';
     import JSYaml from 'js-yaml';
+    import glob from 'glob';
     import { caught } from '../../../lib/client.safe.utils';
     import { importSteps } from './import.utils';
     import { GlobalSettings } from '../../globalSettings/globalSettings.collection';
@@ -18,17 +19,31 @@ if (Meteor.isServer) {
     chai.use(deepEqualInAnyOrder);
     chai.use(chaiExclude);
 
+    const generateZip = (folders) => {
+        const zip = new JSZip();
+        const fixturesPath = dirname(Assets.absoluteFilePath(join('fixtures', 'empty')));
+        folders.forEach((folder) => {
+            const paths = glob.sync(join('**', '*'), {
+                nodir: true,
+                cwd: join(fixturesPath, folder),
+            });
+            paths.forEach(path => zip.file(path, Assets.getText(join('fixtures', folder, path))));
+        });
+        return zip;
+    };
+
     const fixturePathToFile = (filePath) => {
-        const absolutePath = Assets.absoluteFilePath(`fixtures/${filePath}`);
+        if (filePath instanceof JSZip) {
+            return {
+                createReadStream: () => filePath.generateNodeStream(),
+                filename: 'project.zip',
+            };
+        }
+        const absolutePath = Assets.absoluteFilePath(join('fixtures', filePath));
         return {
             createReadStream: () => fs.createReadStream(absolutePath),
             filename: basename(absolutePath),
         };
-    };
-
-    const fixturePathToBuffer = (filePath) => {
-        const absolutePath = Assets.absoluteFilePath(`fixtures/${filePath}`);
-        return fs.readFileSync(absolutePath);
     };
 
     const importStepsWrapped = (filePaths, options = {}) => importSteps({
@@ -37,7 +52,7 @@ if (Meteor.isServer) {
         files: filePaths.map(fixturePathToFile),
     });
 
-    describe('import route', () => {
+    describe('import route', function () {
         before(
             caught(async () => {
                 try {
@@ -293,22 +308,28 @@ if (Meteor.isServer) {
             });
         });
 
-        const unzipFiles = zip => Object.entries(zip.files).reduce(async (acc, [path, item]) => {
+        const unzipFiles = (zip, subs = []) => Object.entries(zip.files).reduce(async (acc, [path, item]) => {
             if (item.dir) return acc;
             let content = await item.async('text');
             if (path.match(/\.json$/)) content = JSON.parse(content);
             if (path.match(/\.ya?ml$/)) content = JSYaml.safeLoad(content);
-            return { ...(await acc), [path]: content };
+            let subbedPath = path;
+            subs.forEach(([str, sub]) => { subbedPath = subbedPath.replace(str, sub); });
+            return { ...(await acc), [subbedPath]: content };
         }, {});
 
-        describe('import -- export integrity', () => {
+        describe('import -- export integrity', function () {
+            this.timeout(5000);
             it(
                 'should import a stock project, and export should match',
                 caught(async () => {
-                    await importStepsWrapped(['project01.zip'], { wipeProject: true });
-                    const localZip = await unzipFiles(
-                        await JSZip.loadAsync(fixturePathToBuffer('project01.zip')),
-                    );
+                    const zip = generateZip(['project01']);
+                    await importStepsWrapped([zip], { wipeProject: true });
+                    // we strip the ".development" suffix in files, since
+                    // it's not there in monoenvironment projects. however, because of
+                    // how meteor assets work, that file can only be committed once and
+                    // thus with one filename for all tests.
+                    const localZip = await unzipFiles(zip, [['.development', '']]);
                     const b64zip = await Meteor.callWithPromise(
                         'exportRasa',
                         'bf',
@@ -318,11 +339,21 @@ if (Meteor.isServer) {
                     const generatedZip = await unzipFiles(
                         await JSZip.loadAsync(Buffer.from(b64zip, 'base64')),
                     );
-                    expect(Object.keys(generatedZip)).to.deep.equalInAnyOrder(
-                        Object.keys(localZip),
-                    );
+                    delete generatedZip['botfront/analyticsconfig.yml'];
+                    delete generatedZip['botfront/widgetsettings.yml'];
+                    expect(
+                        Object.keys(generatedZip),
+                    ).to.deep.equalInAnyOrder(Object.keys(localZip));
                     expect(generatedZip)
-                        .excludingEvery(['_id', 'checkpoint', 'updatedAt'])
+                        .excludingEvery([
+                            '_id',
+                            'checkpoint',
+                            'updatedAt',
+                            'allowContextualQuestions',
+                            'namespace',
+                            'nluThreshold',
+                            'timezoneOffset',
+                        ])
                         .to.deep.equal(localZip);
                 }),
             );

@@ -1,0 +1,34 @@
+stories:
+  - story: Does it work on prem
+    steps:
+      - intent: questions.is_onprem
+      - action: utter_6e3A13P5
+    metadata:
+      group: QA
+  - story: How to add carousels
+    steps:
+      - or:
+          - intent: question.how_to_carousels
+          - intent: questions.how_to_buttons
+      - action: utter_5bNz_SwHD
+    metadata:
+      group: QA
+  - story: Is it a saas
+    steps:
+      - intent: questions.is_saas
+      - action: utter_cVfHs9wj
+    metadata:
+      group: QA
+  - story: Is it free
+    steps:
+      - intent: pricing.is_it_free
+      - action: utter_M9aRvuJFD
+    metadata:
+      group: QA
+  - story: License
+    steps:
+      - intent: os_license
+      - action: utter_GGmk7zHav
+    metadata:
+      group: QA
+rules: []

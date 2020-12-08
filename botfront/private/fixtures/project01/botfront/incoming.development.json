@@ -1,0 +1,26 @@
+[
+  {
+    "env": "development",
+    "language": "fr",
+    "projectId": "bf",
+    "text": "sucré!",
+    "__v": 0,
+    "confidence": 0.9999978542327881,
+    "createdAt": "2020-12-01T17:25:22.483Z",
+    "entities": [],
+    "intent": "chitchat.this_is_good",
+    "updatedAt": "2020-12-01T17:25:22.655Z"
+  },
+  {
+    "env": "development",
+    "language": "en",
+    "projectId": "bf",
+    "text": "cool!",
+    "__v": 0,
+    "confidence": 0.9999992251396179,
+    "createdAt": "2020-12-01T17:25:08.135Z",
+    "entities": [],
+    "intent": "chitchat.this_is_good",
+    "updatedAt": "2020-12-01T17:25:08.310Z"
+  }
+]

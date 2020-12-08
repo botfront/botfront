@@ -1,0 +1,81 @@
+stories:
+  - story: Are you a robot
+    steps:
+      - intent: chitchat.are_you_a_robot
+      - action: utter_B3Z28yax
+      - action: utter_oyla1fgu
+    metadata:
+      group: Chitchat
+  - story: Bye
+    steps:
+      - intent: chitchat.bye
+      - action: utter_kKw8nEyIU
+    metadata:
+      group: Chitchat
+  - story: Hi
+    steps:
+      - intent: chitchat.greet
+      - action: utter_suhxWrV0
+      - action: utter__TsVasCq
+    metadata:
+      group: Chitchat
+  - story: How are you
+    steps:
+      - intent: chitchat.how_are_you
+      - action: utter_-KcS4gHa
+      - action: utter_qQA2j43x
+      - checkpoint: How_are_you__branches
+    metadata:
+      group: Chitchat
+  - story: How are you__Bad
+    steps:
+      - checkpoint: How_are_you__branches
+      - intent: chitchat.this_is_bad
+      - action: utter_N3-8GAPO
+    metadata:
+      group: Chitchat
+  - story: How are you__Great
+    steps:
+      - checkpoint: How_are_you__branches
+      - intent: chitchat.this_is_good
+      - action: utter_XMqlJpPj
+    metadata:
+      group: Chitchat
+  - story: I feel great
+    steps:
+      - intent: chitchat.feel_good
+      - action: utter_A9JDKNO0
+    metadata:
+      group: Chitchat
+  - story: Thanks
+    steps:
+      - intent: chitchat.thank_you
+      - action: utter_r2XmKyouZ
+      - action: utter_VhmH2glVu
+    metadata:
+      group: Chitchat
+  - story: That's great
+    steps:
+      - intent: chitchat.this_is_good
+      - action: utter_DzmMYxB6
+    metadata:
+      group: Chitchat
+  - story: What is your name
+    steps:
+      - intent: chitchat.what_is_your_name
+      - action: utter_9qyL3xc8C
+    metadata:
+      group: Chitchat
+  - story: Why
+    steps:
+      - intent: basics.why
+      - action: utter_msb9NYLYT
+    metadata:
+      group: Chitchat
+  - story: You're smart
+    steps:
+      - intent: chitchat.you_are_smart
+      - action: utter_2WFMcrvl
+    metadata:
+      group: Chitchat
+rules: []
