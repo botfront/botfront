@@ -91,6 +91,7 @@ export async function validateFiles(files, params) {
         newParams,
     );
     [filesWithMessages, newParams] = validateTestCases(filesWithMessages, newParams);
+    console.log(filesWithMessages);
     [filesWithMessages, newParams] = validateEndpoints(filesWithMessages, newParams);
     [filesWithMessages, newParams] = validateCredentials(filesWithMessages, newParams);
     [filesWithMessages, newParams] = validateDomain(filesWithMessages, newParams);

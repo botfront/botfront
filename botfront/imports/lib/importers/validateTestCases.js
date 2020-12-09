@@ -53,6 +53,9 @@ class TestCaseValidator {
         const name = initialName || this.fallbackStoryGroup;
     
         if (this.wipeProject || this.wipeInvolvedCollections || this.wipeFragments) {
+            if (!this.storyGroupsUsed.some(({ name: groupName }) => groupName === name)) {
+                this.addNewStoryGroup(name);
+            }
             return name;
         }
     
@@ -95,8 +98,8 @@ class TestCaseValidator {
             (acc, { name }) => ({ ...acc, [name]: true }),
             {},
         );
-    
-        const newSummaryLines = Object.keys(this.fragments).map((groupName) => {
+
+        let newSummaryLines = Object.keys(this.fragments).map((groupName) => {
             let testsInGroup = [];
             const groupIsNew = preExistingGroupNames[groupName];
             const testsByLanguage = Object.keys(this.fragments[groupName]).map(((language) => {
@@ -108,6 +111,10 @@ class TestCaseValidator {
                 text: `Group '${groupName}' will ${groupIsNew ? 'contain' : 'be added with'} ${testsByLanguage.join(', ')}`,
             };
         });
+        if (Object.keys(this.fragments).length > 0 && this.wipeInvolvedCollections && !this.wipeProject) {
+            this.wipeFragments = true;
+            newSummaryLines = [...newSummaryLines, 'ALL EXISTING CONVERSATIONAL FRAGMENTS will be deleted.'];
+        }
         return newSummaryLines;
     };
 
@@ -197,6 +204,8 @@ class TestCaseValidator {
                 {
                     ...this.params,
                     summary: [...this.summary, ...newSummaryLines],
+                    wipeFragments: this.wipeFragments,
+                    storyGroupsUsed: this.storyGroupsUsed,
                 },
             ];
         } catch (e) {
