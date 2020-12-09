@@ -1,7 +1,4 @@
 /* global Cypress cy: true */
-import { join } from 'path';
-import JSZip from 'jszip';
-import glob from 'glob';
 import { resultingEndpoints, resultingDefaultDomain, resultingCredentials } from './import-project.data';
 
 
@@ -16,31 +13,31 @@ describe('Importing a Botfront project', function() {
         cy.logout();
         cy.deleteProject('bf');
     });
-    // it('should process a file', function() {
-    //     cy.visit('/project/bf/settings/import-export');
-    //     cy.fixture('domain.yml', 'utf-8').then((rawText) => {
-    //         cy.dataCy('drop-zone-data').uploadTxt(rawText, 'domain.yml');
-    //     });
+    it('should process a file', function() {
+        cy.visit('/project/bf/settings/import-export');
+        cy.fixture('domain.yml', 'utf-8').then((rawText) => {
+            cy.dataCy('drop-zone-data').uploadTxt(rawText, 'domain.yml');
+        });
 
-    //     cy.dataCy('label').should('have.class', 'yellow');
-    //     cy.dataCy('message-warning-domainyml').should('have.text', 'domain.yml'
-    //     + 'those reponses will add the support for the language en :utter_cgMeFnuj5, utter_J5MMvow26'
-    //     + 'those reponses will add the support for the language ru :utter_uCag8LL6z'
-    //     + 'Some actions in domain are not explicitly mentioned in dialogue fragments.'
-    //     + 'They will be added to the project\'s default domain.');
-    //     cy.dataCy('summary-list').should('have.text', 'Support for language \'en\' will be added using the default config.'
-    //     + 'Support for language \'ru\' will be added using the default config.'
-    //     + '3 responses, 1 actions will be added from domain.yml.');
-    // });
-    // it('Should mark as error a file that is not json/yaml/zip/yml/md', function() {
-    //     cy.visit('/project/bf/settings/import-export');
-    //     cy.fixture('dummyBadFile.png').then((badfile) => {
-    //         cy.dataCy('drop-zone-data').uploadBlob(badfile, 'dummyBadFile.png');
-    //     });
+        cy.dataCy('label').should('have.class', 'yellow');
+        cy.dataCy('message-warning-domainyml').should('have.text', 'domain.yml'
+        + 'those reponses will add the support for the language en :utter_cgMeFnuj5, utter_J5MMvow26'
+        + 'those reponses will add the support for the language ru :utter_uCag8LL6z'
+        + 'Some actions in domain are not explicitly mentioned in dialogue fragments.'
+        + 'They will be added to the project\'s default domain.');
+        cy.dataCy('summary-list').should('have.text', 'Support for language \'en\' will be added using the default config.'
+        + 'Support for language \'ru\' will be added using the default config.'
+        + '3 responses, 1 actions will be added from domain.yml.');
+    });
+    it('Should mark as error a file that is not json/yaml/zip/yml/md', function() {
+        cy.visit('/project/bf/settings/import-export');
+        cy.fixture('dummyBadFile.png').then((badfile) => {
+            cy.dataCy('drop-zone-data').uploadBlob(badfile, 'dummyBadFile.png');
+        });
 
-    //     cy.dataCy('label').should('have.class', 'red');
-    //     cy.dataCy('message-error-dummyBadFilepng').should('have.text', 'dummyBadFile.pngFile is not .zip, .json, .md or .yaml.');
-    // });
+        cy.dataCy('label').should('have.class', 'red');
+        cy.dataCy('message-error-dummyBadFilepng').should('have.text', 'dummyBadFile.pngFile is not .zip, .json, .md or .yaml.');
+    });
 
     it('should import a zip', function() {
         cy.visit('/project/bf/settings/import-export');
