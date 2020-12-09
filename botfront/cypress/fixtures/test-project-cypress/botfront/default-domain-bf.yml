@@ -1,0 +1,7 @@
+slots:
+  disambiguation_message:
+    type: unfeaturized
+  test_message_b:
+    type: unfeaturized
+actions:
+  - action_aaa

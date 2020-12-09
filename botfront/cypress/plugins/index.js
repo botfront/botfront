@@ -10,10 +10,41 @@
 
 // This function is called when a project is opened or re-opened (e.g. due to
 // the project's config changing)
+const { join } = require('path');
+const JSZip = require('jszip');
+const glob = require('glob');
+const fs = require('fs');
 
-module.exports = (on, config) => {
-    // `on` is used to hook into various events Cypress emits
-    // `config` is the resolved Cypress config
+const generateZip = (folder, config) => {
+    const zip = new JSZip();
+    const toZip = join(config.fixturesFolder, folder);
+
+    const paths = glob.sync(join('**', '*'), {
+        nodir: true,
+        cwd: toZip,
+    });
+    // garanty order
+    paths.sort((a, b) => {
+        if (a.firstname < b.firstname) { return -1; }
+        if (a.firstname > b.firstname) { return 1; }
+        return 0;
+    });
+    paths.forEach(path => zip.file(path, fs.readFileSync(join(toZip, path), 'utf8')));
+    const b64 = zip.generateAsync({ type: 'base64' });
+    return b64;
 };
 
-module.exports = (on) => { on('task', { log (message) { console.log(message); return null; } }); };
+
+// module.exports = (on, config) => {
+//     // `on` is used to hook into various events Cypress emits
+//     // `config` is the resolved Cypress config
+// };
+
+module.exports = (on, config) => {
+    on('task', {
+        log (message) { console.log(message); return null; },
+        zipFolder(path) {
+            return generateZip(path, config);
+        },
+    });
+};
