@@ -131,7 +131,7 @@ if (Meteor.isServer) {
 
             const configData = project;
             // exported separately
-            delete configData.widgetSettings;
+            delete configData.chatWidgetSettings;
             delete configData.defaultDomain;
             // all of those are state data we don't want to keep in the import
             delete configData.training;

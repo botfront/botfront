@@ -97,7 +97,9 @@ const wipeDomain = async (projectId) => {
 // empty or bring back to default project data
 // we do not reset the instance as the import depends on rasa for certain part of the import
 // reseting it to default does not make sens
-const resetProject = async (projectId, projectLanguages) => {
+// no-unused-vars is used here so the signature is the same on os and ee
+// eslint-disable-next-line no-unused-vars
+const resetProject = async (projectId, { projectLanguages, fallbackLang }) => {
     try {
         wipeDomain(projectId);
         await Conversations.deleteMany({ projectId });
@@ -110,7 +112,6 @@ const resetProject = async (projectId, projectLanguages) => {
         await Examples.deleteMany({ projectId });
         await createCredentials({ _id: projectId });
         await createEndpoints({ _id: projectId });
-
         const {
             settings: {
                 private: { defaultDefaultDomain },
@@ -451,11 +452,11 @@ export const handleImportIncoming = async (
 // the files should have been processed before by the validation step
 export const handleImportAll = async (files, params) => {
     const importers = [];
-    const { projectId, wipeProject, projectLanguages } = params;
+    const { projectId, wipeProject } = params;
     const toImport = onlyValidFiles(files);
     try {
         if (wipeProject) {
-            await resetProject(projectId, projectLanguages);
+            await resetProject(projectId, params);
         }
         // this function is there to force the order of import: rasaconfig, default domain then domain
         // rasaconfig might add support for languages that have data in the domain

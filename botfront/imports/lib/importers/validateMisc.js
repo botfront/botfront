@@ -4,7 +4,7 @@ import { Projects } from '../../api/project/project.collection';
 import { onlyValidFiles } from './common';
 
 
-export const validateSimpleYamlFiles = (files, params, type, alias = type) => {
+export const validateSimpleYamlFiles = (files, params, type, alias = type, supportEnvs = true) => {
     const { supportedEnvs } = params;
     const envInFiles = {};
     const newSummary = params.summary;
@@ -32,7 +32,7 @@ export const validateSimpleYamlFiles = (files, params, type, alias = type) => {
                 warnings.push(`Conflicts with ${envInFiles[env]}, and thus won't be used in the import`);
             } else {
                 envInFiles[env] = filename;
-                newSummary.push(`${alias.charAt(0).toUpperCase() + alias.slice(1)}${supportedEnvs.length > 1 ? ` for ${env} ` : ' '}will be imported from ${filename}.`);
+                newSummary.push(`${alias.charAt(0).toUpperCase() + alias.slice(1)}${supportedEnvs.length > 1 && supportEnvs ? ` for ${env} ` : ' '}will be imported from ${filename}.`);
             }
         }
         return {
@@ -50,7 +50,7 @@ export const validateSimpleYamlFiles = (files, params, type, alias = type) => {
     return [newFiles, { ...params, summary: newSummary }];
 };
 
-export const validateSimpleJsonFiles = (files, params, type) => {
+export const validateSimpleJsonFiles = (files, params, type, alias = type) => {
     const { supportedEnvs } = params;
     let filesToValid = files.filter(f => f?.dataType === type);
     const countPerEnv = {};
@@ -70,7 +70,7 @@ export const validateSimpleJsonFiles = (files, params, type) => {
                 file,
                 warnings: [
                     ...(file?.warnings || []),
-                    `There are no ${type} in this file`,
+                    `There are no ${alias} in this file`,
                 ],
             };
         }
@@ -78,7 +78,6 @@ export const validateSimpleJsonFiles = (files, params, type) => {
         const extractedEnv = extractEnv.exec(file.filename);
       
         const env = extractedEnv ? extractedEnv[0] : 'development';
-
         if (!supportedEnvs.includes(env)) {
             warnings.push(`The "${env}" environment is not supported by this project, this file won't be used in the import`);
         }
@@ -99,10 +98,10 @@ export const validateSimpleJsonFiles = (files, params, type) => {
     const newSummary = params.summary;
     if (supportedEnvs.length > 1 && filesToValid.length > 0) {
         supportedEnvs.forEach((env) => {
-            if (countPerEnv[env] !== undefined) newSummary.push(`You will add ${countPerEnv[env]} ${type} in ${env}`);
+            if (countPerEnv[env] !== undefined) newSummary.push(`You will add ${countPerEnv[env]} ${alias} in ${env}`);
         });
     } else if (filesToValid.length > 0 && countPerEnv.development !== undefined) {
-        newSummary.push(`You will add ${countPerEnv.development} ${type}`);
+        newSummary.push(`You will add ${countPerEnv.development} ${alias}`);
     }
     const newFiles = files.map((file) => {
         if (file?.dataType !== type) return file;
@@ -116,7 +115,7 @@ export const validateEndpoints = (files, params) => validateSimpleYamlFiles(file
 export const validateCredentials = (files, params) => validateSimpleYamlFiles(files, params, 'credentials');
 
 export const validateBfConfig = (files, params) => {
-    const [newFiles, newParams] = validateSimpleYamlFiles(files, params, 'bfconfig', 'botfront config');
+    const [newFiles, newParams] = validateSimpleYamlFiles(files, params, 'bfconfig', 'botfront config', false);
     const bfConfigFiles = newFiles.filter(f => f?.dataType === 'bfconfig');
     const onlyValidConfigFiles = onlyValidFiles(bfConfigFiles);
     // ensure that the default language is in the project's language'
