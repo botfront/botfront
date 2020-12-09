@@ -1,9 +1,9 @@
 stories:
   - story: test case 3
     steps:
-      - user: /chitchat.greet
+      - user: /get_started
         intent: get_started
-      - action: utter_hi
+      - action: utter_get_started
     metadata:
       group: stories01
       language: de

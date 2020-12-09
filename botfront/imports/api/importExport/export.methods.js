@@ -204,17 +204,9 @@ if (Meteor.isServer) {
                         ? `data/nlu/${l}.${extension}`
                         : `data/nlu.${extension}`,
                 );
-            }
-            if (language === 'all') {
-                Object.keys(exportData.config).forEach(k => rasaZip.addFile(exportData.config[k], `config.${k}.yml`));
-                Object.keys(exportData.nlu).forEach(k => rasaZip.addFile(JSON.stringify(exportData.nlu[k]), `data/nlu/${k}.json`));
-                Object.keys(exportData.tests).forEach((k) => {
-                    rasaZip.addFile(safeDump({ stories: exportData.tests[k] }), `data/tests/test_${k}_stories.yml`);
-                });
-            } else {
-                rasaZip.addFile(exportData.config[language], 'config.yml');
-                rasaZip.addFile(JSON.stringify(exportData.nlu[language]), 'data/nlu.json');
-                rasaZip.addFile(safeDump({ stories: exportData.tests[language] }), `data/test_${language}_stories.yml`);
+                if (exportData.tests[l]) {
+                    rasaZip.addFile(safeDump({ stories: exportData.tests[l] }), `data/tests/test_${l}_stories.yml`);
+                }
             }
 
             const envSuffix = (env, collection) => (collection.length > 1 ? `.${env}` : '');
