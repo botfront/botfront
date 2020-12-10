@@ -5,6 +5,7 @@ import IconButton from '../../common/IconButton';
 import UserUtteranceContainer from './UserUtteranceContainer';
 import UserUtterancePopupContent from './UserUtterancePopupContent';
 import { ProjectContext } from '../../../layouts/context';
+import { USER_LINE_EDIT_MODE } from '../../../../lib/story.utils';
 
 const UserUtterancesContainer = (props) => {
     const {
@@ -12,7 +13,7 @@ const UserUtterancesContainer = (props) => {
     } = props;
     const { addUtterancesToTrainingData } = useContext(ProjectContext);
 
-    const somethingIsBeingInput = useMemo(() => value.some(disjunct => disjunct === null), [value]);
+    const somethingIsBeingInput = useMemo(() => value.some(disjunct => disjunct === USER_LINE_EDIT_MODE), [value]);
 
     const convertCoreToNlu = ({ user, entities, ...payload } = {}) => ({
         ...payload,
@@ -59,7 +60,7 @@ const UserUtterancesContainer = (props) => {
     const handleInsertDisjunct = (index, payload) => {
         onChange([
             ...value.slice(0, index + 1),
-            payload || { intent: null },
+            payload || { intent: USER_LINE_EDIT_MODE },
             ...value.slice(index + 1),
         ]);
     };
