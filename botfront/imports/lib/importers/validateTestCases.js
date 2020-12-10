@@ -1,6 +1,6 @@
 import { safeLoad } from 'js-yaml';
 import { v4 as uuidv4 } from 'uuid';
-import { parseTextEntities } from '../utils';
+import { parseTextEntities } from '../client.safe.utils';
 import { languages } from '../languages';
 
 const addErrorToFile = (file, error) => ({

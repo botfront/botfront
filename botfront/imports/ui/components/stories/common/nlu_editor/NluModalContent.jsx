@@ -20,7 +20,6 @@ import ConfirmPopup from '../../../common/ConfirmPopup';
 import { ConversationOptionsContext } from '../../Context';
 import { useExamples, useLazyExamples } from '../../../nlu/models/hooks';
 import { ProjectContext } from '../../../../layouts/context';
-import { parseTextEntities } from '../../../../../lib/filterExamples';
 
 function sameCanonicalGroup(example, payload) {
     // check if these examples are in the same canonical group
@@ -35,8 +34,7 @@ function sameCanonicalGroup(example, payload) {
 }
 
 const NLUModalContent = React.forwardRef((props, forwardedRef) => {
-    const { closeModal, payload: unparsedPayload } = props;
-    const payload = useMemo(() => parseTextEntities(unparsedPayload), [unparsedPayload]);
+    const { closeModal, payload } = props;
 
     const {
         project: { _id: projectId },

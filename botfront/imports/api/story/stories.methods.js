@@ -204,6 +204,7 @@ Meteor.methods({
     },
 
     async 'stories.runTests'(projectId, options = {}) {
+        checkIfCan('stories:w', projectId);
         check(projectId, String);
         check(options, Object);
         try {
@@ -269,6 +270,7 @@ Meteor.methods({
     },
 
     async 'test_case.overwrite'(projectId, storyId) {
+        checkIfCan('stories:w', projectId);
         check(projectId, String);
         check(storyId, String);
         const story = Stories.findOne({ projectId, _id: storyId }, {

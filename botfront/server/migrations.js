@@ -505,9 +505,9 @@ Migrations.add({
         Promise.all(projectIds.map(({ _id: projectId }) => {
             const failingTestsGroup = StoryGroups.findOne({
                 projectId,
-                'smatGroup.query': '{ "testResults": { "success": false } }',
+                'smartGroup.query': '{ "success": false }',
             });
-            if (failingTestsGroup) return;
+            if (failingTestsGroup) return Promise.finally();
             const _id = uuidv4();
             StoryGroups.insert({
                 name: 'Failing tests',
@@ -519,7 +519,7 @@ Migrations.add({
                 children: [],
             });
             // migrate
-            Projects.update({ projectId }, { $push: { storyGroups: _id } });
+            return Projects.update({ projectId }, { $push: { storyGroups: _id } });
         }));
     },
 });

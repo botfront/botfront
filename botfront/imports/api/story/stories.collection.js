@@ -67,7 +67,6 @@ if (Meteor.isServer) {
     });
 }
 
-Stories.attachSchema(TestSchema.tetsResults);
 Stories.attachSchema(TestSchema, { selector: { type: 'test_case' } });
 Stories.attachSchema(RuleSchema, { selector: { type: 'rule' } });
 Stories.attachSchema(StorySchema, { selector: { type: 'story' } });

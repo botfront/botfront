@@ -8,8 +8,6 @@ import { ProjectContext } from '../../../layouts/context';
 import IntentLabel from './IntentLabel';
 import EntityLabel from './EntityLabel';
 
-import { parseTextEntities } from '../../../../lib/filterExamples';
-
 function UserUtteranceViewer(props) {
     const {
         value, onChange, disableEditing, showIntent, disabled, onClick,
