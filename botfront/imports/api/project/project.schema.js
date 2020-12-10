@@ -39,6 +39,7 @@ export const ProjectsSchema = new SimpleSchema({
     defaultDomain: { type: DefaultDomainSchema, optional: true },
     storyGroups: { type: Array, defaultValue: [] },
     'storyGroups.$': { type: String },
+    gitString: { type: String, optional: true, regEx: /^https:\/\/.+?:.+?@.+?#.+$/ },
 }, { tracker: Tracker });
 
 ProjectsSchema.messageBox.messages({

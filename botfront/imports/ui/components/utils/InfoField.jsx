@@ -33,8 +33,8 @@ export default function InfoField({
 
 InfoField.propTypes = {
     name: PropTypes.string.isRequired,
-    label: PropTypes.string.isRequired,
-    info: PropTypes.string,
+    label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]).isRequired,
+    info: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
     required: PropTypes.bool,
     disabled: PropTypes.bool,
     Component: PropTypes.func,

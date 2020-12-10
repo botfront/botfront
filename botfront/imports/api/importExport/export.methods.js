@@ -59,9 +59,9 @@ if (Meteor.isServer) {
     Meteor.methods({
         async commitAndPushToRemote(projectId) {
             check(projectId, String);
-            // GIT_HTTPS_STRING: https://user:token@domain/.../repo.git#branch
-            if (!process.env.GIT_HTTPS_STRING) return;
-            const [url, branch, ...rest] = process.env.GIT_HTTPS_STRING.split('#');
+            const { gitString } = Projects.findOne({ _id: projectId }, { gitString: 1 }) || {};
+            if (!gitString) return;
+            const [url, branch, ...rest] = gitString.split('#');
             if (rest.length || !branch) {
                 throw new Error('There\'s something wrong with your git https string.');
             }
@@ -135,7 +135,7 @@ if (Meteor.isServer) {
             check(options, Object);
             const passedLang = language === 'all' ? {} : { language };
 
-            const project = Projects.findOne({ _id: projectId });
+            const project = Projects.findOne({ _id: projectId }, { gitString: 0 });
             const envs = ['development', ...(project.deploymentEnvironments || [])];
             const getEnvQuery = (envKey, envValue) => (envValue !== 'development'
                 ? { [envKey]: envValue }
