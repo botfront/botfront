@@ -57,8 +57,9 @@ if (Meteor.isServer) {
     );
 
     Meteor.methods({
-        async commitAndPushToRemote(projectId) {
+        async commitAndPushToRemote(projectId, commitMessage) {
             check(projectId, String);
+            check(commitMessage, String);
             const { gitString } = Projects.findOne({ _id: projectId }, { gitString: 1 }) || {};
             if (!gitString) return;
             const [url, branch, ...rest] = gitString.split('#');
@@ -117,7 +118,7 @@ if (Meteor.isServer) {
                 'HEAD',
                 signature,
                 signature,
-                `${new Date()}`,
+                commitMessage || `${new Date()}`,
                 await index.writeTree(),
                 [headCommit.id().tostrS()],
             );

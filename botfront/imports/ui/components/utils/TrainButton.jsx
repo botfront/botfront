@@ -3,7 +3,13 @@ import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import {
-    Button, Popup, Icon, Checkbox, Dropdown, Confirm,
+    Button,
+    Popup,
+    Icon,
+    Checkbox,
+    Dropdown,
+    Confirm,
+    Modal,
 } from 'semantic-ui-react';
 import { get } from 'lodash';
 import Alert from 'react-s-alert';
@@ -21,6 +27,7 @@ class TrainButton extends React.Component {
             modalOpen: { production: false },
             webhooks: {},
         };
+        this.commitMessage = React.createRef();
     }
 
     copyToClipboard = () => {
@@ -48,13 +55,52 @@ class TrainButton extends React.Component {
         this.setState({ modalOpen: { ...modalOpen, [env]: visible } });
     };
 
+    commitAndPush = () => {
+        const {
+            project: { _id: projectId },
+        } = this.context;
+        Meteor.call(
+            'commitAndPushToRemote',
+            projectId,
+            this.commitMessage?.current?.value,
+            wrapMeteorCallback(null, 'Successfully pushed to Git remote.'),
+        );
+    };
+
+    renderCommitModal = () => (
+        <Modal
+            open
+            size='small'
+            header='Commit and push'
+            onClick={e => e.stopPropagation()}
+            content={(
+                <div
+                    className='side-by-side middle ui form'
+                    style={{ padding: '1em' }}
+                >
+                    <input
+                        className='ui input'
+                        placeholder='Commit message'
+                        ref={this.commitMessage}
+                        autoFocus // eslint-disable-line jsx-a11y/no-autofocus
+                    />
+                    <Button
+                        type='submit'
+                        onClick={() => {
+                            this.showModal('commit-and-push', false);
+                            this.commitAndPush();
+                        }}
+                        content='Push to remote'
+                    />
+                </div>
+            )}
+            onClose={() => this.showModal('commit-and-push', false)}
+        />
+    )
+
     renderDeployDropDown = () => {
         const {
-            project: {
-                _id: projectId,
-                deploymentEnvironments: environments = [],
-                gitString,
-            },
+            project: { deploymentEnvironments: environments = [], gitString },
             instance,
         } = this.context;
         const { status } = this.props;
@@ -82,23 +128,14 @@ class TrainButton extends React.Component {
                         <Dropdown.Item
                             icon='git'
                             text='Commit and push'
-                            onClick={() => Meteor.call(
-                                'commitAndPushToRemote',
-                                projectId,
-                                wrapMeteorCallback(
-                                    null,
-                                    'Successfully pushed to Git remote.',
-                                ),
-                            )
-                            }
+                            onClick={() => this.showModal('commit-and-push', true)}
                         />
+                        {modalOpen['commit-and-push'] && this.renderCommitModal()}
                         {deployOptions.map(opt => (
                             <React.Fragment key={opt.key}>
                                 <Dropdown.Item
                                     value={opt.value}
-                                    onClick={() => {
-                                        this.showModal(opt.value, true);
-                                    }}
+                                    onClick={() => this.showModal(opt.value, true)}
                                 >
                                     {opt.text}
                                 </Dropdown.Item>
