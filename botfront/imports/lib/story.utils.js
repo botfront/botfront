@@ -14,6 +14,9 @@ if (Meteor.isServer) {
     storyAppLogger = getAppLoggerForFile(__filename);
 }
 
+// used a random string of chars, this way there are negligeable odds that the user would use the same intent
+export const USER_LINE_EDIT_MODE = 'Zx4qXKVdT5P3';
+
 const getSlotsInRasaFormat = (slots = []) => {
     const slotsToAdd = {};
     slots.forEach((slot) => {

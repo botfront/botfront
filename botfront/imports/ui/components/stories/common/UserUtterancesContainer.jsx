@@ -44,8 +44,8 @@ const UserUtterancesContainer = (props) => {
         const identicalPayload = value
             .filter(v => v)
             .find(
-                d => d.intent === content.intent
-                    && ((d.entities || []).some(e1 => (content.entities || []).some(
+                disjunct => disjunct.intent === content.intent
+                    && ((disjunct.entities || []).some(e1 => (content.entities || []).some(
                         e2 => e1.value === e2.value && e1.entity === e2.entity,
                     ))
                         || !(content.entities || []).length),

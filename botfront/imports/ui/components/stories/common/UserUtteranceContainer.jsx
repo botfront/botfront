@@ -8,6 +8,7 @@ import UserUtteranceViewer from '../../nlu/common/UserUtteranceViewer';
 import { ProjectContext } from '../../../layouts/context';
 import UtteranceInput from '../../utils/UtteranceInput';
 import NluModalContent from './nlu_editor/NluModalContent';
+import { USER_LINE_EDIT_MODE } from '../../../../lib/story.utils';
 
 const UtteranceContainer = (props) => {
     const {
@@ -69,7 +70,7 @@ const UtteranceContainer = (props) => {
     };
 
     useEffect(() => {
-        if (!value.intent) {
+        if (value.intent === USER_LINE_EDIT_MODE) {
             document.removeEventListener('mousedown', handleClickOutside);
             document.addEventListener('mousedown', handleClickOutside);
         }
@@ -90,8 +91,8 @@ const UtteranceContainer = (props) => {
     );
 
     const render = () => {
-        if (!value.intent) {
-            if (!stateValue.intent) {
+        if (value.intent === USER_LINE_EDIT_MODE) {
+            if (stateValue.intent === USER_LINE_EDIT_MODE) {
                 return (
                     <UtteranceInput
                         placeholder='User says...'
@@ -129,7 +130,7 @@ const UtteranceContainer = (props) => {
     return (
         <div
             className='utterance-container'
-            mode={value.intent ? 'view' : 'input'}
+            mode={value.intent === USER_LINE_EDIT_MODE ? 'input' : 'view'}
             agent='user'
             ref={containerBody}
         >

@@ -16,6 +16,7 @@ import { ProjectContext } from '../../../layouts/context';
 import ExceptionWrapper from './ExceptionWrapper';
 import GenericLabel from '../GenericLabel';
 import { defaultTemplate } from '../../../../lib/botResponse.utils';
+import { USER_LINE_EDIT_MODE } from '../../../../lib/story.utils';
 
 const variationIndex = 0;
 
@@ -110,7 +111,7 @@ export default class StoryVisualEditor extends React.Component {
                     ref={this.addStoryCursor}
                     trackOpenMenu={this.trackOpenMenu}
                     availableActions={options}
-                    onCreateUtteranceFromInput={() => this.handleInsertLine(index, { intent: null })}
+                    onCreateUtteranceFromInput={() => this.handleInsertLine(index, { intent: USER_LINE_EDIT_MODE })}
                     onCreateUtteranceFromPayload={payload => this.handleInsertLine(index, payload)}
                     onCreateResponse={templateType => this.handleInsertBotResponse(index, templateType)}
                     onCreateGenericLine={data => this.handleInsertLine(index, data)}
