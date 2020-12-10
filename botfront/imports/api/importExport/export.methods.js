@@ -78,7 +78,7 @@ if (Meteor.isServer) {
                 // no support for shallow clones yet
                 // https://github.com/libgit2/libgit2/issues/3058
                 repo = await nodegit.Clone.clone(url, dir);
-                headCommit = (await repo.getBranchCommit(branch)).id().tostrS();
+                headCommit = await repo.getBranchCommit(branch);
                 remote = await repo.getRemote('origin');
             } catch {
                 throw new Error(
@@ -107,17 +107,26 @@ if (Meteor.isServer) {
             index.read(1);
             await index.addAll();
             await index.write();
-            const oid = await index.writeTree();
             const signature = nodegit.Signature.create(
                 'Botfront',
                 'git@botfront.io',
                 Date.now() / 1000,
                 60,
             );
-            await repo.createCommit('HEAD', signature, signature, `${new Date()}`, oid, [
-                headCommit,
-            ]);
-            await remote.push([`refs/heads/${branch}:refs/heads/${branch}`]);
+            const oid = await repo.createCommit(
+                'HEAD',
+                signature,
+                signature,
+                `${new Date()}`,
+                await index.writeTree(),
+                [headCommit.id().tostrS()],
+            );
+            const commit = await repo.getCommit(oid);
+            const diff = await (await commit.getTree()).diff(await headCommit.getTree());
+            // only push if commit contains changes
+            if (diff.numDeltas() > 0) {
+                await remote.push([`refs/heads/${branch}:refs/heads/${branch}`]);
+            }
         },
         async exportRasa(projectId, language, options) {
             checkIfCan('export:x', projectId);
