@@ -65,14 +65,18 @@ class ProjectInfo extends React.Component {
     onSave = (project) => {
         const { value } = this.state;
         const { projectLanguages } = this.context;
-        const { name, _id, defaultLanguage } = project;
+        const {
+            name, _id, defaultLanguage, gitString,
+        } = project;
         const notInprojectLanguages = value.filter(
             el => !projectLanguages.some(l => l.value === el),
         );
         this.setState({ saving: true });
         Meteor.call(
             'project.update',
-            { name, _id, defaultLanguage },
+            {
+                name, _id, defaultLanguage, ...(gitString ? { gitString } : {}),
+            },
             wrapMeteorCallback((err) => {
                 if (!err) {
                     this.createNLUModels(notInprojectLanguages, _id);
