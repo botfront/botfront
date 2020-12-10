@@ -63,7 +63,7 @@ if (Meteor.isServer) {
             if (!gitString) return;
             const [url, branch, ...rest] = gitString.split('#');
             if (rest.length || !branch) {
-                throw new Error('There\'s something wrong with your git https string.');
+                throw new Meteor.Error('There\'s something wrong with your git https string.');
             }
             const dir = `${md5(url)}`;
 
@@ -81,7 +81,7 @@ if (Meteor.isServer) {
                 headCommit = await repo.getBranchCommit(branch);
                 remote = await repo.getRemote('origin');
             } catch {
-                throw new Error(
+                throw new Meteor.Error(
                     `Could not connect to branch '${branch}' on your git repo. Check your credentials.`,
                 );
             }
@@ -135,7 +135,7 @@ if (Meteor.isServer) {
             check(options, Object);
             const passedLang = language === 'all' ? {} : { language };
 
-            const project = Projects.findOne({ _id: projectId }, { gitString: 0 });
+            const project = Projects.findOne({ _id: projectId });
             const envs = ['development', ...(project.deploymentEnvironments || [])];
             const getEnvQuery = (envKey, envValue) => (envValue !== 'development'
                 ? { [envKey]: envValue }
@@ -238,6 +238,7 @@ if (Meteor.isServer) {
             const widgetSettings = project?.chatWidgetSettings || {};
 
             const configData = project;
+            delete configData.gitString;
             // exported separately
             delete configData.chatWidgetSettings;
             delete configData.defaultDomain;
