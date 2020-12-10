@@ -85,6 +85,12 @@ class TrainButton extends React.Component {
                         placeholder='Commit message'
                         ref={this.commitMessage}
                         autoFocus // eslint-disable-line jsx-a11y/no-autofocus
+                        onKeyDown={({ key }) => {
+                            if (key === 'Enter') this.commitAndPush();
+                            if (['Enter', 'Escape'].includes(key)) {
+                                this.showModal('commit-and-push', false);
+                            }
+                        }}
                     />
                     <Button
                         type='submit'
