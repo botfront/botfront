@@ -60,8 +60,7 @@ if (Meteor.isServer) {
         async commitAndPushToRemote(projectId, commitMessage) {
             check(projectId, String);
             check(commitMessage, String);
-            const { gitString } = Projects.findOne({ _id: projectId }, { gitString: 1 }) || {};
-            if (!gitString) return;
+            const { gitString = '' } = Projects.findOne({ _id: projectId }, { gitString: 1 }) || {};
             const [url, branch, ...rest] = gitString.split('#');
             if (rest.length || !branch) {
                 throw new Meteor.Error('There\'s something wrong with your git https string.');
@@ -125,9 +124,9 @@ if (Meteor.isServer) {
             const commit = await repo.getCommit(oid);
             const diff = await (await commit.getTree()).diff(await headCommit.getTree());
             // only push if commit contains changes
-            if (diff.numDeltas() > 0) {
-                await remote.push([`refs/heads/${branch}:refs/heads/${branch}`]);
-            }
+            if (diff.numDeltas() < 1) return [204, 'Nothing to push.'];
+            await remote.push([`refs/heads/${branch}:refs/heads/${branch}`]);
+            return [201, 'Successfully pushed to Git remote.'];
         },
         async exportRasa(projectId, language, options) {
             checkIfCan('export:x', projectId);

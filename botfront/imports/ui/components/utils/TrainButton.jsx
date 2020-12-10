@@ -63,7 +63,12 @@ class TrainButton extends React.Component {
             'commitAndPushToRemote',
             projectId,
             this.commitMessage?.current?.value,
-            wrapMeteorCallback(null, 'Successfully pushed to Git remote.'),
+            wrapMeteorCallback((_, [code, msg]) => {
+                Alert[code === 204 ? 'warning' : 'success'](msg, {
+                    position: 'top-right',
+                    timeout: 2 * 1000,
+                });
+            }),
         );
     };
 
@@ -74,10 +79,7 @@ class TrainButton extends React.Component {
             header='Commit and push'
             onClick={e => e.stopPropagation()}
             content={(
-                <div
-                    className='side-by-side middle ui form'
-                    style={{ padding: '1em' }}
-                >
+                <div className='side-by-side middle ui form' style={{ padding: '1em' }}>
                     <input
                         className='ui input'
                         placeholder='Commit message'
@@ -96,7 +98,7 @@ class TrainButton extends React.Component {
             )}
             onClose={() => this.showModal('commit-and-push', false)}
         />
-    )
+    );
 
     renderDeployDropDown = () => {
         const {
