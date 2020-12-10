@@ -24,6 +24,7 @@ class TrainButton extends React.Component {
     train = () => {
         const { projectId } = this.props;
         Meteor.call('project.markTrainingStarted', projectId);
+        Meteor.call('commitAndPushToRemote', projectId, wrapMeteorCallback());
         Meteor.call('rasa.train', projectId, wrapMeteorCallback());
     };
 

@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 import { Meteor } from 'meteor/meteor';
 import axios from 'axios';
 import _ from 'lodash';
@@ -15,6 +16,11 @@ import Conversations from '../graphql/conversations/conversations.model';
 import Activity from '../graphql/activity/activity.model';
 
 if (Meteor.isServer) {
+    const md5 = require('md5');
+    const glob = require('glob');
+    const { join, dirname } = require('path');
+    const nodegit = require('nodegit');
+    const fs = require('fs');
     const axiosClient = axios.create();
 
     const convertJsonToYaml = async (json, instanceHost, language) => {
@@ -27,7 +33,92 @@ if (Meteor.isServer) {
         return data.data || '';
     };
 
+    const deletePathsNotInZip = (dir, zip, exclusions) => Promise.all(
+        glob.sync(join('**', '*'), { cwd: dir }).map((path) => {
+            if (exclusions.includes(path)) return Promise.resolve();
+            if (fs.statSync(join(dir, path)).isDirectory()) {
+                if (`${path}/` in zip.files) return Promise.resolve();
+                return fs.promises.rmdir(join(dir, path));
+            }
+            if (path in zip.files) return Promise.resolve();
+            return fs.promises.unlink(join(dir, path));
+        }),
+    );
+
+    const extractZip = (dir, zip) => Promise.all(
+        Object.entries(zip.files).map(async ([path, item]) => {
+            const currentDir = join(dir, dirname(path));
+            if (!fs.existsSync(currentDir)) {
+                fs.mkdirSync(currentDir, { recursive: true });
+            }
+            if (item.dir) return Promise.resolve();
+            return fs.promises.writeFile(join(dir, path), await item.async('text'));
+        }),
+    );
+
     Meteor.methods({
+        async commitAndPushToRemote(projectId) {
+            check(projectId, String);
+            // GIT_HTTPS_STRING: https://user:token@domain/.../repo.git#branch
+            if (!process.env.GIT_HTTPS_STRING) return;
+            const [url, branch, ...rest] = process.env.GIT_HTTPS_STRING.split('#');
+            if (rest.length || !branch) {
+                throw new Error('There\'s something wrong with your git https string.');
+            }
+            const dir = `${md5(url)}`;
+
+            // we start with a fresh clone every time (no fetch/merge)
+            // to do so, we need to delete dir from previous clone
+            if (fs.existsSync(dir)) fs.rmdirSync(dir, { recursive: true });
+
+            let repo;
+            let headCommit;
+            let remote;
+            try {
+                // no support for shallow clones yet
+                // https://github.com/libgit2/libgit2/issues/3058
+                repo = await nodegit.Clone.clone(url, dir);
+                headCommit = (await repo.getBranchCommit(branch)).id().tostrS();
+                remote = await repo.getRemote('origin');
+            } catch {
+                throw new Error(
+                    `Could not connect to branch '${branch}' on your git repo. Check your credentials.`,
+                );
+            }
+
+            const bfIgnoreFile = join(dir, '.bfignore');
+            const exclusions = [
+                bfIgnoreFile,
+                ...(fs.existsSync(bfIgnoreFile)
+                    ? fs.readFileSync(bfIgnoreFile, 'utf-8').split('\n')
+                    : []),
+            ];
+
+            // given that the present method is called on training, calling 'exportRasa'
+            // here means 'rasa.getTrainingPayload' will be called twice in short succession,
+            // which is a bit stupid, but we live with it for now.
+            const zip = await Meteor.callWithPromise('exportRasa', projectId, 'all', {
+                noBlob: true,
+            });
+            await deletePathsNotInZip(dir, zip, exclusions); // deletions
+            await extractZip(dir, zip); // additions/modifications
+
+            const index = await repo.index();
+            index.read(1);
+            await index.addAll();
+            await index.write();
+            const oid = await index.writeTree();
+            const signature = nodegit.Signature.create(
+                'Botfront',
+                'git@botfront.io',
+                Date.now() / 1000,
+                60,
+            );
+            await repo.createCommit('HEAD', signature, signature, `${new Date()}`, oid, [
+                headCommit,
+            ]);
+            await remote.push([`refs/heads/${branch}:refs/heads/${branch}`]);
+        },
         async exportRasa(projectId, language, options) {
             checkIfCan('export:x', projectId);
             check(projectId, String);
@@ -70,10 +161,14 @@ if (Meteor.isServer) {
             const incoming = options.incoming
                 && (await Promise.all(
                     envs.map(async (environment) => {
-                        const incomingInEnv = await Activity.find({
-                            projectId,
-                            ...getEnvQuery('env', environment),
-                        }, { _id: 0 }, { sort: { updatedAt: -1, language: 1 } }).lean();
+                        const incomingInEnv = await Activity.find(
+                            {
+                                projectId,
+                                ...getEnvQuery('env', environment),
+                            },
+                            { _id: 0 },
+                            { sort: { updatedAt: -1, language: 1 } },
+                        ).lean();
                         return {
                             environment,
                             incoming: incomingInEnv,
@@ -83,10 +178,14 @@ if (Meteor.isServer) {
             const conversations = options.conversations
                 && (await Promise.all(
                     envs.map(async (environment) => {
-                        const conversationsInEnv = await Conversations.find({
-                            projectId,
-                            ...getEnvQuery('env', environment),
-                        }, {}, { sort: { updatedAt: -1, language: 1 } }).lean();
+                        const conversationsInEnv = await Conversations.find(
+                            {
+                                projectId,
+                                ...getEnvQuery('env', environment),
+                            },
+                            {},
+                            { sort: { updatedAt: -1, language: 1 } },
+                        ).lean();
                         return {
                             environment,
                             conversations: conversationsInEnv,
@@ -219,8 +318,11 @@ if (Meteor.isServer) {
             rasaZip.addFile(exportData.domain, 'domain.yml');
             rasaZip.addFile(bfconfigYaml, 'botfront/bfconfig.yml');
             rasaZip.addFile(defaultDomain, 'botfront/default-domain.yml');
-            if (Object.keys(widgetSettings).length > 0) { rasaZip.addFile(safeDump(widgetSettings), 'botfront/widgetsettings.yml'); }
+            if (Object.keys(widgetSettings).length > 0) {
+                rasaZip.addFile(safeDump(widgetSettings), 'botfront/widgetsettings.yml');
+            }
 
+            if (options.noBlob) return rasaZip.zipContainer;
             return rasaZip.generateBlob();
         },
     });
