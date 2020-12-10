@@ -470,6 +470,8 @@ Migrations.add({
             );
             const { stories: parsedStories } = safeLoad(data);
 
+            // this filters out stories that rasa could not converts, this happens because the story had only lines that made no sense
+            // we can safely delete these.
             const nonsensicalStories = stories.filter(story => !parsedStories.some(pStory => pStory.story === story._id));
             await Stories.remove({ _id: { $in: nonsensicalStories.map(story => story._id) } });
 
@@ -480,9 +482,10 @@ Migrations.add({
             const allStories = Stories.find().fetch();
             allStories.forEach((story) => {
                 const { textIndex, events } = indexStory(story);
-                Stories.update({ _id: story._id }, { $set: { type: story.type, textIndex, events } });
+                Stories.update({ _id: story._id }, { $set: { type: story.type || 'story', textIndex, events } });
             });
         } catch (e) {
+            // eslint-disable-next-line no-underscore-dangle
             Migrations._collection._collection.update(
                 { _id: 'control' },
                 { $set: { version: 11, locked: true, lockedAt: new Date() } },
