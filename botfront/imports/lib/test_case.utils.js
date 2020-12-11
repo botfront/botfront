@@ -39,9 +39,11 @@ export const convertTrackerToStory = (tracker) => {
                 intent: event.parse_data.intent.name,
             });
         }
-        if (event.event === 'action' && event.name.startsWith('utter')) {
+        // eslint-disable-next-line camelcase
+        if (event.event === 'bot' && event?.metadata?.template_name?.startsWith('utter')) {
             steps.push({
-                action: event.name,
+                // eslint-disable-next-line camelcase
+                action: event?.metadata?.template_name,
             });
         }
     });
