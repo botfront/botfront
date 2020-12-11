@@ -3,7 +3,7 @@ credentials:
     session_persistence: true
     base_url: http://localhost:5005
     socket_path: /socket.io/
-  rasa_addons.core.channels.bot_regression_test.BotRegressionTestInput: {}
+  rasa_addons.core.channels.bot_regession_test.BotRegressionTestInput: {}
 instance: http://rasa:5005
 bfApiHost: http://botfront-api:8080
 endpoints:
