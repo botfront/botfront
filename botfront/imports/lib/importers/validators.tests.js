@@ -51,8 +51,9 @@ if (Meteor.isServer) {
             
             it(name, (done) => {
                 validateFiles(files, params).then(([newFiles, newParams]) => {
+                    const { timestamp, ...actualParams } = newParams;
                     expect(newFiles).to.eql(expectedFiles);
-                    expect(newParams).to.eql(expectedParams);
+                    expect(actualParams).to.eql(expectedParams);
                     done();
                 }).catch(done);
             });
@@ -77,8 +78,9 @@ if (Meteor.isServer) {
             } = test;
             it(name, (done) => {
                 validateFiles(files, params).then(([newFiles, newParams]) => {
+                    const { timestamp, ...actualParams } = newParams;
                     expect(clearIdField(newFiles)).to.eql(clearIdField(expectedFiles));
-                    expect(clearIdField(newParams)).to.eql(clearIdField(expectedParams));
+                    expect(clearIdField(actualParams)).to.eql(clearIdField(expectedParams));
                     done();
                 }).catch(done);
             });
