@@ -3,7 +3,7 @@ import { Meteor } from 'meteor/meteor';
 import axios from 'axios';
 import _ from 'lodash';
 
-import { check } from 'meteor/check';
+import { check, Match } from 'meteor/check';
 import { safeDump } from 'js-yaml';
 import { Endpoints } from '../endpoints/endpoints.collection';
 import { Credentials } from '../credentials';
@@ -22,6 +22,13 @@ if (Meteor.isServer) {
     const nodegit = require('nodegit');
     const fs = require('fs');
     const axiosClient = axios.create();
+
+    const signature = () => nodegit.Signature.create(
+        'Botfront',
+        'git@botfront.io',
+        Date.now() / 1000,
+        60,
+    );
 
     const convertJsonToYaml = async (json, instanceHost, language) => {
         const { data } = await axiosClient.post(`${instanceHost}/data/convert/nlu`, {
@@ -56,44 +63,103 @@ if (Meteor.isServer) {
         }),
     );
 
+    const getRemote = async (projectId, forceClone = false) => {
+        const { gitString = '' } = Projects.findOne({ _id: projectId }, { gitString: 1 }) || {};
+        const [url, branchName, ...rest] = gitString.split('#');
+        if (rest.length || !branchName) {
+            throw new Meteor.Error('There\'s something wrong with your git https string.');
+        }
+        const dir = `${md5(url)}`;
+
+        let repo;
+        let branch;
+        let branchCommit;
+        let remote;
+        try {
+            try {
+                if (forceClone) throw new Error();
+                repo = await nodegit.Repository.open(dir);
+                await repo.fetch('origin');
+                await repo.mergeBranches(
+                    branchName,
+                    `refs/remotes/origin/${branchName}`,
+                    signature(),
+                    nodegit.Merge.PREFERENCE.FASTFORWARD_ONLY,
+                    { fileFavor: nodegit.Merge.FILE_FAVOR.THEIRS },
+                );
+            } catch {
+                if (fs.existsSync(dir)) fs.rmdirSync(dir, { recursive: true });
+                repo = await nodegit.Clone.clone(url, dir);
+            }
+            branch = await repo.getBranch(branchName);
+            branchCommit = await repo.getBranchCommit(branchName);
+            remote = await repo.getRemote('origin');
+        } catch {
+            throw new Meteor.Error(
+                `Could not connect to branch '${branchName}' on your git repo. Check your credentials.`,
+            );
+        }
+
+        const bfIgnoreFile = join(dir, '.bfignore');
+        const exclusions = [
+            bfIgnoreFile,
+            ...(fs.existsSync(bfIgnoreFile)
+                ? fs.readFileSync(bfIgnoreFile, 'utf-8').split('\n')
+                : []),
+        ];
+
+        return {
+            dir,
+            repo,
+            branch,
+            branchCommit,
+            remote,
+            exclusions,
+        };
+    };
+
     Meteor.methods({
+        async getHistoryOfCommits(projectId, { cursor = null, pageSize = 20 } = {}) {
+            check(projectId, String);
+            check(cursor, Match.Maybe(String));
+            check(pageSize, Number);
+
+            const { repo, branchCommit } = await getRemote(projectId);
+            const startCommit = cursor ? await repo.getCommit(cursor) : branchCommit;
+
+            const formatCommit = c => ({
+                sha: c.id().tostrS(),
+                msg: c.message(),
+                time: c.time(),
+            });
+            return new Promise((resolve, reject) => {
+                const historyWalker = startCommit.history();
+                const commits = [];
+                historyWalker.on('commit', (commit) => {
+                    if (commits.length >= pageSize) {
+                        resolve({
+                            commits: commits.map(formatCommit),
+                            hasNextPage: true,
+                        });
+                    }
+                    if (commit.id().tostrS() !== cursor) commits.push(commit);
+                });
+                historyWalker.on('end', allCommits => resolve({ commits: allCommits.map(formatCommit), hasNextPage: false }));
+                historyWalker.on('error', error => reject(error));
+                historyWalker.start();
+            });
+        },
         async commitAndPushToRemote(projectId, commitMessage) {
             check(projectId, String);
             check(commitMessage, String);
-            const { gitString = '' } = Projects.findOne({ _id: projectId }, { gitString: 1 }) || {};
-            const [url, branch, ...rest] = gitString.split('#');
-            if (rest.length || !branch) {
-                throw new Meteor.Error('There\'s something wrong with your git https string.');
-            }
-            const dir = `${md5(url)}`;
-
-            // we start with a fresh clone every time (no fetch/merge)
-            // to do so, we need to delete dir from previous clone
-            if (fs.existsSync(dir)) fs.rmdirSync(dir, { recursive: true });
-
-            let repo;
-            let headCommit;
-            let remote;
-            try {
-                // no support for shallow clones yet
-                // https://github.com/libgit2/libgit2/issues/3058
-                repo = await nodegit.Clone.clone(url, dir);
-                headCommit = await repo.getBranchCommit(branch);
-                remote = await repo.getRemote('origin');
-            } catch {
-                throw new Meteor.Error(
-                    `Could not connect to branch '${branch}' on your git repo. Check your credentials.`,
-                );
-            }
-
-            const bfIgnoreFile = join(dir, '.bfignore');
-            const exclusions = [
-                bfIgnoreFile,
-                ...(fs.existsSync(bfIgnoreFile)
-                    ? fs.readFileSync(bfIgnoreFile, 'utf-8').split('\n')
-                    : []),
-            ];
-
+            const {
+                dir,
+                repo,
+                branch,
+                branchCommit,
+                remote,
+                exclusions,
+            } = await getRemote(projectId, true);
             // given that the present method is called on training, calling 'exportRasa'
             // here means 'rasa.getTrainingPayload' will be called twice in short succession,
             // which is a bit stupid, but we live with it for now.
@@ -107,25 +173,21 @@ if (Meteor.isServer) {
             index.read(1);
             await index.addAll();
             await index.write();
-            const signature = nodegit.Signature.create(
-                'Botfront',
-                'git@botfront.io',
-                Date.now() / 1000,
-                60,
-            );
             const oid = await repo.createCommit(
                 'HEAD',
-                signature,
-                signature,
+                signature(),
+                signature(),
                 commitMessage || `${new Date()}`,
                 await index.writeTree(),
-                [headCommit.id().tostrS()],
+                [branchCommit.id().tostrS()],
             );
             const commit = await repo.getCommit(oid);
-            const diff = await (await commit.getTree()).diff(await headCommit.getTree());
+            const diff = await (await commit.getTree()).diff(
+                await branchCommit.getTree(),
+            );
             // only push if commit contains changes
             if (diff.numDeltas() < 1) return [204, 'Nothing to push.'];
-            await remote.push([`refs/heads/${branch}:refs/heads/${branch}`]);
+            await remote.push([`${branch.toString()}:${branch.toString()}`]);
             return [201, 'Successfully pushed to Git remote.'];
         },
         async exportRasa(projectId, language, options) {

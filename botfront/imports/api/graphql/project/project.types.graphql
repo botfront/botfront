@@ -1,3 +1,21 @@
+type Query {
+    projectGitHistory(
+        projectId: String!
+        cursor: String
+        pageSize: Int = 20
+    ): ProjectGitHistoryPage
+}
+
+type ProjectGitHistoryPage {
+    commits: [Commit!]
+    pageInfo: PageInfo
+}
+
+type Commit {
+    sha: String!
+    msg: String!
+    time: Int!
+}
 
 type Mutation {
     import(

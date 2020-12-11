@@ -17,6 +17,7 @@ import 'react-s-alert/dist/s-alert-default.css';
 import { wrapMeteorCallback } from './Errors';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Projects } from '../../../api/project/project.collection';
+import RevertTable from './RevertTable';
 import { ProjectContext } from '../../layouts/context';
 import { can, Can } from '../../../lib/scopes';
 
@@ -106,6 +107,17 @@ class TrainButton extends React.Component {
         />
     );
 
+    renderRevertModal = () => (
+        <Modal
+            open
+            size='small'
+            header='Revert to previous'
+            onClick={e => e.stopPropagation()}
+            content={<RevertTable />}
+            onClose={() => this.showModal('revert-to-previous', false)}
+        />
+    );
+
     renderDeployDropDown = () => {
         const {
             project: { deploymentEnvironments: environments = [], gitString },
@@ -134,11 +146,17 @@ class TrainButton extends React.Component {
                 >
                     <Dropdown.Menu>
                         <Dropdown.Item
-                            icon='git'
+                            icon='cloud upload'
                             text='Commit and push'
                             onClick={() => this.showModal('commit-and-push', true)}
                         />
+                        <Dropdown.Item
+                            icon='step backward'
+                            text='Revert to previous'
+                            onClick={() => this.showModal('revert-to-previous', true)}
+                        />
                         {modalOpen['commit-and-push'] && this.renderCommitModal()}
+                        {modalOpen['revert-to-previous'] && this.renderRevertModal()}
                         {deployOptions.map(opt => (
                             <React.Fragment key={opt.key}>
                                 <Dropdown.Item
