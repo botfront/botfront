@@ -69,10 +69,10 @@ describe('adding test cases', () => {
             success: true,
             testResults: [],
         });
-        cy.dataCy('language-selector').click();
-        cy.dataCy('language-selector').find('div.item').contains('French').click();
-
         cy.train();
+
+        cy.dataCy('language-selector').click();
+        cy.dataCy('language-selector').find('span.text').contains('French').click();
 
         cy.dataCy('story-menu-item-story-group').should('not.include.text', 'Failing tests');
         cy.dataCy('story-menu-item-test_case').should('not.exist');
