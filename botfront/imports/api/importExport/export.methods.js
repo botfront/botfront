@@ -23,12 +23,7 @@ if (Meteor.isServer) {
     const fs = require('fs');
     const axiosClient = axios.create();
 
-    const signature = () => nodegit.Signature.create(
-        'Botfront',
-        'git@botfront.io',
-        Date.now() / 1000,
-        60,
-    );
+    const signature = () => nodegit.Signature.create('Botfront', 'git@botfront.io', Date.now() / 1000, 60);
 
     const convertJsonToYaml = async (json, instanceHost, language) => {
         const { data } = await axiosClient.post(`${instanceHost}/data/convert/nlu`, {
@@ -149,9 +144,10 @@ if (Meteor.isServer) {
                 historyWalker.start();
             });
         },
-        async commitAndPushToRemote(projectId, commitMessage) {
+        async commitAndPushToRemote(projectId, commitMessage, { dry = false } = {}) {
             check(projectId, String);
             check(commitMessage, String);
+            check(dry, Boolean);
             const {
                 dir,
                 repo,
@@ -170,25 +166,46 @@ if (Meteor.isServer) {
             await extractZip(dir, zip); // additions/modifications
 
             const index = await repo.index();
-            index.read(1);
+            await index.read(1);
             await index.addAll();
             await index.write();
-            const oid = await repo.createCommit(
+            const oid = await index.writeTree();
+            const diff = await nodegit.Diff.treeToIndex(
+                repo,
+                await branchCommit.getTree(),
+                index,
+            );
+            // only push if commit contains changes
+            if (diff.numDeltas() < 1) {
+                await index.clear();
+                return { status: { code: 204, msg: 'Nothing to push.' } };
+            }
+            await repo.createCommit(
                 'HEAD',
                 signature(),
                 signature(),
                 commitMessage || `${new Date()}`,
-                await index.writeTree(),
+                oid,
                 [branchCommit.id().tostrS()],
             );
-            const commit = await repo.getCommit(oid);
-            const diff = await (await commit.getTree()).diff(
-                await branchCommit.getTree(),
-            );
-            // only push if commit contains changes
-            if (diff.numDeltas() < 1) return [204, 'Nothing to push.'];
-            await remote.push([`${branch.toString()}:${branch.toString()}`]);
-            return [201, 'Successfully pushed to Git remote.'];
+            if (dry) {
+                return {};
+            }
+            try {
+                await remote.push([`${branch.toString()}:${branch.toString()}`]);
+                return {
+                    status: { code: 201, msg: 'Successfully pushed to Git remote.' },
+                };
+            } catch {
+                await index.clear();
+                await nodegit.Reset.reset(
+                    repo,
+                    branchCommit,
+                    nodegit.Reset.TYPE.HARD,
+                    {},
+                );
+                throw new Meteor.Error('Could not push current revision.');
+            }
         },
         async exportRasa(projectId, language, options) {
             checkIfCan('export:x', projectId);

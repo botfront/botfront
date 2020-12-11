@@ -64,7 +64,7 @@ class TrainButton extends React.Component {
             'commitAndPushToRemote',
             projectId,
             this.commitMessage?.current?.value,
-            wrapMeteorCallback((_, [code, msg]) => {
+            wrapMeteorCallback((_, { status: { code, msg } }) => {
                 Alert[code === 204 ? 'warning' : 'success'](msg, {
                     position: 'top-right',
                     timeout: 2 * 1000,
