@@ -65,12 +65,12 @@ export const addCheckpoints = (fragments) => {
             const checkpoint = `link-to-${story.title}/${story._id}`;
             map[path].steps = [
                 { checkpoint },
-                ...(story.steps || [{ action: 'action_listen' }]),
+                ...(story.steps || [{ action: 'action_empty_branch' }]),
             ];
             checkpoints.forEach((checkpointPath) => {
                 map[checkpointPath.join()].steps = [
                     ...(map[checkpointPath.join()].steps || [
-                        { action: 'action_listen' },
+                        { action: 'action_empty_branch' },
                     ]),
                     { checkpoint },
                 ];
@@ -93,14 +93,14 @@ export const addCheckpoints = (fragments) => {
                 .replace(/ /g, '_')}__branches`;
             map[path].steps = [
                 { checkpoint },
-                ...(story.steps || [{ action: 'action_listen' }]),
+                ...(story.steps || [{ action: 'action_empty_branch' }]),
             ];
         }
         // add branch destination checkpoints
         if ((story.branches || []).length) {
             const checkpoint = `${resolvedPath.join('__').replace(/ /g, '_')}__branches`;
             map[path].steps = [
-                ...(story.steps || [{ action: 'action_listen' }]),
+                ...(story.steps || [{ action: 'action_empty_branch' }]),
                 { checkpoint },
             ];
         }
