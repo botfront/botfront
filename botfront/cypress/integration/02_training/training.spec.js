@@ -70,8 +70,9 @@ describe('Training', function() {
         cy.testChatInput('/chitchat.greet', 'utter_hi');
         cy.toggleStoryGroupFocused();
         cy.get('.eye.icon.focused').should('have.length', 0);
+        cy.dataCy('story-menu-item-story-group').should('include.text', 'Intro stories');
         cy.toggleStoryGroupFocused('Intro stories');
-        cy.wait(500);
+        cy.wait(1000);
         cy.get('.eye.icon.focused').should('have.length', 1);
         cy.train();
         cy.newChatSesh();

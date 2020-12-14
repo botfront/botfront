@@ -10,35 +10,34 @@ describe('Importing a Botfront project', function() {
     });
 
     afterEach(function() {
-        // cy.logout();
-        // cy.deleteProject('bf');
-        Cypress.runner.stop();
+        cy.logout();
+        cy.deleteProject('bf');
     });
-    // it('should process a file', function() {
-    //     cy.visit('/project/bf/settings/import-export');
-    //     cy.fixture('domain.yml', 'utf-8').then((rawText) => {
-    //         cy.dataCy('drop-zone-data').uploadTxt(rawText, 'domain.yml');
-    //     });
+    it('should process a file', function() {
+        cy.visit('/project/bf/settings/import-export');
+        cy.fixture('domain.yml', 'utf-8').then((rawText) => {
+            cy.dataCy('drop-zone-data').uploadTxt(rawText, 'domain.yml');
+        });
 
-    //     cy.dataCy('label').should('have.class', 'yellow');
-    //     cy.dataCy('message-warning-domainyml').should('have.text', 'domain.yml'
-    //     + 'those reponses will add the support for the language en :utter_cgMeFnuj5, utter_J5MMvow26'
-    //     + 'those reponses will add the support for the language ru :utter_uCag8LL6z'
-    //     + 'Some actions in domain are not explicitly mentioned in dialogue fragments.'
-    //     + 'They will be added to the project\'s default domain.');
-    //     cy.dataCy('summary-list').should('have.text', 'Support for language \'en\' will be added using the default config.'
-    //     + 'Support for language \'ru\' will be added using the default config.'
-    //     + '3 responses, 1 actions will be added from domain.yml.');
-    // });
-    // it('Should mark as error a file that is not json/yaml/zip/yml/md', function() {
-    //     cy.visit('/project/bf/settings/import-export');
-    //     cy.fixture('dummyBadFile.png').then((badfile) => {
-    //         cy.dataCy('drop-zone-data').uploadBlob(badfile, 'dummyBadFile.png');
-    //     });
+        cy.dataCy('label').should('have.class', 'yellow');
+        cy.dataCy('message-warning-domainyml').should('have.text', 'domain.yml'
+        + 'those reponses will add the support for the language en :utter_cgMeFnuj5, utter_J5MMvow26'
+        + 'those reponses will add the support for the language ru :utter_uCag8LL6z'
+        + 'Some actions in domain are not explicitly mentioned in dialogue fragments.'
+        + 'They will be added to the project\'s default domain.');
+        cy.dataCy('summary-list').should('have.text', 'Support for language \'en\' will be added using the default config.'
+        + 'Support for language \'ru\' will be added using the default config.'
+        + '3 responses, 1 actions will be added from domain.yml.');
+    });
+    it('Should mark as error a file that is not json/yaml/zip/yml/md', function() {
+        cy.visit('/project/bf/settings/import-export');
+        cy.fixture('dummyBadFile.png').then((badfile) => {
+            cy.dataCy('drop-zone-data').uploadBlob(badfile, 'dummyBadFile.png');
+        });
 
-    //     cy.dataCy('label').should('have.class', 'red');
-    //     cy.dataCy('message-error-dummyBadFilepng').should('have.text', 'dummyBadFile.pngFile is not .zip, .json, .md or .yaml.');
-    // });
+        cy.dataCy('label').should('have.class', 'red');
+        cy.dataCy('message-error-dummyBadFilepng').should('have.text', 'dummyBadFile.pngFile is not .zip, .json, .md or .yaml.');
+    });
 
     it('should import a zip', function() {
         cy.visit('/project/bf/settings/import-export');
@@ -190,49 +189,49 @@ describe('Importing a Botfront project', function() {
             cy.dataCy('conversation-item').should('have.length', 8);
         });
     });
-    // it('should import a file with wipe project', function() {
-    //     cy.visit('/project/bf/settings/import-export');
-    //     cy.task('zipFolder', 'test-project-cypress').then(async (b64zip) => {
-    //     // import a project so there is something to wipe
-    //         const blob = await Cypress.Blob.base64StringToBlob(b64zip, 'application/zip');
-    //         cy.dataCy('drop-zone-data').uploadBlob(blob, 'testProject.zip');
+    it('should import a file with wipe project', function() {
+        cy.visit('/project/bf/settings/import-export');
+        cy.task('zipFolder', 'test-project-cypress').then(async (b64zip) => {
+        // import a project so there is something to wipe
+            const blob = await Cypress.Blob.base64StringToBlob(b64zip, 'application/zip');
+            cy.dataCy('drop-zone-data').uploadBlob(blob, 'testProject.zip');
        
-    //         cy.get('.info.message').should('exist');
-    //         cy.dataCy('import-files').click();
-    //         cy.get('.info.message').should('not.exist');
+            cy.get('.info.message').should('exist');
+            cy.dataCy('import-files').click();
+            cy.get('.info.message').should('not.exist');
 
       
-    //         // this file only has one incoming, beside this one everything should be empty/default
-    //         // so this data is just a kind of dummy to test the wiping of projects
-    //         cy.fixture('incoming.json', 'utf-8').then((rawText) => {
-    //             cy.dataCy('drop-zone-data').upload(rawText, 'incoming.json');
-    //         });
-    //         cy.dataCy('wipe-project').click();
-    //         cy.get('.info.message').should('exist');
-    //         cy.dataCy('import-files').click();
-    //         cy.get('.info.message').should('not.exist');
-    //         cy.visit('/project/bf/dialogue');
-    //         // this check is to ensure that the page rendered correctly
-    //         cy.dataCy('add-item').should('exist');
+            // this file only has one incoming, beside this one everything should be empty/default
+            // so this data is just a kind of dummy to test the wiping of projects
+            cy.fixture('incoming.json', 'utf-8').then((rawText) => {
+                cy.dataCy('drop-zone-data').upload(rawText, 'incoming.json');
+            });
+            cy.dataCy('wipe-project').click();
+            cy.get('.info.message').should('exist');
+            cy.dataCy('import-files').click();
+            cy.get('.info.message').should('not.exist');
+            cy.visit('/project/bf/dialogue');
+            // this check is to ensure that the page rendered correctly
+            cy.dataCy('add-item').should('exist');
 
-    //         cy.dataCy('story-group-menu-item').should('have.length', 0);
-    //         cy.visit('/project/bf/incoming/newutterances');
-    //         cy.get('.row').should('have.length', 1);
-    //         cy.dataCy('conversations').click();
-    //         cy.dataCy('conversation-item').should('have.length', 0);
+            cy.dataCy('story-group-menu-item').should('have.length', 0);
+            cy.visit('/project/bf/incoming/newutterances');
+            cy.get('.row').should('have.length', 1);
+            cy.dataCy('conversations').click();
+            cy.dataCy('conversation-item').should('have.length', 0);
       
-    //         cy.visit('/project/bf/settings/endpoints');
-    //         cy.get('.ace_content').should('contain.text', 'rasa_addons.core.tracker_stores.botfront.BotfrontTrackerStore');
-    //         cy.visit('/project/bf/settings/credentials');
-    //         cy.get('.ace_content').should('contain.text', 'rasa_addons.core.channels.webchat.WebchatInput');
+            cy.visit('/project/bf/settings/endpoints');
+            cy.get('.ace_content').should('contain.text', 'rasa_addons.core.tracker_stores.botfront.BotfrontTrackerStore');
+            cy.visit('/project/bf/settings/credentials');
+            cy.get('.ace_content').should('contain.text', 'rasa_addons.core.channels.webchat.WebchatInput');
      
-    //         cy.visit('/project/bf/settings/default-domain');
-    //         cy.get('.ace_content').should('contain.text', 'actions:  - action_botfront_disambiguation  - action_botfront_disambiguation_followup  - action_botfront_fallback  - action_botfront_mapping');
-    //         cy.visit('/project/bf/responses');
-    //         cy.dataCy('no-responses').should('exist');
-    //         cy.visit('/project/bf/nlu/model/fr');
-    //         cy.dataCy('example-text-editor-input').should('exist');
-    //         cy.get('.row').should('not.exist');
-    //     });
-    // });
+            cy.visit('/project/bf/settings/default-domain');
+            cy.get('.ace_content').should('contain.text', 'actions:  - action_botfront_disambiguation  - action_botfront_disambiguation_followup  - action_botfront_fallback  - action_botfront_mapping');
+            cy.visit('/project/bf/responses');
+            cy.dataCy('no-responses').should('exist');
+            cy.visit('/project/bf/nlu/model/fr');
+            cy.dataCy('example-text-editor-input').should('exist');
+            cy.get('.row').should('not.exist');
+        });
+    });
 });
