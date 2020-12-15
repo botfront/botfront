@@ -29,6 +29,7 @@ class TrainButton extends React.Component {
             webhooks: {},
         };
         this.commitMessage = React.createRef();
+        this.revertTable = React.createRef();
     }
 
     copyToClipboard = () => {
@@ -64,7 +65,8 @@ class TrainButton extends React.Component {
             'commitAndPushToRemote',
             projectId,
             this.commitMessage?.current?.value,
-            wrapMeteorCallback((_, { status: { code, msg } }) => {
+            wrapMeteorCallback((err, { status: { code, msg } }) => {
+                if (err) return;
                 Alert[code === 204 ? 'warning' : 'success'](msg, {
                     position: 'top-right',
                     timeout: 2 * 1000,
@@ -113,8 +115,10 @@ class TrainButton extends React.Component {
             size='small'
             header='Revert to previous'
             onClick={e => e.stopPropagation()}
-            content={<RevertTable />}
-            onClose={() => this.showModal('revert-to-previous', false)}
+            content={<RevertTable ref={this.revertTable} />}
+            onClose={() => {
+                if (this.revertTable.current?.isIdle()) { this.showModal('revert-to-previous', false); }
+            }}
         />
     );
 

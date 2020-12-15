@@ -14,11 +14,12 @@ import { Projects } from '../project/project.collection';
 import { Instances } from '../instances/instances.collection';
 import Conversations from '../graphql/conversations/conversations.model';
 import Activity from '../graphql/activity/activity.model';
+import { importSteps } from '../graphql/project/import.utils';
 
 if (Meteor.isServer) {
     const md5 = require('md5');
     const glob = require('glob');
-    const { join, dirname } = require('path');
+    const { join, dirname, basename } = require('path');
     const nodegit = require('nodegit');
     const fs = require('fs');
     const axiosClient = axios.create();
@@ -58,6 +59,11 @@ if (Meteor.isServer) {
         }),
     );
 
+    const hardResetToCommit = async (repo, commit, branch = null) => {
+        await nodegit.Reset.reset(repo, commit, nodegit.Reset.TYPE.HARD, {});
+        if (branch) await repo.setHead(branch.name());
+    };
+
     const getRemote = async (projectId, forceClone = false) => {
         const { gitString = '' } = Projects.findOne({ _id: projectId }, { gitString: 1 }) || {};
         const [url, branchName, ...rest] = gitString.split('#');
@@ -82,6 +88,14 @@ if (Meteor.isServer) {
                     nodegit.Merge.PREFERENCE.FASTFORWARD_ONLY,
                     { fileFavor: nodegit.Merge.FILE_FAVOR.THEIRS },
                 );
+                const localSha = (await repo.getBranchCommit(branchName)).id().tostrS();
+                const remoteSha = (
+                    await repo.getBranchCommit(`refs/remotes/origin/${branchName}`)
+                )
+                    .id()
+                    .tostrS();
+                // local is ahead, start from scratch
+                if (localSha !== remoteSha) throw new Error();
             } catch {
                 if (fs.existsSync(dir)) fs.rmdirSync(dir, { recursive: true });
                 repo = await nodegit.Clone.clone(url, dir);
@@ -94,10 +108,12 @@ if (Meteor.isServer) {
                 `Could not connect to branch '${branchName}' on your git repo. Check your credentials.`,
             );
         }
+        const index = await repo.index();
+        await index.read(1);
 
         const bfIgnoreFile = join(dir, '.bfignore');
         const exclusions = [
-            bfIgnoreFile,
+            '.bfignore',
             ...(fs.existsSync(bfIgnoreFile)
                 ? fs.readFileSync(bfIgnoreFile, 'utf-8').split('\n')
                 : []),
@@ -105,6 +121,7 @@ if (Meteor.isServer) {
 
         return {
             dir,
+            index,
             repo,
             branch,
             branchCommit,
@@ -113,7 +130,157 @@ if (Meteor.isServer) {
         };
     };
 
+    const repoDirToFileList = async (dir, exclusions) => glob.sync(join('**', '*'), { cwd: dir, nodir: true }).reduce(
+        (files, path) => [
+            ...files,
+            ...(exclusions.includes(path)
+                ? []
+                : [
+                    {
+                        createReadStream: () => fs.createReadStream(join(dir, path)),
+                        filename: basename(path),
+                    },
+                ]),
+        ],
+        [],
+    );
+
+    const commitChanges = async (projectId, commitMessage, { status, ...repoInfo }) => {
+        const {
+            dir, index, repo, branchCommit, exclusions,
+        } = repoInfo;
+        // given that the present method is called on training, calling 'exportRasa'
+        // here means 'rasa.getTrainingPayload' will be called twice in short succession,
+        // which is a bit stupid, but we live with it for now.
+        const zip = await Meteor.callWithPromise('exportRasa', projectId, 'all', {
+            noBlob: true,
+        });
+        await deletePathsNotInZip(dir, zip, exclusions); // deletions
+        await extractZip(dir, zip); // additions/modifications
+
+        await index.addAll();
+        await index.write();
+        const oid = await index.writeTree();
+        const diff = await nodegit.Diff.treeToIndex(
+            repo,
+            await branchCommit.getTree(),
+            index,
+        );
+        // only push if commit contains changes
+        if (diff.numDeltas() < 1) {
+            await index.clear();
+            return { ...repoInfo, status: { code: 204, msg: 'Nothing to push.' } };
+        }
+        await repo.createCommit(
+            'HEAD',
+            signature(),
+            signature(),
+            commitMessage || `${new Date()}`,
+            oid,
+            [(await repo.head()).target()],
+        );
+        return repoInfo;
+    };
+
+    const pushToRemote = async ({
+        remote, branch, index, repo, branchCommit,
+    }) => {
+        try {
+            await remote.push([`${branch.toString()}:${branch.toString()}`]);
+            return {
+                status: { code: 201, msg: 'Successfully pushed to Git remote.' },
+            };
+        } catch {
+            await index.clear();
+            await hardResetToCommit(repo, branchCommit, branch);
+            throw new Meteor.Error('Could not push current revision.');
+        }
+    };
+
+    const putCommitMsgInParentheses = (commit) => {
+        let message = commit.message();
+        if (!message) return '';
+        [message] = message.split('\n');
+        message = message.substring(0, 100) + (message.length > 100 ? '...' : '');
+        return ` (${message})`;
+    };
+
     Meteor.methods({
+        async revertToCommit(projectId, sha, { commitFirst = true } = {}) {
+            check(projectId, String);
+            check(sha, String);
+            check(commitFirst, Boolean);
+            let repoInfo = await getRemote(projectId);
+            const originalBranchCommit = repoInfo.branchCommit;
+            let commit;
+            try {
+                commit = await repoInfo.repo.getCommit(sha);
+            } catch {
+                throw new Meteor.Error('Could not find commit.');
+            }
+            if (commitFirst) {
+                repoInfo = await commitChanges(
+                    projectId,
+                    `Project state before revert to ${sha.substring(0, 8)}`,
+                    repoInfo,
+                );
+            }
+            const {
+                repo, dir, exclusions, branch,
+            } = repoInfo;
+            try {
+                await repo.setHeadDetached(sha);
+                // await new Promise(resolve => setTimeout(() => resolve(), 15000));
+                await hardResetToCommit(repo, commit, null);
+                // await new Promise(resolve => setTimeout(() => resolve(), 30000));
+            } catch {
+                hardResetToCommit(repo, originalBranchCommit, branch);
+                throw new Meteor.Error('Could not checkout commit.');
+            }
+            const backupZip = await Meteor.callWithPromise(
+                'exportRasa',
+                projectId,
+                'all',
+                { noBlob: true },
+            );
+            try {
+                const untrackedFiles = (await repo.getStatus())
+                    .filter(f => f.isNew() || f.isModified())
+                    .map(f => f.path());
+                const { summary = [] } = await importSteps({
+                    projectId,
+                    wipeProject: true,
+                    files: await repoDirToFileList(dir, [
+                        ...exclusions,
+                        ...untrackedFiles,
+                    ]),
+                });
+                if (summary.length) throw new Error();
+                await repo.setHead(branch.name()); // repoint head
+                // await new Promise(resolve => setTimeout(() => resolve(), 15000));
+                const message = putCommitMsgInParentheses(commit);
+                const { status } = await commitChanges(
+                    projectId,
+                    `Revert to ${sha.substring(0, 8)}${message}`,
+                    repoInfo,
+                );
+                if (status) return { status };
+                return pushToRemote(repoInfo);
+            } catch {
+                await importSteps({
+                    projectId,
+                    wipeProject: true,
+                    files: [
+                        {
+                            filename: 'backup.zip',
+                            createReadStream: () => backupZip.generateNodeStream(),
+                        },
+                    ],
+                });
+                hardResetToCommit(repo, originalBranchCommit, branch);
+                throw new Meteor.Error('Error reverting to commit.');
+            }
+        },
         async getHistoryOfCommits(projectId, { cursor = null, pageSize = 20 } = {}) {
             check(projectId, String);
             check(cursor, Match.Maybe(String));
@@ -126,6 +293,7 @@ if (Meteor.isServer) {
                 sha: c.id().tostrS(),
                 msg: c.message(),
                 time: c.time(),
+                isHead: c.id().tostrS() === branchCommit.id().tostrS(),
             });
             return new Promise((resolve, reject) => {
                 const historyWalker = startCommit.history();
@@ -144,68 +312,13 @@ if (Meteor.isServer) {
                 historyWalker.start();
             });
         },
-        async commitAndPushToRemote(projectId, commitMessage, { dry = false } = {}) {
+        async commitAndPushToRemote(projectId, commitMessage) {
             check(projectId, String);
             check(commitMessage, String);
-            check(dry, Boolean);
-            const {
-                dir,
-                repo,
-                branch,
-                branchCommit,
-                remote,
-                exclusions,
-            } = await getRemote(projectId, true);
-            // given that the present method is called on training, calling 'exportRasa'
-            // here means 'rasa.getTrainingPayload' will be called twice in short succession,
-            // which is a bit stupid, but we live with it for now.
-            const zip = await Meteor.callWithPromise('exportRasa', projectId, 'all', {
-                noBlob: true,
-            });
-            await deletePathsNotInZip(dir, zip, exclusions); // deletions
-            await extractZip(dir, zip); // additions/modifications
-
-            const index = await repo.index();
-            await index.read(1);
-            await index.addAll();
-            await index.write();
-            const oid = await index.writeTree();
-            const diff = await nodegit.Diff.treeToIndex(
-                repo,
-                await branchCommit.getTree(),
-                index,
-            );
-            // only push if commit contains changes
-            if (diff.numDeltas() < 1) {
-                await index.clear();
-                return { status: { code: 204, msg: 'Nothing to push.' } };
-            }
-            await repo.createCommit(
-                'HEAD',
-                signature(),
-                signature(),
-                commitMessage || `${new Date()}`,
-                oid,
-                [branchCommit.id().tostrS()],
-            );
-            if (dry) {
-                return {};
-            }
-            try {
-                await remote.push([`${branch.toString()}:${branch.toString()}`]);
-                return {
-                    status: { code: 201, msg: 'Successfully pushed to Git remote.' },
-                };
-            } catch {
-                await index.clear();
-                await nodegit.Reset.reset(
-                    repo,
-                    branchCommit,
-                    nodegit.Reset.TYPE.HARD,
-                    {},
-                );
-                throw new Meteor.Error('Could not push current revision.');
-            }
+            const repoInfo = await getRemote(projectId);
+            const { status } = await commitChanges(projectId, commitMessage, repoInfo);
+            if (status) return { status };
+            return pushToRemote(repoInfo);
         },
         async exportRasa(projectId, language, options) {
             checkIfCan('export:x', projectId);

@@ -15,6 +15,7 @@ type Commit {
     sha: String!
     msg: String!
     time: Int!
+    isHead: Boolean
 }
 
 type Mutation {

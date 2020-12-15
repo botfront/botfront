@@ -1,28 +1,28 @@
-import React, { useContext, useEffect } from 'react';
+import React, {
+    useContext, useEffect, useState, useImperativeHandle,
+} from 'react';
 import { useQuery } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
-import { Label } from 'semantic-ui-react';
+import Alert from 'react-s-alert';
+import 'react-s-alert/dist/s-alert-default.css';
+import {
+    Label, Placeholder, Icon,
+} from 'semantic-ui-react';
+import { wrapMeteorCallback } from './Errors';
 import { ProjectContext } from '../../layouts/context';
 import DataTable from '../common/DataTable';
 import IconButton from '../common/IconButton';
 import { tooltipWrapper } from './Utils';
 
 const projectGitHistoryQuery = gql`
-    query (
-        $projectId: String!
-        $cursor: String
-        $pageSize: Int
-    ) {
-        projectGitHistory(
-            projectId: $projectId
-            cursor: $cursor
-            pageSize: $pageSize
-        ) {
+    query($projectId: String!, $cursor: String, $pageSize: Int) {
+        projectGitHistory(projectId: $projectId, cursor: $cursor, pageSize: $pageSize) {
             commits {
                 sha
                 msg
                 time
-            },
+                isHead
+            }
             pageInfo {
                 endCursor
                 hasNextPage
@@ -34,9 +34,13 @@ const projectGitHistoryQuery = gql`
 function useGitHistory(variables) {
     const {
         data, loading, error, fetchMore, refetch,
-    } = useQuery(projectGitHistoryQuery, {
-        notifyOnNetworkStatusChange: true, variables,
-    });
+    } = useQuery(
+        projectGitHistoryQuery,
+        {
+            notifyOnNetworkStatusChange: true,
+            variables,
+        },
+    );
 
     if (!data || !data.projectGitHistory) return { loading, data: [] };
 
@@ -54,7 +58,10 @@ function useGitHistory(variables) {
                 ? {
                     projectGitHistory: {
                         __typename: previousResult.projectGitHistory.__typename,
-                        commits: [...previousResult.projectGitHistory.activity, ...commits],
+                        commits: [
+                            ...previousResult.projectGitHistory.commits,
+                            ...commits,
+                        ],
                         pageInfo,
                     },
                 }
@@ -72,12 +79,44 @@ function useGitHistory(variables) {
     };
 }
 
-export default function RevertTable() {
-    const { project: { _id: projectId } } = useContext(ProjectContext);
+export default React.forwardRef((_, ref) => {
+    const {
+        project: { _id: projectId },
+    } = useContext(ProjectContext);
+
+    const [working, setWorking] = useState(false);
+
     const {
         data, hasNextPage, loading, loadMore, refetch,
-    } = useGitHistory({ projectId });
-    useEffect(() => { refetch?.(); }, [projectId]);
+    } = useGitHistory({
+        projectId,
+    });
+
+    useImperativeHandle(ref, () => ({
+        isIdle: () => !working,
+    }));
+
+    useEffect(() => {
+        refetch?.();
+    }, [projectId]);
+
+    const revertToCommit = (sha) => {
+        setWorking(true);
+        Meteor.call(
+            'revertToCommit',
+            projectId,
+            sha,
+            wrapMeteorCallback((err, { status: { code, msg } }) => {
+                setWorking(false);
+                if (err) return;
+                Alert[code === 204 ? 'warning' : 'success'](msg, {
+                    position: 'top-right',
+                    timeout: 2 * 1000,
+                });
+                refetch?.();
+            }),
+        );
+    };
     const columns = [
         {
             key: 'sha',
@@ -97,10 +136,36 @@ export default function RevertTable() {
         {
             key: 'action',
             style: { width: '40px' },
-            render: ({ datum }) => <IconButton icon='checkmark' onClick={() => alert(datum?.sha)} />,
+            render: ({ datum }) => {
+                if (datum.isHead) return null;
+                return (
+                    <IconButton
+                        icon='step backward'
+                        color='blue'
+                        onClick={() => revertToCommit(datum.sha)}
+                    />
+                );
+            },
         },
     ];
-    
+
+    if (working) {
+        return (
+            <div style={{ height: 400 }}>
+                <Icon
+                    name='code branch'
+                    size='massive'
+                    color='grey'
+                    style={{
+                        position: 'absolute', zIndex: 50, top: '30%', left: '30%',
+                    }}
+                />
+                <Placeholder fluid>
+                    {Array.from(new Array(20)).map((el, i) => <Placeholder.Line key={i} />)}
+                </Placeholder>
+            </div>
+        );
+    }
     return (
         <DataTable
             columns={columns}
@@ -110,4 +175,4 @@ export default function RevertTable() {
             height={400}
         />
     );
-}
+});
