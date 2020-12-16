@@ -85,7 +85,6 @@ export const NLUModelSchema = new SimpleSchema({
         // TODO: make a lighter languages document
         allowedValues: Object.keys(languages),
     },
-    description: { type: String, optional: true },
     config: { type: String, optional: true },
     hasNoWhitespace: { type: Boolean, optional: true },
 

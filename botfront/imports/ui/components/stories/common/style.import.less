@@ -25,6 +25,7 @@
     padding: 3px;
     padding-left: 30px;
     min-height: 80px;
+    transition: min-height 0.2s ease-in-out;
 
     .add-story-line {
         margin: 0.8em 0;
@@ -97,21 +98,6 @@
 
 .dropdown-button-trigger > i.dropdown.icon {
     display: none;
-}
-
-.action-name-form {
-    position: relative;
-    color: @grey;
-    .action-name-prefix {
-        position: absolute;
-        z-index: 100;
-        left: 1ch;
-        top: ~"calc(calc(100% - 2em) - 2.5px)";
-    }
-    .action-name-prefix + .input input {
-        color: #000;
-        padding-left: 7.5ch;
-    }
 }
 
 .has-exceptions {
@@ -234,9 +220,9 @@
 
 .ui.popup.response-locations-popup {
     padding-bottom: 1.2em;
-    .ui.list.response-locations-list {
-        margin-bottom: 0;
-    }
+}
+.ui.list.link-list {
+    margin-bottom: 0;
     .story-name-link {
         color: #228ee0;
         text-decoration: underline;
@@ -306,7 +292,7 @@
     }
 }
 
-.ellipsis.horizontal {
+.ellipsis.horizontal.line-insert {
     width: 200px;
     height: 10px;
     margin: 0 0 1px;

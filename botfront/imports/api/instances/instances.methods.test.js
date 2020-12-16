@@ -12,7 +12,8 @@ const nluModel = {
     projectId: 'test',
     name: 'chitchat-en',
     language: 'en',
-    config: 'pipeline:\n  - name: WhitespaceTokenizer\n  - name: LexicalSyntacticFeaturizer\n  - name: CountVectorsFeaturizer\n  - name: CountVectorsFeaturizer\n    analyzer: char_wb\n    min_ngram: 1\n    max_ngram: 4\n  - name: DIETClassifier\n    epochs: 100\n  - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: >-\n      rasa_addons.nlu.components.intent_ranking_canonical_example_injector.IntentRankingCanonicalExampleInjector\n  - name: EntitySynonymMapper',
+    config:
+        'pipeline:\n  - name: WhitespaceTokenizer\n  - name: LexicalSyntacticFeaturizer\n  - name: CountVectorsFeaturizer\n  - name: CountVectorsFeaturizer\n    analyzer: char_wb\n    min_ngram: 1\n    max_ngram: 4\n  - name: DIETClassifier\n    epochs: 100\n  - name: rasa_addons.nlu.components.gazette.Gazette\n  - name: >-\n      rasa_addons.nlu.components.intent_ranking_canonical_example_injector.IntentRankingCanonicalExampleInjector\n  - name: EntitySynonymMapper',
     evaluations: [],
     intents: [],
     chitchat_intents: [],
@@ -49,10 +50,7 @@ const nluModel = {
         entity_synonyms: [
             {
                 value: 'NYC',
-                synonyms: [
-                    'New-York',
-                    'the big apple',
-                ],
+                synonyms: ['New-York', 'the big apple'],
                 _id: 'd390acad-18d6-4705-99b0-77b764525536',
             },
         ],
@@ -64,13 +62,26 @@ const nluModel = {
     },
 };
 
-const allExamples = [{
-    text: 'tt', intent: 'chitchat.tell_me_a_joke', metadata: { canonical: true, language: 'en' }, entities: [],
-}, {
-    text: 'that\'s all goodbye', intent: 'chitchat.bye', metadata: { canonical: true, language: 'en' }, entities: [],
-}, {
-    text: 'hello good evening', intent: 'chitchat.greet', metadata: { canonical: true, language: 'en' }, entities: [],
-}];
+const allExamples = [
+    {
+        text: 'that\'s all goodbye',
+        intent: 'chitchat.bye',
+        metadata: { canonical: true, language: 'en' },
+        entities: [],
+    },
+    {
+        text: 'hello good evening',
+        intent: 'chitchat.greet',
+        metadata: { canonical: true, language: 'en' },
+        entities: [],
+    },
+    {
+        text: 'tt',
+        intent: 'chitchat.tell_me_a_joke',
+        metadata: { canonical: true, language: 'en' },
+        entities: [],
+    },
+];
 
 const testProject = {
     _id: 'test',

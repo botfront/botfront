@@ -47,6 +47,10 @@ export const CredentialsSchema = new SimpleSchema(
             optional: true,
             // autoValue: () => this.isUpdate ? this.value : new Date() //TODO find out why it's always updated
         },
+        environment: {
+            type: String,
+            optional: true,
+        },
         updatedAt: {
             type: Date,
             optional: true,
@@ -64,18 +68,34 @@ Meteor.startup(() => {
 
 Credentials.attachSchema(CredentialsSchema);
 if (Meteor.isServer) {
-    Meteor.publish('credentials', function(projectId) {
+    Meteor.publish('credentials', function (projectId) {
+        try {
+            checkIfCan(['nlu-data:r', 'projects:r', 'responses:r'], projectId);
+        } catch (err) {
+            return this.ready();
+        }
         check(projectId, String);
-        if (can('project-settings:r', projectId, this.userId)) return Credentials.find({ projectId });
-        return this.ready();
+        return Credentials.find({ projectId });
     });
 
     Meteor.methods({
         'credentials.save'(credentials) {
+            checkIfCan('projects:w', credentials.projectId);
             check(credentials, Object);
-            checkIfCan('project-settings:w', credentials.projectId);
             try {
-                return Credentials.upsert({ projectId: credentials.projectId }, { $set: { credentials: credentials.credentials } });
+                const env = credentials.environment || 'development';
+                const envQuery = env !== 'development'
+                    ? { environment: env }
+                    : {
+                        $or: [
+                            { environment: env },
+                            { environment: { $exists: false } },
+                        ],
+                    };
+                return Credentials.upsert(
+                    { projectId: credentials.projectId, ...envQuery },
+                    { $set: { credentials: credentials.credentials } },
+                );
             } catch (e) {
                 throw formatError(e);
             }

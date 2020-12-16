@@ -16,5 +16,10 @@
     "cypress": "3.6.0",
     "cypress-plugin-retries": "1.2.2",
     "js-yaml": "^3.13.1"
+  },
+  "dependencies": {
+    "glob": "^7.1.6",
+    "jszip": "^3.5.0",
+    "path": "^0.12.7"
   }
 }

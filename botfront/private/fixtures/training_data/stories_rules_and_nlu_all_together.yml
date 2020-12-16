@@ -1,0 +1,29 @@
+version: "2.0"
+stories:
+- story: Story1
+  steps:
+  - intent: intent1
+  - action: utter_nothing
+- story: Story2
+  steps:
+  - intent: intent1
+  - action: utter_something
+nlu:
+- intent: inform
+  examples: |
+    - my account number is [1234567891](account_number)
+    - This is my account number [1234567891](account_number)
+- synonym: credit
+  examples: |
+    - credit card account
+    - credit account
+- regex: account_number
+  examples: |
+    - [0-9]{10,12}
+rules:
+- rule: Rule1
+  condition:
+  - active_loop: loopy
+  steps:
+  - intent: intent1
+  - action: utter_it_fast

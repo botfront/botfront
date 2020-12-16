@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
 
-import { StorySchema } from './stories.schema';
+import { StorySchema, RuleSchema } from './stories.schema';
 
 export const Stories = new Mongo.Collection('stories');
 
@@ -22,7 +22,12 @@ Stories.deny({
 
 Meteor.startup(() => {
     if (Meteor.isServer) {
-        Stories._ensureIndex({ 'textIndex.contents': 'text', 'textIndex.info': 'text' });
+        try {
+            Stories._dropIndex('textIndex.contents_text_textIndex.info_text');
+        } catch {
+            // don't delete it if it doesn't exist
+        }
+        Stories._ensureIndex({ textIndex: 'text' });
     }
 });
 
@@ -35,7 +40,11 @@ if (Meteor.isServer) {
 
     Meteor.publish('stories.light', function(projectId) {
         check(projectId, String);
-        return Stories.find({ projectId }, { fields: { title: true, checkpoints: true, storyGroupId: true } });
+        return Stories.find({ projectId }, {
+            fields: {
+                title: true, checkpoints: true, storyGroupId: true, type: true,
+            },
+        });
     });
     Meteor.publish('stories.events', function(projectId) {
         check(projectId, String);
@@ -43,4 +52,5 @@ if (Meteor.isServer) {
     });
 }
 
-Stories.attachSchema(StorySchema);
+Stories.attachSchema(RuleSchema, { selector: { type: 'rule' } });
+Stories.attachSchema(StorySchema, { selector: { type: 'story' } });

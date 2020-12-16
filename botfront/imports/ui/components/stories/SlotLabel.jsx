@@ -11,13 +11,14 @@ export const slotValueToLabel = value => (
 );
 
 export default function SlotLabel({ value, onChange }) {
-    const { type, name, slotValue } = value;
+    const [name] = Object.keys(value);
+    const slotValue = value[name];
     return (
         <SlotPopupContent
             trigger={(
                 <div className='label-container orange'>
                     <div>
-                        {type || 'slot'}
+                        slot
                     </div>
                     <div>
                         {name}:&nbsp; <span className='slot-content'>{slotValueToLabel(slotValue)}</span>

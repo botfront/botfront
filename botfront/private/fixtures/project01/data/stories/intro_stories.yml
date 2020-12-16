@@ -1,0 +1,15 @@
+stories:
+  - story: Get started
+    steps:
+      - intent: get_started
+      - action: utter_sx0MSd0U
+      - action: utter_UHUTZi9Y
+    metadata:
+      group: Intro stories
+  - story: What can you do
+    steps:
+      - intent: questions.what_can_you_do
+      - action: utter_fEKmoghU
+    metadata:
+      group: Intro stories
+rules: []

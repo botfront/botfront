@@ -1,0 +1,25 @@
+nlu:
+- intent: estimate_emissions
+  metadata:
+    language: en
+  # Multiline examples, each line is a separate training example.
+  examples: |
+    - how much CO2 will that use?
+    - how much carbon will a one way flight from [new york]{"entity": "city", "role": "from"} to california produce?
+- intent: greet
+  metadata:
+    language: en
+  examples: |
+    - hey
+    - hello
+- intent: greet
+  metadata:
+    language: fr
+  examples: |
+    - bonjour
+    - salut
+- intent: greet
+  metadata:
+    nolanguagespecified: true
+  examples: |
+    - aloha

@@ -1,12 +1,14 @@
 import { sortBy, isEqual } from 'lodash';
 import { safeDump, safeLoad } from 'js-yaml';
+import { Log } from 'meteor/logging';
+import axios from 'axios';
 import shortid from 'shortid';
 import { GlobalSettings } from '../imports/api/globalSettings/globalSettings.collection';
 import { Projects } from '../imports/api/project/project.collection';
+import { Instances } from '../imports/api/instances/instances.collection';
 import { Stories } from '../imports/api/story/stories.collection';
 import { NLUModels } from '../imports/api/nlu_model/nlu_model.collection';
 import { StoryGroups } from '../imports/api/storyGroups/storyGroups.collection';
-import { aggregateEvents } from '../imports/lib/story.utils';
 import { indexBotResponse } from '../imports/api/graphql/botResponses/mongo/botResponses';
 import { insertExamples } from '../imports/api/graphql/examples/mongo/examples';
 import { indexStory } from '../imports/api/story/stories.index';
@@ -148,7 +150,7 @@ Migrations.add({
     up: () => {
         const allStories = Stories.find().fetch();
         allStories.forEach((story) => {
-            const events = aggregateEvents(story);
+            const events = [];
             Stories.update({ _id: story._id }, { $set: { events } });
         });
     },
@@ -160,7 +162,9 @@ const processSequence = sequence => sequence
         const newSequent = {};
         if (curr.text && !acc.text) newSequent.text = curr.text;
         if (curr.text && acc.text) newSequent.text = `${acc.text}\n\n${curr.text}`;
-        if (curr.buttons) { newSequent.buttons = [...(acc.buttons || []), ...curr.buttons]; }
+        if (curr.buttons) {
+            newSequent.buttons = [...(acc.buttons || []), ...curr.buttons];
+        }
         return newSequent;
     }, {});
 
@@ -397,6 +401,97 @@ Migrations.add({
             );
         });
         await Activity.syncIndexes(); // remove old modelId_text_env index
+    },
+});
+
+const flattenStoriesForConversion = (stories, priorPath = '') => stories.reduce((acc, { _id, story, branches }, i) => {
+    const title = priorPath ? `${priorPath}__${i}` : _id;
+    return [
+        ...acc,
+        `\n## ${title}\n${story || ''}`,
+        ...flattenStoriesForConversion(branches || [], title),
+    ];
+}, []);
+
+const generateStoryUpdates = (stories) => {
+    const storyUpdates = {};
+    stories.forEach(({ story: title, steps }) => {
+        const [_id, ...indices] = title.split('__');
+        const { $set, $unset } = storyUpdates[_id] || { $set: {}, $unset: {} };
+        const pathPrefix = indices.length
+            ? `branches.${indices.join('.branches.')}.`
+            : '';
+        storyUpdates[_id] = {
+            $set: {
+                ...$set,
+                type: 'story',
+                [`${pathPrefix}steps`]: steps,
+            },
+            $unset: {
+                ...$unset,
+                [`${pathPrefix}story`]: '',
+            },
+        };
+    });
+    return storyUpdates;
+};
+
+Migrations.add({
+    version: 12,
+    up: async () => {
+        // check whether BF was never init or migration has already completed
+        // (story key is deleted at last step, which differentiates new and legacy stories)
+        if (!Stories.find({ story: { $exists: true } }).count()) return;
+        const instances = Instances.find({
+            projectId: { $not: { $regex: 'chitchat' } },
+        }).fetch();
+        const host = instances.length === 1
+            ? instances[0].host
+            : process.env.RASA_MIGRATION_INSTANCE_URL;
+        if (!host) {
+            throw new Error(
+                'Could not find Rasa instance to convert stories to Rasa 2.0 format. Please set env var RASA_MIGRATION_INSTANCE_URL.',
+            );
+        }
+        try {
+            const stories = Stories.find(
+                { story: { $exists: true } },
+                { story: 1, _id: 1, branches: 1 },
+            ).fetch();
+            const storiesFlattened = flattenStoriesForConversion(stories).join('\n');
+            const axiosClient = axios.create();
+            const { data: { data = '' } = {} } = await axiosClient.post(
+                `${host}/data/convert/core`,
+                {
+                    data: storiesFlattened,
+                    input_format: 'md',
+                    output_format: 'yaml',
+                },
+            );
+            const { stories: parsedStories } = safeLoad(data);
+
+            // this filters out stories that rasa could not converts, this happens because the story had only lines that made no sense
+            // we can safely delete these.
+            const nonsensicalStories = stories.filter(story => !parsedStories.some(pStory => pStory.story === story._id));
+            await Stories.remove({ _id: { $in: nonsensicalStories.map(story => story._id) } });
+
+            const storyUpdates = generateStoryUpdates(parsedStories);
+
+            Object.keys(storyUpdates).forEach(_id => Stories.update({ _id }, storyUpdates[_id]));
+            // rebuild indices
+            const allStories = Stories.find().fetch();
+            allStories.forEach((story) => {
+                const { textIndex, events } = indexStory(story);
+                Stories.update({ _id: story._id }, { $set: { type: story.type || 'story', textIndex, events } });
+            });
+        } catch (e) {
+            // eslint-disable-next-line no-underscore-dangle
+            Migrations._collection._collection.update(
+                { _id: 'control' },
+                { $set: { version: 11, locked: true, lockedAt: new Date() } },
+            ); // this is not a downgrade, just an incomplete migration
+            Log.error({ message: `Migrations: Locking at version 11 because: ${e.message}.` });
+        }
     },
 });
 

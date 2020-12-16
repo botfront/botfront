@@ -21,7 +21,7 @@ import { Instances } from './instances.collection';
 import { CorePolicies } from '../core_policies';
 import { Evaluations } from '../nlu_evaluation';
 import Activity from '../graphql/activity/activity.model';
-import { getStoriesAndDomain } from '../../lib/story.utils';
+import { getFragmentsAndDomain } from '../../lib/story.utils';
 import { dropNullValuesFromObject } from '../../lib/client.safe.utils';
 import { Projects } from '../project/project.collection';
 
@@ -77,8 +77,8 @@ export const getNluDataAndConfig = async (projectId, language, intents) => {
         language,
         intents,
         pageSize: -1,
-        sortKey: 'metadata.canonical',
-        order: 'DESC',
+        sortKey: 'intent',
+        order: 'ASC',
     });
     const common_examples = examples.filter(e => !e?.metadata?.draft);
     const missingExamples = Math.abs(Math.min(0, common_examples.length - 2));
@@ -95,12 +95,15 @@ export const getNluDataAndConfig = async (projectId, language, intents) => {
         rasa_nlu_data: {
             common_examples: common_examples.map(
                 ({
-                    text, intent, entities = [], metadata = {},
+                    text, intent, entities = [], metadata: { canonical, ...metadata } = {},
                 }) => ({
                     text,
                     intent,
-                    entities: entities.map(dropNullValuesFromObject),
-                    metadata,
+                    entities: entities.map(({ _id: _, ...rest }) => dropNullValuesFromObject(rest)),
+                    metadata: {
+                        ...metadata,
+                        ...(canonical ? { canonical } : {}),
+                    },
                 }),
             ),
             entity_synonyms: entity_synonyms.map(copyAndFilter),
@@ -194,56 +197,25 @@ if (Meteor.isServer) {
             }
         },
 
-        async 'rasa.convertToJson'(file, language, outputFormat, host) {
-            check(file, String);
-            check(language, String);
-            check(outputFormat, String);
-            check(host, String);
-            const appMethodLogger = getAppLoggerForMethod(
-                trainingAppLogger,
-                'rasa.convertToJson',
-                Meteor.userId(),
-                {
-                    file,
-                    language,
-                    outputFormat,
-                    host,
-                },
-            );
-
-            const client = axios.create({
-                baseURL: host,
-                timeout: 100 * 1000,
-            });
-            addLoggingInterceptors(client, appMethodLogger);
-            const { data } = await client.post('/data/convert/', {
-                data: file,
-                output_format: outputFormat,
-                language,
-            });
-            return data;
-        },
-
-        async 'rasa.getTrainingPayload'(
-            projectId,
-            { language = '', joinStoryFiles = true } = {},
-        ) {
+        async 'rasa.getTrainingPayload'(projectId, { language = '' } = {}) {
             check(projectId, String);
             check(language, String);
-            const instance = await Instances.findOne({ projectId });
-            const client = axios.create({
-                baseURL: instance.host,
-                timeout: 3 * 60 * 1000,
-            });
 
-            const { policies: corePolicies, augmentationFactor } = CorePolicies.findOne({ projectId }, { policies: 1, augmentationFactor: 1 });
+            const { policies: corePolicies, augmentationFactor } = CorePolicies.findOne(
+                { projectId },
+                { policies: 1, augmentationFactor: 1 },
+            );
             const nlu = {};
             const config = {};
 
-            const { stories, domain, wasPartial } = await getStoriesAndDomain(
+            const {
+                stories = [], rules = [], domain, wasPartial,
+            } = await getFragmentsAndDomain(
                 projectId,
                 language,
             );
+            stories.sort((a, b) => a.story.localeCompare(b.story));
+            rules.sort((a, b) => a.rule.localeCompare(b.rule));
             const selectedIntents = wasPartial
                 ? yaml.safeLoad(domain).intents
                 : undefined;
@@ -257,25 +229,13 @@ if (Meteor.isServer) {
                     rasa_nlu_data,
                     config: configForLang,
                 } = await getNluDataAndConfig(projectId, lang, selectedIntents);
-                const { data: result } = await client.post('/data/convert/', {
-                    data: { rasa_nlu_data },
-                    output_format: 'md',
-                    language: lang,
-                });
-                const canonical = rasa_nlu_data.common_examples
-                    .filter(e => e.canonical)
-                    .map(e => e.text);
-                const canonicalText = canonical.length
-                    ? `\n\n# canonical\n- ${canonical.join('\n- ')}`
-                    : '';
-                nlu[lang] = {
-                    data: `# lang:${lang}${canonicalText}\n\n${result.data}`,
-                };
+                nlu[lang] = { rasa_nlu_data };
                 config[lang] = `${configForLang}\n\n${corePolicies}`;
             }
             const payload = {
-                domain,
-                stories: joinStoryFiles ? stories.join('\n') : stories,
+                domain: yaml.safeDump(domain, { skipInvalid: true, sortKeys: true }),
+                stories,
+                rules,
                 nlu,
                 config,
                 fixed_model_name: getProjectModelFileName(projectId),
@@ -296,7 +256,15 @@ if (Meteor.isServer) {
             appMethodLogger.debug(`Training project ${projectId}...`);
             const t0 = performance.now();
             try {
-                const payload = await Meteor.call('rasa.getTrainingPayload', projectId);
+                const { stories = [], rules = [], ...payload } = await Meteor.call(
+                    'rasa.getTrainingPayload',
+                    projectId,
+                );
+                payload.fragments = yaml.safeDump(
+                    { stories, rules },
+                    { skipInvalid: true },
+                );
+
                 const instance = await Instances.findOne({ projectId });
                 const trainingClient = axios.create({
                     baseURL: instance.host,
@@ -346,6 +314,7 @@ if (Meteor.isServer) {
                 }
                 Meteor.call('project.markTrainingStopped', projectId, 'success');
             } catch (e) {
+                console.log(e); // eslint-disable-line no-console
                 const error = `${e.message || e.reason} ${(
                     e.stack.split('\n')[2] || ''
                 ).trim()}`;
@@ -404,10 +373,7 @@ if (Meteor.isServer) {
                     { field: { _id: 1 } },
                 );
                 if (evaluations) {
-                    Evaluations.update(
-                        { _id: evaluations._id },
-                        { $set: { results } },
-                    );
+                    Evaluations.update({ _id: evaluations._id }, { $set: { results } });
                 } else {
                     Evaluations.insert({ results, projectId, language });
                 }

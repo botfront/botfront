@@ -1,20 +1,12 @@
-import { expect, assert } from 'chai';
+import { expect } from 'chai';
 import {
-    traverseStory,
-    appendBranchCheckpoints,
-    flattenStory,
-    addlinkCheckpoints,
     getAllResponses,
-    aggregateEvents,
+    addCheckpoints,
+    extractDomain,
+    stringPayloadToObject,
+    objectPayloadToString,
 } from './story.utils';
 import { createResponses } from '../api/graphql/botResponses/mongo/botResponses';
-
-
-/* to do:
-extractDomain
-getStoriesAndDomain
-accumulateExceptions
-*/
 
 const responseFixture = [
     {
@@ -52,7 +44,8 @@ const responseFixture = [
                 lang: 'en',
                 sequence: [
                     {
-                        content: 'text: choose\nbuttons:\n  - title: \'Yes\'\n    type: postback\n    payload: \'/I_want_a_shirt{"color":"red"}\'\n  - title: \'No\'\n    type: web_url\n    payload: \'http://google.com\'',
+                        content:
+                            'text: choose\nbuttons:\n  - title: \'Yes\'\n    type: postback\n    payload: \'/I_want_a_shirt{"color":"red"}\'\n  - title: \'No\'\n    type: web_url\n    payload: \'http://google.com\'',
                         __typename: 'ContentContainer',
                     },
                 ],
@@ -62,7 +55,8 @@ const responseFixture = [
                 lang: 'zz',
                 sequence: [
                     {
-                        content: 'text: choose\nbuttons:\n  - title: \'Yes\'\n    type: postback\n    payload: \'/I_want_a_shirt{"color":"red"}\'\n  - title: \'No\'\n    type: web_url\n    payload: \'http://google.com\'',
+                        content:
+                            'text: choose\nbuttons:\n  - title: \'Yes\'\n    type: postback\n    payload: \'/I_want_a_shirt{"color":"red"}\'\n  - title: \'No\'\n    type: web_url\n    payload: \'http://google.com\'',
                         __typename: 'ContentContainer',
                     },
                 ],
@@ -184,7 +178,7 @@ const storyFixture = {
             title: 'MyLevel1Branch1',
             branches: [],
             _id: 'u8fUQytlr',
-            story: 'I\'m at level one',
+            steps: [{ action: 'utter_levelOne' }],
         },
         {
             title: 'MyLevel1Branch2',
@@ -193,7 +187,10 @@ const storyFixture = {
                     title: 'MyLevel2Branch1',
                     branches: [],
                     _id: 'VAcNydTIc',
-                    story: 'I\'m at level two',
+                    steps: [
+                        { intent: 'greeting', entities: [{ name: 'joe' }] },
+                        { action: 'utter_levelTwo' },
+                    ],
                 },
                 {
                     title: 'MyLevel2Branch2',
@@ -202,43 +199,129 @@ const storyFixture = {
                             title: 'MyLevel3Branch1',
                             branches: [],
                             _id: 'IDY6KreSH',
-                            story: 'I\'m at level three',
+                            steps: [{ action: 'utter_levelThree' }],
                         },
                         {
                             title: 'MyLevel3Branch2',
                             branches: [],
                             _id: 'H8JQsW2Wi-',
-                            story: 'I\'m at level three',
+                            steps: [{ action: 'utter_levelThree' }],
                         },
                         {
                             title: 'MyLevel3Branch3',
                             branches: [],
                             _id: 'vWGn8wdnA',
-                            story: 'I\'m at level three',
+                            steps: [{ action: 'utter_levelThree' }],
                         },
                     ],
                     _id: 'pH8WSjPsYv',
-                    story: 'I\'m at level two',
+                    steps: [{ action: 'utter_levelTwo' }],
                 },
                 {
                     title: 'MyLevel2Branch3',
                     branches: [],
                     _id: 'hR5bnFzb3',
-                    story: 'I\'m at level two',
+                    steps: [{ action: 'utter_levelTwo' }],
                 },
             ],
             _id: '3jFsC86Oaz',
-            story: 'I\'m at level one',
+            steps: [{ action: 'utter_levelOne' }],
         },
         {
             title: 'MyLevel1Branch3',
             branches: [],
             _id: 'SRxr9Ebjc',
-            story: 'I\'m at level one',
+            steps: [{ action: 'utter_levelOne' }],
         },
     ],
-    story: 'I\'m at the root level',
+    steps: [{ action: 'utter_levelZero' }],
 };
+
+const checkpointedStories = [
+    {
+        title: 'MyRootStory',
+        projectId: 'TZjfxMi4jHALBQ5s4',
+        storyGroupId: 'vWibRMnEe6B6nSWMm',
+        steps: [{ action: 'utter_levelZero' }, { checkpoint: 'MyRootStory__branches' }],
+    },
+    {
+        title: 'MyRootStory__MyLevel1Branch1',
+        storyGroupId: 'vWibRMnEe6B6nSWMm',
+        steps: [{ checkpoint: 'MyRootStory__branches' }, { action: 'utter_levelOne' }],
+    },
+    {
+        title: 'MyRootStory__MyLevel1Branch2',
+        storyGroupId: 'vWibRMnEe6B6nSWMm',
+        steps: [
+            { checkpoint: 'MyRootStory__branches' },
+            { action: 'utter_levelOne' },
+            { checkpoint: 'MyRootStory__MyLevel1Branch2__branches' },
+        ],
+    },
+    {
+        title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch1',
+        storyGroupId: 'vWibRMnEe6B6nSWMm',
+        steps: [
+            { checkpoint: 'MyRootStory__MyLevel1Branch2__branches' },
+            { intent: 'greeting', entities: [{ name: 'joe' }] },
+            { action: 'utter_levelTwo' },
+        ],
+    },
+    {
+        title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2',
+        storyGroupId: 'vWibRMnEe6B6nSWMm',
+        steps: [
+            { checkpoint: 'MyRootStory__MyLevel1Branch2__branches' },
+            { action: 'utter_levelTwo' },
+            {
+                checkpoint: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2__branches',
+            },
+        ],
+    },
+    {
+        title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2__MyLevel3Branch1',
+        storyGroupId: 'vWibRMnEe6B6nSWMm',
+        steps: [
+            {
+                checkpoint: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2__branches',
+            },
+            { action: 'utter_levelThree' },
+        ],
+    },
+    {
+        title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2__MyLevel3Branch2',
+        storyGroupId: 'vWibRMnEe6B6nSWMm',
+        steps: [
+            {
+                checkpoint: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2__branches',
+            },
+            { action: 'utter_levelThree' },
+        ],
+    },
+    {
+        title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2__MyLevel3Branch3',
+        storyGroupId: 'vWibRMnEe6B6nSWMm',
+        steps: [
+            {
+                checkpoint: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2__branches',
+            },
+            { action: 'utter_levelThree' },
+        ],
+    },
+    {
+        title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch3',
+        storyGroupId: 'vWibRMnEe6B6nSWMm',
+        steps: [
+            { checkpoint: 'MyRootStory__MyLevel1Branch2__branches' },
+            { action: 'utter_levelTwo' },
+        ],
+    },
+    {
+        title: 'MyRootStory__MyLevel1Branch3',
+        storyGroupId: 'vWibRMnEe6B6nSWMm',
+        steps: [{ checkpoint: 'MyRootStory__branches' }, { action: 'utter_levelOne' }],
+    },
+];
 
 const linkedStoriesFixtures = [
     {
@@ -247,7 +330,7 @@ const linkedStoriesFixtures = [
         storyGroupId: '92xatZa5PLBwq2tuT',
         projectId: 'bf',
         branches: [],
-        story: 'from 3 to 1',
+        steps: [{ action: 'utter_from3to1' }],
         checkpoints: [
             ['qb2jnTi4hC5xS9uER', 'pGza9w5cXX'],
             ['dRmvJg2EQrxtQbFAd', 'ibH7J2d4a'],
@@ -266,27 +349,27 @@ const linkedStoriesFixtures = [
                         title: 'New Branch 1',
                         branches: [],
                         _id: 'ySg1XPqzS',
-                        story: 'nothing',
+                        steps: [{ action: 'utter_nothing' }],
                     },
                     {
                         title: 'New Branch 2',
                         branches: [],
                         _id: 'IzZn0TNnpG',
-                        story: 'to 2',
+                        steps: [{ action: 'utter_to2' }],
                     },
                 ],
                 _id: 'ddc57mpAC',
-                story: 'nothing',
+                steps: [{ action: 'utter_nothing' }],
             },
             {
                 title: 'New Branch 2',
                 branches: [],
                 _id: 'z0scMz2Gtt',
-                story: 'nothing',
+                steps: [{ action: 'utter_nothing' }],
             },
         ],
         checkpoints: [['9u2SN8ngA39ZgMBM9']],
-        story: 'from 0',
+        steps: [{ action: 'utter_from0' }],
     },
     {
         _id: 'dRmvJg2EQrxtQbFAd',
@@ -298,17 +381,17 @@ const linkedStoriesFixtures = [
                 title: 'New Branch 1',
                 branches: [],
                 _id: 'ibH7J2d4a',
-                story: 'to 0',
+                steps: [{ action: 'utter_to0' }],
             },
             {
                 title: 'New Branch 2',
                 branches: [],
                 _id: 'IvMKJCfdrr',
-                story: 'to 3',
+                steps: [{ action: 'utter_to3' }],
             },
         ],
         checkpoints: [['CM5Zb6WXAHPRTdzGW', 'ddc57mpAC', 'IzZn0TNnpG']],
-        story: 'from 1',
+        steps: [{ action: 'utter_from1' }],
     },
     {
         _id: 'qb2jnTi4hC5xS9uER',
@@ -320,191 +403,124 @@ const linkedStoriesFixtures = [
                 title: 'New Branch 1',
                 branches: [],
                 _id: 'v5oXJB7b4',
-                story: 'nothing',
+                steps: [{ action: 'utter_nothing' }],
             },
             {
                 title: 'New Branch 2',
                 branches: [],
                 _id: 'pGza9w5cXX',
-                story: 'to 0',
+                steps: [{ action: 'utter_to0' }],
             },
         ],
         checkpoints: [['dRmvJg2EQrxtQbFAd', 'IvMKJCfdrr']],
-        story: 'from 2',
+        steps: [{ action: 'utter_from2' }],
     },
 ];
 
 const linkedStoriesCheckpointed = [
     {
-        _id: '9u2SN8ngA39ZgMBM9',
         title: 'story0',
         storyGroupId: '92xatZa5PLBwq2tuT',
         projectId: 'bf',
-        branches: [],
-        story: '> checkpoint_1\n> checkpoint_0\nfrom 3 to 1\n> checkpoint_2',
-        checkpoints: [
-            ['qb2jnTi4hC5xS9uER', 'pGza9w5cXX'],
-            ['dRmvJg2EQrxtQbFAd', 'ibH7J2d4a'],
+        steps: [
+            { checkpoint: 'link-to-story0/9u2SN8ngA39ZgMBM9' },
+            { action: 'utter_from3to1' },
+            { checkpoint: 'link-to-story1/CM5Zb6WXAHPRTdzGW' },
         ],
     },
     {
-        _id: 'CM5Zb6WXAHPRTdzGW',
         title: 'story1',
         projectId: 'bf',
         storyGroupId: '92xatZa5PLBwq2tuT',
-        branches: [
-            {
-                title: 'New Branch 1',
-                branches: [
-                    {
-                        title: 'New Branch 1',
-                        branches: [],
-                        _id: 'ySg1XPqzS',
-                        story: 'nothing',
-                    },
-                    {
-                        title: 'New Branch 2',
-                        branches: [],
-                        _id: 'IzZn0TNnpG',
-                        story: 'to 2\n> checkpoint_3',
-                    },
-                ],
-                _id: 'ddc57mpAC',
-                story: 'nothing',
-            },
-            {
-                title: 'New Branch 2',
-                branches: [],
-                _id: 'z0scMz2Gtt',
-                story: 'nothing',
-            },
+        steps: [
+            { checkpoint: 'link-to-story1/CM5Zb6WXAHPRTdzGW' },
+            { action: 'utter_from0' },
+            { checkpoint: 'story1__branches' },
         ],
-        checkpoints: [['9u2SN8ngA39ZgMBM9']],
-        story: '> checkpoint_2\nfrom 0',
     },
     {
-        _id: 'dRmvJg2EQrxtQbFAd',
+        title: 'story1__New Branch 1',
+        storyGroupId: '92xatZa5PLBwq2tuT',
+        steps: [
+            { checkpoint: 'story1__branches' },
+            { action: 'utter_nothing' },
+            { checkpoint: 'story1__New_Branch_1__branches' },
+        ],
+    },
+    {
+        title: 'story1__New Branch 1__New Branch 1',
+        storyGroupId: '92xatZa5PLBwq2tuT',
+        steps: [
+            { checkpoint: 'story1__New_Branch_1__branches' },
+            { action: 'utter_nothing' },
+        ],
+    },
+    {
+        title: 'story1__New Branch 1__New Branch 2',
+        storyGroupId: '92xatZa5PLBwq2tuT',
+        steps: [
+            { checkpoint: 'story1__New_Branch_1__branches' },
+            { action: 'utter_to2' },
+            { checkpoint: 'link-to-story2/dRmvJg2EQrxtQbFAd' },
+        ],
+    },
+    {
+        title: 'story1__New Branch 2',
+        storyGroupId: '92xatZa5PLBwq2tuT',
+        steps: [{ checkpoint: 'story1__branches' }, { action: 'utter_nothing' }],
+    },
+    {
         title: 'story2',
         projectId: 'bf',
         storyGroupId: '92xatZa5PLBwq2tuT',
-        branches: [
-            {
-                title: 'New Branch 1',
-                branches: [],
-                _id: 'ibH7J2d4a',
-                story: 'to 0\n> checkpoint_1',
-            },
-            {
-                title: 'New Branch 2',
-                branches: [],
-                _id: 'IvMKJCfdrr',
-                story: 'to 3\n> checkpoint_4',
-            },
+        steps: [
+            { checkpoint: 'link-to-story2/dRmvJg2EQrxtQbFAd' },
+            { action: 'utter_from1' },
+            { checkpoint: 'story2__branches' },
         ],
-        checkpoints: [['CM5Zb6WXAHPRTdzGW', 'ddc57mpAC', 'IzZn0TNnpG']],
-        story: '> checkpoint_3\nfrom 1',
     },
     {
-        _id: 'qb2jnTi4hC5xS9uER',
+        title: 'story2__New Branch 1',
+        storyGroupId: '92xatZa5PLBwq2tuT',
+        steps: [
+            { checkpoint: 'story2__branches' },
+            { action: 'utter_to0' },
+            { checkpoint: 'link-to-story0/9u2SN8ngA39ZgMBM9' },
+        ],
+    },
+    {
+        title: 'story2__New Branch 2',
+        storyGroupId: '92xatZa5PLBwq2tuT',
+        steps: [
+            { checkpoint: 'story2__branches' },
+            { action: 'utter_to3' },
+            { checkpoint: 'link-to-story3/qb2jnTi4hC5xS9uER' },
+        ],
+    },
+    {
         title: 'story3',
         storyGroupId: '69PLEAAXxxQfekhsS',
         projectId: 'bf',
-        branches: [
-            {
-                title: 'New Branch 1',
-                branches: [],
-                _id: 'v5oXJB7b4',
-                story: 'nothing',
-            },
-            {
-                title: 'New Branch 2',
-                branches: [],
-                _id: 'pGza9w5cXX',
-                story: 'to 0\n> checkpoint_0',
-            },
+        steps: [
+            { checkpoint: 'link-to-story3/qb2jnTi4hC5xS9uER' },
+            { action: 'utter_from2' },
+            { checkpoint: 'story3__branches' },
         ],
-        checkpoints: [['dRmvJg2EQrxtQbFAd', 'IvMKJCfdrr']],
-        story: '> checkpoint_4\nfrom 2',
     },
-];
-
-const checkpointedStory = {
-    _id: 'n6ArDvmf7PEBrZ4ph',
-    title: 'MyRootStory',
-    projectId: 'TZjfxMi4jHALBQ5s4',
-    storyGroupId: 'vWibRMnEe6B6nSWMm',
-    branches: [
-        {
-            title: 'MyRootStory__MyLevel1Branch1',
-            branches: [],
-            _id: 'u8fUQytlr',
-            story: '> MyRootStory__branches\nI\'m at level one',
-        },
-        {
-            title: 'MyRootStory__MyLevel1Branch2',
-            branches: [
-                {
-                    title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch1',
-                    branches: [],
-                    _id: 'VAcNydTIc',
-                    story: '> MyRootStory__MyLevel1Branch2__branches\nI\'m at level two',
-                },
-                {
-                    title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2',
-                    branches: [
-                        {
-                            title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2__MyLevel3Branch1',
-                            branches: [],
-                            _id: 'IDY6KreSH',
-                            story: '> MyRootStory__MyLevel1Branch2__MyLevel2Branch2__branches\nI\'m at level three',
-                        },
-                        {
-                            title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2__MyLevel3Branch2',
-                            branches: [],
-                            _id: 'H8JQsW2Wi-',
-                            story: '> MyRootStory__MyLevel1Branch2__MyLevel2Branch2__branches\nI\'m at level three',
-                        },
-                        {
-                            title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2__MyLevel3Branch3',
-                            branches: [],
-                            _id: 'vWGn8wdnA',
-                            story: '> MyRootStory__MyLevel1Branch2__MyLevel2Branch2__branches\nI\'m at level three',
-                        },
-                    ],
-                    _id: 'pH8WSjPsYv',
-                    story: '> MyRootStory__MyLevel1Branch2__branches\nI\'m at level two\n> MyRootStory__MyLevel1Branch2__MyLevel2Branch2__branches',
-                },
-                {
-                    title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch3',
-                    branches: [],
-                    _id: 'hR5bnFzb3',
-                    story: '> MyRootStory__MyLevel1Branch2__branches\nI\'m at level two',
-                },
-            ],
-            _id: '3jFsC86Oaz',
-            story: '> MyRootStory__branches\nI\'m at level one\n> MyRootStory__MyLevel1Branch2__branches',
-        },
-        {
-            title: 'MyRootStory__MyLevel1Branch3',
-            branches: [],
-            _id: 'SRxr9Ebjc',
-            story: '> MyRootStory__branches\nI\'m at level one',
-        },
-    ],
-    story: 'I\'m at the root level\n> MyRootStory__branches',
-};
-
-const flattenedStory = [
-    { story: 'I\'m at the root level\n> MyRootStory__branches', title: 'MyRootStory' },
-    { story: '> MyRootStory__branches\nI\'m at level one', title: 'MyRootStory__MyLevel1Branch1' },
-    { story: '> MyRootStory__branches\nI\'m at level one\n> MyRootStory__MyLevel1Branch2__branches', title: 'MyRootStory__MyLevel1Branch2' },
-    { story: '> MyRootStory__MyLevel1Branch2__branches\nI\'m at level two', title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch1' },
-    { story: '> MyRootStory__MyLevel1Branch2__branches\nI\'m at level two\n> MyRootStory__MyLevel1Branch2__MyLevel2Branch2__branches', title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2' },
-    { story: '> MyRootStory__MyLevel1Branch2__MyLevel2Branch2__branches\nI\'m at level three', title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2__MyLevel3Branch1' },
-    { story: '> MyRootStory__MyLevel1Branch2__MyLevel2Branch2__branches\nI\'m at level three', title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2__MyLevel3Branch2' },
-    { story: '> MyRootStory__MyLevel1Branch2__MyLevel2Branch2__branches\nI\'m at level three', title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch2__MyLevel3Branch3' },
-    { story: '> MyRootStory__MyLevel1Branch2__branches\nI\'m at level two', title: 'MyRootStory__MyLevel1Branch2__MyLevel2Branch3' },
-    { story: '> MyRootStory__branches\nI\'m at level one', title: 'MyRootStory__MyLevel1Branch3' },
+    {
+        title: 'story3__New Branch 1',
+        storyGroupId: '69PLEAAXxxQfekhsS',
+        steps: [{ checkpoint: 'story3__branches' }, { action: 'utter_nothing' }],
+    },
+    {
+        title: 'story3__New Branch 2',
+        storyGroupId: '69PLEAAXxxQfekhsS',
+        steps: [
+            { checkpoint: 'story3__branches' },
+            { action: 'utter_to0' },
+            { checkpoint: 'link-to-story0/9u2SN8ngA39ZgMBM9' },
+        ],
+    },
 ];
 
 if (Meteor.isServer) {
@@ -514,162 +530,139 @@ if (Meteor.isServer) {
         connectToDb();
         await createResponses('test', responseFixture);
     });
-}
-const branchedStoryFixture = {
-    _id: '9b8ea7ba-038c-4329-89f5-1db32c47e1e2',
-    title: 'Intro stories 1',
-    projectId: 'bf',
-    storyGroupId: 'a4a5fd21-79ca-469c-8261-4f11ba376fb7',
-    branches: [
-        {
-            title: 'branch1a',
-            branches: [],
-            _id: 'TMossB1L',
-            story: '* B\n  - utter_Ra_O_Jip',
-        },
-        {
-            title: 'branch1b',
-            branches: [
-                {
-                    title: 'branch2a',
-                    branches: [],
-                    _id: 'YS2vF4ex',
-                    story: '* C\n  - utter_KfPfXwd3',
-                },
-                {
-                    title: 'branch2b',
-                    branches: [],
-                    _id: 'gBGmAF8lk',
-                    story: '* c1\n  - utter_initial\n  - action_initial',
-                },
-            ],
-            _id: 'TOl028Tm0',
-            story: '* b1\n  - utter_pityGPSO',
-        },
-    ],
-    story: '* A\n  - utter_K3y-deii\n  - utter_Ra_O_Jip\n* B1\n  - utter_Ra_O_Jip',
-    events: [],
-};
 
-const branchesUpdateFixture = [
-    {
-        title: 'branch2a',
-        branches: [],
-        _id: 'newid1',
-        story: '* C\n  - utter_KfPfXwd3',
-    },
-    {
-        title: 'branch2b',
-        branches: [],
-        _id: 'newid2',
-        story: '* c1',
-    },
-];
-
-const expectedEvents = [
-    'utter_K3y-deii',
-    'utter_Ra_O_Jip',
-    'utter_pityGPSO',
-    'utter_KfPfXwd3',
-    'utter_initial',
-    'action_initial',
-];
-const expectedUpdatedStoryEvents = [
-    'utter_K3y-deii',
-    'utter_Ra_O_Jip',
-    'utter_pityGPSO',
-    'utter_KfPfXwd3',
-    'utter_updated',
-    'action_updated',
-];
-const expectedUpdatedBranchesEvents = [
-    'utter_K3y-deii',
-    'utter_Ra_O_Jip',
-    'utter_pityGPSO',
-    'utter_KfPfXwd3',
-];
-
-describe('proper traversal of story', function() {
-    it('should resolve an existing path', function() {
-        const {
-            branches, story, title, indices, path, pathTitle,
-        } = traverseStory(storyFixture, ['n6ArDvmf7PEBrZ4ph', '3jFsC86Oaz', 'pH8WSjPsYv']);
-        expect(branches).to.be.deep.equal(storyFixture.branches[1].branches[1].branches);
-        expect(story).to.be.equal('I\'m at level two');
-        expect(title).to.be.equal('MyLevel2Branch2');
-        expect(indices).to.be.deep.equal([1, 1]);
-        expect(path).to.be.deep.equal(['n6ArDvmf7PEBrZ4ph', '3jFsC86Oaz', 'pH8WSjPsYv']);
-        expect(pathTitle).to.be.deep.equal(['MyRootStory', 'MyLevel1Branch2', 'MyLevel2Branch2']);
+    describe('proper appending of checkpoints', function () {
+        it('should should render branches as checkpoints', function () {
+            expect(addCheckpoints([storyFixture])).to.be.deep.equal(checkpointedStories);
+        });
+        it('should render links as checkpoints', function () {
+            expect(addCheckpoints(linkedStoriesFixtures)).to.be.deep.equal(
+                linkedStoriesCheckpointed,
+            );
+        });
     });
-    it('should throw an error when encountering non-existing path', function() {
-        const traverseFakePath = () => traverseStory(storyFixture, ['n6ArDvmf7PEBrZ4ph', 'a', 'fake', 'path']);
-        assert.throws(traverseFakePath, Error, 'Could not access n6ArDvmf7PEBrZ4ph,a');
-    });
-});
 
-describe('proper appending of checkpoints to branching story', function() {
-    it('should output something matching the gold', function() {
-        expect(appendBranchCheckpoints(storyFixture)).to.be.deep.equal(checkpointedStory);
+    describe('domain extraction', function () {
+        it('should extract domain', async function () {
+            const responses = await getAllResponses('test', 'en');
+            const result = extractDomain({ fragments: checkpointedStories, responses });
+            expect({
+                ...result,
+                actions: new Set(result.actions),
+            }).to.be.deep.equal({
+                actions: new Set([
+                    'utter_do_you_like_beans',
+                    'utter_XHEzYD8j',
+                    'utter_levelZero',
+                    'utter_levelOne',
+                    'utter_levelTwo',
+                    'utter_levelThree',
+                ]),
+                intents: ['greeting'],
+                entities: ['name'],
+                responses,
+                slots: {},
+                forms: {},
+            });
+        });
     });
-});
 
-describe('proper addition of checkpoints to linked stories', function() {
-    it('should output an object matching the control object with correct checkpoints', function() {
-        expect(addlinkCheckpoints(linkedStoriesFixtures)).to.be.deep.equal(
-            linkedStoriesCheckpointed,
-        );
-    });
-});
-
-describe('proper flattening of stories', function() {
-    it('should output something matching the gold', function() {
-        expect(flattenStory(checkpointedStory).map(({ title, story }) => ({ title, story }))).to.be.deep.equal(flattenedStory);
-    });
-});
-
-if (Meteor.isServer) {
     describe('getAllResponses', () => {
         it('fetch English responses', async () => {
             const response = await getAllResponses('test', 'en');
-            expect(response).to.be.deep.equal(
-                responsesExported.en,
-            );
+            expect(response).to.be.deep.equal(responsesExported.en);
         });
         it('fetch ZZ responses', async () => {
             const response = await getAllResponses('test', 'zz');
-            expect(response).to.be.deep.equal(
-                responsesExported.zz,
-            );
+            expect(response).to.be.deep.equal(responsesExported.zz);
         });
         it('fetch English and ZZ responses', async () => {
             const response = await getAllResponses('test', ['en', 'zz']);
-            expect(response).to.be.deep.equal(
-                responsesExported['en-zz'],
-            );
+            expect(response).to.be.deep.equal(responsesExported['en-zz']);
         });
         it('fetch all responses', async () => {
             const response = await getAllResponses('test');
-            expect(response).to.be.deep.equal(
-                responsesExported['en-zz'],
-            );
+            expect(response).to.be.deep.equal(responsesExported['en-zz']);
         });
         it('fetch no responses', async () => {
             const response = await getAllResponses('test', 'nonexisting');
             expect(response).to.be.deep.equal({});
         });
     });
+
+    describe('Story validation', function () {
+        it('should convert an intent string payload', function () {
+            expect(stringPayloadToObject('/hello')).to.be.deep.equal({
+                intent: 'hello',
+                entities: [],
+            });
+        });
+
+        it('should convert an intent/entity string payload', function () {
+            expect(stringPayloadToObject('/hello{"ent1":"val1"}')).to.be.deep.equal({
+                intent: 'hello',
+                entities: [{ entity: 'ent1', value: 'val1' }],
+            });
+        });
+
+        it('should convert an intent/entities string payload', function () {
+            expect(
+                stringPayloadToObject('/hello{"ent1":"val1", "ent2":"val2"}'),
+            ).to.be.deep.equal({
+                intent: 'hello',
+                entities: [
+                    { entity: 'ent1', value: 'val1' },
+                    { entity: 'ent2', value: 'val2' },
+                ],
+            });
+        });
+
+        it('should convert an empty payload', function () {
+            expect(stringPayloadToObject('')).to.be.deep.equal({
+                entities: [],
+                intent: '',
+            });
+        });
+
+        it('should convert an intent/entities string payload', function () {
+            expect(
+                stringPayloadToObject('/hello{"ent1":"val1", "ent2":"val2"}'),
+            ).to.be.deep.equal({
+                intent: 'hello',
+                entities: [
+                    { entity: 'ent1', value: 'val1' },
+                    { entity: 'ent2', value: 'val2' },
+                ],
+            });
+        });
+
+        it('should convert an object to a string payload', function () {
+            expect(
+                objectPayloadToString({
+                    intent: 'hello',
+                    entities: [
+                        { entity: 'ent1', value: 'val1' },
+                        { entity: 'ent2', value: 'val2' },
+                    ],
+                }),
+            ).to.be.equal('/hello{"ent1":"val1","ent2":"val2"}');
+        });
+
+        it('should convert an object to a string payload', function () {
+            expect(
+                objectPayloadToString({
+                    intent: 'hello',
+                }),
+            ).to.be.equal('/hello');
+        });
+
+        it('should convert an object to a string payload', function () {
+            expect(
+                objectPayloadToString({
+                    intent: 'hello',
+                    entities: [],
+                }),
+            ).to.be.equal('/hello');
+        });
+    });
 }
-describe('proper aggregation of events', function() {
-    it('should create a list of events for an existing story', function() {
-        const events = aggregateEvents(branchedStoryFixture);
-        expect(events).to.have.members(expectedEvents);
-    });
-    it('should create a list of events for an updated story', function() {
-        const events = aggregateEvents(branchedStoryFixture, { story: '* c1\n  - utter_updated\n  - action_updated', _id: 'gBGmAF8lk' });
-        expect(events).to.have.members(expectedUpdatedStoryEvents);
-    });
-    it('should create a list of events for updated story branches', function() {
-        const events = aggregateEvents(branchedStoryFixture, { branches: branchesUpdateFixture, _id: 'TOl028Tm0' });
-        expect(events).to.have.members(expectedUpdatedBranchesEvents);
-    });
-});

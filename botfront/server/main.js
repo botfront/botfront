@@ -30,11 +30,11 @@ import '../imports/api/slots/slots.collection';
 import '../imports/api/slots/slots.methods';
 import '../imports/api/slots/slots.schema';
 import '../imports/lib/scopes';
-import '../imports/api/importExport/import.methods';
 import '../imports/api/importExport/export.methods';
 import '../imports/startup/server/apollo';
 import '../imports/api/graphql/botResponses/botResponses.model';
 import '../imports/api/graphql/activity/activity.model';
 
-
-import './migrations';
+if (!Meteor.isTest) {
+    import './migrations';
+}

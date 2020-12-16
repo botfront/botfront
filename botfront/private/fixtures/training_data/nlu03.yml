@@ -1,0 +1,12 @@
+nlu:
+- intent: inform
+  examples: |
+    - my account number is [1234567891](account_number)
+    - This is my account number [1234567891](account_number)
+- synonym: credit
+  examples: |
+    - credit card account
+    - credit account
+- regex: account_number
+  examples: |
+    - [0-9]{10,12}

@@ -4,7 +4,9 @@ import { connect } from 'react-redux';
 import { Icon, Popup } from 'semantic-ui-react';
 
 import {
-    setShowChat, setChatInitPayload, setShouldRefreshChat,
+    setShowChat,
+    setChatInitPayload,
+    setShouldRefreshChat,
 } from '../../store/actions/actions';
 
 const StoryPlayButton = (props) => {
@@ -12,19 +14,31 @@ const StoryPlayButton = (props) => {
         changeShowChat,
         changeChatInitPayload,
         refreshChat,
-        initPayload,
+        fragment: { steps = [], rules = [] } = {},
         className,
     } = props;
+
+    const getInitialPayload = () => {
+        const bonifiedSteps = steps;
+        const { intent, entities = [] } = bonifiedSteps[0].or
+            ? bonifiedSteps[0].or[0]
+            : bonifiedSteps[0];
+        const entitiesString = entities.length
+            ? JSON.stringify(entities.reduce((acc, curr) => ({ ...acc, ...curr }), {}))
+            : '';
+        return `${intent}${entitiesString}`;
+    };
+    const disabled = !rules.length && !steps?.[0]?.intent && !steps?.[0]?.or;
     return (
         <Popup
             trigger={(
                 <Icon
                     name='play'
                     size='small'
-                    disabled={!initPayload}
+                    disabled={disabled}
                     onClick={() => {
                         changeShowChat(true);
-                        changeChatInitPayload(`/${initPayload}`);
+                        changeChatInitPayload(`/${getInitialPayload()}`);
                         refreshChat(true);
                     }}
                     className={className}
@@ -33,10 +47,11 @@ const StoryPlayButton = (props) => {
             )}
             content={(
                 <>
-                    To start a conversation from the story editor, the story must start with a user utterance.
+                    To start a conversation from the story editor, the story must start
+                    with a user utterance.
                 </>
             )}
-            disabled={!!initPayload}
+            disabled={disabled}
         />
     );
 };
@@ -45,13 +60,12 @@ StoryPlayButton.propTypes = {
     changeShowChat: PropTypes.func.isRequired,
     changeChatInitPayload: PropTypes.func.isRequired,
     refreshChat: PropTypes.func.isRequired,
-    initPayload: PropTypes.string,
+    fragment: PropTypes.object.isRequired,
     className: PropTypes.string,
 };
 
 StoryPlayButton.defaultProps = {
     className: '',
-    initPayload: null,
 };
 
 const mapStateToProps = () => ({});
@@ -61,6 +75,5 @@ const mapDispatchToProps = {
     changeChatInitPayload: setChatInitPayload,
     refreshChat: setShouldRefreshChat,
 };
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(StoryPlayButton);

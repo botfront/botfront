@@ -14,6 +14,7 @@ const BotResponseContainer = (props) => {
 
     const [input, setInput] = useState();
     const focusGrabber = useRef();
+    const focusHasBeenSet = useRef(false);
     const isCustom = value.__typename === 'CustomPayload';
     const isTextResponse = value.__typename === 'TextPayload';
     const isQRResponse = value.__typename === 'QuickRepliesPayload';
@@ -32,8 +33,13 @@ const BotResponseContainer = (props) => {
 
     useEffect(() => {
         setInput(unformatNewlines(value.text));
-        if (focus && focusGrabber.current) focusGrabber.current.focus();
-    }, [value.text, focus]);
+    }, [value.text]);
+    useEffect(() => {
+        if (focus && !focusHasBeenSet.current && focusGrabber.current) {
+            focusGrabber.current.focus();
+            focusHasBeenSet.current = true;
+        }
+    }, [focus]);
 
     const setText = () => onChange({ ...value, text: formatNewlines(input) }, false);
     const setImage = image => onChange({ ...value, image }, false);

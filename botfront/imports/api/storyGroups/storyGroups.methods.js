@@ -7,50 +7,60 @@ import { Projects } from '../project/project.collection';
 import { Stories } from '../story/stories.collection';
 import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo/botResponses';
 
-export const createDefaultStoryGroup = (projectId) => {
+export const createDefaultStoryGroup = async (projectId) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
-    Meteor.call(
-        'storyGroups.insert',
-        {
-            name: 'Default stories',
+    try {
+        const storyGroupId = await Meteor.callWithPromise(
+            'storyGroups.insert',
+            {
+                name: 'Example group',
+                projectId,
+            },
+        );
+        await Meteor.callWithPromise('stories.insert', {
+            type: 'rule',
+            steps: [
+                { intent: 'chitchat.greet' },
+                { action: 'utter_hi' },
+            ],
+            title: 'Greetings',
+            storyGroupId,
             projectId,
-        },
-        (err, storyGroupId) => {
-            if (!err) {
-                Meteor.call('stories.insert', {
-                    story: '* chitchat.greet\n    - utter_hi',
-                    title: 'Greetings',
-                    storyGroupId,
-                    projectId,
-                    events: ['utter_hi'],
-                });
-                Meteor.call('stories.insert', {
-                    story: '* chitchat.bye\n    - utter_bye',
-                    title: 'Farewells',
-                    storyGroupId,
-                    projectId,
-                    events: ['utter_bye'],
-                });
-                Meteor.call('stories.insert', {
-                    story: '* get_started\n    - utter_get_started',
-                    title: 'Get started',
-                    storyGroupId,
-                    projectId,
-                    events: ['utter_get_started'],
-                });
-            } else {
-                // eslint-disable-next-line no-console
-                console.log(err);
-            }
-        },
-    );
+            events: ['utter_hi'],
+        });
+        await Meteor.callWithPromise('stories.insert', {
+            type: 'rule',
+            steps: [
+                { intent: 'chitchat.bye' },
+                { action: 'utter_bye' },
+            ],
+            title: 'Farewells',
+            storyGroupId,
+            projectId,
+            events: ['utter_bye'],
+        });
+        await Meteor.callWithPromise('stories.insert', {
+            type: 'rule',
+            steps: [
+                { intent: 'get_started' },
+                { action: 'utter_get_started' },
+            ],
+            title: 'Get started',
+            storyGroupId,
+            projectId,
+            events: ['utter_get_started'],
+        });
+    } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(e);
+    }
 };
 
 function handleError(e) {
     if (e.code === 11000) {
         throw new Meteor.Error(400, 'Group name already exists');
     }
-    throw new Meteor.Error(500, 'Server Error');
+    throw new Meteor.Error(e.error, e.message);
 }
 
 Meteor.methods({

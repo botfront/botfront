@@ -1,8 +1,7 @@
 import { Accounts } from 'meteor/accounts-base';
 import { ApolloClient } from 'apollo-client';
 import { InMemoryCache, IntrospectionFragmentMatcher } from 'apollo-cache-inmemory';
-import { HttpLink } from 'apollo-link-http';
-
+import { createUploadLink } from 'apollo-upload-client';
 import { onError } from 'apollo-link-error';
 import { ApolloLink, Observable, split } from 'apollo-link';
 import { DDPSubscriptionLink, isSubscription } from 'apollo-link-ddp';
@@ -58,7 +57,8 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (networkError) console.log(`[Network error]: ${networkError}`);
 });
 
-const httpLink = new HttpLink({
+
+const uploadLink = createUploadLink({
     uri: '/graphql',
     credentials: 'same-origin',
 });
@@ -69,7 +69,7 @@ const subscriptionLink = new DDPSubscriptionLink();
 const link = split(
     isSubscription,
     subscriptionLink,
-    httpLink,
+    uploadLink,
 );
 
 

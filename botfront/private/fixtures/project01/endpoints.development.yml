@@ -1,0 +1,6 @@
+nlg:
+  type: 'rasa_addons.core.nlg.GraphQLNaturalLanguageGenerator'
+  url: 'http://botfront:3000/graphql' # hm!
+tracker_store:
+  store_type:  'rasa_addons.core.tracker_stores.botfront.BotfrontTrackerStore'
+  url: 'http://botfront:3000/graphql'

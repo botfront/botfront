@@ -6,10 +6,10 @@ import { checkIfCan } from '../../lib/scopes';
 import { slotSchemas } from './slots.schema';
 
 function validateSchema(slot) {
-    if (slot.type) {
+    if (slot.type in slotSchemas) {
         slotSchemas[slot.type].validate(slot, { check });
     } else {
-        throw new Meteor.Error('400');
+        throw new Meteor.Error(400, 'Slot type invalid');
     }
 }
 

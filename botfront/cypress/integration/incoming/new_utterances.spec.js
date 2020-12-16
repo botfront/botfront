@@ -4,7 +4,7 @@ describe('incoming page', function() {
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
             cy.waitForResolve(Cypress.env('RASA_URL'));
-            cy.importNluData('bf', 'nlu_sample_en.json', 'en');
+            cy.import('bf', 'nlu_sample_en.json', 'en');
             cy.train();
             cy.addNewUtterances(['apple', 'kiwi', 'banana']);
         });
@@ -16,8 +16,8 @@ describe('incoming page', function() {
     });
 
     it('should assign populated data to the right language', function() {
-        cy.addNewProjectLanguage('French');
-        cy.importNluData('bf', 'nlu_sample_fr.json', 'fr');
+        cy.createNLUModelProgramatically('bf', '', 'fr');
+        cy.import('bf', 'nlu_sample_fr.json', 'fr');
         cy.train();
 
         cy.visit('/project/bf/incoming');

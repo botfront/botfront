@@ -16,7 +16,7 @@ const BadLineLabel = (props) => {
                 </div>
             )}
             header={`Bad line on line ${lineIndex}`}
-            content={<p>please fix this line in markdown.</p>}
+            content={<p>Please fix this line in YAML mode</p>}
         />
     );
 };

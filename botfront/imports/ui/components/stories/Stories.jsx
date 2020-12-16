@@ -35,17 +35,17 @@ const isDeletionPossible = (node = {}, nodes, tree) => {
     const isDestinationOrOrigin = s => isDestination(s) || isOrigin(s);
     let deletable = false;
     let message = null;
-    if (node.type === 'story') {
+    if (['story', 'rule'].includes(node.type)) {
         deletable = !isDestinationOrOrigin(node);
         message = deletable
-            ? `The story ${node.title} will be deleted. This action cannot be undone.`
-            : `The story ${node.title} cannot be deleted as it is linked to another story.`;
+            ? `'${node.title}' will be deleted. This action cannot be undone.`
+            : `'${node.title}' cannot be deleted as it is linked to another story.`;
     }
     if (node.type === 'story-group') {
         deletable = !(node.children || []).some(c => isDestinationOrOrigin(tree.items[c]));
         message = deletable
-            ? `The story group ${node.title} and all its stories in it will be deleted. This action cannot be undone.`
-            : `The story group ${node.title} cannot be deleted as it contains links.`;
+            ? `The group ${node.title} and all its content in it will be deleted. This action cannot be undone.`
+            : `The group ${node.title} cannot be deleted as it contains links.`;
     }
     if (node.type === 'form') {
         deletable = true;
@@ -75,26 +75,36 @@ function Stories(props) {
     const treeRef = useRef();
 
     const getQueryParams = () => {
-        const { location: { query } } = router;
+        const {
+            location: { query },
+        } = router;
         let queriedIds = query['ids[]'] || [];
         queriedIds = Array.isArray(queriedIds) ? queriedIds : [queriedIds];
-        
+
         return queriedIds;
     };
 
     const cleanId = id => id.replace(/^.*_SMART_/, '');
 
-
     const setStoryMenuSelection = (newSelection) => {
-        if (!getQueryParams().every(id => newSelection.includes(id))
-        || !newSelection.every(id => getQueryParams().includes(id))) {
-            const { location: { pathname } } = router;
+        if (
+            !getQueryParams().every(id => newSelection.includes(id))
+            || !newSelection.every(id => getQueryParams().includes(id))
+        ) {
+            const {
+                location: { pathname },
+            } = router;
             router.replace({ pathname, query: { 'ids[]': newSelection.map(cleanId) } });
         }
         doSetStoryMenuSelection(newSelection);
     };
 
-    useEffect(() => setStoryMenuSelection(getQueryParams().length ? getQueryParams() : storyMenuSelection), []);
+    useEffect(
+        () => setStoryMenuSelection(
+            getQueryParams().length ? getQueryParams() : storyMenuSelection,
+        ),
+        [],
+    );
 
     const closeModals = () => {
         setSlotsModal(false);
@@ -111,13 +121,14 @@ function Stories(props) {
     );
 
     const reshapeStories = () => stories
+        .filter(story => story.type === 'story') // no rules
         .map(story => ({ ...story, text: story.title, value: story._id }))
         .sort((storyA, storyB) => {
             if (storyA.text < storyB.text) return -1;
             if (storyA.text > storyB.text) return 1;
             return 0;
         });
-    
+
     const injectProjectIdInStory = useCallback(story => ({ ...story, projectId }), [
         projectId,
     ]);
@@ -160,20 +171,6 @@ function Stories(props) {
         [projectId],
     );
 
-    const handleNewStory = useCallback(
-        (story, f) => Meteor.call(
-            'stories.insert',
-            {
-                story: '',
-                projectId,
-                branches: [],
-                ...story,
-            },
-            wrapMeteorCallback(f),
-        ),
-        [projectId],
-    );
-
     const handleStoryDeletion = useCallback(
         (story, f) => Meteor.call(
             'stories.delete',
@@ -207,6 +204,38 @@ function Stories(props) {
         );
     };
 
+    const handleLinkToStory = useCallback(
+        (id) => {
+            const {
+                location: { pathname },
+            } = router;
+            const newSelection = [
+                id,
+                ...storyMenuSelection.filter(storyId => storyId !== id),
+            ];
+            router.replace({ pathname, query: { 'ids[]': newSelection } });
+            setStoryMenuSelection(newSelection);
+        },
+        [storyMenuSelection],
+    );
+
+    const handleNewStory = useCallback(
+        (story, f) => Meteor.call(
+            'stories.insert',
+            {
+                projectId,
+                branches: [],
+                steps: [],
+                ...story,
+            },
+            wrapMeteorCallback(() => {
+                if (story._id) handleLinkToStory(story._id);
+                f();
+            }),
+        ),
+        [projectId],
+    );
+
     useEventListener('keydown', ({ key }) => {
         if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
         if (key === 'ArrowLeft') treeRef.current.focusMenu();
@@ -219,6 +248,7 @@ function Stories(props) {
                     browseToSlots: () => setSlotsModal(true),
                     stories: storiesReshaped,
                     storyGroups,
+                    linkToStory: handleLinkToStory,
                     addGroup: handleAddStoryGroup,
                     deleteGroup: handleDeleteGroup,
                     updateGroup: handleStoryGroupUpdate,
@@ -293,23 +323,27 @@ Stories.propTypes = {
 
 Stories.defaultProps = {};
 
-const StoriesWithTracker = withRouter(withTracker((props) => {
-    const { projectId } = props;
-    const storiesHandler = Meteor.subscribe('stories.light', projectId);
-    const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
+const StoriesWithTracker = withRouter(
+    withTracker((props) => {
+        const { projectId } = props;
+        const storiesHandler = Meteor.subscribe('stories.light', projectId);
+        const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
 
-    const storyGroups = StoryGroups.find().fetch();
-    const stories = StoriesCollection.find().fetch();
+        const storyGroups = StoryGroups.find().fetch();
+        const stories = StoriesCollection.find().fetch();
 
-    return {
-        ready: storyGroupsHandler.ready() && storiesHandler.ready(),
-        storyGroups,
-        stories,
-    };
-})(Stories));
+        return {
+            ready: storyGroupsHandler.ready() && storiesHandler.ready(),
+            storyGroups,
+            stories,
+        };
+    })(Stories),
+);
 
 const mapStateToProps = state => ({
     storyMenuSelection: state.stories.get('storiesCurrent').toJS(),
 });
 
-export default connect(mapStateToProps, { setStoryMenuSelection: setStoriesCurrent })(StoriesWithTracker);
+export default connect(mapStateToProps, { setStoryMenuSelection: setStoriesCurrent })(
+    StoriesWithTracker,
+);

@@ -1,11 +1,42 @@
 /* global cy:true */
 
+const getBranchContainer = (depth) => {
+    let branch = cy.dataCy('single-story-editor').first();
+    for (let i = 0; i < depth; i += 1) {
+        branch = branch.find('[data-cy=single-story-editor]').first();
+    }
+    return branch;
+};
+const getBranchEditor = depth => getBranchContainer(depth).find('.story-visual-editor').first();
+const addBlock = (depth) => {
+    getBranchEditor(depth).then((editor) => {
+        cy.wrap(editor)
+            .findCy('add-user-line')
+            .click({ force: true });
+        cy.wrap(editor)
+            .findCy('user-line-from-input')
+            .last()
+            .click({ force: true });
+        cy.dataCy('utterance-input')
+            .find('input')
+            .type('I love typing into boxes.{enter}');
+        cy.dataCy('intent-label').should('have.length', depth + 1);
+        cy.wrap(editor)
+            .findCy('intent-label')
+            .click({ force: true })
+            .type('myTestIntent{enter}');
+    });
+    cy.dataCy('save-new-user-input')
+        .click({ force: true });
+    cy.dataCy('save-new-user-input').should('not.exist');
+};
+
 describe('branches', function() {
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
         cy.visit('/project/bf/dialogue');
         cy.createStoryGroup();
-        cy.createStoryInGroup();
+        cy.createFragmentInGroup();
     });
 
     afterEach(function() {
@@ -18,14 +49,11 @@ describe('branches', function() {
     const clickFirstBranchTitle = () => {
         cy.dataCy('branch-label')
             .first()
-            .click({ force: true })
-            .wait(1000)
-            .find('span')
             .click({ force: true });
     };
 
     it('should be able to add a branch, edit the content and it should be saved', function() {
-        cy.dataCy('toggle-md').click({ force: true });
+        cy.dataCy('toggle-yaml').click({ force: true });
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('branch-label').should('have.lengthOf', 2);
         cy.dataCy('story-editor')
@@ -36,22 +64,17 @@ describe('branches', function() {
             .eq(1)
             .focus()
             .wait(50)
-            .type('xxx', { force: true })
-            .wait(100)
+            .type('- intent: hey', { force: true })
             .blur();
+        cy.wait(700);
         cy.visit('/project/bf/dialogue'); // reload page
         cy.browseToStory();
-        cy.dataCy('toggle-md').click({ force: true });
+        cy.dataCy('toggle-yaml').click({ force: true });
         cy.dataCy('branch-label').should('have.lengthOf', 2);
         cy.dataCy('branch-label')
             .first()
             .click({ force: true });
-        cy.dataCy('create-branch').click({ force: true });
-        cy.contains('New Branch 2')
-            .first()
-            .click({ force: true });
-        cy.contains('New Branch 1').click({ force: true });
-        cy.contains('xxx').should('exist');
+        cy.contains('- intent: hey').should('exist');
     });
 
     it('should be able to be create a third branch, and delete branches', function() {
@@ -67,15 +90,6 @@ describe('branches', function() {
         cy.dataCy('delete-branch')
             .first()
             .click({ force: true });
-        cy.wait(250);
-        cy.dataCy('delete-branch')
-            .first()
-            .click({ force: true });
-        cy.wait(250);
-        cy.dataCy('delete-branch')
-            .first()
-            .click({ force: true });
-        cy.wait(250);
         cy.dataCy('confirm-yes')
             .click({ force: true });
 
@@ -86,16 +100,10 @@ describe('branches', function() {
         cy.dataCy('delete-branch')
             .first()
             .click({ force: true });
-        cy.wait(250);
-        cy.dataCy('delete-branch')
-            .first()
-            .click({ force: true });
-        cy.wait(250);
         cy.dataCy('confirm-yes')
             .click({ force: true });
 
-
-        cy.dataCy('branch-label').should('not.exist', 2);
+        cy.dataCy('branch-label').should('not.exist');
         cy.dataCy('create-branch')
             .find('i')
             .should('not.have.class', 'disabled');
@@ -117,7 +125,7 @@ describe('branches', function() {
     });
 
     it('should be able to merge deleted story branches', function() {
-        cy.dataCy('toggle-md').click({ force: true });
+        cy.dataCy('toggle-yaml').click({ force: true });
         cy.dataCy('create-branch').click({ force: true });
 
         cy.dataCy('branch-label').should('have.lengthOf', 2);
@@ -136,7 +144,7 @@ describe('branches', function() {
             .get('textarea')
             .eq(1)
             .focus()
-            .type('aaa', { force: true });
+            .type('- intent: aaa', { force: true });
 
         cy.dataCy('branch-label').should('have.lengthOf', 2);
         cy.dataCy('branch-label').eq(1).should('have.class', 'active');
@@ -148,7 +156,9 @@ describe('branches', function() {
             .get('textarea')
             .last()
             .focus()
-            .type('bbb', { force: true });
+            .type('- intent: bbb', { force: true })
+            .blur();
+        cy.wait(250);
 
         cy.dataCy('branch-label')
             .first()
@@ -158,11 +168,6 @@ describe('branches', function() {
         cy.dataCy('delete-branch')
             .first()
             .click({ force: true });
-        cy.wait(250);
-        cy.dataCy('delete-branch')
-            .first()
-            .click({ force: true });
-        cy.wait(250);
         cy.dataCy('confirm-yes')
             .click({ force: true });
         cy.dataCy('single-story-editor').should('have.length', 1);
@@ -170,52 +175,74 @@ describe('branches', function() {
         cy.dataCy('single-story-editor').should('have.length', 2);
         
         cy.dataCy('single-story-editor').should('have.length', 2);
-        cy.dataCy('single-story-editor').first().contains('aaa');
-        cy.dataCy('single-story-editor').last().contains('bbb');
+        cy.dataCy('single-story-editor').first().contains('- intent: aaa');
+        cy.dataCy('single-story-editor').last().contains('- intent: bbb');
     });
 
-    it('should save branch title on blur and Enter, discard on esc', function() {
+    it('should save branch title on blur and Enter', function() {
         cy.dataCy('create-branch').click({ force: true });
 
         // test Enter
         clickFirstBranchTitle();
         cy.dataCy('branch-label')
+            .first()
             .find('input')
             .click()
             .clear()
             .type(`${newBranchNameOne}{Enter}`);
-        cy.dataCy('branch-label')
-            .first()
-            .find('span')
-            .contains(newBranchNameOne)
+        cy.dataCy('branch-title-input', null, `[value="${newBranchNameOne}"]`)
             .should('exist');
 
         // test blur
         clickFirstBranchTitle();
         cy.dataCy('branch-label')
+            .first()
             .find('input')
             .click()
             .clear()
             .type(`${newBranchNameTwo}`)
             .blur();
-        cy.dataCy('branch-label')
-            .first()
-            .find('span')
-            .contains(newBranchNameTwo)
+        cy.dataCy('branch-title-input', null, `[value="${newBranchNameTwo}"]`)
             .should('exist');
+    });
 
-        // test esc
-        clickFirstBranchTitle();
+    it('should append the contents of the last branch when the second last branch is deleted', function () {
+        // create 2 levels of branches
+        cy.dataCy('create-branch')
+            .click();
         cy.dataCy('branch-label')
-            .find('input')
-            .click()
-            .type('edited{esc}{Enter}');
-        cy.dataCy('branch-label')
-            .first()
-            .find('span')
-            .contains(newBranchNameTwo)
-            .should('exist')
-            .contains(`${newBranchNameTwo}edited`)
+            .should('exist');
+        cy.dataCy('create-branch')
+            .click();
+        // add a user utterance to each open branch
+        addBlock(0);
+        addBlock(1);
+        addBlock(2);
+        // delete one of the branches at index 2
+        getBranchContainer(1)
+            .findCy('branch-label')
+            .last()
+            .click({ force: true });
+        getBranchContainer(1)
+            .findCy('branch-label')
+            .last()
+            .should('have.class', 'active');
+        getBranchContainer(1)
+            .findCy('branch-label')
+            .last()
+            .trigger('mouseover');
+        cy.dataCy('delete-branch')
+            .last()
+            .click({ force: true });
+        cy.dataCy('confirm-yes')
+            .click({ force: true });
+        cy.dataCy('delete-branch')
+            .last()
+            .click({ force: true });
+        cy.dataCy('confirm-yes')
+            .click({ force: true });
+        // the branches at index 2 should have been removed
+        cy.dataCy('branch-menu')
             .should('not.exist');
     });
 });

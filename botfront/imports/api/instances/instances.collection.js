@@ -30,7 +30,7 @@ if (Meteor.isServer) {
         'instance.update'(item) {
             check(item, Object);
             checkIfCan('project-admin', item.projectId);
-            return Instances.update({ _id: item._id }, { $set: item });
+            return Instances.update({ projectId: item.projectId }, { $set: item });
         },
     });
 }

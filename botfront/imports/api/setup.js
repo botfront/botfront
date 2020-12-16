@@ -148,12 +148,13 @@ if (Meteor.isServer) {
             check(projectData, Object);
             const project = {
                 name: projectData.project,
-                namespace: slugify(projectData.project, { lower: true }),
+                namespace: `bf-${slugify(projectData.project, { lower: true })}`,
                 defaultLanguage: projectData.language,
                 languages: [],
             };
 
             if (process.env.BF_PROJECT_ID) project._id = process.env.BF_PROJECT_ID;
+            if (projectData._id) project._id = projectData._id;
             
             const projectId = await Meteor.callWithPromise('project.insert', project);
 

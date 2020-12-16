@@ -32,3 +32,12 @@ export const dropNullValuesFromObject = obj => Object.entries(obj).reduce(
     }),
     {},
 );
+
+export const caught = func => async (done) => {
+    try {
+        await func();
+        done();
+    } catch (e) {
+        done(e);
+    }
+};

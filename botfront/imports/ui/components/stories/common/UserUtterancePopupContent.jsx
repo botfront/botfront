@@ -38,7 +38,7 @@ const UserUtterancePopupContent = (props) => {
                         onClick={(e) => {
                             e.preventDefault();
                             setModalOpen(false);
-                            onCreateFromPayload(payload);
+                            onCreateFromPayload({ ...payload, entities: payload.entities.map(({ entity, value: v }) => ({ [entity]: v })) });
                         }}
                         data-cy='save-user-utterance'
                     />

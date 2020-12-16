@@ -29,6 +29,7 @@ import { Credentials } from '../../api/credentials';
 import { NLUModels } from '../../api/nlu_model/nlu_model.collection';
 import { Instances } from '../../api/instances/instances.collection';
 import { Slots } from '../../api/slots/slots.collection';
+import { Stories } from '../../api/story/stories.collection';
 import 'semantic-ui-css/semantic.min.css';
 import { ProjectContext } from './context';
 import { setsAreIdentical, cleanDucklingFromExamples } from '../../lib/utils';
@@ -50,6 +51,7 @@ function Project(props) {
         changeShowChat,
         instance,
         slots,
+        dialogueActions,
         channel,
         children,
         hasNoWhitespace,
@@ -75,7 +77,10 @@ function Project(props) {
     }, [workingLanguage, projectId]);
 
     const findExactMatch = (canonicals, entities) => {
-        const exactMatch = canonicals.filter(ex => setsAreIdentical(ex.entities, entities))[0];
+        const exactMatch = canonicals.filter(ex => setsAreIdentical(
+            ex.entities.map(e => `${e.entity}:${e.value}`),
+            entities.map(e => `${e.entity}:${e.value}`),
+        ))[0];
         return exactMatch ? exactMatch.example : null;
     };
 
@@ -87,11 +92,8 @@ function Project(props) {
                 : {}
             : intentsList;
         return Object.keys(filtered).map(
-            i => findExactMatch(
-                filtered[i],
-                entities.map(e => e.entity),
-            ) || { intent: i },
-        );
+            i => findExactMatch(filtered[i], entities),
+        ).filter(ex => ex);
     };
 
     const parseUtterance = utterance => Meteor.callWithPromise('rasa.parse', instance, [
@@ -99,7 +101,7 @@ function Project(props) {
     ]);
 
     const addUtterancesToTrainingData = (utterances, callback = () => {}) => {
-        if (!(utterances || []).filter(u => u.text).length) callback(null, { success: true });
+        if (!(utterances || []).filter(u => u.text).length) { callback(null, { success: true }); }
         const cleanedUtterances = cleanDucklingFromExamples(utterances);
         apolloClient
             .mutate({
@@ -135,7 +137,6 @@ function Project(props) {
         </Placeholder>
     );
 
-
     return (
         <div style={{ height: '100vh' }}>
             <div className='project-sidebar'>
@@ -149,7 +150,10 @@ function Project(props) {
                 {!loading && (
                     <ProjectSidebarComponent
                         projectId={projectId}
-                        handleChangeProject={pid => replace(pathname.replace(/\/project\/.*?\//, `/project/${pid}/`))}
+                        handleChangeProject={pid => replace(
+                            pathname.replace(/\/project\/.*?\//, `/project/${pid}/`),
+                        )
+                        }
                     />
                 )}
             </div>
@@ -182,6 +186,7 @@ function Project(props) {
                                 intents: Object.keys(intentsList || {}),
                                 entities: entitiesList || [],
                                 slots,
+                                dialogueActions,
                                 language: workingLanguage,
                                 upsertResponse,
                                 responses,
@@ -244,6 +249,7 @@ Project.propTypes = {
     workingLanguage: PropTypes.string,
     projectLanguages: PropTypes.array.isRequired,
     slots: PropTypes.array.isRequired,
+    dialogueActions: PropTypes.array.isRequired,
     loading: PropTypes.bool.isRequired,
     channel: PropTypes.object,
     showChat: PropTypes.bool.isRequired,
@@ -272,7 +278,7 @@ const ProjectContainer = withTracker((props) => {
     if (!Meteor.userId()) {
         router.push('/login');
     }
-    
+
     if (!projectId) return browserHistory.replace({ pathname: '/404' });
     const projectHandler = Meteor.subscribe('projects', projectId);
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
@@ -280,6 +286,9 @@ const ProjectContainer = withTracker((props) => {
     const slotsHandler = Meteor.subscribe('slots', projectId);
     const nluModelsHandler = Meteor.subscribe('nlu_models', projectId, workingLanguage);
     const { hasNoWhitespace } = NLUModels.findOne({ projectId, language: workingLanguage }, { fields: { hasNoWhitespace: 1 } }) || {};
+    const storiesHandler = Meteor.subscribe('stories.events', projectId);
+    const dialogueActions = Array.from(new Set((Stories
+        .find().fetch() || []).flatMap(story => story.events)));
     const instance = Instances.findOne({ projectId });
     const readyHandler = handler => handler;
     const readyHandlerList = [
@@ -288,6 +297,7 @@ const ProjectContainer = withTracker((props) => {
         projectHandler.ready(),
         instanceHandler.ready(),
         slotsHandler.ready(),
+        storiesHandler.ready(),
         nluModelsHandler.ready(),
     ];
     const ready = readyHandlerList.every(readyHandler);
@@ -315,10 +325,19 @@ const ProjectContainer = withTracker((props) => {
         changeProjectId(projectId);
     }
 
-    const projectLanguages = ready ? (project.languages || []).map(value => ({ text: languageOptions[value].name, value })) : [];
+    const projectLanguages = ready
+        ? (project.languages || []).map(value => ({
+            text: languageOptions[value].name,
+            value,
+        }))
+        : [];
 
     // update working language
-    if (ready && defaultLanguage && !project.languages.includes(workingLanguage)) {
+    if (
+        ready
+        && defaultLanguage
+        && !projectLanguages.some(({ value }) => value === workingLanguage)
+    ) {
         changeWorkingLanguage(defaultLanguage);
     }
 
@@ -329,6 +348,7 @@ const ProjectContainer = withTracker((props) => {
         channel,
         instance,
         slots: Slots.find({}).fetch(),
+        dialogueActions,
         projectLanguages,
         hasNoWhitespace,
     };

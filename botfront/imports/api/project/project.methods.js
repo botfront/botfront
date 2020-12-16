@@ -15,14 +15,11 @@ import { createDefaultStoryGroup } from '../storyGroups/storyGroups.methods';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
 import { Slots } from '../slots/slots.collection';
-import { extractDomain } from '../../lib/story.utils';
 import { languages as languageOptions } from '../../lib/languages';
 import BotResponses from '../graphql/botResponses/botResponses.model';
 import Examples from '../graphql/examples/examples.model';
 
 if (Meteor.isServer) {
-    export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain({ stories, slots, crashOnStoryWithErrors: false }));
-
     Meteor.methods({
         async 'project.insert'(item) {
             check(item, Object);
@@ -32,7 +29,7 @@ if (Meteor.isServer) {
                 createEndpoints({ _id, ...item });
                 createCredentials({ _id, ...item });
                 createPolicies({ _id, ...item });
-                createDefaultStoryGroup(_id);
+                await createDefaultStoryGroup(_id);
                 await createInstance({ _id, ...item });
                 return _id;
             } catch (e) {

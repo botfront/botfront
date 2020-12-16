@@ -184,28 +184,6 @@ if (Meteor.isServer) {
         return chitChatProjectId;
     };
 
-
-    const filterExistent = (current, toImport, identifiers, defaultsToInsert = {}) => {
-        const toFilter = {};
-        identifiers.forEach((key) => { toFilter[key] = {}; });
-
-        current.forEach((item) => {
-            identifiers.forEach((key) => {
-                toFilter[key][item[key]] = true;
-            });
-        });
-        return toImport.reduce((acc, curr) => {
-            const exists = identifiers.every(key => curr[key] in toFilter[key]);
-            if (!exists) {
-                identifiers.forEach((key) => {
-                    toFilter[key][curr[key]] = true;
-                });
-                return [...acc, { ...curr, ...defaultsToInsert, _id: uuidv4() }];
-            }
-            return acc;
-        }, []);
-    };
-
     Meteor.methods({
         'nlu.insert'(projectId, language, incomingConfig = null) {
             checkIfCan('nlu-data:w', projectId);
@@ -254,13 +232,19 @@ if (Meteor.isServer) {
             newItem.config = item.config;
             newItem.name = item.name;
             newItem.language = item.language;
-            newItem.logActivity = item.logActivity;
-            newItem.instance = item.instance;
             newItem.description = item.description;
             newItem.hasNoWhitespace = item.hasNoWhitespace;
 
             NLUModels.update({ _id: modelId }, { $set: newItem });
             return modelId;
+        },
+
+        'nlu.update.pipeline'(projectId, language, pipeline) {
+            checkIfCan('nlu-data:w', projectId);
+            check(language, String);
+            check(pipeline, String);
+            check(projectId, String);
+            return NLUModels.update({ projectId, language }, { $set: { config: pipeline } });
         },
 
         'nlu.remove'(projectId, language) {
@@ -312,122 +296,6 @@ if (Meteor.isServer) {
             });
 
             insertExamples({ examples, language, projectId });
-        },
-
-        async 'nlu.import'(
-            nluData,
-            projectId,
-            language,
-            overwrite,
-            canonicalExamples = [],
-        ) {
-            checkIfCan('nlu-data:w', projectId);
-            check(nluData, Object);
-            check(projectId, String);
-            check(language, String);
-            check(overwrite, Boolean);
-            check(canonicalExamples, Array);
-            /*
-                Right now, overwriting replaces training_data array, and non-overwrite
-                adds items whose filterExistent<identifier> doesn't already exist. Behavior to update existing
-                data is not implemented.
-            */
-
-            try {
-                const currentModel = NLUModels.findOne(
-                    { projectId, language },
-                    { fields: { training_data: 1 } },
-                );
-                const { examples: currentExamples = [] } = await getExamples({
-                    pageSize: -1,
-                    projectId,
-                    language,
-                });
-                let commonExamples;
-                let entitySynonyms;
-                let fuzzyGazette;
-                let regexFeatures;
-
-                if (nluData.common_examples && nluData.common_examples.length > 0) {
-                    commonExamples = nluData.common_examples.map(e => ({
-                        ...e,
-                        _id: uuidv4(),
-                        metadata: { canonical: canonicalExamples.includes(e.text) },
-                    }));
-                    if (overwrite) { await deleteExamples({ projectId, ids: currentExamples.map(({ _id }) => _id) }); }
-                    commonExamples = overwrite
-                        ? commonExamples
-                        : filterExistent(currentExamples, commonExamples, ['text']);
-                }
-
-                if (nluData.entity_synonyms && nluData.entity_synonyms.length > 0) {
-                    entitySynonyms = nluData.entity_synonyms.map(e => ({
-                        ...e,
-                        _id: uuidv4(),
-                    }));
-                    entitySynonyms = {
-                        'training_data.entity_synonyms': overwrite
-                            ? entitySynonyms
-                            : {
-                                $each: filterExistent(
-                                    currentModel.training_data.entity_synonyms,
-                                    entitySynonyms,
-                                    ['value'],
-                                ),
-                                $position: 0,
-                            },
-                    };
-                }
-
-                let gazetteKey;
-                if (nluData.fuzzy_gazette && nluData.fuzzy_gazette.length > 0) { gazetteKey = 'fuzzy_gazette'; }
-                if (nluData.gazette && nluData.gazette.length > 0) gazetteKey = 'gazette';
-
-                if (gazetteKey) {
-                    fuzzyGazette = nluData[gazetteKey].map(e => ({
-                        ...e,
-                        _id: uuidv4(),
-                    }));
-                    fuzzyGazette = {
-                        'training_data.fuzzy_gazette': overwrite
-                            ? fuzzyGazette
-                            : {
-                                $each: filterExistent(
-                                    currentModel.training_data.fuzzy_gazette,
-                                    fuzzyGazette,
-                                    ['value'],
-                                    gazetteDefaults,
-                                ),
-                                $position: 0,
-                            },
-                    };
-                }
-
-                if (nluData.regex_features) {
-                    regexFeatures = nluData.regex_features.map(regexFeature => ({
-                        ...regexFeature,
-                        _id: uuidv4(),
-                    }));
-                    regexFeatures = {
-                        'training_data.regex_features': overwrite
-                            ? regexFeatures
-                            : {
-                                $each: filterExistent(currentModel.training_data.regex_features, regexFeatures, ['regex', 'pattern']),
-                                $position: 0,
-                            },
-                    };
-                }
-                const op = overwrite
-                    ? { $set: { ...entitySynonyms, ...fuzzyGazette, ...regexFeatures } }
-                    : { $push: { ...entitySynonyms, ...fuzzyGazette, ...regexFeatures } };
-                await insertExamples({
-                    language, projectId, examples: commonExamples, options: { overwriteOnSameText: true },
-                });
-                return NLUModels.update({ _id: currentModel._id }, op);
-            } catch (e) {
-                if (e instanceof Meteor.Error) throw e;
-                throw new Meteor.Error(e);
-            }
         },
 
         async 'nlu.chitChatSetup'() {

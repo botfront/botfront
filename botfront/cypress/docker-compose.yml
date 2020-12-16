@@ -25,7 +25,6 @@ services:
       - CYPRESS_MODE=CI_RUN
       - CYPRESS_baseUrl=http://botfront:3000
       - CYPRESS_RASA_URL=http://rasa:5005
-      - CYPRESS_API_URL=http://botfront-api:8080
       - CYPRESS_RETRIES=5
       - CYPRESS_VIDEO=false
       - CYPRESS_SCREENSHOTS=true
@@ -47,19 +46,6 @@ services:
       - MODE=test
       - MONGO_URL=mongodb://mongo:27017/bf
       - ROOT_URL=http://botfront:3000
-
-  botfront-api:
-    image: botfront-api-local
-    container_name: botfront-test-api
-    restart: always
-    depends_on:
-      - mongo
-    # ports:
-    #   - '8080:8080'
-    environment:
-      # MODE must not be set to test because it would use the mongo mem server which we don't want here
-      - MONGO_URL=mongodb://mongo:27017/bf
-      - CORS=*
 
   rasa:
     image: botfront/rasa-for-botfront:${RASA_TAG}

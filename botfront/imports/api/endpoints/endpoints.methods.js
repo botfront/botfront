@@ -13,24 +13,23 @@ export const createEndpoints = async (project) => {
     if (endpoints) Endpoints.insert({ endpoints, projectId: project._id });
 };
 
-export const saveEndpoints = async (endpoints) => {
-    try {
-        if (!Meteor.isServer) throw Meteor.Error(400, 'Not Authorized');
-        return Endpoints.upsert(
-            { projectId: endpoints.projectId },
-            { $set: { endpoints: endpoints.endpoints, projectId: endpoints.projectId, environment: endpoints.environment || 'development' } },
-        );
-    } catch (e) {
-        throw formatError(e);
-    }
-};
-
 if (Meteor.isServer) {
     Meteor.methods({
         'endpoints.save'(endpoints) {
+            checkIfCan('resources:w', endpoints.projectId);
             check(endpoints, Object);
-            checkIfCan('project-settings:w', endpoints.projectId);
-            return saveEndpoints(endpoints);
+            try {
+                const env = endpoints.environment || 'development';
+                const envQuery = env !== 'development'
+                    ? { environment: env }
+                    : { $or: [{ environment: env }, { environment: { $exists: false } }] };
+                return Endpoints.upsert(
+                    { projectId: endpoints.projectId, ...envQuery },
+                    { $set: { endpoints: endpoints.endpoints } },
+                );
+            } catch (e) {
+                throw formatError(e);
+            }
         },
     });
 }
