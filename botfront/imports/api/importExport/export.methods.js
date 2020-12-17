@@ -24,7 +24,19 @@ if (Meteor.isServer) {
     const fs = require('fs');
     const axiosClient = axios.create();
 
-    const signature = () => nodegit.Signature.create('Botfront', 'git@botfront.io', Date.now() / 1000, 60);
+    const signature = () => {
+        const {
+            emails: [{ address: email = '' } = {}] = [],
+            profile: { firstName = '', lastName = '' } = {},
+        } = Meteor.user() || {};
+        const name = [firstName, lastName].join(' ').trim();
+        return nodegit.Signature.create(
+            name || 'Botfront',
+            email || 'git@botfront.io',
+            Date.now() / 1000,
+            60,
+        );
+    };
 
     const convertJsonToYaml = async (json, instanceHost, language) => {
         const { data } = await axiosClient.post(`${instanceHost}/data/convert/nlu`, {
