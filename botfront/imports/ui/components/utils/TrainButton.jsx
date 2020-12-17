@@ -124,7 +124,7 @@ class TrainButton extends React.Component {
 
     renderDeployDropDown = () => {
         const {
-            project: { deploymentEnvironments: environments = [], gitString },
+            project: { deploymentEnvironments: environments = [] },
             instance,
         } = this.context;
         const { status } = this.props;
@@ -138,7 +138,7 @@ class TrainButton extends React.Component {
                 value: env,
                 text: `Deploy to ${env}`,
             }));
-        if (gitString || deployOptions.length) {
+        if (deployOptions.length) {
             // explicitly define the dropdown so we don't get the highlighted selection
             return (
                 <Dropdown
@@ -149,18 +149,6 @@ class TrainButton extends React.Component {
                     trigger={<React.Fragment />}
                 >
                     <Dropdown.Menu>
-                        <Dropdown.Item
-                            icon='cloud upload'
-                            text='Commit and push'
-                            onClick={() => this.showModal('commit-and-push', true)}
-                        />
-                        <Dropdown.Item
-                            icon='step backward'
-                            text='Revert to previous'
-                            onClick={() => this.showModal('revert-to-previous', true)}
-                        />
-                        {modalOpen['commit-and-push'] && this.renderCommitModal()}
-                        {modalOpen['revert-to-previous'] && this.renderRevertModal()}
                         {deployOptions.map(opt => (
                             <React.Fragment key={opt.key}>
                                 <Dropdown.Item
@@ -257,9 +245,7 @@ class TrainButton extends React.Component {
                     <Button.Group color={partialTrainning ? 'yellow' : 'blue'}>
                         <Button
                             icon={partialTrainning ? 'eye' : 'grid layout'}
-                            content={
-                                partialTrainning ? 'Partial training' : 'Train everything'
-                            }
+                            content='Train'
                             labelPosition='left'
                             disabled={
                                 status === 'training'
@@ -282,6 +268,32 @@ class TrainButton extends React.Component {
             />
         );
     };
+
+    renderGitButton = () => {
+        const { project: { gitString } } = this.context;
+        const { modalOpen } = this.state;
+        if (!gitString) return null;
+        return (
+            <>
+                <Dropdown trigger={<Button icon='git' color='black' basic />} className='dropdown-button-trigger'>
+                    <Dropdown.Menu direction='left'>
+                        <Dropdown.Item
+                            icon='cloud upload'
+                            text='Commit and push'
+                            onClick={() => this.showModal('commit-and-push', true)}
+                        />
+                        <Dropdown.Item
+                            icon='step backward'
+                            text='Revert to previous'
+                            onClick={() => this.showModal('revert-to-previous', true)}
+                        />
+                    </Dropdown.Menu>
+                </Dropdown>
+                {modalOpen['commit-and-push'] && this.renderCommitModal()}
+                {modalOpen['revert-to-previous'] && this.renderRevertModal()}
+            </>
+        );
+    }
 
     renderShareLink = () => {
         const {
@@ -340,8 +352,9 @@ class TrainButton extends React.Component {
         const { ready } = this.props;
         return (
             ready && (
-                <div className='side-by-side middle'>
+                <div className='side-by-side middle narrow'>
                     <Can I='nlu-data:x'>{this.renderButton()}</Can>
+                    {this.renderGitButton()}
                     {this.renderShareLink()}
                 </div>
             )
