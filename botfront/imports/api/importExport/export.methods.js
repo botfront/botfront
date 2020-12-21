@@ -132,6 +132,8 @@ if (Meteor.isServer) {
         ];
 
         return {
+            url,
+            branchName,
             dir,
             index,
             repo,
@@ -298,12 +300,22 @@ if (Meteor.isServer) {
             check(cursor, Match.Maybe(String));
             check(pageSize, Number);
 
-            const { repo, branchCommit } = await getRemote(projectId);
+            const {
+                repo, branchCommit, url: repoUrl,
+            } = await getRemote(projectId);
             const startCommit = cursor ? await repo.getCommit(cursor) : branchCommit;
+            let [, url] = repoUrl.split('@');
+            url = url.replace(/.git$/, '');
+            const formatUrl = (sha) => {
+                if (url.includes('bitbucket')) return `https://${url}/commits/${sha}`;
+                return `https://${url}/commit/${sha}`; // github, gitlab
+            };
 
             const formatCommit = c => ({
                 sha: c.id().tostrS(),
+                author: c.author().name(),
                 msg: c.message(),
+                url: formatUrl(c.id().tostrS()),
                 time: c.time(),
                 isHead: c.id().tostrS() === branchCommit.id().tostrS(),
             });

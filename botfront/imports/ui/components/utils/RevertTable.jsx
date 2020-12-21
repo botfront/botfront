@@ -5,19 +5,18 @@ import { useQuery } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
-import {
-    Label, Placeholder, Icon,
-} from 'semantic-ui-react';
+import { Dimmer, Loader } from 'semantic-ui-react';
 import { wrapMeteorCallback } from './Errors';
 import { ProjectContext } from '../../layouts/context';
 import DataTable from '../common/DataTable';
 import IconButton from '../common/IconButton';
-import { tooltipWrapper } from './Utils';
 
 const projectGitHistoryQuery = gql`
     query($projectId: String!, $cursor: String, $pageSize: Int) {
         projectGitHistory(projectId: $projectId, cursor: $cursor, pageSize: $pageSize) {
             commits {
+                url
+                author
                 sha
                 msg
                 time
@@ -117,52 +116,50 @@ export default React.forwardRef((_, ref) => {
             }),
         );
     };
+
+    const renderCommit = (row) => {
+        const { datum } = row;
+        const sha = (
+            <a href={datum?.url} target='_blank' rel='noopener noreferrer'>
+                {datum?.sha?.substring(0, 8)}
+            </a>
+        );
+        const time = new Date(datum?.time * 1000).toLocaleString();
+        const msg = datum?.msg;
+        return (
+            <div>
+                <b>{msg}</b> ({sha})<br />
+                by {datum?.author}, {time}
+            </div>
+        );
+    };
+
     const columns = [
+        { key: 'sha', selectionKey: true, hidden: true },
         {
-            key: 'sha',
-            selectionKey: true,
-            style: { width: '110px', minWidth: '110px', wordBreak: 'break-all' },
-            render: ({ datum }) => tooltipWrapper(<Label>{datum?.sha?.substring(0, 8)}</Label>, datum?.sha),
-        },
-        {
-            key: 'time',
-            style: { width: '180px', minWidth: '180px', overflow: 'hidden' },
-            render: ({ datum }) => new Date(datum?.time * 1000).toLocaleString(),
-        },
-        {
-            key: 'msg',
+            key: 'commit',
             style: { width: '100%' },
+            render: renderCommit,
         },
         {
             key: 'action',
             style: { width: '40px' },
-            render: ({ datum }) => {
-                if (datum.isHead) return null;
-                return (
-                    <IconButton
-                        icon='step backward'
-                        color='blue'
-                        onClick={() => revertToCommit(datum.sha)}
-                    />
-                );
-            },
+            render: row => (row?.datum.isHead ? null : (
+                <IconButton
+                    icon='step backward'
+                    color='blue'
+                    onClick={() => revertToCommit(row?.datum.sha)}
+                />
+            )),
         },
     ];
 
     if (working) {
         return (
             <div style={{ height: 400 }}>
-                <Icon
-                    name='code branch'
-                    size='massive'
-                    color='grey'
-                    style={{
-                        position: 'absolute', zIndex: 50, top: '30%', left: '30%',
-                    }}
-                />
-                <Placeholder fluid>
-                    {Array.from(new Array(20)).map((el, i) => <Placeholder.Line key={i} />)}
-                </Placeholder>
+                <Dimmer active inverted>
+                    <Loader size='massive' />
+                </Dimmer>
             </div>
         );
     }
