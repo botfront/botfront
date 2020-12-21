@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Icon, Popup } from 'semantic-ui-react';
+import { runTestCaseStories } from '../utils/runTestCaseStories';
 
 import {
     setShowChat,
@@ -40,7 +41,7 @@ const StoryPlayButton = (props) => {
 
     const runTestCase = () => {
         if (!storyId) throw new Error('a storyId is required to run a single test');
-        Meteor.call('stories.runTests', projectId, { ids: [storyId] });
+        runTestCaseStories(projectId, { ids: [storyId] });
     };
 
     return (

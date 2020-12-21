@@ -6,13 +6,13 @@ import {
     Button, Popup, Icon, Checkbox, Dropdown,
 } from 'semantic-ui-react';
 import { get } from 'lodash';
-import Alert from 'react-s-alert';
 import { wrapMeteorCallback } from './Errors';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Projects } from '../../../api/project/project.collection';
 import { ProjectContext } from '../../layouts/context';
 import { can, Can } from '../../../lib/scopes';
 import { languages } from '../../../lib/languages';
+import { runTestCaseStories } from './runTestCaseStories';
 
 
 class TrainButton extends React.Component {
@@ -32,27 +32,6 @@ class TrainButton extends React.Component {
         Meteor.call('rasa.train', projectId, wrapMeteorCallback());
     };
 
-    runTests = (projectId, language) => {
-        Meteor.call('stories.runTests', projectId, { language }, (error, response) => {
-            if (error) {
-                Alert.error(error.message);
-            }
-            const { passing, failing } = response;
-            if (!failing) {
-                Alert.success(`Test run complete. ${passing} test${passing !== 1 ? 's' : ''} passing`, {
-                    position: 'top-right',
-                    timeout: 10 * 1000,
-                });
-            } else {
-                Alert.error(`
-                    Test run complete. ${passing} test${passing !== 1 ? 's' : ''} passing, ${failing} test${failing !== 1 ? 's' : ''} failing`,
-                {
-                    position: 'top-right',
-                    timeout: 10 * 1000,
-                });
-            }
-        });
-    }
 
     showModal = (env, visible) => {
         const modalOpen = this.state;
@@ -66,11 +45,11 @@ class TrainButton extends React.Component {
         const languageName = languages[language]?.name;
         return (
             <>
-                <Dropdown.Item onClick={() => this.runTests(projectId)} data-cy='run-all-tests'>
+                <Dropdown.Item onClick={() => runTestCaseStories(projectId)} data-cy='run-all-tests'>
                     Run all tests
                 </Dropdown.Item>
                 {!!languageName && (
-                    <Dropdown.Item onClick={() => this.runTests(projectId, language)} data-cy='run-lang-tests'>
+                    <Dropdown.Item onClick={() => runTestCaseStories(projectId, { language })} data-cy='run-lang-tests'>
                     Run all {languages[language]?.name} tests
                     </Dropdown.Item>
                 )

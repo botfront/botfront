@@ -14,6 +14,8 @@ import { checkIfCan } from '../../lib/scopes';
 import { convertTrackerToStory } from '../../lib/test_case.utils';
 import { formatError } from '../../lib/utils';
 
+import { langFromCode } from '../../lib/languages';
+
 export const checkStoryNotEmpty = story => story.story && !!story.story.replace(/\s/g, '').length;
 
 
@@ -225,7 +227,7 @@ Meteor.methods({
                 }));
             if (testCases?.length < 1) {
                 if (language) {
-                    throw new Meteor.Error(400, `No tests were found for language: ${language}`);
+                    throw new Meteor.Error(400, `No tests were found for language: ${langFromCode(language)}`);
                 }
                 if (Array.isArray(ids)) {
                     throw new Meteor.Error(400, `Requested test${ids?.length > 1 ? 's' : ''} not found`);
@@ -238,7 +240,7 @@ Meteor.methods({
                 timeout: 1000 * 1000,
             });
             const response = await client.request({
-                url: '/webhooks/test_case/run',
+                url: '/webhooks/bot_regression_test/run',
                 data: { test_cases: testCases, project_id: projectId },
                 method: 'post',
             });

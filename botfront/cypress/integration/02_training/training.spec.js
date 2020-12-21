@@ -65,16 +65,17 @@ describe('Training', function() {
         cy.get('.eye.icon.focused').should('have.length', 1);
         cy.train();
         cy.newChatSesh();
+        cy.newChatSesh();
         cy.typeChatMessage('/get_started');
         cy.get('.rw-message').should('have.length', 1); // no response
         cy.testChatInput('/chitchat.greet', 'utter_hi');
         cy.toggleStoryGroupFocused();
         cy.get('.eye.icon.focused').should('have.length', 0);
-        cy.dataCy('story-menu-item-story-group').should('include.text', 'Intro stories');
         cy.toggleStoryGroupFocused('Intro stories');
-        cy.wait(1000);
+        cy.wait(500);
         cy.get('.eye.icon.focused').should('have.length', 1);
         cy.train();
+        cy.newChatSesh();
         cy.newChatSesh();
         cy.typeChatMessage('/chitchat.greet');
         cy.get('.rw-message').should('have.length', 2); // no response
