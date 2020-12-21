@@ -372,6 +372,7 @@ export const handleImportRasaConfig = async (files, { projectId, projectLanguage
     return [...errors, ...createResult].filter(r => r);
 };
 
+
 export const handleImportConversations = async (
     files,
     { supportedEnvs, projectId, wipeInvolvedCollections },
@@ -385,24 +386,35 @@ export const handleImportConversations = async (
             try {
                 const { conversations, env } = f;
                 if (supportedEnvs.includes(env)) {
-                    const insertConv = conversations.map(conv => Conversations.update(
-                        { _id: conv._id },
-                        {
-                            ...conv,
-                            projectId,
-                            env,
-                        },
-                        { upsert: true },
-                    ));
+                    const insertConv = conversations.map(async (conv) => {
+                        const { _id, ...convRest } = conv;
+
+                        // id is unique but the find with projectId is important here, as it could belong to another porject
+                        const exist = await Conversations.findOne({ _id, projectId });
+                        // and update with set on insert does no allow to modify the id
+                        // that's why we have a condition on existence instead of one update statement
+                        if (exist) {
+                            return Conversations.updateOne(
+                                { _id: conv._id || uuidv4(), projectId },
+                                {
+                                    $set: {
+                                        ...convRest,
+                                        projectId,
+                                        env,
+                                    },
+                                },
+                                { upsert: true },
+                            );
+                        }
+                        return Conversations.create({ ...convRest, projectId, _id: uuidv4() });
+                    });
                     await Promise.all(insertConv);
                 }
 
                 return null;
             } catch (e) {
-                if (e.code === 11000) {
-                    return `error when importing conversations from ${f.filename}, it seems that some of the data you are trying to import already exists`;
-                }
-                return `error when importing conversations form ${f.filename}`;
+                console.log(e);
+                return `error when importing conversations form ${f.filename}: ${e.message}`;
             }
         }),
     );

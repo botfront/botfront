@@ -78,6 +78,7 @@ const ImportRasaFiles = () => {
     };
 
     const handleImport = async ([files, setFileList]) => {
+        setFilesImporting(true);
         if (downloadBackup) {
             const options = { conversations: true, incoming: true };
             const noSpaceName = projectName.replace(/ +/g, '_');
@@ -98,6 +99,7 @@ const ImportRasaFiles = () => {
                     });
                 }
             } catch (e) {
+                setFilesImporting(false);
                 Alert.error(
                     'Exporting the project failed, so import was aborted to preserve data',
                     { timeout: 10000, position: 'top-right' },
@@ -105,7 +107,6 @@ const ImportRasaFiles = () => {
                 return;
             }
         }
-        setFilesImporting(true);
         const filesToImport = files.filter(
             file => !(file.errors && file.errors.length),
         );
@@ -360,7 +361,7 @@ const ImportRasaFiles = () => {
                 />
                 <br />
                 <Button
-                    disabled={fileReader[0].some(f => !f.validated)}
+                    disabled={(fileReader[0].some(f => !f.validated)) || filesImporting}
                     content='Import'
                     data-cy='import-files'
                     primary
