@@ -189,8 +189,8 @@ Meteor.methods({
         check(projectId, String);
         check(trackerId, String);
         const convo = await Conversations.findOne({ _id: trackerId, projectId }).lean();
-        const { metadata: { language } = {} } = convo.tracker.events.find(event => event.metadata?.language) || {};
         if (!convo) throw new Meteor.Error(404, 'Conversation not found');
+        const { metadata: { language } = {} } = convo.tracker.events.find(event => event.metadata?.language) || {};
         if (!language) throw new Meteor.Error(404, 'Could not find conversation language');
         const steps = convertTrackerToStory(convo.tracker);
         const storyGroup = await StoryGroups.findOne({ projectId, pinned: false }, { sort: { updatedAt: -1 } });
