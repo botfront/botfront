@@ -6,7 +6,7 @@ type Query {
         status: [String]
         sort: order #in the future if needed to sort on multiple fields passing and array of orders, and modifying the datasource(mongo/conversation.js) accordingly might to the trick
     ): Pagination
-    conversation(projectId: String!, id: String!): ConversationContainer!
+     conversation(projectId: String!, id: String, senderId: String): ConversationContainer!
     latestImportedEvent(
         projectId: String!
         environment: Environement = development

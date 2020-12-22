@@ -34,7 +34,7 @@ export default {
             return getConversations(args.projectId, args.page, args.pageSize, args.status, args.sort);
         },
         async conversation(_, args, __) {
-            return getConversation(args.projectId, args.id);
+            return getConversation(args.projectId, args.id,  args.senderId););
         },
         latestImportedEvent: async (_, args, __) => getLatestTimestamp(args.projectId, args.environment),
     },
