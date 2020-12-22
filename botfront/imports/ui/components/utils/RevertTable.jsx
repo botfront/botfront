@@ -144,13 +144,13 @@ export default React.forwardRef((_, ref) => {
         {
             key: 'action',
             style: { width: '40px' },
-            render: row => (row?.datum.isHead ? null : (
+            render: row => (
                 <IconButton
                     icon='step backward'
                     color='blue'
                     onClick={() => revertToCommit(row?.datum.sha)}
                 />
-            )),
+            ),
         },
     ];
 
