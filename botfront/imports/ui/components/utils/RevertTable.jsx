@@ -5,11 +5,12 @@ import { useQuery } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
-import { Dimmer, Loader } from 'semantic-ui-react';
+import {
+    Dimmer, Loader, Button, Icon,
+} from 'semantic-ui-react';
 import { wrapMeteorCallback } from './Errors';
 import { ProjectContext } from '../../layouts/context';
 import DataTable from '../common/DataTable';
-import IconButton from '../common/IconButton';
 
 const projectGitHistoryQuery = gql`
     query($projectId: String!, $cursor: String, $pageSize: Int) {
@@ -121,14 +122,14 @@ export default React.forwardRef((_, ref) => {
         const { datum } = row;
         const sha = (
             <a href={datum?.url} target='_blank' rel='noopener noreferrer'>
-                {datum?.sha?.substring(0, 8)}
+                ({datum?.sha?.substring(0, 8)})
             </a>
         );
         const time = new Date(datum?.time * 1000).toLocaleString();
         const msg = datum?.msg;
         return (
             <div>
-                <b>{msg}</b> ({sha})<br />
+                <b>{msg}</b> {sha}<br />
                 by {datum?.author}, {time}
             </div>
         );
@@ -143,13 +144,20 @@ export default React.forwardRef((_, ref) => {
         },
         {
             key: 'action',
-            style: { width: '40px' },
+            style: { width: '115x' },
             render: row => (
-                <IconButton
-                    icon='step backward'
+                <Button
+                    className='white'
+                    size='mini'
+                    basic
                     color='blue'
+                    icon
+                    labelPosition='left'
                     onClick={() => revertToCommit(row?.datum.sha)}
-                />
+                >
+                    <Icon name='undo' />
+                    Revert
+                </Button>
             ),
         },
     ];
@@ -170,6 +178,7 @@ export default React.forwardRef((_, ref) => {
             hasNextPage={hasNextPage}
             loadMore={loading ? () => {} : loadMore}
             height={400}
+            rowClassName='taller-line'
         />
     );
 });
