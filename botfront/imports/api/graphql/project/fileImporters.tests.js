@@ -71,11 +71,12 @@ chai.use(deepEqualInAnyOrder);
 
 const { expect } = chai;
 
-
 const params = { projectId: 'bf', supportedEnvs: ['development'] };
 
 const removeDates = arr => arr.map((obj) => {
-    const { createdAt, updatedAt, ...newObj } = obj;
+    const {
+        createdAt, updatedAt, date, ...newObj
+    } = obj;
     return newObj;
 });
 
@@ -83,6 +84,8 @@ const removeId = (obj) => {
     const { _id, id, ...newObj } = obj;
     return newObj;
 };
+
+const removeIds = arr => arr.map(removeId);
 
 if (Meteor.isServer) {
     // we only import those here otherwise they  will be loaded when doing client test and make the client side test fail
@@ -101,7 +104,7 @@ if (Meteor.isServer) {
             const conversations = await Conversations.find({ projectId: 'bf' }).lean();
             await expect(importResult).to.eql([]);
             // we use equalInAnyOrder because the conversation are send to the db in parrallel, so we don't know the order
-            await expect(conversations).to.deep.equalInAnyOrder(validConversationsParsed);
+            await expect(removeIds(conversations)).to.deep.equalInAnyOrder(removeIds(validConversationsParsed));
         });
         it('should import conversations in  existing env', async () => {
             await Conversations.deleteMany({});
@@ -112,7 +115,7 @@ if (Meteor.isServer) {
             const conversations = await Conversations.find({ projectId: 'bf' }).lean();
             await expect(importResult).to.eql([]);
             // we use equalInAnyOrder because the conversation are send to the db in parrallel, so we don't know the order
-            await expect(conversations).to.deep.equalInAnyOrder(validConversationsParsed.map(conv => ({ ...conv, env: 'production' })));
+            await expect(removeIds(conversations)).to.deep.equalInAnyOrder(removeIds(validConversationsParsed.map(conv => ({ ...conv, env: 'production' }))));
         });
         it('should not import conversations if env is not supported', async () => {
             await Conversations.deleteMany({});

@@ -388,14 +388,14 @@ export const handleImportConversations = async (
                 if (supportedEnvs.includes(env)) {
                     const insertConv = conversations.map(async (conv) => {
                         const { _id, ...convRest } = conv;
-
-                        // id is unique but the find with projectId is important here, as it could belong to another porject
-                        const exist = await Conversations.findOne({ _id, projectId });
-                        // and update with set on insert does no allow to modify the id
-                        // that's why we have a condition on existence instead of one update statement
+                        const { sender_id } = conv?.tracker;
+                        // we are looking conversation by the sender id because that is what define the user
+                        // the id might have changed from a previous import
+                        const exist = await Conversations.findOne({ 'tracker.sender_id': sender_id, projectId });
+                       
                         if (exist) {
                             return Conversations.updateOne(
-                                { _id: conv._id || uuidv4(), projectId },
+                                { 'tracker.sender_id': sender_id, projectId },
                                 {
                                     $set: {
                                         ...convRest,
@@ -403,10 +403,9 @@ export const handleImportConversations = async (
                                         env,
                                     },
                                 },
-                                { upsert: true },
                             );
                         }
-                        return Conversations.create({ ...convRest, projectId, _id: uuidv4() });
+                        return Conversations.create({ ...convRest, env, projectId });
                     });
                     await Promise.all(insertConv);
                 }

@@ -18,7 +18,6 @@
     ],
     "status": "new",
     "tracker": {
-      "active_loop": {},
       "events": [
         {
           "event": "action",
@@ -377,7 +376,6 @@
     ],
     "status": "new",
     "tracker": {
-      "active_loop": {},
       "events": [
         {
           "event": "action",
