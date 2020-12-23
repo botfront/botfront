@@ -20,7 +20,9 @@ const clearEmojisFromExample = (example) => {
 
 const createSortObject = (fieldName = 'intent', order = 'ASC') => {
     const orderMongo = order === 'ASC' ? 1 : -1;
-    return { 'metadata.draft': -1, [fieldName]: orderMongo };
+    // order (implicitly) by draft first, then using explicit sort,
+    // then (implicitly) by text
+    return { 'metadata.draft': -1, [fieldName]: orderMongo, text: 1 };
 };
 
 const createFilterObject = (
@@ -50,8 +52,8 @@ const createFilterObject = (
         // match all entities in the entities array by their name
         filters.entities = { $size: entities.length };
         if (entities.length) {
-            filters.entities.$all = entities.map(({ entity }) => ({
-                $elemMatch: { entity },
+            filters.entities.$all = entities.map(({ entity, value }) => ({
+                $elemMatch: { entity, value },
             }));
         }
     }
@@ -135,14 +137,17 @@ export const listIntentsAndEntities = async ({ projectId, language }) => {
             text: 1,
             'metadata.canonical': 1,
         })
-        .sort({ 'metadata.canonical': -1 })
+        .sort({ 'metadata.canonical': -1, createdAt: -1 })
         .lean();
     examples.forEach((ex) => {
-        const exEntities = (ex.entities || []).map(en => en.entity);
-        entities = entities.concat(exEntities.filter(en => !entities.includes(en)));
+        const exEntities = (ex.entities || []);
+        entities = entities.concat(exEntities.map(e => e.entity).filter(en => !entities.includes(en)));
         if (!Object.keys(intents).includes(ex.intent)) intents[ex.intent] = [];
         if (
-            !intents[ex.intent].some(ex2 => setsAreIdentical(ex2.entities, exEntities))
+            !intents[ex.intent].some(ex2 => setsAreIdentical(
+                ex2.entities.map(e => `${e.entity}:${e.value}`),
+                exEntities.map(e => `${e.entity}:${e.value}`),
+            ))
         ) {
             intents[ex.intent].push({ entities: exEntities, example: ex });
         }

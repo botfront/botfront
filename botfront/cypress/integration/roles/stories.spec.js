@@ -5,7 +5,8 @@ describe('story permissions', function() {
         cy.removeDummyRoleAndUser();
         cy.createProject('bf', 'My Project', 'en');
         cy.visit('/project/bf/dialogue');
-        cy.browseToStory('Get started');
+        cy.createStoryGroup();
+        cy.createFragmentInGroup();
         cy.dataCy('create-branch').click({ force: true });
         cy.dataCy('slots-modal').click();
         cy.dataCy('add-slot').click();
@@ -36,7 +37,7 @@ describe('story permissions', function() {
 
     it('Editing buttons/icons should not exist', function() {
         cy.visit('/project/bf/dialogue');
-        cy.browseToStory('Get started');
+        cy.browseToStory('Groupo (1)');
         cy.dataCy('story-title').should('exist'); // check that the page was properly loaded
         cy.dataCy('single-story-editor').first().trigger('mouseover');
         cy.dataCy('icon-trash').should('not.exist');
@@ -51,26 +52,26 @@ describe('story permissions', function() {
 
     it('should not be able to edit story title', function() {
         cy.visit('/project/bf/dialogue');
-        cy.browseToStory('Get started');
+        cy.browseToStory('Groupo (1)');
         cy.dataCy('story-title').should('be.disabled');
     });
 
     it('should not be able to edit branch name', function() {
         cy.visit('/project/bf/dialogue');
-        cy.browseToStory('Get started');
+        cy.browseToStory('Groupo (1)');
         cy.dataCy('story-title').should('exist'); // check that the page was properly loaded
         cy.dataCy('branch-label')
             .eq(1)
             .click();
-        cy.get('[data-cy=branch-label] span')
+        cy.get('[data-cy=branch-label] input')
             .eq(1)
             .should('exist');
-        cy.get('[data-cy=branch-label] input').should('not.exist');
+        cy.get('[data-cy=branch-label] input').should('be.disabled');
     });
 
     it('should not be able to edit slots', function() {
         cy.visit('/project/bf/dialogue');
-        cy.browseToStory('Get started');
+        cy.browseToStory('Groupo (1)');
         cy.dataCy('story-title').should('exist'); // check that the page was properly loaded
         cy.dataCy('slots-modal').click();
         cy.get('form.form .field').each(function(elm) {
@@ -80,10 +81,10 @@ describe('story permissions', function() {
         cy.dataCy('delete-slot').should('not.exist');
     });
 
-    it('should not be able to edit story markdown', function() {
+    it('should not be able to edit story yaml', function() {
         cy.visit('/project/bf/dialogue');
         cy.browseToStory('Get started');
-        cy.dataCy('toggle-md').click();
+        cy.dataCy('toggle-yaml').click();
         cy.dataCy('story-editor')
             .get('textarea')
             .first()
@@ -91,11 +92,12 @@ describe('story permissions', function() {
             .type('Test', { force: true })
             .blur();
         cy.get('div.ace_content').should(
-            'have.text',
-            '* get_started    - utter_get_started',
+            'contain.text',
+            '- intent: get_started',
         )
-            .should('not.have.text', 'Test');
+            .should('not.contain.text', 'Test');
     });
+
     it('should not be able to edit nlu data from the modal', () => {
         cy.visit('/project/bf/dialogue');
         cy.browseToStory('Greetings');

@@ -63,6 +63,20 @@ export const getGraphElementsFromDomain = (domainGraphElements, slotData) => {
                 className: 'slot-node',
             });
             break;
+        case 'slotSet':
+            graphElements.push({
+                id: node.id,
+                data: {
+                    type: node.type,
+                    slotType: node.slotType,
+                    slotName: node.slotName,
+                    slotValue: node.slotValue,
+                },
+                position: { x: 120, y: 225 + (1 * 150) },
+                type: node.type,
+                className: 'slot-set-node',
+            });
+            break;
         default:
         }
     });

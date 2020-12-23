@@ -26,7 +26,6 @@ services:
       - CYPRESS_MODE=CI_RUN
       - CYPRESS_baseUrl=http://botfront:3000
       - CYPRESS_RASA_URL=http://rasa:5005
-      - CYPRESS_API_URL=http://botfront-api:8080
       - CYPRESS_RETRIES=2
       - CYPRESS_VIDEO=true # video
       - CYPRESS_SCREENSHOTS=true

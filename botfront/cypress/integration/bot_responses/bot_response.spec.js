@@ -142,12 +142,13 @@ describe('Bot responses', function() {
 
     it('be able to edit a response with the response editor in the visual story editor', function() {
         cy.visit('/project/bf/dialogue');
-        cy.createStoryInGroup({ groupName: 'Default stories', storyName: 'myTest' });
+        cy.createFragmentInGroup({ groupName: 'Example group', fragmentName: 'myTest' });
         cy.dataCy('story-title').should('have.value', 'myTest');
-        cy.dataCy('toggle-md').click();
+        cy.dataCy('toggle-yaml').click();
         cy.get('.ace_content').click({ force: true });
-        cy.get('textarea').type('  - utter_test_A                 '); // the spaces are a workaround for a bug with md saving
-        cy.get('.book.icon').eq(0).click();
+        cy.get('textarea').type('- action: utter_test_A')
+            .blur();
+        cy.wait(700);
         addTextResponse('test_A', 'aa');
         cy.dataCy('template-intent').contains('utter_test_A').should('exist');
 
@@ -182,17 +183,19 @@ describe('Bot responses', function() {
 
         cy.visit('/project/bf/dialogue');
         cy.createStoryGroup();
-        cy.createStoryInGroup();
-        cy.createStoryInGroup();
+        cy.createFragmentInGroup();
+        cy.createFragmentInGroup();
         cy.dataCy('story-title').should('have.value', 'Groupo (2)');
-        cy.dataCy('toggle-md').click();
-        cy.dataCy('single-story-editor').find('.ace_text-input').focus().type('- utter_test{enter}', { force: true });
-        cy.dataCy('story-title').click({ force: true }); // force textarea blur and save
-        cy.wait(1500);
+        cy.dataCy('toggle-yaml').click();
+        cy.get('.ace_content').click({ force: true });
+        cy.get('textarea').type('- action: utter_test')
+            .blur();
         cy.browseToStory('Groupo (1)', 'Groupo');
         cy.dataCy('story-title').should('have.value', 'Groupo (1)');
-        cy.dataCy('single-story-editor').find('.ace_text-input').focus().type('- utter_test{enter}', { force: true });
-        cy.dataCy('story-title').click({ force: true }); // force textarea blur and save
+        cy.get('.ace_content').click({ force: true });
+        cy.get('textarea').type('- action: utter_test')
+            .blur();
+        cy.wait(700);
         cy.dataCy('toggle-visual').click();
         cy.get('.response-name').trigger('mouseover', { force: true });
         cy.dataCy('response-locations-count').should('include.text', '2');
@@ -200,9 +203,9 @@ describe('Bot responses', function() {
         cy.get('.response-name.locations-link').should('exist');
         cy.dataCy('response-locations-count').click();
         cy.dataCy('response-locations-count').click();
-        cy.dataCy('story-name-link').contains('Groupo (1)').click();
+        cy.dataCy('story-name-link').contains('Groupo (2)').click();
         cy.dataCy('story-title').should('have.length', 2);
-        cy.dataCy('story-title').first().should('have.value', 'Groupo (1)');
-        cy.dataCy('story-title').last().should('have.value', 'Groupo (2)');
+        cy.dataCy('story-title').first().should('have.value', 'Groupo (2)');
+        cy.dataCy('story-title').last().should('have.value', 'Groupo (1)');
     });
 });

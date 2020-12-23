@@ -4,13 +4,11 @@ import { useQuery } from '@apollo/react-hooks';
 import { browserHistory, withRouter } from 'react-router';
 import { Container } from 'semantic-ui-react';
 import { connect } from 'react-redux';
-import { Meteor } from 'meteor/meteor';
 import moment from 'moment';
 import { saveAs } from 'file-saver';
-import { GET_CONVERSATIONS, GET_INTENTS_IN_CONVERSATIONS } from './queries';
+import { GET_CONVERSATIONS } from './queries';
 
 import { updateIncomingPath } from '../incoming/incoming.utils';
-import { wrapMeteorCallback } from '../utils/Errors';
 import { Projects } from '../../../api/project/project.collection';
 import { applyTimezoneOffset } from '../../../lib/graphs';
 import apolloClient from '../../../startup/client/apollo';
@@ -66,7 +64,6 @@ const ConversationsBrowserContainer = (props) => {
             location: { query },
         } = router;
         let value = query[key];
-       
         switch (key) {
         case 'actionFilters':
         case 'eventFilter':
@@ -114,7 +111,6 @@ const ConversationsBrowserContainer = (props) => {
         triggeredConversations: getFilterFromQuery('triggeredConversations'),
     });
     const [activeFilters, setActiveFiltersHidden] = useState(getInitialFilters());
-    const [intentsActionsOptions, setIntentsActionsOptions] = useState([]);
     const [projectTimezoneOffset, setProjectTimezoneOffset] = useState(0);
 
     const queryVariables = useMemo(
@@ -200,78 +196,16 @@ const ConversationsBrowserContainer = (props) => {
 
     // those two useEffect do different things
     // this update the query string when changing the env
-    useEffect(() => changeFilters({ ...activeFilters, env }), [env]); 
+    useEffect(() => changeFilters({ ...activeFilters, env }), [env]);
 
-    //this allow to land on the right environment after clicking a link with a env
+    // this allow to land on the right environment after clicking a link with a env
     useEffect(() => {
-        changeWorkingEnv(getFilterFromQuery('env') || 'development', true); 
+        changeWorkingEnv(getFilterFromQuery('env') || 'development', true);
     });
 
     useEffect(() => {
         changeFilters(activeFilters);
     }, [projectTimezoneOffset]);
-
-    useQuery(GET_INTENTS_IN_CONVERSATIONS, {
-        variables: { projectId },
-        fetchPolicy: 'no-cache',
-        onCompleted: (dataIntents) => {
-            setIntentsActionsOptions([
-                ...intentsActionsOptions,
-                ...dataIntents.intentsInConversations.map((intent) => {
-                    if (intent === null) {
-                        return {
-                            value: { name: null, excluded: false },
-                            text: 'null',
-                            key: 'null',
-                        };
-                    }
-                    return {
-                        value: { name: intent, excluded: false },
-                        text: intent,
-                        key: intent,
-                    };
-                }),
-            ]);
-        },
-    });
-
-    useEffect(() => {
-        const {
-            location: {
-                query: { actionFilters },
-            },
-        } = router;
-        Meteor.call(
-            'project.getActions',
-            projectId,
-            wrapMeteorCallback((err, availableActions) => {
-                if (!err) {
-                    let newActionOptions = availableActions;
-                    if (Array.isArray(actionFilters)) {
-                        newActionOptions = [
-                            ...availableActions,
-                            ...actionFilters.filter(
-                                actionName => !availableActions.includes(actionName),
-                            ),
-                        ];
-                    } else if (
-                        !availableActions.includes(actionFilters)
-                        && actionFilters !== undefined
-                    ) {
-                        newActionOptions = [...availableActions, actionFilters];
-                    }
-                    setIntentsActionsOptions([
-                        ...intentsActionsOptions,
-                        ...newActionOptions.map(action => ({
-                            value: { name: action, excluded: false },
-                            text: action,
-                            key: action,
-                        })),
-                    ]);
-                }
-            }),
-        );
-    }, []);
 
     const handleDownloadConversations = ({ format = 'json' } = {}) => {
         apolloClient
@@ -290,12 +224,11 @@ const ConversationsBrowserContainer = (props) => {
                 if (format === 'json') {
                     blob = new Blob(
                         [
-                            JSON.stringify({
-                                conversations: clearTypenameField(
+                            JSON.stringify(
+                                clearTypenameField(
                                     conversationsPage.conversations,
                                 ),
-                                project: { _id: projectId },
-                            }),
+                            ),
                         ],
                         { type: 'application/json;charset=utf-8' },
                     );
@@ -317,7 +250,6 @@ const ConversationsBrowserContainer = (props) => {
         refetch,
         activeFilters,
         setActiveFilters,
-        intentsActionsOptions,
         handleDownloadConversations,
         changeFilters,
     };

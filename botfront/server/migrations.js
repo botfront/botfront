@@ -2,16 +2,18 @@ import { Roles } from 'meteor/alanning:roles';
 import { sortBy, isEqual } from 'lodash';
 import { safeDump, safeLoad } from 'js-yaml';
 import assert from 'assert';
+import { Log } from 'meteor/logging';
+import axios from 'axios';
 import shortid from 'shortid';
 import moment from 'moment';
 import { Credentials } from '../imports/api/credentials';
 import { Endpoints } from '../imports/api/endpoints/endpoints.collection';
 import { GlobalSettings } from '../imports/api/globalSettings/globalSettings.collection';
 import { Projects } from '../imports/api/project/project.collection';
+import { Instances } from '../imports/api/instances/instances.collection';
 import { Stories } from '../imports/api/story/stories.collection';
 import { NLUModels } from '../imports/api/nlu_model/nlu_model.collection';
 import { StoryGroups } from '../imports/api/storyGroups/storyGroups.collection';
-import { aggregateEvents } from '../imports/lib/story.utils';
 import { indexBotResponse } from '../imports/api/graphql/botResponses/mongo/botResponses';
 import { insertExamples } from '../imports/api/graphql/examples/mongo/examples';
 import { indexStory } from '../imports/api/story/stories.index';
@@ -68,11 +70,15 @@ Migrations.add({
     version: 3,
     // add default default domain to global settings, and update projects to have this default domain
     up: () => {
-        const privateSettings = safeLoad(Assets.getText(
-            process.env.MODE === 'development'
-                ? 'defaults/private.dev.yaml'
-                : process.env.MODE === 'test' ? 'defaults/private.yaml' : 'defaults/private.gke.yaml',
-        ));
+        const privateSettings = safeLoad(
+            Assets.getText(
+                process.env.MODE === 'development'
+                    ? 'defaults/private.dev.yaml'
+                    : process.env.MODE === 'test'
+                        ? 'defaults/private.yaml'
+                        : 'defaults/private.gke.yaml',
+            ),
+        );
         const defaultDefaultDomain = safeDump(privateSettings.defaultDomain);
 
         GlobalSettings.update(
@@ -90,7 +96,6 @@ Migrations.add({
             });
     },
 });
-
 
 const migrateResponses = () => {
     const countUtterMatches = (templateValues) => {
@@ -187,12 +192,11 @@ Migrations.add({
     up: () => {
         const allStories = Stories.find().fetch();
         allStories.forEach((story) => {
-            const events = aggregateEvents(story);
+            const events = [];
             Stories.update({ _id: story._id }, { $set: { events } });
         });
     },
 });
-
 
 // instances: type: nlu -> server
 const processSequence = sequence => sequence
@@ -201,7 +205,9 @@ const processSequence = sequence => sequence
         const newSequent = {};
         if (curr.text && !acc.text) newSequent.text = curr.text;
         if (curr.text && acc.text) newSequent.text = `${acc.text}\n\n${curr.text}`;
-        if (curr.buttons) { newSequent.buttons = [...(acc.buttons || []), ...curr.buttons]; }
+        if (curr.buttons) {
+            newSequent.buttons = [...(acc.buttons || []), ...curr.buttons];
+        }
         return newSequent;
     }, {});
 
@@ -262,12 +268,19 @@ Migrations.add({
     version: 8,
     // add webhooks in private global settings: EE-SPECIFIC
     up: () => {
-        const { webhooks } = safeLoad(Assets.getText(
-            process.env.MODE === 'development'
-                ? 'defaults/private.dev.yaml'
-                : process.env.MODE === 'test' ? 'defaults/private.yaml' : 'defaults/private.gke.yaml',
-        ));
-        GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.private.webhooks': webhooks } });
+        const { webhooks } = safeLoad(
+            Assets.getText(
+                process.env.MODE === 'development'
+                    ? 'defaults/private.dev.yaml'
+                    : process.env.MODE === 'test'
+                        ? 'defaults/private.yaml'
+                        : 'defaults/private.gke.yaml',
+            ),
+        );
+        GlobalSettings.update(
+            { _id: 'SETTINGS' },
+            { $set: { 'settings.private.webhooks': webhooks } },
+        );
     },
 });
 
@@ -302,9 +315,7 @@ Migrations.add({
         Roles.deleteRole('project-settings:w');
         Roles.deleteRole('project-viewer');
     },
-    down: () => {
-
-    },
+    down: () => {},
 });
 
 Migrations.add({
@@ -324,7 +335,10 @@ Migrations.add({
             StoryGroups.insert({
                 name: 'Stories with triggers',
                 projectId,
-                smartGroup: { prefix: 'withTriggers', query: '{ "rules.0.payload": { "$exists": true } }' },
+                smartGroup: {
+                    prefix: 'withTriggers',
+                    query: '{ "rules.0.payload": { "$exists": true } }',
+                },
                 isExpanded: true,
             });
         });
@@ -377,19 +391,21 @@ Migrations.add({
     },
 });
 
-Migrations.add({ // EE-SPECIFIC!
+Migrations.add({
+    // EE-SPECIFIC!
     version: 13,
     up: () => {
         Roles.deleteRole('nlu-editor');
     },
-    down: () => {
-    },
+    down: () => {},
 });
 
-Migrations.add({ // EE-SPECIFIC!
+Migrations.add({
+    // EE-SPECIFIC!
     version: 14,
     up: () => {
-        Projects.find().fetch()
+        Projects.find()
+            .fetch()
             .forEach(project => AnalyticsDashboards.create(defaultDashboard(project)));
     },
 });
@@ -408,31 +424,51 @@ Migrations.add({
 Migrations.add({
     version: 16,
     up: () => {
-        StoryGroups.update( // add pinned status to smart groups
+        StoryGroups.update(
+            // add pinned status to smart groups
             { smartGroup: { $exists: true } },
             { $set: { pinned: true } },
             { multi: true },
         );
-        Projects.find().fetch() // put them at the top
+        Projects.find()
+            .fetch() // put them at the top
             .forEach(({ _id: projectId, storyGroups }) => {
-                const pinned = StoryGroups.find({ projectId, pinned: true }, { _id: 1 }).fetch().map(({ _id }) => _id);
-                const storyGroupsSorted = storyGroups.sort((a, b) => pinned.includes(b) - pinned.includes(a));
-                Projects.update({ _id: projectId }, { $set: { storyGroups: storyGroupsSorted } });
+                const pinned = StoryGroups.find({ projectId, pinned: true }, { _id: 1 })
+                    .fetch()
+                    .map(({ _id }) => _id);
+                const storyGroupsSorted = storyGroups.sort(
+                    (a, b) => pinned.includes(b) - pinned.includes(a),
+                );
+                Projects.update(
+                    { _id: projectId },
+                    { $set: { storyGroups: storyGroupsSorted } },
+                );
             });
     },
 });
 
-
 Migrations.add({
     version: 17,
     up: async () => {
-        const { webhooks } = safeLoad(Assets.getText(
-            process.env.MODE === 'development'
-                ? 'defaults/private.dev.yaml'
-                : process.env.MODE === 'test' ? 'defaults/private.yaml' : 'defaults/private.gke.yaml',
-        ));
-        GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.private.webhooks.deploymentWebhook': webhooks.deploymentWebhook } });
-        
+        const { webhooks } = safeLoad(
+            Assets.getText(
+                process.env.MODE === 'development'
+                    ? 'defaults/private.dev.yaml'
+                    : process.env.MODE === 'test'
+                        ? 'defaults/private.yaml'
+                        : 'defaults/private.gke.yaml',
+            ),
+        );
+        GlobalSettings.update(
+            { _id: 'SETTINGS' },
+            {
+                $set: {
+                    'settings.private.webhooks.deploymentWebhook':
+                        webhooks.deploymentWebhook,
+                },
+            },
+        );
+
         const stories = Stories.find().fetch();
         const projectIds = new Set();
 
@@ -507,12 +543,24 @@ Migrations.add({
 Migrations.add({
     version: 19,
     up: async () => {
-        const { webhooks } = safeLoad(Assets.getText(
-            process.env.MODE === 'development'
-                ? 'defaults/private.dev.yaml'
-                : process.env.MODE === 'test' ? 'defaults/private.yaml' : 'defaults/private.gke.yaml',
-        ));
-        GlobalSettings.update({ _id: 'SETTINGS' }, { $set: { 'settings.private.webhooks.reportCrashWebhook': webhooks.reportCrashWebhook } });
+        const { webhooks } = safeLoad(
+            Assets.getText(
+                process.env.MODE === 'development'
+                    ? 'defaults/private.dev.yaml'
+                    : process.env.MODE === 'test'
+                        ? 'defaults/private.yaml'
+                        : 'defaults/private.gke.yaml',
+            ),
+        );
+        GlobalSettings.update(
+            { _id: 'SETTINGS' },
+            {
+                $set: {
+                    'settings.private.webhooks.reportCrashWebhook':
+                        webhooks.reportCrashWebhook,
+                },
+            },
+        );
     },
 });
 
@@ -567,7 +615,11 @@ Migrations.add({
                 }
                 return card;
             });
-            await AnalyticsDashboards.updateOne({ _id: dashboard._id }, { $set: { cards: newCards } }, { useFindAndModify: false });
+            await AnalyticsDashboards.updateOne(
+                { _id: dashboard._id },
+                { $set: { cards: newCards } },
+                { useFindAndModify: false },
+            );
         });
     },
 });
@@ -580,10 +632,16 @@ Migrations.add({
             const { cards } = dashboard;
             const newCards = cards.map((card) => {
                 const newCard = card;
-                if (card.type === 'conversationCounts' && Array.isArray(card.intentsAndActionsFilters)) {
+                if (
+                    card.type === 'conversationCounts'
+                    && Array.isArray(card.intentsAndActionsFilters)
+                ) {
                     newCard.eventFilterOperator = card.intentsAndActionsOperator;
                     newCard.eventFilter = card.intentsAndActionsFilters.map((event) => {
-                        if (event.name.startsWith('utter_') || event.name.startsWith('action_')) {
+                        if (
+                            event.name.startsWith('utter_')
+                            || event.name.startsWith('action_')
+                        ) {
                             return { ...event, type: 'action' };
                         }
                         return { ...event, type: 'intent' };
@@ -592,16 +650,25 @@ Migrations.add({
                     delete newCard.intentsAndActionsFilters;
                 }
                 if (card.type === 'conversationsFunnel') {
-                    newCard.selectedSequence = (card.selectedSequence || []).map((event) => {
-                        if (event.name.startsWith('utter_') || event.name.startsWith('action_')) {
-                            return { ...event, type: 'action' };
-                        }
-                        return { ...event, type: 'intent' };
-                    });
+                    newCard.selectedSequence = (card.selectedSequence || []).map(
+                        (event) => {
+                            if (
+                                event.name.startsWith('utter_')
+                                || event.name.startsWith('action_')
+                            ) {
+                                return { ...event, type: 'action' };
+                            }
+                            return { ...event, type: 'intent' };
+                        },
+                    );
                 }
                 return newCard;
             });
-            await AnalyticsDashboards.updateOne({ _id: dashboard._id }, { $set: { cards: newCards } }, { useFindAndModify: false });
+            await AnalyticsDashboards.updateOne(
+                { _id: dashboard._id },
+                { $set: { cards: newCards } },
+                { useFindAndModify: false },
+            );
         });
     },
 });
@@ -613,71 +680,104 @@ Migrations.add({
         const groups = {};
 
         const formIds = forms.map(({ _id }) => _id);
-        await Projects.update({}, { $pull: { storyGroups: { $in: formIds } } }, { multi: true });
+        await Projects.update(
+            {},
+            { $pull: { storyGroups: { $in: formIds } } },
+            { multi: true },
+        );
 
         forms.forEach(async (form) => {
             let { groupId } = form;
             if (!groupId) {
                 if (!groups[form.projectId]) {
                     groups[form.projectId] = {
-                        _id: shortid.generate(), projectId: form.projectId, children: [], isExpanded: true, pinned: false, selected: false,
+                        _id: shortid.generate(),
+                        projectId: form.projectId,
+                        children: [],
+                        isExpanded: true,
+                        pinned: false,
+                        selected: false,
                     };
                 }
                 groupId = groups[form.projectId]._id;
                 groups[form.projectId].children.push(form._id);
-                await Forms.updateOne({ _id: form._id }, {
-                    $set: {
-                        groupId,
+                await Forms.updateOne(
+                    { _id: form._id },
+                    {
+                        $set: {
+                            groupId,
+                        },
                     },
-                });
+                );
             }
 
             if (!form.slots || !(form.slots.length > 0)) return;
             // if the form has graph_elements it was migrated previously
             if (form.graph_elements) return;
             // eslint-disable-next-line camelcase
-            const graph_elements = form.slots.reduce((acc, slot, i) => {
-                const previousId = i === 0 ? '1' : form.slots[i - 1].name;
-                const { name, filling, ...slotData } = slot;
-                return [
-                    ...acc,
-                    {
-                        id: slot.name,
-                        data: {
-                            ...slotData,
-                            slotName: name,
+            const graph_elements = form.slots.reduce(
+                (acc, slot, i) => {
+                    const previousId = i === 0 ? '1' : form.slots[i - 1].name;
+                    const { name, filling, ...slotData } = slot;
+                    return [
+                        ...acc,
+                        {
+                            id: slot.name,
+                            data: {
+                                ...slotData,
+                                slotName: name,
+                                type: 'slot',
+                                filling:
+                                    filling.length > 0
+                                        ? filling
+                                        : [{ type: 'from_entity' }],
+                            },
+                            position: { x: 120, y: 200 + (i + 1) * 150 },
                             type: 'slot',
-                            filling: filling.length > 0 ? filling : [{ type: 'from_entity' }],
+                            className: 'slot-node',
                         },
-                        position: { x: 120, y: 200 + (i + 1) * 150 },
-                        type: 'slot',
-                        className: 'slot-node',
-                    },
-                    {
-                        id: `e${previousId}-${slot.name}`,
-                        source: previousId,
-                        target: `${slot.name}`,
-                        animated: true,
-                        type: 'condition',
-                        arrowHeadType: 'arrowclosed',
-                        data: {
-                            condition: null,
+                        {
+                            id: `e${previousId}-${slot.name}`,
+                            source: previousId,
+                            target: `${slot.name}`,
+                            animated: true,
+                            type: 'condition',
+                            arrowHeadType: 'arrowclosed',
+                            data: {
+                                condition: null,
+                            },
                         },
-                    },
-                ];
-            }, [{
-                id: '1', data: { type: 'start' }, position: { x: 200, y: 200 }, type: 'start', className: 'start-node',
-            }]);
-            await Forms.updateOne({ _id: form._id }, {
-                $set: {
-                    graph_elements,
+                    ];
                 },
-            });
+                [
+                    {
+                        id: '1',
+                        data: { type: 'start' },
+                        position: { x: 200, y: 200 },
+                        type: 'start',
+                        className: 'start-node',
+                    },
+                ],
+            );
+            await Forms.updateOne(
+                { _id: form._id },
+                {
+                    $set: {
+                        graph_elements,
+                    },
+                },
+            );
         });
 
         Object.values(groups).forEach(async (group) => {
-            const pinnedGroups = StoryGroups.find({ projectId: group.projectId, pinned: true }).fetch();
-            const nameConflicts = StoryGroups.find({ projectId: group.projectId, name: { $regex: 'forms' } }, { fields: { name: 1 } }).fetch();
+            const pinnedGroups = StoryGroups.find({
+                projectId: group.projectId,
+                pinned: true,
+            }).fetch();
+            const nameConflicts = StoryGroups.find(
+                { projectId: group.projectId, name: { $regex: 'forms' } },
+                { fields: { name: 1 } },
+            ).fetch();
             const groupNames = nameConflicts ? nameConflicts.map(({ name }) => name) : [];
             let safeName = 'forms';
             const index = 1;
@@ -685,7 +785,17 @@ Migrations.add({
                 safeName = `forms ${index}`;
             }
             await StoryGroups.insert({ ...group, name: safeName });
-            await Projects.update({ _id: group.projectId }, { $push: { storyGroups: { $each: [group._id], $position: pinnedGroups.length } } });
+            await Projects.update(
+                { _id: group.projectId },
+                {
+                    $push: {
+                        storyGroups: {
+                            $each: [group._id],
+                            $position: pinnedGroups.length,
+                        },
+                    },
+                },
+            );
         });
     },
 });
@@ -747,6 +857,103 @@ Migrations.add({
             );
         });
         await Activity.syncIndexes(); // remove old modelId_text_env index
+    },
+});
+
+const flattenStoriesForConversion = (stories, priorPath = '') => stories.reduce((acc, { _id, story, branches }, i) => {
+    const title = priorPath ? `${priorPath}__${i}` : _id;
+    return [
+        ...acc,
+        `\n## ${title}\n${story || ''}`,
+        ...flattenStoriesForConversion(branches || [], title),
+    ];
+}, []);
+
+const generateStoryUpdates = (stories) => {
+    const storyUpdates = {};
+    stories.forEach(({ story: title, steps }) => {
+        const [_id, ...indices] = title.split('__');
+        const { $set, $unset } = storyUpdates[_id] || { $set: {}, $unset: {} };
+        const pathPrefix = indices.length
+            ? `branches.${indices.join('.branches.')}.`
+            : '';
+        storyUpdates[_id] = {
+            $set: {
+                ...$set,
+                type: 'story',
+                [`${pathPrefix}steps`]: steps,
+            },
+            $unset: {
+                ...$unset,
+                [`${pathPrefix}story`]: '',
+            },
+        };
+    });
+    return storyUpdates;
+};
+
+Migrations.add({
+    version: 24, // CE 12
+    up: async () => {
+        // check whether BF was never init or migration has already completed
+        // (story key is deleted at last step, which differentiates new and legacy stories)
+        if (!Stories.find({ story: { $exists: true } }).count()) return;
+        const instances = Instances.find({
+            projectId: { $not: { $regex: 'chitchat' } },
+        }).fetch();
+        const host = instances.length === 1
+            ? instances[0].host
+            : process.env.RASA_MIGRATION_INSTANCE_URL;
+        if (!host) {
+            throw new Error(
+                'Could not find Rasa instance to convert stories to Rasa 2.0 format. Please set env var RASA_MIGRATION_INSTANCE_URL.',
+            );
+        }
+        try {
+            const stories = Stories.find(
+                { story: { $exists: true } },
+                { story: 1, _id: 1, branches: 1 },
+            ).fetch();
+            const storiesFlattened = flattenStoriesForConversion(stories).join('\n');
+            const axiosClient = axios.create();
+            const { data: { data = '' } = {} } = await axiosClient.post(
+                `${host}/data/convert/core`,
+                {
+                    data: storiesFlattened,
+                    input_format: 'md',
+                    output_format: 'yaml',
+                },
+            );
+            const { stories: parsedStories } = safeLoad(data);
+
+            // this filters out stories that rasa could not converts, this happens because the story had only lines that made no sense
+            // we can safely delete these.
+            const nonsensicalStories = stories.filter(story => !parsedStories.some(pStory => pStory.story === story._id));
+            await Stories.remove({ _id: { $in: nonsensicalStories.map(story => story._id) } });
+
+            const storyUpdates = generateStoryUpdates(parsedStories);
+
+            Object.keys(storyUpdates).forEach(_id => Stories.update({ _id }, storyUpdates[_id]));
+            // rebuild indices
+            const allStories = Stories.find().fetch();
+            allStories.forEach((story) => {
+                const { textIndex, events } = indexStory(story);
+                Stories.update({ _id: story._id }, { $set: { type: story.type || 'story', textIndex, events } });
+            });
+        } catch (e) {
+            // eslint-disable-next-line no-underscore-dangle
+            Migrations._collection._collection.update(
+                { _id: 'control' },
+                { $set: { version: 22, locked: true, lockedAt: new Date() } },
+            ); // this is not a downgrade, just an incomplete migration
+            Log.error({
+                message: `Migrations: Locking at version 22 because: ${e.message}.`,
+            });
+        }
+        StoryGroups.update( // payload key is no longer in use, update 'storyGroups w/ triggers'
+            { 'smartGroup.query': '{ "rules.0.payload": { "$exists": true } }' },
+            { $set: { 'smartGroup.query': '{ "rules.0": { "$exists": true } }' } },
+        );
     },
 });
 

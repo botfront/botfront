@@ -5,7 +5,7 @@ import { Menu, Tab } from 'semantic-ui-react';
 
 import { connect } from 'react-redux';
 
-import ImportProject from './ImportProject.jsx';
+import ImportRasaFiles from './ImportRasaFiles.jsx';
 import ExportProject from './ExportProject.jsx';
 import { can } from '../../../lib/scopes';
 
@@ -43,19 +43,21 @@ class ImportExportProject extends React.Component {
                 menuItem: this.renderMenuItem('Import'),
                 render: () => (
                     <Tab.Pane loading={loading} key='Import' data-cy='import-project-tab'>
-                        <ImportProject setLoading={this.setLoading} />
+                        <ImportRasaFiles />
                     </Tab.Pane>
                 ),
             });
         }
-        panes.push({
-            menuItem: this.renderMenuItem('Export'),
-            render: () => (
-                <Tab.Pane loading={loading} key='Export' data-cy='export-project-tab'>
-                    <ExportProject setLoading={this.setLoading} />
-                </Tab.Pane>
-            ),
-        });
+        if (can('export:x', projectId)) {
+            panes.push({
+                menuItem: this.renderMenuItem('Export'),
+                render: () => (
+                    <Tab.Pane loading={loading} key='Export' data-cy='export-project-tab'>
+                        <ExportProject setLoading={this.setLoading} />
+                    </Tab.Pane>
+                ),
+            });
+        }
         return panes;
     }
 

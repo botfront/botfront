@@ -7,7 +7,6 @@ import path from 'path';
 import React from 'react';
 import axios from 'axios';
 import BotResponses from '../api/graphql/botResponses/botResponses.model';
-import { getImageUrls } from '../api/graphql/botResponses/mongo/botResponses';
 
 import { GlobalSettings } from '../api/globalSettings/globalSettings.collection';
 import { checkIfCan } from './scopes';
@@ -89,6 +88,28 @@ export function uploadFileToGcs(filePath, bucket) {
         .then(resolve)
         .catch(reject));
 }
+
+export const getImageUrls = (response, excludeLang = '') => (
+    response.values.reduce((vacc, vcurr) => {
+        if (vcurr.lang !== excludeLang) {
+            return [
+                ...vacc,
+                ...vcurr.sequence.reduce((sacc, scurr) => {
+                    // image is for image response, image_url is for carousels
+                    const { image, elements } = yaml.safeLoad(scurr.content);
+                    if (!image && !elements) return sacc; // neither a image or a carousel
+
+                    let imagesSources = [image]; // let assume the response is an imageResponse
+                    if (elements) {
+                        // if it's a carouselResponse image source will be replaced
+                        imagesSources = elements.map(element => element.image_url);
+                    }
+                    return [...sacc, ...imagesSources];
+                }, []),
+            ];
+        }
+        return vacc;
+    }, []));
 
 export const getWebhooks = () => {
     const {

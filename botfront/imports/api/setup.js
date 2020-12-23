@@ -2,6 +2,7 @@ import { Accounts } from 'meteor/accounts-base';
 import SimpleSchema from 'simpl-schema';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
+import slugify from 'slugify';
 import { safeLoad, safeDump } from 'js-yaml';
 
 import { GlobalSettings } from './globalSettings/globalSettings.collection';
@@ -113,6 +114,29 @@ if (Meteor.isServer) {
             Roles.createRole('global-admin', { unlessExists: true });
             Roles.addUsersToRoles(userId, ['global-admin'], null);
             // ee-end //
+        },
+
+        async 'initialSetup.secondStep'(projectData) {
+            check(projectData, Object);
+            const project = {
+                name: projectData.project,
+                namespace: `bf-${slugify(projectData.project, { lower: true })}`,
+                defaultLanguage: projectData.language,
+                languages: [],
+            };
+
+            if (process.env.BF_PROJECT_ID) project._id = process.env.BF_PROJECT_ID;
+            if (projectData._id) project._id = projectData._id;
+            
+            const projectId = await Meteor.callWithPromise('project.insert', project);
+
+            await Meteor.callWithPromise(
+                'nlu.insert',
+                projectId,
+                projectData.language,
+            );
+
+            return projectId;
         },
     });
 }

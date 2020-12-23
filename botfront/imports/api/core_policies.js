@@ -65,7 +65,7 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         'policies.save'(newPolicies) {
-            checkIfCan('stories:w', newPolicies.projectId);
+            checkIfCan(['stories:w', 'import:x'], newPolicies.projectId);
             check(newPolicies, Object);
             try {
                 const { policies, augmentationFactor, projectId } = newPolicies;
@@ -76,7 +76,7 @@ if (Meteor.isServer) {
                     projectId,
                     operation: 'policies-updated',
                     resId: projectId,
-                    before: { policies: policyBefore.policies },
+                    before: { policies: policyBefore?.policies || '' },
                     after: { policies },
                     resType: 'policies',
                 });

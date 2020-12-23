@@ -197,11 +197,15 @@ if (Meteor.isServer) {
         storyGroupId: 'testStoryGroup',
         projectId,
         branches: [],
+        type: 'story',
         events: ['utter_IjPDQTzk'],
+        triggerIntent: 'trigger_vvpfBvWkX2nfLQYY8',
+        checkpoints: [],
+        status: 'published',
+        steps: [],
         rules: [
             {
                 trigger: { when: 'always', timeOnPage: 1 },
-                payload: '/trigger_vvpfBvWkX2nfLQYY8',
             },
         ],
     };
@@ -443,6 +447,7 @@ the tests are created by iterating over subscriptions. the test params are as fo
             name: 'projects.names',
             collectionName: 'projects',
             testDataInsert: async () => {
+                await Projects.remove({ _id: { $nin: ['bf', 'DNE'] } });
                 await Projects.insert(projectDneData);
             },
             testDataRemove: async (done) => {
@@ -450,7 +455,7 @@ the tests are created by iterating over subscriptions. the test params are as fo
                 done();
             },
             args: [projectId],
-            acceptedRoles: [...readers.nluData, ...readers.responses, ...readers.projects, 'nlu-data:x'],
+            acceptedRoles: [...readers.nluData, ...readers.responses, ...readers.projects, 'nlu-data:x', 'import:x', 'export:x'],
             allowedGlobalScope: (result, done) => {
                 expect(result.projects).to.have.length(2);
                 done();
@@ -523,12 +528,12 @@ the tests are created by iterating over subscriptions. the test params are as fo
             args: [projectId],
             acceptedRoles: readers.stories,
             allowed: (result, done) => {
-                expect(['title', 'checkpoints', 'storyGroupId', '_id', 'rules', 'status']).to.include.members(Object.keys(result.stories[0]));
+                expect(Object.keys(result.stories[0])).to.include.members(['title', 'checkpoints', 'storyGroupId', '_id', 'rules', 'status', 'type']);
                 expect(result.stories).to.have.length(1);
                 done();
             },
             disallowed: (result, done) => {
-                expect(result.stories[0]).to.be.deep.equal({ _id: 'testStory' });
+                expect(result.stories[0]).to.be.deep.equal({ _id: 'testStory', type: 'story' });
                 expect(result.stories).to.have.length(1);
                 done();
             },
@@ -624,9 +629,9 @@ the tests are created by iterating over subscriptions. the test params are as fo
         });
     };
 
-    const deleteTestUser = async () => {
-        await Meteor.users.remove({ _id: 'testuserid' });
-        await Meteor.roleAssignment.remove({ user: { _id: userId } });
+    const deleteTestsUser = async () => {
+        await Meteor.users.remove({});
+        await Meteor.roleAssignment.remove({});
     };
 
     const createProject = async () => {
@@ -644,7 +649,7 @@ the tests are created by iterating over subscriptions. the test params are as fo
             args,
         } = testParams;
         try {
-            await deleteTestUser();
+            await deleteTestsUser();
             await deleteProject();
             await createTestUser();
             await createProject();
@@ -759,7 +764,7 @@ the tests are created by iterating over subscriptions. the test params are as fo
     ];
 
     const testRolesAutoSubscription = async (scope, role, done) => {
-        await deleteTestUser();
+        await deleteTestsUser();
         await deleteProject();
         await createTestUser();
         await createSecondUser();

@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, {
+    useState, useEffect, useContext, useMemo,
+} from 'react';
 import PropTypes from 'prop-types';
 import {
     Segment,
@@ -11,38 +13,36 @@ import {
     Popup,
     Message,
 } from 'semantic-ui-react';
-import { connect } from 'react-redux';
 import DatePicker from '../common/DatePicker';
 import IntentAndActionSelector from '../common/IntentAndActionSelector';
 import ToggleButtonGroup from '../common/ToggleButtonGroup';
 import { validateEventFilters } from '../../../lib/eventFilter.utils';
+import { ProjectContext } from '../../layouts/context';
 
 const ConversationFilters = ({
     activeFilters,
     changeFilters,
     onDownloadConversations,
-    projectId,
 }) => {
     const [filtersErrors, setFiltersErrors] = useState(activeFilters);
-    const [slotOptions, setSlotOptions] = useState();
-    const [actionOptions, setActionOptions] = useState();
+    const { slots, dialogueActions } = useContext(ProjectContext);
 
-    useEffect(() => {
-        Meteor.call(
-            'project.getActions',
-            projectId,
-            (err, availableActions) => {
-                if (!err) {
-                    setActionOptions(availableActions.map(action => ({ key: action, text: action, value: { name: action, excluded: false } })));
-                }
-            },
-        );
-        Meteor.call('slots.getSlots', projectId, (err, slots) => {
-            if (!err) {
-                setSlotOptions(slots.map(({ name: slotName }) => ({ key: slotName, text: slotName, value: { name: slotName, type: 'slot', excluded: false } })));
-            }
-        });
-    }, []);
+    const actionOptions = useMemo(() => dialogueActions.map(
+        action => ({
+            key: action,
+            text: action,
+            value: { name: action, excluded: false, type: 'action' },
+        }),
+        [dialogueActions],
+    ));
+    const slotOptions = useMemo(() => slots.map(
+        ({ name: slotName }) => ({
+            key: slotName,
+            text: slotName,
+            value: { name: slotName, type: 'slot', excluded: false },
+        }),
+        [slots],
+    ));
 
     const [newFilters, setNewFilters] = useState(activeFilters);
     useEffect(() => setNewFilters(activeFilters), [activeFilters]);
@@ -53,7 +53,6 @@ const ConversationFilters = ({
         { value: 'lessThan', text: '≤' },
         { value: 'equals', text: '=' },
     ];
-   
 
     const setNewDates = (startDate, endDate) => {
         setNewFilters({ ...newFilters, startDate, endDate });
@@ -85,7 +84,6 @@ const ConversationFilters = ({
     ) {
         numberOfActiveFilter += 1;
     }
-   
     if (
         newFilters.startDate !== null
         && newFilters.endDate !== null
@@ -100,7 +98,6 @@ const ConversationFilters = ({
         : '';
 
     const handleAccordionClick = () => setActiveAccordion(!activeAccordion);
-   
 
     return (
         <Accordion className='filter-accordion'>
@@ -128,10 +125,7 @@ const ConversationFilters = ({
                 </span>
             </Accordion.Title>
             <Accordion.Content active={activeAccordion}>
-            
                 {filtersErrors.length > 0 ? (<Message negative header='Errors' list={filtersErrors} />) : null}
-           
-
                 <div className='conversation-filter-container'>
                     <Button.Group color='teal' className='filter-buttons'>
                         <Button
@@ -146,7 +140,6 @@ const ConversationFilters = ({
                         >
                             <Dropdown.Menu>
                                 <Dropdown.Item onClick={() => onDownloadConversations({ format: 'json' })} icon='download' text='Download results (JSON)' />
-                                <Dropdown.Item onClick={() => onDownloadConversations({ format: 'md' })} icon='download' text='Download results (text)' />
                             </Dropdown.Menu>
                         </Dropdown>
                     </Button.Group>
@@ -338,14 +331,6 @@ ConversationFilters.propTypes = {
     changeFilters: PropTypes.func.isRequired,
     activeFilters: PropTypes.object.isRequired,
     onDownloadConversations: PropTypes.func.isRequired,
-    projectId: PropTypes.string.isRequired,
 };
 
-ConversationFilters.defaultProps = {
-};
-
-const mapStateToProps = state => ({
-    projectId: state.settings.get('projectId'),
-});
-
-export default connect(mapStateToProps)(ConversationFilters);
+export default ConversationFilters;

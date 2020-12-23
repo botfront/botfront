@@ -41,6 +41,9 @@ class Index extends React.Component {
         if (can('responses:r', pId)) {
             return `/project/${pId}/responses`;
         }
+        if (can('export:x', pId) || can('import:x', pId)) {
+            return `/project/${pId}/settings/import-export`;
+        }
         return ('/404');
     };
 

@@ -20,7 +20,7 @@ describe('Bot responses', function() {
     beforeEach(function() {
         cy.createProject('bf').then(() => cy.login());
         cy.visit('/project/bf/dialogue');
-        cy.browseToStory('Greetings', 'Default stories');
+        cy.browseToStory('Greetings', 'Example group');
         cy.dataCy('story-title').should('have.value', 'Greetings');
         cy.dataCy('bot-response-input')
             .find('textarea')
@@ -29,7 +29,7 @@ describe('Bot responses', function() {
             .blur();
 
         cy.createStoryGroup({ groupName: GROUP_NAME });
-        cy.createStoryInGroup({ groupName: GROUP_NAME, storyName: STORY_NAME });
+        cy.createFragmentInGroup({ groupName: GROUP_NAME, fragmentName: STORY_NAME });
     });
 
     afterEach(function() {
@@ -159,14 +159,14 @@ describe('Bot responses', function() {
     });
     it('should ignore stories from other projects when deleting responses', () => {
         cy.visit('/project/bf/dialogue');
-        cy.browseToStory('Farewells', 'Default stories');
+        cy.browseToStory('Farewells', 'Example group');
         cy.dataCy('story-title').should('have.value', 'Farewells');
         cy.dataCy('bot-response-input').find('textarea').click().type('a')
             .blur();
         cy.visit('/project/bf/responses');
         cy.dataCy('template-intent').contains('utter_bye').should('exist');
         cy.visit('/project/bf/dialogue');
-        cy.browseToStory('Farewells', 'Default stories');
+        cy.browseToStory('Farewells', 'Example group');
         cy.deleteStoryOrGroup('Farewells');
         checkResponsesDeleted();
     });

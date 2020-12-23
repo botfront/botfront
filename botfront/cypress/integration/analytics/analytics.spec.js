@@ -175,7 +175,8 @@ describe('analytics tables', function() {
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
         });
-        cy.importProject('bf', 'analytics_test_project.json'); // replace with cy.importProject once it has been fixed
+        cy.setTimezoneOffset(-4); // this spec was written in Montreal during the summer
+        cy.import('bf', 'analytics_conversations.json');
     });
 
     afterEach(function() {

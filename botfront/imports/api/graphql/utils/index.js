@@ -1,3 +1,7 @@
+
+import { DDP } from 'meteor/ddp-client';
+import { DDPCommon } from 'meteor/ddp-common';
+
 export const generateWeekCutoffs = (from, to, nBuckets) => {
     const duration = to - from;
     const days = Math.ceil(duration / (3600 * 24));
@@ -43,3 +47,9 @@ export const fillInEmptyBuckets = async (collection, from, to, nBuckets) => {
         return [...acc, curr];
     }, []);
 };
+
+// eslint-disable-next-line no-underscore-dangle
+export const addMeteorUserToCall = (user, funcCall) => DDP._CurrentInvocation.withValue(
+    new DDPCommon.MethodInvocation({ user, userId: user._id }),
+    funcCall,
+);

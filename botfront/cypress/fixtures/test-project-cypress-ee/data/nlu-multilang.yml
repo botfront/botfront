@@ -1,0 +1,20 @@
+version: "2.0"
+nlu:
+- intent: greet
+  examples: 
+    - text: |
+        hi
+      metadata:
+        language: en
+    - text: |
+        Salut
+      metadata:
+        language: fr
+    - text: |
+        Hallo
+      metadata:
+        language: de
+    - text: |
+        алло
+      metadata:
+        language: ru

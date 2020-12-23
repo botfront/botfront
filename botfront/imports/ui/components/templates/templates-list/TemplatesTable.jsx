@@ -16,6 +16,7 @@ import {
 import { languages } from '../../../../lib/languages';
 import { can } from '../../../../lib/scopes';
 import BotResponseEditor from './BotResponseEditor';
+import { ProjectContext } from '../../../layouts/context';
 
 class TemplatesTable extends React.Component {
     constructor(props) {
@@ -31,7 +32,8 @@ class TemplatesTable extends React.Component {
     getTemplateLanguages = () => sortBy(this.props.nluLanguages);
 
     getColumns = (lang) => {
-        const { events, projectId } = this.props;
+        const { projectId } = this.props;
+        const { dialogueActions } = this.context;
         const columns = [
             {
                 id: lang,
@@ -77,10 +79,7 @@ class TemplatesTable extends React.Component {
                 accessor: 'key',
                 className: 'center',
                 Cell: ({ value: key, viewIndex: index }) => {
-                    const isInStory = events.filter((storyEvents) => {
-                        if (!storyEvents) return false;
-                        return storyEvents.find(responseName => responseName === key);
-                    }).length > 0;
+                    const isInStory = dialogueActions.includes(key);
                     return (
                         <Popup
                             trigger={(
@@ -219,6 +218,8 @@ class TemplatesTable extends React.Component {
         changeWorkingLanguage(this.getTemplateLanguages(templates)[activeIndex]);
     };
 
+    static contextType = ProjectContext;
+
     renderBotResponseEditor() {
         const {
             activeEditor, setActiveEditor, templates,
@@ -281,7 +282,6 @@ TemplatesTable.propTypes = {
     changePage: PropTypes.func.isRequired,
     changeWorkingLanguage: PropTypes.func.isRequired,
     deleteBotResponse: PropTypes.func.isRequired,
-    events: PropTypes.array.isRequired,
     activeEditor: PropTypes.string,
     setActiveEditor: PropTypes.func.isRequired,
     newResponse: PropTypes.object,

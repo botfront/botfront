@@ -10,7 +10,7 @@ import ConversationDialogueViewer from '../../conversations/ConversationDialogue
 const ConversationPopup = (props) => {
     const { projectId, utterance, onClose } = props;
     const { loading: convLoading, data: convData } = useQuery(GET_CONVERSATION, {
-        variables: { projectId, conversationId: utterance.conversation_id },
+        variables: { projectId, senderId: utterance.conversation_id },
     });
 
     return (

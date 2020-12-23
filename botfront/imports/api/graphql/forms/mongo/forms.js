@@ -8,25 +8,26 @@ import { combineSearches } from '../../story/mongo/stories';
 import { deleteResponsesRemovedFromStories } from '../../botResponses/mongo/botResponses';
 
 export const getForms = async (projectId, ids = null) => {
-    if (!ids) return Forms.find({ projectId }).lean();
-    const forms = await Forms.find({ projectId, _id: { $in: ids } }).lean();
-    return forms;
+    if (!ids) return Forms.find({ projectId }, {}, { sort: { name: 1 } }).lean();
+    return Forms.find({ projectId, _id: { $in: ids } }, {}, { sort: { name: 1 } }).lean();
 };
 
 export const deleteForms = async ({ projectId, ids }) => {
     const forms = await Forms.find({ projectId, _id: { $in: ids } }).lean();
-    await Promise.all(forms.map(form => StoryGroups.update(
-        { _id: form.groupId },
-        { $pull: { children: form._id } },
-    )));
+    await Promise.all(
+        forms.map(form => StoryGroups.update({ _id: form.groupId }, { $pull: { children: form._id } })),
+    );
     const response = await Forms.remove({ projectId, _id: { $in: ids } }).exec();
     if (response.ok) return forms;
     return [];
 };
 
-const addNewSlots = async (projectId, slots, user) => {
+const addNewSlots = async (projectId, slots) => {
     const slotNames = slots.map(({ name }) => name);
-    const matchedSlots = await Slots.find({ projectId, name: { $in: slotNames } }, { fields: { name: 1 } }).fetch();
+    const matchedSlots = await Slots.find(
+        { projectId, name: { $in: slotNames } },
+        { fields: { name: 1 } },
+    ).fetch();
     if (!slotNames.length || slotNames.length === matchedSlots.length) return;
     slots.forEach(({ name }) => {
         if (matchedSlots.some(slot => slot.name === name)) return;
@@ -34,7 +35,7 @@ const addNewSlots = async (projectId, slots, user) => {
         const newId = Slots.insert(slotData);
         auditLogIfOnServer('Inserted slot', {
             resId: newId,
-            user,
+            user: Meteor.user(),
             type: 'created',
             operation: 'slots.created',
             projectId,
@@ -57,28 +58,35 @@ const getSlotsInOtherForms = async (formId, projectId) => {
     return slotsInOtherForms;
 };
 
-export const deleteUnusedSlots = async (formId, projectId, newSlots, user) => {
+export const deleteUnusedSlots = async (formId, projectId, newSlots) => {
     const previousForm = await Forms.findOne({ _id: formId }).lean();
     const newSlotNames = newSlots.map(({ name }) => name);
     const slotsInOtherForms = await getSlotsInOtherForms(formId, projectId);
     if (!previousForm) return [];
     const slotsToRemove = previousForm.slots.reduce((acc, { name }) => {
-        if (!newSlotNames.includes(name) && !slotsInOtherForms.some(slot => slot === name)) {
+        if (
+            !newSlotNames.includes(name)
+            && !slotsInOtherForms.some(slot => slot === name)
+        ) {
             return [...acc, name];
         }
         return acc;
     }, []);
 
     const removedSlots = Slots.find({
-        projectId, name: { $in: slotsToRemove }, type: 'unfeaturized',
+        projectId,
+        name: { $in: slotsToRemove },
+        type: 'unfeaturized',
     }).fetch();
     Slots.remove({
-        projectId, name: { $in: slotsToRemove }, type: 'unfeaturized',
+        projectId,
+        name: { $in: slotsToRemove },
+        type: 'unfeaturized',
     });
     removedSlots.forEach((slot) => {
         auditLogIfOnServer('Deleted slot', {
             resId: slot._id,
-            user,
+            user: Meteor.user(),
             projectId,
             type: 'deleted',
             operation: 'slots.deleted',
@@ -106,7 +114,10 @@ const checkNewAndDuplicateName = async (_id, name) => {
 
 const getSafeFormName = async (projectId, originalName) => {
     const basicName = originalName.replace(/_form*/, '');
-    const formsIncludingName = await Forms.find({ name: { $regex: basicName }, projectId }).lean();
+    const formsIncludingName = await Forms.find({
+        name: { $regex: basicName },
+        projectId,
+    }).lean();
     const formNames = (formsIncludingName || []).map(({ name }) => name);
 
     let safeName = basicName;
@@ -118,7 +129,8 @@ const getSafeFormName = async (projectId, originalName) => {
     return `${safeName}_form`;
 };
 
-export const upsertForm = async (data, user) => {
+export const upsertForm = async (data, overwrite = false) => {
+    // overwrite only to be used during import
     const {
         projectId, _id, groupName, ...update
     } = data.form;
@@ -138,14 +150,18 @@ export const upsertForm = async (data, user) => {
         update.slots = chartSlots;
         // We only want to do that if we have graph elements already, if we don't
         // it means it's a form creation or a renaming
-        toDeleteResponses = await deleteUnusedSlots(_id, projectId, chartSlots, user);
+        toDeleteResponses = await deleteUnusedSlots(_id, projectId, chartSlots);
     }
 
-    const nonDuplicateName = update.name && (await checkNewAndDuplicateName(_id, update.name))
+    const nonDuplicateName = !overwrite && update.name && (await checkNewAndDuplicateName(_id, update.name))
         ? await getSafeFormName(projectId, update.name)
         : update.name;
 
-    const query = { ...(_id ? { _id } : {}), projectId, ...(!_id ? { name: nonDuplicateName } : {}) };
+    const query = {
+        ...(_id ? { _id } : {}),
+        projectId,
+        ...(!_id ? { name: nonDuplicateName } : {}),
+    };
     const insertId = _id || uuidv4();
     const result = await Forms.findOneAndUpdate(
         query,
@@ -166,8 +182,8 @@ export const upsertForm = async (data, user) => {
             },
         );
     }
-    deleteResponsesRemovedFromStories(toDeleteResponses, projectId, user);
-    addNewSlots(projectId, chartSlots, user);
+    deleteResponsesRemovedFromStories(toDeleteResponses, projectId);
+    addNewSlots(projectId, chartSlots);
     const status = !ok ? 'failed' : upserted ? 'inserted' : 'updated';
     return { status, value };
 };
@@ -219,23 +235,29 @@ export const importSubmissions = async (args) => {
         .sort('-date')
         .lean()
         .exec();
-    const latestTimestamp = latestAddition
-        ? new Date(latestAddition.date) : new Date(0);
-    const submissionsToHandle = formResults
-        .filter(c => new Date(c.date) >= latestTimestamp);
-    const results = await Promise.all(submissionsToHandle
-        .map(({
-            _id: oldId, environment: oldEnv, projectId: oldPid, ...submission
-        }) => {
-            const { conversationId, date } = submission;
-            return FormResults.updateOne(
-                {
-                    conversationId, date, environment, projectId,
-                },
-                submission,
-                { upsert: true },
-            );
-        }));
+    const latestTimestamp = latestAddition ? new Date(latestAddition.date) : new Date(0);
+    const submissionsToHandle = formResults.filter(
+        c => new Date(c.date) >= latestTimestamp,
+    );
+    const results = await Promise.all(
+        submissionsToHandle.map(
+            ({
+                _id: oldId, environment: oldEnv, projectId: oldPid, ...submission
+            }) => {
+                const { conversationId, date } = submission;
+                return FormResults.updateOne(
+                    {
+                        conversationId,
+                        date,
+                        environment,
+                        projectId,
+                    },
+                    submission,
+                    { upsert: true },
+                );
+            },
+        ),
+    );
     const nTotal = formResults.length;
     const nPushed = submissionsToHandle.length;
     const failed = [];
@@ -248,7 +270,11 @@ export const importSubmissions = async (args) => {
         else nUpdated += 1;
     });
     return {
-        nTotal, nPushed, nInserted, nUpdated, failed,
+        nTotal,
+        nPushed,
+        nInserted,
+        nUpdated,
+        failed,
     };
 };
 
@@ -277,17 +303,19 @@ const generateEnvironmentRestriction = suppliedEnvs => (Array.isArray(suppliedEn
 
 if (Meteor.isServer) {
     Meteor.methods({
-        async 'forms.countSubmissions'({
-            projectId,
-            environments: suppliedEnvs,
-        }) {
+        async 'forms.countSubmissions'({ projectId, environments: suppliedEnvs }) {
             const environments = generateEnvironmentRestriction(suppliedEnvs);
-            const formNames = await FormResults.distinct('formName', { projectId, ...environments });
+            const formNames = await FormResults.distinct('formName', {
+                projectId,
+                ...environments,
+            });
             const counts = await Promise.all(
                 formNames.map(formName => FormResults.countDocuments({ projectId, ...environments, formName })),
             );
             const countsByName = {};
-            formNames.forEach((name, index) => { countsByName[name] = counts[index]; });
+            formNames.forEach((name, index) => {
+                countsByName[name] = counts[index];
+            });
             return countsByName;
         },
         async 'forms.export'({ projectId, environments: suppliedEnvs, formName }) {

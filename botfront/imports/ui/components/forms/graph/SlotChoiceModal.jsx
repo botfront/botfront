@@ -120,7 +120,7 @@ const SlotChoiceModal = (props) => {
             <Icon name='ban' color='red' size='large' className={nameIsValid ? 'not-here' : 'here'} />
             <SlotPopupContent
                 trigger={(
-                    <span className='existing-slot'>Or use an existing one</span>
+                    <span data-cy='existing-slot' className='existing-slot'>Or use an existing one</span>
                 )}
                 onSelect={slot => chooseAddQuestion(slot)}
                 chooseSlotWithoutValue

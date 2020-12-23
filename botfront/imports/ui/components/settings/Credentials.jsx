@@ -47,18 +47,13 @@ class Credentials extends React.Component {
     }
 
     onSave = (credentials) => {
-        const newCredentials = credentials;
-        const { selectedEnvironment, webhook } = this.state;
+        const { selectedEnvironment: environment, webhook } = this.state;
         const { projectId } = this.props;
         this.setState({ saving: true, showConfirmation: false });
         clearTimeout(this.successTimeout);
-        if (!credentials._id) {
-            newCredentials.projectId = projectId;
-            newCredentials.environment = selectedEnvironment;
-        }
         Meteor.call(
             'credentials.save',
-            newCredentials,
+            { ...credentials, projectId, environment },
             wrapMeteorCallback((err) => {
                 if (!err) {
                     this.setState({ saved: true });
@@ -70,8 +65,8 @@ class Credentials extends React.Component {
             }),
         );
 
-        if (selectedEnvironment && webhook && webhook.url) {
-            restartRasa(projectId, webhook, selectedEnvironment);
+        if (environment && webhook && webhook.url) {
+            restartRasa(projectId, webhook, environment);
         }
     }
 

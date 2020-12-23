@@ -40,7 +40,7 @@ type Query {
         triggeredConversations: Boolean,
        
     ): Pagination
-    conversation(projectId: String!, id: String!): ConversationContainer!
+    conversation(projectId: String!, id: String, senderId: String): ConversationContainer!
     intentsInConversations(projectId: String!): [String]
     latestImportedEvent(
         projectId: String!

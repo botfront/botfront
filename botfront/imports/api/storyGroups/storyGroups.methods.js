@@ -16,13 +16,12 @@ export const createStoriesWithTriggersGroup = (projectId) => {
         {
             name: 'Stories with triggers',
             projectId,
-            smartGroup: { prefix: 'withTriggers', query: '{ "rules.0.payload": { "$exists": true } }' },
+            smartGroup: { prefix: 'withTriggers', query: '{ "rules.0": { "$exists": true } }' },
             isExpanded: true,
             pinned: true,
         },
     );
 };
-
 
 export const createUnpublishedStoriesGroup = (projectId) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
@@ -39,59 +38,68 @@ export const createUnpublishedStoriesGroup = (projectId) => {
     );
 };
 
-export const createDefaultStoryGroup = (projectId) => {
+export const createDefaultStoryGroup = async (projectId) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
-    checkIfCan('projects:w');
-    Meteor.call(
-        'storyGroups.insert',
-        {
-            name: 'Default stories',
+    try {
+        const storyGroupId = await Meteor.callWithPromise(
+            'storyGroups.insert',
+            {
+                name: 'Example group',
+                projectId,
+            },
+        );
+        await Meteor.callWithPromise('stories.insert', {
+            type: 'rule',
+            steps: [
+                { intent: 'chitchat.greet' },
+                { action: 'utter_hi' },
+            ],
+            title: 'Greetings',
+            storyGroupId,
             projectId,
-        },
-        (err, storyGroupId) => {
-            if (!err) {
-                Meteor.call('stories.insert', {
-                    story: '* chitchat.greet\n    - utter_hi',
-                    title: 'Greetings',
-                    storyGroupId,
-                    projectId,
-                    events: ['utter_hi'],
-                    status: 'published',
-                });
-                Meteor.call('stories.insert', {
-                    story: '* chitchat.bye\n    - utter_bye',
-                    title: 'Farewells',
-                    storyGroupId,
-                    projectId,
-                    events: ['utter_bye'],
-                    status: 'published',
-                });
-                Meteor.call('stories.insert', {
-                    story: '* get_started\n    - utter_get_started',
-                    title: 'Get started',
-                    storyGroupId,
-                    projectId,
-                    events: ['utter_get_started'],
-                    status: 'published',
-                });
-            } else {
-                // eslint-disable-next-line no-console
-                console.log(err);
-            }
-        },
-    );
+            events: ['utter_hi'],
+            status: 'published',
+        });
+        await Meteor.callWithPromise('stories.insert', {
+            type: 'rule',
+            steps: [
+                { intent: 'chitchat.bye' },
+                { action: 'utter_bye' },
+            ],
+            title: 'Farewells',
+            storyGroupId,
+            projectId,
+            events: ['utter_bye'],
+            status: 'published',
+        });
+        await Meteor.callWithPromise('stories.insert', {
+            type: 'rule',
+            steps: [
+                { intent: 'get_started' },
+                { action: 'utter_get_started' },
+            ],
+            title: 'Get started',
+            storyGroupId,
+            projectId,
+            events: ['utter_get_started'],
+            status: 'published',
+        });
+    } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(e);
+    }
 };
 
 function handleError(e) {
     if (e.code === 11000) {
         throw new Meteor.Error(400, 'Group name already exists');
     }
-    throw new Meteor.Error(500, 'Server Error');
+    throw new Meteor.Error(e.error, e.message);
 }
 
 Meteor.methods({
     async 'storyGroups.delete'(storyGroup) {
-        checkIfCan('stories:w', storyGroup.projectId);
+        checkIfCan(['stories:w', 'import:x'], storyGroup.projectId);
         check(storyGroup, Object);
         const eventstoRemove = Stories.find(
             { storyGroupId: storyGroup._id },
@@ -120,7 +128,7 @@ Meteor.methods({
     },
 
     async 'storyGroups.insert'(storyGroup) {
-        checkIfCan('stories:w', storyGroup.projectId);
+        checkIfCan(['stories:w', 'import:x'], storyGroup.projectId);
         check(storyGroup, Object);
         const { projectId, pinned } = storyGroup;
         try {

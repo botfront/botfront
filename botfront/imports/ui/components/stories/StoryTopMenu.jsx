@@ -1,5 +1,5 @@
 import {
-    Popup, Icon, Menu, Label, Message,
+    Popup, Icon, Menu, Label, Message, Checkbox, Header, List,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import React, { useState, useContext, useEffect } from 'react';
@@ -7,41 +7,48 @@ import PropTypes from 'prop-types';
 import 'brace/theme/github';
 import 'brace/mode/text';
 import StoryPlayButton from './StoryPlayButton';
-import {
-    setStoryCollapsed, setStoriesCollapsed,
-} from '../../store/actions/actions';
+import ConfirmPopup from '../common/ConfirmPopup';
+import { setStoryCollapsed } from '../../store/actions/actions';
+import StoryVisualEditor from './common/StoryVisualEditor';
 import { ConversationOptionsContext } from './Context';
 import StoryRulesEditor from './rules/StoryRulesEditor';
 import { can } from '../../../lib/scopes';
 
 const StoryTopMenu = ({
-    storyId,
-    title,
+    fragment,
     collapsed,
     collapseStory,
-    warnings: warningDetails,
-    errors: errorDetails,
-    isDestinationStory,
-    originStories,
-    rules,
-    initPayload,
-    collapseAllStories,
+    warnings,
+    errors,
+    storyMode,
+    renderAceEditor,
     projectId,
-    isUnpublished,
 }) => {
-    const errors = errorDetails.length;
-    const warnings = warningDetails.length;
-
+    const {
+        type,
+        _id,
+        title,
+        checkpoints,
+        rules = [],
+        condition = [],
+        conversation_start: convStart,
+        status,
+    } = fragment;
     const [newTitle, setNewTitle] = useState(title);
     const [triggerEditorOpen, setTriggerEditorOpen] = useState(false);
+    const [confirmPopupOpen, setConfirmPopupOpen] = useState(false);
+
     useEffect(() => setNewTitle(title), [title]);
 
-    const { stories, updateStory } = useContext(ConversationOptionsContext);
+    const {
+        stories, updateStory, getResponseLocations, linkToStory,
+    } = useContext(ConversationOptionsContext);
+    const isDestinationStory = !!(checkpoints || []).length;
 
     const submitTitleInput = () => {
         if (title === newTitle) return null;
         if (!newTitle.replace(/\s/g, '').length) return setNewTitle(title);
-        return updateStory({ _id: storyId, title: newTitle });
+        return updateStory({ _id, title: newTitle });
     };
 
     const handleInputKeyDown = (event) => {
@@ -55,14 +62,8 @@ const StoryTopMenu = ({
             event.stopPropagation();
             setNewTitle(title);
             event.target.blur();
-            updateStory({ _id: storyId, title });
+            updateStory({ _id, title });
         }
-    };
-
-    const handleCollapseAllStories = () => {
-        const storiesCollapsed = {};
-        stories.forEach(({ _id }) => { storiesCollapsed[_id] = !collapsed; });
-        collapseAllStories(storiesCollapsed);
     };
 
     const renderWarnings = () => {
@@ -96,14 +97,76 @@ const StoryTopMenu = ({
     };
 
     const renderConnectedStories = () => {
-        const connectedStories = stories.filter(({ _id }) => originStories.some(originId => _id === originId[0]));
-        return connectedStories.map(({ _id, title: connectedTitle }) => (
-            <p key={_id} className='title-list-elem'>
-                <span className='story-title-prefix'>##</span>{connectedTitle}
-            </p>
-        ));
+        const connectedStories = stories.filter(({ _id: cId }) => checkpoints.some(originId => cId === originId[0]));
+        return (
+            <List data-cy='response-locations-list' className='link-list'>
+                {connectedStories.map(({ _id: cId, title: connectedTitle }) => (
+                    <List.Item
+                        key={cId}
+                        onClick={() => linkToStory(cId)}
+                        data-cy='story-name-link'
+                    >
+                        <span className='story-title-prefix'>##</span>
+                        <span className='story-name-link'>{connectedTitle}</span>
+                    </List.Item>
+                ))}
+            </List>
+        );
     };
 
+    const renderConvStartToggle = () => {
+        if (type !== 'rule') return null;
+        return (
+            <Popup
+                on='click'
+                open={confirmPopupOpen}
+                disabled={!can('stories:w', projectId) || !condition.length || !!convStart}
+                onOpen={() => setConfirmPopupOpen(true)}
+                onClose={() => setConfirmPopupOpen(false)}
+                content={(
+                    <ConfirmPopup
+                        title='Conditions will be deleted!'
+                        onYes={() => {
+                            setConfirmPopupOpen(false);
+                            updateStory({ _id, conversation_start: !convStart, condition: [] });
+                        }}
+                        onNo={() => setConfirmPopupOpen(false)}
+                    />
+                )}
+                trigger={(
+                    <Checkbox
+                        toggle
+                        disabled={!can('stories:w', projectId)}
+                        label='conversation start'
+                        className='story-box-toggle'
+                        checked={convStart}
+                        data-cy='toggle-conversation-start'
+                        onClick={(e) => {
+                            e.preventDefault();
+                            if (!condition.length || !!convStart) updateStory({ _id, conversation_start: !convStart });
+                        }}
+                    />
+                )}
+            />
+        );
+    };
+
+    const renderConditionSection = () => (
+        <>
+            <Header as='h5' dividing>&nbsp;&nbsp;Conditions</Header>
+            {storyMode !== 'visual'
+                ? renderAceEditor()
+                : (
+                    <StoryVisualEditor
+                        onSave={c => updateStory({ _id, condition: c })}
+                        story={condition}
+                        getResponseLocations={getResponseLocations}
+                        mode='rule_condition'
+                    />
+                )
+            }
+        </>
+    );
     return (
         <>
             <Menu
@@ -116,30 +179,28 @@ const StoryTopMenu = ({
                         name='triangle right'
                         className={`${collapsed ? '' : 'opened'}`}
                         link
-                        onClick={() => collapseStory(storyId, !collapsed)}
-                        onDoubleClick={() => handleCollapseAllStories()}
+                        onClick={() => collapseStory(_id, !collapsed)}
                         data-cy='collapse-story-button'
                     />
                     {isDestinationStory ? (
                         <Icon name='arrow alternate circle right' color='green' fitted />
                     ) : (
-                        <span className='story-title-prefix'>##</span>
+                        <span className='story-title-prefix'>{type === 'rule' ? <>&gt;&gt;</> : '##'}</span>
                     )}
-
-                   
-                    { isUnpublished && <Label content='Unpublished' /> }
+                    {status === 'unpublished' && <Label content='Unpublished' /> }
                     <input
                         data-cy='story-title'
-                        disabled
-                        className='story-title'
+                        disabled={!can('stories:w', projectId)}
                         value={newTitle}
+                        onChange={event => setNewTitle(event.target.value.replace('_', ''))}
+                        onKeyDown={handleInputKeyDown}
+                        onBlur={submitTitleInput}
                     />
-                   
-                  
                 </Menu.Item>
                 <Menu.Item position='right'>
                     {renderWarnings()}
                     {renderErrors()}
+                    {renderConvStartToggle()}
                     {can('triggers:r', projectId) && (
                         <StoryRulesEditor
                         // the trigger element will have it's onClick, disabled, and className props modified
@@ -147,14 +208,11 @@ const StoryTopMenu = ({
                             
                                 <Icon
                                     name='stopwatch'
-                                    color={(() => {
-                                        if (errorDetails.some(({ code }) => code === 'smart_story_payload')) return 'red';
-                                        return rules && rules.length ? 'green' : 'grey';
-                                    })()}
+                                    color={rules && rules.length ? 'green' : 'grey'}
                                     data-cy='edit-trigger-rules'
                                 />
                             )}
-                            storyId={storyId}
+                            storyId={_id}
                             rules={rules}
                             open={triggerEditorOpen}
                             setOpen={setTriggerEditorOpen}
@@ -162,7 +220,7 @@ const StoryTopMenu = ({
                         />
                     )}
                     <StoryPlayButton
-                        initPayload={initPayload}
+                        fragment={fragment}
                         className='top-menu-clickable'
                     />
                 </Menu.Item>
@@ -175,7 +233,7 @@ const StoryTopMenu = ({
                     position='bottom left'
                     trigger={(
                         <Message
-                            className='connected-story-alert'
+                            className='top-menu-yellow-banner with-popup'
                             attached
                             warning
                             size='tiny'
@@ -190,7 +248,7 @@ const StoryTopMenu = ({
                     {renderConnectedStories()}
                 </Popup>
             )}
-            { rules && rules.length > 0 && (
+            {rules && rules.length > 0 && (
                 <Message
                     className='connected-story-alert'
                     attached
@@ -202,42 +260,41 @@ const StoryTopMenu = ({
                     This story will be triggered automatically when the conditions set with the stopwatch icon are met.
                 </Message>
             )}
+            {type === 'rule' && !convStart && (
+                <Message
+                    className={`top-menu-yellow-banner condition-container ${!condition.length ? 'empty' : ''}`}
+                    attached
+                    warning
+                    size='tiny'
+                    data-cy='connected-to'
+                >
+                    {renderConditionSection()}
+                </Message>
+            )}
         </>
     );
 };
 
 StoryTopMenu.propTypes = {
-    title: PropTypes.string.isRequired,
-    storyId: PropTypes.string.isRequired,
+    fragment: PropTypes.object.isRequired,
     collapsed: PropTypes.bool.isRequired,
     collapseStory: PropTypes.func.isRequired,
-    warnings: PropTypes.array.isRequired,
-    errors: PropTypes.array.isRequired,
-    rules: PropTypes.array,
-    isDestinationStory: PropTypes.bool,
-    originStories: PropTypes.array,
-    initPayload: PropTypes.string,
-    collapseAllStories: PropTypes.func.isRequired,
+    warnings: PropTypes.number.isRequired,
+    errors: PropTypes.number.isRequired,
+    storyMode: PropTypes.string.isRequired,
+    renderAceEditor: PropTypes.func.isRequired,
     projectId: PropTypes.string.isRequired,
-    isUnpublished: PropTypes.bool,
 };
-
-StoryTopMenu.defaultProps = {
-    isDestinationStory: false,
-    originStories: [],
-    rules: [],
-    initPayload: null,
-    isUnpublished: false,
-};
+StoryTopMenu.defaultProps = {};
 
 const mapStateToProps = (state, ownProps) => ({
-    collapsed: state.stories.getIn(['storiesCollapsed', ownProps.storyId], false),
+    collapsed: state.stories.getIn(['storiesCollapsed', ownProps.fragment?._id], false),
+    storyMode: state.stories.get('storyMode'),
     projectId: state.settings.get('projectId'),
 });
 
 const mapDispatchToProps = {
     collapseStory: setStoryCollapsed,
-    collapseAllStories: setStoriesCollapsed,
 };
 
 export default connect(

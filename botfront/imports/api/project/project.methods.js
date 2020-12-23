@@ -22,20 +22,17 @@ import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
 import { Slots } from '../slots/slots.collection';
 import Forms from '../graphql/forms/forms.model';
-import { extractDomain, flattenStory, getAllResponses } from '../../lib/story.utils';
+import { languages as languageOptions } from '../../lib/languages';
 import BotResponses from '../graphql/botResponses/botResponses.model';
 import FormResults from '../graphql/forms/form_results.model';
 import AnalyticsDashboards from '../graphql/analyticsDashboards/analyticsDashboards.model';
 import { defaultDashboard } from '../graphql/analyticsDashboards/generateDefaults';
 import { getForms } from '../graphql/forms/mongo/forms';
 
-import { languages as languageOptions } from '../../lib/languages';
 import Examples from '../graphql/examples/examples.model';
 
 if (Meteor.isServer) {
     import { auditLog } from '../../../server/logger';
-
-    export const extractDomainFromStories = (stories, slots) => yamlLoad(extractDomain({ stories, slots, crashOnStoryWithErrors: false }));
 
     Meteor.methods({
         async 'project.insert'(item, bypassWithCI) {
@@ -53,7 +50,7 @@ if (Meteor.isServer) {
                 createPolicies({ _id, ...item });
                 createStoriesWithTriggersGroup(_id);
                 createUnpublishedStoriesGroup(_id);
-                createDefaultStoryGroup(_id);
+                await createDefaultStoryGroup(_id);
                 await createInstance({ _id, ...item });
                 auditLog('Created project', {
                     user: Meteor.user(),
@@ -71,7 +68,7 @@ if (Meteor.isServer) {
         },
 
         'project.update'(item) {
-            checkIfCan('projects:w', item._id, undefined);
+            checkIfCan(['projects:w', 'import:x'], item._id, undefined);
             check(item, Match.ObjectIncluding({ _id: String }));
             try {
                 // eslint-disable-next-line no-param-reassign
@@ -102,7 +99,7 @@ if (Meteor.isServer) {
             projectId,
             options = { failSilently: false, bypassWithCI: false },
         ) {
-            checkIfCan('projects:w', null, null, options.bypassWithCI);
+            checkIfCan('projects:w', null, null, options);
             check(projectId, String);
             check(options, Object);
             const { failSilently } = options;
@@ -151,33 +148,6 @@ if (Meteor.isServer) {
                 await FormResults.remove({ projectId });
             } catch (e) {
                 if (!failSilently) throw e;
-            }
-        },
-
-        async 'project.getActions'(projectId) {
-            // could use story.events subscription here??
-            checkIfCan(['nlu-data:r', 'responses:r'], projectId);
-            check(projectId, String);
-            let { defaultDomain } = Projects.findOne({ _id: projectId }, { defaultDomain: 1 }) || { defaultDomain: { content: {} } };
-            defaultDomain = yamlLoad(defaultDomain.content);
-            const templates = await getAllResponses(projectId);
-
-            try {
-                const stories = Stories.find({ projectId }).fetch();
-                const slots = Slots.find({ projectId }).fetch();
-                const {
-                    actions: actionsSetFromDomain = [],
-                } = stories.length !== 0 ? yamlLoad(extractDomain({
-                    stories: stories
-                        .reduce((acc, story) => [...acc, ...flattenStory(story)], [])
-                        .map(story => story.story || ''),
-                    slots,
-                    templates,
-                    defaultDomain,
-                })) : {};
-                return actionsSetFromDomain;
-            } catch (error) {
-                throw error;
             }
         },
 

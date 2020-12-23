@@ -2,15 +2,26 @@ import { Meteor } from 'meteor/meteor';
 import { expect } from 'chai';
 import { Stories } from '../../../story/stories.collection';
 import Examples from '../../examples/examples.model.js';
-// test imports
 import {
-    projectFixture, storyFixture, examplesFixture, storyId, enModelId, frModelId, projectId, botResponseFixture, botResponsesFixture, botResponsesFixtureWithCustomCss, botResponsesFixtureWithHighlight, botResponseFixtureWithObserve,
+    projectFixture,
+    storyFixture,
+    examplesFixture,
+    storyId,
+    enModelId,
+    frModelId,
+    projectId,
+    botResponseFixture,
+    botResponsesFixture,
+    botResponsesFixtureWithCustomCss,
+    botResponsesFixtureWithHighlight,
+    botResponseFixtureWithObserve,
 } from './indexTestData';
 import { indexStory } from '../../../story/stories.index';
 import { Projects } from '../../../project/project.collection';
 import { NLUModels } from '../../../nlu_model/nlu_model.collection';
 import { createResponses } from '../../botResponses/mongo/botResponses';
 import BotResponses from '../../botResponses/botResponses.model';
+import { caught } from '../../../../lib/client.safe.utils';
 
 import StoryResolver from '../resolvers/storiesResolver';
 import { createTestUser, removeTestUser } from '../../../testUtils';
@@ -25,7 +36,7 @@ if (Meteor.isServer) {
     const cleanup = async () => {
         await Stories.remove({});
         await Examples.remove({});
-        await BotResponses.deleteMany(({ projectId }));
+        await BotResponses.deleteMany({ projectId });
         await Projects.remove({ _id: projectId });
         await NLUModels.remove({ _id: enModelId });
         await NLUModels.remove({ _id: frModelId });
@@ -38,50 +49,58 @@ if (Meteor.isServer) {
         await Projects.insert(projectFixture);
         await Stories.insert(storyFixture);
         const { textIndex } = await indexStory(storyId);
-        Stories.update({ _id: storyId }, { $set: { textIndex } });
+        Stories.update({ _id: storyId }, { $set: { textIndex, type: 'story' } });
     };
 
-    const insertDataAndIndex = async (done) => {
+    const insertDataAndIndex = async () => {
         await cleanup();
         await removeTestUser();
+        await createResponses(projectId, [
+            botResponsesFixtureWithCustomCss,
+            botResponsesFixtureWithHighlight,
+            botResponseFixtureWithObserve,
+        ]);
         await addData();
         await createTestUser();
-        done();
     };
 
-    const insertDataAndIndexForSmartSearch = async (done) => {
-        await cleanup();
-        await createResponses(projectId, [botResponsesFixtureWithCustomCss, botResponsesFixtureWithHighlight, botResponseFixtureWithObserve]);
-        await addData();
-        await createTestUser();
-        done();
-    };
-
-    const removeTestData = async (done) => {
+    const removeTestData = async () => {
         await cleanup();
         await removeTestUser();
-        done();
     };
-    
+
     const searchStories = async (language, queryString, reject) => {
         try {
-            const searchResult = await StoryResolver.Query.storiesSearch(null, {
-                projectId: 'bf',
-                language,
-                queryString,
-            }, { user: { _id: userId } });
+            const searchResult = await StoryResolver.Query.dialogueSearch(
+                null,
+                {
+                    projectId: 'bf',
+                    language,
+                    queryString,
+                },
+                { user: { _id: userId } },
+            );
             if (!reject) {
-                expect(searchResult.stories[0]).to.be.deep.equal({ _id: 'TEST_STORY', title: 'story fixture', storyGroupId: 'TEST_STORY_GROUP' });
+                expect(searchResult.dialogueFragments[0]).to.be.deep.equal({
+                    _id: 'TEST_STORY',
+                    title: 'story fixture',
+                    storyGroupId: 'TEST_STORY_GROUP',
+                    type: 'story',
+                });
             } else {
-                expect(searchResult.stories[0]).to.be.equal(undefined);
+                expect(searchResult.dialogueFragments[0]).to.be.equal(undefined);
             }
         } catch (e) {
-            throw new Error(`seaching stories for "${queryString}" did not return the expected results\n${e}`);
+            throw new Error(
+                `seaching stories for "${queryString}" did not return the expected results\n${e}`,
+            );
         }
     };
 
-    const testStorySearch = async (done) => {
-        try {
+    describe('test searching stories by their index', () => {
+        before(caught(insertDataAndIndex));
+        after(caught(removeTestData));
+        it('should get the expected results from a search string', caught(async () => {
             await searchStories('en', 'morning');
             await searchStories('fr', 'matin');
             await searchStories('en', 'timeOfDay');
@@ -92,17 +111,10 @@ if (Meteor.isServer) {
             await searchStories('en', 'http://google.com');
             await searchStories('en', 'Canada');
             await searchStories('en', 'test_slot');
-            await searchStories('en', 'story fixture');
+            await searchStories('en', 'story fixture'); // (title)
             await searchStories('en', 'term does not exist', true);
-            await searchStories('en', 'test_form');
-            done();
-        } catch (e) {
-            done(e);
-        }
-    };
-
-    const testSmartStorySearch = async (done) => {
-        try {
+        }));
+        it('should be able to use smart search', caught(async () => {
             await searchStories('en', 'status:published second');
             await searchStories('en', 'status:unpublished', true);
             await searchStories('en', 'with:highlights');
@@ -111,40 +123,17 @@ if (Meteor.isServer) {
             await searchStories('en', 'with:custom_style story fixture');
             await searchStories('en', 'with:triggers');
             await searchStories('en', 'with:triggers Canada');
-            await searchStories('en', 'with:custom_style story fixture with:highlights with:triggers');
+            await searchStories(
+                'en',
+                'with:custom_style story fixture with:highlights with:triggers',
+            );
             await searchStories('en', 'with:observe_events');
-            await searchStories('en', 'with:observe_events string not in the story', true);
+            await searchStories(
+                'en',
+                'with:observe_events string not in the story',
+                true,
+            );
             await searchStories('en', 'with:some_non_existing_search', true);
-            done();
-        } catch (e) {
-            done(e);
-        }
-    };
-
-    // ------ test suite -------
-    describe('test searching stories by their index', () => {
-        before((done) => {
-            insertDataAndIndex(done);
-        });
-        after((done) => {
-            removeTestData(done);
-        });
-        it('should get the expected results from a search string', (done) => {
-            testStorySearch(done);
-        });
-    });
-
-
-    describe('test searching with smart searches', () => {
-        before((done) => {
-            insertDataAndIndexForSmartSearch(done);
-        });
-
-        after((done) => {
-            removeTestData(done);
-        });
-        it('should get the expected results from a smart search', (done) => {
-            testSmartStorySearch(done);
-        });
+        }));
     });
 }

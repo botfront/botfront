@@ -2,13 +2,27 @@ import { safeDump, safeLoad } from 'js-yaml/lib/js-yaml';
 import shortid from 'shortid';
 import BotResponses from '../botResponses.model';
 import Forms from '../../forms/forms.model';
-import { clearTypenameField } from '../../../../lib/client.safe.utils';
+import { clearTypenameField, cleanPayload } from '../../../../lib/client.safe.utils';
 import { Stories } from '../../../story/stories.collection';
 import { addTemplateLanguage, modifyResponseType } from '../../../../lib/botResponse.utils';
-import { parsePayload } from '../../../../lib/storyMd.utils';
-import { getWebhooks, deleteImages, auditLogIfOnServer } from '../../../../lib/utils';
+import {
+    getWebhooks, deleteImages, auditLogIfOnServer, getImageUrls,
+} from '../../../../lib/utils';
 import { replaceStoryLines } from '../../story/mongo/stories';
 
+const getEntities = (storyLine) => {
+    const entitiesString = storyLine.split('{')[1];
+    if (!entitiesString) return [];
+    const entities = entitiesString.slice(0, entitiesString.length - 1).split(',');
+    return entities.map(entity => entity.split(':')[0].replace(/"/g, ''));
+};
+
+const parsePayload = (payload) => {
+    if (payload[0] !== '/') throw new Error('a payload must start with a "/"');
+    const intent = payload.slice(1).split('{')[0];
+    const entities = getEntities(payload.slice(1));
+    return { intent, entities };
+};
 
 const indexResponseContent = (input) => {
     if (Array.isArray(input)) return input.reduce((acc, curr) => [...acc, ...indexResponseContent(curr)], []);
@@ -54,9 +68,9 @@ const mergeAndIndexBotResponse = async ({
     }
     const valueIndex = botResponse.values.findIndex(({ lang }) => lang === language);
     if (valueIndex > -1) { // add to existing language
-        botResponse.values[valueIndex].sequence[index] = { content: safeDump(clearTypenameField(newPayload)) };
+        botResponse.values[valueIndex].sequence[index] = { content: safeDump(cleanPayload(newPayload)) };
     } else { // add a new language
-        botResponse.values = [...botResponse.values, { lang: language, sequence: [{ content: safeDump(clearTypenameField(newPayload)) }] }];
+        botResponse.values = [...botResponse.values, { lang: language, sequence: [{ content: safeDump(cleanPayload(newPayload)) }] }];
     }
     return indexBotResponse(botResponse);
 };
@@ -130,27 +144,6 @@ export const getBotResponses = async projectId => BotResponses.find({
     projectId,
 }).lean();
 
-export const getImageUrls = (response, excludeLang = '') => (
-    response.values.reduce((vacc, vcurr) => {
-        if (vcurr.lang !== excludeLang) {
-            return [
-                ...vacc,
-                ...vcurr.sequence.reduce((sacc, scurr) => {
-                    // image is for image response, image_url is for carousels
-                    const { image, elements } = safeLoad(scurr.content);
-                    if (!image && !elements) return sacc; // neither a image or a carousel
-
-                    let imagesSources = [image]; // let assume the response is an imageResponse
-                    if (elements) {
-                        // if it's a carouselResponse image source will be replaced
-                        imagesSources = elements.map(element => element.image_url);
-                    }
-                    return [...sacc, ...imagesSources];
-                }, []),
-            ];
-        }
-        return vacc;
-    }, []));
 
 export const deleteResponse = async (projectId, key) => {
     const response = await BotResponses.findOne({ projectId, key }).lean();
@@ -203,12 +196,12 @@ export const upsertResponse = async ({
         ? {
             $push: {
                 'values.$.sequence': {
-                    $each: [{ content: safeDump(clearTypenameField(newPayload)) }],
+                    $each: [{ content: safeDump(cleanPayload(newPayload)) }],
                 },
             },
             $set: { textIndex, ...(newKey ? { key: newKey } : {}) },
         }
-        : { $set: { [`values.$.sequence.${index}`]: { content: safeDump(clearTypenameField(newPayload)) }, textIndex, ...(newKey ? { key: newKey } : {}) } };
+        : { $set: { [`values.$.sequence.${index}`]: { content: safeDump(cleanPayload(newPayload)) }, textIndex, ...(newKey ? { key: newKey } : {}) } };
     const updatedResponse = await BotResponses.findOneAndUpdate(
         { projectId, key, 'values.lang': language },
         update,
@@ -218,7 +211,7 @@ export const upsertResponse = async ({
     || BotResponses.findOneAndUpdate(
         { projectId, key },
         {
-            $push: { values: { lang: language, sequence: [{ content: safeDump(clearTypenameField(newPayload)) }] } },
+            $push: { values: { lang: language, sequence: [{ content: safeDump(cleanPayload(newPayload)) }] } },
             $setOnInsert: {
                 _id: shortid.generate(),
                 projectId,
@@ -322,7 +315,7 @@ export const newGetBotResponses = async ({
     return templates;
 };
 
-export const deleteResponsesRemovedFromStories = async (removedResponses, projectId, user) => {
+export const deleteResponsesRemovedFromStories = async (removedResponses, projectId) => {
     const sharedResponsesInStories = Stories.find({ projectId, events: { $in: removedResponses } }, { fields: { events: true } }).fetch();
     const formsInProject = await Forms.find({ projectId }).lean();
     const responsesInForms = formsInProject.reduce((acc, value) => [
@@ -343,7 +336,7 @@ export const deleteResponsesRemovedFromStories = async (removedResponses, projec
         deleteResponses.forEach((response) => {
             auditLogIfOnServer('Deleted response', {
                 resId: response._id,
-                user,
+                user: Meteor.user(),
                 projectId,
                 type: 'deleted',
                 operation: 'response-deleted',

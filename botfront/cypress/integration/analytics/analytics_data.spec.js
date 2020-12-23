@@ -128,7 +128,6 @@ describe('analytics cards', () => {
         cy.createCustomStory('bf', 'test_group_A', 'test_story', {
             triggerIntent: 'trigger_test_story',
             rules: [{
-                payload: '/trigger_test_story',
                 trigger: {
                     when: 'always',
                     numberOfVisits: 1,
@@ -140,6 +139,8 @@ describe('analytics cards', () => {
         cy.visit('project/bf/analytics');
         cy.dataCy('analytics-card').should('have.length', 7);
         cy.dataCy('create-card').click();
+        // raise your hands in the air if you're here because
+        // hardcoded indices and lengths no longer match!!
         cy.dataCy('create-card').find('div.item').eq(3).click();
         cy.dataCy('analytics-card').should('have.length', 8);
         // only display trigger intents in top triggers

@@ -1,0 +1,29 @@
+version: "2.0"
+stories:
+- story: Farewells
+  steps:
+  - checkpoint: checkpoint_1
+  - checkpoint: checkpoint_0
+  - intent: goodbye
+  - action: utter_bye
+  - checkpoint: checkpoint_2
+- story: Get started
+  steps:
+  - intent: get_started
+  - action: utter_get_started
+  - checkpoint: Get_started__branches
+- story: Get started__New Branch 2
+  steps:
+  - checkpoint: Get_started__branches
+  - action: action_nice
+  - checkpoint: Get_started__New_Branch_2__branches
+- story: Get started__New Branch 2__New Branch 1
+  steps:
+  - checkpoint: Get_started__New_Branch_2__branches
+  - action: action_looping_you_back
+  - checkpoint: checkpoint_1
+- story: Get started__New Branch 2__New Branch 2
+  steps:
+  - checkpoint: Get_started__New_Branch_2__branches
+  - action: action_looping_you_back
+  - checkpoint: checkpoint_0

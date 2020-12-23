@@ -2,22 +2,22 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import shortid from 'shortid';
 import { isEqual } from 'lodash';
-import { Icon } from 'semantic-ui-react';
+import { safeDump } from 'js-yaml';
 
-import { OOS_LABEL } from '../../constants.json';
-import { StoryController, NEW_INTENT } from '../../../../lib/story_controller';
+import { Icon } from 'semantic-ui-react';
 import IconButton from '../../common/IconButton';
 import UserUtterancesContainer from './UserUtterancesContainer';
 import BotResponsesContainer from './BotResponsesContainer';
 import AddStoryLine from './AddStoryLine';
 import ActionLabel from '../ActionLabel';
-import SlotLabel from '../SlotLabel';
+import SlotsContainer from './SlotsContainer';
 import BadLineLabel from '../BadLineLabel';
 import { ProjectContext } from '../../../layouts/context';
 import ExceptionWrapper from './ExceptionWrapper';
 import GenericLabel from '../GenericLabel';
 import { can } from '../../../../lib/scopes';
 import { defaultTemplate } from '../../../../lib/botResponse.utils';
+import { USER_LINE_EDIT_MODE } from '../../../../lib/story.utils';
 
 const variationIndex = 0;
 
@@ -42,68 +42,39 @@ export default class StoryVisualEditor extends React.Component {
 
     menuCloser = () => {};
 
-    trackOpenMenu = (func) => { this.menuCloser = func; };
-
-    handleDeleteLine = (index) => {
-        const { story } = this.props;
-        story.deleteLine(index);
+    trackOpenMenu = (func) => {
+        this.menuCloser = func;
     };
 
-    handleSaveUserUtterance = (index, data) => {
-        const { story } = this.props;
-        const { addUtterancesToTrainingData } = this.context;
-        addUtterancesToTrainingData(data, (err) => {
-            if (!err) {
-                const updatedLine = { type: 'user', data };
-                story.replaceLine(index, updatedLine);
-            }
-        });
+    handleDeleteLine = (index, nLines = 1) => {
+        const { story, onSave } = this.props;
+        onSave([...story.slice(0, index), ...story.slice(index + nLines)]);
     };
 
-    handleCreateUserUtterance = (index, payload) => {
-        const { story } = this.props;
-        const newLine = { type: 'user', data: [payload || { intent: NEW_INTENT }] };
-        story.insertLine(index, newLine);
+    handleReplaceLine = (index, content) => {
+        const { story, onSave } = this.props;
+        onSave([...story.slice(0, index), content, ...story.slice(index + 1)]);
+    };
+
+    handleInsertLine = (index, content) => {
+        const { story, onSave } = this.props;
+        const contentAsArray = Array.isArray(content) ? content : [content];
+        onSave([...story.slice(0, index + 1), ...contentAsArray, ...story.slice(index + 1)]);
         this.setState({ lineInsertIndex: null });
     };
 
-    handleChangeActionOrSlot = (type, index, data) => {
-        const { story } = this.props;
-        story.replaceLine(index, { type, data });
-    };
-
-    handleCreateSlotOrAction = (index, data) => {
+    handleInsertBotResponse = (index, templateType, suppliedKey) => {
         this.setState({ lineInsertIndex: null });
-        const { story } = this.props;
-        story.insertLine(index, data);
-    };
-
-    //used by forms
-    handleCreateMultiLineSlotOrAction = (index, data) => {
-        this.setState({ lineInsertIndex: null });
-        const { story } = this.props;
-        story.insertLines(index, data);
-    };
-
-    handleCreateSequence = (index, templateType, suppliedKey) => {
-        this.setState({ lineInsertIndex: null });
-        const { story } = this.props;
         const { upsertResponse } = this.context;
         const key = suppliedKey || `utter_${shortid.generate()}`;
         const newTemplate = defaultTemplate(templateType);
-        upsertResponse(key, { payload: { ...newTemplate }, isNew: true }, variationIndex).then((full) => {
-            if (full) story.insertLine(index, { type: 'bot', data: { name: key } });
+        upsertResponse(
+            key,
+            { payload: { ...newTemplate }, isNew: true },
+            variationIndex,
+        ).then((full) => {
+            if (full) this.handleInsertLine(index, { action: key });
         });
-    };
-
-    parseUtterance = async (utterance) => {
-        const { parseUtterance: rasaParse } = this.context;
-        try {
-            const { intent, entities, text } = await rasaParse(utterance);
-            return { intent: intent.name || OOS_LABEL, entities, text };
-        } catch (err) {
-            return { text: utterance, intent: OOS_LABEL };
-        }
     };
 
     getReadOnlyClass = () => {
@@ -113,32 +84,43 @@ export default class StoryVisualEditor extends React.Component {
 
     renderAddLine = (rawIndex) => {
         const { lineInsertIndex } = this.state;
+        const { story, mode } = this.props;
         const { project: { _id: projectId } } = this.context;
-        const { story } = this.props;
         if (!can('stories:w', projectId)) return <div className='line-spacer' />; // prevent crowding of story elements in read only mode
         let index = rawIndex;
-        const [currentLine, nextLine] = [story.lines[index], story.lines[index + 1]];
-        if (this.formLinesMatch(currentLine, nextLine)) index += 1;
+        const [currentLine, nextLine] = [story[index] || {}, story[index + 1] || {}];
+        if (this.loopLinesMatch(currentLine, nextLine)) index += 1;
+        const lineIsIntent = l => 'intent' in l || 'or' in l;
+        const hasSlot = story.some(l => 'slot_was_set' in l);
+        const hasLoop = story.some(l => 'active_loop' in l);
 
-        const options = story.getPossibleInsertions(index);
+        const options = {
+            userUtterance:
+                mode !== 'rule_condition'
+                && (mode !== 'rule_steps' || !story.some(lineIsIntent))
+                && !lineIsIntent(currentLine)
+                && !lineIsIntent(nextLine),
+            botUtterance: mode !== 'rule_condition',
+            action: mode !== 'rule_condition',
+            slot: mode !== 'rule_condition' || !hasSlot,
+            loopActive: mode !== 'rule_condition' || !hasLoop,
+            loopActivate: mode !== 'rule_condition',
+        };
 
         if (!Object.keys(options).length) return null;
         if (
             lineInsertIndex === index
-            || (!lineInsertIndex
-                && lineInsertIndex !== 0
-                && index === story.lines.length - 1)
+            || (!lineInsertIndex && lineInsertIndex !== 0 && index === story.length - 1)
         ) {
             return (
                 <AddStoryLine
                     ref={this.addStoryCursor}
                     trackOpenMenu={this.trackOpenMenu}
                     availableActions={options}
-                    onCreateUtteranceFromInput={() => this.handleCreateUserUtterance(index)}
-                    onCreateUtteranceFromPayload={payload => this.handleCreateUserUtterance(index, payload)}
-                    onCreateResponse={templateType => this.handleCreateSequence(index, templateType)}
-                    onCreateGenericLine={data => this.handleCreateSlotOrAction(index, data)}
-                    onCreateGenericLines={data => this.handleCreateMultiLineSlotOrAction(index, data)}
+                    onCreateUtteranceFromInput={() => this.handleInsertLine(index, { intent: USER_LINE_EDIT_MODE })}
+                    onCreateUtteranceFromPayload={payload => this.handleInsertLine(index, payload)}
+                    onCreateResponse={templateType => this.handleInsertBotResponse(index, templateType)}
+                    onCreateGenericLine={data => this.handleInsertLine(index, data)}
                     onBlur={({ relatedTarget }) => {
                         const modals = Array.from(document.querySelectorAll('.modal'));
                         const popups = Array.from(document.querySelectorAll('.popup'));
@@ -159,18 +141,19 @@ export default class StoryVisualEditor extends React.Component {
         return (
             <Icon
                 name='ellipsis horizontal'
+                className='line-insert'
                 onClick={() => this.setState({ lineInsertIndex: index })}
             />
         );
     };
 
     renderActionLine = (i, l, exceptions) => (
-        <React.Fragment key={`action${i + l.data.name}`}>
+        <React.Fragment key={`action${i + l.action}`}>
             <ExceptionWrapper exceptions={exceptions}>
                 <div className={`story-line ${this.getReadOnlyClass()}`}>
                     <ActionLabel
-                        value={l.data.name}
-                        onChange={v => this.handleChangeActionOrSlot('action', i, { name: v })}
+                        value={l.action}
+                        onChange={v => this.handleReplaceLine(i, { action: v })}
                     />
                     <IconButton onClick={() => this.handleDeleteLine(i)} icon='trash' />
                 </div>
@@ -180,15 +163,16 @@ export default class StoryVisualEditor extends React.Component {
     );
 
     renderSlotLine = (i, l, exceptions) => (
-        <React.Fragment key={`slot${i + l.data.name}`}>
+        <React.Fragment key={`slot${i + JSON.stringify(l.slot_was_set)}`}>
             <ExceptionWrapper exceptions={exceptions}>
-                <div className={`story-line ${this.getReadOnlyClass()}`}>
-                    <SlotLabel
-                        value={l.data}
-                        onChange={v => this.handleChangeActionOrSlot('slot', i, v)}
-                    />
-                    <IconButton onClick={() => this.handleDeleteLine(i)} icon='trash' />
-                </div>
+                <SlotsContainer
+                    className={this.getReadOnlyClass()}
+                    deletable
+                    value={l.slot_was_set}
+                    // eslint-disable-next-line camelcase
+                    onChange={slot_was_set => this.handleReplaceLine(i, { slot_was_set })}
+                    onDelete={() => this.handleDeleteLine(i)}
+                />
             </ExceptionWrapper>
             {this.renderAddLine(i)}
         </React.Fragment>
@@ -198,60 +182,62 @@ export default class StoryVisualEditor extends React.Component {
         <React.Fragment key={`BadLine-${index}`}>
             <ExceptionWrapper exceptions={exceptions}>
                 <div className={`story-line ${this.getReadOnlyClass()}`}>
-                    <BadLineLabel lineMd={line.md} lineIndex={index} />
-                    <IconButton onClick={() => this.handleDeleteLine(index)} icon='trash' />
+                    <BadLineLabel
+                        lineMd={`${safeDump(line).substring(0, 31)}${
+                            safeDump(line).length > 30 ? '...' : ''
+                        }`}
+                        lineIndex={index}
+                    />
+                    <IconButton
+                        onClick={() => this.handleDeleteLine(index)}
+                        icon='trash'
+                    />
                 </div>
             </ExceptionWrapper>
             {this.renderAddLine(index)}
         </React.Fragment>
     );
 
-    determineFormLineLabelAndValue = (line, isStart = false) => {
-        let value = line.gui.data.name;
-        let label = 'continue form';
-        if (isStart) label = 'activate form';
-        if (line.gui.type === 'action') {
-            label = 'deactivate form';
-            value = null;
-        }
-        if (line.gui.type === 'form') {
-            label = line.gui.data.name === null ? 'form completed' : 'active form';
-        }
+    determineLoopLineLabelAndValue = (line, isSequence = false) => {
+        const value = line.active_loop;
+        let label = 'active loop';
+        if (isSequence) label = 'activate loop';
+        if (!value) label = 'no active loop';
         return { value, label };
     };
 
-    formLinesMatch = (firstLine, secondLine) => (
-        firstLine
-        && secondLine
-        && firstLine.gui.type === 'form_decl'
-        && secondLine.gui.type === 'form'
-        && firstLine.gui.data.name === secondLine.gui.data.name
+    loopLinesMatch = (firstLine, secondLine) => (
+        firstLine?.action
+        // eslint-disable-next-line camelcase
+        && secondLine?.active_loop
+        && firstLine.action === secondLine.active_loop
     );
 
-    renderFormLine = (index, line, exceptions) => {
+    isLoopSequence = (index) => {
         const { story } = this.props;
-        const before = index > 0 ? story.lines[index - 1] : null;
-        const after = index < story.lines.length - 1 ? story.lines[index + 1] : null;
-        const isFirstLineOfStart = this.formLinesMatch(line, after);
-        const isSecondLineOfStart = this.formLinesMatch(before, line);
-        if (isSecondLineOfStart) return null;
+        const line = story[index];
+        const before = index > 0 ? story[index - 1] : null;
+        const after = index < story.length - 1 ? story[index + 1] : null;
+        const isFirstLineOfSeq = this.loopLinesMatch(line, after);
+        const isSecondLineOfSeq = this.loopLinesMatch(before, line);
+        return { isFirstLineOfSeq, isSecondLineOfSeq };
+    }
+
+    renderLoopLine = (index, line, exceptions) => {
+        const { isSecondLineOfSeq } = this.isLoopSequence(index);
         return (
-            <React.Fragment key={`FormLine-${index}`}>
+            <React.Fragment key={`LoopLine-${index}`}>
                 <ExceptionWrapper exceptions={exceptions}>
                     <div className={`story-line ${this.getReadOnlyClass()}`}>
                         <GenericLabel
-                            {...this.determineFormLineLabelAndValue(
+                            {...this.determineLoopLineLabelAndValue(
                                 line,
-                                isFirstLineOfStart,
+                                isSecondLineOfSeq,
                             )}
                             color='botfront-blue'
                         />
                         <IconButton
-                            onClick={() => {
-                                this.handleDeleteLine(index);
-                                // and a second time...
-                                if (isFirstLineOfStart) this.handleDeleteLine(index);
-                            }}
+                            onClick={() => this.handleDeleteLine(...(isSecondLineOfSeq ? [index - 1, 2] : [index]))}
                             icon='trash'
                         />
                     </div>
@@ -261,36 +247,33 @@ export default class StoryVisualEditor extends React.Component {
         );
     };
 
-    handleBotResponseChange = async (name, newResponse) => {
+    handleSaveBotResponse = async (i, name, newResponse) => {
         const { key: newName, payload } = newResponse;
         const { upsertResponse, responses } = this.context;
-        if (isEqual(responses[name], payload) && newName === name) return new Promise(resolve => resolve());
-        const result = upsertResponse(name, newResponse, variationIndex);
-        return result;
-    }
+        if (isEqual(responses[name], payload) && newName === name) return;
+        const result = await upsertResponse(name, newResponse, variationIndex);
+        if (result?.data?.upsertResponse?.key === newName) {
+            this.handleReplaceLine(i, { action: newName });
+        }
+    };
 
-    static contextType = ProjectContext;
+    handleSaveUserUtterance = (index, value) => {
+        if (value.length === 1) this.handleReplaceLine(index, value[0]);
+        else this.handleReplaceLine(index, { or: value });
+    };
 
-    render() {
-        const { story, getResponseLocations } = this.props;
+    renderLine = (line, index) => {
         const { responses } = this.context;
         const { language } = this.context;
-        const { project: { _id: projectId } } = this.context;
         const { responseLocations, loadingResponseLocations } = this.state;
-        if (!story) return <div className='story-visual-editor' />;
-        const lines = story.lines.map((line, index) => {
-            const exceptions = story.exceptions.filter(
-                exception => exception.line === index + 1,
-            );
+        const exceptions = [];
 
-            if (['form_decl', 'form'].includes(line.gui.type)
-                || (line.gui.type === 'action' && line.gui.data.name === 'action_deactivate_form')) {
-                return this.renderFormLine(index, line, exceptions);
-            }
-            if (line.gui.type === 'action') return this.renderActionLine(index, line.gui, exceptions);
-            if (line.gui.type === 'slot') return this.renderSlotLine(index, line.gui, exceptions);
-            if (line.gui.type === 'bot') {
-                const { name } = line.gui.data;
+        if ('active_loop' in line) {
+            return this.renderLoopLine(index, line, exceptions);
+        }
+        if ('action' in line) {
+            if (line.action.indexOf('utter_') === 0) {
+                const name = line.action;
                 return (
                     <React.Fragment key={`bot-${index}-${name}-${language}`}>
                         <ExceptionWrapper exceptions={exceptions}>
@@ -299,7 +282,7 @@ export default class StoryVisualEditor extends React.Component {
                                 exceptions={exceptions}
                                 name={name}
                                 initialValue={responses[name]}
-                                onChange={newResponse => this.handleBotResponseChange(name, newResponse)}
+                                onChange={newResponse => this.handleSaveBotResponse(index, name, newResponse)}
                                 onDeleteAllResponses={() => this.handleDeleteLine(index)}
                                 responseLocations={responseLocations[name]}
                                 loadingResponseLocations={loadingResponseLocations}
@@ -309,30 +292,41 @@ export default class StoryVisualEditor extends React.Component {
                     </React.Fragment>
                 );
             }
-            if (line.gui.type === 'user') {
-                return (
-                    <React.Fragment key={`user-${index}-${line.md || ''}-${language}`}>
-                        <ExceptionWrapper exceptions={exceptions}>
-                            <UserUtterancesContainer
-                                value={line.gui.data}
-                                onChange={v => this.handleSaveUserUtterance(index, v)}
-                                onDelete={() => this.handleDeleteLine(index)}
-                                projectId={projectId}
-                            />
-                        </ExceptionWrapper>
-                        {this.renderAddLine(index)}
-                    </React.Fragment>
-                );
-            }
-            return this.renderBadLine(index, line, exceptions);
-        });
+            if (this.isLoopSequence(index)?.isFirstLineOfSeq) return null;
+            return this.renderActionLine(index, line, exceptions);
+        }
+        if ('slot_was_set' in line) {
+            return this.renderSlotLine(index, line, exceptions);
+        }
+        if ('or' in line || 'intent' in line) {
+            return (
+                <React.Fragment key={`user-${index}-${line.md || ''}-${language}`}>
+                    <ExceptionWrapper exceptions={exceptions}>
+                        <UserUtterancesContainer
+                            value={line.or || [line]}
+                            onChange={v => this.handleSaveUserUtterance(index, v)}
+                            onDelete={() => this.handleDeleteLine(index)}
+                        />
+                    </ExceptionWrapper>
+                    {this.renderAddLine(index)}
+                </React.Fragment>
+            );
+        }
+        return this.renderBadLine(index, line, exceptions);
+    };
+
+    static contextType = ProjectContext;
+
+    render() {
+        const { story, getResponseLocations } = this.props;
+        if (!story) return <div className='story-visual-editor' />;
         return (
             <div
                 className='story-visual-editor'
                 onMouseEnter={() => {
                     this.setState({ loadingResponseLocations: true });
-                    const storyResponses = story.lines.reduce((value, { gui }) => {
-                        if (gui.type === 'bot') value.push(gui.data.name);
+                    const storyResponses = story.reduce((value, { action = '' }) => {
+                        if (action.indexOf('utter_') === 0) value.push(action);
                         return value;
                     }, []);
                     getResponseLocations(storyResponses, (err, result) => {
@@ -341,20 +335,25 @@ export default class StoryVisualEditor extends React.Component {
                         this.setState({ responseLocations: result });
                     });
                 }}
-                onMouseLeave={() => { this.menuCloser(); this.menuCloser = () => {}; }}
+                onMouseLeave={() => {
+                    this.menuCloser();
+                    this.menuCloser = () => {};
+                }}
             >
                 {this.renderAddLine(-1)}
-                {lines}
+                {story.map((line, index) => this.renderLine(line, index))}
             </div>
         );
     }
 }
 
 StoryVisualEditor.propTypes = {
-    story: PropTypes.instanceOf(StoryController),
+    onSave: PropTypes.func.isRequired,
+    story: PropTypes.array.isRequired,
     getResponseLocations: PropTypes.func.isRequired,
+    mode: PropTypes.oneOf(['story', 'rule_steps', 'rule_condition']),
 };
 
 StoryVisualEditor.defaultProps = {
-    story: [],
+    mode: 'story',
 };

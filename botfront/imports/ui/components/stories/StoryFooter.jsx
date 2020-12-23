@@ -6,6 +6,7 @@ import {
     Icon,
     Menu,
     Dropdown,
+    Checkbox,
 } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import StoryPathPopup from './StoryPathPopup.jsx';
@@ -80,8 +81,8 @@ class StoryFooter extends React.Component {
         return ' linked';
     }
 
-    filterDestinations = (data, currentStoryId) => data.filter((story) => {
-        if (story._id === currentStoryId) {
+    filterDestinations = (data, _id) => data.filter((story) => {
+        if (story._id === _id) {
             if (story.branches && story.branches.length > 0 && !(story.rules && story.rules.length > 0)) return true;
             return false;
         }
@@ -112,11 +113,13 @@ class StoryFooter extends React.Component {
         );
     }
 
-    renderBranchMenu = (destinationStory, canBranch) => {
-        const { projectId } = this.props;
-        if (destinationStory) {
-            return <></>;
-        }
+    renderBranchMenu = () => {
+        const {
+            canBranch,
+            fragment,
+            destinationStory,
+        } = this.props;
+        if (destinationStory || fragment.type === 'rule') return null;
         return (
             <Menu.Item
                 onClick={this.handleBranchClick}
@@ -135,56 +138,80 @@ class StoryFooter extends React.Component {
         );
     }
 
-    renderLinkMenu = (destinationStory, onDestinationStorySelection, canBranch, stories, currentStoryId) => (
-        <Menu.Item
-            className={`footer-option-button remove-padding color-${this.selectIconColor(
-                canBranch,
-            )}`}
-            data-cy='link-to'
-            position={this.positionStoryLinker(destinationStory)}
-        >
-            <Icon
-                disabled={!canBranch}
-                name='arrow right'
-                color='green'
-            />
-            Link&nbsp;to:
-            <Dropdown
-                placeholder='Select story'
-                value={destinationStory ? destinationStory._id : ''}
-                fluid
-                search
-                selection
-                clearable
-                selectOnBlur={false}
-                className='stories-linker'
-                options={this.filterDestinations(stories, currentStoryId)}
-                data-cy='stories-linker'
-                disabled={!canBranch}
-                onChange={onDestinationStorySelection}
-            />
-        </Menu.Item>
-    )
+    renderWaitForUserInputToggle = () => {
+        const { fragment, projectId } = this.props;
+        const { updateStory } = this.context;
+        const { _id, type, wait_for_user_input: waitInput = true } = fragment;
+        if (type !== 'rule') return null;
+        return (
+            <Menu.Item position='right'>
+                <Checkbox
+                    disabled={!can('stories:w', projectId)}
+                    toggle
+                    label='wait for user input'
+                    className='story-box-toggle'
+                    checked={waitInput}
+                    onChange={() => updateStory({ _id, wait_for_user_input: !waitInput })}
+                />
+            </Menu.Item>
+        );
+    }
 
+    renderLinkMenu = () => {
+        const {
+            canBranch,
+            fragment,
+            destinationStory,
+            onDestinationStorySelection,
+        } = this.props;
+        const { stories } = this.context;
+        if (!canBranch || fragment.type === 'rule') return null;
+        return (
+            <Menu.Item
+                className={`footer-option-button remove-padding color-${this.selectIconColor(
+                    canBranch,
+                )}`}
+                data-cy='link-to'
+                position={this.positionStoryLinker(destinationStory)}
+            >
+                <Icon
+                    disabled={!canBranch}
+                    name='arrow right'
+                    color='green'
+                />
+                Link&nbsp;to:
+                <Dropdown
+                    placeholder='Select story'
+                    value={destinationStory ? destinationStory._id : ''}
+                    fluid
+                    search
+                    selection
+                    clearable
+                    selectOnBlur={false}
+                    className='stories-linker'
+                    options={this.filterDestinations(stories, fragment._id)}
+                    data-cy='stories-linker'
+                    disabled={!canBranch}
+                    onChange={onDestinationStorySelection}
+                />
+            </Menu.Item>
+        );
+    };
 
     positionStoryLinker = destinationStory => (destinationStory === null ? 'right' : 'left');
 
+    static contextType = ConversationOptionsContext;
+
     render() {
-        const {
-            canBranch,
-            stories,
-            currentStoryId,
-            destinationStory,
-            onDestinationStorySelection,
-            projectId,
-        } = this.props;
+        const { destinationStory, projectId } = this.props;
         return (
             <Segment data-cy='story-footer' className={`footer-segment ${destinationStory === null ? '' : 'linked'}`} size='mini' attached='bottom'>
                 <div className='breadcrumb-container'>{this.renderPath()}</div>
                 <Menu fluid size='mini' borderless>
-                    <>{can('stories:w', projectId) && this.renderBranchMenu(destinationStory, canBranch)}</>
-                    <>{can('stories:w', projectId) && canBranch ? this.renderLinkMenu(destinationStory, onDestinationStorySelection, canBranch, stories, currentStoryId) : null}</>
-                    <>{this.renderContinue()}</>
+                    {can('stories:w', projectId) && this.renderBranchMenu()}
+                    {can('stories:w', projectId) && this.renderLinkMenu()}
+                    {this.renderContinue()}
+                    {this.renderWaitForUserInputToggle()}
                 </Menu>
             </Segment>
         );
@@ -194,13 +221,12 @@ class StoryFooter extends React.Component {
 StoryFooter.propTypes = {
     storyPath: PropTypes.array,
     canBranch: PropTypes.bool,
-    currentStoryId: PropTypes.string.isRequired,
+    fragment: PropTypes.object.isRequired,
     canContinue: PropTypes.bool,
     onBranch: PropTypes.func.isRequired,
     onContinue: PropTypes.func.isRequired,
     onDestinationStorySelection: PropTypes.func.isRequired,
     disableContinue: PropTypes.bool,
-    stories: PropTypes.array.isRequired,
     destinationStory: PropTypes.object,
     projectId: PropTypes.string.isRequired,
 };
@@ -217,15 +243,4 @@ const mapStateToProps = state => ({
     projectId: state.settings.get('projectId'),
 });
 
-const ConnectedStoryFooter = connect(mapStateToProps)(StoryFooter);
-
-export default props => (
-    <ConversationOptionsContext.Consumer>
-        {value => (
-            <ConnectedStoryFooter
-                {...props}
-                stories={value.stories}
-            />
-        )}
-    </ConversationOptionsContext.Consumer>
-);
+export default connect(mapStateToProps)(StoryFooter);

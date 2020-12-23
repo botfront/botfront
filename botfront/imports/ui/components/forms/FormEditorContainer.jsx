@@ -46,6 +46,10 @@ const FormEditorContainer = (props) => {
     const invalidResponse = getResponse(`utter_invalid_${slotName}`);
 
     const handleChange = (update) => {
+        if (!update.filling || !update.filling.length) {
+            onChange(formId, { ...update, filling: [{ type: 'from_text' }] });
+            return;
+        }
         onChange(formId, update);
     };
 

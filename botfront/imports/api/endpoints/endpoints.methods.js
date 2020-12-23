@@ -24,37 +24,39 @@ export const createEndpoints = async (project) => {
         }));
     }
 };
-export const saveEndpoints = async (endpoints) => {
-    try {
-        if (!Meteor.isServer) throw Meteor.Error(400, 'Not Authorized');
-        return Endpoints.upsert(
-            { projectId: endpoints.projectId, _id: endpoints._id },
-            { $set: { endpoints: endpoints.endpoints, projectId: endpoints.projectId, environment: endpoints.environment || 'development' } },
-        );
-    } catch (e) {
-        throw formatError(e);
-    }
-};
 
 if (Meteor.isServer) {
     import { auditLog } from '../../../server/logger';
 
     Meteor.methods({
         'endpoints.save'(endpoints) {
-            checkIfCan('resources:w', endpoints.projectId);
+            checkIfCan(['resources:w', 'import:x'], endpoints.projectId);
             check(endpoints, Object);
-            const endpointsBefore = Endpoints.findOne({ projectId: endpoints.projectId, _id: endpoints._id });
-            auditLog('Saved endpoints', {
-                user: Meteor.user(),
-                projectId: endpoints.projectId,
-                type: 'updated',
-                operation: 'endpoints-updated',
-                resId: endpoints.projectId,
-                after: { endpoints },
-                before: { endpoints: endpointsBefore },
-                resType: 'project',
-            });
-            return saveEndpoints(endpoints);
+            try {
+                const env = endpoints.environment || 'development';
+                const envQuery = env !== 'development'
+                    ? { environment: env }
+                    : { $or: [{ environment: env }, { environment: { $exists: false } }] };
+                const endpointsBefore = Endpoints.findOne({
+                    projectId: endpoints.projectId, ...envQuery,
+                });
+                auditLog('Saved endpoints', {
+                    user: Meteor.user(),
+                    projectId: endpoints.projectId,
+                    type: 'updated',
+                    operation: 'endpoints-updated',
+                    resId: endpoints.projectId,
+                    after: { endpoints },
+                    before: { endpoints: endpointsBefore },
+                    resType: 'project',
+                });
+                return Endpoints.upsert(
+                    { projectId: endpoints.projectId, ...envQuery },
+                    { $set: { endpoints: endpoints.endpoints } },
+                );
+            } catch (e) {
+                throw formatError(e);
+            }
         },
         async 'actionsEndpoints.save'(projectId, env, actionsUrl) {
             checkIfCan('projects:w', projectId);

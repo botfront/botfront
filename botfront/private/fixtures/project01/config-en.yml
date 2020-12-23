@@ -1,0 +1,41 @@
+pipeline:
+  - name: WhitespaceTokenizer
+  - name: CountVectorsFeaturizer
+    analyzer: char_wb
+    min_ngram: 1
+    max_ngram: 4
+  - name: DIETClassifier
+  - name: LexicalSyntacticFeaturizer
+    features:
+      - - low
+        - title
+        - upper
+      - - BOS
+        - EOS
+        - upper
+        - title
+        - digit
+        - suffix5
+      - - low
+        - title
+        - upper
+  - name: DucklingHTTPExtractor
+    locale: en_US
+    dimensions:
+      - time
+      - email
+      - number
+  - name: rasa_addons.nlu.components.gazette.Gazette
+  - name: EntitySynonymMapper
+language: en
+
+
+policies:
+  - name: TEDPolicy
+    epochs: 150
+    max_history: 5
+    batch_size:
+      - 32
+      - 64
+  - name: MemoizationPolicy
+    max_history: 5

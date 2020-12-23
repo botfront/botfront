@@ -39,7 +39,7 @@ export default {
         },
         async conversation(_, args, context) {
             checkIfCan('incoming:r', args.projectId, context.user._id);
-            return getConversation(args.projectId, args.id);
+            return getConversation(args.projectId, args.id, args.senderId);
         },
         async intentsInConversations(_, args, context) {
             checkIfCan('incoming:r', args.projectId, context.user._id);

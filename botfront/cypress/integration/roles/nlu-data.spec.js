@@ -5,7 +5,7 @@ describe('nlu-data:r restricted permissions', () => {
         cy.removeDummyRoleAndUser();
         cy.deleteProject('bf');
         cy.createProject('bf', 'My Project', 'en');
-        cy.importNluData('bf', 'nlu_sample_en.json', 'en', false, ['Let\'s get started!']);
+        cy.import('bf', 'nlu_sample_en.json', 'en');
         cy.createDummyRoleAndUser({ permission: ['nlu-data:r'] });
     });
 

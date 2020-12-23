@@ -1,0 +1,5214 @@
+{
+  "rasa_nlu_data": {
+    "common_examples": [
+      {
+        "text": "I'm in",
+        "intent": "basics.i_m_in",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Yes, I'm in",
+        "intent": "basics.i_m_in",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "i want in",
+        "intent": "basics.i_m_in",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Another time",
+        "intent": "basics.later",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "May be later",
+        "intent": "basics.later",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Not today",
+        "intent": "basics.later",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I refused",
+        "intent": "basics.no",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "No",
+        "intent": "basics.no",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "No thanks",
+        "intent": "basics.no",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Non",
+        "intent": "basics.no",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "nah",
+        "intent": "basics.no",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "never mind",
+        "intent": "basics.no",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "no",
+        "intent": "basics.no",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "no thanks",
+        "intent": "basics.no",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "noooooooooooooooooo",
+        "intent": "basics.no",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "nooooooooooooooooooooooo",
+        "intent": "basics.no",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "nope",
+        "intent": "basics.no",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "not really",
+        "intent": "basics.no",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "please no",
+        "intent": "basics.no",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Why do you need this?",
+        "intent": "basics.why",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Why should I give that to you?",
+        "intent": "basics.why",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Why should I tell you",
+        "intent": "basics.why",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Why?",
+        "intent": "basics.why",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "why",
+        "intent": "basics.why",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "why do you wanna know",
+        "intent": "basics.why",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "He",
+        "intent": "basics.yes",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I do",
+        "intent": "basics.yes",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Oui",
+        "intent": "basics.yes",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Yes",
+        "intent": "basics.yes",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "absolutely",
+        "intent": "basics.yes",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "alright",
+        "intent": "basics.yes",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "of course",
+        "intent": "basics.yes",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "ok",
+        "intent": "basics.yes",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "ok then",
+        "intent": "basics.yes",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "ok, let's do it",
+        "intent": "basics.yes",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "oui",
+        "intent": "basics.yes",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "sure",
+        "intent": "basics.yes",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "yea",
+        "intent": "basics.yes",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "yeah sure",
+        "intent": "basics.yes",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "yep",
+        "intent": "basics.yes",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "yep I am curious",
+        "intent": "basics.yes",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "yes",
+        "intent": "basics.yes",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "yes, please",
+        "intent": "basics.yes",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "request_demo",
+        "intent": "book_demo",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Are you a human?",
+        "intent": "chitchat.are_you_a_robot",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Are you a robot",
+        "intent": "chitchat.are_you_a_robot",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Show me your circuts",
+        "intent": "chitchat.are_you_a_robot",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "are you a bot",
+        "intent": "chitchat.are_you_a_robot",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "are you a chatbot",
+        "intent": "chitchat.are_you_a_robot",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "are you a program",
+        "intent": "chitchat.are_you_a_robot",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "are you a robot",
+        "intent": "chitchat.are_you_a_robot",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "are you just a bot",
+        "intent": "chitchat.are_you_a_robot",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "you are a bot",
+        "intent": "chitchat.are_you_a_robot",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "you are chatbot",
+        "intent": "chitchat.are_you_a_robot",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "you're a robot",
+        "intent": "chitchat.are_you_a_robot",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Bye",
+        "intent": "chitchat.bye",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "bye",
+        "intent": "chitchat.bye",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "have a great day",
+        "intent": "chitchat.bye",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "okay see you later",
+        "intent": "chitchat.bye",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Continue",
+        "intent": "chitchat.continue",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Ca va",
+        "intent": "chitchat.feel_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I am good",
+        "intent": "chitchat.feel_good",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I feel great",
+        "intent": "chitchat.feel_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I feel great today",
+        "intent": "chitchat.feel_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I feel great!",
+        "intent": "chitchat.feel_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I feel terrible",
+        "intent": "chitchat.feel_sad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I feel terrible today",
+        "intent": "chitchat.feel_sad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Not great today",
+        "intent": "chitchat.feel_sad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Not that great today",
+        "intent": "chitchat.feel_sad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "i feel sad",
+        "intent": "chitchat.feel_sad",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Chinese",
+        "intent": "chitchat.foreign_language",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Do you speak German",
+        "intent": "chitchat.foreign_language",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Do you speek French",
+        "intent": "chitchat.foreign_language",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Speak italian?",
+        "intent": "chitchat.foreign_language",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Turkish",
+        "intent": "chitchat.foreign_language",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "german",
+        "intent": "chitchat.foreign_language",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "kannst du deutsch?",
+        "intent": "chitchat.foreign_language",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Hello",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Hey there",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Hi",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Hi there",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I greet you",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "a good day",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "a good morning",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "afternoon",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "and a good morning to you",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "evening",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "good evening",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "good evening there",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "good evening to you",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "good morning",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "good morning there",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "good morning to you",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "good morning too",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "greetings",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "have a great morning",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "have a nice morning",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "hello",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "hello again",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "hello good evening",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "hello good morning",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "hello hi",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "hello there",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "hey",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "hey good evening",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "hey there",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "heya",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "hi",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "hi good morning",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "hi there",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "howdy",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "just going to say hi",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "long time no see",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "lovely day isn't it",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "morning",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "namasthe",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "top of the morning to you",
+        "intent": "chitchat.greet",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Are you ok",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "How are you doing?",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "How are you today?",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "How do u feel today",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I'm fine and you",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Would **analytics**, **conversational forms**, separate development and production environments bring value to your project?",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "are you alright",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "are you having a good day",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "are you okay",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "hope you re having a pleasant eve",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "hope your day is going well",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how about you",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how are the things going",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how are you",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how are you doing",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how are you doing this morning",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how are you doing today",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how are you feeling",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how are you getting on",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how are you going",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how are you today",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how do you do",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how do you feel",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how has your day been",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how has your day been going",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how have you been",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how is it",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how is it going",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how is your day",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how is your day being",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how is your day going",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how is your day going on",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how is your evening",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how is your life",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how is your morning going",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how is your morning so far",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how was your day",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how your day is going",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how's life",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how's your day",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how's your day going",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "is everything all right",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "is everything okay",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "what about your day",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "what do you do",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "what sup",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "what was your day like",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "whats up",
+        "intent": "chitchat.how_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I'm being mad",
+        "intent": "chitchat.i_am_angry",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I am excited",
+        "intent": "chitchat.i_am_excited",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I don't care",
+        "intent": "chitchat.i_dont_care",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "don't care",
+        "intent": "chitchat.i_dont_care",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Fuck",
+        "intent": "chitchat.insults",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Holy shit this is stupid",
+        "intent": "chitchat.insults",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "You are an idiot",
+        "intent": "chitchat.insults",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "asshole",
+        "intent": "chitchat.insults",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "idiot",
+        "intent": "chitchat.insults",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "you're stupid man",
+        "intent": "chitchat.insults",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Makes sense",
+        "intent": "chitchat.makes_sense",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Can we have a trisome?",
+        "intent": "chitchat.sex",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I love you",
+        "intent": "chitchat.sex",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I wanna have sex with you",
+        "intent": "chitchat.sex",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I want to flirt with you?",
+        "intent": "chitchat.sex",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "show me some love",
+        "intent": "chitchat.sex",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I wanna hear a good one",
+        "intent": "chitchat.tell_me_a_joke",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I want a brown shirt",
+        "intent": "chitchat.tell_me_a_joke",
+        "entities": [
+          {
+            "start": 9,
+            "end": 14,
+            "value": "brown",
+            "entity": "color"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I want need a redd shirt",
+        "intent": "chitchat.tell_me_a_joke",
+        "entities": [
+          {
+            "start": 14,
+            "end": 18,
+            "value": "redd",
+            "entity": "color"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "tell me a joke",
+        "intent": "chitchat.tell_me_a_joke",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "tell me a story",
+        "intent": "chitchat.tell_me_a_joke",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "tell me something funnt",
+        "intent": "chitchat.tell_me_a_joke",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I appreciate it",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I thank you",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "all thank you",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "alright thank you",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "alright thanks",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "appreciate your help",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "cheers",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "good thanks",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "great thank you",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "nice thank you",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "no thank you that's all",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "perfect thank you",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "so nice of you",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "terrific thank you",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "thank you",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "thank you again",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "thank you for your help",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "thank you my friend",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "thank you so much",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "thank you that will be all",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "thanks",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "thanks a lot",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "thanks again",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "thanks buddy",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "thanks for your help",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "thanks love",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "thanks so much",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "thanx",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "thnx",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "very good thank you",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "well thank you",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "well thanks",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "you helped a lot thank you",
+        "intent": "chitchat.thank_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I'm afraid it's bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "This is bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "This sucks",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "abysmal",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "bad girl",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "bad idea",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "bad really bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "bad very bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "horrible",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "horrific",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "it is bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "it is too bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "it's bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "it's not good",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "it's not so good",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "it's really bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "it's so bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "it's too bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "it's very bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "no good",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "no it's bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "not a good one",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "not good",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "not good enough",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "not so good",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "not too good",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "oh that's not good",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "pretty bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "really bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "sad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "so bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "so lame",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "terrible",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that is bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that was awful",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that was bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that was horrible",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that was lame",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that was not good",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that was terrible",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's lame",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's not good",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's not good enough",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's really bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's terrible",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's too bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "this is bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "this is not good",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "this is too bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "too bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "very bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "well too bad",
+        "intent": "chitchat.this_is_bad",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Great",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I'm glad to hear that",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Ye",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "amazing",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "brilliant",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "cool",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "excellent",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "fantastic",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "fine",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "glad to hear it",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "glad to hear that",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "good",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "good for you",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "good thing",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "good to know",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "good very good",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "great",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "it is fine",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "it is good",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "it was good",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "it's amazing",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "it's awesome",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "it's fine",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "it's good",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "it's great",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "it's perfect",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "it's very good",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "marvelous",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "much better",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "nice",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "no it's okay",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "not bad",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "not too bad",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "oh well",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "ok good",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "okay good",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "perfect",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "pleasant",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "pretty good",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "really good",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "really nice",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "really well",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "setset",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "setsteset",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "so cool",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "so good",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "so sweet of you",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "splendid",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "straight",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "super",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "super fantastic",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "sweet",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "terrific",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "test",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that is awesome",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that is good",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that is nice",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that is wonderful",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that was amazing",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that was awesome",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that was cute",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that was good",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that was pretty good",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that was very good",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's a good idea",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's a good thing",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's amazing",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's awesome",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's awesome thank you",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's better",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's cute",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's fantastic",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's fine",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's great",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's much better",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's nice",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's nice of you",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's not bad",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's perfect",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's pretty good",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's really good",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's really nice",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's sweet of you",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's very good",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's very nice",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's very nice of you",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "that's wonderful",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "this is awesome",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "this is good",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "this is great",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "very good",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "very nice",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "very then",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "very well",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "wonderful",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "you've been great, thanks",
+        "intent": "chitchat.this_is_good",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "How can I call you",
+        "intent": "chitchat.what_is_your_name",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "What is your name",
+        "intent": "chitchat.what_is_your_name",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "ur name?",
+        "intent": "chitchat.what_is_your_name",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "what is you name?",
+        "intent": "chitchat.what_is_your_name",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "what is your name ?",
+        "intent": "chitchat.what_is_your_name",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "what is your name?",
+        "intent": "chitchat.what_is_your_name",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "What time is it",
+        "intent": "chitchat.what_time_is_it",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Whats time o clock?",
+        "intent": "chitchat.what_time_is_it",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Whats your name",
+        "intent": "chitchat.what_time_is_it",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "what is time ?",
+        "intent": "chitchat.what_time_is_it",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "whjat time is it",
+        "intent": "chitchat.what_time_is_it",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Who are you",
+        "intent": "chitchat.who_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Who are you ?",
+        "intent": "chitchat.who_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Who the hell are u",
+        "intent": "chitchat.who_are_you",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "you are annoying me so",
+        "intent": "chitchat.you_are_annoying",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "you're really smart",
+        "intent": "chitchat.you_are_smart",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Montre moi ton clic",
+        "intent": "clicdemo",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "GraphQL query failed with 1 errors",
+        "intent": "demo.lumpsum_overpayment",
+        "entities": [
+          {
+            "start": 26,
+            "end": 27,
+            "value": "1",
+            "entity": "number"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "How can I pay a lot at the end of year 2",
+        "intent": "demo.lumpsum_overpayment",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "How do I add a future payment",
+        "intent": "demo.lumpsum_overpayment",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "How to add a future lump sum payment",
+        "intent": "demo.lumpsum_overpayment",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I want to reimburse a lot of money at once",
+        "intent": "demo.lumpsum_overpayment",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "What if I pay a big amount of money",
+        "intent": "demo.lumpsum_overpayment",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how to integrate rasa to my own webpage",
+        "intent": "demo.lumpsum_overpayment",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "how to add a monthly overpayment",
+        "intent": "demo.monthly_overpayment",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "show me the effect if I decide to pay more per month",
+        "intent": "demo.monthly_overpayment",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "what If I pay more every month",
+        "intent": "demo.monthly_overpayment",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Quand aura lieu le prochain déneigement?",
+        "intent": "deneigement",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Do you eat, dear robot?",
+        "intent": "eat",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Stephan",
+        "intent": "first",
+        "entities": [
+          {
+            "start": 0,
+            "end": 7,
+            "value": "Stephan",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Don't want to give it",
+        "intent": "form.refusal",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I don't want",
+        "intent": "form.refusal",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I don't want to give it",
+        "intent": "form.refusal",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I want a blue shirt",
+        "intent": "form.refusal",
+        "entities": [
+          {
+            "start": 9,
+            "end": 13,
+            "value": "blue",
+            "entity": "color"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I will not tell you",
+        "intent": "form.refusal",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "dont wanna tell ya",
+        "intent": "form.refusal",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "i cant give",
+        "intent": "form.refusal",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "no email",
+        "intent": "form.refusal",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "no your problem",
+        "intent": "form.refusal",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Go on",
+        "intent": "general.continue",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "How does it work",
+        "intent": "general.how_does_it_work",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I don't understand",
+        "intent": "general.i_dont_understand",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I'm not interested",
+        "intent": "general.not_interested",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Not interested",
+        "intent": "general.not_interested",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "not interested",
+        "intent": "general.not_interested",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "How do I install",
+        "intent": "help.install",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I run into some errors installing botfront",
+        "intent": "help.install",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how to install",
+        "intent": "help.install",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how to install botfront with docker?",
+        "intent": "help.install",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "How do I get started",
+        "intent": "how_to_get_started_with_botfront",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I need a red shirt",
+        "intent": "how_to_get_started_with_botfront",
+        "entities": [
+          {
+            "start": 9,
+            "end": 12,
+            "value": "red",
+            "entity": "color"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I have a question",
+        "intent": "i_have_a_question",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I just have a few questions",
+        "intent": "i_have_a_question",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Still have questions",
+        "intent": "i_have_a_question",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Aziz",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 0,
+            "end": 4,
+            "value": "Aziz",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Call me Arthur",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 8,
+            "end": 14,
+            "value": "Arthur",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Eric",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 0,
+            "end": 4,
+            "value": "Eric",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I meant Greg",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 8,
+            "end": 12,
+            "value": "Greg",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I typed the wrong name. i am olie",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 29,
+            "end": 33,
+            "value": "olie",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I'm James",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 4,
+            "end": 9,
+            "value": "James",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I'm Matthieu",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 4,
+            "end": 12,
+            "value": "Matthieu",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I'm Pete",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 4,
+            "end": 8,
+            "value": "Pete",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I'm Peter",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 4,
+            "end": 9,
+            "value": "Peter",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I'm victoria",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 4,
+            "end": 12,
+            "value": "victoria",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "James",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 0,
+            "end": 5,
+            "value": "James",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "My first name is John",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 17,
+            "end": 21,
+            "value": "John",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "My name is Frank",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 11,
+            "end": 16,
+            "value": "Frank",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "My name is Nathan",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 11,
+            "end": 17,
+            "value": "Nathan",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Nathan",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 0,
+            "end": 6,
+            "value": "Nathan",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "No, I'm James",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 8,
+            "end": 13,
+            "value": "James",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "No, my name is Abishek",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 15,
+            "end": 22,
+            "value": "Abishek",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Sven",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 0,
+            "end": 4,
+            "value": "Sven",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "You can call me Patrick",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 16,
+            "end": 23,
+            "value": "Patrick",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "hello my name is naman",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 17,
+            "end": 22,
+            "value": "naman",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "made a type, my first name is Helio",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 30,
+            "end": 35,
+            "value": "Helio",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "my name is Hames",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 11,
+            "end": 16,
+            "value": "Hames",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "my name is elie",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 11,
+            "end": 15,
+            "value": "elie",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "my name is pepe",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 11,
+            "end": 15,
+            "value": "pepe",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "no, my name is gregor",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 15,
+            "end": 21,
+            "value": "gregor",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "no, my name is kalas",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 15,
+            "end": 20,
+            "value": "kalas",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "sorry, made a typo. I'm Shanti",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 24,
+            "end": 30,
+            "value": "Shanti",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "sorry, my name is peter",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 18,
+            "end": 23,
+            "value": "peter",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "wait, no, I'm luka",
+        "intent": "inform",
+        "entities": [
+          {
+            "start": 14,
+            "end": 18,
+            "value": "luka",
+            "entity": "name"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "http://google.com",
+        "intent": "inform.website",
+        "entities": [
+          {
+            "start": 0,
+            "end": 17,
+            "value": "http://google.com",
+            "entity": "company_website"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "active support",
+        "intent": "learn_more.active_support",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "how tutorial work",
+        "intent": "learn_more.active_support",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "tell me about active support",
+        "intent": "learn_more.active_support",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "what is your tutorial feature",
+        "intent": "learn_more.active_support",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Tell me about conversation triggers",
+        "intent": "learn_more.triggers",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "What's next",
+        "intent": "next",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "next",
+        "intent": "next",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Can i use this for cammercial purposes",
+        "intent": "os_license",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "What is your license?",
+        "intent": "os_license",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Is Botfront free",
+        "intent": "pricing.is_it_free",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Is it free?",
+        "intent": "pricing.is_it_free",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "is there a free version",
+        "intent": "pricing.is_it_free",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "How do I get support?",
+        "intent": "question.how_do_i_get_support",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Support",
+        "intent": "question.how_do_i_get_support",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "how to add button",
+        "intent": "question.how_to_buttons",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "How to add carousels",
+        "intent": "question.how_to_carousels",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how to add Carousels",
+        "intent": "question.how_to_carousels",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how to build carousels ?",
+        "intent": "question.how_to_carousels",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "How to add buttons",
+        "intent": "questions.how_to_buttons",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Is there a commercial version",
+        "intent": "questions.is_commercial",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Can I install it on prem",
+        "intent": "questions.is_onprem",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Does it work on my own infrastructure",
+        "intent": "questions.is_onprem",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Have been unable to setup botfront in windows",
+        "intent": "questions.is_onprem",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "We run on Google cloud, can we set it up there",
+        "intent": "questions.is_onprem",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "can I install it on my servers",
+        "intent": "questions.is_onprem",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "can i install on prem",
+        "intent": "questions.is_onprem",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "can we setup it on AWS",
+        "intent": "questions.is_onprem",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Is it a Saas",
+        "intent": "questions.is_saas",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "is botfront hosted",
+        "intent": "questions.is_saas",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "is botfront hoster",
+        "intent": "questions.is_saas",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "What are the premium features?",
+        "intent": "questions.premium_features",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "What's the difference between open source and commercial",
+        "intent": "questions.premium_features",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "What's the difference between open source and paid version",
+        "intent": "questions.premium_features",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "What can you do?",
+        "intent": "questions.what_can_you_do",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "give me some options",
+        "intent": "questions.what_can_you_do",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "is there anything else you can do?",
+        "intent": "questions.what_can_you_do",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "what can u do",
+        "intent": "questions.what_can_you_do",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "what can you do",
+        "intent": "questions.what_can_you_do",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "what can you do for me",
+        "intent": "questions.what_can_you_do",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "what can you help me with?",
+        "intent": "questions.what_can_you_do",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Can I import my rasa project",
+        "intent": "rasa.can_i_import",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "What's the difference with Rasa X",
+        "intent": "rasa.difference_with_x",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Does it work with Rasa?",
+        "intent": "rasa.is_it_compatible",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "can I use botfront for rasa",
+        "intent": "rasa.is_it_compatible",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "What is Rasa",
+        "intent": "rasa.what_is_rasa",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "a blu shirt",
+        "intent": "rasa.what_is_rasa",
+        "entities": [
+          {
+            "start": 2,
+            "end": 5,
+            "value": "blu",
+            "entity": "color"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "can I have some information about RASA?",
+        "intent": "rasa.what_is_rasa",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "what is rasa",
+        "intent": "rasa.what_is_rasa",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "what is rasa?",
+        "intent": "rasa.what_is_rasa",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Contact",
+        "intent": "request_contact",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I want to get in touch with someone",
+        "intent": "request_contact",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I want to talk to someone",
+        "intent": "request_contact",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "can we schedule a call",
+        "intent": "request_contact",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "contact",
+        "intent": "request_contact",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "contact information",
+        "intent": "request_contact",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "get in touch",
+        "intent": "request_contact",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "talk to a human",
+        "intent": "request_contact",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Can I have a demo",
+        "intent": "request_demo",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Demo",
+        "intent": "request_demo",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I need a demo",
+        "intent": "request_demo",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I wanna book a demo",
+        "intent": "request_demo",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I want a demo in person",
+        "intent": "request_demo",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I'd like a demo",
+        "intent": "request_demo",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I’d like to schedule a demo to understand your platform and how enterprise pricing works",
+        "intent": "request_demo",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Let's book a demo",
+        "intent": "request_demo",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Schedule a demo please",
+        "intent": "request_demo",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Show me",
+        "intent": "request_demo",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Show me onscreen guidance",
+        "intent": "request_demo",
+        "entities": [
+          {
+            "start": 8,
+            "end": 25,
+            "value": "onscreen guidance",
+            "entity": "feature"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Show me the marketing use case",
+        "intent": "request_demo",
+        "entities": [
+          {
+            "start": 12,
+            "end": 21,
+            "value": "marketing",
+            "entity": "use_case"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Show me the support use case",
+        "intent": "request_demo",
+        "entities": [
+          {
+            "start": 12,
+            "end": 19,
+            "value": "support",
+            "entity": "use_case"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "onscreen support",
+        "intent": "request_demo",
+        "entities": [
+          {
+            "start": 0,
+            "end": 8,
+            "value": "onscreen",
+            "entity": "feature"
+          },
+          {
+            "start": 9,
+            "end": 16,
+            "value": "support",
+            "entity": "use_case"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "show me your product",
+        "intent": "request_demo",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "want a demo",
+        "intent": "request_demo",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I want early access to Botfront cloud",
+        "intent": "request_early_access",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Can you connect mw iwth your supoor team",
+        "intent": "request_help",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Help me",
+        "intent": "request_help",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "How can I use with react",
+        "intent": "request_help",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I need help",
+        "intent": "request_help",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "WebChat.send api exposed by you is not working",
+        "intent": "request_help",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "can you help me",
+        "intent": "request_help",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "deploy rasa x on django",
+        "intent": "request_help",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how can i deploy rasa chatbot in website",
+        "intent": "request_help",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how can i upload a photo",
+        "intent": "request_help",
+        "entities": [
+          {
+            "start": 19,
+            "end": 24,
+            "value": "photo",
+            "entity": "device_type"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "how can you help?",
+        "intent": "request_help",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how do I remove a botfront project",
+        "intent": "request_help",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how to deploy rasa",
+        "intent": "request_help",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how to disable user input",
+        "intent": "request_help",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how to start action server",
+        "intent": "request_help",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how to use webchat.send",
+        "intent": "request_help",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "i need advice",
+        "intent": "request_help",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "i need to deploy the botfront on kubernetes",
+        "intent": "request_help",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "where do i log in?",
+        "intent": "request_help",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I want an in person demo",
+        "intent": "request_in_person_demo",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "In person",
+        "intent": "request_in_person_demo",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "zoom demo",
+        "intent": "request_in_person_demo",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Could you please tell me the price of Botfront Cloud",
+        "intent": "request_pricing",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "How much does it cost?",
+        "intent": "request_pricing",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "How much is it",
+        "intent": "request_pricing",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I want to see the pricing",
+        "intent": "request_pricing",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "It depends. How much does it cost after the trial?",
+        "intent": "request_pricing",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "exact price",
+        "intent": "request_pricing",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "how much is it",
+        "intent": "request_pricing",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "i wan to know about pricing",
+        "intent": "request_pricing",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "whats your pricing?",
+        "intent": "request_pricing",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I want a trial",
+        "intent": "request_trial",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "OK, free trial",
+        "intent": "request_trial",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "can i try it online?",
+        "intent": "request_trial",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "cloud solution",
+        "intent": "request_trial",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "i want a free tial",
+        "intent": "request_trial",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "i wnat to test botfront cloud",
+        "intent": "request_trial",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I changed my mind",
+        "intent": "restart",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I don't wanna do that anymore",
+        "intent": "restart",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I would like to stop that",
+        "intent": "restart",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Please stop",
+        "intent": "restart",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "abort",
+        "intent": "restart",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "cancel",
+        "intent": "restart",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "clear",
+        "intent": "restart",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "clear this conversation",
+        "intent": "restart",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "do not proceed",
+        "intent": "restart",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "eject",
+        "intent": "restart",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "exit",
+        "intent": "restart",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "forget about it",
+        "intent": "restart",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "leave",
+        "intent": "restart",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "nevermind",
+        "intent": "restart",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "ok, let's start again ...",
+        "intent": "restart",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "reset",
+        "intent": "restart",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "restart",
+        "intent": "restart",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "start over",
+        "intent": "restart",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "stop everything",
+        "intent": "restart",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "Send me an email",
+        "intent": "send_me_email",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "email please",
+        "intent": "send_me_email",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Stop",
+        "intent": "stop",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Stop the demo",
+        "intent": "stop",
+        "entities": [
+          {
+            "start": 9,
+            "end": 13,
+            "value": "demo",
+            "entity": "object"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "stop",
+        "intent": "stop",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "I want to subscribe to your newsletter",
+        "intent": "subscribe_newsletter",
+        "entities": [],
+        "metadata": {
+          "language": "en"
+        }
+      },
+      {
+        "text": "My email is james@dean.com and I want to receive your newsletter",
+        "intent": "subscribe_newsletter",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I need to change the style of the widget",
+        "intent": "support.change_widget_css",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "Tell me more about ti",
+        "intent": "tell_me_more",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I am using my computer",
+        "intent": "using_device",
+        "entities": [
+          {
+            "start": 14,
+            "end": 22,
+            "value": "computer",
+            "entity": "device_type"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "I am with my phone",
+        "intent": "using_device",
+        "entities": [
+          {
+            "start": 13,
+            "end": 18,
+            "value": "phone",
+            "entity": "device_type"
+          }
+        ],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      },
+      {
+        "text": "welcome",
+        "intent": "welcome",
+        "entities": [],
+        "metadata": {
+          "language": "en",
+          "canonical": true
+        }
+      }
+    ],
+    "entity_synonyms": [],
+    "gazette": [
+      {
+        "value": "color",
+        "gazette": [
+          "blue",
+          "red"
+        ]
+      }
+    ],
+    "regex_features": []
+  }
+}

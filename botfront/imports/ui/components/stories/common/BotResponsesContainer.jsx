@@ -11,14 +11,10 @@ import {
 import { useMutation } from '@apollo/react-hooks';
 import { safeLoad } from 'js-yaml';
 
-import { withRouter } from 'react-router';
-import { connect } from 'react-redux';
-
 import IconButton from '../../common/IconButton';
 import BotResponseEditor from '../../templates/templates-list/BotResponseEditor';
 import ButtonTypeToggle from '../../templates/common/ButtonTypeToggle';
 import BotResponseContainer from './BotResponseContainer';
-import { setStoriesCurrent } from '../../../store/actions/actions';
 import { useUpload } from '../hooks/image.hooks';
 
 import { can } from '../../../../lib/scopes';
@@ -42,12 +38,9 @@ const BotResponsesContainer = (props) => {
         renameable,
         enableEditPopup,
         tag,
-        setActiveStories,
         responseLocations,
         loadingResponseLocations,
-        router,
         disableEnterKey,
-        isNew,
     } = props;
     const {
         project: { _id: projectId },
@@ -78,7 +71,7 @@ const BotResponsesContainer = (props) => {
         Promise.resolve(initialValue).then((res) => {
             if (!res) return;
             setTemplate(res);
-            if (res.isNew && isNew !== false) setFocus(0);
+            if (res.isNew) setFocus(0);
         });
     }, [initialValue]);
 
@@ -140,14 +133,6 @@ const BotResponsesContainer = (props) => {
 
     const handleNameChange = newName => onChange({ key: newName, payload: template });
 
-    const handleLinkToStory = (selectedId) => {
-        const { location: { pathname } } = router;
-        const storyIds = responseLocations.map(({ _id }) => _id);
-        const openStories = [selectedId, ...storyIds.filter(storyId => storyId !== selectedId)];
-        router.replace({ pathname, query: { 'ids[]': openStories } });
-        setActiveStories(openStories);
-    };
-
     useEffect(() => {
         if (toBeCreated || toBeCreated === 0) {
             handleCreateReponse(toBeCreated);
@@ -184,7 +169,6 @@ const BotResponsesContainer = (props) => {
             name={name}
             responseLocations={responseLocations}
             loading={loadingResponseLocations}
-            linkToStory={handleLinkToStory}
             onChange={handleNameChange}
         />
     );
@@ -252,8 +236,8 @@ const BotResponsesContainer = (props) => {
                                     <ConfirmPopup
                                         title='Delete response?'
                                         description={responseLocations.length > 1
-                                            ? 'Remove this response from the current story'
-                                            : 'Remove this response from the current story and delete it'
+                                            ? 'Remove this response from the current fragment'
+                                            : 'Remove this response from the current fragment and delete it'
                                         }
                                         onYes={() => {
                                             setDeletePopupOpen(false);
@@ -284,19 +268,15 @@ BotResponsesContainer.propTypes = {
     onDeleteAllResponses: PropTypes.func,
     enableEditPopup: PropTypes.bool,
     tag: PropTypes.string,
-    setActiveStories: PropTypes.func.isRequired,
     responseLocations: PropTypes.array,
     loadingResponseLocations: PropTypes.bool,
-    router: PropTypes.object.isRequired,
     renameable: PropTypes.bool,
     disableEnterKey: PropTypes.bool,
-    isNew: PropTypes.bool,
 };
 
 BotResponsesContainer.defaultProps = {
     deletable: true,
     name: null,
-    isNew: false,
     initialValue: null,
     onChange: () => {},
     onDeleteAllResponses: null,
@@ -308,8 +288,4 @@ BotResponsesContainer.defaultProps = {
     disableEnterKey: false,
 };
 
-const mapStateToProps = state => ({
-    projectId: state.settings.get('projectId'),
-});
-
-export default connect(mapStateToProps, { setActiveStories: setStoriesCurrent })(withRouter(BotResponsesContainer));
+export default BotResponsesContainer;

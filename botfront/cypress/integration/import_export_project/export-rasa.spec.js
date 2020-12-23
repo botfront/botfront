@@ -16,16 +16,11 @@ describe('Exporting a Project', function() {
     });
 
     describe('Export UI', function() {
-        it('should navigate the UI for exporting to Rasa/Rasa X', function() {
+        it('should navigate the UI for exporting to Rasa/Botfront', function() {
             cy.visit('/project/bf/settings/import-export');
             cy.dataCy('port-project-menu')
                 .find('.item')
                 .contains('Export')
-                .click();
-            cy.dataCy('export-type-dropdown')
-                .click()
-                .find('span')
-                .contains('Rasa')
                 .click();
             cy.dataCy('export-language-dropdown')
                 .click()
@@ -34,7 +29,7 @@ describe('Exporting a Project', function() {
                 .click();
             cy.dataCy('export-button')
                 .click();
-            cy.contains('Your project has been successfully exported for Rasa/Rasa X!').should('exist');
+            cy.contains('Your project has been successfully exported').should('exist');
         });
 
         it('should list project languages in the language dropdown', function() {
@@ -44,11 +39,6 @@ describe('Exporting a Project', function() {
             cy.dataCy('port-project-menu')
                 .find('.item')
                 .contains('Export')
-                .click();
-            cy.dataCy('export-type-dropdown')
-                .click()
-                .find('span')
-                .contains('Rasa')
                 .click();
             cy.dataCy('export-language-dropdown')
                 .click()
@@ -80,11 +70,6 @@ describe('Exporting a Project', function() {
             cy.dataCy('port-project-menu')
                 .find('.item')
                 .contains('Export')
-                .click();
-            cy.dataCy('export-type-dropdown')
-                .click()
-                .find('span')
-                .contains('Rasa')
                 .click();
             cy.dataCy('export-language-dropdown')
                 .click()

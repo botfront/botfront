@@ -2,8 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
 import { checkIfCan, checkIfScope } from '../../lib/scopes';
-import { StorySchema } from './stories.schema';
-
+import { StorySchema, RuleSchema } from './stories.schema';
 
 export const Stories = new Mongo.Collection('stories');
 
@@ -23,7 +22,12 @@ Stories.deny({
 
 Meteor.startup(() => {
     if (Meteor.isServer) {
-        Stories._ensureIndex({ 'textIndex.contents': 'text', 'textIndex.info': 'text' });
+        try {
+            Stories._dropIndex('textIndex.contents_text_textIndex.info_text');
+        } catch {
+            // don't delete it if it doesn't exist
+        }
+        Stories._ensureIndex({ textIndex: 'text' });
     }
 });
 
@@ -39,11 +43,11 @@ if (Meteor.isServer) {
         check(projectId, String);
         if (!checkIfCan('stories:r', projectId, null, { backupPlan: true })) {
             checkIfScope(projectId, ['nlu-data:r', 'response:r', 'nlu-data:x'], this.userId);
-            return Stories.find({ projectId }, { fields: { _id: 1 } });
+            return Stories.find({ projectId }, { fields: { _id: 1, type: 1 } });
         }
         return Stories.find({ projectId }, {
             fields: {
-                title: true, checkpoints: true, storyGroupId: true, rules: true, status: true,
+                title: true, checkpoints: true, storyGroupId: true, type: true, rules: true, status: true,
             },
         });
     });
@@ -54,4 +58,5 @@ if (Meteor.isServer) {
     });
 }
 
-Stories.attachSchema(StorySchema);
+Stories.attachSchema(RuleSchema, { selector: { type: 'rule' } });
+Stories.attachSchema(StorySchema, { selector: { type: 'story' } });

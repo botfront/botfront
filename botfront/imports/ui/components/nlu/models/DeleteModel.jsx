@@ -66,11 +66,9 @@ class DeleteModel extends React.Component {
             projectId,
             { language },
             wrapMeteorCallback((_, res) => {
-                const {
-                    [language]: { data },
-                } = res.nlu;
-                const blob = new Blob([data], { type: 'text/plain;charset=utf-8' });
-                const filename = `${projectId.toLowerCase()}-${language}-${moment().toISOString()}.md`;
+                const { [language]: data } = res.nlu;
+                const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+                const filename = `${projectId.toLowerCase()}-${language}-${moment().toISOString()}.json`;
                 saveAs(blob, filename);
                 this.setState({ backupDownloaded: true });
             }),

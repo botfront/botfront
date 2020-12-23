@@ -20,5 +20,10 @@
     "lodash": "4.17.15",
     "graphql-tag": "^2.10.3",
     "graphql": "^14.6.0"
+  },
+  "dependencies": {
+    "glob": "^7.1.6",
+    "jszip": "^3.5.0",
+    "path": "^0.12.7"
   }
 }

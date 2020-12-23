@@ -57,18 +57,13 @@ class Endpoints extends React.Component {
     }
 
     onSave = (endpoints) => {
-        const newEndpoints = endpoints;
-        const { selectedEnvironment } = this.state;
+        const { selectedEnvironment: environment } = this.state;
         const { projectId } = this.props;
         this.setState({ saving: true, showConfirmation: false });
         clearTimeout(this.sucessTimeout);
-        if (!endpoints._id) {
-            newEndpoints.projectId = projectId;
-            newEndpoints.environment = selectedEnvironment;
-        }
         Meteor.call(
             'endpoints.save',
-            newEndpoints,
+            { ...endpoints, projectId, environment },
             wrapMeteorCallback((err) => {
                 this.setState({ saving: false });
                 if (!err) {

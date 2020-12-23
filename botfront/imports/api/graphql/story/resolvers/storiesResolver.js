@@ -3,7 +3,7 @@ import { checkIfCan } from '../../../../lib/scopes';
 
 export default {
     Query: {
-        storiesSearch: async (_, args, context) => {
+        dialogueSearch: async (_, args, context) => {
             checkIfCan('stories:r', args.projectId, context.user._id);
             const { projectId, language, queryString } = args;
             return searchStories(projectId, language, queryString);

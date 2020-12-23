@@ -107,10 +107,11 @@ describe('Smart story trigger rules', function() {
 
     it('should not allow a destination story to have rules', () => {
         cy.visit('/project/bf/dialogue');
-        cy.browseToStory('Get started');
-        cy.createStoryInGroup({ groupName: 'Default stories', storyName: 'like woah' });
-        cy.linkStory('like woah', 'Get started');
-        cy.browseToStory('Get started');
+        cy.createStoryGroup();
+        cy.createFragmentInGroup({ fragmentName: 'like wooh' });
+        cy.createFragmentInGroup({ fragmentName: 'like woah' });
+        cy.linkStory('like woah', 'like wooh');
+        cy.browseToStory('like wooh');
         cy.dataCy('connected-to').should('exist');
         cy.dataCy('edit-trigger-rules').first().should('have.class', 'disabled');
         cy.dataCy('edit-trigger-rules').first().click();
@@ -119,8 +120,9 @@ describe('Smart story trigger rules', function() {
 
     it('should not allow linking to a story with rules', () => {
         cy.visit('/project/bf/dialogue');
-        // add rules to the first story
-        cy.browseToStory('Get started');
+        cy.createStoryGroup();
+        cy.createFragmentInGroup({ fragmentName: 'like wooh' });
+        cy.createFragmentInGroup({ fragmentName: 'like woah' });
         cy.dataCy('edit-trigger-rules').click();
         cy.dataCy('toggle-payload-text').first().click();
         cy.dataCy('payload-text-input').first().click().find('input')
@@ -131,10 +133,10 @@ describe('Smart story trigger rules', function() {
         cy.dataCy('submit-triggers').click();
         cy.get('.dimmer').should('not.exist');
 
-        cy.browseToStory('Farewells');
+        cy.browseToStory('like wooh');
         // try to link the new story to the first story
         cy.dataCy('stories-linker').last().click();
-        cy.dataCy('link-to').last().find('span').should('have.text', 'Greetings');
+        cy.dataCy('link-to').contains('like woah').should('not.exist');
     });
 
     it('should trigger a story with the rules payload', () => {
@@ -149,9 +151,10 @@ describe('Smart story trigger rules', function() {
             {
                 _id: 'TESTSTORY',
                 triggerIntent: 'trigger_TESTSTORY',
+                type: 'story',
                 projectId: 'bf',
                 storyGroupId: 'RULES',
-                story: '  - utter_smart_payload',
+                steps: [{ action: 'utter_smart_payload' }],
                 title: 'Test Story',
             },
         ]);

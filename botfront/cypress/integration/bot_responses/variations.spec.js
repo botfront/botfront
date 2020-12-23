@@ -67,7 +67,7 @@ describe('Bot responses', function() {
     it('should show the first variation in the visual editor', function() {
         cy.visit('/project/bf/dialogue');
         cy.createStoryGroup();
-        cy.createStoryInGroup();
+        cy.createFragmentInGroup();
 
         cy.dataCy('single-story-editor').trigger('mouseover');
         cy.dataCy('add-bot-line').click({ force: true });

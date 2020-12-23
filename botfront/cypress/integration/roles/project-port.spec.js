@@ -8,55 +8,44 @@ describe('projects:r can access but not edit settings', () => {
     afterEach(() => {
         cy.removeDummyRoleAndUser();
     });
-    it('should be able to view a read only version of all project settings tabs as projects:r', () => {
+    it('should be able to access export menu', () => {
         // init
-        cy.createDummyRoleAndUser({ permission: ['export:x', 'resources:r'] });
+        cy.createDummyRoleAndUser({ permission: ['export:x'] });
         cy.wait(2000);
         cy.login({ admin: false });
         cy.visit('/project/bf/settings/import-export');
+        cy.dataCy('port-project-menu').children().should('have.length', 1);
 
-        cy.dataCy('export-type-dropdown').click();
-        cy.dataCy('export-type-dropdown').find('div').contains('Export for Botfront').click({ force: true });
-        cy.dataCy('export-option').eq(1).should('not.have.class', 'disabled');
-        cy.dataCy('export-option').eq(2).should('not.have.class', 'disabled');
-        cy.dataCy('export-option').eq(3).should('not.have.class', 'disabled');
-        cy.dataCy('export-option').eq(4).should('not.have.class', 'disabled');
-        
+        cy.dataCy('export-project-tab').should('exist');
         cy.dataCy('import-project-tab').should('not.exist');
     });
-    it('should be able to view a read only version of all project settings tabs as projects:r', () => {
+    it('should be able to access import menu', () => {
         // init
-        cy.createDummyRoleAndUser({ permission: ['export:x', 'stories:r'] });
+        cy.createDummyRoleAndUser({ permission: ['import:x'] });
         cy.wait(2000);
         cy.login({ admin: false });
         cy.visit('/project/bf/settings/import-export');
-        cy.dataCy('export-type-dropdown').click();
-        cy.dataCy('export-type-dropdown').find('div').contains('Export for Botfront').click({ force: true });
-        cy.dataCy('export-option').eq(1).should('have.class', 'disabled');
-        cy.dataCy('export-option').eq(2).should('have.class', 'disabled');
-        cy.dataCy('export-option').eq(3).should('have.class', 'disabled');
-        cy.dataCy('export-option').eq(4).should('have.class', 'disabled');
-    });
-    it('should be able to view a read only version of all project settings tabs as projects:r', () => {
-        // init
-        cy.createDummyRoleAndUser({ permission: ['export:x', 'stories:r', 'incoming:r'] });
-        cy.wait(2000);
-        cy.login({ admin: false });
-        cy.visit('/project/bf/settings/import-export');
+        cy.dataCy('port-project-menu').children().should('have.length', 1);
 
-        cy.dataCy('export-type-dropdown').click();
-        cy.dataCy('export-type-dropdown').find('div').contains('Export for Botfront').click({ force: true });
-        cy.dataCy('export-option').eq(1).should('not.have.class', 'disabled');
-        cy.dataCy('export-option').eq(2).should('have.class', 'disabled');
-        cy.dataCy('export-option').eq(3).should('have.class', 'disabled');
-        cy.dataCy('export-option').eq(4).should('have.class', 'disabled');
+        cy.dataCy('import-project-tab').should('exist');
+        cy.dataCy('export-project-tab').should('not.exist');
     });
-    it('should be able to view a read only version of all project settings tabs as projects:r', () => {
+    it('should not be able to acces import export page', () => {
         // init
-        cy.createDummyRoleAndUser({ permission: ['import:x', 'stories:w', 'incoming:w'] });
+        cy.createDummyRoleAndUser({ permission: ['stories:r'] });
         cy.wait(2000);
         cy.login({ admin: false });
         cy.visit('/project/bf/settings/import-export');
+        cy.url().should('include', '/403');
+    });
+    it('should be able access both import and export', () => {
+        // init
+        cy.createDummyRoleAndUser({ permission: ['import:x', 'export:x'] });
+        cy.wait(2000);
+        cy.login({ admin: false });
+        cy.visit('/project/bf/settings/import-export');
+        cy.dataCy('port-project-menu').children().should('have.length', 2);
+
         cy.dataCy('import-project-tab').should('exist');
     });
 });

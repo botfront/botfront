@@ -23,7 +23,6 @@ function ConversationsBrowser(props) {
         router,
         activeFilters,
         changeFilters,
-        intentsActionsOptions,
         handleDownloadConversations,
     } = props;
 
@@ -181,7 +180,6 @@ function ConversationsBrowser(props) {
                     <ConversationFilters
                         activeFilters={activeFilters}
                         changeFilters={changeFilters}
-                        intentsActionsOptions={intentsActionsOptions}
                         onDownloadConversations={handleDownloadConversations}
                     />
                 </Grid.Row>
@@ -200,7 +198,6 @@ ConversationsBrowser.propTypes = {
     router: PropTypes.object.isRequired,
     activeFilters: PropTypes.object.isRequired,
     changeFilters: PropTypes.func.isRequired,
-    intentsActionsOptions: PropTypes.array,
     handleDownloadConversations: PropTypes.func.isRequired,
 };
 
@@ -208,7 +205,6 @@ ConversationsBrowser.defaultProps = {
     pages: 1,
     trackers: [],
     activeConversationId: null,
-    intentsActionsOptions: [],
 };
 
 export default ConversationsBrowser;

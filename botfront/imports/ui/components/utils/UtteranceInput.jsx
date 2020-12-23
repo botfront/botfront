@@ -1,13 +1,14 @@
 import React from 'react';
 import { Input } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
+import { USER_LINE_EDIT_MODE } from '../../../lib/story.utils';
 
 function UtteranceInput({
     placeholder, size, value, onValidate, fluid, onChange, excludedTargets, onDelete,
 }) {
-    function testWhiteText() {
+    function testNotWhiteText() {
         const trimmedText = value.trim();
-        if (trimmedText !== '') {
+        if (trimmedText !== '' || trimmedText === USER_LINE_EDIT_MODE) {
             return trimmedText;
         }
         return false;
@@ -19,13 +20,13 @@ function UtteranceInput({
     );
 
     const handleKeyDown = (event) => {
-        if (event.key === 'Enter' && testWhiteText()) {
+        if (event.key === 'Enter' && testNotWhiteText()) {
             onValidate();
         }
     };
 
     const handleOnBlur = (event) => {
-        if (!excludedTarget(event) && testWhiteText()) {
+        if (!excludedTarget(event) && testNotWhiteText()) {
             onValidate();
         } else {
             onDelete();

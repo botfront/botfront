@@ -13,6 +13,13 @@ export function Loading({ loading, children }) {
     return !loading ? children : <Loader active inline='centered' />;
 }
 
+
+export function tooltipWrapper(trigger, tooltip) {
+    return (
+        <Popup size='mini' inverted content={tooltip} trigger={trigger} />
+    );
+}
+
 Loading.propTypes = {
     loading: PropTypes.bool.isRequired,
 };
@@ -111,11 +118,13 @@ PageMenu.defaultProps = {
     className: '',
     headerDataCy: null,
     withTraining: false,
+    icon: null,
+    title: '',
 };
 
 PageMenu.propTypes = {
-    title: PropTypes.string.isRequired,
-    icon: PropTypes.string.isRequired,
+    title: PropTypes.string,
+    icon: PropTypes.string,
     children: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
     className: PropTypes.string,
     headerDataCy: PropTypes.string,

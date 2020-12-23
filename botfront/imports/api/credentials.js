@@ -11,7 +11,6 @@ import { GlobalSettings } from './globalSettings/globalSettings.collection';
 import { Projects } from './project/project.collection';
 import { ENVIRONMENT_OPTIONS } from '../ui/components/constants.json';
 
-
 export const Credentials = new Mongo.Collection('credentials');
 // Deny all client-side updates on the Credentials collection
 Credentials.deny({
@@ -35,15 +34,15 @@ const getDefaultCredentials = ({ namespace }) => {
     if (process.env.MODE === 'test') {
         defaultCredentials = defaultCredentials.replace(/localhost:5005/g, 'rasa:5005');
     }
-    return defaultCredentials
-        .replace(/{PROJECT_NAMESPACE}/g, namespace);
+    return defaultCredentials.replace(/{PROJECT_NAMESPACE}/g, namespace);
 };
 export const createCredentials = ({ _id: projectId, namespace }) => {
-    ENVIRONMENT_OPTIONS.forEach(environment => Credentials.insert(
-        { projectId, environment, credentials: getDefaultCredentials({ namespace }) },
-    ));
+    ENVIRONMENT_OPTIONS.forEach(environment => Credentials.insert({
+        projectId,
+        environment,
+        credentials: getDefaultCredentials({ namespace }),
+    }));
 };
-
 
 export const CredentialsSchema = new SimpleSchema(
     {
@@ -58,12 +57,15 @@ export const CredentialsSchema = new SimpleSchema(
             optional: true,
             // autoValue: () => this.isUpdate ? this.value : new Date() //TODO find out why it's always updated
         },
+        environment: {
+            type: String,
+            optional: true,
+        },
         updatedAt: {
             type: Date,
             optional: true,
             autoValue: () => new Date(),
         },
-
     },
     { tracker: Tracker },
 );
@@ -90,10 +92,22 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         'credentials.save'(credentials) {
-            checkIfCan('projects:w', credentials.projectId);
+            checkIfCan(['projects:w', 'import:x'], credentials.projectId);
             check(credentials, Object);
             try {
-                const credentialsBefore = Credentials.findOne({ projectId: credentials.projectId, _id: credentials._id });
+                const env = credentials.environment || 'development';
+                const envQuery = env !== 'development'
+                    ? { environment: env }
+                    : {
+                        $or: [
+                            { environment: env },
+                            { environment: { $exists: false } },
+                        ],
+                    };
+                const credentialsBefore = Credentials.findOne({
+                    projectId: credentials.projectId,
+                    ...envQuery,
+                });
                 auditLog('Saved credentials', {
                     user: Meteor.user(),
                     projectId: credentials.projectId,
@@ -105,27 +119,24 @@ if (Meteor.isServer) {
                     resType: 'project',
                 });
                 return Credentials.upsert(
-                    { projectId: credentials.projectId, _id: credentials._id },
-                    {
-                        $set: {
-                            projectId: credentials.projectId,
-                            credentials: credentials.credentials,
-                            environment: credentials.environment,
-                        },
-                    },
+                    { projectId: credentials.projectId, ...envQuery },
+                    { $set: { credentials: credentials.credentials } },
                 );
             } catch (e) {
                 throw formatError(e);
             }
         },
-        async 'credentials.appendWidgetSettings' (projectId, env) {
+        async 'credentials.appendWidgetSettings'(projectId, env) {
             checkIfCan('projects:w', projectId);
             check(projectId, String);
             check(env, String);
             try {
                 const credentials = Credentials.findOne({ projectId, environment: env });
                 const rules = await getWebchatRules(projectId, env);
-                const { chatWidgetSettings, defaultLanguage } = Projects.findOne({ _id: projectId }, { fields: { chatWidgetSettings: 1, defaultLanguage: 1 } });
+                const { chatWidgetSettings, defaultLanguage } = Projects.findOne(
+                    { _id: projectId },
+                    { fields: { chatWidgetSettings: 1, defaultLanguage: 1 } },
+                );
                 const props = { ...chatWidgetSettings, rules };
                 const jsCrendentials = safeLoad(credentials.credentials);
                 const lang = get(props, 'customData');
@@ -134,15 +145,29 @@ if (Meteor.isServer) {
                 } else if (lang === undefined || Object.keys(lang).length === 0) {
                     props.customData = { language: defaultLanguage };
                 }
-                if (jsCrendentials['rasa_addons.core.channels.rest_plus.BotfrontRestPlusInput']) {
-                    jsCrendentials['rasa_addons.core.channels.rest_plus.BotfrontRestPlusInput'].config = props;
+                if (
+                    jsCrendentials[
+                        'rasa_addons.core.channels.rest_plus.BotfrontRestPlusInput'
+                    ]
+                ) {
+                    jsCrendentials[
+                        'rasa_addons.core.channels.rest_plus.BotfrontRestPlusInput'
+                    ].config = props;
                 }
-                
-                if (jsCrendentials['rasa_addons.core.channels.webchat_plus.WebchatPlusInput']) {
-                    jsCrendentials['rasa_addons.core.channels.webchat_plus.WebchatPlusInput'].config = props;
+
+                if (
+                    jsCrendentials[
+                        'rasa_addons.core.channels.webchat_plus.WebchatPlusInput'
+                    ]
+                ) {
+                    jsCrendentials[
+                        'rasa_addons.core.channels.webchat_plus.WebchatPlusInput'
+                    ].config = props;
                 }
                 const newCredentials = {
-                    ...credentials, environment: env, credentials: safeDump(jsCrendentials),
+                    projectId,
+                    environment: env,
+                    credentials: safeDump(jsCrendentials),
                 };
                 return Meteor.call('credentials.save', newCredentials);
             } catch (e) {

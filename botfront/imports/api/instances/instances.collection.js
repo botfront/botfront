@@ -23,14 +23,18 @@ if (Meteor.isServer) {
 
     Instances._ensureIndex({ projectId: 1 });
     Meteor.publish('nlu_instances', function(projectId) {
-        checkIfCan(['nlu-data:r', 'resources:r', 'responses:r'], projectId);
+        try {
+            checkIfCan(['nlu-data:r', 'resources:r', 'responses:r'], projectId);
+        } catch (err) {
+            return this.ready();
+        }
         check(projectId, String);
         return Instances.find({ projectId });
     });
 
     Meteor.methods({
         'instance.update'(item) {
-            checkIfCan('resources:w', item.projectId);
+            checkIfCan(['resources:w', 'import:x'], item.projectId);
             check(item, Object);
             const instanceBefore = Instances.findOne({ _id: item._id });
             auditLog('Updated instance', {
@@ -43,7 +47,7 @@ if (Meteor.isServer) {
                 after: { instance: item },
                 resType: 'project-settings',
             });
-            return Instances.update({ _id: item._id }, { $set: item });
+            return Instances.update({ projectId: item.projectId }, { $set: item });
         },
     });
 }

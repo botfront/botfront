@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import {
     Container, Menu, Dropdown,
 } from 'semantic-ui-react';
-import { withTracker } from 'meteor/react-meteor-data';
 import React, { useState, useEffect, useContext } from 'react';
 import 'react-s-alert/dist/s-alert-default.css';
 import { connect } from 'react-redux';
@@ -12,7 +11,6 @@ import TemplatesTable from './TemplatesTable';
 import { GET_BOT_RESPONSES } from '../queries';
 import { RESPONSES_MODIFIED, RESPONSES_DELETED } from './subscriptions';
 import { Loading, PageMenu } from '../../utils/Utils';
-import { Stories } from '../../../../api/story/stories.collection';
 import { DELETE_BOT_RESPONSE } from '../mutations';
 import { ProjectContext } from '../../../layouts/context';
 
@@ -83,7 +81,7 @@ class Templates extends React.Component {
     render() {
         const { activeEditor, newResponse } = this.state;
         const {
-            templates, projectId, nluLanguages, deleteBotResponse, events, loading,
+            templates, projectId, nluLanguages, deleteBotResponse, loading,
         } = this.props;
         return (
             <div data-cy='responses-screen'>
@@ -98,7 +96,6 @@ class Templates extends React.Component {
                             setActiveEditor={this.setActiveEditor}
                             newResponse={newResponse}
                             closeNewResponse={() => this.setState({ newResponse: { open: false } })}
-                            events={events}
                         />
                     </Container>
                 </Loading>
@@ -112,11 +109,10 @@ Templates.propTypes = {
     projectId: PropTypes.string.isRequired,
     nluLanguages: PropTypes.array.isRequired,
     deleteBotResponse: PropTypes.func.isRequired,
-    events: PropTypes.array.isRequired,
     loading: PropTypes.bool.isRequired,
 };
 
-const TemplatesContainer = ({ params, events, ready }) => {
+const TemplatesContainer = ({ params, ready }) => {
     const [templates, setTemplates] = useState([]);
 
     const { insertResponse } = useContext(ProjectContext);
@@ -187,7 +183,6 @@ const TemplatesContainer = ({ params, events, ready }) => {
     return (
         <Templates
             loading={!ready && loading}
-            events={events}
             templates={templates}
             deleteBotResponse={deleteBotResponse}
             projectId={params.project_id}
@@ -200,7 +195,6 @@ const TemplatesContainer = ({ params, events, ready }) => {
 TemplatesContainer.propTypes = {
     params: PropTypes.object.isRequired,
     ready: PropTypes.bool.isRequired,
-    events: PropTypes.array.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -209,13 +203,4 @@ function mapStateToProps(state) {
     };
 }
 
-const ConnectedTemplates = connect(mapStateToProps)(TemplatesContainer);
-
-export default withTracker((props) => {
-    const storiesHandler = Meteor.subscribe('stories.events', props.params.project_id);
-    const events = Stories
-        .find()
-        .fetch()
-        .map(story => story.events);
-    return { ...props, events, ready: storiesHandler.ready() };
-})(ConnectedTemplates);
+export default connect(mapStateToProps)(TemplatesContainer);

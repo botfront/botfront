@@ -13,7 +13,6 @@ if (Meteor.isServer) {
     import '../../project/project.methods';
     import '../../nlu_model/nlu_model.methods';
     import { NLUModels } from '../../nlu_model/nlu_model.collection';
-    import '../../importExport/import.methods';
     import '../../importExport/export.methods';
     import '../../endpoints/endpoints.methods';
     import '../../globalSettings/globalSettings.methods';
@@ -80,7 +79,7 @@ if (Meteor.isServer) {
         },
         {
             name: 'policies.save',
-            roles: writers.stories,
+            roles: [...writers.stories, 'import:x'],
             args: [{ projectId }],
         },
         {
@@ -90,12 +89,12 @@ if (Meteor.isServer) {
         },
         {
             name: 'credentials.save',
-            roles: writers.projects,
+            roles: [...writers.projects, 'import:x'],
             args: [{ projectId }],
         },
         {
             name: 'endpoints.save',
-            roles: writers.resources,
+            roles: [...writers.resources, 'projects:w', 'import:x'],
             args: [{ projectId }],
         },
         {
@@ -110,23 +109,13 @@ if (Meteor.isServer) {
             rejectProjectScope: true,
         },
         {
-            name: 'exportProject',
-            roles: otherRoles.exportX,
-            args: [projectId, null],
-        },
-        {
             name: 'exportRasa',
             roles: otherRoles.exportX,
             args: [projectId, {}],
         },
         {
-            name: 'importProject',
-            roles: otherRoles.importX,
-            args: [null, projectId],
-        },
-        {
             name: 'instance.update',
-            roles: writers.resources,
+            roles: [...writers.resources, 'projects:w', 'import:x'],
             args: [{ projectId }],
         },
         {
@@ -136,7 +125,7 @@ if (Meteor.isServer) {
         },
         {
             name: 'rasa.getTrainingPayload',
-            roles: [...otherRoles.nluDataX, ...readers.projects],
+            roles: [...otherRoles.nluDataX, ...readers.projects, 'export:x'],
             args: [projectId],
         },
         {
@@ -207,7 +196,7 @@ if (Meteor.isServer) {
         },
         {
             name: 'nlu.insert',
-            roles: writers.nluData,
+            roles: [...writers.nluData, 'import:x'],
             args: [projectId, null],
         },
         {
@@ -235,11 +224,6 @@ if (Meteor.isServer) {
             args: [projectId],
         },
         {
-            name: 'nlu.import',
-            roles: writers.nluData,
-            args: [null, projectId],
-        },
-        {
             name: 'nlu.chitChatSetup',
             roles: writers.projects,
             args: [],
@@ -263,7 +247,7 @@ if (Meteor.isServer) {
         },
         {
             name: 'project.update',
-            roles: writers.projects,
+            roles: [...writers.projects, 'import:x'],
             args: [{ _id: projectId, deploymentEnvironments: [] }],
         },
         {
@@ -285,11 +269,6 @@ if (Meteor.isServer) {
         {
             name: 'project.markTrainingStopped',
             roles: otherRoles.nluDataX,
-            args: [projectId],
-        },
-        {
-            name: 'project.getActions',
-            roles: [...readers.nluData, ...readers.responses],
             args: [projectId],
         },
         {
@@ -319,12 +298,12 @@ if (Meteor.isServer) {
         },
         {
             name: 'stories.insert',
-            roles: writers.stories,
+            roles: [...writers.stories, 'import:x'],
             args: [{ projectId }], // singleton
         },
         {
             name: 'stories.insert',
-            roles: writers.stories,
+            roles: [...writers.stories, 'import:x'],
             args: [[{ projectId }]], // aray
         },
         {
@@ -369,12 +348,12 @@ if (Meteor.isServer) {
         },
         {
             name: 'storyGroups.delete',
-            roles: writers.stories,
+            roles: [...writers.stories, 'import:x'],
             args: [{ projectId }],
         },
         {
             name: 'storyGroups.insert',
-            roles: writers.stories,
+            roles: [...writers.stories, 'import:x'],
             args: [{ projectId }],
         },
         {

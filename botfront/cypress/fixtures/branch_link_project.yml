@@ -1,0 +1,59 @@
+stories:
+  - story: Sugar
+    steps:
+      - checkpoint: link-to-Sugar/28e43a22-5511-47c3-9d1f-95c433dbef3e
+      - action: utter_sugar
+      - checkpoint: Sugar__branches
+    metadata:
+      group: sugar
+  - story: Sugar__yes
+    steps:
+      - checkpoint: Sugar__branches
+      - intent: 'yes'
+      - action: utter_ok
+    metadata:
+      group: sugar
+  - story: Sugar__no
+    steps:
+      - checkpoint: Sugar__branches
+      - intent: 'no'
+      - action: utter_oknosugar
+    metadata:
+      group: sugar
+  - story: would you like a coffee
+    steps:
+      - intent: hi
+      - action: utter_coffee
+      - checkpoint: would_you_like_a_coffee__branches
+    metadata:
+      group: coffee
+  - story: would you like a coffee__yes
+    steps:
+      - checkpoint: would_you_like_a_coffee__branches
+      - intent: 'yes'
+      - checkpoint: link-to-Sugar/28e43a22-5511-47c3-9d1f-95c433dbef3e
+    metadata:
+      group: coffee
+  - story: would you like a coffee__no
+    steps:
+      - checkpoint: would_you_like_a_coffee__branches
+      - intent: 'no'
+      - action: utter_tea
+      - checkpoint: would_you_like_a_coffee__no__branches
+    metadata:
+      group: coffee
+  - story: would you like a coffee__no__yes
+    steps:
+      - checkpoint: would_you_like_a_coffee__no__branches
+      - intent: 'yes'
+      - checkpoint: link-to-Sugar/28e43a22-5511-47c3-9d1f-95c433dbef3e
+    metadata:
+      group: coffee
+  - story: would you like a coffee__no__no
+    steps:
+      - checkpoint: would_you_like_a_coffee__no__branches
+      - intent: 'no'
+      - action: utter_q1HCNQhOE
+    metadata:
+      group: coffee
+rules: []

@@ -5,21 +5,21 @@ import { Stories } from '../../story/stories.collection';
 if (Meteor.isServer) {
     const testStoryA = {
         projectId: 'bf',
+        type: 'story',
         story_id: 'test_story_A',
         branches: [],
         title: 'test story',
         storyGroupId: 'test_story_group_A',
         story: '',
+        triggerIntent: 'test_payload_A',
         rules: [
             {
-                payload: 'test_payload_A',
                 text: 'hello!',
                 trigger: {
                     device: 'desktop',
                 },
             },
             {
-                payload: 'test_payload_B',
                 text: 'You\'re on a desktop computer!',
                 trigger: {
                     device: 'desktop',
@@ -30,21 +30,21 @@ if (Meteor.isServer) {
 
     const testStoryB = {
         projectId: 'bf',
+        type: 'story',
         story_id: 'test_story_B',
         branches: [],
         title: 'test story',
         storyGroupId: 'test_story_group_A',
         story: '',
+        triggerIntent: 'test_payload_B',
         rules: [
             {
-                payload: 'test_payload_C',
                 text: 'wow!',
                 trigger: {
                     device: 'desktop',
                 },
             },
             {
-                payload: 'test_payload_D',
                 text: 'You\'re awesome!',
                 trigger: {
                     device: 'desktop',
@@ -55,20 +55,24 @@ if (Meteor.isServer) {
 
     const testStoryC = {
         projectId: 'bf',
+        type: 'story',
         story_id: 'test_story_C',
         branches: [],
         title: 'test story',
         storyGroupId: 'test_story_group_A',
+        triggerIntent: 'test_payload_C',
         story: '',
         rules: [],
     };
 
     const testStoryD = {
         projectId: 'bf',
+        type: 'story',
         story_id: 'test_story_D',
         branches: [],
         title: 'test story',
         storyGroupId: 'test_story_group_A',
+        triggerIntent: 'test_payload_D',
         story: '',
     };
 
@@ -78,31 +82,27 @@ if (Meteor.isServer) {
             text: 'hello!',
             trigger: {
                 device: 'desktop',
-                when: 'always',
+            },
+        },
+        {
+            payload: 'test_payload_A',
+            text: 'You\'re on a desktop computer!',
+            trigger: {
+                device: 'desktop',
             },
         },
         {
             payload: 'test_payload_B',
-            text: 'You\'re on a desktop computer!',
-            trigger: {
-                device: 'desktop',
-                when: 'always',
-            },
-        },
-        {
-            payload: 'test_payload_C',
             text: 'wow!',
             trigger: {
                 device: 'desktop',
-                when: 'always',
             },
         },
         {
-            payload: 'test_payload_D',
+            payload: 'test_payload_B',
             text: 'You\'re awesome!',
             trigger: {
                 device: 'desktop',
-                when: 'always',
             },
         },
     ];

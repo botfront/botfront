@@ -72,7 +72,7 @@ if (Meteor.isServer) {
         ) {
             return Projects.find({}, { fields: { name: 1 } });
         }
-        const projects = getUserScopes(this.userId, ['responses:r', 'nlu-data:r', 'nlu-data:x']);
+        const projects = getUserScopes(this.userId, ['responses:r', 'nlu-data:r', 'nlu-data:x', 'import:x', 'export:x']);
         return Projects.find({ _id: { $in: projects } }, { fields: { name: 1 } });
     });
 

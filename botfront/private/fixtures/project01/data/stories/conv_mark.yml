@@ -1,0 +1,56 @@
+stories:
+  - story: Conv Mark Email trigger
+    steps:
+      - intent: that_one_was_triggered
+        entities:
+          - first_name: first_name
+          - work_email: work_email
+      - action: utter_IWpnJIayo
+      - intent: basics.yes
+      - action: utter_I5mNVmuFh
+      - intent: next
+      - checkpoint: link-to-Tuto/7b145998-b14b-4ab2-89e1-63c6a408814f
+    metadata:
+      group: Conv Mark
+  - story: Conv Mark PPC trigger
+    steps:
+      - intent: another_triggered_one
+        entities:
+          - utm_source: utm_source
+          - utm_campaign: utm_campaign
+          - utm_keyword: utm_keyword
+      - action: utter_dpHJZXdNB
+      - action: utter_fVu5yv569
+      - intent: basics.yes
+      - checkpoint: link-to-Tuto/7b145998-b14b-4ab2-89e1-63c6a408814f
+    metadata:
+      group: Conv Mark
+  - story: Tuto
+    steps:
+      - checkpoint: link-to-Tuto/7b145998-b14b-4ab2-89e1-63c6a408814f
+      - action: utter_l1kpVSoU0
+      - intent: next
+      - action: utter_kzQ8heqVx
+      - intent: next
+      - action: utter_bJmO2EJnX
+      - intent: next
+      - action: utter_6rBlu2cQN
+      - checkpoint: Tuto__branches
+    metadata:
+      group: Conv Mark
+  - story: Tuto__No
+    steps:
+      - checkpoint: Tuto__branches
+      - intent: basics.no
+      - checkpoint: >-
+          link-to-Propose Newsletter
+          Subscription/6c525836-0f31-4363-a9cc-f672cb48f905
+    metadata:
+      group: Conv Mark
+  - story: Tuto__Yes
+    steps:
+      - checkpoint: Tuto__branches
+      - intent: basics.yes
+    metadata:
+      group: Conv Mark
+rules: []

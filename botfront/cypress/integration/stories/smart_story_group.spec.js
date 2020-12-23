@@ -12,7 +12,7 @@ describe('stories', function() {
 
     const addStoryToSmartStoryGroup = () => {
         cy.createStoryGroup();
-        cy.createStoryInGroup();
+        cy.createFragmentInGroup();
         cy.dataCy('story-group-menu-item', 'Groupo (1)').should('have.length', 1);
         cy.dataCy('edit-trigger-rules').click();
         cy.dataCy('toggle-website-visits').click();

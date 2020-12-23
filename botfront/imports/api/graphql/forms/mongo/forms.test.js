@@ -1,6 +1,8 @@
 /* eslint-disable no-multi-str */
 import { expect } from 'chai';
 import { Meteor } from 'meteor/meteor';
+import { DDP } from 'meteor/ddp-client';
+import { DDPCommon } from 'meteor/ddp-common';
 import { importSubmissions, upsertForm } from './forms';
 import Forms from '../forms.model';
 import { Slots } from '../../../slots/slots.collection';
@@ -101,13 +103,18 @@ if (Meteor.isServer) {
             done();
         })());
         it('should delete unfeaturized slots', done => (async () => {
-            await Forms.update({ _id: testForm._id }, testForm, { upsert: true });
-            await Promise.all(slots.map(slot => Slots.insert(slot)));
-            await upsertForm({ form: otherForm }, testUser);
-            await upsertForm(formUpdateData, testUser);
-            const remainingSlots = Slots.find().fetch();
-            expect(remainingSlots).to.deep.equal(expectedRemainingSlots);
-            done();
+            DDP._CurrentInvocation.withValue(
+                new DDPCommon.MethodInvocation({ userId: testUser._id }),
+                async () => {
+                    await Forms.update({ _id: testForm._id }, testForm, { upsert: true });
+                    await Promise.all(slots.map(slot => Slots.insert(slot)));
+                    await upsertForm({ form: otherForm }, testUser);
+                    await upsertForm(formUpdateData, testUser);
+                    const remainingSlots = Slots.find().fetch();
+                    expect(remainingSlots).to.deep.equal(expectedRemainingSlots);
+                    done();
+                },
+            );
         })());
     });
 }

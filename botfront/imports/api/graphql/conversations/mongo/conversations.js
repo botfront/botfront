@@ -274,12 +274,17 @@ export const getConversations = async ({
 };
 
 
-export const getConversation = async (projectId, id) => (Conversations.findOne(
-    {
-        projectId,
-        _id: id,
-    },
-).lean());
+export const getConversation = async (projectId, id, senderId) => {
+    if (senderId) {
+        return Conversations.findOne(
+            {
+                projectId,
+                'tracker.sender_id': senderId,
+            },
+        ).lean();
+    }
+    return Conversations.findOne({ projectId, _id: id }).lean();
+};
 
 
 export const getIntents = async (projectId) => {

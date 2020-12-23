@@ -6,11 +6,11 @@ import Examples from '../../examples/examples.model.js';
 
 export const combineSearches = (search, ...rest) => {
     const searchRegex = [search];
-    rest.forEach(((searchArray) => {
+    rest.forEach((searchArray) => {
         if (Array.isArray(searchArray) && searchArray.length) {
             searchRegex.push(searchArray.join('|'));
         }
-    }));
+    });
     return searchRegex.join('|');
 };
 
@@ -26,63 +26,84 @@ export const searchStories = async (projectId, language, search) => {
         unpublishedStories: search.includes('status:unpublished'),
         publishedStories: search.includes('status:published'),
     };
-    const stringToRemove = ['with:triggers', 'with:highlights', 'with:custom_style', 'status:unpublished', 'status:published', 'with:observe_events'];
-    const cleanedSearch = search.replace(new RegExp(stringToRemove.join('|'), 'g'), '').trim();
+    const stringToRemove = [
+        'with:triggers',
+        'with:highlights',
+        'with:custom_style',
+        'status:unpublished',
+        'status:published',
+        'with:observe_events',
+    ];
+    const cleanedSearch = search
+        .replace(new RegExp(stringToRemove.join('|'), 'g'), '')
+        .trim();
     const escapedSearch = escape(cleanedSearch);
     const searchRegex = new RegExp(escapedSearch, 'i');
-    const modelExamples = await Examples.find({ projectId, 'metadata.language': language }).lean();
+    const modelExamples = await Examples.find({
+        projectId,
+        'metadata.language': language,
+    }).lean();
     const intents = modelExamples.reduce((filtered, option) => {
         if (searchRegex.test(option.text)) {
             return [...filtered, option.intent];
         }
         return filtered;
     }, []);
-    const matchedResponses = await BotResponses.find(
-        { textIndex: { $regex: escapedSearch, $options: 'i' }, projectId },
-    ).lean();
+    const matchedResponses = await BotResponses.find({
+        textIndex: { $regex: escapedSearch, $options: 'i' },
+        projectId,
+    }).lean();
     let responsesWithHighlights = [];
     let responsesWithCustomStyle = [];
     let responsesWithObserveEvents = [];
-    if (flags.withCustomStyle || flags.withHighlights || flags.withObserveEvents) {
-        if (flags.withHighlights) {
-            responsesWithHighlights = await BotResponses.find(
-                { 'metadata.domHighlight': { $exists: true, $ne: null }, projectId },
-            ).lean();
-            responsesWithHighlights = responsesWithHighlights.map(({ key }) => key);
-        }
-        if (flags.withCustomStyle) {
-            responsesWithCustomStyle = await BotResponses.find(
-                { 'metadata.customCss': { $exists: true, $ne: null }, projectId },
-            ).lean();
-            responsesWithCustomStyle = responsesWithCustomStyle.map(({ key }) => key);
-        }
-        if (flags.withObserveEvents) {
-            responsesWithObserveEvents = await BotResponses.find(
-                {
-                    $or: [
-                        { 'metadata.pageChangeCallbacks': { $exists: true, $ne: null } },
-                        { 'metadata.pageEventCallbacks': { $exists: true, $ne: null } },
-                    ],
-                    projectId,
-                },
-            ).lean();
-            responsesWithObserveEvents = responsesWithObserveEvents.map(({ key }) => key);
-        }
+    if (flags.withHighlights) {
+        responsesWithHighlights = await BotResponses.find({
+            'metadata.domHighlight': { $exists: true, $ne: null },
+            projectId,
+        }).lean();
+        responsesWithHighlights = responsesWithHighlights.map(({ key }) => key);
+    }
+    if (flags.withCustomStyle) {
+        responsesWithCustomStyle = await BotResponses.find({
+            'metadata.customCss': { $exists: true, $ne: null },
+            projectId,
+        }).lean();
+        responsesWithCustomStyle = responsesWithCustomStyle.map(({ key }) => key);
+    }
+    if (flags.withObserveEvents) {
+        responsesWithObserveEvents = await BotResponses.find({
+            $or: [
+                { 'metadata.pageChangeCallbacks': { $exists: true, $ne: null } },
+                { 'metadata.pageEventCallbacks': { $exists: true, $ne: null } },
+            ],
+            projectId,
+        }).lean();
+        responsesWithObserveEvents = responsesWithObserveEvents.map(({ key }) => key);
     }
     const responseKeys = matchedResponses.map(({ key }) => key);
     const fullSearch = combineSearches(escapedSearch, responseKeys, intents);
     const storiesFilter = {
         projectId,
-        $or: [{ 'textIndex.info': { $regex: escapedSearch, $options: 'i' } }, { 'textIndex.contents': { $regex: fullSearch, $options: 'i' } }],
+        $or: [
+            { title: { $regex: fullSearch, $options: 'i' } },
+            { textIndex: { $regex: fullSearch, $options: 'i' } },
+        ],
     };
-    if (flags.withHighlights || flags.withCustomStyle || flags.withObserveEvents) {
-        if (![...responsesWithObserveEvents, ...responsesWithCustomStyle, ...responsesWithHighlights].length) return [];
+    if (
+        [
+            ...responsesWithObserveEvents,
+            ...responsesWithCustomStyle,
+            ...responsesWithHighlights,
+        ].length
+    ) {
         storiesFilter.$and = [
-            { 'textIndex.contents': { $regex: responsesWithHighlights.join('|') } },
-            { 'textIndex.contents': { $regex: responsesWithCustomStyle.join('|') } },
-            { 'textIndex.contents': { $regex: responsesWithObserveEvents.join('|') } },
-            { 'textIndex.contents': { $regex: responseKeys.join('|') } },
+            { textIndex: { $regex: responsesWithHighlights.join('|') } },
+            { textIndex: { $regex: responsesWithCustomStyle.join('|') } },
+            { textIndex: { $regex: responsesWithObserveEvents.join('|') } },
+            { textIndex: { $regex: responseKeys.join('|') } },
         ];
+    } else if (flags.withHighlights || flags.withCustomStyle || flags.withObserveEvents) {
+        storiesFilter.$and = [{ textIndex: 0 }];
     }
     if (flags.withTriggers) {
         storiesFilter.rules = { $exists: true, $ne: [] };
@@ -90,36 +111,28 @@ export const searchStories = async (projectId, language, search) => {
     if (flags.publishedStories || flags.unpublishedStories) {
         storiesFilter.status = flags.publishedStories ? 'published' : 'unpublished';
     }
-    const matched = Stories.find(
-        storiesFilter,
-        {
-            fields: {
-                _id: 1, title: 1, storyGroupId: 1,
-            },
+    const matched = Stories.find(storiesFilter, {
+        fields: {
+            _id: 1,
+            title: 1,
+            storyGroupId: 1,
+            type: 1,
         },
-    ).fetch();
+    }).fetch();
     let matchedForms = [];
     // only search for forms if we have no smart triggers
     if (!Object.keys(flags).some(flagKey => flags[flagKey])) {
         matchedForms = await searchForms(projectId, search, responseKeys);
     }
-    return { stories: matched, forms: matchedForms };
-};
-
-const replaceLine = (story, lineToReplace, newLine) => {
-    // regexp: [ ] = space; + = any number of the characters in the []; $ = end of string
-    const regex = new RegExp(`- *${escape(lineToReplace)}([ ]+\n|\n|[ ]+$|$)`, 'g');
-    return story.replace(regex, `- ${newLine}\n`);
+    return { dialogueFragments: matched, forms: matchedForms };
 };
 
 const traverseReplaceLine = (story, lineToReplace, newLine) => {
     const updatedStory = story;
-    if (story.story) {
-        updatedStory.story = replaceLine(updatedStory.story, lineToReplace, newLine);
-    }
-    (updatedStory.branches || []).forEach((branch) => {
-        traverseReplaceLine(branch, lineToReplace, newLine);
+    (story.steps || []).forEach(({ action }, i) => {
+        if (action === lineToReplace) updatedStory.steps[i].action = newLine;
     });
+    (updatedStory.branches || []).forEach(branch => traverseReplaceLine(branch, lineToReplace, newLine));
     return updatedStory;
 };
 
@@ -127,16 +140,21 @@ export const replaceStoryLines = (projectId, lineToReplace, newLine) => {
     const matchingStories = Stories.find(
         {
             projectId,
-            $or: [{ 'textIndex.contents': { $regex: escape(lineToReplace) } }],
-
+            textIndex: { $regex: escape(lineToReplace) },
         },
         { fields: { _id: 1 } },
     ).fetch();
-    return Promise.all(matchingStories.map(({ _id }) => {
-        const story = Stories.findOne({ _id });
-        const { _id: excludeId, ...rest } = traverseReplaceLine(story, lineToReplace, newLine);
-        return Stories.update({ _id }, { $set: { ...rest, ...indexStory(rest, { includeEventsField: true }) } });
-    }));
+    return Promise.all(
+        matchingStories.map(({ _id }) => {
+            const story = Stories.findOne({ _id });
+            const { _id: excludeId, ...rest } = traverseReplaceLine(
+                story,
+                lineToReplace,
+                newLine,
+            );
+            return Stories.update({ _id }, { $set: { ...rest, ...indexStory(rest) } });
+        }),
+    );
 };
 
 export const getTriggerIntents = async (projectId, options = {}) => {
@@ -144,10 +162,7 @@ export const getTriggerIntents = async (projectId, options = {}) => {
     const stories = await Stories.find(
         {
             projectId,
-            $and: [
-                { rules: { $exists: true } },
-                { rules: { $ne: [] } },
-            ],
+            $and: [{ rules: { $exists: true } }, { rules: { $ne: [] } }],
         },
         { fields: { triggerIntent: 1, ...(includeFields || {}) } },
     ).fetch();

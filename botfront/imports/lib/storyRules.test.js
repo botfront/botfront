@@ -9,7 +9,6 @@ const urlTriggerExists = [
         trigger: {
             url: [{ path: 'url' }],
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 
@@ -19,7 +18,6 @@ const urlTriggerEmptyA = [
         trigger: {
             url: [''],
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 
@@ -29,7 +27,6 @@ const urlTriggerEmptyB = [
         trigger: {
             url: [],
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 
@@ -39,7 +36,6 @@ const urlTriggerEmptyC = [
         trigger: {
             url: undefined,
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 
@@ -52,7 +48,6 @@ const urlNumberOfVisitsExistsA = [
         trigger: {
             numberOfVisits: '12',
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 const urlNumberOfVisitsExistsB = [
@@ -61,7 +56,6 @@ const urlNumberOfVisitsExistsB = [
         trigger: {
             numberOfVisits: '0',
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 const urlNumberOfVisitsExistsC = [
@@ -70,7 +64,6 @@ const urlNumberOfVisitsExistsC = [
         trigger: {
             numberOfVisits: 0,
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 const urlNumberOfVisitsEmpty = [
@@ -79,7 +72,6 @@ const urlNumberOfVisitsEmpty = [
         trigger: {
             numberOfVisits: undefined,
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 
@@ -91,7 +83,6 @@ const urlNumberOfPageVisitsExistsA = [
         trigger: {
             numberOfPageVisits: '12',
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 const urlNumberOfPageVisitsExistsB = [
@@ -100,7 +91,6 @@ const urlNumberOfPageVisitsExistsB = [
         trigger: {
             numberOfPageVisits: '0',
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 const urlNumberOfPageVisitsExistsC = [
@@ -109,7 +99,6 @@ const urlNumberOfPageVisitsExistsC = [
         trigger: {
             numberOfPageVisits: 0,
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 const urlNumberOfPageVisitsEmpty = [
@@ -118,7 +107,6 @@ const urlNumberOfPageVisitsEmpty = [
         trigger: {
             numberOfPageVisits: undefined,
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 
@@ -130,7 +118,6 @@ const deviceTriggerExists = [
         trigger: {
             device: 'all',
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 
@@ -140,7 +127,6 @@ const deviceTriggerEmptyA = [
         trigger: {
             device: '',
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 const deviceTriggerEmptyB = [
@@ -149,7 +135,6 @@ const deviceTriggerEmptyB = [
         trigger: {
             device: undefined,
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 const deviceTriggerEmptyC = [
@@ -158,7 +143,6 @@ const deviceTriggerEmptyC = [
         trigger: {
             device: null,
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 
@@ -175,7 +159,6 @@ const queryStringTriggerExists = [
                 },
             ],
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 
@@ -190,7 +173,6 @@ const queryStringTriggerEmptyA = [
                 },
             ],
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 
@@ -205,7 +187,6 @@ const queryStringTriggerEmptyB = [
                 },
             ],
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 
@@ -219,7 +200,6 @@ const queryStringTriggerEmptyC = [
                 },
             ],
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 const queryStringTriggerEmptyD = [
@@ -235,7 +215,6 @@ const queryStringTriggerEmptyD = [
                 },
             ],
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 const queryStringTriggerEmptyE = [
@@ -244,7 +223,6 @@ const queryStringTriggerEmptyE = [
         trigger: {
             queryString: [],
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 
@@ -256,7 +234,6 @@ const timeOnPageTriggerExistsA = [
         trigger: {
             timeOnPage: '12',
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 const timeOnPageTriggerExistsB = [
@@ -265,7 +242,6 @@ const timeOnPageTriggerExistsB = [
         trigger: {
             timeOnPage: '0',
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 const timeOnPageTriggerExistsC = [
@@ -274,7 +250,6 @@ const timeOnPageTriggerExistsC = [
         trigger: {
             timeOnPage: 0,
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 const timeOnPageTriggerEmpty = [
@@ -283,7 +258,6 @@ const timeOnPageTriggerEmpty = [
         trigger: {
             timeOnPage: undefined,
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 
@@ -295,7 +269,6 @@ const eventListenerTriggerExistsA = [
         trigger: {
             eventListeners: [{ selector: 'test', event: 'mouseover' }],
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 
@@ -306,7 +279,6 @@ const eventListenerTriggerExistsB = [
         trigger: {
             eventListeners: [{ selector: 'test', event: 'mouseover' }],
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 
@@ -316,7 +288,6 @@ const eventListenerTriggerEmptyA = [
         trigger: {
             eventListeners: [{ selector: 'test' }],
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 
@@ -326,7 +297,6 @@ const eventListenerTriggerEmptyB = [
         trigger: {
             eventListeners: [{ event: 'mouseover' }],
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 
@@ -336,7 +306,6 @@ const eventListenerTriggerEmptyC = [
         trigger: {
             eventListeners: [{ event: 'mouseover' }, { selector: 'test' }],
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 
@@ -346,7 +315,6 @@ const eventListenerTriggerEmptyD = [
         trigger: {
             eventListeners: [{ selector: '', event: '' }],
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 
@@ -356,7 +324,6 @@ const eventListenerTriggerEmptyE = [
         trigger: {
             eventListeners: [],
         },
-        payload: '/trigger_wbaw9f65oqNZ5KgQB',
     },
 ];
 

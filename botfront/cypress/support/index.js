@@ -204,8 +204,8 @@ Cypress.Commands.add('deleteNLUModel', (projectId, name, language) => {
     cy.get('.ui.page.modals .primary').click();
 });
 
-Cypress.Commands.add('setTimezoneOffset', () => {
-    const offset = new Date().getTimezoneOffset() / -60;
+Cypress.Commands.add('setTimezoneOffset', (providedOffset = null) => {
+    const offset = providedOffset || new Date().getTimezoneOffset() / -60;
     cy.visit('/project/bf/settings');
     cy.get('[data-cy=change-timezone-offset] input').click().type(`{backspace}{backspace}{backspace}{backspace}${offset}`);
     cy.get('[data-cy=save-changes]').click();
@@ -226,11 +226,17 @@ Cypress.Commands.add('createProject', (projectId = 'bf', name = 'My Project', de
         languages: [],
     };
     cy.deleteProject(projectId);
-    return cy.visit('/')
-        .then(() => cy.login())
-        .then(() => cy.window())
-        .then(({ Meteor }) => Meteor.callWithPromise('project.insert', project, true)) // true is used to bypass role check. CI env must be set when running Botfront
-        .then(() => cy.createNLUModelProgramatically(projectId, '', defaultLanguage));
+    cy.visit('/');
+    return cy.fixture('lite-policies.yaml')
+        .then(policies => cy.window()
+            .then(async ({ Meteor }) => {
+                await Meteor.callWithPromise('project.insert', project, true); // true is used to bypass role check. CI env must be set when running Botfront
+                await Meteor.callWithPromise('policies.save', {
+                    projectId,
+                    policies,
+                });
+                return cy.createNLUModelProgramatically(projectId, '', defaultLanguage);
+            }));
 });
 
 Cypress.Commands.add('dataCy', (dataCySelector, content = null, filter = null) => {
@@ -275,6 +281,52 @@ Cypress.Commands.add(
         });
     },
 );
+
+
+Cypress.Commands.add(
+    'uploadTxt',
+    {
+        prevSubject: 'element',
+    },
+    (subject, text, fileName) => {
+        // we need access window to create a file below
+
+        cy.window().then((window) => {
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            // Please note that we need to create a file using window.File,
+            // cypress overwrites File and this is not compatible with our change handlers in React Code
+            const testFile = new window.File([blob], fileName);
+            const dataTransfer = {
+                dataTransfer: { files: [testFile], types: ['Files'] },
+            };
+            cy.wrap(subject).trigger('dragenter', dataTransfer);
+            cy.wrap(subject).trigger('drop', dataTransfer);
+        });
+    },
+);
+
+
+Cypress.Commands.add(
+    'uploadBlob',
+    {
+        prevSubject: 'element',
+    },
+    (subject, blob, fileName) => {
+        // we need access window to create a file below
+
+        cy.window().then((window) => {
+            // Please note that we need to create a file using window.File,
+            // cypress overwrites File and this is not compatible with our change handlers in React Code
+            const testFile = new window.File([blob], fileName);
+            const dataTransfer = {
+                dataTransfer: { files: [testFile], types: ['Files'] },
+            };
+            cy.wrap(subject).trigger('dragenter', dataTransfer);
+            cy.wrap(subject).trigger('drop', dataTransfer);
+        });
+    },
+);
+
 
 Cypress.Commands.add(
     'dragTo',
@@ -512,26 +564,21 @@ Cypress.Commands.add('getWindowMethod', (methodName) => {
     }));
 });
 
-Cypress.Commands.add('importProject', (projectId = 'bf', fixture) => cy.fixture(fixture, 'utf8')
-    .then((data) => {
-        const url = `${Cypress.env('API_URL')}/project/${projectId}/import`;
-        cy.request({
-            method: 'PUT',
-            url,
-            headers: { 'Content-Type': 'application/json' },
-            body: data,
-        });
-    }));
-
-Cypress.Commands.add('importNluData', (projectId = 'bf', fixture, lang = 'en', overwrite = false, canonicalExamples = []) => {
-    cy.fixture(fixture, 'utf8').then((content) => {
-        cy.MeteorCall('nlu.import', [
-            content.rasa_nlu_data,
-            projectId,
-            lang,
-            overwrite,
-            canonicalExamples,
-        ]);
+Cypress.Commands.add('import', (projectId = 'bf', fixture, fallbackLang = 'en', wipeInvolvedCollections = false) => {
+    cy.fixture(fixture, 'utf8').then((loadedFixture) => {
+        let file = typeof loadedFixture === 'string' ? loadedFixture : JSON.stringify(loadedFixture);
+        file = new File([file], fixture);
+        file.filename = fixture;
+        cy.graphQlQuery(
+            `mutation import($projectId: String!, $files: [Upload]!, $wipeInvolvedCollections: Boolean = false, $fallbackLang: String!) {
+                import(projectId: $projectId, files: $files, wipeInvolvedCollections: $wipeInvolvedCollections, fallbackLang: $fallbackLang) {  
+                    summary { text, longText }
+                }
+            }`,
+            {
+                projectId, fallbackLang, wipeInvolvedCollections, files: [file],
+            },
+        );
     });
     return cy.wait(500);
 });
@@ -666,14 +713,68 @@ Cypress.Commands.add('graphQlQuery', (query, variables) => cy.get('@loginToken')
     headers: { 'Content-Type': 'application/json', Authorization: token },
     body: { query, variables },
 })));
+const objectToFormData = (obj) => {
+    // this traverses the query/variables object and makes it graphql-upload-compliant
+    // cf. https://github.com/jaydenseric/graphql-multipart-request-spec#curl-request
+    const formData = new FormData();
+    const foundFiles = {};
+    const fileDigger = (input, path = '') => {
+        if (input instanceof File) {
+            foundFiles[path] = input;
+            return null;
+        }
+        if (Array.isArray(input)) {
+            return input.map((child, i) => fileDigger(child, `${path}.${i}`, foundFiles));
+        }
+        if (input && typeof input === 'object') {
+            return Object.entries(input).reduce((acc, [k, v]) => ({
+                ...acc,
+                [k]: fileDigger(v, `${path}${path ? '.' : ''}${k}`, foundFiles),
+            }), {});
+        }
+        return input;
+    };
+    const dug = fileDigger(obj);
+    formData.append('operations', JSON.stringify({ operationName: null, ...dug }));
+    const map = {};
+    const files = [];
+    Object.entries(foundFiles).forEach(([k, v], i) => {
+        map[i] = [k]; files.push([i, v]);
+    });
+    formData.append('map', JSON.stringify(map));
+    files.forEach(([i, v]) => formData.append(i, v));
+    return formData;
+};
 
-Cypress.Commands.add('insertNluExamples', (projectId, language = 'en', examples) => cy.graphQlQuery(
-    `mutation insertExamples($projectId: String!, $language: String!, $examples: [ExampleInput]!) {
-        insertExamples(projectId: $projectId, language: $language, examples: $examples) {  
+Cypress.Commands.add('graphQlQuery', (query, variables) => cy.get('@loginToken').then((token) => {
+    const formData = objectToFormData({ variables, query });
+    // cy.request({
+    //     method: 'POST',
+    //     url: '/graphql',
+    //     headers: { 'Content-Type': 'application/json', Authorization: token },
+    //     body: { query, variables },
+    // });
+    cy.formRequest('post', '/graphql', formData, token);
+}));
+
+Cypress.Commands.add('formRequest', (method, url, formData, authorization) => new Cypress.Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open(method, url);
+    xhr.setRequestHeader('Authorization', authorization);
+    xhr.onload = () => resolve(xhr);
+    xhr.onerror = () => reject(xhr);
+    xhr.send(formData);
+}));
+
+Cypress.Commands.add('insertNluExamples', (projectId, language = 'en', examples, autoAssignCanonical = true) => cy.graphQlQuery(
+    `mutation insertExamples($projectId: String!, $language: String!, $examples: [ExampleInput]!, $autoAssignCanonical: Boolean) {
+        insertExamples(projectId: $projectId, language: $language, examples: $examples, autoAssignCanonical: $autoAssignCanonical) {  
             _id
         }
     }`,
-    { projectId, language, examples },
+    {
+        projectId, language, examples, autoAssignCanonical,
+    },
 ));
 
 Cypress.Commands.add('addConversation', (projectId, id, conversation, env = 'development') => cy.graphQlQuery(
@@ -702,30 +803,6 @@ Cypress.Commands.add('getBranchContainer', (depth) => {
 
 // get the contents of the visual editor for a branch
 Cypress.Commands.add('getBranchEditor', depth => cy.getBranchContainer(depth).find('.story-visual-editor').first());
-
-
-// get the contents of the visual editor for a branch
-Cypress.Commands.add('importViaUi', (fixtureName, projectId) => {
-    cy.visit(`/project/${projectId}/settings`);
-        
-    cy.contains('Import/Export').click();
-    cy.dataCy('import-type-dropdown')
-        .click();
-    cy.dataCy('import-type-dropdown')
-        .find('span')
-        .contains('Botfront')
-        .click();
-    cy.fixture(fixtureName, 'utf8').then((content) => {
-        cy.dataCy('upload-dropzone').upload(content, 'data.json');
-    });
-    cy.dataCy('export-with-conversations')
-        .click();
-    cy.dataCy('import-button')
-        .click();
-    cy.wait(2000);
-    cy.dataCy('project-import-success').should('exist');
-});
-
 
 Cypress.Commands.add('fill', {
     prevSubject: 'element',

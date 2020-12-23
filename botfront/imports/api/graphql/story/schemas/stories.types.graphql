@@ -1,31 +1,25 @@
 type Query {
-    storiesSearch(projectId: String! language: String! queryString: String!): searchResults
+    dialogueSearch(
+        projectId: String!
+        language: String!
+        queryString: String!
+    ): DialogueSearchResults
 }
 
-type searchResults {
-    stories: [Story]
+type DialogueSearchResults {
+    dialogueFragments: [Story]
     forms: [Form]
 }
 
 type Story {
     _id: String
-    story: String
+    type: DialogueFragmentType
     title: String
     storyGroupId: String
     projectId: String
-    events: [String]
-    branches: [Branch]
-    textIndex: textIndex
 }
 
-type Branch {
-    _id: String
-    title: String
-    branches: [Branch]
-    story: String
-}
-
-type textIndex{
-    info: String
-    contents: String
+enum DialogueFragmentType {
+    story
+    rule
 }

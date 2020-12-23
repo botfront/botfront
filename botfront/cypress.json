@@ -12,10 +12,9 @@
     "numTestsKeptInMemory": 1 ,
     "viewportHeight": 900,
     "viewportWidth": 1800,
-    "ignoreTestFiles":["**/docker-compose/*.js", "**/story_exceptions.spec.js/*.js", "**/export-project.spec.js", "**/import-project.spec.js", "**/roles-example.spec.js"],
+    "ignoreTestFiles":["**/docker-compose/*.js", "**/story_exceptions.spec.js/*.js", "**/export-project.spec.js", "**/roles-example.spec.js"],
     "env": {
         "RASA_URL": "http://localhost:5005",
-        "API_URL": "http://localhost:8080",
         "VIDEO": "false",
         "SCREENSHOTS": "true",
         "RETRIES": 2

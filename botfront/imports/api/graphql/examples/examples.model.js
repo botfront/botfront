@@ -13,6 +13,7 @@ const model = new Schema({
         end: Number,
         value: String,
         entity: String,
+        _id: false,
     }],
     metadata: { type: Object, required: false },
 }, { strict: false });

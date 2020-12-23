@@ -25,12 +25,13 @@ if (Meteor.isServer) {
     import storiesResolver from '../../graphql/story/resolvers/storiesResolver';
 
     import formsResolver from '../../graphql/forms/formResolver';
+    import projectResolver from '../../graphql/project/projectResolver';
 
 
     import { setScopes } from '../../../lib/scopes';
     import { Projects } from '../../project/project.collection';
     import {
-        roles, readers, writers, formatRoles,
+        roles, readers, writers, formatRoles, otherRoles,
     } from './roleTestUtils';
 
     // eslint-disable-next-line import/named
@@ -267,7 +268,7 @@ if (Meteor.isServer) {
         },
         {
             name: 'search stories',
-            query: storiesResolver.Query.storiesSearch,
+            query: storiesResolver.Query.dialogueSearch,
             args: { projectId },
             acceptedRoles: readers.stories,
         },
@@ -330,6 +331,12 @@ if (Meteor.isServer) {
             query: examplesResolver.Query.listIntentsAndEntities,
             args: { projectId },
             acceptedRoles: readers.nluData,
+        },
+        {
+            name: 'import',
+            query: projectResolver.Mutation.import,
+            args: { projectId },
+            acceptedRoles: otherRoles.importX,
         },
         
     ];

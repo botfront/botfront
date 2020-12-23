@@ -8,6 +8,7 @@ import {
 } from './mongo/forms';
 import { checkIfCan } from '../../../lib/scopes';
 import { auditLog } from '../../../../server/logger';
+import { addMeteorUserToCall } from '../utils/index';
 
 const { PubSub, withFilter } = require('apollo-server-express');
 
@@ -57,7 +58,7 @@ export default {
         importSubmissions: async (_root, args, context) => importSubmissions(args),
         upsertForm: async (_, args, context) => {
             checkIfCan('stories:w', args.form.projectId, context.user._id);
-            const { status, value } = await upsertForm(args, context.user);
+            const { status, value } = await addMeteorUserToCall(context.user, () => upsertForm(args));
             if (status !== 'failed') {
                 const publication = status === 'inserted' ? FORMS_CREATED : FORMS_MODIFIED;
                 const key = status === 'inserted' ? 'formsCreated' : 'formsModified';

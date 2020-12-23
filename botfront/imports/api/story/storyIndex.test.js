@@ -1,82 +1,46 @@
 
 import { expect } from 'chai';
 import { indexStory } from './stories.index';
+import { storyFixtureA } from './storyMethods.test';
 
-const storyFixture = {
-    _id: 'vRTJCXF5dmohJ53Kz',
-    title: 'Welcome Story',
-    storyGroupId: 'pYAvAsYw256uy8bGF',
-    projectId: 'bf',
-    events: [
-        'utter_hello',
-        'utter_tXd-Pm66',
-        'utter_Xywmv8uc',
-        'utter_hwZIDQ5P',
-        'utter_0H5XEC9h',
-        'action_help',
+const update = {
+    _id: 'story_A',
+    path: ['story_A'],
+    steps: [
+        { intent: 'hello' },
+        { action: 'utter_new_response' },
     ],
-    branches: [
-        {
-            title: 'New Branch 1',
-            branches: [],
-            _id: 'wBzDjbDu',
-            story: '* helpOptions\n  - action_help\n  - utter_tXd-Pm66',
-        },
-        {
-            title: 'New Branch 2',
-            branches: [],
-            _id: 'vQMx0FvVC',
-            story:
-                '* how_are_you\n  - utter_Xywmv8uc\n* mood{"positive": "good"}\n  - utter_hwZIDQ5P\n  - utter_0H5XEC9h\n  - slot{"mood":"set"}',
-        },
-    ],
-    story: '* hello\n - utter_hello',
-};
-
-const updateFixture = {
-    _id: 'vRTJCXF5dmohJ53Kz',
-    path: ['vRTJCXF5dmohJ53Kz'],
-    story: '* hello\n  - utter_new_response',
 };
 
 // ------ test suite -------
 describe('story indexing and events tests', () => {
     it('should index the story and get a list of events', () => {
-        const result = indexStory(storyFixture, { includeEventsField: true });
+        const result = indexStory(storyFixtureA);
         expect(result).to.be.deep.equal({
-            textIndex: {
-                contents: 'hello \n helpOptions \n how_are_you \n mood positive \n utter_hello \n utter_tXd-Pm66 \n utter_Xywmv8uc \n utter_hwZIDQ5P \n utter_0H5XEC9h \n action_help \n mood',
-                info: 'Welcome Story',
-            },
+            textIndex: 'hello utter_hello utter_tXd-Pm66 New Branch 1 story_A_branch_A helpOptions action_help utter_tXd-Pm66 New Branch 2 story_A_branch_B how_are_you utter_Xywmv8uc mood positive good utter_hwZIDQ5P utter_0H5XEC9h mood set',
             events: [
                 'utter_hello',
                 'utter_tXd-Pm66',
+                'action_help',
                 'utter_Xywmv8uc',
                 'utter_hwZIDQ5P',
                 'utter_0H5XEC9h',
-                'action_help',
             ],
         });
     });
-    it('should index the story and get a list of events', () => {
-        const result = indexStory(storyFixture, {
-            includeEventsField: true,
-            update: {
-                _id: 'vRTJCXF5dmohJ53Kz', story: updateFixture.story,
-            },
+    it('should index the story and get a list of events with an update thrown in', () => {
+        const result = indexStory(storyFixtureA, {
+            update,
         });
         expect(result).to.be.deep.equal({
-            textIndex: {
-                contents: 'hello \n helpOptions \n how_are_you \n mood positive \n utter_new_response \n utter_tXd-Pm66 \n utter_Xywmv8uc \n utter_hwZIDQ5P \n utter_0H5XEC9h \n action_help \n mood',
-                info: 'Welcome Story',
-            },
+            textIndex: 'hello utter_new_response New Branch 1 story_A_branch_A helpOptions action_help utter_tXd-Pm66 New Branch 2 story_A_branch_B how_are_you utter_Xywmv8uc mood positive good utter_hwZIDQ5P utter_0H5XEC9h mood set',
             events: [
                 'utter_new_response',
+                'action_help',
                 'utter_tXd-Pm66',
                 'utter_Xywmv8uc',
                 'utter_hwZIDQ5P',
                 'utter_0H5XEC9h',
-                'action_help',
             ],
         });
     });

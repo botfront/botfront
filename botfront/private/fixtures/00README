@@ -1,0 +1,6 @@
+If you commit two files with same content here, they will be accessible using
+Meteor's Asset API, but not with e.g. fs.readdir. This is important, because
+the e2e tests in import.tests.js depend on this. If you have a test that
+requires browsing the file system with one tree being a subtree of an other
+(with some files having the same content), you need to put the common content
+in a "common" path, and not anywhere else.

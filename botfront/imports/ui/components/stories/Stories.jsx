@@ -46,17 +46,17 @@ const isDeletionPossible = (node = {}, nodes, tree) => {
     const isDestinationOrOrigin = s => isDestination(s) || isOrigin(s);
     let deletable = false;
     let message = null;
-    if (node.type === 'story') {
+    if (['story', 'rule'].includes(node.type)) {
         deletable = !isDestinationOrOrigin(node);
         message = deletable
-            ? `The story ${node.title} will be deleted. This action cannot be undone.`
-            : `The story ${node.title} cannot be deleted as it is linked to another story.`;
+            ? `'${node.title}' will be deleted. This action cannot be undone.`
+            : `'${node.title}' cannot be deleted as it is linked to another story.`;
     }
     if (node.type === 'story-group') {
         deletable = !(node.children || []).some(c => isDestinationOrOrigin(tree.items[c]));
         message = deletable
-            ? `The story group ${node.title} and all its stories in it will be deleted. This action cannot be undone.`
-            : `The story group ${node.title} cannot be deleted as it contains links.`;
+            ? `The group ${node.title} and all its content in it will be deleted. This action cannot be undone.`
+            : `The group ${node.title} cannot be deleted as it contains links.`;
     }
     if (node.type === 'form') {
         deletable = true;
@@ -82,66 +82,35 @@ function Stories(props) {
     const [policiesModal, setPoliciesModal] = useState(false);
     const [resizing, setResizing] = useState(false);
     const [storyEditorsKey, setStoryEditorsKey] = useState(shortId.generate());
-    const [forms, setForms] = useState([]);
 
     const treeRef = useRef();
 
     const [upsertForm] = useMutation(UPSERT_FORM);
     const [deleteForms] = useMutation(DELETE_FORMS);
-    const { data: { getForms = [] } = {}, loading } = useQuery(GET_FORMS, {
-        variables: { projectId, onlySlotList: true },
-        fetchPolicy: 'cache-and-network',
+    const { data: { getForms: forms = [] } = {}, loading, refetch } = useQuery(
+        GET_FORMS,
+        { variables: { projectId, onlySlotList: true } },
+    );
+
+    useSubscription(FORMS_MODIFIED, {
+        variables: { projectId },
+        onSubscriptionData: () => refetch(),
     });
-    useEffect(() => setForms(loading ? [] : getForms), [loading, getForms]);
-    const currentForms = useRef(forms); // keep a ref of forms to avoid closure effects in context mutators
-    currentForms.current = forms; // keep it up to date
 
-    useSubscription(
-        FORMS_MODIFIED,
-        {
-            variables: { projectId },
-            onSubscriptionData: ({ subscriptionData }) => {
-                if (!subscriptionData) return;
-                if (!subscriptionData.data) return;
-                const modifiedForm = subscriptionData.data.formsModified;
-                const updatedForms = forms.map((form) => {
-                    if (form._id === modifiedForm._id) return modifiedForm;
-                    return form;
-                });
-                setForms(updatedForms);
-            },
-        },
-    );
+    useSubscription(FORMS_CREATED, {
+        variables: { projectId },
+        onSubscriptionData: () => refetch(),
+    });
 
-    useSubscription(
-        FORMS_CREATED,
-        {
-            variables: { projectId },
-            onSubscriptionData: ({ subscriptionData }) => {
-                if (!subscriptionData) return;
-                if (!subscriptionData.data) return;
-                const newForm = subscriptionData.data.formsCreated;
-                setForms([...forms, newForm]);
-            },
-        },
-    );
-
-    useSubscription(
-        FORMS_DELETED,
-        {
-            variables: { projectId },
-            onSubscriptionData: ({ subscriptionData }) => {
-                if (!subscriptionData) return;
-                if (!subscriptionData.data) return;
-                const deletedForms = subscriptionData.data.formsDeleted;
-                const updatedForms = forms.filter(form => !deletedForms.some(({ _id }) => _id === form._id));
-                setForms(updatedForms);
-            },
-        },
-    );
+    useSubscription(FORMS_DELETED, {
+        variables: { projectId },
+        onSubscriptionData: () => refetch(),
+    });
 
     const getQueryParams = () => {
-        const { location: { query } } = router;
+        const {
+            location: { query },
+        } = router;
         let queriedIds = query['ids[]'] || [];
         queriedIds = Array.isArray(queriedIds) ? queriedIds : [queriedIds];
         return queriedIds;
@@ -150,15 +119,24 @@ function Stories(props) {
     const cleanId = id => id.replace(/^.*_SMART_/, '');
 
     const setStoryMenuSelection = (newSelection) => {
-        if (!getQueryParams().every(id => newSelection.includes(id))
-        || !newSelection.every(id => getQueryParams().includes(id))) {
-            const { location: { pathname } } = router;
+        if (
+            !getQueryParams().every(id => newSelection.includes(id))
+            || !newSelection.every(id => getQueryParams().includes(id))
+        ) {
+            const {
+                location: { pathname },
+            } = router;
             router.replace({ pathname, query: { 'ids[]': newSelection.map(cleanId) } });
         }
         doSetStoryMenuSelection(newSelection);
     };
 
-    useEffect(() => setStoryMenuSelection(getQueryParams().length ? getQueryParams() : storyMenuSelection), []);
+    useEffect(
+        () => setStoryMenuSelection(
+            getQueryParams().length ? getQueryParams() : storyMenuSelection,
+        ),
+        [],
+    );
 
     const closeModals = () => {
         setSlotsModal(false);
@@ -175,13 +153,14 @@ function Stories(props) {
     );
 
     const reshapeStories = () => stories
+        .filter(story => story.type === 'story') // no rules
         .map(story => ({ ...story, text: story.title, value: story._id }))
         .sort((storyA, storyB) => {
             if (storyA.text < storyB.text) return -1;
             if (storyA.text > storyB.text) return 1;
             return 0;
         });
-    
+
     const injectProjectIdInStory = useCallback(story => ({ ...story, projectId }), [
         projectId,
     ]);
@@ -189,14 +168,16 @@ function Stories(props) {
     const storiesReshaped = useMemo(reshapeStories, [stories]);
 
     const handleUpsertForm = useCallback(
-        (formData, ...args) => upsertForm({ variables: { form: { ...clearTypenameField(formData), projectId } } }).then(
-            callbackCaller(args), callbackCaller(args),
-        ),
+        (formData, ...args) => upsertForm({
+            variables: { form: { ...clearTypenameField(formData), projectId } },
+        }).then(callbackCaller(args), callbackCaller(args)),
         [projectId],
     );
 
     const handleDeleteForm = useCallback(
-        ({ _id }, ...args) => deleteForms({ variables: { projectId, ids: [_id] } }).then(callbackCaller(args)),
+        ({ _id }, ...args) => deleteForms({ variables: { projectId, ids: [_id] } }).then(
+            callbackCaller(args),
+        ),
         [projectId],
     );
 
@@ -236,20 +217,6 @@ function Stories(props) {
         [projectId],
     );
 
-    const handleNewStory = useCallback(
-        (story, f) => Meteor.call(
-            'stories.insert',
-            {
-                story: '',
-                projectId,
-                branches: [],
-                ...story,
-            },
-            wrapMeteorCallback(f),
-        ),
-        [projectId],
-    );
-
     const handleStoryDeletion = useCallback(
         (story, f) => Meteor.call(
             'stories.delete',
@@ -283,6 +250,38 @@ function Stories(props) {
         );
     };
 
+    const handleLinkToStory = useCallback(
+        (id) => {
+            const {
+                location: { pathname },
+            } = router;
+            const newSelection = [
+                id,
+                ...storyMenuSelection.filter(storyId => storyId !== id),
+            ];
+            router.replace({ pathname, query: { 'ids[]': newSelection } });
+            setStoryMenuSelection(newSelection);
+        },
+        [storyMenuSelection],
+    );
+
+    const handleNewStory = useCallback(
+        (story, f) => Meteor.call(
+            'stories.insert',
+            {
+                projectId,
+                branches: [],
+                steps: [],
+                ...story,
+            },
+            wrapMeteorCallback(() => {
+                if (story._id) handleLinkToStory(story._id);
+                f();
+            }),
+        ),
+        [projectId],
+    );
+
     useEventListener('keydown', ({ key }) => {
         if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
         if (key === 'ArrowLeft') treeRef.current.focusMenu();
@@ -294,6 +293,7 @@ function Stories(props) {
                     browseToSlots: () => setSlotsModal(true),
                     stories: storiesReshaped,
                     storyGroups,
+                    linkToStory: handleLinkToStory,
                     addGroup: handleAddStoryGroup,
                     deleteGroup: handleDeleteGroup,
                     updateGroup: handleStoryGroupUpdate,
@@ -345,22 +345,17 @@ function Stories(props) {
                             />
                         </Loading>
                     </div>
-                    {forms.some(({ _id }) => storyMenuSelection[0] === _id)
-                        ? (
-                            <FormEditors
+                    {forms.some(({ _id }) => storyMenuSelection[0] === _id) ? (
+                        <FormEditors projectId={projectId} formIds={storyMenuSelection} />
+                    ) : (
+                        <Container>
+                            <StoryEditors
                                 projectId={projectId}
-                                formIds={storyMenuSelection}
+                                selectedIds={storyMenuSelection.map(cleanId)}
+                                key={storyEditorsKey}
                             />
-                        ) : (
-                            <Container>
-                                <StoryEditors
-                                    projectId={projectId}
-                                    selectedIds={storyMenuSelection.map(cleanId)}
-                                    key={storyEditorsKey}
-                                />
-                            </Container>
-                        )
-                    }
+                        </Container>
+                    )}
                 </SplitPane>
             </ConversationOptionsContext.Provider>
         </Loading>
@@ -379,40 +374,48 @@ Stories.propTypes = {
 
 Stories.defaultProps = {};
 
-const StoriesWithTracker = withRouter(withTracker((props) => {
-    const { projectId } = props;
-    const storiesHandler = Meteor.subscribe('stories.light', projectId);
-    const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
-    
-    const regularStoryGroups = StoryGroups.find({ smartGroup: { $exists: false } }).fetch();
-    const regularStories = StoriesCollection.find().fetch();
+const StoriesWithTracker = withRouter(
+    withTracker((props) => {
+        const { projectId } = props;
+        const storiesHandler = Meteor.subscribe('stories.light', projectId);
+        const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
 
-    let smartStories = [];
-    const smartStoryGroups = StoryGroups.find({ smartGroup: { $exists: true } }).fetch()
-        .map((sg) => {
-            if (!sg.smartGroup.query) return sg;
-            const results = StoriesCollection.find(JSON.parse(sg.smartGroup.query)).fetch()
-                .map(story => ({
-                    ...story,
-                    _id: `${sg.smartGroup.prefix}_SMART_${story._id}`,
-                    storyGroupId: sg._id,
-                    smart: true,
-                }));
-            smartStories = smartStories.concat(results);
-            return { ...sg, children: results.map(({ _id }) => _id) };
-        });
-    const storyGroups = [...smartStoryGroups, ...regularStoryGroups];
-    const stories = [...regularStories, ...smartStories];
+        const regularStoryGroups = StoryGroups.find({
+            smartGroup: { $exists: false },
+        }).fetch();
+        const regularStories = StoriesCollection.find().fetch();
 
-    return {
-        ready: storyGroupsHandler.ready() && storiesHandler.ready(),
-        storyGroups,
-        stories,
-    };
-})(Stories));
+        let smartStories = [];
+        const smartStoryGroups = StoryGroups.find({ smartGroup: { $exists: true } })
+            .fetch()
+            .map((sg) => {
+                if (!sg.smartGroup.query) return sg;
+                const results = StoriesCollection.find(JSON.parse(sg.smartGroup.query))
+                    .fetch()
+                    .map(story => ({
+                        ...story,
+                        _id: `${sg.smartGroup.prefix}_SMART_${story._id}`,
+                        storyGroupId: sg._id,
+                        smart: true,
+                    }));
+                smartStories = smartStories.concat(results);
+                return { ...sg, children: results.map(({ _id }) => _id) };
+            });
+        const storyGroups = [...smartStoryGroups, ...regularStoryGroups];
+        const stories = [...regularStories, ...smartStories];
+
+        return {
+            ready: storyGroupsHandler.ready() && storiesHandler.ready(),
+            storyGroups,
+            stories,
+        };
+    })(Stories),
+);
 
 const mapStateToProps = state => ({
     storyMenuSelection: state.stories.get('storiesCurrent').toJS(),
 });
 
-export default connect(mapStateToProps, { setStoryMenuSelection: setStoriesCurrent })(StoriesWithTracker);
+export default connect(mapStateToProps, { setStoryMenuSelection: setStoriesCurrent })(
+    StoriesWithTracker,
+);

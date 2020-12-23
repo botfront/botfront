@@ -1,0 +1,44 @@
+stories:
+  - story: Newsletter Form
+    steps:
+      - checkpoint: link-to-Newsletter Form/a6867957-9012-4986-ac39-4e3140aea410
+      - action: utter_4ZRytPCdr
+    metadata:
+      group: Newsletter
+  - story: Newsletter Subscription
+    steps:
+      - or:
+          - intent: subscribe_newsletter
+          - intent: subscribe_newsletter
+            entities:
+              - work_email: james@dean.com
+      - action: utter_H48Wn5f5
+      - checkpoint: link-to-Newsletter Form/a6867957-9012-4986-ac39-4e3140aea410
+    metadata:
+      group: Newsletter
+  - story: Propose Newsletter Subscription
+    steps:
+      - checkpoint: >-
+          link-to-Propose Newsletter
+          Subscription/6c525836-0f31-4363-a9cc-f672cb48f905
+      - action: utter_1U5W_KBs
+      - action: utter_91ZRibvt
+      - checkpoint: Propose_Newsletter_Subscription__branches
+    metadata:
+      group: Newsletter
+  - story: Propose Newsletter Subscription__Nope
+    steps:
+      - checkpoint: Propose_Newsletter_Subscription__branches
+      - intent: basics.no
+      - action: utter__jCdQSOh
+    metadata:
+      group: Newsletter
+  - story: Propose Newsletter Subscription__Yes
+    steps:
+      - checkpoint: Propose_Newsletter_Subscription__branches
+      - intent: basics.yes
+      - action: utter_Lxl1aPW8
+      - checkpoint: link-to-Newsletter Form/a6867957-9012-4986-ac39-4e3140aea410
+    metadata:
+      group: Newsletter
+rules: []

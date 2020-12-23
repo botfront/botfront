@@ -2,7 +2,6 @@ import React, {
     useEffect, useState, useContext, useMemo, useRef,
 } from 'react';
 import PropTypes from 'prop-types';
-import { Meteor } from 'meteor/meteor';
 import moment from 'moment';
 import {
     Menu, Dropdown, Icon, Header, Button,
@@ -18,7 +17,6 @@ import { PageMenu, Loading } from '../utils/Utils';
 import { ProjectContext } from '../../layouts/context';
 import { findName } from '../../../lib/utils';
 import { GET_INTENTS_IN_CONVERSATIONS } from '../conversations/queries';
-import { wrapMeteorCallback } from '../utils/Errors';
 import { AnalyticsContext } from './AnalyticsContext';
 
 const Dashboard = React.lazy(() => import('./AnalyticsDashboard'));
@@ -30,44 +28,49 @@ function AnalyticsContainer(props) {
         workingLanguage,
         changeWorkingDashboard,
     } = props;
-    
+
     const dashboardRef = useRef(null);
     const [sequenceOptions, setSequenceOptions] = useState([]);
-    const [slotOptions, setSlotOptions] = useState([]);
-    const [actionOptions, setActionOptions] = useState([]);
     const {
         project: { _id: projectId },
         projectLanguages,
+        slots,
+        dialogueActions,
     } = useContext(ProjectContext);
-    
+
     useQuery(GET_INTENTS_IN_CONVERSATIONS, {
         variables: { projectId },
         fetchPolicy: 'no-cache',
         onCompleted: (data) => {
-            setSequenceOptions([...sequenceOptions,
+            setSequenceOptions([
+                ...sequenceOptions,
                 ...data.intentsInConversations
                     .filter(intent => intent !== null)
-                    .map(intent => ({ key: intent, text: intent, value: { name: intent, excluded: false } }))]);
+                    .map(intent => ({
+                        key: intent,
+                        text: intent,
+                        value: { name: intent, excluded: false },
+                    })),
+            ]);
         },
     });
 
-
-    useEffect(() => {
-        Meteor.call(
-            'project.getActions',
-            projectId,
-            wrapMeteorCallback((err, availableActions) => {
-                if (!err) {
-                    setActionOptions([...availableActions.map(action => ({ key: action, text: action, value: { name: action, excluded: false, type: 'action' } }))]);
-                }
-            }),
-        );
-        Meteor.call('slots.getSlots', projectId, (err, slots) => {
-            if (!err) {
-                setSlotOptions(slots.map(({ name: slotName }) => ({ key: slotName, text: slotName, value: { name: slotName, type: 'slot', excluded: false } })));
-            }
-        });
-    }, []);
+    const actionOptions = useMemo(() => dialogueActions.map(
+        action => ({
+            key: action,
+            text: action,
+            value: { name: action, excluded: false, type: 'action' },
+        }),
+        [dialogueActions],
+    ));
+    const slotOptions = useMemo(() => slots.map(
+        ({ name: slotName }) => ({
+            key: slotName,
+            text: slotName,
+            value: { name: slotName, type: 'slot', excluded: false },
+        }),
+        [slots],
+    ));
 
     const {
         loading,
@@ -84,19 +87,22 @@ function AnalyticsContainer(props) {
         [workingDashboard, dashboards],
     );
     useEffect(() => {
-        if (!dashboards.some(({ _id }) => _id === workingDashboard) && !loading && !error) {
+        if (
+            !dashboards.some(({ _id }) => _id === workingDashboard)
+            && !loading
+            && !error
+        ) {
             changeWorkingDashboard(dashboards[0]._id); // for now we only support a single dashboard, hence [0]
         }
     }, [dashboards]);
 
-    const [updateDashboard] = useMutation(
-        UPDATE_DASHBOARD,
-        {
-            update: (cache, { data: { updateDashboard: update } }) => cache.writeQuery({
-                query: LIST_DASHBOARDS, variables: { projectId }, data: { listDashboards: [update] },
-            }),
-        },
-    );
+    const [updateDashboard] = useMutation(UPDATE_DASHBOARD, {
+        update: (cache, { data: { updateDashboard: update } }) => cache.writeQuery({
+            query: LIST_DASHBOARDS,
+            variables: { projectId },
+            data: { listDashboards: [update] },
+        }),
+    });
 
     const handleUpdateDashboard = update => updateDashboard({
         variables: { ...dashboard, ...update },
@@ -108,21 +114,42 @@ function AnalyticsContainer(props) {
     const handleNewCardInDashboard = (type, name) => handleUpdateDashboard({
         cards: [
             {
-                name: findName(name, dashboard.cards.map(c => c.name)),
+                name: findName(
+                    name,
+                    dashboard.cards.map(c => c.name),
+                ),
                 type,
                 description: '',
                 visible: true,
                 startDate: moment().subtract(6, 'days').startOf('day').toISOString(),
                 endDate: moment().endOf('day').toISOString(),
-                chartType: ['conversationLengths', 'intentFrequencies', 'triggerFrequencies', 'conversationDurations', 'conversationsFunnel'].includes(type) ? 'bar' : 'line',
+                chartType: [
+                    'conversationLengths',
+                    'intentFrequencies',
+                    'triggerFrequencies',
+                    'conversationDurations',
+                    'conversationsFunnel',
+                ].includes(type)
+                    ? 'bar'
+                    : 'line',
                 valueType: 'absolute',
                 includeActions: undefined,
                 excludeActions: undefined,
                 includeIntents: undefined,
-                excludeIntents: ['intentFrequencies'].includes(type) ? ['get_started'] : undefined,
-                selectedSequence: ['conversationsFunnel'].includes(type) ? [{ name: 'get_started', excluded: false, type: 'intent' }] : undefined,
-                triggerConversations: ['conversationCounts', 'triggerFrequencies'].includes(type),
-                userInitiatedConversations: ['conversationCounts', 'intentFrequencies'].includes(type),
+                excludeIntents: ['intentFrequencies'].includes(type)
+                    ? ['get_started']
+                    : undefined,
+                selectedSequence: ['conversationsFunnel'].includes(type)
+                    ? [{ name: 'get_started', excluded: false, type: 'intent' }]
+                    : undefined,
+                triggerConversations: [
+                    'conversationCounts',
+                    'triggerFrequencies',
+                ].includes(type),
+                userInitiatedConversations: [
+                    'conversationCounts',
+                    'intentFrequencies',
+                ].includes(type),
             },
             ...dashboard.cards,
         ],
@@ -174,10 +201,19 @@ function AnalyticsContainer(props) {
     );
 
     return (
-        <AnalyticsContext.Provider value={{ sequenceOptions, slotOptions, actionOptions }}>
+        <AnalyticsContext.Provider
+            value={{ sequenceOptions, slotOptions, actionOptions }}
+        >
             {canDrop && (
-                <div data-cy='delete-card-dropzone' className={`top-menu-red-dropzone ${isOver ? 'hover' : ''}`} ref={drop}>
-                    <Header as='h3' color='red' textAlign='center'><Icon name='trash' />Drop here to delete</Header>
+                <div
+                    data-cy='delete-card-dropzone'
+                    className={`top-menu-red-dropzone ${isOver ? 'hover' : ''}`}
+                    ref={drop}
+                >
+                    <Header as='h3' color='red' textAlign='center'>
+                        <Icon name='trash' />
+                        Drop here to delete
+                    </Header>
                 </div>
             )}
             <div>
@@ -193,7 +229,11 @@ function AnalyticsContainer(props) {
                             handleLanguageChange={languages => handleUpdateDashboard(
                                 languages.length
                                     ? { languages }
-                                    : { languages: projectLanguages.map(l => l.value) },
+                                    : {
+                                        languages: projectLanguages.map(
+                                            l => l.value,
+                                        ),
+                                    },
                             )
                             }
                             selectedLanguage={dashboard.languages}
@@ -212,9 +252,7 @@ function AnalyticsContainer(props) {
                                 Export to Excel
                             </Button>
                         </Menu.Item>
-                        <Menu.Item>
-                            {renderAddCard()}
-                        </Menu.Item>
+                        <Menu.Item>{renderAddCard()}</Menu.Item>
                     </Menu.Menu>
                 </PageMenu>
             </div>

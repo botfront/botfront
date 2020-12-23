@@ -64,28 +64,4 @@ describe('slots', function() {
         cy.dataCy('errors-field').should('not.exist');
         deleteSlot();
     });
-
-    it('should not show an error when we add a slot in stories that is in the db', function() {
-        cy.visit('/project/bf/dialogue');
-        cy.dataCy('toggle-md').click({ force: true });
-        cy.browseToStory('Greetings', 'Default stories');
-        cy.get('.ace_content').click({ force: true });
-        cy.dataCy('story-editor')
-            .find('textarea')
-            .focus()
-            .type('\n- slot{{}"name": "Ali"}', { force: true });
-
-        cy.dataCy('top-menu-warning-alert')
-            .should('contain', '1 Warning'); // response warning
-        cy.dataCy('slots-modal').click();
-        cy.dataCy('add-slot').click();
-        cy.contains('text').click();
-        cy.dataCy('new-slot-editor')
-            .find('input')
-            .first()
-            .type('name');
-        cy.dataCy('save-button').click();
-        cy.get('.modals.dimmer').click('topRight');
-        cy.dataCy('top-menu-warning-alert').should('not.exist');
-    });
 });

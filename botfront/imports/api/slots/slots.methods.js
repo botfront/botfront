@@ -7,10 +7,10 @@ import { auditLogIfOnServer } from '../../lib/utils';
 import { slotSchemas } from './slots.schema';
 
 function validateSchema(slot) {
-    if (slot.type) {
+    if (slot.type in slotSchemas) {
         slotSchemas[slot.type].validate(slot, { check });
     } else {
-        throw new Meteor.Error('400');
+        throw new Meteor.Error(400, 'Slot type invalid');
     }
 }
 
@@ -44,7 +44,7 @@ Meteor.methods({
     },
 
     'slots.upsert'(slot, projectId) {
-        checkIfCan('stories:w', projectId);
+        checkIfCan(['stories:w', 'import:x'], projectId);
         check(projectId, String);
         check(slot, Match.OneOf(Object, [Object]));
         

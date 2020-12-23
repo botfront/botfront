@@ -56,7 +56,7 @@
           ]
       }
   ],
-    "fuzzy_gazette": [
+    "gazette": [
       {
           "mode": "ratio",
           "value": "color",

@@ -3,7 +3,6 @@ import { check, Match } from 'meteor/check';
 import uuidv4 from 'uuid/v4';
 import shortid from 'shortid';
 import { checkIfCan } from '../../lib/scopes';
-import { traverseStory } from '../../lib/story.utils';
 import { indexStory } from './stories.index';
 
 import { Stories } from './stories.collection';
@@ -28,25 +27,25 @@ const logStoryUpdate = (story, projectId, originStory) => auditLogIfOnServer('St
 Meteor.methods({
     async 'stories.insert'(story) {
         const projectId = Array.isArray(story) ? story[0].projectId : story.projectId;
-        checkIfCan('stories:w', projectId);
+        checkIfCan(['stories:w', 'import:x'], projectId);
         check(story, Match.OneOf(Object, [Object]));
         let result;
         const storyGroups = {};
         if (Array.isArray(story)) {
-            if (story.some(s => s.projectId !== projectId)) throw new Error(); // ensure homegeneous set
             const stories = story.map((s) => {
+                if (s.projectId !== projectId) throw new Error(); // ensure homegeneous set
                 const _id = s._id || uuidv4();
                 storyGroups[s.storyGroupId] = [...(storyGroups[s.storyGroupId] || []), _id];
                 return {
                     _id,
                     ...s,
-                    ...indexStory(s, { includeEventsField: true }),
+                    ...indexStory(s),
                 };
             });
             result = await Stories.rawCollection().insertMany(stories);
             result = Object.values(result.insertedIds);
         } else {
-            result = [Stories.insert({ ...story, ...indexStory(story, { includeEventsField: true }) })];
+            result = [Stories.insert({ ...story, ...indexStory(story) })];
             storyGroups[story.storyGroupId] = result;
         }
         auditLogIfOnServer('Stories created', {
@@ -88,7 +87,6 @@ Meteor.methods({
         checkIfCan('stories:w', projectId);
         check(story, Match.OneOf(Object, [Object]));
         check(options, Object);
-        const { noClean } = options;
         if (Array.isArray(story)) {
             if (story.some(s => s.projectId !== projectId)) throw new Error(); // ensure homegeneous set
             const originStories = Stories.find({ _id: { $in: story.map(({ _id }) => _id) } }).fetch();
@@ -98,7 +96,8 @@ Meteor.methods({
                 {
                     $set: {
                         ...rest,
-                        ...indexStory(originStories.find(({ _id: sid }) => sid === _id) || {}, { includeEventsField: true, update: { ...rest, _id } }),
+                        type: (originStories.find(({ _id: sid }) => sid === _id) || {}).type,
+                        ...indexStory(originStories.find(({ _id: sid }) => sid === _id) || {}, { update: { ...rest, _id } }),
                     },
                 },
             ));
@@ -111,17 +110,22 @@ Meteor.methods({
             return Stories.update({ _id }, {
                 $set: {
                     ...rest,
-                    ...indexStory(originStory, { includeEventsField: true, update: { ...rest, _id } }),
+                    type: originStory.type,
+                    ...indexStory(originStory, { update: { ...rest, _id } }),
                 },
             });
         }
 
         const { textIndex, events: newEvents } = indexStory(originStory, {
             update: { ...rest, _id: path[path.length - 1] },
-            includeEventsField: true,
         });
-
-        const { indices } = traverseStory(originStory, path);
+        const { indices } = path.slice(1)
+            .reduce((acc, curr) => ({
+                branches: acc.branches.find(b => b._id === curr)?.branches || [],
+                indices: [...acc.indices, (acc.branches || []).findIndex(
+                    branch => branch._id === curr,
+                )],
+            }), { branches: originStory.branches || [], indices: [] });
         const update = indices.length
             ? Object.assign(
                 {},
@@ -130,17 +134,18 @@ Meteor.methods({
                 })),
             )
             : rest;
-        const result = await Stories.update({ _id }, { $set: { ...update, events: newEvents, textIndex } });
+        const result = await Stories.update({ _id }, {
+            $set: {
+                type: originStory.type, ...update, events: newEvents, textIndex,
+            },
+        });
 
-        if (!noClean) {
-            // check if a response was removed
-            const { events: oldEvents } = originStory || {};
-            const removedEvents = (oldEvents || []).filter(
-                event => event.match(/^utter_/) && !newEvents.includes(event),
-            );
-            await deleteResponsesRemovedFromStories(removedEvents, projectId, Meteor.user());
-        }
-        logStoryUpdate(story, projectId, originStory);
+        // check if a response was removed
+        const { events: oldEvents } = originStory || {};
+        const removedEvents = (oldEvents || []).filter(
+            event => event.match(/^utter_/) && !newEvents.includes(event),
+        );
+        deleteResponsesRemovedFromStories(removedEvents, projectId, Meteor.user());
         return result;
     },
 
@@ -184,7 +189,7 @@ Meteor.methods({
             resType: 'story',
         });
         return Stories.update(
-            { _id: destinationStory },
+            { _id: destinationStory, type: 'story' },
             { $addToSet: { checkpoints: branchPath } },
         );
     },
@@ -196,7 +201,7 @@ Meteor.methods({
         check(projectId, String);
         const storyBefore = Stories.findOne({ _id: destinationStory });
         const result = Stories.update(
-            { _id: destinationStory },
+            { _id: destinationStory, type: 'story' },
             { $pullAll: { checkpoints: [branchPath] } },
         );
         const storyAfter = Stories.findOne({ _id: destinationStory });
@@ -221,9 +226,7 @@ Meteor.methods({
         if (!storyBefore.triggerIntent) {
             update.triggerIntent = `trigger_${shortid.generate()}`;
         }
-        update.rules = story.rules.map(rule => (
-            { ...rule, payload: `/${storyBefore.triggerIntent || update.triggerIntent}` }
-        ));
+        update.rules = story.rules;
         auditLogIfOnServer('Story updated trigger rules', {
             resId: storyId,
             user: Meteor.user(),
@@ -235,7 +238,7 @@ Meteor.methods({
             resType: 'story',
         });
         Stories.update(
-            { projectId, _id: storyId },
+            { projectId, _id: storyId, type: storyBefore.type },
             { $set: update },
         );
     },
@@ -255,7 +258,7 @@ Meteor.methods({
             resType: 'story',
         });
         Stories.update(
-            { projectId, _id: storyId },
+            { projectId, _id: storyId, type: storyBefore.type },
             { $set: { rules: [] } },
         );
     },

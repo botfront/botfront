@@ -128,12 +128,12 @@ function AnalyticsCard(props) {
         return [];
     };
 
-    const getTriggerIntentFromStory = async (storyName) => {
+    const getTriggerIntentFromStory = async (fragmentName) => {
         const intentMapping = await Meteor.callWithPromise(
             'stories.getTriggerIntents',
             projectId, { includeFields: { title: 1, triggerIntent: 1 }, key: 'title' },
         );
-        return intentMapping[storyName].triggerIntent;
+        return intentMapping[fragmentName].triggerIntent;
     };
 
     const getDateRangeForLinking = (selectedData, prevData) => {

@@ -1,10 +1,7 @@
 import { isEqual } from 'lodash';
 
 export const isTraining = (project) => {
-    const {
-        training,
-        training: { instanceStatus } = {},
-    } = project;
+    const { training, training: { instanceStatus } = {} } = project;
     if (!training) {
         return false;
     }
@@ -25,7 +22,7 @@ const compare = (a, b) => {
 };
 
 // compate the arrays whitout taking into account the order
-const arrayOfObjectsEqual = function(arrayA, arrayB) {
+const arrayOfObjectsEqual = function (arrayA, arrayB) {
     // use the spread operator to create new arrays, otherwise sort would modify them
     return isEqual([...arrayA].sort(compare), [...arrayB].sort(compare));
 };
@@ -40,8 +37,10 @@ export const findExampleMatch = (example, item, itemEntities) => {
 
 export const canonicalizeExamples = (newExamples, currentExamples) => {
     const seen = {};
+    // if there are examples explicitly marked canonical, process them first
+    newExamples.sort((a, b) => !!b.metadata?.canonical - !!a.metadata?.canonical);
     const canonicalizedItems = newExamples.map((item) => {
-        const itemEntities = getEntitySummary(item.entities); // give an array of objects { entity: xxx, value: xxxx} as a summary for the entities in the example
+        const itemEntities = getEntitySummary(item.entities);
         if (
             item.intent in seen
             && seen[item.intent].some(combination => arrayOfObjectsEqual(combination, itemEntities))
@@ -50,8 +49,14 @@ export const canonicalizeExamples = (newExamples, currentExamples) => {
         }
         seen[item.intent] = [...(seen[item.intent] || []), itemEntities];
         const match = currentExamples.find(example => findExampleMatch(example, item, itemEntities));
-        
-        return { ...item, metadata: { ...(item.metadata || {}), canonical: !match && !item.metadata.draft } }; // if theres is no matching example, the example is canonical
+
+        return {
+            ...item,
+            metadata: {
+                ...(item.metadata || {}),
+                canonical: !match && !item.metadata.draft,
+            },
+        }; // if theres is no matching example, the example is canonical
     });
 
     return canonicalizedItems;

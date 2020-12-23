@@ -17,8 +17,12 @@ describe('Story play button', function() {
             {
                 _id: 'TESTSTORY',
                 projectId: 'bf',
+                type: 'rule',
                 storyGroupId: 'PLAY_BUTTON',
-                story: '* test_play_button\n  - utter_play_success',
+                steps: [
+                    { intent: 'test_play_button' },
+                    { action: 'utter_play_success' },
+                ],
                 title: 'Test Story',
             },
         ]);

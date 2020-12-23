@@ -74,6 +74,7 @@ describe('environments-change', function () {
             .click();
         cy.dataCy('save-changes').click();
         cy.visit('/project/bf/incoming');
+        cy.wait(150);
         cy.dataCy('conversations').click();
 
         changeEnv('production');

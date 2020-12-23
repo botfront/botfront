@@ -31,6 +31,8 @@ const openFirstStoryIfNoneSelected = (
     let storiesFound = [];
     let groupId; let typeOfNode;
     let i = 0;
+    // if there is nothing in the tree don't try to open an item
+    if (tree.items[tree.rootId].children.length === 0) return;
     while (typeOfNode !== 'story-group' || !storiesFound.length) {
         groupId = tree.items[tree.rootId].children[i];
         typeOfNode = tree.items[groupId].type;
@@ -54,6 +56,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
         isDeletionPossible,
     } = props;
     const [deletionModalVisible, setDeletionModalVisible] = useState(false);
+    const [renamingModalPosition, setRenamingModalPosition] = useState(null);
     const [mouseDown, setMouseDown] = useState(false);
 
     const {
@@ -66,12 +69,11 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
     const verifyGroupOrder = () => {
         // It may happen that storyGroups and storyGroupOrder are out of sync
         // This is just a workaround as Meteor does not update storyGroupOrder after importing
-        const ids = [...storyGroups].map(({ _id }) => _id);
         // check that storygroup forms and storygrous are in sync ( have the same value in different orders)
-        if (!(
-            ids.length === storyGroupOrder.length
-            && ids.every(id => storyGroupOrder.includes(id))
-        )) {
+        if (
+            storyGroups.length !== storyGroupOrder.length
+            || storyGroups.some(({ _id }) => !storyGroupOrder.includes(_id))
+        ) {
             Meteor.call('storyGroups.rebuildOrder', projectId);
         }
     };
@@ -79,25 +81,23 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
 
     const treeFromProps = useMemo(() => {
         // build tree
-        const itemIds = [];
-
         const newTree = {
             rootId: 'root',
             items: {},
         };
-        stories.forEach(({ _id, storyGroupId, ...n }) => {
-            itemIds.push(_id);
+        stories.forEach(({
+            _id, storyGroupId, type, ...n
+        }) => {
             newTree.items[_id] = {
                 ...n,
                 id: _id,
                 parentId: storyGroupId,
-                type: 'story',
+                type,
             };
         });
         forms.forEach(({
             _id, groupId, pinned, isExpanded, children, slots, ...form
         }) => {
-            itemIds.push(_id);
             newTree.items[_id] = {
                 ...form,
                 id: _id,
@@ -115,7 +115,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
                 filtering the children by existing item ids prevents crashes caused by the
                 order updates to a child and its parent are recieved.
             */
-            const safeChildren = children.filter(childId => itemIds.includes(childId));
+            const safeChildren = children.filter(childId => Object.keys(newTree.items).includes(childId));
             newTree.items[_id] = {
                 ...n,
                 children: safeChildren,
@@ -149,7 +149,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
         handleRenameItem,
         handleAddStory,
         handleAddForm,
-    } = useStoryGroupTree(treeFromProps, storyMenuSelection);
+    } = useStoryGroupTree(treeFromProps, storyMenuSelection, setRenamingModalPosition);
     const menuRef = useRef();
     const lastFocusedItem = useRef(tree.items[storyMenuSelection[0]] || null);
     const draggingHandle = {
@@ -171,7 +171,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
             && (storyMenuSelection || []).some((s, i, a) => {
                 if (!(s in tree.items)) return false;
                 const differentMother = tree.items[s].parentId
-                    !== tree.items[a[Math.min(i + 1, a.length - 1)]].parentId;
+                    !== tree.items[a[Math.min(i + 1, a.length - 1)]]?.parentId;
                 if (differentMother) return true;
                 const { children } = tree.items[tree.items[a[0]].parentId] || {};
                 if (!children) return false;
@@ -314,6 +314,8 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
             selectionIsNonContiguous={selectionIsNonContiguous}
             disabled={disableEdit}
             showPublish={showPublish}
+            renamingModalPosition={renamingModalPosition}
+            setRenamingModalPosition={setRenamingModalPosition}
         />
     );
 

@@ -11,15 +11,16 @@ export const slotValueToLabel = value => (
 );
 
 export default function SlotLabel({ value, onChange, disableSelection }) {
-    const { type, name, slotValue } = value;
+    const [name] = Object.keys(value);
+    const slotValue = value[name];
 
     const renderLabel = () => (
         <div className='label-container orange'>
             <div>
-                {type || 'slot'}
+                slot
             </div>
-            <div className='slot-info'>
-                <span className='slot-name'>{name}</span>:&nbsp;<span className='slot-content'>{slotValueToLabel(slotValue)}</span>
+            <div>
+                {name}:&nbsp; <span className='slot-content'>{slotValueToLabel(slotValue)}</span>
             </div>
         </div>
     );

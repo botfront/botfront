@@ -139,7 +139,7 @@ type ImagePayload implements BotResponsePayload {
 type CarouselPayload implements BotResponsePayload {
     key: String
     text: String
-    template_type: TemplateType!
+    template_type: TemplateType # we don't touch this one for now, as Rasa still tries to access it
     elements: [CarouselElement!]
     metadata: Any
 }

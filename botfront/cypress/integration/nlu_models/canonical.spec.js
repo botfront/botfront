@@ -16,25 +16,17 @@ describe('NLU canonical examples', function () {
             { text: 'hello', intent: 'chitchat.greet' },
             { text: 'BONJOUR!', intent: 'chitchat.greet' },
         ]);
-        cy.dataCy('icon-gem')
-            .last()
-            .should('not.have.class', 'black');
-        cy.dataCy('icon-gem')
-            .first()
-            .should('have.class', 'black')
+        cy.dataCy('icon-gem', null, '.black')
+            .as('initially-canonical')
             .trigger('mouseover');
         cy.get('.popup').should('exist');
         cy.get('.popup .content').should('have.text', 'This example is canonical for the intent chitchat.greet');
-        cy.dataCy('icon-gem')
-            .last()
+        cy.dataCy('icon-gem', null, '.grey')
+            .as('initially-noncanonical')
             .click({ force: true });
         cy.wait(100);
-        cy.dataCy('icon-gem')
-            .last()
-            .should('have.class', 'black');
-        cy.dataCy('icon-gem')
-            .first()
-            .should('not.have.class', 'black');
+        cy.get('@initially-canonical').should('have.class', 'grey');
+        cy.get('@initially-noncanonical').should('have.class', 'black');
     });
 
     it('should not be possible to delete or edit a canonical example', function () {
@@ -64,19 +56,18 @@ describe('NLU canonical examples', function () {
     it('canonical should be unique per intent, entity and entity value', function () {
         // firstly import all the testing data
         cy.visit('/project/bf/nlu/models');
-        cy.importNluData('bf', 'nlu_import_canonical.json', 'fr');
+        cy.import('bf', 'nlu_import_canonical.json', 'fr');
         cy.contains('Training Data').click();
         // All the imported examples should have been marked automatically as canonical ones
         cy.dataCy('icon-gem', null, '.black').should('have.length', 6);
     });
     
-    
     it('should tag the first example for an intent created in the visual editor as canonical', function () {
         cy.visit('/project/bf/dialogue');
-        cy.browseToStory('Farewells');
+        cy.createFragmentInGroup({ groupName: 'Example group', fragmentName: 'Hmm1' });
         cy.dataCy('add-user-line').click({ force: true });
         cy.dataCy('user-line-from-input').last().click({ force: true });
-        cy.addUserUtterance('this example should be canonical', 'intenttest', 1);
+        cy.addUserUtterance('this example should be canonical', 'intenttest');
         cy.visit('/project/bf/nlu/models');
         cy.dataCy('icon-gem').should('have.class', 'black');
     });
