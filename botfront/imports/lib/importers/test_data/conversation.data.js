@@ -511,7 +511,7 @@ export const validConversations = {
             "latest_message": {
               "entities": [],
               "text": null,
-              "message_id": null,
+              "message_id": null
             },
             "paused": false,
             "sender_id": "bd29adc3837a45a7b4b549976c8851e1",
