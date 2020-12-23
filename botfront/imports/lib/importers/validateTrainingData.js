@@ -138,9 +138,11 @@ export class TrainingDataValidator {
     }`;
 
     convertNluToJson = async (rawText, extension) => {
+        // if yaml, we preload to json to avoid mysterious yaml
+        // parsing perf issue over at Rasa side
         const { data } = await axiosClient.post(`${this.instanceHost}/data/convert/nlu`, {
-            data: rawText,
-            input_format: extension,
+            data: extension === 'yaml' ? safeLoad(rawText) : rawText,
+            input_format: extension === 'yaml' ? 'parsed_yaml' : extension,
             output_format: 'json',
             language: 'en',
         });

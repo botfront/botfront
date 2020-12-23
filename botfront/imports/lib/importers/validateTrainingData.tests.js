@@ -2,6 +2,7 @@
 import { Meteor } from 'meteor/meteor';
 import { expect } from 'chai';
 import MockAdapter from 'axios-mock-adapter';
+import { safeLoad } from 'js-yaml';
 import { axiosClient, validateTrainingData } from './validateTrainingData';
 import { stories01, stories01_02 } from './test_data/training_data.data';
 import { caught } from '../client.safe.utils';
@@ -43,9 +44,12 @@ const responses = Object.entries(fileMappings).reduce((acc, [original, converted
     const chopMdBeforeFirstEntry = original.endsWith('.md')
         ? a => a.substring(a.search(/\n+##/) + 1)
         : a => a;
+    const loadYaml = original.endsWith('.yml')
+        ? a => JSON.stringify(safeLoad(a))
+        : a => a;
     return {
         ...acc,
-        [chopMdBeforeFirstEntry(loadTrainingDataFixture(original))]: loader(
+        [chopMdBeforeFirstEntry(loadYaml(loadTrainingDataFixture(original)))]: loader(
             loadTrainingDataFixture(converted),
         ),
     };

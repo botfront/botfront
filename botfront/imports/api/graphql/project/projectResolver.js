@@ -1,8 +1,7 @@
-/* eslint-disable no-underscore-dangle */
-import { DDP } from 'meteor/ddp-client';
-import { DDPCommon } from 'meteor/ddp-common';
+
 import { importSteps } from './import.utils';
 import { checkIfCan } from '../../../lib/scopes';
+import { addMeteorUserToCall } from '../utils/index';
 
 export default {
     Mutation: {
@@ -20,17 +19,14 @@ export default {
             const filesData = await Promise.all(files);
             // allows Meteor.userId to be called down the stack
             // https://forums.meteor.com/t/meteor-userid-when-running-async-jobs/39822
-            return DDP._CurrentInvocation.withValue(
-                new DDPCommon.MethodInvocation({ userId: context.user._id }),
-                () => importSteps({
-                    projectId,
-                    files: filesData,
-                    onlyValidate,
-                    fallbackLang,
-                    wipeInvolvedCollections,
-                    wipeProject,
-                }),
-            );
+            return addMeteorUserToCall(context.user, () => importSteps({
+                projectId,
+                files: filesData,
+                onlyValidate,
+                fallbackLang,
+                wipeInvolvedCollections,
+                wipeProject,
+            }));
         },
     },
     ImportReport: {

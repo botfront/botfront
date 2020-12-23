@@ -372,6 +372,7 @@ export const handleImportRasaConfig = async (files, { projectId, projectLanguage
     return [...errors, ...createResult].filter(r => r);
 };
 
+
 export const handleImportConversations = async (
     files,
     { supportedEnvs, projectId, wipeInvolvedCollections },
@@ -385,24 +386,34 @@ export const handleImportConversations = async (
             try {
                 const { conversations, env } = f;
                 if (supportedEnvs.includes(env)) {
-                    const insertConv = conversations.map(conv => Conversations.update(
-                        { _id: conv._id },
-                        {
-                            ...conv,
-                            projectId,
-                            env,
-                        },
-                        { upsert: true },
-                    ));
+                    const insertConv = conversations.map(async (conv) => {
+                        const { _id, ...convRest } = conv;
+                        const { sender_id } = conv?.tracker;
+                        // we are looking conversation by the sender id because that is what define the user
+                        // the id might have changed from a previous import
+                        const exist = await Conversations.findOne({ 'tracker.sender_id': sender_id, projectId });
+                       
+                        if (exist) {
+                            return Conversations.updateOne(
+                                { 'tracker.sender_id': sender_id, projectId },
+                                {
+                                    $set: {
+                                        ...convRest,
+                                        projectId,
+                                        env,
+                                    },
+                                },
+                            );
+                        }
+                        return Conversations.create({ ...convRest, env, projectId });
+                    });
                     await Promise.all(insertConv);
                 }
 
                 return null;
             } catch (e) {
-                if (e.code === 11000) {
-                    return `error when importing conversations from ${f.filename}, it seems that some of the data you are trying to import already exists`;
-                }
-                return `error when importing conversations form ${f.filename}`;
+                console.log(e);
+                return `error when importing conversations form ${f.filename}: ${e.message}`;
             }
         }),
     );

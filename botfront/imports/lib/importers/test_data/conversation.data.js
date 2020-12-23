@@ -21,7 +21,6 @@ export const validConversations = {
           ],
           "status": "read",
           "tracker": {
-            "active_loop": {},
             "events": [
               {
                 "event": "action",
@@ -275,7 +274,6 @@ export const validConversations = {
           ],
           "status": "read",
           "tracker": {
-            "active_loop": {},
             "events": [
               {
                 "event": "action",
@@ -511,11 +509,9 @@ export const validConversations = {
             "latest_event_time": 1603988564.8205776,
             "latest_input_channel": "webchat",
             "latest_message": {
-              "intent": {},
               "entities": [],
               "text": null,
-              "message_id": null,
-              "metadata": {}
+              "message_id": null
             },
             "paused": false,
             "sender_id": "bd29adc3837a45a7b4b549976c8851e1",
@@ -551,7 +547,7 @@ export const validConversationsParsed = [
         ],
         status: 'read',
         tracker: {
-            active_loop: {},
+        
             events: [
                 {
                     event: 'action',
@@ -805,7 +801,6 @@ export const validConversationsParsed = [
         ],
         status: 'read',
         tracker: {
-            active_loop: {},
             events: [
                 {
                     event: 'action',
@@ -1041,11 +1036,9 @@ export const validConversationsParsed = [
             latest_event_time: 1603988564.8205776,
             latest_input_channel: 'webchat',
             latest_message: {
-                intent: {},
                 entities: [],
                 text: null,
                 message_id: null,
-                metadata: {},
             },
             paused: false,
             sender_id: 'bd29adc3837a45a7b4b549976c8851e1',

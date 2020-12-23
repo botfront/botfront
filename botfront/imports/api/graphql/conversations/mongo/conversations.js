@@ -56,12 +56,17 @@ export const getConversations = async (projectId, page = 1, pageSize = 20, statu
 };
 
 
-export const getConversation = async (projectId, id) => (Conversations.findOne(
-    {
-        projectId,
-        _id: id,
-    },
-).lean());
+export const getConversation = async (projectId, id, senderId) => {
+    if (senderId) {
+        return Conversations.findOne(
+            {
+                projectId,
+                'tracker.sender_id': senderId,
+            },
+        ).lean();
+    }
+    return Conversations.findOne({ projectId, _id: id }).lean();
+};
 
 export const updateConversationStatus = async (id, status) => (
     Conversations.updateOne({ _id: id }, { $set: { status } }).exec()
