@@ -9,9 +9,7 @@ import {
 import { checkIfCan } from '../../../../lib/scopes';
 import { auditLog } from '../../../../../server/logger';
 import Conversations from '../conversations.model.js';
-import {
-    upsertTrackerStore,
-} from '../../trackerStore/mongo/trackerStore';
+import { upsertTrackerStore } from '../../trackerStore/mongo/trackerStore';
 
 const getLatestTimestamp = async (projectId, environment) => {
     const query = !environment || environment === 'development'
@@ -27,8 +25,7 @@ const getLatestTimestamp = async (projectId, environment) => {
         .sort('-tracker.latest_event_time')
         .lean()
         .exec();
-    return latestAddition
-        ? latestAddition.tracker.latest_event_time : 0;
+    return latestAddition ? latestAddition.tracker.latest_event_time : 0;
 };
 
 export default {
@@ -87,28 +84,38 @@ export default {
         },
         importConversations: async (_, args, __) => {
             const {
-                conversations, projectId, environment, importConversationsOnly,
+                conversations,
+                projectId,
+                environment,
+                importConversationsOnly,
             } = args;
             const latestTimestamp = await getLatestTimestamp(projectId, environment);
-            const results = await Promise.all(conversations
-                .filter(c => c.tracker.latest_event_time >= latestTimestamp)
-                .map(c => upsertTrackerStore({
-                    senderId: c.tracker.sender_id || c._id,
-                    projectId,
-                    env: environment,
-                    tracker: c.tracker,
-                    overwriteEvents: true,
-                    importConversationsOnly,
-                })));
+            const results = await Promise.all(
+                conversations
+                    .filter(c => c.tracker.latest_event_time >= latestTimestamp)
+                    .map(c => upsertTrackerStore({
+                        senderId: c.tracker.sender_id || c._id,
+                        projectId,
+                        env: environment,
+                        tracker: c.tracker,
+                        overwriteEvents: true,
+                        importConversationsOnly,
+                    })),
+            );
             const notInserted = results.filter(({ status }) => status !== 'inserted');
-            const failed = notInserted.filter(({ status }) => status === 'failed')
+            const failed = notInserted
+                .filter(({ status }) => status === 'failed')
                 .map(({ _id }) => _id);
             const nTotal = conversations.length;
             const nPushed = results.length;
             const nInserted = nPushed - notInserted.length;
             const nUpdated = notInserted.length - failed.length;
             return {
-                nTotal, nPushed, nInserted, nUpdated, failed,
+                nTotal,
+                nPushed,
+                nInserted,
+                nUpdated,
+                failed,
             };
         },
     },

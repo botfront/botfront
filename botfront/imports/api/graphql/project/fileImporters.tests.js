@@ -83,7 +83,6 @@ chai.use(deepEqualInAnyOrder);
 
 const { expect } = chai;
 
-
 const params = { projectId: 'bf', supportedEnvs: ['development'] };
 
 const removeDates = arr => arr.map((obj) => {

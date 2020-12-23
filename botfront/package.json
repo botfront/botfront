@@ -1,6 +1,6 @@
 {
   "name": "botfront",
-  "version": "1.0.0-ee.1",
+  "version": "1.0.0-ee.1-rc.1",
   "repository": "https://github.com/botfront/botfront",
   "license": "Commercial",
   "scripts": {
@@ -138,7 +138,7 @@
     "cypress-plugin-retries": "^1.2.2",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.15.1",
-    "eslint": "^5.6.1",
+    "eslint": "^7.6.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-import-resolver-meteor": "^0.4.0",
     "eslint-plugin-import": "^2.14.0",

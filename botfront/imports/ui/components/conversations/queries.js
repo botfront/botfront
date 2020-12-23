@@ -57,6 +57,7 @@ query retreiveConversations(
     }
 }`;
 
+
 export const GET_CONVERSATION = gql`
 query retreiveAConversation($projectId: String!, $conversationId: String, $senderId: String) {
     conversation(projectId: $projectId, id: $conversationId, senderId: $senderId) {
