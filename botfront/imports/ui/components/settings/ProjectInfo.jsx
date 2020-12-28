@@ -1,9 +1,15 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/label-has-for */
 import React from 'react';
-import { AutoForm, SubmitField, ErrorsField } from 'uniforms-semantic';
 import {
-    Dropdown, Form, Message, Icon,
+    AutoForm,
+    SubmitField,
+    ErrorsField,
+    LongTextField,
+    AutoField,
+} from 'uniforms-semantic';
+import {
+    Dropdown, Form, Message, Icon, Segment,
 } from 'semantic-ui-react';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import { ProjectsSchema } from '../../../api/project/project.schema';
@@ -12,6 +18,7 @@ import InfoField from '../utils/InfoField';
 import { wrapMeteorCallback } from '../utils/Errors';
 import SelectField from '../form_fields/SelectField';
 import { languages } from '../../../lib/languages';
+import { Info } from '../common/Info';
 import { can } from '../../../lib/scopes';
 
 class ProjectInfo extends React.Component {
@@ -66,7 +73,12 @@ class ProjectInfo extends React.Component {
         const { value } = this.state;
         const { projectLanguages } = this.context;
         const {
-            name, _id, defaultLanguage, gitString,
+            name,
+            _id,
+            defaultLanguage,
+            gitString,
+            publicSshKey,
+            privateSshKey,
         } = project;
         const notInprojectLanguages = value.filter(
             el => !projectLanguages.some(l => l.value === el),
@@ -75,7 +87,12 @@ class ProjectInfo extends React.Component {
         Meteor.call(
             'project.update',
             {
-                name, _id, defaultLanguage, ...(gitString ? { gitString } : {}),
+                name,
+                _id,
+                defaultLanguage,
+                ...(gitString ? { gitString } : {}),
+                ...(publicSshKey ? { publicSshKey } : {}),
+                ...(privateSshKey ? { privateSshKey } : {}),
             },
             wrapMeteorCallback((err) => {
                 if (!err) {
@@ -101,7 +118,10 @@ class ProjectInfo extends React.Component {
     static contextType = ProjectContext;
 
     render() {
-        const { projectLanguages, project: { _id: projectId } } = this.context;
+        const {
+            projectLanguages,
+            project: { _id: projectId },
+        } = this.context;
         const { saving, value, model } = this.state;
         const bridge = new SimpleSchema2Bridge(ProjectsSchema);
         return (
@@ -139,24 +159,46 @@ class ProjectInfo extends React.Component {
                         />
                     )}
                     {can('projects:w', projectId) && (
-                        <InfoField
-                            name='gitString'
-                            label={(
-                                <>
-                                    <Icon name='git' />
-                                Git Integration
-                                </>
-                            )}
-                            info={(
-                                <span className='small'>
-                                Use format{' '}
-                                    <span className='monospace'>
-                                    https:// user:token@domain/.../ repo.git#branch
+                        <Segment className='project-name field'>
+                            <InfoField
+                                name='gitString'
+                                label={(
+                                    <>
+                                        <Icon name='git' />
+                                        Git repository
+                                    </>
+                                )}
+                                info={(
+                                    <span className='small'>
+                                        Use format{' '}
+                                        <span className='monospace'>
+                                            https:// user:token@domain/.../
+                                            repo.git#branch
+                                        </span>{' '}
+                                        or{' '}
+                                        <span className='monospace'>
+                                            git@domain:.../repo.git#branch
+                                        </span>
+                                        .
                                     </span>
-                                </span>
-                            )}
-                            className='project-name'
-                        />
+                                )}
+                                className='project-name'
+                            />
+                            <label>
+                                <Icon name='key' /> SSH keys{' '}
+                                <Info info='These are stored as is, so use caution: use this key only for versioning your bot, and give it only the necessary rights to push and pull to above repo.' />
+                            </label>
+                            <AutoField
+                                label='Public'
+                                name='publicSshKey'
+                                className='project-name'
+                            />
+                            <LongTextField
+                                label='Private'
+                                name='privateSshKey'
+                                className='project-name'
+                            />
+                        </Segment>
                     )}
                     <br />
                     <ErrorsField />

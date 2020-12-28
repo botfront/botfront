@@ -76,11 +76,34 @@ if (Meteor.isServer) {
         if (branch) await repo.setHead(branch.name());
     };
 
+    const getConnectionOpts = (url, publicKey, privateKey) => {
+        const opts = {};
+        if (url.includes('https')) return opts;
+        opts.fetchOpts = {
+            callbacks: {
+                certificateCheck: () => 1,
+                credentials: (__, userName) => nodegit.Cred.sshKeyMemoryNew(
+                    userName,
+                    publicKey,
+                    privateKey,
+                    '',
+                ),
+            },
+        };
+        return opts;
+    };
+
     const getRemote = async (projectId, forceClone = false) => {
-        const { gitString = '' } = Projects.findOne({ _id: projectId }, { gitString: 1 }) || {};
+        const { gitString = '', publicSshKey = '', privateSshKey = '' } = Projects.findOne(
+            { _id: projectId },
+            { gitString: 1, publicSshKey: 1, privateSshKey: 1 },
+        ) || {};
         const [url, branchName, ...rest] = gitString.split('#');
+        const opts = getConnectionOpts(url, publicSshKey, privateSshKey);
         if (rest.length || !branchName) {
-            throw new Meteor.Error('There\'s something wrong with your git https string.');
+            throw new Meteor.Error(
+                'There\'s something wrong with your git connection string.',
+            );
         }
         const dir = `${md5(url)}`;
 
@@ -110,7 +133,7 @@ if (Meteor.isServer) {
                 if (localSha !== remoteSha) throw new Error();
             } catch {
                 if (fs.existsSync(dir)) fs.rmdirSync(dir, { recursive: true });
-                repo = await nodegit.Clone.clone(url, dir);
+                repo = await nodegit.Clone.clone(url, dir, opts);
             }
             branch = await repo.getBranch(branchName);
             branchCommit = await repo.getBranchCommit(branchName);
@@ -300,9 +323,7 @@ if (Meteor.isServer) {
             check(cursor, Match.Maybe(String));
             check(pageSize, Number);
 
-            const {
-                repo, branchCommit, url: repoUrl,
-            } = await getRemote(projectId);
+            const { repo, branchCommit, url: repoUrl } = await getRemote(projectId);
             const startCommit = cursor ? await repo.getCommit(cursor) : branchCommit;
             let [, url] = repoUrl.split('@');
             url = url.replace(/.git$/, '');
