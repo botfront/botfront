@@ -22,6 +22,3 @@ slots:
         - day_of_week: 5
           from: '09:00'
           to: 1020
-responses: {}
-forms: {}
-actions: []
