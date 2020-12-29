@@ -18,8 +18,11 @@
     "js-yaml": "^3.13.1"
   },
   "dependencies": {
+    "@octokit/rest": "^18.0.12",
     "glob": "^7.1.6",
     "jszip": "^3.5.0",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "shortid": "^2.2.16",
+    "sshpk": "^1.16.1"
   }
 }

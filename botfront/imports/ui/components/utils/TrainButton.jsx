@@ -86,6 +86,7 @@ class TrainButton extends React.Component {
                     <input
                         className='ui input'
                         placeholder='Commit message'
+                        data-cy='commit-message-input'
                         ref={this.commitMessage}
                         autoFocus // eslint-disable-line jsx-a11y/no-autofocus
                         onKeyDown={({ key }) => {
@@ -275,16 +276,18 @@ class TrainButton extends React.Component {
         if (!gitString) return null;
         return (
             <>
-                <Dropdown trigger={<Button icon='git' color='black' basic />} className='dropdown-button-trigger'>
+                <Dropdown trigger={<Button icon='git' color='black' basic data-cy='git-dropdown' />} className='dropdown-button-trigger'>
                     <Dropdown.Menu direction='left'>
                         <Dropdown.Item
                             icon='cloud upload'
                             text='Commit and push'
+                            data-cy='commit-and-push'
                             onClick={() => this.showModal('commit-and-push', true)}
                         />
                         <Dropdown.Item
                             icon='step backward'
                             text='Revert to previous'
+                            data-cy='revert-to-previous'
                             onClick={() => this.showModal('revert-to-previous', true)}
                         />
                     </Dropdown.Menu>

@@ -118,14 +118,6 @@ export async function readAndValidate(files, params) {
     };
 }
 
-export function hasErrors(messages) {
-    let containsErrors = false;
-    messages.forEach((message) => {
-        if (message.errors && message.errors.length > 0) containsErrors = true;
-    });
-    return containsErrors;
-}
-
 const unzipFiles = files => files.reduce(async (acc, file) => {
     let filesInFile = [file];
     if (file.filename.match(/\.zip$/)) {
@@ -193,10 +185,7 @@ export async function importSteps({
         summary: wipeProject ? [{ text: 'ALL PROJECT DATA WILL BE ERASED.' }] : [],
     };
     const filesAndValidationData = await readAndValidate(await unzipFiles(files), params);
-
-    if (onlyValidate || hasErrors(filesAndValidationData.fileMessages)) {
-        return filesAndValidationData;
-    }
+    if (onlyValidate) return filesAndValidationData;
     const { fileMessages: filesToImport, params: newParams } = filesAndValidationData;
     const importResult = await handleImportAll(filesToImport, newParams);
     return { summary: importResult.map(text => ({ text })) };

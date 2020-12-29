@@ -29,6 +29,8 @@ services:
       - CYPRESS_VIDEO=false
       - CYPRESS_SCREENSHOTS=true
       - CYPRESS_abort_strategy=spec
+      - CYPRESS_GITHUB_TEMPLATE_REPO=${GITHUB_TEMPLATE_REPO}
+      - CYPRESS_GITHUB_TOKEN=${GITHUB_TOKEN}
 
   botfront:
     image: botfront-local

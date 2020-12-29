@@ -153,6 +153,7 @@ export default React.forwardRef((_, ref) => {
                     color='blue'
                     icon
                     labelPosition='left'
+                    data-cy='revert-to-this-commit'
                     onClick={() => revertToCommit(row?.datum.sha)}
                 >
                     <Icon name='undo' />

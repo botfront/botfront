@@ -183,6 +183,7 @@ class ProjectInfo extends React.Component {
                                     </span>
                                 )}
                                 className='project-name'
+                                data-cy='git-string'
                             />
                             <label>
                                 <Icon name='key' /> SSH keys{' '}
@@ -192,11 +193,13 @@ class ProjectInfo extends React.Component {
                                 label='Public'
                                 name='publicSshKey'
                                 className='project-name'
+                                data-cy='public-ssh-key'
                             />
                             <LongTextField
                                 label='Private'
                                 name='privateSshKey'
                                 className='project-name'
+                                data-cy='private-ssh-key'
                             />
                         </Segment>
                     )}

@@ -1,4 +1,4 @@
 policies:
-    - name: RulePolicy
-      enable_fallback_prediction: false
-    - name: AugmentedMemoizationPolicy
+  - name: RulePolicy
+    enable_fallback_prediction: false
+  - name: AugmentedMemoizationPolicy

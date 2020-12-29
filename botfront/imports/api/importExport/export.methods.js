@@ -164,6 +164,7 @@ if (Meteor.isServer) {
             branchCommit,
             remote,
             exclusions,
+            opts,
         };
     };
 
@@ -220,10 +221,10 @@ if (Meteor.isServer) {
     };
 
     const pushToRemote = async ({
-        remote, branch, index, repo, branchCommit,
+        remote, branch, index, repo, branchCommit, opts: { fetchOpts: pushOpts },
     }) => {
         try {
-            await remote.push([`${branch.toString()}:${branch.toString()}`]);
+            await remote.push([`${branch.toString()}:${branch.toString()}`], pushOpts);
             return {
                 status: { code: 201, msg: 'Successfully pushed to Git remote.' },
             };
@@ -292,7 +293,7 @@ if (Meteor.isServer) {
                         ...untrackedFiles,
                     ]),
                 });
-                if (summary.length) throw new Error();
+                if (summary.length) throw new Error('import summary not empty');
                 await repo.setHead(branch.name()); // repoint head
                 // await new Promise(resolve => setTimeout(() => resolve(), 15000));
                 const message = putCommitMsgInParentheses(commit);
