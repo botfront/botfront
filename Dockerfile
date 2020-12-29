@@ -31,7 +31,9 @@ RUN apk --no-cache --virtual .node-gyp-compilation-dependencies add \
 	# And runtime dependencies, which we keep
 	&& apk --no-cache add \
 		bash \
-		ca-certificates
+		ca-certificates \
+		krb5-libs \
+		git
 
 # Copy in entrypoint
 COPY --from=0 $SCRIPTS_FOLDER $SCRIPTS_FOLDER/
