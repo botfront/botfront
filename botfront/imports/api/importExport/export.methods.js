@@ -20,11 +20,11 @@ if (Meteor.isServer) {
     const md5 = require('md5');
     const glob = require('glob');
     const { join, dirname, basename } = require('path');
-    const nodegit = require('nodegit');
     const fs = require('fs');
     const axiosClient = axios.create();
 
     const signature = () => {
+        const nodegit = require('nodegit');
         const {
             emails: [{ address: email = '' } = {}] = [],
             profile: { firstName = '', lastName = '' } = {},
@@ -72,11 +72,13 @@ if (Meteor.isServer) {
     );
 
     const hardResetToCommit = async (repo, commit, branch = null) => {
+        const nodegit = require('nodegit');
         await nodegit.Reset.reset(repo, commit, nodegit.Reset.TYPE.HARD, {});
         if (branch) await repo.setHead(branch.name());
     };
 
     const getConnectionOpts = (url, publicKey, privateKey) => {
+        const nodegit = require('nodegit');
         const opts = {};
         if (url.includes('https')) return opts;
         opts.fetchOpts = {
@@ -94,6 +96,7 @@ if (Meteor.isServer) {
     };
 
     const getRemote = async (projectId, forceClone = false) => {
+        const nodegit = require('nodegit');
         const { gitString = '', publicSshKey = '', privateSshKey = '' } = Projects.findOne(
             { _id: projectId },
             { gitString: 1, publicSshKey: 1, privateSshKey: 1 },
@@ -184,6 +187,7 @@ if (Meteor.isServer) {
     );
 
     const commitChanges = async (projectId, commitMessage, { status, ...repoInfo }) => {
+        const nodegit = require('nodegit');
         const {
             dir, index, repo, branchCommit, exclusions,
         } = repoInfo;
