@@ -28,12 +28,13 @@ RUN apk --no-cache --virtual .node-gyp-compilation-dependencies add \
 		g++ \
 		make \
 		python \
+		curl-dev \
 	# And runtime dependencies, which we keep
 	&& apk --no-cache add \
 		bash \
 		ca-certificates \
-		krb5-libs \
-		git
+		krb5-dev \
+		libgit2-dev
 
 # Copy in entrypoint
 COPY --from=0 $SCRIPTS_FOLDER $SCRIPTS_FOLDER/
@@ -43,8 +44,12 @@ RUN chmod +x $SCRIPTS_FOLDER/entrypoint.sh
 # Copy in app bundle
 COPY --from=0 $APP_BUNDLE_FOLDER/bundle $APP_BUNDLE_FOLDER/bundle/
 
-RUN bash $SCRIPTS_FOLDER/build-meteor-npm-dependencies.sh \
-	&& apk del .node-gyp-compilation-dependencies
+RUN bash $SCRIPTS_FOLDER/build-meteor-npm-dependencies.sh
+
+# Reinstall nodegit cf. https://github.com/nodegit/nodegit/issues/1361#issuecomment-356791602
+RUN BUILD_ONLY=true npm install --prefix $APP_BUNDLE_FOLDER/bundle/programs/server nodegit
+
+RUN apk del .node-gyp-compilation-dependencies
 
 # Those dependencies are needed by the entrypoint.sh script
 RUN npm install -C $SCRIPTS_FOLDER p-wait-for mongodb
