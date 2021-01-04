@@ -34,6 +34,9 @@ COPY --from=0 $APP_BUNDLE_FOLDER/bundle $APP_BUNDLE_FOLDER/bundle/
 
 RUN bash $SCRIPTS_FOLDER/build-meteor-npm-dependencies.sh
 
+# Nodegit dependencies
+RUN apt-get update && apt-get install -y libgssapi-krb5-2
+RUN npm install --prefix $APP_BUNDLE_FOLDER/bundle/programs/server nodegit
 
 # Those dependencies are needed by the entrypoint.sh script
 RUN npm install -C $SCRIPTS_FOLDER p-wait-for mongodb
