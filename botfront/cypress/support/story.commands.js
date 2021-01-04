@@ -246,6 +246,7 @@ Cypress.Commands.add(
             triggerIntent,
             type = 'story',
             rules = [],
+            language,
         } = options;
         const storyData = {
             title,
@@ -257,6 +258,7 @@ Cypress.Commands.add(
             projectId,
             status: 'published',
             branches,
+            language,
             ...(triggerIntent ? { triggerIntent } : {}),
         };
         cy.MeteorCall('stories.insert', [storyData]);

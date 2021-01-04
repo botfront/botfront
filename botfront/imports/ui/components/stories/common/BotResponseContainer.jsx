@@ -9,7 +9,7 @@ import QuickReplies from './QuickReplies';
 
 const BotResponseContainer = (props) => {
     const {
-        value, onDelete, onChange, focus, onFocus, editCustom, tag, hasMetadata,
+        value, onDelete, onChange, focus, onFocus, editCustom, tag, hasMetadata, editable,
     } = props;
 
     const [input, setInput] = useState();
@@ -118,7 +118,7 @@ const BotResponseContainer = (props) => {
             agent='bot'
             data-cy='bot-response-input'
         >
-            <div className={`${hasMetadata ? 'metadata-response' : ''}`}>
+            <div className={`${hasMetadata ? 'metadata-response' : ''} ${editable ? '' : 'read-only'}`}>
                 {hasText && !isImageResponse && renderText()}
                 {isImageResponse && <ImageThumbnail value={value.image} onChange={setImage} />}
                 {isCarouselResponse && <CarouselEditor value={value} onChange={onChange} />}
@@ -139,6 +139,7 @@ BotResponseContainer.propTypes = {
     editCustom: PropTypes.func,
     tag: PropTypes.string,
     hasMetadata: PropTypes.bool,
+    editable: PropTypes.bool,
 };
 
 BotResponseContainer.defaultProps = {
@@ -146,6 +147,7 @@ BotResponseContainer.defaultProps = {
     editCustom: () => {},
     tag: null,
     hasMetadata: false,
+    editable: PropTypes.bool,
 };
 
 export default BotResponseContainer;

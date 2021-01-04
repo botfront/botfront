@@ -11,7 +11,10 @@ import { createEndpoints } from '../endpoints/endpoints.methods';
 import { Endpoints } from '../endpoints/endpoints.collection';
 import { Credentials, createCredentials } from '../credentials';
 import { Conversations } from '../conversations';
-import { createDefaultStoryGroup } from '../storyGroups/storyGroups.methods';
+import {
+    createDefaultStoryGroup,
+    createFailingTestsGroup,
+} from '../storyGroups/storyGroups.methods';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
 import { Slots } from '../slots/slots.collection';
@@ -30,6 +33,7 @@ if (Meteor.isServer) {
                 createCredentials({ _id, ...item });
                 createPolicies({ _id, ...item });
                 await createDefaultStoryGroup(_id);
+                createFailingTestsGroup(_id);
                 await createInstance({ _id, ...item });
                 return _id;
             } catch (e) {

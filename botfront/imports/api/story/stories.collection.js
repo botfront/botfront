@@ -1,8 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
-import { check } from 'meteor/check';
+import { check, Match } from 'meteor/check';
 
-import { StorySchema, RuleSchema } from './stories.schema';
+import { StorySchema, RuleSchema, TestSchema } from './stories.schema';
 
 export const Stories = new Mongo.Collection('stories');
 
@@ -38,19 +38,35 @@ if (Meteor.isServer) {
         return Stories.find({ projectId, _id: { $in: selectedIds } });
     });
 
-    Meteor.publish('stories.light', function(projectId) {
+    Meteor.publish('stories.light', function(projectId, language) {
         check(projectId, String);
-        return Stories.find({ projectId }, {
+        check(language, String);
+        return Stories.find({
+            $or: [
+                { projectId, type: 'test_case', language },
+                { projectId, type: 'test_case', success: false },
+                { projectId, type: { $not: { $eq: 'test_case' } } },
+            ],
+        }, {
             fields: {
-                title: true, checkpoints: true, storyGroupId: true, type: true,
+                title: true, checkpoints: true, storyGroupId: true, type: true, success: true, language: true,
             },
         });
     });
-    Meteor.publish('stories.events', function(projectId) {
+    Meteor.publish('stories.events', function(projectId, language) {
         check(projectId, String);
-        return Stories.find({ projectId }, { fields: { title: true, events: true } });
+        check(language, Match.Maybe(String));
+        const query = language ? {
+            $or: [
+                { projectId, type: 'test_case', language },
+                { projectId, type: 'test_case', success: false },
+                { projectId, type: { $not: { $eq: 'test_case' } } },
+            ],
+        } : { projectId };
+        return Stories.find(query, { fields: { title: true, events: true } });
     });
 }
 
+Stories.attachSchema(TestSchema, { selector: { type: 'test_case' } });
 Stories.attachSchema(RuleSchema, { selector: { type: 'rule' } });
 Stories.attachSchema(StorySchema, { selector: { type: 'story' } });

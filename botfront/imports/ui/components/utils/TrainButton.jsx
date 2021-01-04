@@ -20,6 +20,8 @@ import { Projects } from '../../../api/project/project.collection';
 import RevertTable from './RevertTable';
 import { ProjectContext } from '../../layouts/context';
 import { can, Can } from '../../../lib/scopes';
+import { languages } from '../../../lib/languages';
+import { runTestCaseStories } from './runTestCaseStories';
 
 class TrainButton extends React.Component {
     constructor(props) {
@@ -118,12 +120,14 @@ class TrainButton extends React.Component {
             onClick={e => e.stopPropagation()}
             content={<RevertTable ref={this.revertTable} />}
             onClose={() => {
-                if (this.revertTable.current?.isIdle()) { this.showModal('revert-to-previous', false); }
+                if (this.revertTable.current?.isIdle()) {
+                    this.showModal('revert-to-previous', false);
+                }
             }}
         />
     );
 
-    renderDeployDropDown = () => {
+    renderDropdownMenu = () => {
         const {
             project: { deploymentEnvironments: environments = [] },
             instance,
@@ -139,46 +143,44 @@ class TrainButton extends React.Component {
                 value: env,
                 text: `Deploy to ${env}`,
             }));
-        if (deployOptions.length) {
-            // explicitly define the dropdown so we don't get the highlighted selection
-            return (
-                <Dropdown
-                    className='button icon'
-                    data-cy='train-and-deploy'
-                    floating
-                    disabled={trainingInProgress}
-                    trigger={<React.Fragment />}
-                >
-                    <Dropdown.Menu>
-                        {deployOptions.map(opt => (
-                            <React.Fragment key={opt.key}>
-                                <Dropdown.Item
-                                    value={opt.value}
-                                    onClick={() => this.showModal(opt.value, true)}
-                                >
-                                    {opt.text}
-                                </Dropdown.Item>
-                                <Confirm
-                                    open={modalOpen[opt.value]}
-                                    // we need to stop the propagation, otherwise it reopen the dropdown
-                                    onCancel={(e) => {
-                                        this.showModal(opt.value, false);
-                                        e.stopPropagation();
-                                    }}
-                                    onConfirm={(e) => {
-                                        this.trainAndDeploy(opt.value);
-                                        this.showModal(opt.value, false);
-                                        e.stopPropagation();
-                                    }}
-                                    content={`Do you really want to deploy your project to ${opt.value}`}
-                                />
-                            </React.Fragment>
-                        ))}
-                    </Dropdown.Menu>
-                </Dropdown>
-            );
-        }
-        return <></>;
+        // explicitly define the dropdown so we don't get the highlighted selection
+        return (
+            <Dropdown
+                className='button icon'
+                data-cy='train-and-deploy'
+                floating
+                disabled={trainingInProgress}
+                trigger={<React.Fragment />}
+            >
+                <Dropdown.Menu>
+                    {this.renderTestingOptions()}
+                    {deployOptions.map(opt => (
+                        <React.Fragment key={opt.key}>
+                            <Dropdown.Item
+                                value={opt.value}
+                                onClick={() => this.showModal(opt.value, true)}
+                            >
+                                {opt.text}
+                            </Dropdown.Item>
+                            <Confirm
+                                open={modalOpen[opt.value]}
+                                // we need to stop the propagation, otherwise it reopen the dropdown
+                                onCancel={(e) => {
+                                    this.showModal(opt.value, false);
+                                    e.stopPropagation();
+                                }}
+                                onConfirm={(e) => {
+                                    this.trainAndDeploy(opt.value);
+                                    this.showModal(opt.value, false);
+                                    e.stopPropagation();
+                                }}
+                                content={`Do you really want to deploy your project to ${opt.value}`}
+                            />
+                        </React.Fragment>
+                    ))}
+                </Dropdown.Menu>
+            </Dropdown>
+        );
     };
 
     deploy = (target) => {
@@ -236,6 +238,32 @@ class TrainButton extends React.Component {
         }
     };
 
+    renderTestingOptions = () => {
+        const {
+            project: { _id: projectId },
+            language,
+        } = this.context;
+        const languageName = languages[language]?.name;
+        return (
+            <>
+                <Dropdown.Item
+                    onClick={() => runTestCaseStories(projectId)}
+                    data-cy='run-all-tests'
+                >
+                    Run all tests
+                </Dropdown.Item>
+                {!!languageName && (
+                    <Dropdown.Item
+                        onClick={() => runTestCaseStories(projectId, { language })}
+                        data-cy='run-lang-tests'
+                    >
+                        Run all {languages[language]?.name} tests
+                    </Dropdown.Item>
+                )}
+            </>
+        );
+    };
+
     renderButton = () => {
         const { instance } = this.context;
         const { popupContent, status, partialTrainning } = this.props;
@@ -259,7 +287,7 @@ class TrainButton extends React.Component {
                             }}
                             data-cy='train-button'
                         />
-                        {this.renderDeployDropDown()}
+                        {this.renderDropdownMenu()}
                     </Button.Group>
                 )}
                 // Popup is disabled while training
@@ -271,12 +299,19 @@ class TrainButton extends React.Component {
     };
 
     renderGitButton = () => {
-        const { project: { gitString } } = this.context;
+        const {
+            project: { gitString },
+        } = this.context;
         const { modalOpen } = this.state;
         if (!gitString) return null;
         return (
             <>
-                <Dropdown trigger={<Button icon='git' color='black' basic data-cy='git-dropdown' />} className='dropdown-button-trigger'>
+                <Dropdown
+                    trigger={
+                        <Button icon='git' color='black' basic data-cy='git-dropdown' />
+                    }
+                    className='dropdown-button-trigger'
+                >
                     <Dropdown.Menu direction='left'>
                         <Dropdown.Item
                             icon='cloud upload'
@@ -296,7 +331,7 @@ class TrainButton extends React.Component {
                 {modalOpen['revert-to-previous'] && this.renderRevertModal()}
             </>
         );
-    }
+    };
 
     renderShareLink = () => {
         const {
@@ -378,6 +413,18 @@ TrainButton.defaultProps = {
     partialTrainning: false,
 };
 
+const TrainWithContext = props => (
+    <ProjectContext.Consumer>
+        {({ project, language }) => (
+            <TrainButton
+                {...props}
+                environments={project.deploymentEnvironments}
+                language={language}
+            />
+        )}
+    </ProjectContext.Consumer>
+);
+
 export default withTracker((props) => {
     // Gets the required number of selected storygroups and sets the content and popup for the train button
     const { projectId } = props;
@@ -414,4 +461,4 @@ export default withTracker((props) => {
         status,
         partialTrainning,
     };
-})(TrainButton);
+})(TrainWithContext);

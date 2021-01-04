@@ -1,6 +1,6 @@
 {
   "name": "botfront",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0-rc.2",
   "repository": "https://github.com/botfront/botfront",
   "license": "AGPL-3.0-only",
   "scripts": {
@@ -65,7 +65,7 @@
     "prop-types": "^15.7.2",
     "query-string": "^5.1.0",
     "random-seed": "^0.3.0",
-    "rasa-webchat": "0.11.5",
+    "rasa-webchat": "botfront/rasa-webchat#feat/expose-get-session-id",
     "react": "^16.8.6",
     "react-ace": "^6.1.4",
     "react-apollo": "^2.5.8",

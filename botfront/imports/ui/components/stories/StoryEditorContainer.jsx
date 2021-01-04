@@ -29,6 +29,8 @@ import BranchTabLabel from './BranchTabLabel';
 import StoryTopMenu from './StoryTopMenu';
 import StoryFooter from './StoryFooter';
 
+import StoryDif from './VisualStoryDif/StoryDif';
+
 function getDefaultPath(story) {
     if (!story.branches) return [story._id];
     const newPath = [story._id];
@@ -244,13 +246,25 @@ const StoryEditorContainer = ({
         if (!branches[path.join()]) {
             return null;
         }
+        if (story.type === 'test_case' && story.success === false) {
+            return (
+                <StoryErrorBoundary>
+                    <StoryVisualEditor
+                        onSave={steps => saveStory(path, { steps })}
+                        story={story.testResults}
+                        getResponseLocations={getResponseLocations}
+                        mode={story.type === 'rule' ? 'rule_steps' : story.type}
+                    />
+                </StoryErrorBoundary>
+            );
+        }
         return (
             <StoryErrorBoundary>
                 <StoryVisualEditor
                     onSave={steps => saveStory(path, { steps })}
                     story={branches[path.join()]?.steps || []}
                     getResponseLocations={getResponseLocations}
-                    mode={story.type === 'rule' ? 'rule_steps' : 'story'}
+                    mode={story.type === 'rule' ? 'rule_steps' : story.type}
                 />
             </StoryErrorBoundary>
         );

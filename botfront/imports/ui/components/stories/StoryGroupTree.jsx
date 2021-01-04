@@ -106,9 +106,11 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
                 type: 'form',
             };
         });
+
         storyGroups.sort((a, b) => !!b.pinned - !!a.pinned).forEach(({
-            _id, name, children, ...n
+            _id, name, children = [], hideIfEmpty, ...n
         }) => {
+            if (!children.length && hideIfEmpty) return;
             /*
                 if an there is no item corresponding to an id in children the tree crashes.
 
@@ -123,6 +125,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
                 parentId: 'root',
                 title: name,
                 type: 'story-group',
+                hideIfEmpty,
             };
         });
         newTree.items.root = {

@@ -35,13 +35,13 @@ function sameCanonicalGroup(example, payload) {
 
 const NLUModalContent = React.forwardRef((props, forwardedRef) => {
     const { closeModal, payload } = props;
+
     const {
         project: { _id: projectId },
         language,
     } = useContext(ProjectContext);
     const { reloadStories } = useContext(ConversationOptionsContext);
     const tableRef = useRef();
-
     const { data, loading: loadingExamples, refetch } = useExamples({
         projectId,
         language,
