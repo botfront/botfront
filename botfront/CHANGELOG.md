@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-rc.2](https://github.com/botfront/botfront/compare/v1.0.0-rc.1...v1.0.0-rc.2) (2021-01-04)
+
+
+### Features
+
+* integrated conversation tests ([390bce6](https://github.com/botfront/botfront/commit/390bce61d436936f4dfadbbabcf97fc6b1320f3f))
+
 ## [1.0.0-rc.1](https://github.com/botfront/botfront/compare/v0.27.5...v1.0.0-rc.1) (2020-12-16)
 
 
