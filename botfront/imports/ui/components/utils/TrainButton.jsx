@@ -413,18 +413,6 @@ TrainButton.defaultProps = {
     partialTrainning: false,
 };
 
-const TrainWithContext = props => (
-    <ProjectContext.Consumer>
-        {({ project, language }) => (
-            <TrainButton
-                {...props}
-                environments={project.deploymentEnvironments}
-                language={language}
-            />
-        )}
-    </ProjectContext.Consumer>
-);
-
 export default withTracker((props) => {
     // Gets the required number of selected storygroups and sets the content and popup for the train button
     const { projectId } = props;
@@ -461,4 +449,4 @@ export default withTracker((props) => {
         status,
         partialTrainning,
     };
-})(TrainWithContext);
+})(TrainButton);
