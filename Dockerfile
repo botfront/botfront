@@ -16,25 +16,13 @@ COPY ./botfront $APP_SOURCE_FOLDER/
 
 RUN bash $SCRIPTS_FOLDER/build-meteor-bundle.sh
 
-
-# Meteor 1.10.2 require node 12
-FROM node:12-alpine
+# Use Debian, because nodegit is too hard to get to work with
+# Alpine >=3.8
+FROM node:12-buster-slim
 
 ENV APP_BUNDLE_FOLDER /opt/bundle
 ENV SCRIPTS_FOLDER /docker
 
-# Install OS build dependencies, which we remove later after we’ve compiled native Node extensions
-RUN apk --no-cache --virtual .node-gyp-compilation-dependencies add \
-		g++ \
-		make \
-		python \
-		curl-dev \
-	# And runtime dependencies, which we keep
-	&& apk --no-cache add \
-		bash \
-		ca-certificates \
-		krb5-dev \
-		libgit2-dev
 
 # Copy in entrypoint
 COPY --from=0 $SCRIPTS_FOLDER $SCRIPTS_FOLDER/
@@ -46,17 +34,12 @@ COPY --from=0 $APP_BUNDLE_FOLDER/bundle $APP_BUNDLE_FOLDER/bundle/
 
 RUN bash $SCRIPTS_FOLDER/build-meteor-npm-dependencies.sh
 
-# Reinstall nodegit cf. https://github.com/nodegit/nodegit/issues/1361#issuecomment-356791602
-RUN BUILD_ONLY=true npm install --prefix $APP_BUNDLE_FOLDER/bundle/programs/server nodegit
-
-RUN apk del .node-gyp-compilation-dependencies
 
 # Those dependencies are needed by the entrypoint.sh script
 RUN npm install -C $SCRIPTS_FOLDER p-wait-for mongodb
 RUN chgrp -R 0 $SCRIPTS_FOLDER && chmod -R g=u $SCRIPTS_FOLDER
 
 VOLUME [ "/app/models"]
-# Start app
 ENTRYPOINT ["/docker/entrypoint.sh"]
 
 CMD ["node", "main.js"]
