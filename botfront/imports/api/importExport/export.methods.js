@@ -79,19 +79,18 @@ if (Meteor.isServer) {
 
     const getConnectionOpts = (url, publicKey, privateKey) => {
         const nodegit = require('nodegit');
-        const opts = {};
-        if (url.includes('https')) return opts;
-        opts.fetchOpts = {
-            callbacks: {
-                certificateCheck: () => 1,
-                credentials: (__, userName) => nodegit.Cred.sshKeyMemoryNew(
-                    userName,
-                    publicKey,
-                    privateKey,
-                    '',
-                ),
+        const opts = {
+            fetchOpts: {
+                callbacks: { certificateCheck: () => 1 },
             },
         };
+        if (url.includes('https')) return opts;
+        opts.fetchOpts.callbacks.credentials = (__, userName) => nodegit.Cred.sshKeyMemoryNew(
+            userName,
+            publicKey,
+            privateKey,
+            '',
+        );
         return opts;
     };
 
