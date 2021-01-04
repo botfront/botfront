@@ -286,7 +286,7 @@ const ProjectContainer = withTracker((props) => {
     const slotsHandler = Meteor.subscribe('slots', projectId);
     const nluModelsHandler = Meteor.subscribe('nlu_models', projectId, workingLanguage);
     const { hasNoWhitespace } = NLUModels.findOne({ projectId, language: workingLanguage }, { fields: { hasNoWhitespace: 1 } }) || {};
-    const storiesHandler = Meteor.subscribe('stories.events', projectId);
+    const storiesHandler = Meteor.subscribe('stories.events', projectId, workingLanguage);
     const dialogueActions = Array.from(new Set((Stories
         .find().fetch() || []).flatMap(story => story.events)));
     const instance = Instances.findOne({ projectId });

@@ -198,16 +198,22 @@ class StoryFooter extends React.Component {
     static contextType = ConversationOptionsContext;
 
     render() {
-        const { destinationStory } = this.props;
+        const { destinationStory, fragment: { type } = {} } = this.props;
         return (
             <Segment data-cy='story-footer' className={`footer-segment ${destinationStory === null ? '' : 'linked'}`} size='mini' attached='bottom'>
                 <div className='breadcrumb-container'>{this.renderPath()}</div>
+
                 <Menu fluid size='mini' borderless>
-                    {this.renderBranchMenu()}
-                    {this.renderLinkMenu()}
-                    {this.renderContinue()}
-                    {this.renderWaitForUserInputToggle()}
+                    {type !== 'test_case' && (
+                        <>
+                            {this.renderBranchMenu()}
+                            {this.renderLinkMenu()}
+                            {this.renderContinue()}
+                            {this.renderWaitForUserInputToggle()}
+                        </>
+                    )}
                 </Menu>
+
             </Segment>
         );
     }

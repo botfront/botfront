@@ -15,6 +15,7 @@ export const determineDataType = (f, rawText) => {
         if (/^credentials((\.|-)[a-z]+)?\.ya?ml$/.test(filename)) return 'credentials';
         if (filename.match(/^conversations?((\.|-)[a-z]+)?\.json$/)) return 'conversations';
         if (filename.match(/^incoming((\.|-)[a-z]+)?\.json$/)) return 'incoming';
+        if ((/^test_.*?\.ya?ml$/.test(filename))) return 'tests';
         if (filename.match(/\.json$/)) {
             let data;
             try {

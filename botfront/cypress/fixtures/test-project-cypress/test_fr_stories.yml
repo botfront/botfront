@@ -1,0 +1,9 @@
+stories:
+  - story: french test case
+    steps:
+      - user: /get_started
+        intent: get_started
+      - action: utter_get_started
+    metadata:
+      group: test cases
+      language: fr

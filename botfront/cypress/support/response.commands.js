@@ -76,7 +76,7 @@ Cypress.Commands.add('addButtonOrSetPayload', (title, payload, oldTitleOrPositio
 
 Cypress.Commands.add('setQuickReplyContent', (text, title, intent, index = 0) => {
     cy.dataCy('response-editor').find('[data-cy=button_title]').eq(index).click({ force: true });
-    cy.dataCy('enter-button-title').find('input').type(title);
+    cy.dataCy('enter-button-title').should('exist').find('input').type(title);
     cy.dataCy('intent-label').should('exist').click();
     cy.dataCy('intent-dropdown').find('input').type(`${intent}{enter}`);
     cy.dataCy('save-button').click();

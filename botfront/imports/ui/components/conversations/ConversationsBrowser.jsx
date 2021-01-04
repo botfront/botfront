@@ -14,10 +14,11 @@ import 'react-select/dist/react-select.css';
 import ConversationViewer from './ConversationViewer';
 import { Loading } from '../utils/Utils';
 import { updateIncomingPath } from '../incoming/incoming.utils';
+import { wrapMeteorCallback } from '../utils/Errors';
 
 function ConversationsBrowser(props) {
     const {
-        page, pages, trackers, activeConversationId, refetch, router,
+        page, pages, trackers, activeConversationId, refetch, router, projectId,
     } = props;
 
     const [deleteConv, { data }] = useMutation(DELETE_CONV);
@@ -113,6 +114,15 @@ function ConversationsBrowser(props) {
         refetch();
     }
 
+    const createTestCase = (trackerId, callback) => {
+        Meteor.call(
+            'stories.addTestCase',
+            projectId,
+            trackerId,
+            wrapMeteorCallback(err => callback(err)),
+        );
+    };
+
     const renderNoMessages = () => (
         <Grid.Row>
             <Message data-cy='no-conv' info>
@@ -148,6 +158,7 @@ function ConversationsBrowser(props) {
                     onDelete={deleteConversation}
                     removeReadMark={optimisticRemoveMarker}
                     optimisticlyRemoved={optimisticRemoveReadMarker}
+                    onCreateTestCase={createTestCase}
                 />
             </Grid.Column>
         </>
@@ -163,6 +174,7 @@ ConversationsBrowser.propTypes = {
     pages: PropTypes.number,
     refetch: PropTypes.func.isRequired,
     router: PropTypes.object.isRequired,
+    projectId: PropTypes.string.isRequired,
 };
 
 ConversationsBrowser.defaultProps = {

@@ -78,3 +78,7 @@ export const replaceStoryLines = (projectId, lineToReplace, newLine) => {
         }),
     );
 };
+
+export const updateTestResults = async (testResults) => {
+    Meteor.call('stories.update', testResults);
+};

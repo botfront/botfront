@@ -6,6 +6,21 @@ type Query {
     ): DialogueSearchResults
 }
 
+type Mutation {
+    upsertTestResults(results: [TestCaseUpdate]): TestModificationResponse,
+}
+
+type TestModificationResponse { 
+    success: Boolean!
+}
+
+input TestCaseUpdate {
+    _id: String!,
+    projectId: String!,
+    testResults: [Any],
+    success: Boolean!,
+}
+
 type DialogueSearchResults {
     dialogueFragments: [Story]
     forms: [Any]

@@ -51,6 +51,10 @@ const isDeletionPossible = (node = {}, nodes, tree) => {
         deletable = true;
         message = `The form ${node.title} will be deleted. This action cannot be undone.`;
     }
+    if (node.type === 'test_case') {
+        deletable = true;
+        message = `The test ${node.title} will be deleted. This action cannot be undone.`;
+    }
     return [deletable, message];
 };
 
@@ -325,12 +329,30 @@ Stories.defaultProps = {};
 
 const StoriesWithTracker = withRouter(
     withTracker((props) => {
-        const { projectId } = props;
-        const storiesHandler = Meteor.subscribe('stories.light', projectId);
+        const { projectId, selectedLanguage } = props;
+        const storiesHandler = Meteor.subscribe('stories.light', projectId, selectedLanguage);
         const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
 
-        const storyGroups = StoryGroups.find().fetch();
-        const stories = StoriesCollection.find().fetch();
+        const regularStoryGroups = StoryGroups.find({ smartGroup: { $exists: false } }).fetch();
+        const regularStories = StoriesCollection.find().fetch();
+
+        let smartStories = [];
+        const smartStoryGroups = StoryGroups.find({ smartGroup: { $exists: true } }).fetch()
+            .map((sg) => {
+                if (!sg.smartGroup.query) return sg;
+                const results = StoriesCollection.find(JSON.parse(sg.smartGroup.query)).fetch()
+                    .map(story => ({
+                        ...story,
+                        _id: `${sg.smartGroup.prefix}_SMART_${story._id}`,
+                        storyGroupId: sg._id,
+                        smart: true,
+                    }));
+                smartStories = smartStories.concat(results);
+                return { ...sg, children: results.map(({ _id }) => _id) };
+            });
+
+        const storyGroups = [...regularStoryGroups, ...smartStoryGroups];
+        const stories = [...regularStories, ...smartStories];
 
         return {
             ready: storyGroupsHandler.ready() && storiesHandler.ready(),
@@ -342,6 +364,7 @@ const StoriesWithTracker = withRouter(
 
 const mapStateToProps = state => ({
     storyMenuSelection: state.stories.get('storiesCurrent').toJS(),
+    selectedLanguage: state.settings.get('workingLanguage'),
 });
 
 export default connect(mapStateToProps, { setStoryMenuSelection: setStoriesCurrent })(

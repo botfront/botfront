@@ -3,6 +3,8 @@ import { safeDump, safeLoad } from 'js-yaml';
 import { Log } from 'meteor/logging';
 import axios from 'axios';
 import shortid from 'shortid';
+import uuidv4 from 'uuid/v4';
+
 import { GlobalSettings } from '../imports/api/globalSettings/globalSettings.collection';
 import { Projects } from '../imports/api/project/project.collection';
 import { Instances } from '../imports/api/instances/instances.collection';
@@ -14,6 +16,7 @@ import { insertExamples } from '../imports/api/graphql/examples/mongo/examples';
 import { indexStory } from '../imports/api/story/stories.index';
 import Activity from '../imports/api/graphql/activity/activity.model';
 import { Evaluations } from '../imports/api/nlu_evaluation';
+
 /* globals Migrations */
 
 Migrations.add({
@@ -492,6 +495,32 @@ Migrations.add({
             ); // this is not a downgrade, just an incomplete migration
             Log.error({ message: `Migrations: Locking at version 11 because: ${e.message}.` });
         }
+    },
+});
+
+Migrations.add({
+    version: 13,
+    up: async () => {
+        const projectIds = Projects.find({}, { fields: { _id: 1 } });
+        Promise.all(projectIds.map(({ _id: projectId }) => {
+            const failingTestsGroup = StoryGroups.findOne({
+                projectId,
+                'smartGroup.query': '{ "success": false }',
+            });
+            if (failingTestsGroup) return Promise.finally();
+            const _id = uuidv4();
+            StoryGroups.insert({
+                name: 'Failing tests',
+                _id,
+                projectId,
+                smartGroup: { prefix: 'failing', query: '{ "success": false }' },
+                isExpanded: false,
+                pinned: true,
+                children: [],
+            });
+            // migrate
+            return Projects.update({ projectId }, { $push: { storyGroups: _id } });
+        }));
     },
 });
 

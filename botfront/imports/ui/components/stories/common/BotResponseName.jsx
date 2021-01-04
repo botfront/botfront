@@ -13,6 +13,7 @@ const BotResponseName = (props) => {
         loading,
         name,
         onChange,
+        editable,
     } = props;
 
     const { reloadStories, linkToStory } = useContext(ConversationOptionsContext);
@@ -63,7 +64,7 @@ const BotResponseName = (props) => {
                 trigger={(
                     <span>
                         <Input
-                            disabled={saving}
+                            disabled={saving || !editable}
                             className={`response-name-input ${renameError ? 'error' : ''}`}
                             value={nameInputValue}
                             onBlur={handleSaveName}
@@ -131,12 +132,14 @@ BotResponseName.propTypes = {
     loading: PropTypes.bool,
     name: PropTypes.string.isRequired,
     onChange: PropTypes.func,
+    editable: PropTypes.bool,
 };
 
 BotResponseName.defaultProps = {
     responseLocations: [],
     loading: false,
     onChange: () => new Promise(resolve => resolve()),
+    editable: true,
 };
 
 export default BotResponseName;

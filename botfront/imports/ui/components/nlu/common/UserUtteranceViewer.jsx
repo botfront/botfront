@@ -12,7 +12,9 @@ function UserUtteranceViewer(props) {
     const {
         value, onChange, disableEditing, showIntent, disabled, onClick,
     } = props;
+
     const { text = '', intent = '', entities = [] } = value;
+
     const [textSelection, setSelection] = useState(null);
     const mouseDown = useRef(false);
     const setMouseDown = (v) => { mouseDown.current = v; };

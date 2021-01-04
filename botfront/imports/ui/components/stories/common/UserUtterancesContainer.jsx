@@ -9,21 +9,33 @@ import { USER_LINE_EDIT_MODE } from '../../../../lib/story.utils';
 
 const UserUtterancesContainer = (props) => {
     const {
-        deletable, value, onChange, onDelete,
+        deletable, value, onChange, onDelete, editable: initialEditable, theme,
     } = props;
+    const editable = initialEditable; // EE adds permission check here
+
     const { addUtterancesToTrainingData } = useContext(ProjectContext);
 
     const somethingIsBeingInput = useMemo(() => value.some(disjunct => disjunct === USER_LINE_EDIT_MODE), [value]);
+
+    const parseEntity = (entity) => {
+        const {
+            entity: entityName, value: entityValue, start, end,
+        } = entity;
+        if (entityName && entityValue && (start || start === 0) && (end || end === 0)) {
+            return entity;
+        }
+        return {
+            entity: Object.keys(entity)[0],
+            value: entity[Object.keys(entity)[0]],
+        };
+    };
 
     const convertCoreToNlu = ({ user, entities, ...payload } = {}) => ({
         ...payload,
         ...(user ? { text: user } : {}),
         ...(entities
             ? {
-                entities: entities.map(e => ({
-                    entity: Object.keys(e)[0],
-                    value: e[Object.keys(e)[0]],
-                })),
+                entities: entities.map(parseEntity),
             }
             : {}),
     });
@@ -65,6 +77,8 @@ const UserUtterancesContainer = (props) => {
         ]);
     };
 
+    const renderThemeTag = () => (<span className='user-utterance theme-tag'>{theme}</span>);
+
     const renderResponse = (payload, index) => (
         <React.Fragment
             key={payload ? `${payload.intent}${JSON.stringify(payload.entities)}` : 'new'}
@@ -76,10 +90,10 @@ const UserUtterancesContainer = (props) => {
                     onAbort={() => { if (value.length > 1) handleDeleteDisjunct(index); }}
                     onDelete={() => { handleDeleteDisjunct(index); }}
                 />
-                {payload && index !== value.length - 1 && (
+                {payload && editable && index !== value.length - 1 && (
                     <IconButton icon='add' className='or-label' color='vk' />
                 )}
-                {!somethingIsBeingInput && index === value.length - 1 && (
+                {editable && !somethingIsBeingInput && index === value.length - 1 && (
                     <UserUtterancePopupContent
                         trigger={<IconButton icon='add' className='or-icon-button' />}
                         onCreateFromInput={() => handleInsertDisjunct(index)}
@@ -87,6 +101,7 @@ const UserUtterancesContainer = (props) => {
                     />
                 )}
                 {deletable
+                    && editable
                     && (!somethingIsBeingInput || !payload)
                     && value.length > 1 && (
                     <IconButton
@@ -99,11 +114,12 @@ const UserUtterancesContainer = (props) => {
     );
 
     return (
-        <div className='utterances-container exception-wrapper-target'>
+        <div className={`utterances-container exception-wrapper-target theme-${theme}`}>
             {value.map(renderResponse)}
             <div className='side-by-side right narrow top-right'>
-                {deletable && onDelete && <IconButton onClick={onDelete} icon='trash' />}
+                {deletable && onDelete && editable && <IconButton onClick={onDelete} icon='trash' />}
             </div>
+            {theme !== 'default' && renderThemeTag()}
         </div>
     );
 };
@@ -113,12 +129,16 @@ UserUtterancesContainer.propTypes = {
     value: PropTypes.array.isRequired,
     onChange: PropTypes.func,
     onDelete: PropTypes.func,
+    editable: PropTypes.bool,
+    theme: PropTypes.string,
 };
 
 UserUtterancesContainer.defaultProps = {
     deletable: true,
     onChange: () => {},
     onDelete: null,
+    editable: true,
+    theme: 'default',
 };
 
 export default UserUtterancesContainer;
