@@ -123,7 +123,6 @@
     "commitizen": "^3.0.7",
     "core-js": "^2.5.3",
     "cypress": "4.9.0",
-    "cypress-plugin-retries": "^1.2.2",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.15.1",
     "eslint": "^7.6.0",
