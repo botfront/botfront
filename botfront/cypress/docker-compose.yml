@@ -6,18 +6,18 @@ version: '3.7'
 services:
   e2e:
     ipc: host # https://github.com/cypress-io/cypress/issues/350
-    image: cypress/included:4.0.2
+    image: cypress/included:4.9.0
     container_name: e2e
     volumes:
       - ../cypress.json:/app/cypress.json
       - ../cypress:/app/cypress
       - ../imports/lib:/app/imports/lib
       - ../imports/api:/app/imports/api
-      - ./mounted/models/:/app/models
+      - ./mounted/models:/app/models
     entrypoint: /bin/bash
     command:
       - -c
-      - "npm install -C cypress && npx cypress run"
+      - "npm install -C ./cypress && npx cypress run"
     working_dir: /app
     depends_on:
       - botfront
