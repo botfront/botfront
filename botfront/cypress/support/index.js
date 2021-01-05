@@ -28,47 +28,16 @@ const axios = require('axios');
 require('cypress-plugin-retries');
 const { Octokit } = require('@octokit/rest');
 const shortid = require('shortid');
+const generatePair = require('keypair');
 const sshpk = require('sshpk');
 
 const octokit = new Octokit({ auth: Cypress.env('GITHUB_TOKEN') });
 
-function convertBinaryToPem(binaryData, label) {
-    const u8 = new Uint8Array(binaryData);
-    const byteString = u8.reduce((acc, curr) => `${acc}${String.fromCharCode(curr)}`, '');
-    const b64 = btoa(byteString);
-    let pem = `-----BEGIN ${label}-----\n`;
-    let nextIndex = 0;
-    while (nextIndex < b64.length) {
-        if (nextIndex + 64 <= b64.length) {
-            pem += `${b64.substr(nextIndex, 64)}\n`;
-        } else {
-            pem += `${b64.substr(nextIndex)}\n`;
-        }
-        nextIndex += 64;
-    }
-    pem += `-----END ${label}-----\n`;
-    return pem;
-}
-
 const generateSshKeys = async () => {
-    const keys = await window.crypto.subtle.generateKey(
-        {
-            name: 'RSA-OAEP',
-            modulusLength: 4096,
-            publicExponent: new Uint8Array([1, 0, 1]),
-            hash: 'SHA-256',
-        },
-        true,
-        ['encrypt', 'decrypt'],
-    );
+    const pair = generatePair();
     return {
-        privateKey: convertBinaryToPem(
-            await crypto.subtle.exportKey('pkcs8', keys.privateKey),
-            'PRIVATE KEY',
-        ),
-        publicKey: sshpk.parseKey(convertBinaryToPem(
-            await crypto.subtle.exportKey('spki', keys.publicKey), 'PUBLIC KEY',
-        ), 'pem').toString('ssh'),
+        privateKey: pair.private,
+        publicKey: sshpk.parseKey(pair.public, 'pem').toString('ssh'),
     };
 };
 
