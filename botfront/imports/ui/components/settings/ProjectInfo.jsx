@@ -171,13 +171,12 @@ class ProjectInfo extends React.Component {
                                 info={(
                                     <span className='small'>
                                         Use format{' '}
-                                        <span className='monospace'>
-                                            https:// user:token@domain/.../
-                                            repo.git#branch
+                                        <span className='monospace break-word'>
+                                            https://user:token@domain/org/repo.git#branch
                                         </span>{' '}
                                         or{' '}
-                                        <span className='monospace'>
-                                            git@domain:.../repo.git#branch
+                                        <span className='monospace break-word'>
+                                            git@domain:org/repo.git#branch
                                         </span>
                                         .
                                     </span>

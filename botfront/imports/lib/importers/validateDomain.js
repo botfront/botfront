@@ -209,11 +209,11 @@ const validateADomain = (
         [...Object.keys(defaultSlots), ...INTERNAL_SLOTS].forEach((k) => {
             delete slotsFromFile[k];
         });
+        // do not import responses that are in current default domain
+        Object.keys(defaultResponses).forEach((k) => {
+            delete responsesFromFile[k];
+        });
     }
-    // do not import responses that are in current default domain
-    Object.keys(defaultResponses).forEach((k) => {
-        delete responsesFromFile[k];
-    });
 
     const warnings = [];
     const responses = [];
