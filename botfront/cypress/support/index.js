@@ -572,8 +572,9 @@ Cypress.Commands.add('setTestGitSettings', (info) => {
 Cypress.Commands.add('setUpGitRepo', () => new Cypress.Promise(async (resolve, reject) => {
     const templateRepo = Cypress.env('GITHUB_TEMPLATE_REPO');
     const owner = templateRepo.split('/')[0];
-    const { publicKey, privateKey } = await generateSshKeys();
+    let { publicKey, privateKey } = {};
     try {
+        ({ publicKey, privateKey } = await generateSshKeys());
         const { status, data: { full_name: fullName } = {} } = await octokit.request(
             `POST /repos/${templateRepo}/generate`,
             {
@@ -587,7 +588,7 @@ Cypress.Commands.add('setUpGitRepo', () => new Cypress.Promise(async (resolve, r
         try {
             await octokit.request(`POST /repos/${fullName}/keys`, { key: publicKey, read_only: false });
         } catch (e) {
-            cy.tearDownGitRepo({ fullName });
+            await octokit.request(`DELETE /repos/${fullName}`);
             throw e;
         }
         resolve({ fullName, publicKey, privateKey });
