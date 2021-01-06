@@ -132,7 +132,12 @@ class ProjectInfo extends React.Component {
                     onSubmit={updateProject => this.onSave(updateProject)}
                     disabled={saving}
                 >
-                    <InfoField name='name' label='Name' className='project-name' />
+                    <InfoField
+                        name='name'
+                        label='Name'
+                        className='project-name'
+                        data-cy='project-name'
+                    />
                     <Form.Field>
                         <label>Languages supported</label>
                         <Dropdown
