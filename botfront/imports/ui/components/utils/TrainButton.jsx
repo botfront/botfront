@@ -63,11 +63,13 @@ class TrainButton extends React.Component {
         const {
             project: { _id: projectId },
         } = this.context;
+        this.setState({ gitWorking: true });
         Meteor.call(
             'commitAndPushToRemote',
             projectId,
             this.commitMessage?.current?.value,
             wrapMeteorCallback((err, { status: { code, msg } }) => {
+                this.setState({ gitWorking: false });
                 if (err) return;
                 Alert[code === 204 ? 'warning' : 'success'](msg, {
                     position: 'top-right',
@@ -112,20 +114,31 @@ class TrainButton extends React.Component {
         />
     );
 
-    renderRevertModal = () => (
-        <Modal
-            open
-            size='small'
-            header='Revert to previous'
-            onClick={e => e.stopPropagation()}
-            content={<RevertTable ref={this.revertTable} />}
-            onClose={() => {
-                if (this.revertTable.current?.isIdle()) {
-                    this.showModal('revert-to-previous', false);
-                }
-            }}
-        />
-    );
+    renderRevertModal = () => {
+        const { gitWorking } = this.state;
+        return (
+            <Modal
+                open
+                size='small'
+                header='Revert to previous'
+                onClick={e => e.stopPropagation()}
+                content={(
+                    <RevertTable
+                        ref={this.revertTable}
+                        useGitWorkingState={() => [
+                            gitWorking,
+                            v => this.setState({ gitWorking: v }),
+                        ]}
+                    />
+                )}
+                onClose={() => {
+                    if (!gitWorking) {
+                        this.showModal('revert-to-previous', false);
+                    }
+                }}
+            />
+        );
+    };
 
     renderDropdownMenu = () => {
         const {
@@ -302,14 +315,21 @@ class TrainButton extends React.Component {
         const {
             project: { gitString },
         } = this.context;
-        const { modalOpen } = this.state;
+        const { modalOpen, gitWorking } = this.state;
         if (!gitString) return null;
         return (
             <>
                 <Dropdown
-                    trigger={
-                        <Button icon='git' color='black' basic data-cy='git-dropdown' />
-                    }
+                    trigger={(
+                        <Button
+                            icon='git'
+                            color='black'
+                            basic
+                            data-cy='git-dropdown'
+                            loading={gitWorking}
+                            disabled={gitWorking}
+                        />
+                    )}
                     className='dropdown-button-trigger'
                 >
                     <Dropdown.Menu direction='left'>

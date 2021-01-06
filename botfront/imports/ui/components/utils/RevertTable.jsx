@@ -1,6 +1,5 @@
-import React, {
-    useContext, useEffect, useState, useImperativeHandle,
-} from 'react';
+import React, { useContext, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { useQuery } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import Alert from 'react-s-alert';
@@ -79,22 +78,18 @@ function useGitHistory(variables) {
     };
 }
 
-export default React.forwardRef((_, ref) => {
+const RevertTable = ({ useGitWorkingState }) => {
     const {
         project: { _id: projectId },
     } = useContext(ProjectContext);
 
-    const [working, setWorking] = useState(false);
+    const [working, setWorking] = useGitWorkingState();
 
     const {
         data, hasNextPage, loading, loadMore, refetch,
     } = useGitHistory({
         projectId,
     });
-
-    useImperativeHandle(ref, () => ({
-        isIdle: () => !working,
-    }));
 
     useEffect(() => {
         refetch?.();
@@ -182,4 +177,10 @@ export default React.forwardRef((_, ref) => {
             rowClassName='taller-line'
         />
     );
-});
+};
+
+RevertTable.propTypes = {
+    useGitWorkingState: PropTypes.func.isRequired,
+};
+
+export default RevertTable;
