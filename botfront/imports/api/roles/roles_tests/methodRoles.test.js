@@ -347,6 +347,21 @@ if (Meteor.isServer) {
             args: [projectId],
         },
         {
+            name: 'stories.runTests',
+            roles: writers.stories,
+            args: [projectId],
+        },
+        {
+            name: 'test_case.overwrite',
+            roles: writers.stories,
+            args: [projectId],
+        },
+        {
+            name: 'stories.addTestCase',
+            roles: writers.stories,
+            args: [projectId],
+        },
+        {
             name: 'storyGroups.delete',
             roles: [...writers.stories, 'import:x'],
             args: [{ projectId }],

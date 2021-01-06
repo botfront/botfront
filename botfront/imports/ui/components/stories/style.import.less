@@ -65,6 +65,13 @@
             &[type='rule'] .item-name:before {
                 content: '>>';
             }
+            &[type='test_case'] .item-name:before {
+                content: '✔✔';
+            }
+            &[type='test_case'] .item-name.failing-test-case-title:before {
+                content: '✘✘';
+                color: #db2828;
+            }
             &[type='form'] .item-name:before {
                 content: '\1F4DD\0020';
             }
@@ -171,6 +178,15 @@
             .item-actions {
                 white-space: nowrap;
                 margin-left: auto !important;
+                .item.add-form-item {
+                    padding-left: 1em !important; // overide sematic ui
+                    i.wpforms.icon {
+                        margin-right: 0 !important; // overide sematic ui
+                    }
+                    .text {
+                        padding-left: 0.7ch;
+                    }
+                }
             }
             &:hover {
                 .item-actions { max-width: max-content; }
@@ -229,6 +245,32 @@
         .item {
             padding: 0px 16px;
         }
+        &.test-case-failing{
+            background-color: #db2828;
+            .header.item {
+                input {
+                    color: rgb(250, 250, 250);
+                    &:hover,
+                    &:focus {
+                        background-color: rgba(255,255,255,0.5);
+                    }
+                }
+            }
+            .story-title-prefix {
+                color: rgb(250, 250, 250);
+            }
+            .icon.top-menu-clickable {
+                color: rgb(245, 245, 245);
+                opacity: 1;
+                &:hover {
+                    color: rgb(240, 240, 240);
+                }
+            }
+            .icon.triangle.right {
+                color: rgb(240, 240, 240);
+                opacity: 1;
+            }
+        }
 
         .icon.triangle.right {
             margin-left: 0;
@@ -245,7 +287,6 @@
         }
         
         .icon.top-menu-clickable {
-            margin-left: 30px;
             color: #767676;
             &:hover {
                 color: #5c5c5c;
@@ -260,8 +301,21 @@
             }
         }
 
+        .test-case-buttons-container {
+            .ui.basic.button.remove-test-button,
+            .ui.basic.button.overwrite-expected-button {
+                font-size: 0.8rem;
+                margin-right: 0.5em;
+                background-color: white !important;
+                &:hover {
+                    background-color: white !important;
+                }
+            }
+        }
+
         .header {
-            width: 60%;
+            width: ~"calc(100% - 425px)";
+            padding-right: 0;
             input {
                 margin: 0 5px;
                 border-style: solid;
@@ -271,12 +325,12 @@
                 padding: 4px 9px;
                 padding-left: 2px;
                 border-width: 1px;
-                background-color: #f9f9f9;
+                background-color: rgba(0,0,0,0);
                 color: #212121;
                 outline: none;
                 &:hover, &:focus {
                     border-color: rgba(176, 176, 176, 0.4);
-                    background-color: #fff;
+                    background-color: rgba(255, 255, 255, 0.699);
                     color: rgba(0, 0, 0, 1);
                 }
             }
@@ -299,6 +353,16 @@
         //removes borders b/w menu items
         .item::before {
             width: 0;
+        }
+        .test-case-actions {
+            top: -2px;
+            margin-right: 0.25em;
+            .dropdown.icon {
+                margin-left: 0;
+            }
+            &.icon.file {
+                margin-top: -2px;
+            }
         }
     }
 
@@ -597,13 +661,19 @@
     padding: 0px;
 }
 
-.ui.tiny.attached.message.top-menu-yellow-banner {
-    padding: 0.75em 0;
-    min-height: 0;
+.ui.attached.message.top-menu-banner.warning,
+.ui.attached.message.top-menu-banner.error {
     box-shadow: none;
     border-style: solid;
     border-color: rgb(238, 238, 238);
     border-width: 1px;
+    padding-top: 0.6em;
+    padding-bottom: 0.75em;
+}
+
+.ui.attached.message.top-menu-banner.warning {
+    padding: 0.75em 0;
+    min-height: 0;
     &.with-popup {
         padding-left: 1em;
     }
@@ -645,6 +715,7 @@
         padding-left: 24px;
     }
 }
+
 
 @keyframes height-change {
     0%   { height: 0; }

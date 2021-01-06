@@ -6,8 +6,10 @@ import { Log } from 'meteor/logging';
 import axios from 'axios';
 import shortid from 'shortid';
 import moment from 'moment';
+import uuidv4 from 'uuid/v4';
 import { Credentials } from '../imports/api/credentials';
 import { Endpoints } from '../imports/api/endpoints/endpoints.collection';
+
 import { GlobalSettings } from '../imports/api/globalSettings/globalSettings.collection';
 import { Projects } from '../imports/api/project/project.collection';
 import { Instances } from '../imports/api/instances/instances.collection';
@@ -24,6 +26,7 @@ import Forms from '../imports/api/graphql/forms/forms.model';
 
 import BotResponses from '../imports/api/graphql/botResponses/botResponses.model';
 import { Evaluations } from '../imports/api/nlu_evaluation';
+
 /* globals Migrations */
 
 Migrations.add({
@@ -954,6 +957,32 @@ Migrations.add({
             { 'smartGroup.query': '{ "rules.0.payload": { "$exists": true } }' },
             { $set: { 'smartGroup.query': '{ "rules.0": { "$exists": true } }' } },
         );
+    },
+});
+
+Migrations.add({
+    version: 25, // CE 13
+    up: async () => {
+        const projectIds = Projects.find({}, { fields: { _id: 1 } });
+        Promise.all(projectIds.map(({ _id: projectId }) => {
+            const failingTestsGroup = StoryGroups.findOne({
+                projectId,
+                'smartGroup.query': '{ "success": false }',
+            });
+            if (failingTestsGroup) return Promise.finally();
+            const _id = uuidv4();
+            StoryGroups.insert({
+                name: 'Failing tests',
+                _id,
+                projectId,
+                smartGroup: { prefix: 'failing', query: '{ "success": false }' },
+                isExpanded: false,
+                pinned: true,
+                children: [],
+            });
+            // migrate
+            return Projects.update({ projectId }, { $push: { storyGroups: _id } });
+        }));
     },
 });
 

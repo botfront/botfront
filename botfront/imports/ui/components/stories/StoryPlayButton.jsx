@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Icon, Popup } from 'semantic-ui-react';
 import { insertSmartPayloads } from '../../../lib/client.safe.utils';
+import { runTestCaseStories } from '../utils/runTestCaseStories';
 
 import {
     setShowChat,
@@ -17,6 +18,9 @@ const StoryPlayButton = (props) => {
         refreshChat,
         fragment: { steps = [], rules = [], triggerIntent } = {},
         className,
+        type,
+        storyId,
+        projectId,
     } = props;
 
     const getInitialPayload = () => {
@@ -34,23 +38,38 @@ const StoryPlayButton = (props) => {
         return `${intent}${entitiesString}`;
     };
     const disabled = !rules.length && !steps?.[0]?.intent && !steps?.[0]?.or;
+    const playStory = () => {
+        changeShowChat(true);
+        changeChatInitPayload(`/${getInitialPayload()}`);
+        refreshChat(true);
+    };
+
+    const runTestCase = () => {
+        if (!storyId) throw new Error('a storyId is required to run a single test');
+        runTestCaseStories(projectId, { ids: [storyId] });
+    };
+
     return (
         <Popup
+            basic
             trigger={(
                 <Icon
                     name='play'
                     size='small'
                     disabled={disabled}
                     onClick={() => {
-                        changeShowChat(true);
-                        changeChatInitPayload(`/${getInitialPayload()}`);
-                        refreshChat(true);
+                        if (type === 'test_case') runTestCase();
+                        else playStory();
                     }}
                     className={className}
                     data-cy='play-story'
                 />
             )}
-            content={(
+            content={type === 'test_case' ? (
+                <>
+                    Run this test
+                </>
+            ) : (
                 <>
                     To start a conversation from the story editor, the story must start
                     with a user utterance.
@@ -67,10 +86,14 @@ StoryPlayButton.propTypes = {
     refreshChat: PropTypes.func.isRequired,
     fragment: PropTypes.object.isRequired,
     className: PropTypes.string,
+    type: PropTypes.oneOf(['story', 'rule', 'test_case']).isRequired,
+    storyId: PropTypes.string,
+    projectId: PropTypes.string.isRequired,
 };
 
 StoryPlayButton.defaultProps = {
     className: '',
+    storyId: null,
 };
 
 const mapStateToProps = () => ({});

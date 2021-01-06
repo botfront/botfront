@@ -12,6 +12,7 @@ import ConversationViewer from './ConversationViewer';
 import ConversationFilters from './ConversationFilters';
 import { updateIncomingPath } from '../incoming/incoming.utils';
 import { ConversationBrowserContext } from './context';
+import { wrapMeteorCallback } from '../utils/Errors';
 
 function ConversationsBrowser(props) {
     const {
@@ -24,6 +25,7 @@ function ConversationsBrowser(props) {
         activeFilters,
         changeFilters,
         handleDownloadConversations,
+        projectId,
     } = props;
 
     const [deleteConv, { data }] = useMutation(DELETE_CONV);
@@ -129,6 +131,15 @@ function ConversationsBrowser(props) {
         deleteConv({ variables: { id: conversationId } }).then(() => refetch());
     }
 
+    const createTestCase = (trackerId, callback) => {
+        Meteor.call(
+            'stories.addTestCase',
+            projectId,
+            trackerId,
+            wrapMeteorCallback(err => callback(err)),
+        );
+    };
+
     const renderNoMessages = () => (
         <Grid.Row>
             <Message data-cy='no-conv' info>
@@ -164,6 +175,7 @@ function ConversationsBrowser(props) {
                     onDelete={deleteConversation}
                     removeReadMark={optimisticRemoveMarker}
                     optimisticlyRemoved={optimisticRemoveReadMarker}
+                    onCreateTestCase={createTestCase}
                 />
             </Grid.Column>
         </>
@@ -199,6 +211,7 @@ ConversationsBrowser.propTypes = {
     activeFilters: PropTypes.object.isRequired,
     changeFilters: PropTypes.func.isRequired,
     handleDownloadConversations: PropTypes.func.isRequired,
+    projectId: PropTypes.string.isRequired,
 };
 
 ConversationsBrowser.defaultProps = {

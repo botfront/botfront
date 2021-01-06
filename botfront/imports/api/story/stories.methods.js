@@ -2,14 +2,21 @@ import { Meteor } from 'meteor/meteor';
 import { check, Match } from 'meteor/check';
 import uuidv4 from 'uuid/v4';
 import shortid from 'shortid';
+import axios from 'axios';
 import { checkIfCan } from '../../lib/scopes';
 import { indexStory } from './stories.index';
+import { Instances } from '../instances/instances.collection';
 
 import { Stories } from './stories.collection';
+import Conversations from '../graphql/conversations/conversations.model';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo/botResponses';
-import { auditLogIfOnServer } from '../../lib/utils';
+import { auditLogIfOnServer, formatError } from '../../lib/utils';
 import { getTriggerIntents } from '../graphql/story/mongo/stories';
+import { convertTrackerToStory } from '../../lib/test_case.utils';
+
+
+import { langFromCode } from '../../lib/languages';
 
 export const checkStoryNotEmpty = story => story.story && !!story.story.replace(/\s/g, '').length;
 
@@ -295,6 +302,7 @@ Meteor.methods({
             return {};
         }
     },
+
     async 'stories.getTriggerIntents'(projectId, options = {}) {
         checkIfCan('stories:r', projectId);
         check(projectId, String);
@@ -304,4 +312,145 @@ Meteor.methods({
         }
         return getTriggerIntents(projectId);
     },
+
+    async 'stories.addTestCase'(projectId, trackerId) {
+        checkIfCan('stories:w', projectId);
+        check(projectId, String);
+        check(trackerId, String);
+        const convo = await Conversations.findOne({ _id: trackerId, projectId }).lean();
+        if (!convo) throw new Meteor.Error(404, 'Conversation not found');
+        const { metadata: { language } = {} } = convo.tracker.events.find(event => event.metadata?.language) || {};
+        if (!language) throw new Meteor.Error(404, 'Could not find conversation language');
+        const steps = convertTrackerToStory(convo.tracker);
+        const storyGroup = await StoryGroups.findOne({ projectId, pinned: false }, { sort: { updatedAt: -1 } });
+        const newTestStory = {
+            type: 'test_case',
+            storyGroupId: storyGroup._id,
+            title: `test_story_${shortid.generate()}`,
+            projectId,
+            steps,
+            language,
+            status: 'published',
+        };
+        await Meteor.callWithPromise('stories.insert', newTestStory);
+    },
+
+    async 'test_case.overwrite'(projectId, storyId) {
+        checkIfCan('stories:w', projectId);
+        check(projectId, String);
+        check(storyId, String);
+        const story = Stories.findOne({ projectId, _id: storyId }, {
+            fields: {
+                _id: 1, projectId: 1, testResults: 1, success: 1,
+            },
+        });
+        const updatedSteps = story.testResults.reduce((acc, step) => {
+            const updatedStep = step;
+            if (!step.theme || step.theme === 'actual') {
+                delete updatedStep.theme;
+                return [...acc, updatedStep];
+            }
+            return acc;
+        }, []);
+        const update = {
+            ...story, steps: updatedSteps, success: true, testResults: [],
+        };
+        await Meteor.call('stories.update', update);
+    },
 });
+
+
+if (Meteor.isServer) {
+    import {
+        getAppLoggerForFile,
+        getAppLoggerForMethod,
+        addLoggingInterceptors,
+        auditLog,
+    } from '../../../server/logger';
+
+    const storiesAppLogger = getAppLoggerForFile(__filename);
+
+    Meteor.methods({
+        async 'stories.runTests'(projectId, options = {}) {
+            checkIfCan('stories:w', projectId);
+            check(projectId, String);
+            check(options, Object);
+            try {
+                const { ids, language } = options;
+                const query = {
+                    type: 'test_case',
+                    projectId,
+                    ...(ids?.length > 0 ? { _id: { $in: ids } } : {}),
+                    ...(language ? { language } : {}),
+                };
+                const testCases = Stories.find({ ...query }, { fields: { _id: 1, steps: 1 } })
+                    .map(({
+                        _id, steps, language: testLanguage,
+                    }) => ({
+                        _id,
+                        steps,
+                        language: testLanguage,
+                    }));
+                if (testCases?.length < 1) {
+                    if (language) {
+                        throw new Meteor.Error(400, `No tests were found for language: ${langFromCode(language)}`);
+                    }
+                    if (Array.isArray(ids)) {
+                        throw new Meteor.Error(400, `Requested test${ids?.length > 1 ? 's' : ''} not found`);
+                    }
+                    throw new Meteor.Error(400, 'This project contains no tests');
+                }
+                const instance = await Instances.findOne({ projectId });
+                const client = axios.create({
+                    baseURL: instance.host,
+                    timeout: 1000 * 1000,
+                });
+
+                auditLog('test model', {
+                    user: Meteor.user(),
+                    projectId,
+                    type: 'execute',
+                    operation: 'stories.runTests',
+                    resId: testCases.map(({ _id }) => _id),
+                    resType: 'run test cases',
+                });
+                const appMethodLogger = getAppLoggerForMethod(
+                    storiesAppLogger,
+                    'stories.runTests',
+                    Meteor.userId(),
+                    { projectId },
+                );
+                addLoggingInterceptors(client, appMethodLogger);
+                const response = await client.request({
+                    url: '/webhooks/bot_regression_test/run',
+                    data: { test_cases: testCases, project_id: projectId },
+                    method: 'post',
+                });
+                let report;
+                if (response.status === 200) {
+                    const testResults = response.data;
+                    report = testResults.reduce((acc, { success }) => {
+                        if (success) {
+                            acc.passing += 1;
+                        } else {
+                            acc.failing += 1;
+                        }
+                        return acc;
+                    }, { passing: 0, failing: 0 });
+                    Meteor.call('stories.update', testResults);
+                }
+                return report;
+            } catch (e) {
+                if (e?.isAxiosError) {
+                    throw new Meteor.Error(
+                        e?.response?.status
+                            || 500,
+                        e?.response?.statusText
+                            || 'An unexpected error occured',
+                    );
+                }
+                throw formatError(e);
+            }
+        },
+    });
+}

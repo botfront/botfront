@@ -78,22 +78,25 @@ export default class StoryVisualEditor extends React.Component {
     };
 
     getReadOnlyClass = () => {
+        const { mode } = this.props;
         const { project: { _id: projectId } } = this.context;
-        return can('stories:w', projectId) ? '' : 'read-only';
+        return mode !== 'test_case' && can('stories:w', projectId) ? '' : 'read-only';
     }
 
     renderAddLine = (rawIndex) => {
         const { lineInsertIndex } = this.state;
         const { story, mode } = this.props;
         const { project: { _id: projectId } } = this.context;
-        if (!can('stories:w', projectId)) return <div className='line-spacer' />; // prevent crowding of story elements in read only mode
+        if (mode === 'test_case' || !can('stories:w', projectId)) {
+            // prevent crowding of story elements in read only mode
+            return <div className='line-spacer' />;
+        }
         let index = rawIndex;
         const [currentLine, nextLine] = [story[index] || {}, story[index + 1] || {}];
         if (this.loopLinesMatch(currentLine, nextLine)) index += 1;
         const lineIsIntent = l => 'intent' in l || 'or' in l;
         const hasSlot = story.some(l => 'slot_was_set' in l);
         const hasLoop = story.some(l => 'active_loop' in l);
-
         const options = {
             userUtterance:
                 mode !== 'rule_condition'
@@ -101,10 +104,10 @@ export default class StoryVisualEditor extends React.Component {
                 && !lineIsIntent(currentLine)
                 && !lineIsIntent(nextLine),
             botUtterance: mode !== 'rule_condition',
-            action: mode !== 'rule_condition',
-            slot: mode !== 'rule_condition' || !hasSlot,
-            loopActive: mode !== 'rule_condition' || !hasLoop,
-            loopActivate: mode !== 'rule_condition',
+            action: !['rule_condition', 'test_case'].includes(mode),
+            slot: mode !== 'test_case' && (mode !== 'rule_condition' || !hasSlot),
+            loopActive: mode !== 'test_case' && (mode !== 'rule_condition' || !hasLoop),
+            loopActivate: !['rule_condition', 'test'].includes(mode),
         };
 
         if (!Object.keys(options).length) return null;
@@ -263,6 +266,7 @@ export default class StoryVisualEditor extends React.Component {
     };
 
     renderLine = (line, index) => {
+        const { mode } = this.props;
         const { responses } = this.context;
         const { language } = this.context;
         const { responseLocations, loadingResponseLocations } = this.state;
@@ -286,6 +290,8 @@ export default class StoryVisualEditor extends React.Component {
                                 onDeleteAllResponses={() => this.handleDeleteLine(index)}
                                 responseLocations={responseLocations[name]}
                                 loadingResponseLocations={loadingResponseLocations}
+                                editable={mode !== 'test_case'}
+                                theme={line.theme}
                             />
                         </ExceptionWrapper>
                         {this.renderAddLine(index)}
@@ -306,6 +312,8 @@ export default class StoryVisualEditor extends React.Component {
                             value={line.or || [line]}
                             onChange={v => this.handleSaveUserUtterance(index, v)}
                             onDelete={() => this.handleDeleteLine(index)}
+                            editable={mode !== 'test_case'}
+                            theme={line.theme}
                         />
                     </ExceptionWrapper>
                     {this.renderAddLine(index)}
@@ -318,11 +326,11 @@ export default class StoryVisualEditor extends React.Component {
     static contextType = ProjectContext;
 
     render() {
-        const { story, getResponseLocations } = this.props;
-        if (!story) return <div className='story-visual-editor' />;
+        const { story, getResponseLocations, className } = this.props;
+        if (!story) return <div />;
         return (
             <div
-                className='story-visual-editor'
+                className={`story-visual-editor ${className}`}
                 onMouseEnter={() => {
                     this.setState({ loadingResponseLocations: true });
                     const storyResponses = story.reduce((value, { action = '' }) => {
@@ -351,9 +359,11 @@ StoryVisualEditor.propTypes = {
     onSave: PropTypes.func.isRequired,
     story: PropTypes.array.isRequired,
     getResponseLocations: PropTypes.func.isRequired,
-    mode: PropTypes.oneOf(['story', 'rule_steps', 'rule_condition']),
+    mode: PropTypes.oneOf(['story', 'rule_steps', 'rule_condition', 'test_case']),
+    className: PropTypes.string,
 };
 
 StoryVisualEditor.defaultProps = {
     mode: 'story',
+    className: '',
 };

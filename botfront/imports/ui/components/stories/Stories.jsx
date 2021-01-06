@@ -62,6 +62,10 @@ const isDeletionPossible = (node = {}, nodes, tree) => {
         deletable = true;
         message = `The form ${node.title} will be deleted. This action cannot be undone.`;
     }
+    if (node.type === 'test_case') {
+        deletable = true;
+        message = `The test ${node.title} will be deleted. This action cannot be undone.`;
+    }
     return [deletable, message];
 };
 
@@ -376,8 +380,8 @@ Stories.defaultProps = {};
 
 const StoriesWithTracker = withRouter(
     withTracker((props) => {
-        const { projectId } = props;
-        const storiesHandler = Meteor.subscribe('stories.light', projectId);
+        const { projectId, selectedLanguage } = props;
+        const storiesHandler = Meteor.subscribe('stories.light', projectId, selectedLanguage);
         const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
 
         const regularStoryGroups = StoryGroups.find({
@@ -414,6 +418,7 @@ const StoriesWithTracker = withRouter(
 
 const mapStateToProps = state => ({
     storyMenuSelection: state.stories.get('storiesCurrent').toJS(),
+    selectedLanguage: state.settings.get('workingLanguage'),
 });
 
 export default connect(mapStateToProps, { setStoryMenuSelection: setStoriesCurrent })(

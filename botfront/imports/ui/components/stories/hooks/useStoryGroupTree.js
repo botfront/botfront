@@ -20,7 +20,7 @@ const convertId = ({
     let titleField = {};
     let typeSpec = {};
     if (parentId) {
-        if (['rule', 'story'].includes(type)) {
+        if (['rule', 'story', 'test_case'].includes(type)) {
             parentField = { storyGroupId: parentId };
             typeSpec = { type };
         } else if (type === 'form') parentField = { groupId: parentId };
@@ -77,7 +77,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
             if (action === 'reorder') return updateGroup;
             if (action === 'delete') return deleteGroup;
         }
-        if (['rule', 'story'].includes(type)) {
+        if (['rule', 'story', 'test_case'].includes(type)) {
             if (action === 'update') return updateStory;
             if (action === 'delete') return deleteStory;
         }

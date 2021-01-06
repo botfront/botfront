@@ -3,7 +3,12 @@ import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import {
-    Button, Popup, Icon, Checkbox, Dropdown, Confirm,
+    Button,
+    Popup,
+    Icon,
+    Checkbox,
+    Dropdown,
+    Confirm,
 } from 'semantic-ui-react';
 import { get } from 'lodash';
 import Alert from 'react-s-alert';
@@ -13,7 +18,8 @@ import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Projects } from '../../../api/project/project.collection';
 import { ProjectContext } from '../../layouts/context';
 import { can, Can } from '../../../lib/scopes';
-
+import { languages } from '../../../lib/languages';
+import { runTestCaseStories } from './runTestCaseStories';
 
 class TrainButton extends React.Component {
     constructor(props) {
@@ -25,7 +31,9 @@ class TrainButton extends React.Component {
     }
 
     componentDidMount() {
-        const { projectId } = this.props;
+        const {
+            project: { _id: projectId },
+        } = this.context;
         if (can('projects:w', projectId)) {
             Meteor.call('getDeploymentWebhook', projectId, wrapMeteorCallback((err, result) => {
                 if (err) return;
@@ -36,17 +44,21 @@ class TrainButton extends React.Component {
     }
 
     copyToClipboard = () => {
-        const { projectId } = this.props;
+        const {
+            project: { _id: projectId },
+        } = this.context;
         const dummy = document.createElement('textarea');
         document.body.appendChild(dummy);
         dummy.value = `${window.location.origin.toString()}/chat/${projectId}/`;
         dummy.select();
         document.execCommand('copy');
         document.body.removeChild(dummy);
-    }
+    };
 
     train = (target = 'development') => {
-        const { projectId } = this.props;
+        const {
+            project: { _id: projectId },
+        } = this.context;
         Meteor.call('project.markTrainingStarted', projectId);
         Meteor.call('rasa.train', projectId, target, wrapMeteorCallback());
     };
@@ -54,73 +66,77 @@ class TrainButton extends React.Component {
     showModal = (env, visible) => {
         const modalOpen = this.state;
         this.setState({ modalOpen: { ...modalOpen, [env]: visible } });
-    }
+    };
 
-    renderDeployDropDown = (trainingInProgress) => {
-        const { environments } = this.props;
+    renderDropdownMenu = () => {
+        const {
+            project: { deploymentEnvironments: environments = [] },
+            instance,
+        } = this.context;
+        const { status } = this.props;
+        const trainingInProgress = status === 'training' || status === 'notReachable' || !instance;
         const { webhook } = this.state;
-
-        const deployOptions = [];
         const { modalOpen } = this.state;
-        // there is no webhooks or environments so we don't render the deployment menu
-        if (!(webhook && webhook.url)) return (<></>);
-        if (!(environments && environments.length > 0)) return (<></>);
-        if (webhook.url && environments.includes('production')) {
-            deployOptions.push({
-                key: 'prod', text: 'Deploy to production', value: 'production',
-            });
-        }
-        if (deployOptions.length > 0) {
-            // explicitly define the dropdown so we don't get the highlighted selection
-            return (
-                <Dropdown
-                    className='button icon'
-                    data-cy='train-and-deploy'
-                    floating
-                    disabled={trainingInProgress}
-                    trigger={<React.Fragment />}
-                >
-                    <Dropdown.Menu>
-                        {deployOptions.map(opt => (
-                            <React.Fragment key={opt.key}>
-                                <Dropdown.Item
-                                    value={opt.value}
-                                    onClick={() => {
-                                        this.showModal(opt.value, true);
-                                    }}
-                                >
-                                    {opt.text}
-                                </Dropdown.Item>
-                                <Confirm
-                                    open={modalOpen[opt.value]}
-                                    // we need to stop the propagation, otherwise it reopen the dropdown
-                                    onCancel={(e) => {
-                                        this.showModal(opt.value, false);
-                                        e.stopPropagation();
-                                    }}
-                                    onConfirm={(e) => {
-                                        this.trainAndDeploy(opt.value);
-                                        this.showModal(opt.value, false);
-                                        e.stopPropagation();
-                                    }}
-                                    content={`Do you really want to deploy your project to ${opt.value}`}
-                                />
-                            </React.Fragment>
-                        ))}
-                    </Dropdown.Menu>
-                </Dropdown>
-            );
-        }
-        return (<></>);
-    }
+        const deployOptions = !webhook?.url
+            ? []
+            : environments.map(env => ({
+                key: env,
+                value: env,
+                text: `Deploy to ${env}`,
+            }));
+        // explicitly define the dropdown so we don't get the highlighted selection
+        return (
+            <Dropdown
+                className='button icon'
+                data-cy='train-and-deploy'
+                floating
+                disabled={trainingInProgress}
+                trigger={<React.Fragment />}
+            >
+                <Dropdown.Menu>
+                    {this.renderTestingOptions()}
+                    {deployOptions.map(opt => (
+                        <React.Fragment key={opt.key}>
+                            <Dropdown.Item
+                                value={opt.value}
+                                onClick={() => this.showModal(opt.value, true)}
+                            >
+                                {opt.text}
+                            </Dropdown.Item>
+                            <Confirm
+                                open={modalOpen[opt.value]}
+                                // we need to stop the propagation, otherwise it reopen the dropdown
+                                onCancel={(e) => {
+                                    this.showModal(opt.value, false);
+                                    e.stopPropagation();
+                                }}
+                                onConfirm={(e) => {
+                                    this.trainAndDeploy(opt.value);
+                                    this.showModal(opt.value, false);
+                                    e.stopPropagation();
+                                }}
+                                content={`Do you really want to deploy your project to ${opt.value}`}
+                            />
+                        </React.Fragment>
+                    ))}
+                </Dropdown.Menu>
+            </Dropdown>
+        );
+    };
 
     deploy = (target) => {
-        const { projectId } = this.props;
+        const {
+            project: { _id: projectId },
+        } = this.context;
         const { webhook } = this.state;
 
         try {
-            if (!webhook.url || !webhook.method) throw new Error('Deployment failed: the webhook parameters are missing');
-            if (!target) throw new Error('Deployment failed: the deployment target is missing');
+            if (!webhook.url || !webhook.method) {
+                throw new Error('Deployment failed: the webhook parameters are missing');
+            }
+            if (!target) {
+                throw new Error('Deployment failed: the deployment target is missing');
+            }
             Meteor.call('deploy.model', projectId, target, (err, response) => {
                 if (err || response === undefined || response.status !== 200) {
                     Alert.error(`Deployment failed: ${err.message}`, {
@@ -129,10 +145,13 @@ class TrainButton extends React.Component {
                     });
                 }
                 if (response.status === 200) {
-                    Alert.success(`Your project has been deployed to the ${target} environment`, {
-                        position: 'top-right',
-                        timeout: 5000,
-                    });
+                    Alert.success(
+                        `Your project has been deployed to the ${target} environment`,
+                        {
+                            position: 'top-right',
+                            timeout: 5000,
+                        },
+                    );
                 }
             });
         } catch (e) {
@@ -141,7 +160,7 @@ class TrainButton extends React.Component {
                 timeout: 10000,
             });
         }
-    }
+    };
 
     trainAndDeploy = async (target) => {
         try {
@@ -158,39 +177,72 @@ class TrainButton extends React.Component {
                 timeout: 3000,
             });
         }
-    }
+    };
 
+    renderTestingOptions = () => {
+        const {
+            project: { _id: projectId },
+            language,
+        } = this.context;
+        const languageName = languages[language]?.name;
+        return (
+            <>
+                <Dropdown.Item
+                    onClick={() => runTestCaseStories(projectId)}
+                    data-cy='run-all-tests'
+                >
+                    Run all tests
+                </Dropdown.Item>
+                {!!languageName && (
+                    <Dropdown.Item
+                        onClick={() => runTestCaseStories(projectId, { language })}
+                        data-cy='run-lang-tests'
+                    >
+                        Run all {languages[language]?.name} tests
+                    </Dropdown.Item>
+                )}
+            </>
+        );
+    };
 
-    renderButton = (instance, popupContent, status, partialTrainning) => (
-        <Popup
-            content={popupContent}
-            trigger={
-                (
+    renderButton = () => {
+        const { instance } = this.context;
+        const { popupContent, status, partialTrainning } = this.props;
+        return (
+            <Popup
+                content={popupContent}
+                trigger={(
                     <Button.Group color={partialTrainning ? 'yellow' : 'blue'}>
                         <Button
                             icon={partialTrainning ? 'eye' : 'grid layout'}
-                            content={partialTrainning ? 'Partial training' : 'Train everything'}
+                            content='Train'
                             labelPosition='left'
-                            disabled={status === 'training' || status === 'notReachable' || !instance}
+                            disabled={
+                                status === 'training'
+                                || status === 'notReachable'
+                                || !instance
+                            }
                             loading={status === 'training'}
-                            onClick={() => { this.train(); }}
+                            onClick={() => {
+                                this.train();
+                            }}
                             data-cy='train-button'
                         />
-                        {this.renderDeployDropDown(status === 'training' || status === 'notReachable' || !instance)}
+                        {this.renderDropdownMenu()}
                     </Button.Group>
-                )
-            }
-            // Popup is disabled while training
-            disabled={status === 'training' || popupContent === ''}
-            inverted
-            size='tiny'
-        />
-    );
+                )}
+                // Popup is disabled while training
+                disabled={status === 'training' || popupContent === ''}
+                inverted
+                size='tiny'
+            />
+        );
+    };
 
     renderShareLink = () => {
         const {
             project: { enableSharing, _id: projectId },
-        } = this.props;
+        } = this.context;
         return (
             <Popup
                 trigger={(
@@ -222,7 +274,12 @@ class TrainButton extends React.Component {
                         {enableSharing && (
                             <p>
                                 <br />
-                                <button type='button' className='link-like' data-cy='copy-sharing-link' onClick={this.copyToClipboard}>
+                                <button
+                                    type='button'
+                                    className='link-like'
+                                    data-cy='copy-sharing-link'
+                                    onClick={this.copyToClipboard}
+                                >
                                     <Icon name='linkify' /> Copy link
                                 </button>
                             </p>
@@ -233,16 +290,14 @@ class TrainButton extends React.Component {
         );
     };
 
+    static contextType = ProjectContext;
+
     render() {
-        const {
-            instance, popupContent, ready, status, partialTrainning,
-        } = this.props;
+        const { ready } = this.props;
         return (
             ready && (
-                <div className='side-by-side middle'>
-                    <Can I='nlu-data:x'>
-                        {this.renderButton(instance, popupContent, status, partialTrainning)}
-                    </Can>
+                <div className='side-by-side middle narrow'>
+                    <Can I='nlu-data:x'>{this.renderButton()}</Can>
                     {this.renderShareLink()}
                 </div>
             )
@@ -251,35 +306,17 @@ class TrainButton extends React.Component {
 }
 
 TrainButton.propTypes = {
-    project: PropTypes.object.isRequired,
-    projectId: PropTypes.string.isRequired,
-    instance: PropTypes.object,
     popupContent: PropTypes.string,
     status: PropTypes.string,
     partialTrainning: PropTypes.bool,
     ready: PropTypes.bool.isRequired,
-    environments: PropTypes.array,
 };
 
 TrainButton.defaultProps = {
-    instance: null,
     popupContent: '',
     status: '',
     partialTrainning: false,
-    environments: [],
 };
-
-const TrainWithContext = props => (
-    <ProjectContext.Consumer>
-        {({ project }) => (
-            <TrainButton
-                {...props}
-                environments={project.deploymentEnvironments}
-            />
-        )}
-    </ProjectContext.Consumer>
-);
-
 
 export default withTracker((props) => {
     // Gets the required number of selected storygroups and sets the content and popup for the train button
@@ -294,14 +331,21 @@ export default withTracker((props) => {
     let status;
     let partialTrainning = false;
     if (ready) {
-        status = Projects.findOne({ _id: projectId }, { field: { 'training.instanceStatus': 1 } });
+        status = Projects.findOne(
+            { _id: projectId },
+            { field: { 'training.instanceStatus': 1 } },
+        );
         status = get(status, 'training.instanceStatus', 'notReachable'); // if it is undefined we consider it not reachable
         storyGroups = StoryGroups.find({ projectId }, { field: { _id: 1 } }).fetch();
-        selectedStoryGroups = storyGroups.filter(storyGroup => (storyGroup.selected));
+        selectedStoryGroups = storyGroups.filter(storyGroup => storyGroup.selected);
         partialTrainning = selectedStoryGroups.length > 0;
-        if (partialTrainning && selectedStoryGroups.length > 1) popupContent = `Train NLU and stories from ${selectedStoryGroups.length} focused story groups.`;
-        else if (selectedStoryGroups && selectedStoryGroups.length === 1) popupContent = 'Train NLU and stories from 1 focused story group.';
-        else if (status === 'notReachable') popupContent = 'Rasa instance not reachable';
+        if (partialTrainning && selectedStoryGroups.length > 1) {
+            popupContent = `Train NLU and stories from ${selectedStoryGroups.length} focused story groups.`;
+        } else if (selectedStoryGroups && selectedStoryGroups.length === 1) {
+            popupContent = 'Train NLU and stories from 1 focused story group.';
+        } else if (status === 'notReachable') {
+            popupContent = 'Rasa instance not reachable';
+        }
     }
 
     return {
@@ -310,4 +354,4 @@ export default withTracker((props) => {
         status,
         partialTrainning,
     };
-})(TrainWithContext);
+})(TrainButton);

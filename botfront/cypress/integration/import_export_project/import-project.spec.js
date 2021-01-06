@@ -1,7 +1,11 @@
 /* global Cypress cy: true */
-import {
-    resultingEndpoints, resultingDefaultDomain, resultingCredentials,
-} from './import-project.data';
+
+// eslint-disable-next-line max-len
+const resultingEndpoints = '# This file contains the different endpoints your bot can use.# Server where the models are pulled from.# https://rasa.com/docs/rasa/user-guide/running-the-server/#fetching-models-from-a-server/#models:#  url: http://my-server.com/models/default_core@latest#  wait_time_between_pulls:  10   # [optional](default: 100)# Server which runs your custom actions.# https://rasa.com/docs/rasa/core/actions/#custom-actions/action_endpoint: url: "http://localhost:5055/webhook"# Tracker store which is used to store the conversations.# By default the conversations are stored in memory.# https://rasa.com/docs/rasa/api/tracker-stores/#tracker_store:#    type: redis#    url: <host of the redis instance, e.g. localhost>#    port: <port of your redis instance, usually 6379>#    db: <number of your database within redis, e.g. 0>#    password: <password used for authentication>#    use_ssl: <whether or not the communication is encrypted, default false>#tracker_store:#    type: mongod#    url: <url to your mongo instance, e.g. mongodb://localhost:27017>#    db: <name of the db within your mongo instance, e.g. rasa>#    username: <username used for authentication>#    password: <password used for authentication># Event broker which all conversation events should be streamed to.# https://rasa.com/docs/rasa/api/event-brokers/#event_broker:#  url: localhost#  username: username#  password: password#  queue: queue';
+// eslint-disable-next-line max-len
+const resultingCredentials = 'rasa_addons.core.channels.webchat.WebchatInputTest:  session_persistence: true  base_url: \'http://localhost:5005\'  socket_path: /socket.io/rasa_addons.core.channels.bot_regression_test.BotRegressionTestInput: {}';
+// eslint-disable-next-line max-len
+const resultingDefaultDomain = 'slots:  test_message_a:    type: unfeaturized  test_message_b:    type: unfeaturizedresponses: {}forms:  open_incident_form:    email:      - type: from_entity        entity: email      - type: from_intent        intent: affirm        value: true      - type: from_intent        intent: deny        value: false    priority:      - type: from_entity        entity: priority    problem_description:      - type: from_text        not_intent:          - incident_status          - bot_challenge          - help          - affirm          - deny    incident_title:      - type: from_trigger_intent        intent: password_reset        value: Problem resetting password      - type: from_trigger_intent        intent: problem_email        value: Problem with email      - type: from_text        not_intent:          - incident_status          - bot_challenge          - help          - affirm          - deny    confirm:      - type: from_intent        intent: affirm        value: true      - type: from_intent        intent: deny        value: false  incident_status_form:    email:      - type: from_entity        entity: email      - type: from_intent        intent: affirm        value: true      - type: from_intent        intent: deny        value: falseactions:  - action_aaa  - action_ask_email  - validate_open_incident_form  - validate_incident_status_form';
 
 
 describe('Importing a Botfront project', function() {
@@ -47,7 +51,7 @@ describe('Importing a Botfront project', function() {
             const blob = await Cypress.Blob.base64StringToBlob(b64zip, 'application/zip');
             cy.dataCy('drop-zone-data').uploadBlob(blob, 'testProject.zip');
             cy.get('.message.red').should('have.length', 2);
-            cy.get('.message.yellow').should('have.length', 6);
+            cy.get('.message.yellow').should('have.length', 7);
 
             // check Errors
             cy.dataCy('message-error-endpointsbfyml').should('have.text', 'endpointsbf.yml'
@@ -72,6 +76,8 @@ describe('Importing a Botfront project', function() {
         + 'The "dev" environment is not supported by this project, this file won\'t be used in the import');
             cy.dataCy('message-warning-nlu-multilangyml').should('have.text', 'nlu-multilang.yml'
         + 'File contains data for German; a new model will be created for that language.');
+            cy.dataCy('message-warning-test_ko_storiesyml').should('have.text', 'test_ko_stories.yml'
+        + '1 test will not be added as Korean is not a project language:korean test case');
 
        
             // check Summary
@@ -172,7 +178,8 @@ describe('Importing a Botfront project', function() {
             cy.dataCy('story-group-menu-item').should('contains.text', 'rules.yml');
             cy.dataCy('story-group-menu-item').should('contains.text', 'stories.yml');
             cy.dataCy('story-group-menu-item').should('contains.text', 'Example group');
-            cy.dataCy('story-group-menu-item').should('have.length', 30);
+            cy.dataCy('story-group-menu-item').should('contains.text', 'test cases');
+            cy.dataCy('story-group-menu-item').should('have.length', 33);
 
             cy.dataCy('slots-modal').click();
             cy.dataCy('slot-editor').should('have.length', 10);

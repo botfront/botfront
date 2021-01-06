@@ -5,17 +5,22 @@ import React from 'react';
 import {
     Menu, Icon, Dropdown, Popup, Message,
 } from 'semantic-ui-react';
+
 import Chat from './Chat';
+import { wrapMeteorCallback } from '../utils/Errors';
 import { setShouldRefreshChat } from '../../store/actions/actions';
 
 class ProjectChat extends React.Component {
     constructor(props) {
         super(props);
+        this.chatRef = React.createRef(null);
         this.state = {
             key: 0,
             languageOptions: null,
             selectedLanguage: null,
+            savedTest: false,
         };
+        this.clipboardTimeout = null;
     }
 
     componentDidMount() {
@@ -26,6 +31,10 @@ class ProjectChat extends React.Component {
 
     componentWillReceiveProps(props) {
         this.checkRefreshChat(props);
+    }
+    
+    componentWillUnmount() {
+        clearTimeout(this.clipboardTimeout);
     }
 
     loadInstance = () => {
@@ -50,6 +59,26 @@ class ProjectChat extends React.Component {
         window.localStorage.removeItem('chat_session');
         this.rerenderChatComponent();
     };
+
+    handleSaveTest = () => {
+        const {
+            project: { _id: projectId },
+        } = this.props;
+        this.setState({ savedTest: false });
+        if (this.chatRef.current && this.chatRef.current.getSessionId) {
+            Meteor.call(
+                'stories.addTestCase',
+                projectId,
+                this.chatRef.current.getSessionId(),
+                wrapMeteorCallback((err) => {
+                    // adding the timeout so that it works when adding several tests, it also make it likes computing is being done.
+                    if (!err) {
+                        this.clipboardTimeout = setTimeout(() => this.setState({ savedTest: true }), 50);
+                    }
+                }),
+            );
+        }
+    }
 
     handleLangChange = (e, { value }) => {
         this.setState(
@@ -86,6 +115,7 @@ class ProjectChat extends React.Component {
             selectedLanguage,
             noChannel,
             path,
+            savedTest,
         } = this.state;
         const {
             triggerChatPane, project: { _id: projectId }, initPayload,
@@ -106,6 +136,25 @@ class ProjectChat extends React.Component {
                         )}
                     </Menu.Item>
                     <Menu.Menu position='right'>
+                        <Menu.Item>
+                            <Popup
+                                trigger={(
+                                    <Icon
+                                        name='clipboard check'
+                                        color={savedTest ? 'green' : 'grey'}
+                                        link={!noChannel}
+                                        onClick={this.handleSaveTest}
+                                        disabled={noChannel}
+                                        data-cy='save-chat-as-test'
+                                        className={savedTest ? 'saved-test' : ''}
+                                    />
+                                )}
+                                content='Save conversation as a test case'
+                                position='bottom right'
+                                className='redo-chat-popup'
+                                disabled={noChannel}
+                            />
+                        </Menu.Item>
                         <Menu.Item>
                             <Popup
                                 trigger={(
@@ -144,6 +193,7 @@ class ProjectChat extends React.Component {
                 </Menu>
                 {socketUrl && path && (
                     <Chat
+                        ref={this.chatRef}
                         socketUrl={socketUrl}
                         key={key}
                         language={selectedLanguage}

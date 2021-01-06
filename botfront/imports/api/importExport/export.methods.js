@@ -8,12 +8,18 @@ import AnalyticsDashboards from '../graphql/analyticsDashboards/analyticsDashboa
 import { Endpoints } from '../endpoints/endpoints.collection';
 import { Credentials } from '../credentials';
 import FormResults from '../graphql/forms/form_results.model';
+import { Stories } from '../story/stories.collection';
+import { StoryGroups } from '../storyGroups/storyGroups.collection';
+
 import { checkIfCan } from '../../lib/scopes';
 import { ZipFolder } from './ZipFolder';
 import { Projects } from '../project/project.collection';
 import { Instances } from '../instances/instances.collection';
 import Conversations from '../graphql/conversations/conversations.model';
 import Activity from '../graphql/activity/activity.model';
+
+import { formatTestCaseForRasa } from '../../lib/test_case.utils';
+
 
 if (Meteor.isServer) {
     const axiosClient = axios.create();
@@ -111,6 +117,20 @@ if (Meteor.isServer) {
             const analyticsConfig = await AnalyticsDashboards.findOne({
                 projectId,
             }).lean();
+            const storyTests = await Stories.find({ projectId, type: 'test_case' }).fetch();
+            const storyGroups = await StoryGroups.find({ projectId, smartGroup: { $exists: false } }).fetch();
+            const storyGroupDict = {};
+            storyGroups.forEach(({ _id, name }) => {
+                storyGroupDict[_id] = name;
+            });
+            const testsByLanguage = storyTests.reduce((acc, testCase) => {
+                const storyGroupName = storyGroupDict[testCase.storyGroupId];
+                if (!acc[testCase.language]) acc[testCase.language] = [];
+                const formattedData = formatTestCaseForRasa(testCase, storyGroupName);
+                acc[testCase.language].push(formattedData);
+                return acc;
+            }, {});
+
             const rasaData = await Meteor.callWithPromise(
                 'rasa.getTrainingPayload',
                 projectId,
@@ -141,6 +161,9 @@ if (Meteor.isServer) {
                         ? rasaData.nlu
                         : { [language]: rasaData.nlu[language] },
                 fragments: fragmentsByGroup,
+                tests: language === 'all'
+                    ? testsByLanguage
+                    : { [language]: testsByLanguage[language] },
             };
 
             const defaultDomain = project?.defaultDomain?.content || '';
@@ -199,6 +222,9 @@ if (Meteor.isServer) {
                         ? `data/nlu/${l}.${extension}`
                         : `data/nlu.${extension}`,
                 );
+                if (exportData.tests[l]) {
+                    rasaZip.addFile(safeDump({ stories: exportData.tests[l] }), `data/tests/test_${l}_stories.yml`);
+                }
             }
 
             const envSuffix = (env, collection) => (collection.length > 1 ? `.${env}` : '');

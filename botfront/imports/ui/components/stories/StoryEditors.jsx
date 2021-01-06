@@ -23,6 +23,13 @@ function StoryEditors(props) {
 
     const lastDate = useMemo(() => Date.now(), [stories.length, workingLanguage]);
 
+    const storyTestResults = useMemo(() => stories
+        .reduce((acc, story) => (
+            story.type === 'test_case'
+                ? [...acc, ...story.events || []]
+                : acc
+        ), []), [stories]);
+
     const responsesInFetchedStories = useMemo(() => stories.reduce(
         (acc, curr) => [
             ...acc,
@@ -31,7 +38,7 @@ function StoryEditors(props) {
             ),
         ],
         [],
-    ), [stories.length, workingLanguage]);
+    ), [stories.length, workingLanguage, storyTestResults]);
 
     useEffect(() => {
         if (responsesInFetchedStories.length) {

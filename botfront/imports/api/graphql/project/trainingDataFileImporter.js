@@ -182,14 +182,14 @@ const handleImportTrainingData = async (
     if (errorsFromGroups.length) return errorsFromGroups;
     const errorsFromNlu = await wipeNluData({ projectId, languages: languagesToWipe });
     if (errorsFromNlu.length) return errorsFromNlu;
-
     const updates = files.reduce(
         (acc, {
-            nlu = {}, stories = [], rules = [], filename,
+            nlu = {}, stories = [], rules = [], tests = [], filename,
         }) => {
             const fragments = [
                 ...stories.map(s => ({ ...s, type: 'story' })),
                 ...rules.map(r => ({ ...r, type: 'rule' })),
+                ...tests.map(t => ({ ...t, type: 'test_case' })),
             ].map(({ metadata: { group, status = 'published', ...metadata }, ...frag }) => removeTriggerIntents({
                 ...frag,
                 ...keepOrReturnEmptyObject({ status }),

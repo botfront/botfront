@@ -17,6 +17,7 @@ import {
     createDefaultStoryGroup,
     createStoriesWithTriggersGroup,
     createUnpublishedStoriesGroup,
+    createFailingTestsGroup,
 } from '../storyGroups/storyGroups.methods';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
@@ -51,6 +52,7 @@ if (Meteor.isServer) {
                 createStoriesWithTriggersGroup(_id);
                 createUnpublishedStoriesGroup(_id);
                 await createDefaultStoryGroup(_id);
+                createFailingTestsGroup(_id);
                 await createInstance({ _id, ...item });
                 auditLog('Created project', {
                     user: Meteor.user(),

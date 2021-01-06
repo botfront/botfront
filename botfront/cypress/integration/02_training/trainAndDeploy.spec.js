@@ -43,6 +43,6 @@ describe('Training and deploy', function() {
 
         cy.visit('/project/bf/dialogue');
         cy.dataCy('train-and-deploy').click();
-        cy.dataCy('train-and-deploy').should('have.text', 'Deploy to production');
+        cy.dataCy('train-and-deploy').should('include.text', 'Deploy to production');
     });
 });

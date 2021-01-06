@@ -41,6 +41,8 @@ const BotResponsesContainer = (props) => {
         responseLocations,
         loadingResponseLocations,
         disableEnterKey,
+        editable: initialEditable,
+        theme,
     } = props;
     const {
         project: { _id: projectId },
@@ -65,7 +67,7 @@ const BotResponsesContainer = (props) => {
     const [deletePopupOpen, setDeletePopupOpen] = useState(false);
     const typeName = useMemo(() => template && template.__typename, [template]);
 
-    const editable = can('responses:w', projectId);
+    const editable = can('responses:w', projectId) || initialEditable;
 
     useEffect(() => {
         Promise.resolve(initialValue).then((res) => {
@@ -170,17 +172,22 @@ const BotResponsesContainer = (props) => {
             responseLocations={responseLocations}
             loading={loadingResponseLocations}
             onChange={handleNameChange}
+            editable={editable}
         />
     );
-    
+
+    const renderThemeTag = () => (<span className='bot-response theme-tag'>{theme}</span>);
+
     return (
         <ResponseContext.Provider value={{ name, uploadImage }}>
-            <div className='utterances-container exception-wrapper-target'>
+            <div className={`utterances-container exception-wrapper-target theme-${theme}`}>
                 {!template && (
-                    <Placeholder>
-                        <Placeholder.Line />
-                        <Placeholder.Line />
-                    </Placeholder>
+                    <div className='loading-bot-response'>
+                        <Placeholder fluid>
+                            <Placeholder.Line />
+                            <Placeholder.Line />
+                        </Placeholder>
+                    </div>
                 )}
                 {getSequence().map(renderResponse)}
                 <div className='side-by-side right narrow top-right'>
@@ -188,25 +195,30 @@ const BotResponsesContainer = (props) => {
                         onToggleButtonType={handleToggleQuickReply}
                         responseType={typeName}
                     />
-                    {otherLanguages.length > 0 && initialValue && !initialValue.isNew && getSequence().length === 1 && !checkContentEmpty(getSequence()[0]) && can('stories:w', projectId)
-                        && (
-                            <Dropdown
-                                button
-                                icon={null}
-                                compact
-                                data-cy='import-from-lang'
-                                className='import-from-lang'
-                                options={otherLanguages}
-                                text='Copy from'
-                                onChange={(_, selection) => {
-                                    importRespFromLang({
-                                        variables: {
-                                            projectId, key: name, originLang: selection.value, destLang: language,
-                                        },
-                                    });
-                                }}
-                            />
-                        )
+                    {otherLanguages.length > 0
+                    && initialValue
+                    && !initialValue.isNew
+                    && getSequence().length === 1
+                    && !checkContentEmpty(getSequence()[0])
+                    && editable
+                    && (
+                        <Dropdown
+                            button
+                            icon={null}
+                            compact
+                            data-cy='import-from-lang'
+                            className='import-from-lang'
+                            options={otherLanguages}
+                            text='Copy from'
+                            onChange={(_, selection) => {
+                                importRespFromLang({
+                                    variables: {
+                                        projectId, key: name, originLang: selection.value, destLang: language,
+                                    },
+                                });
+                            }}
+                        />
+                    )
                     }
                     {enableEditPopup && (
                         <IconButton
@@ -228,7 +240,7 @@ const BotResponsesContainer = (props) => {
                             renameable={renameable}
                         />
                     )}
-                    {deletable && can('stories:w', projectId) && onDeleteAllResponses && (
+                    {deletable && onDeleteAllResponses && editable && (
                         <>
                             <Popup
                                 trigger={<span><IconButton onMouseDown={() => {}} icon='trash' /></span>}
@@ -255,6 +267,7 @@ const BotResponsesContainer = (props) => {
                     )}
                 </div>
                 {renderDynamicResponseName()}
+                {theme !== 'default' && renderThemeTag()}
             </div>
         </ResponseContext.Provider>
     );
@@ -272,6 +285,8 @@ BotResponsesContainer.propTypes = {
     loadingResponseLocations: PropTypes.bool,
     renameable: PropTypes.bool,
     disableEnterKey: PropTypes.bool,
+    editable: PropTypes.bool,
+    theme: PropTypes.string,
 };
 
 BotResponsesContainer.defaultProps = {
@@ -286,6 +301,8 @@ BotResponsesContainer.defaultProps = {
     loadingResponseLocations: false,
     renameable: true,
     disableEnterKey: false,
+    editable: true,
+    theme: 'default',
 };
 
 export default BotResponsesContainer;

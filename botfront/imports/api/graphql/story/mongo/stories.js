@@ -157,6 +157,10 @@ export const replaceStoryLines = (projectId, lineToReplace, newLine) => {
     );
 };
 
+export const updateTestResults = async (testResults) => {
+    Meteor.call('stories.update', testResults);
+};
+
 export const getTriggerIntents = async (projectId, options = {}) => {
     const { includeFields, key = 'triggerIntent' } = options;
     const stories = await Stories.find(

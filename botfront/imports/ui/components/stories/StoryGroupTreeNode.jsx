@@ -5,6 +5,8 @@ import {
 } from 'semantic-ui-react';
 import { formNameIsValid } from '../../../lib/client.safe.utils';
 import { tooltipWrapper } from '../utils/Utils';
+import { storyTypeCustomizations } from '../../../lib/story.types';
+import StoryPrefix from './common/StoryPrefix';
 
 const StoryGroupTreeNode = (props) => {
     const {
@@ -114,33 +116,37 @@ const StoryGroupTreeNode = (props) => {
 
     const cleanStoryId = id => id.replace(/^.*_SMART_/, '');
 
-    const addStoryOrRule = fragmentType => (
-        <Dropdown.Item
-            content={(
-                <>
-                    <span className='small story-title-prefix'>{fragmentType === 'rule' ? <>&gt;&gt;</> : '##'}</span>
-                    {fragmentType === 'rule' ? 'Rule' : 'Story'}
-                </>
-            )}
-            data-cy={`add-${fragmentType}`}
-            {...(!somethingIsMutating
-                ? {
-                    onClick: () => handleAddStory(
-                        item.id,
-                        `${item.title} (${
-                            item.children.length + 1
-                        })`,
-                        showPublish ? 'unpublished' : 'published',
-                        fragmentType,
-                    ),
-                    onMouseDown: (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    },
-                }
-                : {})}
-        />
-    );
+    const addStoryOrRule = (fragmentType) => {
+        const { title } = storyTypeCustomizations[fragmentType];
+        return (
+            <Dropdown.Item
+                content={(
+                    <>
+                        <StoryPrefix fragment={{ type: fragmentType }} />
+                        {title}
+                    </>
+                )}
+                data-cy={`add-${fragmentType}`}
+                {...(!somethingIsMutating
+                    ? {
+                        onClick: () => handleAddStory(
+                            item.id,
+                            `${item.title} (${
+                                item.children.length + 1
+                            })`,
+                            showPublish ? 'unpublished' : 'published',
+                            fragmentType,
+                        ),
+                        onMouseDown: (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                        },
+                    }
+                    : {})}
+            />
+        );
+    };
+
 
     const renderItemActions = () => (
         <div className={`item-actions ${disabled ? 'hidden' : ''}`}>
@@ -182,6 +188,7 @@ const StoryGroupTreeNode = (props) => {
                                             icon='wpforms'
                                             content='Form'
                                             data-cy='add-form'
+                                            className='add-form-item'
                                             {...(!somethingIsMutating
                                                 ? {
                                                     onClick: () => handleAddForm(
@@ -248,7 +255,7 @@ const StoryGroupTreeNode = (props) => {
             ref={provided.innerRef}
             {...provided.draggableProps}
             tabIndex={0} // eslint-disable-line jsx-a11y/no-noninteractive-tabindex
-            className={`item-focus-holder ${item.smartGroup ? 'blue' : ''}`}
+            className={`item-focus-holder ${item.smartGroup || isSmartNode ? 'blue' : ''}`}
             id={`story-menu-item-${item.id}`}
             type={type}
             data-pinned={!!item.pinned}
@@ -269,6 +276,7 @@ const StoryGroupTreeNode = (props) => {
                 <div
                     className='side-by-side left narrow middle'
                     {...(isBeingRenamed ? { ref: renamerRef } : {})}
+                    data-cy={`story-menu-item-${type}`}
                 >
                     <Icon
                         name='bars'
@@ -310,7 +318,7 @@ const StoryGroupTreeNode = (props) => {
                         </>
                     ) : (
                         <span
-                            className={`item-name ${
+                            className={`item-name ${item.success === false ? 'failing-test-case-title' : ''}${
                                 !isPublished && ['story', 'rule'].includes(type) && showPublish
                                     ? 'grey'
                                     : ''

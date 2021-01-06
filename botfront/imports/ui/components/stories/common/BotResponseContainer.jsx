@@ -132,7 +132,7 @@ const BotResponseContainer = (props) => {
             data-cy='bot-response-input'
             {...getCustomStyle()}
         >
-            <div className={`${hasMetadata ? 'metadata-response' : ''}`}>
+            <div className={`${hasMetadata ? 'metadata-response' : ''} ${editable ? '' : 'read-only'}`}>
                 {hasText && !isImageResponse && renderText()}
                 {isImageResponse && <ImageThumbnail value={value.image} onChange={setImage} />}
                 {isCarouselResponse && <CarouselEditor value={value} onChange={onChange} />}

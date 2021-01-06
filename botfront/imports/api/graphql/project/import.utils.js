@@ -18,6 +18,7 @@ import {
     validateDomain,
     validateDefaultDomains,
 } from '../../../lib/importers/validateDomain.js';
+import { validateTestCases } from '../../../lib/importers/validateTestCases';
 import { validateTrainingData } from '../../../lib/importers/validateTrainingData.js';
 import { handleImportAll } from './fileImporters';
 
@@ -73,9 +74,16 @@ export async function getRawTextAndType(files) {
     return filesDataAndTypes;
 }
 
+const createTimestamp = () => (
+    new Date()
+        .toISOString()
+        .replace('T', ' ')
+        .replace('Z', '')
+);
+
 export async function validateFiles(files, params) {
     let filesWithMessages = files;
-    let newParams = { ...params };
+    let newParams = { ...params, timestamp: createTimestamp() };
     // this is the validation pipeline each step only add errors to the files it should validate
     // each step can also add data to the params, eg : the default domain, the summary of changes etc,
     [filesWithMessages, newParams] = validateDefaultDomains(filesWithMessages, newParams);
@@ -85,6 +93,7 @@ export async function validateFiles(files, params) {
         filesWithMessages,
         newParams,
     );
+    [filesWithMessages, newParams] = validateTestCases(filesWithMessages, newParams);
     [filesWithMessages, newParams] = validateEndpoints(filesWithMessages, newParams);
     [filesWithMessages, newParams] = validateCredentials(filesWithMessages, newParams);
     [filesWithMessages, newParams] = validateDomain(filesWithMessages, newParams);
@@ -187,7 +196,6 @@ export async function importSteps({
     const fallbackLang = projectLanguages.includes(providedFallbackLanguage)
         ? providedFallbackLanguage
         : defaultLanguage;
-
     const params = {
         onlyValidate,
         projectId,

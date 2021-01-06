@@ -128,7 +128,9 @@ if (Meteor.isServer) {
                 }),
             );
             const parametrizeTest = async (
-                { nlu, fragments, ...options } = {},
+                {
+                    nlu, fragments, tests, ...options
+                } = {},
                 results = {},
             ) => {
                 const [segmentsBefore] = await getStoriesAndExamples();
@@ -140,10 +142,17 @@ if (Meteor.isServer) {
                                 'training_data/stories02.yml',
                             ]
                             : []),
+                        ...(tests
+                            ? [
+                                'training_data/test_en.yml',
+                                'training_data/test_fr.yml',
+                            ]
+                            : []),
                         ...(nlu ? ['training_data/nlu02.json'] : []),
                     ],
                     { ...options },
                 );
+
                 const [segmentsAfter, examplesAfter] = await getStoriesAndExamples();
                 const sgIds = getStoryGroupNameMapping();
                 expect(errors).to.have.lengthOf(0);
@@ -166,6 +175,12 @@ if (Meteor.isServer) {
                             },
                         ]
                         : []),
+                    ...(results.newTests ? [
+                        {
+                            title: 'test greetings',
+                            storyGroupId: sgIds.stories01,
+                        },
+                    ] : []),
                 ]);
                 expect(examplesAfter).to.have.lengthOf(results.exampleLength);
                 expect(
@@ -314,6 +329,54 @@ if (Meteor.isServer) {
                     )),
                 );
             });
+            describe('import tests only', () => {
+                it(
+                    '!wipeInvolvedCollections, !wipeProject',
+                    caught(() => parametrizeTest(
+                        { nlu: false, fragments: false, tests: true },
+                        {
+                            groupLength: 2,
+                            oldSegments: true,
+                            newTests: true,
+                            segmentsBefore: true,
+                            exampleLength: 3,
+                            exampleComboLength: [2, 0, 1, 0],
+                        },
+                    )),
+                );
+                it(
+                    'wipeInvolvedCollections',
+                    caught(() => parametrizeTest(
+                        {
+                            nlu: false,
+                            fragments: false,
+                            tests: true,
+                            wipeInvolvedCollections: true,
+                        },
+                        {
+                            groupLength: 1,
+                            oldSegments: false,
+                            newTests: true,
+                            exampleLength: 3,
+                            exampleComboLength: [2, 0, 1, 0],
+                        },
+                    )),
+                );
+                it(
+                    'wipeProject',
+                    caught(() => parametrizeTest(
+                        {
+                            nlu: false, fragments: false, tests: true, wipeProject: true,
+                        },
+                        {
+                            groupLength: 1,
+                            newTests: true,
+                            exampleLength: 0,
+                            exampleComboLength: [0, 0, 0, 0],
+                        },
+                    )),
+                );
+            });
         });
 
         const unzipFiles = (zip, subs = []) => Object.entries(zip.files).reduce(async (acc, [path, item]) => {
@@ -338,6 +401,7 @@ if (Meteor.isServer) {
                     // how meteor assets work, that file can only be committed once and
                     // thus with one filename for all tests.
                     const localZip = await unzipFiles(zip, [['.development', '']]);
+                    delete localZip['data/tests/test_de_stories.yml'];
                     const b64zip = await Meteor.callWithPromise(
                         'exportRasa',
                         'bf',
@@ -376,6 +440,7 @@ if (Meteor.isServer) {
                     });
                     await importStepsWrapped([zip], { wipeProject: true });
                     const localZip = await unzipFiles(zip);
+                    delete localZip['data/tests/test_de_stories.yml'];
                     const b64zip = await Meteor.callWithPromise(
                         'exportRasa',
                         'bf',
