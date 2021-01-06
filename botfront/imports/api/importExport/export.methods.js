@@ -296,6 +296,7 @@ if (Meteor.isServer) {
                 const { summary = [] } = await importSteps({
                     projectId,
                     wipeProject: true,
+                    ignoreFilesWithErrors: true,
                     files: await repoDirToFileList(dir, [
                         ...exclusions,
                         ...untrackedFiles,
@@ -316,6 +317,7 @@ if (Meteor.isServer) {
                 await importSteps({
                     projectId,
                     wipeProject: true,
+                    ignoreFilesWithErrors: true,
                     files: [
                         {
                             filename: 'backup.zip',

@@ -157,6 +157,7 @@ export async function importSteps({
     projectId,
     files,
     onlyValidate,
+    ignoreFilesWithErrors = false,
     wipeInvolvedCollections,
     wipeProject,
     fallbackLang: providedFallbackLanguage,
@@ -194,6 +195,9 @@ export async function importSteps({
     };
     const filesAndValidationData = await readAndValidate(await unzipFiles(files), params);
     if (onlyValidate) return filesAndValidationData;
+    if (!ignoreFilesWithErrors && filesAndValidationData.fileMessages.some(f => f?.errors?.length)) {
+        return filesAndValidationData;
+    }
     const { fileMessages: filesToImport, params: newParams } = filesAndValidationData;
     const importResult = await handleImportAll(filesToImport, newParams);
     return { summary: importResult.map(text => ({ text })) };
