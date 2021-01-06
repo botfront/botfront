@@ -15,7 +15,6 @@ import StoryVisualEditor from './common/StoryVisualEditor';
 import { ConversationOptionsContext } from './Context';
 import StoryRulesEditor from './rules/StoryRulesEditor';
 import { can } from '../../../lib/scopes';
-import { storyTypeCustomizations } from '../../../lib/story.types';
 import StoryPrefix from './common/StoryPrefix';
 
 const StoryTopMenu = ({
