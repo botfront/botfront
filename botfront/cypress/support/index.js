@@ -26,20 +26,7 @@ import './slot.commands';
 
 const axios = require('axios');
 require('cypress-plugin-retries');
-const { Octokit } = require('@octokit/rest');
 const shortid = require('shortid');
-const generatePair = require('keypair');
-const sshpk = require('sshpk');
-
-const octokit = new Octokit({ auth: Cypress.env('GITHUB_TOKEN') });
-
-const generateSshKeys = async () => {
-    const pair = generatePair();
-    return {
-        privateKey: pair.private,
-        publicKey: sshpk.parseKey(pair.public, 'pem').toString('ssh'),
-    };
-};
 
 Cypress.on('uncaught:exception', () => false);
 
@@ -522,7 +509,8 @@ Cypress.Commands.add('setTestGitSettings', (info) => {
     const { publicKey, privateKey, fullName } = info;
     cy.visit('/project/bf/settings/info');
     cy.dataCy('git-string').find('input').type(`git@github.com:${fullName}#main`);
-    cy.dataCy('public-ssh-key').find('input')
+    cy.dataCy('public-ssh-key')
+        .find('input')
         .focus()
         .invoke('val', publicKey)
         .trigger('change')
@@ -538,38 +526,31 @@ Cypress.Commands.add('setTestGitSettings', (info) => {
     cy.dataCy('save-changes').click();
 });
 
-Cypress.Commands.add('setUpGitRepo', () => new Cypress.Promise(async (resolve, reject) => {
+Cypress.Commands.add('tearDownGitRepo', info => cy.task('octoRequest', [`DELETE /repos/${info.fullName}`]));
+
+Cypress.Commands.add('setUpGitRepo', () => {
     const templateRepo = Cypress.env('GITHUB_TEMPLATE_REPO');
     const owner = templateRepo.split('/')[0];
-    let { publicKey, privateKey } = {};
-    try {
-        ({ publicKey, privateKey } = await generateSshKeys());
-        const { status, data: { full_name: fullName } = {} } = await octokit.request(
-            `POST /repos/${templateRepo}/generate`,
-            {
-                name: shortid(),
-                owner,
-                private: true,
-                mediaType: { previews: ['baptiste'] },
-            },
-        );
-        if (status !== 201) throw new Error();
-        try {
-            await octokit.request(`POST /repos/${fullName}/keys`, { key: publicKey, read_only: false });
-        } catch (e) {
-            await octokit.request(`DELETE /repos/${fullName}`);
-            throw e;
-        }
-        resolve({ fullName, publicKey, privateKey });
-    } catch (e) {
-        reject(e);
-    }
-}));
-
-Cypress.Commands.add('tearDownGitRepo', async (info) => {
-    try {
-        await octokit.request(`DELETE /repos/${info.fullName}`);
-    } catch (e) {
-        throw e;
-    }
+    cy.task('octoRequest', [
+        `POST /repos/${templateRepo}/generate`,
+        {
+            name: shortid(),
+            owner,
+            private: true,
+            mediaType: { previews: ['baptiste'] },
+        },
+    ])
+        .then(({ status, data: { full_name: fullName } = {} }) => {
+            // can't catch, but we alias the repo name as early as possible to
+            // be able to delete it in the aftereach block
+            cy.wrap({ status, fullName }).as('gitRepo');
+            if (status !== 201) throw new Error();
+            cy.task('generatePair').then(({ publicKey, privateKey }) => {
+                cy.wrap({ fullName, publicKey, privateKey }).as('gitRepo');
+                cy.task('octoRequest', [
+                    `POST /repos/${fullName}/keys`,
+                    { key: publicKey, read_only: false },
+                ]);
+            });
+        });
 });

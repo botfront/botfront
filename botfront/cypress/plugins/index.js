@@ -14,6 +14,9 @@ const { join } = require('path');
 const JSZip = require('jszip');
 const glob = require('glob');
 const fs = require('fs');
+const { Octokit } = require('@octokit/rest');
+const generatePair = require('keypair');
+const sshpk = require('sshpk');
 
 const generateZip = (folder, config) => {
     const zip = new JSZip();
@@ -45,6 +48,17 @@ module.exports = (on, config) => {
         log (message) { console.log(message); return null; },
         zipFolder(path) {
             return generateZip(path, config);
+        },
+        generatePair: () => {
+            const pair = generatePair();
+            return {
+                privateKey: pair.private,
+                publicKey: sshpk.parseKey(pair.public, 'pem').toString('ssh').replace(' (unnamed)', ''),
+            };
+        },
+        octoRequest: (args) => {
+            const octokit = new Octokit({ auth: process.env.CYPRESS_GITHUB_TOKEN });
+            return octokit.request(...args);
         },
     });
 };

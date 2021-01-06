@@ -21,7 +21,7 @@ const revertToithCommit = (n, i, expected = 'success') => {
 describe('Git Integration', function() {
     beforeEach(function() {
         cy.createProject('bf').then(() => cy.login());
-        cy.setUpGitRepo().as('gitRepo');
+        cy.setUpGitRepo();
         cy.get('@gitRepo').then(gitRepo => cy.setTestGitSettings(gitRepo));
         cy.visit('/project/bf/dialogue');
     });
