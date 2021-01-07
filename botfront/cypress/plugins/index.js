@@ -17,6 +17,7 @@ const fs = require('fs');
 const { Octokit } = require('@octokit/rest');
 const generatePair = require('keypair');
 const sshpk = require('sshpk');
+const shortid = require('shortid');
 
 const generateZip = (folder, config) => {
     const zip = new JSZip();
@@ -60,5 +61,6 @@ module.exports = (on, config) => {
             const octokit = new Octokit({ auth: process.env.CYPRESS_GITHUB_TOKEN });
             return octokit.request(...args);
         },
+        generateShortId: () => shortid(),
     });
 };

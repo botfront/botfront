@@ -26,7 +26,6 @@ import './slot.commands';
 
 const axios = require('axios');
 require('cypress-plugin-retries');
-const shortid = require('shortid');
 
 Cypress.on('uncaught:exception', () => false);
 
@@ -531,10 +530,10 @@ Cypress.Commands.add('tearDownGitRepo', info => cy.task('octoRequest', [`DELETE 
 Cypress.Commands.add('setUpGitRepo', () => {
     const templateRepo = Cypress.env('GITHUB_TEMPLATE_REPO');
     const owner = templateRepo.split('/')[0];
-    cy.task('octoRequest', [
+    cy.task('generateShortId').then(shortId => cy.task('octoRequest', [
         `POST /repos/${templateRepo}/generate`,
         {
-            name: shortid(),
+            name: shortId,
             owner,
             private: true,
             mediaType: { previews: ['baptiste'] },
@@ -552,5 +551,5 @@ Cypress.Commands.add('setUpGitRepo', () => {
                     { key: publicKey, read_only: false },
                 ]);
             });
-        });
+        }));
 });
