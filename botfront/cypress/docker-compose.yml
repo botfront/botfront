@@ -7,7 +7,7 @@ services:
   e2e:
     ipc: host # https://github.com/cypress-io/cypress/issues/350
     shm_size: 512M # https://github.com/cypress-io/cypress/issues/350#issuecomment-353572782
-    image: cypress/included:4.9.0
+    image: cypress/included:5.1.0
     container_name: e2e
     volumes:
       - ../cypress.json:/app/cypress.json
