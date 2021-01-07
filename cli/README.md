@@ -88,7 +88,7 @@ Botfront only requires a recent version of Docker. You can install the CLI with 
 npm install -g botfront
 ```
 
-Then just run `botfront`to get started.
+Then just run `botfront` to get started.
 
 <!-- broken image. commented out as I'm not sure it should be deleted -->
 <!-- <img src="/botfront/docs/terminalizer/botfront-setup.gif?raw=true" width="100%"> -->
