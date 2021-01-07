@@ -14,7 +14,6 @@
     "@octokit/rest": "^18.0.5",
     "axios": "^0.19.0",
     "chai": "^4.2.0",
-    "cypress-plugin-retries": "^1.5.2",
     "glob": "^7.1.6",
     "js-yaml": "^3.13.1",
     "jszip": "^3.5.0",
