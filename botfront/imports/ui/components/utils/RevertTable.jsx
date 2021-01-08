@@ -101,7 +101,7 @@ const RevertTable = ({ useGitWorkingState }) => {
             'revertToCommit',
             projectId,
             sha,
-            wrapMeteorCallback((err, { status: { code, msg } }) => {
+            wrapMeteorCallback((err, { status: { code, msg } = {} } = {}) => {
                 setWorking(false);
                 if (err) return;
                 Alert[code === 204 ? 'warning' : 'success'](msg, {
