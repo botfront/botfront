@@ -70,6 +70,7 @@ class TrainButton extends React.Component {
             this.commitMessage?.current?.value,
             wrapMeteorCallback((err, { status: { code, msg } }) => {
                 this.setState({ gitWorking: false });
+                this.showModal('commit-and-push', false);
                 if (err) return;
                 Alert[code === 204 ? 'warning' : 'success'](msg, {
                     position: 'top-right',
@@ -79,40 +80,42 @@ class TrainButton extends React.Component {
         );
     };
 
-    renderCommitModal = () => (
-        <Modal
-            open
-            size='small'
-            header='Commit and push'
-            onClick={e => e.stopPropagation()}
-            content={(
-                <div className='side-by-side middle ui form' style={{ padding: '1em' }}>
-                    <input
-                        className='ui input'
-                        placeholder='Commit message'
-                        data-cy='commit-message-input'
-                        ref={this.commitMessage}
-                        autoFocus // eslint-disable-line jsx-a11y/no-autofocus
-                        onKeyDown={({ key }) => {
-                            if (key === 'Enter') this.commitAndPush();
-                            if (['Enter', 'Escape'].includes(key)) {
-                                this.showModal('commit-and-push', false);
-                            }
-                        }}
-                    />
-                    <Button
-                        type='submit'
-                        onClick={() => {
-                            this.showModal('commit-and-push', false);
-                            this.commitAndPush();
-                        }}
-                        content='Push to remote'
-                    />
-                </div>
-            )}
-            onClose={() => this.showModal('commit-and-push', false)}
-        />
-    );
+    renderCommitModal = () => {
+        const { gitWorking } = this.state;
+        return (
+            <Modal
+                open
+                size='small'
+                header='Commit and push'
+                onClick={e => e.stopPropagation()}
+                content={(
+                    <div className='side-by-side middle ui form' style={{ padding: '1em' }}>
+                        <input
+                            className='ui input'
+                            placeholder='Commit message'
+                            data-cy='commit-message-input'
+                            ref={this.commitMessage}
+                            autoFocus // eslint-disable-line jsx-a11y/no-autofocus
+                            onKeyDown={({ key }) => {
+                                if (key === 'Enter') this.commitAndPush();
+                                if (key === 'Escape') {
+                                    if (!gitWorking) this.showModal('commit-and-push', false);
+                                }
+                            }}
+                        />
+                        <Button
+                            type='submit'
+                            onClick={() => this.commitAndPush()}
+                            content='Push to remote'
+                        />
+                    </div>
+                )}
+                onClose={() => {
+                    if (!gitWorking) this.showModal('commit-and-push', false);
+                }}
+            />
+        );
+    };
 
     renderRevertModal = () => {
         const { gitWorking } = this.state;
