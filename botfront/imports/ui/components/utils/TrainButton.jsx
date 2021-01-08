@@ -107,6 +107,8 @@ class TrainButton extends React.Component {
                             type='submit'
                             onClick={() => this.commitAndPush()}
                             content='Push to remote'
+                            loading={gitWorking}
+                            disabled={gitWorking}
                         />
                     </div>
                 )}
