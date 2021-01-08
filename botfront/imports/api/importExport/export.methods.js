@@ -504,6 +504,8 @@ if (Meteor.isServer) {
 
             const configData = project;
             delete configData.gitString;
+            delete configData.privateSshKey;
+            delete configData.publicSshKey;
             // exported separately
             delete configData.chatWidgetSettings;
             delete configData.defaultDomain;
