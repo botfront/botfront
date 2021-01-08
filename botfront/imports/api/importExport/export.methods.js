@@ -199,7 +199,7 @@ if (Meteor.isServer) {
         // here means 'rasa.getTrainingPayload' will be called twice in short succession,
         // which is a bit stupid, but we live with it for now.
         const zip = await Meteor.callWithPromise('exportRasa', projectId, 'all', {
-            noBlob: true, incoming: true, conversations: true,
+            noBlob: true,
         });
         await deletePathsNotInZip(dir, zip, exclusions); // deletions
         await extractZip(dir, zip); // additions/modifications
@@ -287,7 +287,7 @@ if (Meteor.isServer) {
                 'exportRasa',
                 projectId,
                 'all',
-                { noBlob: true, incoming: true, conversations: true },
+                { noBlob: true },
             );
             try {
                 const untrackedFiles = (await repo.getStatus())
