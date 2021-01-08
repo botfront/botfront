@@ -68,7 +68,7 @@ class TrainButton extends React.Component {
             'commitAndPushToRemote',
             projectId,
             this.commitMessage?.current?.value,
-            wrapMeteorCallback((err, { status: { code, msg } }) => {
+            wrapMeteorCallback((err, { status: { code, msg } = {} } = {}) => {
                 this.setState({ gitWorking: false });
                 this.showModal('commit-and-push', false);
                 if (err) return;
