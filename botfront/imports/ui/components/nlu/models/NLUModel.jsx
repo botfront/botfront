@@ -11,7 +11,7 @@ import {
 import 'react-select/dist/react-select.css';
 import { connect } from 'react-redux';
 import { debounce } from 'lodash';
-import { PageMenu } from '../../utils/Utils';
+import PageMenu from '../../utils/PageMenu';
 import { cleanDucklingFromExamples } from '../../../../lib/utils';
 import { NLUModels } from '../../../../api/nlu_model/nlu_model.collection';
 import InsertNlu from '../../example_editor/InsertNLU';

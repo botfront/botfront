@@ -42,7 +42,7 @@ jobs:
     - uses: actions/checkout@v1
     - uses: actions/setup-node@v1
       with:
-        node-version: '10.x'
+        node-version: '12.x'
     - name: install meteor
       run: curl https://install.meteor.com/ | sh
     - uses: actions/cache@v1
@@ -120,6 +120,8 @@ jobs:
           --exit-code-from e2e
         env:
           RASA_TAG: ${{ steps.versions.outputs.rasa }}
+          GITHUB_TOKEN: ${{ secrets.CYPRESS_GITHUB_TOKEN }}
+          GITHUB_TEMPLATE_REPO: botfront/ci_repo_template
       - name: persist screenshots as artifact on failure
         if: failure()
         uses: actions/upload-artifact@v1

@@ -23,15 +23,15 @@ describe('Bot responses', function() {
         cy.dataCy('bot-response-input').click().find('textarea').type('A');
         addVariation('B');
         addVariation('C');
-        cy.dataCy('bot-response-input').contains('B').click();
-        cy.dataCy('bot-response-input').contains('B')
+        cy.dataCy('bot-response-input', 'B')
+            .find('textarea')
             .clear()
             .type('D');
-        cy.dataCy('bot-response-input').contains('D').should('exist');
+        cy.dataCy('bot-response-input', 'D').should('exist');
         cy.dataCy('icon-trash').eq(1).click();
-        cy.dataCy('bot-response-input').contains('A').should('exist');
-        cy.dataCy('bot-response-input').contains('C').should('exist');
-        cy.dataCy('bot-response-input').contains('D').should('not.exist');
+        cy.dataCy('bot-response-input', 'A').should('exist');
+        cy.dataCy('bot-response-input', 'C').should('exist');
+        cy.dataCy('bot-response-input', 'D').should('not.exist');
         
         cy.escapeModal();
         cy.dataCy('response-text').find('div').contains('A').should('exist');

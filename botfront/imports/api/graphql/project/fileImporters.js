@@ -39,7 +39,7 @@ export const handleImportForms = async (regularForms, bfForms, projectId) => {
     const { defaultDomain } = Projects.findOne({ _id: projectId });
     const parsedDefaultDomain = safeLoad(defaultDomain.content);
     const newForms = { ...(parsedDefaultDomain?.forms || {}), ...forms };
-    parsedDefaultDomain.forms = newForms;
+    if (Object.keys(newForms).length) parsedDefaultDomain.forms = newForms;
     const newDefaultDomain = safeDump(parsedDefaultDomain);
     await Meteor.callWithPromise('project.update', {
         defaultDomain: { content: newDefaultDomain },

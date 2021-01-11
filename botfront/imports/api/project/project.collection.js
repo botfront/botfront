@@ -28,6 +28,7 @@ Projects.attachSchema(ProjectsSchema);
 if (Meteor.isServer) {
     Meteor.publish('projects', function (projectId) {
         check(projectId, Match.Optional(String));
+        // projects:w to get git String?
         return Projects.find({ _id: projectId });
     });
 

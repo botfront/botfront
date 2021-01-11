@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
-import { cloneDeep, reduce, find } from 'lodash';
+import { cloneDeep } from 'lodash';
 import {
     Button, Confirm, Container, Header, Segment, Tab,
 } from 'semantic-ui-react';
@@ -19,7 +19,7 @@ import { UserEditSchema, UserCreateSchema } from '../../../api/user/user.schema'
 import { can } from '../../../lib/scopes';
 import { wrapMeteorCallback } from '../utils/Errors';
 import ChangePassword from './ChangePassword';
-import { PageMenu } from '../utils/Utils';
+import PageMenu from '../utils/PageMenu';
 
 class User extends React.Component {
     constructor(props) {

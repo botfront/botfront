@@ -153,10 +153,10 @@ const mergeDefaultDomains = (files) => {
     );
     const mergedActions = deduplicateArray(allAction); // we are not using a set to deduplicate to keep the order of the actions
     return {
-        slots: allSlots,
-        responses: allResponses,
-        forms: allForms,
-        actions: mergedActions,
+        ...(Object.keys(allSlots).length ? { slots: allSlots } : {}),
+        ...(Object.keys(allResponses).length ? { responses: allResponses } : {}),
+        ...(Object.keys(allForms).length ? { forms: allForms } : {}),
+        ...(mergedActions.length ? { actions: mergedActions } : {}),
     };
 };
 
@@ -204,14 +204,16 @@ const validateADomain = (
         {},
     );
 
-    // do not import slots that are in current default domain or are programmatically generated
-    [...Object.keys(defaultSlots), ...INTERNAL_SLOTS].forEach((k) => {
-        delete slotsFromFile[k];
-    });
-    // do not import responses that are in current default domain
-    Object.keys(defaultResponses).forEach((k) => {
-        delete responsesFromFile[k];
-    });
+    if (!isDefaultDomain) {
+        // do not import slots that are in current default domain or are programmatically generated
+        [...Object.keys(defaultSlots), ...INTERNAL_SLOTS].forEach((k) => {
+            delete slotsFromFile[k];
+        });
+        // do not import responses that are in current default domain
+        Object.keys(defaultResponses).forEach((k) => {
+            delete responsesFromFile[k];
+        });
+    }
 
     const warnings = [];
     const responses = [];

@@ -3,7 +3,7 @@ describe('Forgot password', function() {
     it('Open lost password', function() {
         cy.visit('/');
         cy.contains('Forgot your password?').click();
-        cy.url().should('be', '/forgot-password');
+        cy.url().should('include', '/forgot-password');
     });
 
     it('Non existing email returns ambiguous message', function() {
@@ -20,6 +20,6 @@ describe('Forgot password', function() {
     it('Go back to login', function() {
         cy.visit('/forgot-password');
         cy.contains('Back to Sign in').click();
-        cy.url().should('be', '/login');
+        cy.url().should('include', '/login');
     });
 });

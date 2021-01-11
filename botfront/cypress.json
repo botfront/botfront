@@ -13,10 +13,13 @@
     "viewportHeight": 900,
     "viewportWidth": 1800,
     "ignoreTestFiles":[],
+    "retries": {
+        "runMode": 5,
+        "openMode": 0
+    },
     "env": {
         "RASA_URL": "http://localhost:5005",
         "VIDEO": "false",
-        "SCREENSHOTS": "true",
-        "RETRIES": 2
+        "SCREENSHOTS": "true"
     }
 }

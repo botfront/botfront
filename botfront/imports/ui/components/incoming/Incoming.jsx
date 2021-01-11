@@ -5,7 +5,7 @@ import { Container, Menu } from 'semantic-ui-react';
 import { browserHistory } from 'react-router';
 
 import LanguageDropdown from '../common/LanguageDropdown';
-import { PageMenu } from '../utils/Utils';
+import PageMenu from '../utils/PageMenu';
 import Activity from '../nlu/activity/Activity';
 import ActivityInsertions from '../nlu/activity/ActivityInsertions';
 import ConversationBrowser from '../conversations/ConversationsBrowser';
