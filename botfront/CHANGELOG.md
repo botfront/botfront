@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-rc.3](https://github.com/botfront/botfront/compare/v1.0.0-rc.2...v1.0.0-rc.3) (2021-01-11)
+
+
+### Features
+
+* git integration  ([8106751](https://github.com/botfront/botfront/commit/81067515925f59932cd4e35cf3cb7001facfe501))
+
 ## [1.0.0-rc.2](https://github.com/botfront/botfront/compare/v1.0.0-rc.1...v1.0.0-rc.2) (2021-01-04)
 
 
