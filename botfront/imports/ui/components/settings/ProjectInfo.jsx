@@ -2,9 +2,15 @@
 /* eslint-disable jsx-a11y/label-has-for */
 import React from 'react';
 import {
-    AutoForm, SubmitField, ErrorsField, AutoField,
+    AutoForm,
+    SubmitField,
+    ErrorsField,
+    LongTextField,
+    AutoField,
 } from 'uniforms-semantic';
-import { Dropdown, Form, Message } from 'semantic-ui-react';
+import {
+    Dropdown, Form, Message, Icon, Segment,
+} from 'semantic-ui-react';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import { ProjectsSchema } from '../../../api/project/project.schema';
 import { ProjectContext } from '../../layouts/context';
@@ -13,6 +19,7 @@ import { wrapMeteorCallback } from '../utils/Errors';
 import SelectField from '../form_fields/SelectField';
 import { can } from '../../../lib/scopes';
 import { languages } from '../../../lib/languages';
+import { Info } from '../common/Info';
 
 class ProjectInfo extends React.Component {
     constructor(props) {
@@ -56,11 +63,7 @@ class ProjectInfo extends React.Component {
     };
 
     createNLUModels = (languageArray, projectId) => {
-        const nluInsertArray = languageArray.map(language => Meteor.callWithPromise(
-            'nlu.insert',
-            projectId,
-            language,
-        ));
+        const nluInsertArray = languageArray.map(language => Meteor.callWithPromise('nlu.insert', projectId, language));
         Promise.all(nluInsertArray).then(() => {
             this.setState({ saving: false });
         });
@@ -70,9 +73,19 @@ class ProjectInfo extends React.Component {
         const { value } = this.state;
         const { projectLanguages } = this.context;
         const {
-            name, _id, defaultLanguage, nluThreshold, deploymentEnvironments, timezoneOffset,
+            name,
+            _id,
+            defaultLanguage,
+            gitString,
+            publicSshKey,
+            privateSshKey,
+            nluThreshold,
+            deploymentEnvironments,
+            timezoneOffset,
         } = project;
-        const notInprojectLanguages = value.filter(el => !projectLanguages.some(l => l.value === el));
+        const notInprojectLanguages = value.filter(
+            el => !projectLanguages.some(l => l.value === el),
+        );
         this.setState({ saving: true });
         if (deploymentEnvironments && deploymentEnvironments.length === 0) {
             Meteor.call('stories.changeStatus', _id, 'unpublished', 'published');
@@ -80,14 +93,19 @@ class ProjectInfo extends React.Component {
         Meteor.call(
             'project.update',
             {
-                name, _id, defaultLanguage, nluThreshold, deploymentEnvironments, timezoneOffset,
+                name,
+                _id,
+                defaultLanguage,
+                ...(gitString ? { gitString } : {}),
+                ...(publicSshKey ? { publicSshKey } : {}),
+                ...(privateSshKey ? { privateSshKey } : {}),
+                nluThreshold,
+                deploymentEnvironments,
+                timezoneOffset,
             },
             wrapMeteorCallback((err) => {
                 if (!err) {
-                    this.createNLUModels(
-                        notInprojectLanguages,
-                        _id,
-                    );
+                    this.createNLUModels(notInprojectLanguages, _id);
                 }
             }, 'Changes saved'),
         );
@@ -109,9 +127,12 @@ class ProjectInfo extends React.Component {
     static contextType = ProjectContext;
 
     render() {
-        const { project, projectLanguages } = this.context;
+        const {
+            projectLanguages,
+            project: { _id: projectId },
+        } = this.context;
         const { saving, value, model } = this.state;
-        const hasWritePermission = can('projects:w', project._id);
+        const hasWritePermission = can('projects:w', projectId);
         if (model.deploymentEnvironments) {
             model.deploymentEnvironments = model.deploymentEnvironments.filter(env => env !== 'staging');
         }
@@ -128,6 +149,7 @@ class ProjectInfo extends React.Component {
                         name='name'
                         label='Name'
                         className='project-name'
+                        data-cy='project-name'
                     />
                     <InfoField
                         name='namespace'
@@ -146,14 +168,11 @@ class ProjectInfo extends React.Component {
                             selection
                             onChange={this.onChange}
                             options={this.getOptions()}
-                            renderLabel={language => this.renderLabel(
-                                language,
-                            )}
+                            renderLabel={language => this.renderLabel(language)}
                             data-cy='language-selector'
                             disabled={!hasWritePermission}
                         />
-                        {!!projectLanguages.length
-                            && this.renderDeleteprojectLanguages()}
+                        {!!projectLanguages.length && this.renderDeleteprojectLanguages()}
                     </Form.Field>
                     {!!projectLanguages.length && (
                         <SelectField
@@ -163,6 +182,50 @@ class ProjectInfo extends React.Component {
                             data-cy='default-langauge-selection'
                         />
                     )}
+                    {can('projects:w', projectId) && (
+                        <Segment className='project-name field'>
+                            <InfoField
+                                name='gitString'
+                                label={(
+                                    <>
+                                        <Icon name='git' />
+                                        Git repository
+                                    </>
+                                )}
+                                info={(
+                                    <span className='small'>
+                                        Use format{' '}
+                                        <span className='monospace break-word'>
+                                            https://user:token@domain/org/repo.git#branch
+                                        </span>{' '}
+                                        or{' '}
+                                        <span className='monospace break-word'>
+                                            git@domain:org/repo.git#branch
+                                        </span>
+                                        .
+                                    </span>
+                                )}
+                                className='project-name'
+                                data-cy='git-string'
+                            />
+                            <label>
+                                <Icon name='key' /> SSH keys{' '}
+                                <Info info='These are stored as is, so use caution: use this key only for versioning your bot, and give it only the necessary rights to push and pull to above repo.' />
+                            </label>
+                            <AutoField
+                                label='Public'
+                                name='publicSshKey'
+                                className='project-name'
+                                data-cy='public-ssh-key'
+                            />
+                            <LongTextField
+                                label='Private'
+                                name='privateSshKey'
+                                className='project-name'
+                                data-cy='private-ssh-key'
+                            />
+                        </Segment>
+                    )}
                     <InfoField
                         name='nluThreshold'
                         label='NLU threshold'
@@ -170,21 +233,21 @@ class ProjectInfo extends React.Component {
                         data-cy='change-nlu-threshold'
                     />
                     <br />
-                    {can('resources:r', project._id) && (
-                    <>
-                        <InfoField
-                            name='deploymentEnvironments'
-                            label='Deployment environments'
-                            info='Botfront will enable additional environments for your workflow'
-                            data-cy='deployment-environments'
-                            disabled={!can('resources:w', project._id)}
-                        />
-                        <Message
-                            size='tiny'
-                            info
-                            content='If you remove all environments, all stories will be published'
-                        />
-                    </>
+                    {can('resources:r', projectId) && (
+                        <>
+                            <InfoField
+                                name='deploymentEnvironments'
+                                label='Deployment environments'
+                                info='Botfront will enable additional environments for your workflow'
+                                data-cy='deployment-environments'
+                                disabled={!can('resources:w', projectId)}
+                            />
+                            <Message
+                                size='tiny'
+                                info
+                                content='If you remove all environments, all stories will be published'
+                            />
+                        </>
                     )}
                     <AutoField
                         step='0.5'

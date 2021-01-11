@@ -10,7 +10,8 @@ import { Projects } from '../../../../api/project/project.collection';
 import TemplatesTable from './TemplatesTable';
 import { GET_BOT_RESPONSES } from '../queries';
 import { RESPONSES_MODIFIED, RESPONSES_DELETED } from './subscriptions';
-import { Loading, PageMenu } from '../../utils/Utils';
+import { Loading } from '../../utils/Utils';
+import PageMenu from '../../utils/PageMenu';
 import { DELETE_BOT_RESPONSE } from '../mutations';
 import { ProjectContext } from '../../../layouts/context';
 

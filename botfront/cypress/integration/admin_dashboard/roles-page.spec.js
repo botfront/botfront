@@ -18,7 +18,7 @@ describe('can create, edit, and delete a role', () => {
         cy.deleteUser('roleTestUser@test.test');
         cy.deleteRole(editedRoleName, 'global-admin');
         // it might fail before renaming the role, so we need to cleanup the original role name
-        cy.deleteRole(roleName, 'global-admin'); 
+        cy.deleteRole(roleName, 'global-admin');
         cy.deleteProject('bf');
     });
     it('should create, edit and delete a role', () => {

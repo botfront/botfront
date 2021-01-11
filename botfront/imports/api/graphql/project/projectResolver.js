@@ -4,6 +4,22 @@ import { checkIfCan } from '../../../lib/scopes';
 import { addMeteorUserToCall } from '../utils/index';
 
 export default {
+    Query: {
+        projectGitHistory: async (_, args, context) => {
+            const { cursor, pageSize, projectId } = args;
+            const { commits, hasNextPage } = await addMeteorUserToCall(context.user, () => Meteor.callWithPromise('getHistoryOfCommits', projectId, {
+                cursor,
+                pageSize,
+            }));
+            return {
+                commits,
+                pageInfo: {
+                    hasNextPage,
+                    endCursor: commits.length ? commits[commits.length - 1]?.sha : '',
+                },
+            };
+        },
+    },
     Mutation: {
         async import(_, args, context) {
             const {

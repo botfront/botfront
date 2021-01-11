@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import { Projects } from '../../../api/project/project.collection';
-import { PageMenu } from '../utils/Utils';
+import PageMenu from '../utils/PageMenu';
 import { can } from '../../../lib/scopes';
 import { wrapMeteorCallback } from '../utils/Errors';
 

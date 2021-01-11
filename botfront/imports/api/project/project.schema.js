@@ -102,6 +102,9 @@ export const ProjectsSchema = new SimpleSchema({
     logoUrl: { type: String, optional: true },
     smallLogoUrl: { type: String, optional: true },
     allowContextualQuestions: { type: Boolean, defaultValue: false },
+    gitString: { type: String, optional: true, regEx: /^(https:\/\/.+?:.+?@|git@).+?#.+$/ },
+    publicSshKey: { type: String, optional: true },
+    privateSshKey: { type: String, optional: true },
 }, { tracker: Tracker });
 
 ProjectsSchema.messageBox.messages({

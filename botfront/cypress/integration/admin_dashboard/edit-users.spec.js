@@ -2,6 +2,12 @@
 
 
 describe('edit users', function () {
+    before(() => {
+        cy.deleteUser('test1@bf.com');
+        cy.deleteUser('test2@bf.com');
+        cy.deleteUser('testdelete@bf.com');
+    });
+
     beforeEach(function () {
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();

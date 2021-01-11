@@ -6,7 +6,7 @@ import ReactTable from 'react-table-v6';
 import React from 'react';
 
 import { GET_ROLES_DATA } from '../utils/queries';
-import { PageMenu } from '../utils/Utils';
+import PageMenu from '../utils/PageMenu';
 import { can } from '../../../lib/scopes';
 
 const columns = [

@@ -268,7 +268,7 @@ export default class StoryVisualEditor extends React.Component {
     renderLine = (line, index) => {
         const { mode } = this.props;
         const { responses } = this.context;
-        const { language } = this.context;
+        const { language, project: { _id: projectId } } = this.context;
         const { responseLocations, loadingResponseLocations } = this.state;
         const exceptions = [];
 

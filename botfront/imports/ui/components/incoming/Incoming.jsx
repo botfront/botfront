@@ -6,7 +6,7 @@ import { browserHistory } from 'react-router';
 
 import LanguageDropdown from '../common/LanguageDropdown';
 import EnvSelector from '../common/EnvSelector';
-import { PageMenu } from '../utils/Utils';
+import PageMenu from '../utils/PageMenu';
 import Activity from '../nlu/activity/Activity';
 import ActivityInsertions from '../nlu/activity/ActivityInsertions';
 import ConversationsBrowserContainer from '../conversations/ConversationsBrowserContainer';

@@ -9,6 +9,7 @@ import {
     Checkbox,
     Dropdown,
     Confirm,
+    Modal,
 } from 'semantic-ui-react';
 import { get } from 'lodash';
 import Alert from 'react-s-alert';
@@ -16,6 +17,7 @@ import 'react-s-alert/dist/s-alert-default.css';
 import { wrapMeteorCallback } from './Errors';
 import { StoryGroups } from '../../../api/storyGroups/storyGroups.collection';
 import { Projects } from '../../../api/project/project.collection';
+import RevertTable from './RevertTable';
 import { ProjectContext } from '../../layouts/context';
 import { can, Can } from '../../../lib/scopes';
 import { languages } from '../../../lib/languages';
@@ -41,6 +43,8 @@ class TrainButton extends React.Component {
                 this.setState({ webhook });
             }));
         }
+        this.commitMessage = React.createRef();
+        this.revertTable = React.createRef();
     }
 
     copyToClipboard = () => {
@@ -66,6 +70,92 @@ class TrainButton extends React.Component {
     showModal = (env, visible) => {
         const modalOpen = this.state;
         this.setState({ modalOpen: { ...modalOpen, [env]: visible } });
+    };
+
+    commitAndPush = () => {
+        const {
+            project: { _id: projectId },
+        } = this.context;
+        this.setState({ gitWorking: true });
+        Meteor.call(
+            'commitAndPushToRemote',
+            projectId,
+            this.commitMessage?.current?.value,
+            wrapMeteorCallback((err, { status: { code, msg } = {} } = {}) => {
+                this.setState({ gitWorking: false });
+                this.showModal('commit-and-push', false);
+                if (err) return;
+                Alert[code === 204 ? 'warning' : 'success'](msg, {
+                    position: 'top-right',
+                    timeout: 2 * 1000,
+                });
+            }),
+        );
+    };
+
+    renderCommitModal = () => {
+        const { gitWorking } = this.state;
+        return (
+            <Modal
+                open
+                size='small'
+                header='Commit and push'
+                onClick={e => e.stopPropagation()}
+                content={(
+                    <div className='side-by-side middle ui form' style={{ padding: '1em' }}>
+                        <input
+                            className='ui input'
+                            placeholder='Commit message'
+                            data-cy='commit-message-input'
+                            ref={this.commitMessage}
+                            autoFocus // eslint-disable-line jsx-a11y/no-autofocus
+                            onKeyDown={({ key }) => {
+                                if (key === 'Enter') this.commitAndPush();
+                                if (key === 'Escape') {
+                                    if (!gitWorking) this.showModal('commit-and-push', false);
+                                }
+                            }}
+                        />
+                        <Button
+                            type='submit'
+                            onClick={() => this.commitAndPush()}
+                            content='Push to remote'
+                            loading={gitWorking}
+                            disabled={gitWorking}
+                        />
+                    </div>
+                )}
+                onClose={() => {
+                    if (!gitWorking) this.showModal('commit-and-push', false);
+                }}
+            />
+        );
+    };
+
+    renderRevertModal = () => {
+        const { gitWorking } = this.state;
+        return (
+            <Modal
+                open
+                size='small'
+                header='Revert to previous'
+                onClick={e => e.stopPropagation()}
+                content={(
+                    <RevertTable
+                        ref={this.revertTable}
+                        useGitWorkingState={() => [
+                            gitWorking,
+                            v => this.setState({ gitWorking: v }),
+                        ]}
+                    />
+                )}
+                onClose={() => {
+                    if (!gitWorking) {
+                        this.showModal('revert-to-previous', false);
+                    }
+                }}
+            />
+        );
     };
 
     renderDropdownMenu = () => {
@@ -239,6 +329,48 @@ class TrainButton extends React.Component {
         );
     };
 
+    renderGitButton = () => {
+        const {
+            project: { gitString },
+        } = this.context;
+        const { modalOpen, gitWorking } = this.state;
+        if (!gitString) return null;
+        return (
+            <>
+                <Dropdown
+                    trigger={(
+                        <Button
+                            icon='git'
+                            color='black'
+                            basic
+                            data-cy='git-dropdown'
+                            loading={gitWorking}
+                            disabled={gitWorking}
+                        />
+                    )}
+                    className='dropdown-button-trigger'
+                >
+                    <Dropdown.Menu direction='left'>
+                        <Dropdown.Item
+                            icon='cloud upload'
+                            text='Commit and push'
+                            data-cy='commit-and-push'
+                            onClick={() => this.showModal('commit-and-push', true)}
+                        />
+                        <Dropdown.Item
+                            icon='step backward'
+                            text='Revert to previous'
+                            data-cy='revert-to-previous'
+                            onClick={() => this.showModal('revert-to-previous', true)}
+                        />
+                    </Dropdown.Menu>
+                </Dropdown>
+                {modalOpen['commit-and-push'] && this.renderCommitModal()}
+                {modalOpen['revert-to-previous'] && this.renderRevertModal()}
+            </>
+        );
+    };
+
     renderShareLink = () => {
         const {
             project: { enableSharing, _id: projectId },
@@ -298,6 +430,7 @@ class TrainButton extends React.Component {
             ready && (
                 <div className='side-by-side middle narrow'>
                     <Can I='nlu-data:x'>{this.renderButton()}</Can>
+                    {this.renderGitButton()}
                     {this.renderShareLink()}
                 </div>
             )

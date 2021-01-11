@@ -23,7 +23,7 @@ describe('Project Credentials', function() {
             cy.get('[data-cy=changes-saved]').should('exist');
             cy.contains('Project Info').click();
             cy.contains('Chat widget').click();
-            cy.get('[data-cy=widget-title] > .ui.input > input').should('have.value', 'Botfront-test');
+            cy.get('[data-cy=widget-title] > .ui.input > input').should('have.value', 'My Project-test');
             cy.dataCy('lang-select').find('div.text').should('have.text', 'French');
         });
 

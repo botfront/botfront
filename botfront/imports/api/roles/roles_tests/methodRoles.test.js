@@ -109,6 +109,21 @@ if (Meteor.isServer) {
             rejectProjectScope: true,
         },
         {
+            name: 'revertToCommit',
+            roles: otherRoles.importX,
+            args: [projectId, 'sha', {}],
+        },
+        {
+            name: 'getHistoryOfCommits',
+            roles: otherRoles.importX,
+            args: [projectId, {}],
+        },
+        {
+            name: 'commitAndPushToRemote',
+            roles: otherRoles.importX,
+            args: [projectId, 'message'],
+        },
+        {
             name: 'exportRasa',
             roles: otherRoles.exportX,
             args: [projectId, {}],

@@ -15,7 +15,7 @@ import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.co
 import { GlobalSettingsSchema } from '../../../../api/globalSettings/globalSettings.schema';
 import AceField from '../../utils/AceField';
 import { wrapMeteorCallback } from '../../utils/Errors';
-import { PageMenu } from '../../utils/Utils';
+import PageMenu from '../../utils/PageMenu';
 import HttpRequestsForm from '../../common/HttpRequestsForm';
 import { can } from '../../../../lib/scopes';
 import MigrationControl from './MigrationControl';

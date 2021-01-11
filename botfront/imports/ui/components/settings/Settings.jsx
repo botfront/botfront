@@ -4,7 +4,7 @@ import 'react-s-alert/dist/s-alert-default.css';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { PageMenu } from '../utils/Utils';
+import PageMenu from '../utils/PageMenu';
 import Credentials from './Credentials';
 import Appearance from './Appearance';
 import Endpoints from './Endpoints';

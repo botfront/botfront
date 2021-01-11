@@ -8,7 +8,7 @@ import {
 import React from 'react';
 import ReactTable from 'react-table-v6';
 import { Link, browserHistory } from 'react-router';
-import { PageMenu } from '../utils/Utils';
+import PageMenu from '../utils/PageMenu';
 import { can } from '../../../lib/scopes';
 import { wrapMeteorCallback } from '../utils/Errors';
 

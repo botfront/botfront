@@ -13,7 +13,7 @@ import {
 import InfoField from '../utils/InfoField';
 import { Projects } from '../../../api/project/project.collection';
 import { wrapMeteorCallback } from '../utils/Errors';
-import { PageMenu } from '../utils/Utils';
+import PageMenu from '../utils/PageMenu';
 import Can from '../roles/Can';
 import SelectField from '../nlu/common/SelectLanguage';
 
@@ -28,7 +28,6 @@ class Project extends React.Component {
     });
 
     updateProject = (project) => {
-       
         if (project._id) {
             Meteor.call('project.update', project, wrapMeteorCallback((err) => {
                 if (!err) {
@@ -36,8 +35,7 @@ class Project extends React.Component {
                 }
             }));
         } else {
-         
-            Meteor.call('project.insert', project, wrapMeteorCallback((err, result ) => {
+            Meteor.call('project.insert', project, wrapMeteorCallback((err, result) => {
                 if (!err) {
                     Meteor.callWithPromise(
                         'nlu.insert', result, project.defaultLanguage, // result is the newly created project id

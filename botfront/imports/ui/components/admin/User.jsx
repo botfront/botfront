@@ -23,7 +23,7 @@ import { UserEditSchema, UserCreateSchema } from '../../../api/user/user.schema'
 import { can, getUserScopes } from '../../../lib/scopes';
 import { wrapMeteorCallback } from '../utils/Errors';
 import ChangePassword from './ChangePassword';
-import { PageMenu } from '../utils/Utils';
+import PageMenu from '../utils/PageMenu';
 
 // ee
 import { Projects } from '../../../api/project/project.collection';

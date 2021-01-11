@@ -71,7 +71,19 @@ Just...
 npm install -g botfront
 ```
 
-And...
+Then just run `botfront` to get started.
+
+<!-- broken image. commented out as I'm not sure it should be deleted -->
+<!-- <img src="/botfront/docs/terminalizer/botfront-setup.gif?raw=true" width="100%"> -->
+
+<br/>
+<h2 name="documentation" align="center">Documentation</h2>
+
+The [official documentation](https://botfront.io/docs/getting-started/setup) of Botfront is hosted on [botfront.io](https://botfront.io/docs/getting-started/setup). It is automatically built and updated on every new release. Once you've installed the cli you can also use `botfront docs` to open it.
+
+
+
+<h2 name="development" align="center">Development</h2>
 
 ```bash
 botfront
