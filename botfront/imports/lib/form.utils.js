@@ -72,7 +72,7 @@ export const getGraphElementsFromDomain = (domainGraphElements, slotData) => {
                     slotName: node.slotName,
                     slotValue: node.slotValue,
                 },
-                position: { x: 120, y: 225 + (1 * 150) },
+                position: { x: 120, y: 225 + (i * 150) },
                 type: node.type,
                 className: 'slot-set-node',
             });
