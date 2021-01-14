@@ -23,25 +23,23 @@ export const deleteForms = async ({ projectId, ids }) => {
 };
 
 const addNewSlots = async (projectId, slots) => {
-    const slotNames = slots.map(({ name }) => name);
-    const matchedSlots = await Slots.find(
-        { projectId, name: { $in: slotNames } },
-        { fields: { name: 1 } },
-    ).fetch();
-    if (!slotNames.length || slotNames.length === matchedSlots.length) return;
     slots.forEach(({ name }) => {
-        if (matchedSlots.some(slot => slot.name === name)) return;
         const slotData = { name, type: 'unfeaturized', projectId };
-        const newId = Slots.insert(slotData);
-        auditLogIfOnServer('Inserted slot', {
-            resId: newId,
-            user: Meteor.user(),
-            type: 'created',
-            operation: 'slots.created',
-            projectId,
-            after: { slot: { _id: newId, ...slotData } },
-            resType: 'slots',
-        });
+        try {
+            const newId = Slots.insert(slotData);
+            auditLogIfOnServer('Inserted slot', {
+                resId: newId,
+                user: Meteor.user(),
+                type: 'created',
+                operation: 'slots.created',
+                projectId,
+                after: { slot: { _id: newId, ...slotData } },
+                resType: 'slots',
+            });
+        } catch (e) {
+            // ignore duplicate key error
+            if (e.code !== 11000) throw e;
+        }
     });
 };
 
