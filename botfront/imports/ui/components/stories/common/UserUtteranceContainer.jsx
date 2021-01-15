@@ -10,37 +10,9 @@ import UtteranceInput from '../../utils/UtteranceInput';
 import NluModalContent from './nlu_editor/NluModalContent';
 import { USER_LINE_EDIT_MODE } from '../../../../lib/story.utils';
 
-const parseEntity = (entity) => {
-    const {
-        value, entity: name, start, end,
-    } = entity;
-    if (name && value && (start || start === 0) && (end || end === 0)) {
-        return entity;
-    }
-    return {
-        entity: Object.keys(entity)[0],
-        value: entity[Object.keys(entity)[0]],
-    };
-};
-
-const convertUserToText = ({ user, entities, ...payload } = {}) => ({
-    ...payload,
-    ...(user ? { text: user } : {}),
-    ...(entities
-        ? {
-            entities: entities.map(parseEntity),
-        }
-        : {}),
-});
-const convertTextToUser = ({ text, entities, ...payload } = {}) => ({
-    ...payload,
-    ...(text ? { user: text } : {}),
-    ...(entities ? { entities: entities.map(({ entity: k, value: v }) => ({ [k]: v })) } : {}),
-});
-
 const UtteranceContainer = (props) => {
     const {
-        value, onInput, onAbort, onDelete,
+        value, onInput, onAbort, onDelete, allowEmptyIntent,
     } = props;
     const { parseUtterance, getCanonicalExamples } = useContext(ProjectContext);
     const [stateValue, setStateValue] = useState({});
@@ -111,7 +83,7 @@ const UtteranceContainer = (props) => {
         () => () => {
             // as state update are async we're not sure mode have change already
             // that why we use  wasSaved to keep track of the save state
-            if (!value.intent && !containerBody.current.wasSaved) {
+            if (!value.intent && !containerBody.current.wasSaved && !allowEmptyIntent) {
                 onDelete();
             }
         },
@@ -193,11 +165,13 @@ UtteranceContainer.propTypes = {
     onInput: PropTypes.func.isRequired,
     onAbort: PropTypes.func.isRequired,
     onDelete: PropTypes.func,
+    allowEmptyIntent: PropTypes.bool,
 };
 
 UtteranceContainer.defaultProps = {
     value: null,
     onDelete: () => {},
+    allowEmptyIntent: false,
 };
 
 export default UtteranceContainer;
