@@ -29,8 +29,6 @@ import BranchTabLabel from './BranchTabLabel';
 import StoryTopMenu from './StoryTopMenu';
 import StoryFooter from './StoryFooter';
 
-import StoryDif from './VisualStoryDif/StoryDif';
-
 function getDefaultPath(story) {
     if (!story.branches) return [story._id];
     const newPath = [story._id];
@@ -62,7 +60,7 @@ const StoryEditorContainer = ({
     const [annotations, setAnnotations] = useState({});
     const [destinationStory, setDestinationStory] = useState(null);
     const [destinationStories, setDestinationStories] = useState([]);
-    const defaultMode = story.type === 'rule' ? 'rule_steps' : 'story';
+    const defaultMode = story.type === 'rule' ? 'rule_steps' : story.type;
 
     const branches = useMemo(
         () => ({
