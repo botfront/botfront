@@ -311,6 +311,7 @@ export default class StoryVisualEditor extends React.Component {
                             onDelete={() => this.handleDeleteLine(index)}
                             editable={mode !== 'test_case'}
                             theme={line.theme}
+                            allowEmptyIntent={mode === 'test_case'}
                         />
                     </ExceptionWrapper>
                     {this.renderAddLine(index)}
