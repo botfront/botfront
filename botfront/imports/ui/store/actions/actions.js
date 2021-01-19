@@ -56,14 +56,6 @@ export function setStoryPath(storyId, path) {
     };
 }
 
-export function setStoryCollapsed(storyId, collapsed) {
-    return {
-        type: types.SET_STORY_COLLAPSED,
-        storyId,
-        collapsed,
-    };
-}
-
 export function setChatInitPayload (payload) {
     return {
         type: types.SET_CHAT_INIT_PAYLOAD,

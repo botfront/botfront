@@ -10,7 +10,6 @@ import 'brace/theme/github';
 import 'brace/mode/text';
 import StoryPlayButton from './StoryPlayButton';
 import ConfirmPopup from '../common/ConfirmPopup';
-import { setStoryCollapsed } from '../../store/actions/actions';
 import StoryVisualEditor from './common/StoryVisualEditor';
 import { ConversationOptionsContext } from './Context';
 import { can } from '../../../lib/scopes';
@@ -19,8 +18,6 @@ import StoryPrefix from './common/StoryPrefix';
 
 const StoryTopMenu = ({
     fragment,
-    collapsed,
-    collapseStory,
     warnings,
     errors,
     storyMode,
@@ -220,16 +217,9 @@ const StoryTopMenu = ({
             <Menu
                 attached='top'
                 data-cy='story-top-menu'
-                className={`${collapsed ? 'collapsed' : ''} ${testCaseFailing ? 'test-case-failing' : ''}`}
+                className={`${testCaseFailing ? 'test-case-failing' : ''}`}
             >
                 <Menu.Item header>
-                    <Icon
-                        name='triangle right'
-                        className={`${collapsed ? '' : 'opened'}`}
-                        link
-                        onClick={() => collapseStory(_id, !collapsed)}
-                        data-cy='collapse-story-button'
-                    />
                     {isDestinationStory ? (
                         <Icon name='arrow alternate circle right' color='green' fitted />
                     ) : (
@@ -311,8 +301,6 @@ const StoryTopMenu = ({
 
 StoryTopMenu.propTypes = {
     fragment: PropTypes.object.isRequired,
-    collapsed: PropTypes.bool.isRequired,
-    collapseStory: PropTypes.func.isRequired,
     warnings: PropTypes.number.isRequired,
     errors: PropTypes.number.isRequired,
     storyMode: PropTypes.string.isRequired,
@@ -321,17 +309,9 @@ StoryTopMenu.propTypes = {
 };
 StoryTopMenu.defaultProps = {};
 
-const mapStateToProps = (state, ownProps) => ({
-    collapsed: state.stories.getIn(['storiesCollapsed', ownProps.fragment?._id], false),
+const mapStateToProps = state => ({
     storyMode: state.stories.get('storyMode'),
     projectId: state.settings.get('projectId'),
 });
 
-const mapDispatchToProps = {
-    collapseStory: setStoryCollapsed,
-};
-
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(StoryTopMenu);
+export default connect(mapStateToProps)(StoryTopMenu);
