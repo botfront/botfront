@@ -101,13 +101,17 @@ const wipeDomain = async (projectId) => {
 // eslint-disable-next-line no-unused-vars
 const resetProject = async (projectId, { projectLanguages, fallbackLang }) => {
     try {
+        const smartGroups = (await StoryGroups.find(
+            { projectId, smartGroup: { $exists: true } },
+            { fields: { id: 1 } },
+        ).fetch() || []).map(({ _id }) => _id);
         wipeDomain(projectId);
         await Conversations.deleteMany({ projectId });
         await Activity.deleteMany({ projectId });
         await Credentials.remove({ projectId });
         await Endpoints.remove({ projectId });
         await Stories.remove({ projectId });
-        await StoryGroups.remove({ projectId });
+        await StoryGroups.remove({ projectId, smartGroup: { $exists: false } });
         await NLUModels.remove({ projectId });
         await Examples.deleteMany({ projectId });
         await createCredentials({ _id: projectId });
@@ -128,7 +132,7 @@ const resetProject = async (projectId, { projectLanguages, fallbackLang }) => {
             {
                 $set: {
                     languages: [],
-                    storyGroups: [],
+                    storyGroups: smartGroups,
                     defaultDomain: { content: defaultDefaultDomain },
                 },
             },
