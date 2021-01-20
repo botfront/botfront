@@ -56,7 +56,7 @@ export default {
             const response = await updateConversationStatus(args.id, args.status);
             const conversationAfter = await getConversation(args.projectId, args.id);
             auditLog('Updated conversation status', {
-                userId: context.user,
+                user: context.user,
                 type: 'updated',
                 projectId: args.projectId,
                 operation: 'conversation-updated',
@@ -72,7 +72,7 @@ export default {
             const conversationBefore = await getConversation(args.projectId, args.id);
             const response = await deleteConversation(args.id);
             auditLog('Deleted conversation ', {
-                userId: context.user,
+                user: context.user,
                 type: 'deleted',
                 operation: 'conversation-deleted',
                 projectId: args.projectId,

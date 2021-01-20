@@ -251,7 +251,7 @@ const StoryTopMenu = ({
                     {!testCaseFailing && renderWarnings()}
                     {!testCaseFailing && renderErrors()}
                     {renderConvStartToggle()}
-                    {can('triggers:r', projectId) && (
+                    {can('triggers:r', projectId) && type !== 'test_case' && (
                         <StoryRulesEditor
                         // the trigger element will have it's onClick, disabled, and className props modified
                             trigger={(

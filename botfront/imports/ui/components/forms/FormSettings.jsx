@@ -52,9 +52,6 @@ const CreateForm = (props) => {
 
     const handleSubmit = (incomingModel) => {
         const model = { ...incomingModel };
-        if (allowContextualQuestions !== null) {
-            setAllowContextualQuestionsInDb(projectId, allowContextualQuestions);
-        }
         delete model.slotNames;
         onSubmit(model);
     };
@@ -66,6 +63,14 @@ const CreateForm = (props) => {
             // eslint-disable-next-line no-throw-literal
             throw { details: errors };
         }
+    };
+
+    const handleToggleContextualQuestions = () => {
+        const newVal = allowContextualQuestions !== null
+            ? !allowContextualQuestions
+            : !allowContextualQuestionsDB;
+        setAllowContextualQuestions(newVal);
+        setAllowContextualQuestionsInDb(projectId, newVal);
     };
 
     return (
@@ -80,13 +85,7 @@ const CreateForm = (props) => {
                         checked={!!(allowContextualQuestions !== null ? allowContextualQuestions : allowContextualQuestionsDB)}
                         label='Allow contextual side questions'
                         toggle
-                        onChange={() => {
-                            if (allowContextualQuestions !== null) {
-                                setAllowContextualQuestions(!allowContextualQuestions);
-                            } else {
-                                setAllowContextualQuestions(!allowContextualQuestionsDB);
-                            }
-                        }}
+                        onChange={handleToggleContextualQuestions}
                         className='contextual-side-questions'
                         data-cy='side-questions'
                     />

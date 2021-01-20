@@ -67,7 +67,7 @@ const BotResponsesContainer = (props) => {
     const [deletePopupOpen, setDeletePopupOpen] = useState(false);
     const typeName = useMemo(() => template && template.__typename, [template]);
 
-    const editable = can('responses:w', projectId) || initialEditable;
+    const editable = can('responses:w', projectId) && initialEditable;
 
     useEffect(() => {
         Promise.resolve(initialValue).then((res) => {
