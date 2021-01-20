@@ -45,46 +45,14 @@
                     box-shadow: 0 1px 5px 3px rgba(0,0,0,.13);;
                 }
                 &.slot-set-node-content {
-                    display: flex;
                     padding: 1em 0.5em 1em 0.5em;
-                    &:not(.expanding-node-selected) {
-                        .label-container {
-                            max-width: 215px;
-                            display: flex;
-                            .slot-info {
-                                display: flex;
-                                overflow: hidden;
-                            }
-                            .slot-content {
-                                display: block;
-                                overflow: hidden;
-                                text-overflow: ellipsis;
-                                white-space: nowrap;
-                            }
-                            .slot-name {
-                                max-width: 100px;
-                                display: block;
-                                overflow: hidden;
-                                text-overflow: ellipsis;
-                                white-space: nowrap;
-                            }
-                        }
-                        .inner-content {
-                            margin: auto;
-                        }
-                    }
-                    .inner-content {
-                        display: flex;
-                    }
+                    width: max-content;
                     .icon-button.delete-slot-set {
                         cursor: pointer;
                         display: inline;
                         margin-left: 5px;                   
                     }
-                    &.expanding-node-selected {
-                        display: table;
-                        max-width: none;
-                    }
+                    display: table;
                 }
                 &.slot-node-content{
                     .slot-node-header {

@@ -8,19 +8,29 @@ import IconButton from '../../common/IconButton';
 const SlotSetNode = (props) => {
     const {
         id,
-        selected,
         data: {
-            slotName, slotValue, slotType, onRemoveSlot,
+            slotName, slotValue, onRemoveSlot, onChangeSlot,
         },
     } = props;
 
     const { shiftKey, settingEdge } = useContext(GraphContext);
 
     return (
-        <div data-cy='slot-set-node' className={`expanding-node-content slot-set-node-content ${selected ? 'expanding-node-selected' : ''}`}>
-            <div className='inner-content'>
-                <SlotLabel value={{ name: slotName, slotValue, type: slotType }} onChange={() => {}} disableSelection />
-                {selected && <IconButton icon='trash' color='grey' onClick={() => onRemoveSlot(id)} className='delete-slot-set' />}
+        <div
+            data-cy='slot-set-node'
+            className='expanding-node-content slot-set-node-content'
+        >
+            <div className='side-by-side narrow middle'>
+                <SlotLabel
+                    value={{ [slotName]: slotValue }}
+                    onChange={onChangeSlot}
+                />
+                <IconButton
+                    icon='trash'
+                    color='grey'
+                    onClick={() => onRemoveSlot(id)}
+                    className='delete-slot-set'
+                />
             </div>
             <Handle
                 type='target'
@@ -41,15 +51,12 @@ SlotSetNode.propTypes = {
     data: PropTypes.shape({
         slotName: PropTypes.string.isRequired,
         slotValue: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]).isRequired,
-        slotType: PropTypes.string.isRequired,
         onRemoveSlot: PropTypes.func.isRequired,
+        onChangeSlot: PropTypes.func.isRequired,
     }).isRequired,
     id: PropTypes.string.isRequired,
-    selected: PropTypes.bool,
 };
 
-SlotSetNode.defaultProps = {
-    selected: false,
-};
+SlotSetNode.defaultProps = {};
 
 export default SlotSetNode;

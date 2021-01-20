@@ -155,7 +155,7 @@ describe('use the main form editor interface to', () => {
         cy.dataCy('slot-node-wrapper-slot1').find('[data-cy=bot-response-input]').find('textarea').should('have.text', 'categorical slot');
     });
 
-    it('should create a delete a set a slot node', () => {
+    it('should create, edit and delete a set slot node', () => {
         cy.visit('project/bf/dialogue');
         cy.createStoryGroup();
         cy.createFragmentInGroup({ type: 'form' });
@@ -174,7 +174,11 @@ describe('use the main form editor interface to', () => {
         cy.get('.item.dropdown').contains('bool').click();
         cy.get('.item.dropdown').contains('bool_slot').click();
         cy.get('.item.dropdown').contains('true').click();
-        cy.dataCy('slot-set-node').click();
+        cy.get('.label-container.orange').should('contain.text', 'true').click();
+        cy.get('.item.dropdown').contains('bool').click();
+        cy.get('.item.dropdown').contains('bool_slot').click();
+        cy.get('.item.dropdown').contains('false').click();
+        cy.get('.label-container.orange').should('contain.text', 'false').click();
         cy.dataCy('slot-set-node').find('[data-cy=icon-trash]').click();
         cy.dataCy('slot-set-node').should('not.exist');
     });

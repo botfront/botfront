@@ -22,9 +22,9 @@ Cypress.Commands.add('addSlotNode', (parentNode, name) => {
 Cypress.Commands.add('addSlotSetNode', (parentNode, type, slotName, slotValue) => {
     cy.dataCy(`add-node-${parentNode}`).click();
     cy.dataCy(`add-node-${parentNode}`).find('[data-cy=set-slot]').click();
-    cy.dataCy(`slot-category-${type}`).click({ force: true });
-    cy.dataCy(`choose-${slotName}`).click({ force: true });
-    cy.dataCy(`value-${slotName}-${slotValue}`).click({ force: true });
+    cy.dataCy(`slot-category-${type}`).eq(0).click({ force: true });
+    cy.dataCy(`choose-${slotName}`).eq(0).click({ force: true });
+    cy.dataCy(`value-${slotName}-${slotValue}`).eq(0).click({ force: true });
 });
 
 Cypress.Commands.add('editFormSettings', ({

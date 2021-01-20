@@ -125,6 +125,22 @@ const SlotsGraph = (props) => {
         setSelectedNode(null);
     };
 
+    const handleChangeSlot = id => ({ name: slotName, slotValue }) => {
+        setElements(els => els.map((elem) => {
+            if (elem.id === id) {
+                return {
+                    ...elem,
+                    data: {
+                        ...elem.data,
+                        slotName,
+                        slotValue,
+                    },
+                };
+            }
+            return elem;
+        }));
+    };
+
     const handleAddSlotSet = (slot, node) => {
         if (!slot) {
             return;
@@ -139,6 +155,7 @@ const SlotsGraph = (props) => {
                     data: {
                         type: 'slotSet',
                         onRemoveSlot: handleRemoveSlot,
+                        onChangeSlot: handleChangeSlot(id),
                         slotType: slot.type,
                         slotName: slot.name,
                         slotValue: slot.slotValue,
@@ -229,6 +246,7 @@ const SlotsGraph = (props) => {
                                 onAddSlot: handleAddSlot,
                                 onAddSlotSet: handleAddSlotSet,
                                 onRemoveSlot: handleRemoveSlot,
+                                onChangeSlot: handleChangeSlot(elm.id),
                             },
                         };
                     }
@@ -418,29 +436,29 @@ const SlotsGraph = (props) => {
             {selectedNode && selectedNode.type !== 'slotSet' && (
                 <div className={!slotChoiceModalOpen && !!selectedNode ? 'form-graph-side-panel' : 'form-graph-side-panel not-here'}>
                     {!slotChoiceModalOpen && !!selectedNode && selectedNode.type === 'slot' && (
-                    <>
-                        <FormEditorContainer
-                            formId={formId}
-                            slotName={selectedNode.data.slotName}
-                            slotFillingProp={{
-                                name: selectedNode.id,
-                                validation: selectedNode.data && selectedNode.data.validation,
-                                filling: selectedNode.data && selectedNode.data.filling,
-                                utter_on_new_valid_slot: selectedNode.data && selectedNode.data.utter_on_new_valid_slot,
-                            }}
-                            onChange={handleChangeSlotSettings}
-                        />
-                        <Button
-                            basic
-                            size='large'
-                            negative
-                            className='remove-this-slot'
-                            onClick={() => handleRemoveSlot(selectedNode.id)}
-                        >
-                            <Icon name='trash' />
+                        <>
+                            <FormEditorContainer
+                                formId={formId}
+                                slotName={selectedNode.data.slotName}
+                                slotFillingProp={{
+                                    name: selectedNode.id,
+                                    validation: selectedNode.data && selectedNode.data.validation,
+                                    filling: selectedNode.data && selectedNode.data.filling,
+                                    utter_on_new_valid_slot: selectedNode.data && selectedNode.data.utter_on_new_valid_slot,
+                                }}
+                                onChange={handleChangeSlotSettings}
+                            />
+                            <Button
+                                basic
+                                size='large'
+                                negative
+                                className='remove-this-slot'
+                                onClick={() => handleRemoveSlot(selectedNode.id)}
+                            >
+                                <Icon name='trash' />
                             Remove this slot
-                        </Button>
-                    </>
+                            </Button>
+                        </>
                     )}
                     {!slotChoiceModalOpen && !!selectedNode && selectedNode.type === 'start' && (
                         <FormSettings initialModel={formSettings} onSubmit={setFormSettings} />
