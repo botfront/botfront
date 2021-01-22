@@ -181,15 +181,27 @@ forms:
       nodes:
         - id: '1'
           type: start
+          position:
+            x: 123
+            y: 123
         - id: first_name
           slotName: first_name
           type: slot
+          position:
+            x: 234
+            y: 234
         - id: last_name
           slotName: last_name
           type: slot
+          position:
+            x: 345
+            y: 345
         - id: work_email
           slotName: work_email
           type: slot
+          position:
+            x: 456
+            y: 456
     groupName: forms
     name: basic_info_form
     slots:
@@ -285,21 +297,39 @@ forms:
       nodes:
         - id: '1'
           type: start
+          position:
+            x: 123
+            y: 321
         - id: work_email
           slotName: work_email
           type: slot
+          position:
+            x: 234
+            y: 432
         - id: first_name
           slotName: first_name
           type: slot
+          position:
+            x: 345
+            y: 543
         - id: last_name
           slotName: last_name
           type: slot
+          position:
+            x: 456
+            y: 654
         - id: company_size
           slotName: company_size
           type: slot
+          position:
+            x: 567
+            y: 765
         - id: message
           slotName: message
           type: slot
+          position:
+            x: 678
+            y: 876
     groupName: forms
     name: contact_form
     slots:
@@ -453,33 +483,63 @@ forms:
       nodes:
         - id: '1'
           type: start
+          position:
+            x: 1
+            y: 1
         - id: step1
           slotName: step1
           type: slot
+          position:
+            x: 101
+            y: 101
         - id: step2
           slotName: step2
           type: slot
+          position:
+            x: 202
+            y: 202
         - id: step3
           slotName: step3
           type: slot
+          position:
+            x: 303
+            y: 303
         - id: step4
           slotName: step4
           type: slot
+          position:
+            x: 404
+            y: 404
         - id: step5
           slotName: step5
           type: slot
+          position:
+            x: 505
+            y: 505
         - id: step6
           slotName: step6
           type: slot
+          position:
+            x: 606
+            y: 606
         - id: step7
           slotName: step7
           type: slot
+          position:
+            x: 707
+            y: 707
         - id: step8
           slotName: step8
           type: slot
+          position:
+            x: 808
+            y: 808
         - id: step9
           slotName: step9
           type: slot
+          position:
+            x: 909
+            y: 909
     groupName: Demo Guidance
     name: demo22_base_form
     slots:
@@ -569,9 +629,15 @@ forms:
       nodes:
         - id: '1'
           type: start
+          position:
+            x: 111
+            y: 111
         - id: work_email
           slotName: work_email
           type: slot
+          position:
+            x: 222
+            y: 222
     groupName: forms
     name: email_form
     slots:
@@ -612,12 +678,21 @@ forms:
       nodes:
         - id: '1'
           type: start
+          position:
+            x: 123
+            y: 123
         - id: work_email
           slotName: work_email
           type: slot
+          position:
+            x: 234
+            y: 234
         - id: first_name
           slotName: first_name
           type: slot
+          position:
+            x: 345
+            y: 345
     groupName: forms
     name: newsletter_form
     slots:
@@ -677,12 +752,21 @@ forms:
       nodes:
         - id: '1'
           type: start
+          position:
+            x: 123
+            y: 123
         - id: no_interest_message
           slotName: no_interest_message
           type: slot
+          position:
+            x: 234
+            y: 234
         - id: work_email
           slotName: work_email
           type: slot
+          position:
+            x: 345
+            y: 345
     groupName: forms
     name: no_interest_form
     slots:
@@ -730,18 +814,33 @@ forms:
       nodes:
         - id: '1'
           type: start
+          position:
+            x: 123
+            y: 123
         - id: work_email
           slotName: work_email
           type: slot
+          position:
+            x: 234
+            y: 234
         - id: first_name
           slotName: first_name
           type: slot
+          position:
+            x: 345
+            y: 345
         - id: last_name
           slotName: last_name
           type: slot
+          position:
+            x: 456
+            y: 456
         - id: project_status
           slotName: project_status
           type: slot
+          position:
+            x: 567
+            y: 576
     groupName: forms
     name: startup_plan_form
     slots:

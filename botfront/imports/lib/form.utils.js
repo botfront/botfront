@@ -1,6 +1,6 @@
 
-export const createStartElement = () => ({
-    id: '1', data: { type: 'start' }, position: { x: 200, y: 200 }, type: 'start', className: 'start-node',
+export const createStartElement = position => ({
+    id: '1', data: { type: 'start' }, position: position || { x: 200, y: 200 }, type: 'start', className: 'start-node',
 });
 
 export const generateGraphElementsFromSlots = slots => slots.reduce((acc, slot, i) => {
@@ -47,7 +47,7 @@ export const getGraphElementsFromDomain = (domainGraphElements, slotData) => {
     nodes.forEach((node, i) => {
         switch (node.type) {
         case 'start':
-            graphElements.push(createStartElement());
+            graphElements.push(createStartElement(node.position));
             break;
         case 'slot':
             graphElements.push({
@@ -58,7 +58,7 @@ export const getGraphElementsFromDomain = (domainGraphElements, slotData) => {
                     filling: slotDictionary[node.id].filling,
                     validation: slotDictionary[node.id].validation,
                 },
-                position: { x: 120, y: 225 + (i * 150) },
+                position: node.position || { x: 120, y: 225 + (i * 150) },
                 type: node.type,
                 className: 'slot-node',
             });
@@ -72,7 +72,7 @@ export const getGraphElementsFromDomain = (domainGraphElements, slotData) => {
                     slotName: node.slotName,
                     slotValue: node.slotValue,
                 },
-                position: { x: 120, y: 225 + (i * 150) },
+                position: node.position || { x: 120, y: 225 + (i * 150) },
                 type: node.type,
                 className: 'slot-set-node',
             });

@@ -277,6 +277,7 @@ export const getFragmentsAndDomain = async (projectId, language, env = 'developm
                         newElements.nodes.push({
                             id: elm.id,
                             type: elm.type,
+                            position: elm.position,
                         });
                     }
                     if (elm.type === 'slot') {
@@ -284,6 +285,7 @@ export const getFragmentsAndDomain = async (projectId, language, env = 'developm
                             id: elm.id,
                             type: elm.type,
                             slotName: elm.data.slotName,
+                            position: elm.position,
                         });
                     }
                     if (elm.type === 'slotSet') {
@@ -292,6 +294,7 @@ export const getFragmentsAndDomain = async (projectId, language, env = 'developm
                             type: elm.type,
                             slotName: elm.data.slotName,
                             slotValue: elm.data.slotValue,
+                            position: elm.position,
                         });
                     }
                     if (elm.type === 'condition') {
