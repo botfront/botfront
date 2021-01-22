@@ -95,11 +95,11 @@ class ChatWidgetForm extends React.Component {
             channel = credential['rasa_addons.core.channels.webchat_plus.WebchatPlusInput'];
         }
         // eslint-disable-next-line max-len
-        const snippet = `<script>!function(){let e=document.createElement("script"),t=document.head||document.getElementsByTagName("head")[0];e.src="https://storage.googleapis.com/cdn.botfront.cloud/botfront-widget-latest.js",e.async=!0,e.onload=(()=>{window.RasaWebchatPro({customData:${JSON.stringify(
+        const snippet = `<script>!function(){let e=document.createElement("script"),t=document.head||document.getElementsByTagName("head")[0];e.src="https://storage.googleapis.com/cdn.botfront.cloud/botfront-widget-latest.js",e.async=!0,e.onload=(()=>{window.WebChat.default({customData:${JSON.stringify(
             chatWidgetSettings.customData,
         )},socketUrl:"${
             channel.base_url
-        }"})}),t.insertBefore(e,t.firstChild)}();</script>`;
+        }"}, null)}),t.insertBefore(e,t.firstChild)}();</script>`;
         return snippet;
     }
 
@@ -161,7 +161,10 @@ class ChatWidgetForm extends React.Component {
         } = this.context;
         return (
             <>
-                <Message info content='Paste this snippet in your html' />
+                <Message
+                    info
+                    content='Paste this snippet in your html.'
+                />
                 <Form>
                     <Input
                         action
