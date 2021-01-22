@@ -56,14 +56,6 @@ export function setStoryPath(storyId, path) {
     };
 }
 
-export function setStoryCollapsed(storyId, collapsed) {
-    return {
-        type: types.SET_STORY_COLLAPSED,
-        storyId,
-        collapsed,
-    };
-}
-
 export function setWorkingDeploymentEnvironment(env) {
     return {
         type: types.SET_WORKING_DEPLOYMENT_ENVIRONMENT,

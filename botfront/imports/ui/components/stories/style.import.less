@@ -237,9 +237,6 @@
     margin-bottom: 20px;
     box-shadow: 0 1px 5px rgba(34, 36, 38, 0.1);
     .ui.attached.menu.top {
-        &.collapsed {
-            border-radius: 0.3em;
-        }
         border-color: #eeeeee;
         background-color: #f9f9f9;
         .item {
@@ -265,19 +262,6 @@
                 &:hover {
                     color: rgb(240, 240, 240);
                 }
-            }
-            .icon.triangle.right {
-                color: rgb(240, 240, 240);
-                opacity: 1;
-            }
-        }
-
-        .icon.triangle.right {
-            margin-left: 0;
-            margin-right: 10px;
-            transition: transform 0.2s ease-in-out;
-            &.opened {
-                transform: rotate(90deg);
             }
         }
 
@@ -316,6 +300,7 @@
         .header {
             width: ~"calc(100% - 425px)";
             padding-right: 0;
+            margin-left: 10px;
             input {
                 margin: 0 5px;
                 border-style: solid;

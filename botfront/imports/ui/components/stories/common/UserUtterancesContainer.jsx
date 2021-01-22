@@ -10,7 +10,7 @@ import { USER_LINE_EDIT_MODE } from '../../../../lib/story.utils';
 
 const UserUtterancesContainer = (props) => {
     const {
-        deletable, value, onChange, onDelete, editable: initialEditable, theme,
+        deletable, value, onChange, onDelete, editable: initialEditable, theme, allowEmptyIntent,
     } = props;
     const { addUtterancesToTrainingData, project: { _id: projectId } } = useContext(ProjectContext);
     const editable = can('stories:w', projectId) && initialEditable;
@@ -89,6 +89,7 @@ const UserUtterancesContainer = (props) => {
                     onInput={content => handleUpdateDisjunct(index, content)}
                     onAbort={() => { if (value.length > 1) handleDeleteDisjunct(index); }}
                     onDelete={() => { handleDeleteDisjunct(index); }}
+                    allowEmptyIntent={allowEmptyIntent}
                 />
                 {payload && editable && index !== value.length - 1 && (
                     <IconButton icon='add' className='or-label' color='vk' />
@@ -131,6 +132,7 @@ UserUtterancesContainer.propTypes = {
     onDelete: PropTypes.func,
     editable: PropTypes.bool,
     theme: PropTypes.string,
+    allowEmptyIntent: PropTypes.bool,
 };
 
 UserUtterancesContainer.defaultProps = {
@@ -139,6 +141,7 @@ UserUtterancesContainer.defaultProps = {
     onDelete: null,
     editable: true,
     theme: 'default',
+    allowEmptyIntent: false,
 };
 
 export default UserUtterancesContainer;

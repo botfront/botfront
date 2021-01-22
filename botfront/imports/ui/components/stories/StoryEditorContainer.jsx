@@ -29,8 +29,6 @@ import BranchTabLabel from './BranchTabLabel';
 import StoryTopMenu from './StoryTopMenu';
 import StoryFooter from './StoryFooter';
 
-import StoryDif from './VisualStoryDif/StoryDif';
-
 function getDefaultPath(story) {
     if (!story.branches) return [story._id];
     const newPath = [story._id];
@@ -50,7 +48,6 @@ const StoryEditorContainer = ({
     storyMode,
     branchPath,
     changeStoryPath,
-    collapsed,
     projectId,
 }) => {
     const { stories, getResponseLocations, updateStory } = useContext(
@@ -62,7 +59,7 @@ const StoryEditorContainer = ({
     const [annotations, setAnnotations] = useState({});
     const [destinationStory, setDestinationStory] = useState(null);
     const [destinationStories, setDestinationStories] = useState([]);
-    const defaultMode = story.type === 'rule' ? 'rule_steps' : 'story';
+    const defaultMode = story.type === 'rule' ? 'rule_steps' : story.type;
 
     const branches = useMemo(
         () => ({
@@ -376,7 +373,6 @@ const StoryEditorContainer = ({
     const renderBranches = (depth = 0) => {
         const pathToRender = branchPath.slice(0, depth + 1);
         const localBranches = branches[pathToRender.join()].branches;
-        if (collapsed) return null;
         return (
             <Segment
                 attached
@@ -444,21 +440,19 @@ const StoryEditorContainer = ({
         <div className='story-editor' data-cy='story-editor'>
             {renderTopMenu()}
             {renderBranches()}
-            {!collapsed && (
-                <StoryFooter
-                    onBranch={() => handleCreateBranch(branchPath)}
-                    onContinue={() => {}}
-                    canContinue={false}
-                    onDestinationStorySelection={onDestinationStorySelection}
-                    destinationStory={destinationStory}
-                    canBranch={!branches[branchPath.join()]?.branches.length}
-                    storyPath={branchPath.map(
-                        (_, i, src) => branches[src.slice(0, i + 1).join()]?.title,
-                    )}
-                    fragment={story}
-                    disableContinue
-                />
-            )}
+            <StoryFooter
+                onBranch={() => handleCreateBranch(branchPath)}
+                onContinue={() => {}}
+                canContinue={false}
+                onDestinationStorySelection={onDestinationStorySelection}
+                destinationStory={destinationStory}
+                canBranch={!branches[branchPath.join()]?.branches.length}
+                storyPath={branchPath.map(
+                    (_, i, src) => branches[src.slice(0, i + 1).join()]?.title,
+                )}
+                fragment={story}
+                disableContinue
+            />
         </div>
     );
 };
@@ -469,7 +463,6 @@ StoryEditorContainer.propTypes = {
     storyMode: PropTypes.string,
     branchPath: PropTypes.array,
     changeStoryPath: PropTypes.func.isRequired,
-    collapsed: PropTypes.bool.isRequired,
     projectId: PropTypes.string.isRequired,
 };
 
@@ -487,7 +480,6 @@ const mapStateToProps = (state, ownProps) => ({
             IList(getDefaultPath(ownProps.story)),
         )
         .toJS(),
-    collapsed: state.stories.getIn(['storiesCollapsed', ownProps.story._id], false),
     storyMode: state.stories.get('storyMode'),
     projectId: state.settings.get('projectId'),
 });

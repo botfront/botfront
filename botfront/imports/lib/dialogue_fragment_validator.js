@@ -142,7 +142,7 @@ export class DialogueFragmentValidator {
             this.addAnnotation(index, 'Intent step not supported in rule condition');
             return;
         }
-        this.checkKeyAndValuesOfStep(step, index, INTENT_KEYS, ['entities']);
+        this.checkKeyAndValuesOfStep(step, index, INTENT_KEYS, ['entities'], this.mode === 'test_case');
         const entities = Object.keys(step).findIndex(k => k === 'entities');
         if (entities > -1) {
             this.validateEntityList(
