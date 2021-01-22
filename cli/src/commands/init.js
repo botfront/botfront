@@ -75,7 +75,7 @@ export async function copyTemplateFilesToProjectDir(targetAbsolutePath, images, 
         } else {
             await copy(templateDir, targetAbsolutePath, { clobber: false });
         }
-        updateProjectFile(targetAbsolutePath, images, enableMongoAuth, cloud, mongoPassword);
+        updateProjectFile({ projectAbsPath: targetAbsolutePath, images, enableMongoAuth, cloud, mongoPassword });
     } catch (e) {
         consoleError(e);
     }
