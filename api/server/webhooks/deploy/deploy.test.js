@@ -37,14 +37,14 @@ describe('## Webhooks', () => {
     describe('### Deploy route', () => {
         it('should fail when body is empty', async () => {
             await request(app)
-                .post('/webhook/deploy')
+                .post('/webhooks/deploy')
                 .send({})
                 .expect(httpStatus.UNPROCESSABLE_ENTITY);
         });
 
         it('should fail when mime type is bad', async () => {
             await request(app)
-                .post('/webhook/deploy')
+                .post('/webhooks/deploy')
                 .send({
                     data: 'xx',
                     projectId: 'project_i',
@@ -58,7 +58,7 @@ describe('## Webhooks', () => {
         it('should fail when archive is corrupt', async () => {
             process.env.CLUSTER_ENVIRONMENT = 'dev';
             await request(app)
-                .post('/webhook/deploy')
+                .post('/webhooks/deploy')
                 .send({
                     data: 'xxuruhguehrq',
                     projectId: 'project_id_with_namespace',
@@ -76,7 +76,7 @@ describe('## Webhooks', () => {
 
         it('should fail if the gcp project id is not set', async () => {
             await request(app)
-                .post('/webhook/deploy')
+                .post('/webhooks/deploy')
                 .send({
                     data: 'H4sIAEDMql4AA+2ZwW6CQBRFZ6gLkm5YdjmbbnGQGdwSY7/AD2iNkmqiNbGSpjs+vUPn2mCtJm2kNfWehJwhDsPDlwCPF3cnq3XRFW2ite5bq96deTu29jtJmtmeNZm2idKJMVlfKNtqVKB83ozXLpTHcr5YjMtlsSkms2K9N+9lVhSLI+vsXpRqLd4TE/v8x8PR/WjjRm2cw/0fmTGH8p8Yrc02/2k/rfOfJTYVSrcRzGcuPP8OOSiniRCRG4bCW9x+PTXEtkfQXA9rEEIIIeS8kV7h9d+GQQg5Q+r7g4JzuPKW+D2AO41jIljBOVx5S8wL4A4cwhGs4ByuvHHTkig+JM4sUaFIVCFSwfm3LpmQi+HKK6qf/3fiYP1PCPnHyM5wNByIj4Jgf4LbHhrjShx+CQj8x8KbxrEKzuHKmy8ChBDy26D/N10tx/On+HV5rMX1U473/3b6v0anuu7/GdNj/48QQtrkDWuCP/gAJAAA',
                     projectId: 'project_id_with_namespace',

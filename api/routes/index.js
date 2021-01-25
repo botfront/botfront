@@ -26,14 +26,14 @@ let router = express.Router();
 router.get('/project/:project_id/export', exportProjectValidator, exportProject);
 router.put('/project/:project_id/import', importProject);
 
-router.post('/image/upload', uploadImageValidator, uploadImage);
-router.delete('/image/delete', deleteImageValidator, deleteImage);
+router.post('/webhooks/image/upload', uploadImageValidator, uploadImage);
+router.delete('/webhooks/image/delete', deleteImageValidator, deleteImage);
 
 router.get('/health-check', (req, res) => res.status(200).json({ version, healthy: true }));
 
 
-router.post('/rasa/restart', restartRasaValidator, restartRasa);
-router.post('/webhook/deploy', deployModelValidator, deployModel);
+router.post('/webhooks/rasa-restart', restartRasaValidator, restartRasa);
+router.post('/webhooks/deploy', deployModelValidator, deployModel);
 
 
 module.exports = router;

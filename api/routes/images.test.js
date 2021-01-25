@@ -42,14 +42,14 @@ describe('## Images', () => {
     describe('### Upload ', () => {
         it('should fail when body is empty', async () => {
             await request(app)
-                .post('/image/upload')
+                .post('/webhooks/image/upload')
                 .send({})
                 .expect(httpStatus.UNPROCESSABLE_ENTITY);
         });
 
         it('should fail when mime type is bad', async () => {
             await request(app)
-                .post('/image/upload')
+                .post('/webhooks/image/upload')
                 .send({
                     data: 'xx',
                     projectId: 'project_id_with_namespace',
@@ -62,7 +62,7 @@ describe('## Images', () => {
 
         it('should fail when bucket does not exist', async () => {
             await request(app)
-                .post('/image/upload')
+                .post('/webhooks/image/upload')
                 .send({
                     data: 'xx',
                     projectId: 'project_id_with_namespace',
@@ -77,14 +77,14 @@ describe('## Images', () => {
     describe('### Delete ', () => {
         it('should fail when body is empty', async () => {
             await request(app)
-                .delete('/image/delete')
+                .delete('/webhooks/image/delete')
                 .send({})
                 .expect(httpStatus.UNPROCESSABLE_ENTITY);
         });
 
         it('should fail when Uri is bad', async () => {
             await request(app)
-                .delete('/image/delete')
+                .delete('/webhooks/image/delete')
                 .send({
                     uri: 'asas',
                     projectId: 'project_id_with_namespace',
@@ -94,7 +94,7 @@ describe('## Images', () => {
 
         it('should fail when bucket does not exist', async () => {
             await request(app)
-                .delete('/image/delete')
+                .delete('/webhooks/image/delete')
                 .send({
                     uri: 'http://a.com/a.jpg?lala',
                     projectId: 'project_id_with_namespace',
