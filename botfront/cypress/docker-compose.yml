@@ -54,6 +54,7 @@ services:
     image: botfront/rasa-for-botfront:${RASA_TAG}
     container_name: botfront-test-rasa
     restart: always
+    entrypoint: rasa
     command:
       - -c
       - "rasa run --enable-api --debug"
