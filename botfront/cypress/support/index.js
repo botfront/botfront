@@ -747,13 +747,6 @@ Cypress.Commands.add(
     },
 );
 
-Cypress.Commands.add('graphQlQuery', (query, variables) => cy.get('@loginToken').then(token => cy.request({
-    method: 'POST',
-    url: '/graphql',
-    headers: { 'Content-Type': 'application/json', Authorization: token },
-    body: { query, variables },
-})));
-
 const objectToFormData = (obj) => {
     // this traverses the query/variables object and makes it graphql-upload-compliant
     // cf. https://github.com/jaydenseric/graphql-multipart-request-spec#curl-request
@@ -793,13 +786,7 @@ const objectToFormData = (obj) => {
 
 Cypress.Commands.add('graphQlQuery', (query, variables) => cy.get('@loginToken').then((token) => {
     const formData = objectToFormData({ variables, query });
-    // cy.request({
-    //     method: 'POST',
-    //     url: '/graphql',
-    //     headers: { 'Content-Type': 'application/json', Authorization: token },
-    //     body: { query, variables },
-    // });
-    cy.formRequest('post', '/graphql', formData, token);
+    return cy.formRequest('post', '/graphql', formData, token);
 }));
 
 Cypress.Commands.add(

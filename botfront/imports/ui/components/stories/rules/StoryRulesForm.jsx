@@ -441,9 +441,10 @@ function StoryRulesForm({
                                     <ListField name=''>
                                         <ListItemField name='$'>
                                             <NestField name=''>
-                                                <AutoField name='selector' label='CSS selector' />
+                                                <AutoField name='selector' data-cy='css-selector' label='CSS selector' />
                                                 <SelectField
                                                     name='event'
+                                                    data-cy='event-selector'
                                                     placeholder='Select an event type'
                                                     options={[
                                                         { value: 'click', text: 'click' },

@@ -7,7 +7,7 @@ export const getWebchatRules = async (projectId, env = 'development') => {
         .reduce(
             (result, { rules = [], triggerIntent } = {}) => [
                 ...result,
-                ...rules.map(r => ({ ...r, payload: triggerIntent })),
+                ...rules.map(r => ({ ...r, payload: triggerIntent[0] === '/' ? triggerIntent : `/${triggerIntent}` })),
             ],
             [],
         );

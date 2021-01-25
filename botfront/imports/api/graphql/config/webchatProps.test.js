@@ -78,28 +78,28 @@ if (Meteor.isServer) {
 
     const expectedRules = [
         {
-            payload: 'test_payload_A',
+            payload: '/test_payload_A',
             text: 'hello!',
             trigger: {
                 device: 'desktop',
             },
         },
         {
-            payload: 'test_payload_A',
+            payload: '/test_payload_A',
             text: 'You\'re on a desktop computer!',
             trigger: {
                 device: 'desktop',
             },
         },
         {
-            payload: 'test_payload_B',
+            payload: '/test_payload_B',
             text: 'wow!',
             trigger: {
                 device: 'desktop',
             },
         },
         {
-            payload: 'test_payload_B',
+            payload: '/test_payload_B',
             text: 'You\'re awesome!',
             trigger: {
                 device: 'desktop',

@@ -1,4 +1,29 @@
+/* eslint-disable no-undef */
 /* global cy */
+
+const rulesResult = [{
+    trigger: {
+        when: 'always',
+        numberOfVisits__DISPLAYIF: true,
+        numberOfVisits: 3,
+    },
+    text__DISPLAYIF: true,
+    text: 'test payload',
+}, {
+    trigger: {
+        numberOfPageVisits__DISPLAYIF: true,
+        numberOfPageVisits: 4,
+        queryString__DISPLAYIF: true,
+        queryString:
+          [{ value: 'value', param: 'name', value__DISPLAYIF: true }],
+    },
+}, {
+    trigger: {
+        eventListeners__DISPLAYIF: true,
+        eventListeners: [{ selector: '.book', event: 'click', visualization: 'none' }],
+    },
+}];
+
 
 describe('Smart story trigger rules', function() {
     afterEach(function() {
@@ -10,7 +35,7 @@ describe('Smart story trigger rules', function() {
         cy.deleteProject('bf');
         cy.createProject('bf', 'My Project', 'en').then(() => cy.login());
     });
-    it('should edit and save the trigger rules', function() {
+    it('should edit, save and query the trigger rules', function() {
         cy.visit('/project/bf/dialogue');
         cy.browseToStory('Get started');
         cy.get('.utterances-container').first().findCy('icon-trash').click({ force: true });
@@ -35,6 +60,13 @@ describe('Smart story trigger rules', function() {
         cy.dataCy('query-string-field').last().find('input').eq(1)
             .click()
             .type('value');
+        // add a third rulesets
+        cy.dataCy('story-rules-editor').find('.add.icon').first().click();
+        cy.dataCy('toggle-event-listeners').last().click();
+        cy.dataCy('css-selector').last().find('input').type('.book');
+        cy.dataCy('event-selector').last().click();
+        cy.dataCy('event-selector').last().find('.item').first()
+            .click();
         // close the trigger rules editor
         cy.dataCy('submit-triggers').click();
         cy.get('.dimmer').should('not.exist');
@@ -47,6 +79,28 @@ describe('Smart story trigger rules', function() {
         cy.dataCy('page-visits-input').find('input').should('have.value', '4');
         cy.dataCy('query-string-field').find('input').first().should('have.value', 'name');
         cy.dataCy('query-string-field').find('input').eq(1).should('have.value', 'value');
+        cy.dataCy('css-selector').find('input').last().should('have.value', '.book');
+        cy.graphQlQuery(
+            'query {\n  getConfig(projectId: "bf"){\n  credentials\n  }\n}',
+        ).then(({ response }) => {
+            const parsed = JSON.parse(response);
+            const rules = parsed?.data?.getConfig?.credentials[
+                    'rasa_addons.core.channels.webchat.WebchatInput'
+                ]?.props?.rules;
+            // eslint-disable-next-line no-undef
+            rules.forEach((rule, index) => {
+                const { payload, ...rest } = rule;
+                expect(rest).to.deep.equal(rulesResult[index]);
+                expect(payload).to.match(/^\/trigger/);
+            });
+        });
+        cy.visit('/project/bf/dialogue');
+        cy.train();
+        cy.reload();
+        cy.wait(3000);
+        cy.newChatSesh();
+        cy.get('.book').first().click();
+        cy.compareLastMessage('utter_get_started');
     });
 
     it('should delete trigger rules with the delete button', () => {

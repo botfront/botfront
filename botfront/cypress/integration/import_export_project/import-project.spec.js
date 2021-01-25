@@ -223,7 +223,7 @@ describe('Importing a Botfront project', function() {
             // this check is to ensure that the page rendered correctly
             cy.dataCy('add-item').should('exist');
 
-            cy.dataCy('story-group-menu-item').should('have.length', 0);
+            cy.dataCy('story-group-menu-item').should('have.length', 2);
             cy.visit('/project/bf/incoming/newutterances');
             cy.get('.row').should('have.length', 1);
             cy.dataCy('conversations').click();

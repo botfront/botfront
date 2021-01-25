@@ -473,7 +473,7 @@ actions:
             const reponses = await BotResponses.find({ projectId: 'bf' }).lean();
             const slots = await Slots.find({ projectId: 'bf' }).fetch();
             const project = Projects.findOne({ _id: 'bf' });
-            await expect(reponses.map(removeId)).to.equalInAnyOrder(validDomainsMerged.responses);
+            await expect(reponses.map(removeId)).to.deep.equalInAnyOrder(validDomainsMerged.responses);
             await expect(slots.map(removeId)).to.deep.equalInAnyOrder(validDomainsMerged.slots);
             await expect(project.defaultDomain.content).to.eql(`forms:
   restaurant_form:

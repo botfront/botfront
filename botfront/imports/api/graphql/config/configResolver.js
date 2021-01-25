@@ -29,7 +29,15 @@ export default {
             const props = { ...chatWidgetSettings, rules };
             credentials = yaml.safeLoad(credentials);
             const webchatPlusInput = credentials['rasa_addons.core.channels.webchat_plus.WebchatPlusInput'];
+            const webchatInput = credentials['rasa_addons.core.channels.webchat.WebchatInput'];
             const restPlusInput = credentials['rasa_addons.core.channels.rest_plus.BotfrontRestPlusInput'];
+            const restInput = credentials['rasa_addons.core.channels.rest.BotfrontRestInput'];
+            if (webchatInput !== undefined) {
+                credentials['rasa_addons.core.channels.webchat.WebchatInput'] = { ...(webchatInput || {}), props };
+            }
+            if (restInput !== undefined) {
+                credentials['rasa_addons.core.channels.rest.BotfrontRestInput'] = { ...(restInput || {}), props };
+            }
             if (webchatPlusInput !== undefined) {
                 credentials['rasa_addons.core.channels.webchat_plus.WebchatPlusInput'] = { ...(webchatPlusInput || {}), props };
             }
