@@ -386,6 +386,7 @@ if (Meteor.isServer) {
             });
 
             insertExamples({ examples, language, projectId });
+            publishIntentsOrEntitiesChanged(projectId, language);
         },
 
         async 'nlu.chitChatSetup'() {
