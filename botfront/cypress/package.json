@@ -8,7 +8,7 @@
   },
   "keywords": [],
   "author": "Botfront <hi@botfront> ",
-  "license": "AGPL",
+  "license": "Apache-2.0",
   "private": true,
   "dependencies": {
     "@octokit/rest": "^18.0.5",

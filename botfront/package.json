@@ -2,7 +2,7 @@
   "name": "botfront",
   "version": "1.0.0-ee.1-rc.3",
   "repository": "https://github.com/botfront/botfront",
-  "license": "Commercial",
+  "license": "Apache-2.0",
   "scripts": {
     "start": "meteor run",
     "start:docker-compose": "BF_PROJECT_ID=bf meteor run",

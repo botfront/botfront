@@ -2,6 +2,7 @@
   "name": "botfront-api",
   "version": "0.27.5-ee.2",
   "private": true,
+  "license": "Apache-2.0",
   "scripts": {
     "start": "node app.js",
     "test": "cross-env NODE_ENV=test MONGO_URL=mongodb://dummy ./node_modules/.bin/mocha --ui bdd --timeout 25000 --reporter spec --colors \"./!(node_modules)/**/*.test.js\" --exit",

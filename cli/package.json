@@ -23,7 +23,7 @@
   ],
   "preferGlobal": true,
   "author": "Botfront",
-  "license": "AGPL-3.0-only",
+  "license": "Apache-2.0",
   "dependencies": {
     "arg": "^4.1.1",
     "axios": "^0.19.0",
