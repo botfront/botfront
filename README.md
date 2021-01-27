@@ -11,7 +11,7 @@
     <img alt="npm" src="https://img.shields.io/npm/v/botfront.svg">
 </a>
 <a href='https://github.com/botfront/botfront/blob/master/LICENSE'>
-    <img alt="License" src="https://img.shields.io/badge/license-AGPLv3-blue.svg">
+    <img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg">
 </a>
 <a href='https://spectrum.chat/botfront'>
     <img alt="License" src="https://withspectrum.github.io/badge/badge.svg">
