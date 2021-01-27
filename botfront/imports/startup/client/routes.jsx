@@ -29,7 +29,6 @@ import { can, areScopeReady } from '../../lib/scopes';
 import AccountLayout from '../../ui/layouts/account';
 import NotFound from '../../ui/components/NotFound';
 import ErrorCatcher from '../../ui/components/ErrorCatcher';
-import LicenseError from '../../ui/components/LicenseError';
 
 import SetupLayout from '../../ui/layouts/setup';
 import Project from '../../ui/layouts/project';
@@ -123,40 +122,7 @@ const redirectToPath = pathname => (nextState, replace) => {
 };
 const withErrorCatcher = Component => props => <ErrorCatcher><Component {...props} /></ErrorCatcher>;
 
-browserHistory.listen(() => {
-    Meteor.call('checkLicense', wrapMeteorCallback((err, res) => {
-        if (res === 'noLicense') {
-            browserHistory.push('/license/error');
-        } else if (res === 'expired') {
-            browserHistory.push('/license/expired');
-        }
-    }));
-});
-// disabled so it is consistent with ee
-// eslint-disable-next-line react/prefer-stateless-function
-
-class Routes extends React.Component {
-    componentDidMount() {
-        Meteor.call('getTimeLeft', wrapMeteorCallback((err, left) => {
-            if (left.trial) {
-                Alert.warning(`This is a trial version of Botfront. The evaluation license expires in: ${secondsToDaysHours(left.time)}`, {
-                    position: 'top',
-                    timeout: 15000,
-                });
-            } else if (left.time < 30 * (24 * 60 * 60) && left.time > 10 * (24 * 60 * 60)) { // between 30 days and 10 days left
-                Alert.warning(`Your license expires in: ${secondsToDaysHours(left.time)}, you will no longer have access to Botfront when the license is expired`, {
-                    position: 'top',
-                    timeout: 15000,
-                });
-            } else if (left.time < 10 * (24 * 60 * 60)) { // 10 days in secs
-                Alert.error(`Your license expires in: ${secondsToDaysHours(left.time)}, you will no longer have access to Botfront when the license is expired`, {
-                    position: 'top',
-                    timeout: 15000,
-                });
-            }
-        }));
-    }
-
+class Routes extends React.PureComponent {
     render() {
         return (
             <DocumentTitle title='Botfront.'>
@@ -234,8 +200,6 @@ class Routes extends React.Component {
                                 <Route path='/chat/:project_id' component={ChatDemo} name='Chat Demo' />
                                 <Route path='/404' component={() => <NotFound code={404} />} />
                                 <Route path='/403' component={() => <NotFound code={403} />} />
-                                <Route path='/license/error' component={() => <LicenseError message='Please make sure you set the LICENSE_KEY environment variable with your key' />} />
-                                <Route path='/license/expired' component={() => <LicenseError message='Your License has expired' />} />
                                 <Route path='*' exact onEnter={redirectToPath('/404')} />
                             </Router>
                         </Provider>

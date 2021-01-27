@@ -13,20 +13,12 @@ class SetupSteps extends React.Component {
         this.state = {
             loading: false,
         };
-        const { router } = this.props;
-        Meteor.call('checkLicense', wrapMeteorCallback((err, res) => {
-            if (res === 'noLicense') {
-                router.push('/license/error');
-            } else if (res === 'expired') {
-                router.push('/license/expired');
-            } else {
-                Meteor.call('users.checkEmpty', wrapMeteorCallback((err, empty) => {
-                    if (!empty) {
-                        router.push('/login');
-                    }
-                }));
+        Meteor.call('users.checkEmpty', (err, empty) => {
+            if (!empty) {
+                const { router } = this.props;
+                router.push('/login');
             }
-        }));
+        });
     }
 
     handleAccountSubmit = (doc) => {

@@ -41,8 +41,6 @@ if (Meteor.isServer) {
             check(item, Object);
             check(bypassWithCI, Match.Optional(Boolean));
             let _id;
-            const left = Meteor.call('checkLicenseProjectLeft');
-            if (left === 0) throw new Meteor.Error(500, 'Projects quota exceeded.');
             try {
                 _id = createProject(item);
                 AnalyticsDashboards.create(defaultDashboard({ _id, ...item }));
@@ -389,14 +387,6 @@ if (Meteor.isServer) {
                 defaultLanguage,
                 initPayload,
             };
-        },
-
-        async 'project.getCount'() {
-            try {
-                return Projects.find().count();
-            } catch (error) {
-                throw error;
-            }
         },
 
         async 'project.getDeploymentEnvironments'(projectId) {

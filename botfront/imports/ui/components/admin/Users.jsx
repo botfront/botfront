@@ -10,22 +10,8 @@ import ReactTable from 'react-table-v6';
 import { Link, browserHistory } from 'react-router';
 import PageMenu from '../utils/PageMenu';
 import { can } from '../../../lib/scopes';
-import { wrapMeteorCallback } from '../utils/Errors';
 
 class UsersList extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            usersLeft: 0,
-        };
-    }
-
-    componentDidMount() {
-        Meteor.call('checkLicenseUserLeft', wrapMeteorCallback((err, left) => {
-            if (typeof left === 'number') this.setState({ usersLeft: left });
-        }));
-    }
-
     renderListItems = ({ users } = this.props) => users.map(user => (
         <Table.Row key={user._id} data-cy={user.profile.lastName}>
             <Table.Cell>
@@ -88,7 +74,7 @@ class UsersList extends React.Component {
 
     render() {
         const { loading, users } = this.props;
-        const { usersLeft } = this.state;
+       
 
         return (
             <div>
@@ -96,27 +82,21 @@ class UsersList extends React.Component {
                     <Menu.Menu position='right'>
                         {can('users:w', { anyScope: true }) && (
                             <Menu.Item>
-                                <Popup
-                                    trigger={(
-                                        <div data-cy='new-user-trigger'>
-                                            <Button
-                                                data-cy='new-user'
-                                                onClick={() => {
-                                                    browserHistory.push('/admin/user/add');
-                                                }}
-                                                primary
-                                                disabled={loading || usersLeft <= 0}
-                                                icon='add'
-                                                content='Add user'
-                                                labelPosition='left'
-                                            />
-                                        </div>
-                                    )}
-                                    content='You have reached the maximum number of users granted by your license'
-                                    disabled={usersLeft > 0}
-                                    inverted
-                                    data-cy='user-license-limit'
-                                />
+                              
+                                <div data-cy='new-user-trigger'>
+                                    <Button
+                                        data-cy='new-user'
+                                        onClick={() => {
+                                            browserHistory.push('/admin/user/add');
+                                        }}
+                                        primary
+                                        disabled={loading}
+                                        icon='add'
+                                        content='Add user'
+                                        labelPosition='left'
+                                    />
+                                </div>
+                                
                             </Menu.Item>
                         )}
                     </Menu.Menu>

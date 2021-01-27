@@ -63,9 +63,3 @@ export const checkIfCan = checkIfCanExport;
 export const areScopeReady = areScopeReadyExport;
 export const setScopes = setScopesExport;
 export const Can = CanExport;
-
-export function f3() { return ('i2Atnd3Rt8x8F16okIYinfVHdvu2cE9D01Zd2vnIvuhN3WxH5YfGczP39Hi6s4uA'); }
-
-export function f6() { return ('nkKWcz+TGYMkHp/dBrsrvRWATbWD3aGYk9CNsXiJ/KkvSH99/QJLQrjtxLp96PW8'); }
-
-export function f7() { return ('cXk2xmz90sc+R90wdc+LCWjYPuKWSFQpCDNybD1Bo1aeKRwosVlxJojrVl8CtL3/'); }

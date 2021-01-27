@@ -23,13 +23,10 @@ import MigrationControl from './MigrationControl';
 class Settings extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { saving: false, confirmModalOpen: false, licenseInfo: {} };
+        this.state = { saving: false, confirmModalOpen: false };
     }
 
     componentDidMount() {
-        Meteor.call('getLicenseInfo', wrapMeteorCallback((err, info) => {
-            this.setState({ licenseInfo: info });
-        }));
         const { params: { setting } = {}, router } = this.props;
         const { location: { pathname } } = router;
         if (setting && this.getSettingsPanes().findIndex(p => p.name === setting) < 0) {
@@ -258,19 +255,6 @@ class Settings extends React.Component {
         );
     }
 
-    renderLicenseInfo = () => {
-        const { licenseInfo } = this.state;
-        return (
-            <Tab.Pane>
-                <Header as='h3'>License Information</Header>
-                <p data-cy='license-expire'> <span className='bold-span'>Expire</span>: {(new Date(licenseInfo.exp * 1000)).toString()} </p>
-                <p data-cy='license-project'> <span className='bold-span'>Projects quota</span>: {licenseInfo.projectsQuota === 0 ? 'unlimited' : licenseInfo.projectsQuota}</p>
-                <p data-cy='license-user'> <span className='bold-span'>Users quota</span>: {licenseInfo.usersQuota === 0 ? 'unlimited' : licenseInfo.usersQuota}</p>
-                <p data-cy='license-holder'> <span className='bold-span'>License holder</span>: {licenseInfo.holder}</p>
-            </Tab.Pane>
-        );
-    };
-
 
     getSettingsPanes = () => {
         const { settings } = this.props;
@@ -306,7 +290,6 @@ class Settings extends React.Component {
             { name: 'security', menuItem: 'Security', render: this.renderSecurityPane },
             { name: 'appearance', menuItem: 'Appearance', render: this.renderAppearance },
             { name: 'misc', menuItem: 'Misc', render: this.renderMisc },
-            { name: 'license', menuItem: 'License Information', render: this.renderLicenseInfo },
         ];
 
         return panes;
