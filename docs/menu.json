@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Authoring conversations",
+    "menu": [
+      "Getting started",
+      "Conversation builder",
+      "Intents and entities",
+      "Evaluate understanding",
+      "Conversation context",
+      "Create rich responses",
+      "Disambiguate user input",
+      "Slot filling and forms",
+      "Creating custom actions",
+      "Processing incoming utterances",
+      "Publish and deploy",
+      "Import (export) from (to) Rasa",
+      "Advanced topics"
+    ]
+  },
+  {
+    "name": "Monitoring & Analyzing",
+    "menu": [
+      "Analytics"
+    ]
+  },
+  {
+    "name": "Configuring channels",
+    "menu": ["Overview", "Chat widget on your website", "Facebook Messenger"]
+  },
+  {
+    "name": "On screen guidance",
+    "menu": [
+      "Overview",
+      "Highlighting page elements",
+      "Adding interactivity"
+    ]
+  },
+  {
+    "name": "Proactive conversations",
+    "menu": [
+      "Overview",
+      "Behavioral triggers",
+      "Campaign triggers",
+      "Advanced options"
+    ]
+  },
+  {
+    "name": "Installation",
+    "menu": [
+      "On your local machine",
+      "On servers or clusters",
+      "Integration",
+      "Using the CLI",
+      "Migration guide"
+    ]
+  },
+  {
+    "name": "Developers",
+    "menu": ["Custom Actions", "Extending Rasa", "Contributing to Botfront"]
+  },
+  { "name": "Administration", "menu": ["Users and Roles"] }
+]

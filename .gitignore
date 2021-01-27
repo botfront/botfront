@@ -21,3 +21,4 @@ bf_model_id.txt
 botfront/cypress/mounted/models
 dev_project
 scripts/db
+*.bak
