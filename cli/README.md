@@ -15,7 +15,7 @@
     <img alt="License" src="https://img.shields.io/badge/license-Apache%202.0-blue.svg">
 </a>
 <a href='https://spectrum.chat/botfront'>
-    <img alt="License" src="https://withspectrum.github.io/badge/badge.svg">
+    <img alt="Spectrum link" src="https://withspectrum.github.io/badge/badge.svg">
 </a>
 </p>
 

@@ -43,12 +43,4 @@ describe('project creation', function () {
         cy.get(':nth-child(2) > .rt-tr > :nth-child(1)').should('have.text', 'Duedix');
         cy.get(':nth-child(1) > .rt-tr > :nth-child(1)').eq(1).should('have.text', 'Chitchat');
     });
-
-    it('should not be possible to create more than 3 project', function () {
-        cy.createProject('test1', 'test1', 'fr');
-        cy.visit('/admin/projects');
-        cy.dataCy('new-project-trigger').trigger('mouseover');
-        cy.dataCy('project-license-limit').should('exist');
-        cy.dataCy('new-project').should('have.class', 'disabled');
-    });
 });

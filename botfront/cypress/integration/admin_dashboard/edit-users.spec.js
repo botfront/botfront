@@ -76,14 +76,4 @@ describe('edit users', function () {
         cy.contains('testDelete')
             .should('not.exist');
     });
-
-    it('should not be able to to create more user that the license', function () {
-        cy.visit('/admin/users');
-        cy.createUser('test1', 'test1@bf.com', ['global-admin'], 'bf');
-        cy.createUser('test2', 'test2@bf.com', ['global-admin'], 'bf');
-        cy.visit('/admin/users');
-        cy.dataCy('new-user').should('have.class', 'disabled');
-        cy.dataCy('new-user-trigger').trigger('mouseover');
-        cy.dataCy('user-license-limit').should('exist');
-    });
 });

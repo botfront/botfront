@@ -59,7 +59,6 @@
     "graphql-type-json": "^0.3.1",
     "immutable": "^4.0.0-rc.12",
     "js-yaml": "^3.13.1",
-    "jsonwebtoken": "^8.5.1",
     "jszip": "^3.2.2",
     "lodash": "^4.17.19",
     "match-sorter": "^4.0.0",

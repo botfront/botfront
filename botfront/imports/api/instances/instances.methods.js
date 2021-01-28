@@ -285,10 +285,6 @@ if (Meteor.isServer) {
             const t0 = performance.now();
             const loadModel = env === 'development';
             try {
-                const licenseStatus = await Meteor.call('checkLicense');
-                if (licenseStatus === 'expired') {
-                    throw new Meteor.Error(500, 'License expired');
-                }
                 const {
                     stories = [],
                     rules = [],

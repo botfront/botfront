@@ -4,12 +4,6 @@ import { can } from '../../lib/scopes';
 import { GlobalSettingsSchema } from './globalSettings.schema';
 
 
-export const f2 = () => ('MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoQMG+mrQvq0ThlAde7hS');
-
-export const f5 = () => ('wNs5+2aq9U3xjmiVjfHy5i58Lh1M/C9RMJUBCQAKCsC/urlvBpG/1oa0yUMrtdSZ');
-
-export const f8 = () => ('QQIDAQAB');
-
 export const GlobalSettings = new Mongo.Collection('admin_settings');
 // Deny all client-side updates on the Credentials collection
 GlobalSettings.deny({

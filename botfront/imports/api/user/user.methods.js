@@ -59,8 +59,6 @@ if (Meteor.isServer) {
             }
             check(user, Object);
             check(sendInviteEmail, Boolean);
-            const left = Meteor.call('checkLicenseUserLeft');
-            if (left === 0) throw new Meteor.Error(500, 'Users quota exceeded.');
             try {
                 const userId = Accounts.createUser({
                     email: user.email.trim(),
