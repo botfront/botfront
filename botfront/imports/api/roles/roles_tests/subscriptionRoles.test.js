@@ -525,10 +525,10 @@ the tests are created by iterating over subscriptions. the test params are as fo
                 await Stories.remove({ _id: 'testStory' });
                 done();
             },
-            args: [projectId, 'en'],
+            args: [projectId],
             acceptedRoles: readers.stories,
             allowed: (result, done) => {
-                expect(Object.keys(result.stories[0])).to.include.members(['title', 'checkpoints', 'storyGroupId', '_id', 'rules', 'status', 'type']);
+                expect(Object.keys(result.stories[0])).to.include.members(['title', 'checkpoints', 'storyGroupId', '_id', 'rules', 'status', 'type', 'language']);
                 expect(result.stories).to.have.length(1);
                 done();
             },
