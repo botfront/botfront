@@ -22,7 +22,6 @@ import { importSteps } from '../graphql/project/import.utils';
 
 import { formatTestCaseForRasa } from '../../lib/test_case.utils';
 
-
 if (Meteor.isServer) {
     const md5 = require('md5');
     const glob = require('glob');
@@ -60,7 +59,9 @@ if (Meteor.isServer) {
             if (exclusions.includes(path)) return Promise.resolve();
             if (fs.statSync(join(dir, path)).isDirectory()) {
                 if (`${path}/` in zip.files) return Promise.resolve();
-                return fs.promises.rmdir(join(dir, path));
+                return fs.promises.rmdir(join(dir, path), {
+                    recursive: true,
+                });
             }
             if (path in zip.files) return Promise.resolve();
             return fs.promises.unlink(join(dir, path));
@@ -92,12 +93,7 @@ if (Meteor.isServer) {
             },
         };
         if (url.includes('https')) return opts;
-        opts.fetchOpts.callbacks.credentials = (__, userName) => nodegit.Cred.sshKeyMemoryNew(
-            userName,
-            publicKey,
-            privateKey,
-            '',
-        );
+        opts.fetchOpts.callbacks.credentials = (__, userName) => nodegit.Cred.sshKeyMemoryNew(userName, publicKey, privateKey, '');
         return opts;
     };
 
@@ -231,7 +227,12 @@ if (Meteor.isServer) {
     };
 
     const pushToRemote = async ({
-        remote, branch, index, repo, branchCommit, opts: { fetchOpts: pushOpts },
+        remote,
+        branch,
+        index,
+        repo,
+        branchCommit,
+        opts: { fetchOpts: pushOpts },
     }) => {
         try {
             await remote.push([`${branch.toString()}:${branch.toString()}`], pushOpts);
@@ -316,7 +317,8 @@ if (Meteor.isServer) {
                 );
                 if (status) return { status };
                 return pushToRemote(repoInfo);
-            } catch {
+            } catch (e) {
+                console.log(e);
                 await importSteps({
                     projectId,
                     wipeProject: true,
@@ -469,10 +471,17 @@ if (Meteor.isServer) {
                 ));
 
             const analyticsConfig = await AnalyticsDashboards.findOne(
-                { projectId }, { _id: 0 },
+                { projectId },
+                { _id: 0 },
             ).lean();
-            const storyTests = await Stories.find({ projectId, type: 'test_case' }).fetch();
-            const storyGroups = await StoryGroups.find({ projectId, smartGroup: { $exists: false } }).fetch();
+            const storyTests = await Stories.find({
+                projectId,
+                type: 'test_case',
+            }).fetch();
+            const storyGroups = await StoryGroups.find({
+                projectId,
+                smartGroup: { $exists: false },
+            }).fetch();
             const storyGroupDict = {};
             storyGroups.forEach(({ _id, name }) => {
                 storyGroupDict[_id] = name;
@@ -515,9 +524,10 @@ if (Meteor.isServer) {
                         ? rasaData.nlu
                         : { [language]: rasaData.nlu[language] },
                 fragments: fragmentsByGroup,
-                tests: language === 'all'
-                    ? testsByLanguage
-                    : { [language]: testsByLanguage[language] },
+                tests:
+                    language === 'all'
+                        ? testsByLanguage
+                        : { [language]: testsByLanguage[language] },
             };
 
             const defaultDomain = project?.defaultDomain?.content || '';
@@ -580,7 +590,10 @@ if (Meteor.isServer) {
                         : `data/nlu.${extension}`,
                 );
                 if (exportData.tests[l]) {
-                    rasaZip.addFile(safeDump({ stories: exportData.tests[l] }), `data/tests/test_${l}_stories.yml`);
+                    rasaZip.addFile(
+                        safeDump({ stories: exportData.tests[l] }),
+                        `data/tests/test_${l}_stories.yml`,
+                    );
                 }
             }
 
@@ -627,7 +640,12 @@ if (Meteor.isServer) {
             rasaZip.addFile(exportData.domain, 'domain.yml');
             rasaZip.addFile(bfconfigYaml, 'botfront/bfconfig.yml');
             rasaZip.addFile(defaultDomain, 'botfront/default-domain.yml');
-            if (Object.keys(analyticsConfig).length > 0) rasaZip.addFile(safeDump(analyticsConfig), 'botfront/analyticsconfig.yml');
+            if (Object.keys(analyticsConfig).length > 0) {
+                rasaZip.addFile(
+                    safeDump(analyticsConfig),
+                    'botfront/analyticsconfig.yml',
+                );
+            }
             if (Object.keys(widgetSettings).length > 0) {
                 rasaZip.addFile(safeDump(widgetSettings), 'botfront/widgetsettings.yml');
             }
