@@ -98,9 +98,7 @@ if (Meteor.isServer) {
                     ...(can('import:x', projectId)
                         ? {
                             defaultDomain: 1,
-                            gitString: 1,
-                            publicSshKey: 1,
-                            privateSshKey: 1,
+                            gitSettings: 1,
                         }
                         : {}),
                 },

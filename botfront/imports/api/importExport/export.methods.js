@@ -99,9 +99,9 @@ if (Meteor.isServer) {
 
     const getRemote = async (projectId, forceClone = false) => {
         const nodegit = require('nodegit');
-        const { gitString = '', publicSshKey = '', privateSshKey = '' } = Projects.findOne(
+        const { gitSettings: { gitString = '', publicSshKey = '', privateSshKey = '' } } = Projects.findOne(
             { _id: projectId },
-            { gitString: 1, publicSshKey: 1, privateSshKey: 1 },
+            { gitSettings: 1 },
         ) || {};
         const [url, branchName, ...rest] = gitString.split('#');
         const opts = getConnectionOpts(url, publicSshKey, privateSshKey);
@@ -533,9 +533,7 @@ if (Meteor.isServer) {
             const widgetSettings = project?.chatWidgetSettings || {};
 
             const configData = project;
-            delete configData.gitString;
-            delete configData.privateSshKey;
-            delete configData.publicSshKey;
+            delete configData.gitSettings;
             // exported separately
             delete configData.chatWidgetSettings;
             delete configData.defaultDomain;

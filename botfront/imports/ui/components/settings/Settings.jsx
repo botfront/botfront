@@ -15,6 +15,7 @@ import Integration from './Integration';
 import DefaultDomain from './DefaultDomain';
 import ImportExportProject from './ImportExportProject';
 import ChatWidgetForm from './ChatWidgetForm';
+import GitSettings from './GitSettings';
 
 class Settings extends React.Component {
     componentDidMount() {
@@ -89,6 +90,11 @@ class Settings extends React.Component {
                     name: 'import-export',
                     menuItem: <Menu.Item icon='download' content='Import/Export' key='Import/Export' />,
                     render: () => <Tab.Pane><ImportExportProject /></Tab.Pane>,
+                },
+                {
+                    name: 'git-settings',
+                    menuItem: <Menu.Item icon='git' content='Git settings' key='Git Settings' />,
+                    render: () => <Tab.Pane><GitSettings /></Tab.Pane>,
                 },
             ] : []),
         ];
