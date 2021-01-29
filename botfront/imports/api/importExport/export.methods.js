@@ -341,7 +341,7 @@ if (Meteor.isServer) {
             const { repo, branchCommit, url: repoUrl } = await getRemote(projectId);
             const startCommit = cursor ? await repo.getCommit(cursor) : branchCommit;
             let [, url] = repoUrl.split('@');
-            url = url.replace(/.git$/, '');
+            url = url.replace(':', '/').replace(/.git$/, '');
             const formatUrl = (sha) => {
                 if (url.includes('bitbucket')) return `https://${url}/commits/${sha}`;
                 return `https://${url}/commit/${sha}`; // github, gitlab
