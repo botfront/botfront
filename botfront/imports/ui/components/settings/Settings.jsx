@@ -38,6 +38,7 @@ class Settings extends React.Component {
         const canViewResources = can('resources:r', projectId);
         const canExport = can('export:x', projectId);
         const canImport = can('import:x', projectId);
+        const canViewGitCredentials = can('git-credentials:r', projectId);
         const panes = [
             ...(canViewProjects ? [
                 {
@@ -90,13 +91,15 @@ class Settings extends React.Component {
                     name: 'import-export',
                     menuItem: <Menu.Item icon='download' content='Import/Export' key='Import/Export' />,
                     render: () => <Tab.Pane><ImportExportProject /></Tab.Pane>,
-                },
-                {
-                    name: 'git-settings',
-                    menuItem: <Menu.Item icon='git' content='Git settings' key='Git Settings' />,
-                    render: () => <Tab.Pane><GitSettings /></Tab.Pane>,
-                },
-            ] : []),
+                }] : []),
+
+            ...(canViewGitCredentials ? [{
+                name: 'git-settings',
+                menuItem: <Menu.Item icon='git' content='Git settings' key='Git Settings' />,
+                render: () => <Tab.Pane><GitSettings /></Tab.Pane>,
+            }] : []),
+                
+            
         ];
         return panes;
     };

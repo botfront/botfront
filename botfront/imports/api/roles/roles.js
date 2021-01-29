@@ -98,9 +98,14 @@ if (Meteor.isServer) {
         createRole('analytics:w', 'Can edit analytics dashboards. Extends `analytics:r`');
         Roles.addRolesToParent('analytics:r', 'analytics:w');
 
+
+        createRole('git-credentials:r', 'Can access git credentials informations');
+        createRole('git-credentials:w', 'Can access and edit git credentials informations. extends `git-credentials:r`');
+        Roles.addRolesToParent(['git-credentials:r'], 'git-credentials:w');
+        
         createRole('export:x', 'Can export project data');
         createRole('projects:r', 'Can read and export everything in a project and access a project settings.');
-        Roles.addRolesToParent(['incoming:r', 'triggers:r', 'stories:r', 'responses:r', 'nlu-data:r', 'analytics:r', 'export:x'], 'projects:r');
+        Roles.addRolesToParent(['incoming:r', 'triggers:r', 'stories:r', 'responses:r', 'nlu-data:r', 'analytics:r', 'export:x', 'git-credentials:r'], 'projects:r');
         
         createRole('import:x', 'Can import and overwrite project data.`');
         createRole('share:x', 'Can enable and disable the share chatbot link');
@@ -108,12 +113,13 @@ if (Meteor.isServer) {
             'projects:w',
             'Can edit, use, import, and export all resources related to a project, settings. Extends `projects:r`, `import:x`. If no `projectId` constraint is specified this permission allows adding, editing, and removing projects.',
         );
-        Roles.addRolesToParent(['projects:r', 'nlu-data:x', 'analytics:w', 'incoming:w', 'triggers:w', 'stories:w', 'responses:w', 'nlu-data:w', 'import:x', 'share:x'], 'projects:w');
+        Roles.addRolesToParent(['projects:r', 'nlu-data:x', 'analytics:w', 'incoming:w', 'triggers:w', 'stories:w', 'responses:w', 'nlu-data:w', 'import:x', 'share:x', 'git-credentials:w'], 'projects:w');
 
         createRole('resources:r', 'Can access project deployment environment, instance, and endpoint settings. Extends projects:r');
         Roles.addRolesToParent('projects:r', 'resources:r');
         createRole('resources:w', 'Can access and edit project deployment environment, instance, and endpoint settings. extends `projects:w`, `resources:r`');
         Roles.addRolesToParent(['projects:w', 'resources:r'], 'resources:w');
+
 
         createRole('global-settings:r', 'Can access global settings.');
         createRole('global-settings:w', 'Can edit global settings. Extends `global-settings:r.`');

@@ -52,7 +52,7 @@ class GitSettings extends React.Component {
         const { gitSettings, projectId } = this.props;
         const { saving, saved } = this.state;
         const bridge = new SimpleSchema2Bridge(GitSettingsSchema);
-        const hasWritePermission = can('projects:w', projectId);
+        const hasWritePermission = can('git-credentials:w', projectId);
         return (
             <AutoForm
                 schema={bridge}
