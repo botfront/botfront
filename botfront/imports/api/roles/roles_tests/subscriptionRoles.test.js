@@ -528,7 +528,7 @@ the tests are created by iterating over subscriptions. the test params are as fo
             args: [projectId],
             acceptedRoles: readers.stories,
             allowed: (result, done) => {
-                expect(Object.keys(result.stories[0])).to.include.members(['title', 'checkpoints', 'storyGroupId', '_id', 'rules', 'status', 'type', 'language']);
+                expect(Object.keys(result.stories[0])).to.include.members(['title', 'checkpoints', 'storyGroupId', '_id', 'rules', 'status', 'type']);
                 expect(result.stories).to.have.length(1);
                 done();
             },
