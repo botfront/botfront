@@ -15,6 +15,7 @@
       "Testing conversation flows",
       "Publish and deploy",
       "Import (export) from (to) Rasa",
+      "Git integration",
       "Advanced topics"
     ]
   },
