@@ -890,7 +890,7 @@ Cypress.Commands.add('setTestGitSettings', (info) => {
         .trigger('change')
         .type(' ')
         .blur();
-    cy.dataCy('save-changes').click();
+    cy.dataCy('save-button').click();
 });
 
 Cypress.Commands.add('tearDownGitRepo', info => cy.task('octoRequest', [`DELETE /repos/${info.fullName}`]));

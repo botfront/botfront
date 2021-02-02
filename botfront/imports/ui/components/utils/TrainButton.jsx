@@ -342,7 +342,7 @@ class TrainButton extends React.Component {
 
     renderGitButton = () => {
         const {
-            project: { gitString },
+            project: { gitSettings: { gitString } = {} },
             instance,
         } = this.context;
         const { status } = this.props;
