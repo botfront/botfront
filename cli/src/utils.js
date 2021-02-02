@@ -199,7 +199,7 @@ export function updateProjectFile({
     images,
     env = {},
     enableMongoAuth = true,
-    cloud,
+    leaveMongoUrl = false,
     mongoPassword = randomString(),
 }) {
     const config = getProjectConfig(projectAbsPath);
@@ -217,7 +217,7 @@ export function updateProjectFile({
         ...config.env || {},
         ...env,
     };
-    if (!cloud) {
+    if (!leaveMongoUrl) {
         if (enableMongoAuth) {
             Object.assign(config.env, {
                 mongo_url: `mongodb://root:${mongoPassword}@mongo:27017/bf?authSource=admin`,

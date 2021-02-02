@@ -207,7 +207,7 @@ export async function setProject(bf_project_id) {
     const { services } = getComposeTemplateFile();
     const { services: actualServices } = getGeneratedComposeFile();
     const exclude = Object.keys(services).filter((k) => !(k in actualServices));
-    updateProjectFile({ env: { bf_project_id } });
+    updateProjectFile({ leaveMongoUrl: true, env: { bf_project_id } });
     // generate compose file without touching .env file
     generateDockerCompose(exclude, undefined, bf_project_id);
 
