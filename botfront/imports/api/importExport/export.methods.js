@@ -317,8 +317,7 @@ if (Meteor.isServer) {
                 );
                 if (status) return { status };
                 return pushToRemote(repoInfo);
-            } catch (e) {
-                console.log(e);
+            } catch {
                 await importSteps({
                     projectId,
                     wipeProject: true,
