@@ -12,13 +12,21 @@ meta:
 
 ## Overview
 
-Git integration leverages the import and export files to assist with bot versioning.
-
+- while multiple auth methods are possible we recomend ssh as it ususally give finer detailed accesss conversational
+- Ideally create a ssh key which is only used for the repo with your project and has push and pull permission
+- Ideally one project per repo
+- ssh keys are not encrypted but only accessbile by users with the git-settings:r permission
+- ssh keys are not exported to the repo or in any ecport files created using the export feature
 
 ## Setup
 
-In Settings -> Git integration you can set the git repository where your project will be stored along with the public and private SSH keys required to access that repo.
-Note that the SSH keys are stored as is in your project so we recomend limiting their rights to the minimum required to push and pull to the repo with your Botfront project.
+- while they are many ways to auth use ssh
+- create a key
+- add key to botfront
+- specify the branch!!!!!!
 
 ## Using git integraion
 
+- push, revert
+- if you attempt to revert to a commit but have unpushed changes it will push a commit with the current state before reverting
+- if no changes have been made, the push will fail. (sometimes botfront will make modifications to data behind the scenes so you can push even without explicitly making changes)
