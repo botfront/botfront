@@ -175,12 +175,17 @@ class Routes extends React.PureComponent {
                                     <Route path='/project/:project_id/responses' component={TemplatesContainer} name='Templates' onEnter={authenticate('responses:r')} />
                                     <Route path='/project/:project_id/connect_handoff' component={ConnectHandoff} name='Connect Handoff' onEnter={authenticate('stories:w')} />
                                     <Route path='/project/:project_id/analytics' component={AnalyticsContainer} name='Analytics' onEnter={authenticate('analytics:r')} />
-                                    <Route path='/project/:project_id/settings' component={ConfigurationContainer} name='Settings' onEnter={authenticate(['projects:r', 'import:x', 'export:x'])} />
+                                    <Route
+                                        path='/project/:project_id/settings'
+                                        component={ConfigurationContainer}
+                                        name='Settings'
+                                        onEnter={authenticate(['projects:r', 'import:x', 'export:x', 'git-credentials:r'])}
+                                    />
                                     <Route
                                         path='/project/:project_id/settings/:setting'
                                         component={ConfigurationContainer}
                                         name='Settings'
-                                        onEnter={authenticate(['projects:r', 'import:x', 'export:x'])}
+                                        onEnter={authenticate(['projects:r', 'import:x', 'export:x', 'git-credentials:r'])}
                                     />
                                     <Route path='*' component={NotFound} />
                                 </Route>

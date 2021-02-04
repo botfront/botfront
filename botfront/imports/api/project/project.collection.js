@@ -72,6 +72,7 @@ if (Meteor.isServer) {
                 'global-settings:r',
                 'export:x',
                 'import:x',
+                'git-credentials:r',
             ]).includes(projectId)
         ) {
             return this.ready();
@@ -98,6 +99,10 @@ if (Meteor.isServer) {
                     ...(can('import:x', projectId)
                         ? {
                             defaultDomain: 1,
+                        }
+                        : {}),
+                    ...(can('import:x', projectId) || can('git-credentials:r', projectId)
+                        ? {
                             gitSettings: 1,
                         }
                         : {}),

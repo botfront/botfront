@@ -874,7 +874,7 @@ Cypress.Commands.add('changeEnv', (env) => {
 
 Cypress.Commands.add('setTestGitSettings', (info) => {
     const { publicKey, privateKey, fullName } = info;
-    cy.visit('/project/bf/settings/git-settings');
+    cy.visit('/project/bf/settings/git-credentials');
     cy.dataCy('git-string').find('input').type(`git@github.com:${fullName}#main`);
     cy.dataCy('public-ssh-key')
         .find('input')

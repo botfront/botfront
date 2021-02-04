@@ -94,8 +94,8 @@ class Settings extends React.Component {
                 }] : []),
 
             ...(canViewGitCredentials ? [{
-                name: 'git-settings',
-                menuItem: <Menu.Item icon='git' content='Git settings' key='Git Settings' />,
+                name: 'git-credentials',
+                menuItem: <Menu.Item icon='git' content='Git credentials' key='Git credentials' />,
                 render: () => <Tab.Pane><GitSettings /></Tab.Pane>,
             }] : []),
                 

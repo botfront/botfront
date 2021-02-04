@@ -22,7 +22,8 @@ class ProjectSidebar extends React.Component {
 
         const canViewProjectsTab = can('projects:r', projectId)
             || can('export:x', projectId)
-            || can('import:x', projectId);
+            || can('import:x', projectId)
+            || can('git-credentials:r', projectId);
 
         return (
             <DocumentTitle title={projectName}>
