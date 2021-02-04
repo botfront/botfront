@@ -60,6 +60,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
     const [mouseDown, setMouseDown] = useState(false);
 
     const {
+        language,
         project: { _id: projectId, storyGroups: storyGroupOrder = [], deploymentEnvironments },
     } = useContext(ProjectContext);
 
@@ -117,7 +118,8 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
                 filtering the children by existing item ids prevents crashes caused by the
                 order updates to a child and its parent are recieved.
             */
-            const safeChildren = children.filter(childId => Object.keys(newTree.items).includes(childId));
+            const safeChildren = children.filter(childId => (Object.keys(newTree.items).includes(childId)
+            && (!!n.smartGroup || newTree.items[childId].type !== 'test_case' || newTree.items[childId].language === language)));
             newTree.items[_id] = {
                 ...n,
                 children: safeChildren,

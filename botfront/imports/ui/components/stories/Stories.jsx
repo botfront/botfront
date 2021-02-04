@@ -380,8 +380,8 @@ Stories.defaultProps = {};
 
 const StoriesWithTracker = withRouter(
     withTracker((props) => {
-        const { projectId, selectedLanguage } = props;
-        const storiesHandler = Meteor.subscribe('stories.light', projectId, selectedLanguage);
+        const { projectId } = props;
+        const storiesHandler = Meteor.subscribe('stories.light', projectId);
         const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
 
         const regularStoryGroups = StoryGroups.find({

@@ -383,7 +383,7 @@ if (Meteor.isServer) {
                     ...(ids?.length > 0 ? { _id: { $in: ids } } : {}),
                     ...(language ? { language } : {}),
                 };
-                const testCases = Stories.find({ ...query }, { fields: { _id: 1, steps: 1 } })
+                const testCases = Stories.find({ ...query }, { fields: { _id: 1, steps: 1, language: 1 } })
                     .map(({
                         _id, steps, language: testLanguage,
                     }) => ({
