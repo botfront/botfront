@@ -136,9 +136,13 @@ function Stories(props) {
     };
 
     useEffect(
-        () => setStoryMenuSelection(
-            getQueryParams().length ? getQueryParams() : storyMenuSelection,
-        ),
+        () => {
+            // forms are reloaded every time we land on that page so after an import the new form are displayed
+            refetch();
+            setStoryMenuSelection(
+                getQueryParams().length ? getQueryParams() : storyMenuSelection,
+            );
+        },
         [],
     );
 
