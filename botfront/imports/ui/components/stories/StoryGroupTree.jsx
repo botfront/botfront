@@ -35,8 +35,8 @@ const openFirstStoryIfNoneSelected = (
     if (tree.items[tree.rootId].children.length === 0) return;
     while (typeOfNode !== 'story-group' || !storiesFound.length) {
         groupId = tree.items[tree.rootId].children[i];
-        typeOfNode = tree.items[groupId].type;
-        storiesFound = tree.items[groupId].children;
+        typeOfNode = tree.items[groupId]?.type;
+        storiesFound = tree.items[groupId]?.children || [];
         i += 1;
         if (i > tree.items[tree.rootId].children.length - 1) break;
     }
@@ -200,8 +200,9 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
     const getItemDataFromDOMNode = node => node.id.replace('story-menu-item-', '');
 
     const selectSingleItemAndResetFocus = (item) => {
+        if (!item) return;
         lastFocusedItem.current = item;
-        return onChangeStoryMenuSelection([item.id]);
+        onChangeStoryMenuSelection([item.id]);
     };
 
     const handleSelectionChange = ({ shiftKey, item }) => {
@@ -277,7 +278,7 @@ const StoryGroupTree = React.forwardRef((props, ref) => {
             } else return null;
             const item = tree.items[getItemDataFromDOMNode(document.activeElement)];
 
-            if (item.type === 'story-group') {
+            if (item?.type === 'story-group') {
                 return handleKeyDownInMenu({ target, key, shiftKey });
             } // go to next visible leaf
             return handleSelectionChange({ shiftKey, item });
