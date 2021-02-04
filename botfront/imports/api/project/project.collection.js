@@ -121,6 +121,7 @@ if (Meteor.isServer) {
             'nlu-data:x',
             'import:x',
             'export:x',
+            'git-credentials:r',
         ]);
         return Projects.find({ _id: { $in: projects } }, { fields: { name: 1 } });
     });
