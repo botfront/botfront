@@ -92,6 +92,8 @@ describe('Importing a Botfront project', function() {
                 .should('contain.text', '133 examples, 1 synonym will be imported.')
                 .should('contain.text', 'Group \'rules.yml\' will be created with 9 rules.')
                 .should('contain.text', 'Group \'handoff.yml\' will be created with 3 stories.Group \'stories.yml\' will be created with 9 stories.')
+                .should('contain.text', 'Group \'test cases\' will be added with 1 new test in English, 1 new test in French')
+                .should('not.contain.text', '1 new test in Korean')
                 .should('contain.text', 'Endpoints will be imported from endpoints.yml.')
                 .should('contain.text', 'Credentials will be imported from credentials.yml.')
                 .should('contain.text', '10 slots, 23 responses, 2 forms, 4 actions will be added from domain-bf.yml, domain.yml')
@@ -180,7 +182,10 @@ describe('Importing a Botfront project', function() {
             cy.dataCy('story-group-menu-item').should('contains.text', 'stories.yml');
             cy.dataCy('story-group-menu-item').should('contains.text', 'Example group');
             cy.dataCy('story-group-menu-item').should('contains.text', 'test cases');
-            cy.dataCy('story-group-menu-item').should('have.length', 33);
+            cy.dataCy('story-group-menu-item').should('have.length', 32);
+            cy.dataCy('language-selector').find('.item').contains('French').click({ force: true })
+            cy.dataCy('story-group-menu-item').should('include.text', 'french test case');
+
 
             cy.dataCy('slots-modal').click();
             cy.dataCy('slot-editor').should('have.length', 10);
