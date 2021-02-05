@@ -15,6 +15,7 @@ import Integration from './Integration';
 import DefaultDomain from './DefaultDomain';
 import ImportExportProject from './ImportExportProject';
 import ChatWidgetForm from './ChatWidgetForm';
+import GitSettings from './GitSettings';
 
 class Settings extends React.Component {
     componentDidMount() {
@@ -37,6 +38,7 @@ class Settings extends React.Component {
         const canViewResources = can('resources:r', projectId);
         const canExport = can('export:x', projectId);
         const canImport = can('import:x', projectId);
+        const canViewGitCredentials = can('git-credentials:r', projectId);
         const panes = [
             ...(canViewProjects ? [
                 {
@@ -89,8 +91,15 @@ class Settings extends React.Component {
                     name: 'import-export',
                     menuItem: <Menu.Item icon='download' content='Import/Export' key='Import/Export' />,
                     render: () => <Tab.Pane><ImportExportProject /></Tab.Pane>,
-                },
-            ] : []),
+                }] : []),
+
+            ...(canViewGitCredentials ? [{
+                name: 'git-credentials',
+                menuItem: <Menu.Item icon='git' content='Git credentials' key='Git credentials' />,
+                render: () => <Tab.Pane><GitSettings /></Tab.Pane>,
+            }] : []),
+                
+            
         ];
         return panes;
     };

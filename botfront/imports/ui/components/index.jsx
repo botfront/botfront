@@ -44,6 +44,9 @@ class Index extends React.Component {
         if (can('export:x', pId) || can('import:x', pId)) {
             return `/project/${pId}/settings/import-export`;
         }
+        if (can('git-credentials:r', pId)) {
+            return `/project/${pId}/settings/git-credentials`;
+        }
         return ('/404');
     };
 

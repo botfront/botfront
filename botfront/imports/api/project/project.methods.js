@@ -68,7 +68,7 @@ if (Meteor.isServer) {
         },
 
         'project.update'(item) {
-            checkIfCan(['projects:w', 'import:x'], item._id, undefined);
+            checkIfCan(['projects:w', 'import:x', 'git-credentials:w'], item._id, undefined);
             check(item, Match.ObjectIncluding({ _id: String }));
             try {
                 // eslint-disable-next-line no-param-reassign

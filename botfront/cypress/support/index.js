@@ -874,7 +874,7 @@ Cypress.Commands.add('changeEnv', (env) => {
 
 Cypress.Commands.add('setTestGitSettings', (info) => {
     const { publicKey, privateKey, fullName } = info;
-    cy.visit('/project/bf/settings/info');
+    cy.visit('/project/bf/settings/git-credentials');
     cy.dataCy('git-string').find('input').type(`git@github.com:${fullName}#main`);
     cy.dataCy('public-ssh-key')
         .find('input')
@@ -890,7 +890,7 @@ Cypress.Commands.add('setTestGitSettings', (info) => {
         .trigger('change')
         .type(' ')
         .blur();
-    cy.dataCy('save-changes').click();
+    cy.dataCy('save-button').click();
 });
 
 Cypress.Commands.add('tearDownGitRepo', info => cy.task('octoRequest', [`DELETE /repos/${info.fullName}`]));

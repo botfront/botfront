@@ -72,6 +72,7 @@ if (Meteor.isServer) {
                 'global-settings:r',
                 'export:x',
                 'import:x',
+                'git-credentials:r',
             ]).includes(projectId)
         ) {
             return this.ready();
@@ -98,9 +99,11 @@ if (Meteor.isServer) {
                     ...(can('import:x', projectId)
                         ? {
                             defaultDomain: 1,
-                            gitString: 1,
-                            publicSshKey: 1,
-                            privateSshKey: 1,
+                        }
+                        : {}),
+                    ...(can('import:x', projectId) || can('git-credentials:r', projectId)
+                        ? {
+                            gitSettings: 1,
                         }
                         : {}),
                 },
@@ -118,6 +121,7 @@ if (Meteor.isServer) {
             'nlu-data:x',
             'import:x',
             'export:x',
+            'git-credentials:r',
         ]);
         return Projects.find({ _id: { $in: projects } }, { fields: { name: 1 } });
     });

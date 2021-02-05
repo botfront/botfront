@@ -76,9 +76,7 @@ class ProjectInfo extends React.Component {
             name,
             _id,
             defaultLanguage,
-            gitString,
-            publicSshKey,
-            privateSshKey,
+           
             nluThreshold,
             deploymentEnvironments,
             timezoneOffset,
@@ -96,9 +94,7 @@ class ProjectInfo extends React.Component {
                 name,
                 _id,
                 defaultLanguage,
-                ...(gitString ? { gitString } : {}),
-                ...(publicSshKey ? { publicSshKey } : {}),
-                ...(privateSshKey ? { privateSshKey } : {}),
+              
                 nluThreshold,
                 deploymentEnvironments,
                 timezoneOffset,
@@ -182,50 +178,7 @@ class ProjectInfo extends React.Component {
                             data-cy='default-langauge-selection'
                         />
                     )}
-                    {can('projects:w', projectId) && (
-                        <Segment className='project-name field'>
-                            <InfoField
-                                name='gitString'
-                                label={(
-                                    <>
-                                        <Icon name='git' />
-                                        Git repository
-                                    </>
-                                )}
-                                info={(
-                                    <span className='small'>
-                                        Use format{' '}
-                                        <span className='monospace break-word'>
-                                            https://user:token@domain/org/repo.git#branch
-                                        </span>{' '}
-                                        or{' '}
-                                        <span className='monospace break-word'>
-                                            git@domain:org/repo.git#branch
-                                        </span>
-                                        .
-                                    </span>
-                                )}
-                                className='project-name'
-                                data-cy='git-string'
-                            />
-                            <label>
-                                <Icon name='key' /> SSH keys{' '}
-                                <Info info='These are stored as is, so use caution: use this key only for versioning your bot, and give it only the necessary rights to push and pull to above repo.' />
-                            </label>
-                            <AutoField
-                                label='Public'
-                                name='publicSshKey'
-                                className='project-name'
-                                data-cy='public-ssh-key'
-                            />
-                            <LongTextField
-                                label='Private'
-                                name='privateSshKey'
-                                className='project-name'
-                                data-cy='private-ssh-key'
-                            />
-                        </Segment>
-                    )}
+                   
                     <InfoField
                         name='nluThreshold'
                         label='NLU threshold'

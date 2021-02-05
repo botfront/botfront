@@ -5,6 +5,13 @@ import { languages } from '../../lib/languages';
 import { ENVIRONMENT_OPTIONS } from '../../ui/components/constants.json';
 import { validateYaml, validateJSON } from '../../lib/utils';
 
+export const GitSettingsSchema = new SimpleSchema({
+    gitString: { type: String, optional: true, regEx: /^(https:\/\/.+?:.+?@|git@).+?#.+$/ },
+    publicSshKey: { type: String, optional: true },
+    privateSshKey: { type: String, optional: true },
+});
+
+
 export const DefaultDomainSchema = new SimpleSchema({
     content: {
         type: String,
@@ -102,9 +109,7 @@ export const ProjectsSchema = new SimpleSchema({
     logoUrl: { type: String, optional: true },
     smallLogoUrl: { type: String, optional: true },
     allowContextualQuestions: { type: Boolean, defaultValue: false },
-    gitString: { type: String, optional: true, regEx: /^(https:\/\/.+?:.+?@|git@).+?#.+$/ },
-    publicSshKey: { type: String, optional: true },
-    privateSshKey: { type: String, optional: true },
+    gitSettings: { type: GitSettingsSchema, optional: true },
 }, { tracker: Tracker });
 
 ProjectsSchema.messageBox.messages({

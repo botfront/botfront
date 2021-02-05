@@ -28,7 +28,7 @@ describe('roles permissions', () => {
         cy.visit('/admin/roles');
         cy.get('div.rt-td a').should('have.length', 20);
         cy.get('div.-next button.-btn').click();
-        cy.get('div.rt-td a').should('have.length', 9); // 8 base roles + 1 dummy role
+        cy.get('div.rt-td a').should('have.length', 11); // 10 base roles + 1 dummy role
         cy.visit('/admin/roles');
     });
 
