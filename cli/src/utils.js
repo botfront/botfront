@@ -198,7 +198,7 @@ export function updateProjectFile({
     projectAbsPath,
     images,
     env = {},
-    enableMongoAuth = true,
+    enableMongoAuth = false,
     leaveMongoUrl = false,
     mongoPassword = randomString(),
 }) {
