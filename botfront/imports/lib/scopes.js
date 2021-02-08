@@ -16,7 +16,6 @@ let CanExport = props => (
     </>
 );
 
-// ee start
 // eslint-disable-next-line import/first
 import {
     can as canEE, checkIfCan as checkIfCanEE, getUserScopes as getUserScopesEE, checkIfScope as checkIfScopeEE, isUserPermissionGlobal as isUserPermissionGlobalEE,
@@ -52,7 +51,6 @@ const mapStateToProps = state => ({
 CanExport = connect(
     mapStateToProps,
 )(CanExport);
-// ee end
 
 export const getUserScopes = getUserScopesExport;
 export const checkIfScope = checkIfScopeExport;

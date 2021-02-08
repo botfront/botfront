@@ -107,13 +107,11 @@ if (Meteor.isServer) {
                 },
             });
 
-            // ee-start //
             const { setUpRoles } = await import('./roles/roles');
             const { Roles } = await import('meteor/alanning:roles');
             setUpRoles();
             Roles.createRole('global-admin', { unlessExists: true });
             Roles.addUsersToRoles(userId, ['global-admin'], null);
-            // ee-end //
         },
 
         async 'initialSetup.secondStep'(projectData) {

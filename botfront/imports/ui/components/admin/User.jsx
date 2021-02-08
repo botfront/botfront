@@ -20,15 +20,12 @@ import {
 import { browserHistory } from 'react-router';
 
 import { UserEditSchema, UserCreateSchema } from '../../../api/user/user.schema';
+import { Projects } from '../../../api/project/project.collection';
 import { can, getUserScopes } from '../../../lib/scopes';
 import { wrapMeteorCallback } from '../utils/Errors';
+import SelectField from '../form_fields/SelectField';
 import ChangePassword from './ChangePassword';
 import PageMenu from '../utils/PageMenu';
-
-// ee
-import { Projects } from '../../../api/project/project.collection';
-import SelectField from '../form_fields/SelectField';
-// ee
 
 class User extends React.Component {
     constructor(props) {
