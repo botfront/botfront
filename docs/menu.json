@@ -14,6 +14,7 @@
       "Processing incoming utterances",
       "Publish and deploy",
       "Import (export) from (to) Rasa",
+      "Git integration",
       "Advanced topics"
     ]
   },
