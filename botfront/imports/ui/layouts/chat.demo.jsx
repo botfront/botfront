@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {
     Responsive, Button, Dropdown,
 } from 'semantic-ui-react';
-import { Widget } from 'rasa-webchat/module';
+import Widget from 'rasa-webchat';
 import { Loading } from '../components/utils/Utils';
 
 const ResponsiveAlternants = ({ cutoff, children, ...props }) => (
