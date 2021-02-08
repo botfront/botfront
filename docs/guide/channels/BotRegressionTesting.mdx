@@ -1,11 +1,11 @@
 ---
-name: Chat widget on your website
-title: Deploy your assistant to your website with Rasa Webchat
+name: Conversation flow testing
+title: Automate conversation flow testing with our custom BotResgressionTesting channel
 route: /docs/channels/bot-regression-testing/
 menu: Configuring channels
 meta:
   - name: description
-    content: Automated conversation flow testing in Rasa.
+    content: Automate conversation flow testing with our custom BotResgressionTesting channel
   - name: keywords
     content: test BotRegressionChannel
 permalink: /channels/:slug
@@ -15,11 +15,11 @@ permalink: /channels/:slug
 
 Botfront provides automated conversation flow testing to enable quick validation of existing your flows.
 
-The BotRegressionTesting channel simulates a user having a conversation with your chatbot. It validates that when the text of each user event is parsed by rasa it will return the same intents, entities, and bot responses as identified by the bot response name.
+The BotRegressionTesting channel simulates a user having a conversation with your chatbot. It validates that the text of each user event in a conversation is parsed with the same intents and entities, and that the bot responses generated from a test run match the bot responses in the test.
 
 ## Configure the channel
 
-This channel is configured by default when you run Botfront locally with the [CLI](/docs/getting-started/cli).
+This channel is configured by default when you run Botfront locally with the CLI.
 
 1. Go to **Settings -> Credentials**
 2. Add the following to the yaml
@@ -49,73 +49,3 @@ You can refer to the following example test story.
   intent: chitchat.greet
 - action: utter_hi
 ```
-
-## Test run payload
-
-The following is an example payload used to initiate a test run.
-```JSON
-{
-    "projectId": "bf",
-    "test_cases": [
-        {
-            "_id": "EXAMPLE_TEST_CASE_1",
-            "language": "en",
-            "steps": [
-                {
-                    "user": "/get_started",
-                    "entities": [],
-                    "intent": "get_started",
-                },
-                {
-                    "action": "utter_get_started"
-                },
-                {
-                    "user": "good morning",
-                    "entities": [
-                        {                            
-                            "entity": "timeOfDay",
-                            "value": "morning",
-                            "start": 5,
-                            "end": 12
-                        }
-                    ],
-                    "intent": "chitchat.greet",
-                }
-                {
-                    "action": "utter_hi"
-                }
-            ]
-        },
-        {
-            "_id": "EXAMPLE_TEST_CASE_2",
-            "language": "en",
-            "steps": [
-                {
-                    "user": "/get_started",
-                    "entities": [],
-                    "intent": "get_started",
-                },
-                {
-                    "action": "utter_get_started"
-                },
-                {
-                    "user": "hello",
-                    "entities": [
-                        {                            
-                            "entity": "timeOfDay",
-                            "value": "morning",
-                            "start": 5,
-                            "end": 12
-                        }
-                    ],
-                    "intent": "chitchat.greet",
-                }
-                {
-                    "action": "utter_hi"
-                }
-            ]
-        }
-    ]
-}
-```
-
