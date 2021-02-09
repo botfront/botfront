@@ -22,19 +22,47 @@ Branching is not currently supported.
 
 The two components required to connect to a git repository are the connection string and the authentication.
 There are many authentication methods for git, but we highly recomend using SSH key authentication as it typically allows for a finer level of access control.
+It is also highly recomended that you limit the access of this key to the minimum permissions required to pull and push to the branch you are using for your project.
 
 We recomend you create a new SSH key that is only used for your botfront project as SSH keys stored in botfront are not encrypted and are visible to any user with the git-credentials:r permission in your project scope.
 
+**Creating a SSH key**
 To create a SSH key for linux/macOS open a terminal window on your computer and enter the command ```ssh-keygen ```.
 
 When prompted type a file name and Press Enter.
 
+ADD IMAGE HERE
+
 When prompted, Enter and re-Enter a passphrase.
 
-Your key will then be created.
+ADD IMAGE HERE
 
-Add Your new SSH key as an authentication method for the repo you are going to use for your botfront project.
-It is highly recomended that you limit the access of this key to the minimum permissions required to pull and push to the branch you are using for your project.
+Your key will then be created. the full terminal output should look something like the following image.
+
+ADD IMAGE HERE
+
+in the directory where you created your keys, there will be two new files: ```<key-name>``` and ```<key-name>.pub```. The first file contains the private key and the second the public key.
+
+ADD IMAGE HERE
+
+**Adding a SSH key to a github repo**
+
+If you are using github you can follow these steps to add your SSH key to the repo that you will be using for your project.
+
+Open the repo in github, go to **Settings** -> **Deploy keys**, click on **Add deploy key**, enter a name and copy the your public key from the .pub file into the **Key** textbox.
+Make sure the **Allow write access** checkbox is checked so the botfront will be able to push to this repo and then click **save**
+
+NOT ACTUAL VIDEO
+<video autoplay muted loop width="100%" controls>
+  <source src="../../../videos/tests/create_test_from_webchat.m4v" type="video/mp4"/>
+  Your browser does not support the video tag.
+</video>
+
+You should now be able to see a new key with the name you chose listed under the **Deploy keys** header.
+
+ADD IMAGE HERE
+
+**Connecting botfront to git**
 
 Open your project in Botfront and navigate to **Settings** -> **Git credentials.**
 Copy your git connection string into the Git repository field followed by ```#<branch-name>``` where ```<branch-name>``` is the name of an existing branch in your repo that botfront will use to store the current project.
@@ -42,6 +70,12 @@ Copy your git connection string into the Git repository field followed by ```#<b
 A SSH key is made up of two files, one with a public key and one with a private key. Copy the text from the .pub file into the public field and the text from the other file into the private field.
 
 Click on Save to save your credentials.
+
+NOT ACTUAL VIDEO
+<video autoplay muted loop width="100%" controls>
+  <source src="../../../videos/tests/create_test_from_webchat.m4v" type="video/mp4"/>
+  Your browser does not support the video tag.
+</video>
 
 To confirm that you are connected to git, navigate back to the stories screen where you should see the git button in the right hand side of the main top bar.
 Note that git button will be disabled if your project is unable to connect to a Rasa instance as the conversion of imported and exported files relies on Rasa.
@@ -58,35 +92,33 @@ Click on this button to open a dropdown with two actions; Commit and push, and R
 To save your changes to the connected repo click on the Commit and push option in the git button dropdown.
 In the Modal that opens enter a commit message that describes the changes you have made to the project then click Push to remote to save your changes.
 
+NOT ACTUAL VIDEO
+<video autoplay muted loop width="100%" controls>
+  <source src="../../../videos/tests/create_test_from_webchat.m4v" type="video/mp4"/>
+  Your browser does not support the video tag.
+</video>
+
 If your changes were successfully saved a green alert will appear in the top right of your screen.
+
+ADD IMAGE HERE
 
 If there have been no changes since you last commited a yellow alert will appear in the top right corner of your screen.
 
+ADD IMAGE HERE
+
 If botfront is unable to commit and push a red alert containing an error message will appear in the top right corner of your screen.
+
+ADD IMAGE HERE
 
 **Revert to previous**
 
 To revert to a previous version of your project click on the Revert to previous option in the git button dropdown.
 In the modal that opens find the commit that you would like to revert to, hover your mouse over the row, and then click on the revert button that appears.
 
+NOT ACTUAL VIDEO
+<video autoplay muted loop width="100%" controls>
+  <source src="../../../videos/tests/create_test_from_webchat.m4v" type="video/mp4"/>
+  Your browser does not support the video tag.
+</video>
+
 If your project contains any unsaved changes it will save them with the commit message ```Project state before revert to <commitId>``` before reverting to the selected commit.
-
-
-
-
-
-## Choosing an authentication method
-
-There are many ways to authenticate a git repository. In this section we will be focusing on the two main ones, username password, and SSH keys
-
-
-
-- while they are many ways to auth use ssh	
-- create a key	
-- add key to botfront	
-- specify the branch!!!!!!
-- while multiple auth methods are possible we recomend ssh as it ususally give finer detailed accesss conversational	
-- Ideally create a ssh key which is only used for the repo with your project and has push and pull permission	
-- Ideally one project per repo	
-- ssh keys are not encrypted but only accessbile by users with the git-settings:r permission	
-- ssh keys are not exported to the repo or in any ecport files created using the export feature	
