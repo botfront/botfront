@@ -1,14 +1,13 @@
-import React, { useMemo, useContext } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import ReactJson from 'react-json-view';
 import { Comment, Message } from 'semantic-ui-react';
 import { generateTurns } from './utils';
-import { ProjectContext } from '../../layouts/context';
 
 import UserUtteredEventViewer from '../example_editor/UserUtteredEventViewer';
 
 function BotResponse({
-    type, text, data, key,
+    type, text, data,
 }) {
     if (!text && !data) {
         return null;
@@ -18,7 +17,7 @@ function BotResponse({
 
     const dataEmpty = !data || !Object.keys(data).length;
     return (
-        <div className='bot-response-message' key={key}>
+        <div className='bot-response-message'>
             {text && <p className='bot-response-text'>{text}</p>}
             {!dataEmpty && <ReactJson className='bot-response-json' src={data} collapsed name={type} />}
         </div>
@@ -29,30 +28,30 @@ BotResponse.propTypes = {
     type: PropTypes.string.isRequired,
     text: PropTypes.string,
     data: PropTypes.object,
-    key: PropTypes.string,
 };
 
 BotResponse.defaultProps = {
     text: '',
     data: null,
-    key: 'bot-response',
 };
 
 function Turn({
-    userSays, userId, botResponses, key,
+    userSays, userId, botResponses, userRef,
 }) {
     if (!userSays && botResponses.length === 0) {
         return null;
     }
 
     return (
-        <Comment key={key}>
+        <Comment>
             {userSays && ([
+                <div ref={userRef} />,
                 <Comment.Avatar src='/images/avatars/matt.jpg' />,
                 <UserUtteredEventViewer
                     event={userSays}
                     author={userId}
                 />,
+                
             ])}
             <Comment.Group>
                 <Comment>
@@ -63,7 +62,9 @@ function Turn({
                         </Comment.Metadata>
                         <Comment.Text>
                             {botResponses.map((response, index) => (
-                                <BotResponse {...response} key={`bot-response-${index}`} />
+                                <React.Fragment key={`bot-response-${index}`}>
+                                    <BotResponse {...response} />
+                                </React.Fragment>
                             ))}
                         </Comment.Text>
                         <Comment.Actions>
@@ -79,24 +80,42 @@ Turn.propTypes = {
     userSays: PropTypes.object,
     userId: PropTypes.string,
     botResponses: PropTypes.arrayOf(PropTypes.object).isRequired,
-    key: PropTypes.string,
+    userRef: PropTypes.object,
 };
 
 Turn.defaultProps = {
     userSays: null,
     userId: null,
-    key: 'dialogue-turn',
+    userRef: null,
 };
 
-function ConversationDialogueViewer({ conversation: { tracker, userId }, mode }) {
-    const { timezoneOffset } = useContext(ProjectContext);
-    const turns = useMemo(() => generateTurns(tracker, mode === 'debug', timezoneOffset), [tracker]);
+function ConversationDialogueViewer({
+    conversation: { tracker, userId },
+    mode,
+    messageIdInView,
+}) {
+    const toScrollTo = React.createRef();
+    
+    const turns = useMemo(() => generateTurns(tracker, mode === 'debug'), [tracker]);
+    useEffect(() => {
+        if (toScrollTo.current) {
+            toScrollTo.current.scrollIntoView({ block: 'center' });
+        }
+    }, []);
 
     return (
         <Comment.Group>
             {turns.length > 0 ? (
-                turns.map(({ userSays, botResponses }, index) => (
-                    <Turn userSays={userSays} userId={userId} botResponses={botResponses} key={`dialogue-turn-${index}`} />
+                turns.map(({ userSays, botResponses, messageId }, index) => (
+                    <React.Fragment key={`dialogue-turn-${index}`}>
+                        <Turn
+                            userSays={userSays}
+                            userId={userId}
+                            botResponses={botResponses}
+                            // eslint-disable-next-line camelcase
+                            userRef={messageId === messageIdInView ? toScrollTo : null}
+                        />
+                    </React.Fragment>
                 ))
             ) : (
                 <Message
@@ -119,10 +138,12 @@ function ConversationDialogueViewer({ conversation: { tracker, userId }, mode })
 ConversationDialogueViewer.propTypes = {
     conversation: PropTypes.object.isRequired,
     mode: PropTypes.string,
+    messageIdInView: PropTypes.string,
 };
 
 ConversationDialogueViewer.defaultProps = {
     mode: 'text',
+    messageIdInView: '',
 };
 
 export default ConversationDialogueViewer;

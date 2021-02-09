@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import {
     Input, Dropdown, Button, Icon,
 } from 'semantic-ui-react';
-// import moment from 'moment';
-// import DatePicker from '../../common/DatePicker';
+import moment from 'moment';
+import DatePicker from '../../common/DatePicker';
 import { ProjectContext } from '../../../layouts/context';
-// import { applyTimezoneOffset } from '../../../../lib/graphs';
+import { applyTimezoneOffset } from '../../../../lib/graphs';
 import getColor from '../../../../lib/getColors';
 
 const SORT_KEY_MAP = {
@@ -54,12 +54,12 @@ export default class Filters extends React.Component {
         onChange({ ...filter, order });
     };
 
-    // handleCalendarChange = (...bounds) => {
-    //     const { filter, onChange } = this.props;
-    //     const { project: { timezoneOffset: tz = 0 } = {} } = this.context;
-    //     const [startDate, endDate] = bounds.map(date => moment(applyTimezoneOffset(date, tz)));
-    //     onChange({ ...filter, dateRange: { startDate, endDate } });
-    // };
+    handleCalendarChange = (...bounds) => {
+        const { filter, onChange } = this.props;
+        const { project: { timezoneOffset: tz = 0 } = {} } = this.context;
+        const [startDate, endDate] = bounds.map(date => moment(applyTimezoneOffset(date, tz)));
+        onChange({ ...filter, dateRange: { startDate, endDate } });
+    };
 
     static contextType = ProjectContext;
 
@@ -71,13 +71,13 @@ export default class Filters extends React.Component {
                 query,
                 sortKey,
                 order,
-                // dateRange,
+                dateRange,
             },
             intents,
             entities,
             className,
         } = this.props;
-        // const { startDate, endDate } = dateRange || {};
+        const { startDate, endDate } = dateRange || {};
         const { sortDropdownOpen } = this.state;
         const renderIntentLabel = label => ({
             color: 'purple',
@@ -90,7 +90,7 @@ export default class Filters extends React.Component {
 
         return (
             <div className={`side-by-side narrow middle ${className}`}>
-                {/* {dateRange !== undefined && (
+                {dateRange !== undefined && (
                     <div className='date-picker' data-cy='date-picker-container'>
                         <DatePicker
                             startDate={startDate}
@@ -99,7 +99,7 @@ export default class Filters extends React.Component {
                             placeholder='Filter by date'
                         />
                     </div>
-                )} */}
+                )}
                 {intents.length > 0 && (
                     <Dropdown
                         style={{ marginRight: '10px' }}

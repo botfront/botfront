@@ -1,0 +1,99 @@
+stories:
+  - story: Conv Mark Email trigger
+    steps:
+      - or:
+          - intent: that_one_was_triggered
+            entities:
+              - first_name: first_name
+              - work_email: work_email
+          - intent: trigger_crfDlHjrr
+            entities:
+              - first_name: first_name
+              - work_email: work_email
+      - action: utter_IWpnJIayo
+      - intent: basics.yes
+      - action: utter_I5mNVmuFh
+      - intent: next
+      - checkpoint: link-to-Tuto/b7cac937-ac6a-442f-a703-6fce13cf08b9
+    metadata:
+      rules:
+        - trigger:
+            when: always
+            url__DISPLAYIF: true
+            url:
+              - partialMatch: true
+                path: 'http://localhost:8000/solutions/conversational-marketing'
+            queryString__DISPLAYIF: true
+            queryString:
+              - value: email
+                param: source
+                value__DISPLAYIF: true
+              - param: first_name
+                value__DISPLAYIF: false
+                sendAsEntity: true
+              - param: work_email
+                value__DISPLAYIF: false
+                sendAsEntity: true
+      triggerIntent: trigger_crfDlHjrr
+      group: Conv Mark
+  - story: Conv Mark PPC trigger
+    steps:
+      - intent: trigger_y3vKE6vnS
+        entities:
+          - utm_source: utm_source
+          - utm_campaign: utm_campaign
+          - utm_keyword: utm_keyword
+      - action: utter_dpHJZXdNB
+      - action: utter_fVu5yv569
+      - intent: basics.yes
+      - checkpoint: link-to-Tuto/b7cac937-ac6a-442f-a703-6fce13cf08b9
+    metadata:
+      rules:
+        - trigger:
+            when: always
+            url__DISPLAYIF: true
+            url:
+              - partialMatch: false
+                path: 'http://localhost:8000/solutions/conversational-marketing'
+            queryString__DISPLAYIF: true
+            queryString:
+              - param: utm_source
+                value__DISPLAYIF: false
+                sendAsEntity: true
+              - param: utm_campaign
+                value__DISPLAYIF: false
+                sendAsEntity: true
+              - param: utm_keyword
+                value__DISPLAYIF: false
+                sendAsEntity: true
+      triggerIntent: trigger_y3vKE6vnS
+      group: Conv Mark
+  - story: Tuto
+    steps:
+      - checkpoint: link-to-Tuto/b7cac937-ac6a-442f-a703-6fce13cf08b9
+      - action: utter_l1kpVSoU0
+      - intent: next
+      - action: utter_kzQ8heqVx
+      - intent: next
+      - action: utter_bJmO2EJnX
+      - intent: next
+      - action: utter_6rBlu2cQN
+      - checkpoint: Tuto__branches
+    metadata:
+      group: Conv Mark
+  - story: Tuto__No
+    steps:
+      - checkpoint: Tuto__branches
+      - intent: basics.no
+      - checkpoint: >-
+          link-to-Propose Newsletter
+          Subscription/038acead-bdfc-43b3-8c90-f11e3524b08d
+    metadata:
+      group: Conv Mark
+  - story: Tuto__Yes
+    steps:
+      - checkpoint: Tuto__branches
+      - intent: basics.yes
+    metadata:
+      group: Conv Mark
+rules: []

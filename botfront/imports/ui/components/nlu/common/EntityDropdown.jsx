@@ -8,7 +8,7 @@ import { ProjectContext } from '../../../layouts/context';
 const asciiChar = /^[\x21-\x7E]+$/;
 
 function EntityDropdown({
-    entity, onAddItem, onChange, onClear, allowAdditions,
+    entity, onAddItem, onChange, onClear, allowAdditions, disabled,
 }) {
     const { entities = [] } = useContext(ProjectContext);
     const options = useMemo(
@@ -40,6 +40,7 @@ function EntityDropdown({
     return (
         <div className='side-by-side middle'>
             <Dropdown
+                disabled={disabled}
                 icon='code'
                 basic
                 fluid
@@ -59,7 +60,7 @@ function EntityDropdown({
                 options={options}
                 data-cy='entity-dropdown'
             />
-            {onClear && (
+            {onClear && !disabled && (
                 <div>
                     <IconButton onClick={onClear} color='grey' icon='trash' />
                 </div>
@@ -74,11 +75,13 @@ EntityDropdown.propTypes = {
     onChange: PropTypes.func.isRequired,
     onClear: PropTypes.func,
     allowAdditions: PropTypes.bool,
+    disabled: PropTypes.bool,
 };
 
 EntityDropdown.defaultProps = {
     allowAdditions: true,
     onClear: null,
+    disabled: false,
 };
 
 export default EntityDropdown;

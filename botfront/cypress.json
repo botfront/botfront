@@ -9,10 +9,10 @@
     "baseUrl": "http://localhost:3000",
     "defaultCommandTimeout": 10000,
     "watchForFileChanges": false,
-    "numTestsKeptInMemory": 2 ,
+    "numTestsKeptInMemory": 1 ,
     "viewportHeight": 900,
     "viewportWidth": 1800,
-    "ignoreTestFiles":[],
+    "ignoreTestFiles":["**/roles-example.spec.js"],
     "retries": {
         "runMode": 5,
         "openMode": 0

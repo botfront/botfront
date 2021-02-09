@@ -8,7 +8,7 @@ describe('Project Core Policy', function() {
         cy.createProject('bf', 'My Project', 'en').then(() => cy.login());
     });
     it('migration status exists and the search indicies work after being rebuilt', function() {
-        cy.visit('project/bf/settings/global');
+        cy.visit('admin/settings/global');
         cy.get('a.item').contains('Misc').click();
         cy.dataCy('migration-status').contains('OK').should('exist');
         cy.dataCy('rebuild-button').click();

@@ -10,6 +10,7 @@ import { GET_CONVERSATION } from './queries';
 import { MARK_READ } from './mutations';
 import ConversationJsonViewer from './ConversationJsonViewer';
 import ConversationDialogueViewer from './ConversationDialogueViewer';
+import Can from '../roles/Can';
 
 function ConversationViewer (props) {
     const [active, setActive] = useState('Text');
@@ -119,17 +120,21 @@ function ConversationViewer (props) {
                     <Menu.Item name='flagged' disabled={!ready} active={ready && tracker.status === 'flagged'} onClick={this.handleItemStatus}>
                         <Icon name='flag' />
                     </Menu.Item> */}
-                <Menu.Item name='archived' disabled={!ready} active={ready && tracker.status === 'archived'} onClick={handleItemDelete}>
-                    <Icon name='trash' data-cy='conversation-delete' />
-                </Menu.Item>
-                <Menu.Item name='archived' disabled={!ready} active={ready && tracker.status === 'archived'} onClick={handleSaveAsTestCase}>
-                    <Icon
-                        name='clipboard check'
-                        data-cy='save-as-test'
-                        color={savedTest ? 'green' : 'black'}
-                        className={savedTest ? 'saved-test' : ''}
-                    />
-                </Menu.Item>
+                <Can I='incoming:w'>
+                    <>
+                        <Menu.Item name='archived' disabled={!ready} active={ready && tracker.status === 'archived'} onClick={handleItemDelete}>
+                            <Icon name='trash' data-cy='conversation-delete' />
+                        </Menu.Item>
+                        <Menu.Item name='archived' disabled={!ready} active={ready && tracker.status === 'archived'} onClick={handleSaveAsTestCase}>
+                            <Icon
+                                name='clipboard check'
+                                data-cy='save-as-test'
+                                color={savedTest ? 'green' : 'black'}
+                                className={savedTest ? 'saved-test' : ''}
+                            />
+                        </Menu.Item>
+                    </>
+                </Can>
                 <Menu.Menu position='right'>
                     <Menu.Item name='Text' disabled={!ready} active={ready && active === 'Text'} onClick={handleItemClick}>
                         <Icon name='comments' />

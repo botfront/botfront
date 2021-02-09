@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { connect } from 'react-redux';
-import { setStoryMode } from '../../store/actions/actions';
+import { setStoryMode, setStoriesCurrent } from '../../store/actions/actions';
 import { Slots } from '../../../api/slots/slots.collection';
 import { ConversationOptionsContext } from './Context';
 import { formNameIsValid } from '../../../lib/client.safe.utils';
@@ -45,8 +45,12 @@ class StoryGroupNavigation extends React.Component {
     };
 
     submitTitleInput = (element) => {
-        const { editing, newItemName, itemName } = this.state;
-        const { addGroup, updateGroup } = this.props;
+        const {
+            editing, newItemName, itemName,
+        } = this.state;
+        const {
+            addGroup, updateGroup,
+        } = this.props;
         if (editing === -1 && !!newItemName) {
             addGroup({ name: newItemName });
             this.resetAddItem();
@@ -79,15 +83,14 @@ class StoryGroupNavigation extends React.Component {
                 <Button.Group fluid>
                     {tooltipWrapper(
                         <Button
-                            key='newItem'
-                            onClick={() => this.setState({ addMode: true })}
+                            icon='add'
+                            className='icon'
                             data-cy='add-item'
-                            icon
                             disabled={!allowAddition}
-                            content={<Icon name='add' />}
-                            style={{ width: 0 }}
+                            style={{ textAlign: 'center' }}
+                            onClick={() => this.setState({ addMode: true })}
                         />,
-                        'New story group',
+                        'Create group',
                     )}
                     {tooltipWrapper(
                         <Button
@@ -123,9 +126,6 @@ class StoryGroupNavigation extends React.Component {
     render() {
         const { allowAddition } = this.props;
         const { addMode, newItemName } = this.state;
-        let placeholder = '';
-        if (addMode === 'group') placeholder = 'Choose a group name';
-        if (addMode === 'form') placeholder = 'Choose a form name';
 
         return !allowAddition || !addMode
             ? this.renderNavigation()
@@ -139,7 +139,7 @@ class StoryGroupNavigation extends React.Component {
                     open
                     trigger={(
                         <Input
-                            placeholder={placeholder}
+                            placeholder='Choose a group name'
                             onChange={this.handleChangeNewItemName}
                             value={newItemName}
                             onKeyDown={this.handleKeyDownInput}
@@ -149,7 +149,6 @@ class StoryGroupNavigation extends React.Component {
                             data-cy='add-item-input'
                             className='navigation'
                         />
-
                     )}
                 />
             );
@@ -163,6 +162,8 @@ StoryGroupNavigation.propTypes = {
     storyMode: PropTypes.string.isRequired,
     addGroup: PropTypes.func.isRequired,
     updateGroup: PropTypes.func.isRequired,
+    setStoryMenuSelection: PropTypes.func.isRequired,
+    upsertForm: PropTypes.func.isRequired,
 };
 
 StoryGroupNavigation.defaultProps = {
@@ -176,6 +177,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = {
     onSwitchStoryMode: setStoryMode,
+    setStoryMenuSelection: setStoriesCurrent,
 };
 
 const BrowserWithState = connect(mapStateToProps, mapDispatchToProps)(StoryGroupNavigation);

@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Icon, Popup } from 'semantic-ui-react';
+import { insertSmartPayloads } from '../../../lib/client.safe.utils';
 import { runTestCaseStories } from '../utils/runTestCaseStories';
 
 import {
@@ -15,7 +16,7 @@ const StoryPlayButton = (props) => {
         changeShowChat,
         changeChatInitPayload,
         refreshChat,
-        fragment: { steps = [], rules = [] } = {},
+        fragment: { steps = [], rules = [], triggerIntent } = {},
         className,
         type,
         storyId,
@@ -23,7 +24,11 @@ const StoryPlayButton = (props) => {
     } = props;
 
     const getInitialPayload = () => {
-        const bonifiedSteps = steps;
+        const { steps: bonifiedSteps } = insertSmartPayloads({
+            steps,
+            rules,
+            triggerIntent,
+        });
         const { intent, entities = [] } = bonifiedSteps[0].or
             ? bonifiedSteps[0].or[0]
             : bonifiedSteps[0];

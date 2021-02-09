@@ -1,10 +1,13 @@
-import { safeDump } from 'js-yaml/lib/js-yaml';
+import { safeDump, safeLoad } from 'js-yaml/lib/js-yaml';
 import shortid from 'shortid';
-import { safeLoad } from 'js-yaml';
 import BotResponses from '../botResponses.model';
-import { cleanPayload } from '../../../../lib/client.safe.utils';
+import Forms from '../../forms/forms.model';
+import { clearTypenameField, cleanPayload } from '../../../../lib/client.safe.utils';
 import { Stories } from '../../../story/stories.collection';
 import { addTemplateLanguage, modifyResponseType } from '../../../../lib/botResponse.utils';
+import {
+    getWebhooks, deleteImages, auditLogIfOnServer, getImageUrls,
+} from '../../../../lib/utils';
 import { replaceStoryLines } from '../../story/mongo/stories';
 
 const getEntities = (storyLine) => {
@@ -141,7 +144,14 @@ export const getBotResponses = async projectId => BotResponses.find({
     projectId,
 }).lean();
 
-export const deleteResponse = async (projectId, key) => BotResponses.findOneAndDelete({ projectId, key });
+
+export const deleteResponse = async (projectId, key) => {
+    const response = await BotResponses.findOne({ projectId, key }).lean();
+    if (!response) return;
+    const { deleteImageWebhook: { url, method } } = getWebhooks();
+    if (url && method) deleteImages(getImageUrls(response), projectId, url, method);
+    return BotResponses.findOneAndDelete({ _id: response._id }).lean(); // eslint-disable-line consistent-return
+};
 
 export const getBotResponse = async (projectId, key) => BotResponses.findOne({
     projectId,
@@ -246,7 +256,9 @@ export const newGetBotResponses = async ({
     const { emptyAsDefault } = options;
     // template (optional): str || array
     // language (optional): str || array
-    let templateKey = {}; let languageKey = {}; let languageFilter = [];
+    let templateKey = {};
+    let languageKey = {};
+    let languageFilter = [];
     if (template) {
         const templateArray = typeof template === 'string' ? [template] : template;
         templateKey = { key: { $in: templateArray } };
@@ -254,9 +266,19 @@ export const newGetBotResponses = async ({
     if (language) {
         const languageArray = typeof language === 'string' ? [language] : language;
         languageKey = { 'values.lang': { $in: languageArray } };
-        languageFilter = [{
-            $addFields: { values: { $filter: { input: '$values', as: 'value', cond: { $in: ['$$value.lang', languageArray] } } } },
-        }];
+        languageFilter = [
+            {
+                $addFields: {
+                    values: {
+                        $filter: {
+                            input: '$values',
+                            as: 'value',
+                            cond: { $in: ['$$value.lang', languageArray] },
+                        },
+                    },
+                },
+            },
+        ];
     }
     const aggregationParameters = [
 
@@ -293,15 +315,35 @@ export const newGetBotResponses = async ({
     return templates;
 };
 
-
-export const deleteResponsesRemovedFromStories = (removedResponses, projectId) => {
-    const sharedResponses = Stories.find({ projectId, events: { $in: removedResponses } }, { fields: { events: true } }).fetch();
+export const deleteResponsesRemovedFromStories = async (removedResponses, projectId) => {
+    const sharedResponsesInStories = Stories.find({ projectId, events: { $in: removedResponses } }, { fields: { events: true } }).fetch();
+    const formsInProject = await Forms.find({ projectId }).lean();
+    const responsesInForms = formsInProject.reduce((acc, value) => [
+        ...acc,
+        ...value.slots.reduce((allSlots, slot) => [
+            ...allSlots,
+            `utter_ask_${slot.name}`,
+            `utter_valid_${slot.name}`,
+            `utter_invalid_${slot.name}`,
+        ], [])], []);
     if (removedResponses && removedResponses.length > 0) {
         const deleteResponses = removedResponses.filter((event) => {
-            if (!sharedResponses) return true;
-            return !sharedResponses.find(({ events }) => events.includes(event));
+            if (sharedResponsesInStories.find(({ events }) => events.includes(event))) return false;
+            if (responsesInForms.some(response => response === event)) return false;
+            return true;
         });
         deleteResponses.forEach(event => deleteResponse(projectId, event));
+        deleteResponses.forEach((response) => {
+            auditLogIfOnServer('Deleted response', {
+                resId: response._id,
+                user: Meteor.user(),
+                projectId,
+                type: 'deleted',
+                operation: 'response-deleted',
+                before: { response },
+                resType: 'response',
+            });
+        });
     }
 };
 

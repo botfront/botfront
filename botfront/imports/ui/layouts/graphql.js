@@ -31,8 +31,8 @@ export const GET_BOT_RESPONSES = gql`
 `;
 
 export const UPSERT_BOT_RESPONSE = gql`
-mutation upsertResponse($projectId: String!, $key: String!, $newKey: String, $language: String!, $newPayload: Any, $index: Int = -1, $newResponseType: String) {
-    upsertResponse(projectId: $projectId, key: $key, newKey: $newKey, language: $language, newPayload: $newPayload, index: $index, newResponseType: $newResponseType) {
+mutation upsertResponse($projectId: String!, $key: String!, $newKey: String, $language: String!, $newPayload: Any, $index: Int = -1, $logging: Boolean = true, $newResponseType: String) {
+    upsertResponse(projectId: $projectId, key: $key, newKey: $newKey, language: $language, newPayload: $newPayload, index: $index, logging: $logging, newResponseType: $newResponseType) {
         key
     }
 }`;

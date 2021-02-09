@@ -1,5 +1,7 @@
 scalar Date
 
+scalar Moment
+
 scalar Any
 
 enum order {

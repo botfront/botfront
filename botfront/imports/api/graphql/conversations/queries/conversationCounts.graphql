@@ -1,0 +1,37 @@
+query ConversationCounts(
+    $projectId: String!,
+    $envs: [String] = ["development", null],
+    $langs: [String] = [],
+    $from: Float,
+    $to: Float,
+    $nBuckets: Int = 7,
+    $includeIntents: [String],
+    $excludeIntents: [String],
+    $triggerConversations: Boolean,
+    $userInitiatedConversations: Boolean,
+    $includeActions: [String],
+    $excludeActions: [String],
+    $conversationLength: Int,
+    $eventFilter: [StepInput],
+    $eventFilterOperator: IntentsAndActionsOperator,
+) {
+    conversationCounts(
+        projectId: $projectId,
+        envs: $envs,
+        langs: $langs,
+        from: $from,
+        to: $to,
+        nBuckets: $nBuckets,
+        includeIntents: $includeIntents,
+        excludeIntents: $excludeIntents,
+        userInitiatedConversations: $userInitiatedConversations,
+        triggerConversations: $triggerConversations,
+        includeActions: $includeActions,
+        excludeActions: $excludeActions,
+        conversationLength: $conversationLength,
+        eventFilter: $eventFilter,
+        eventFilterOperator: $eventFilterOperator,
+    ) {
+        bucket, hits, count, proportion
+    }
+}

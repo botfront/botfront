@@ -4,13 +4,14 @@ import chai from 'chai';
 import deepEqualInAnyOrder from 'deep-equal-in-any-order';
 import Conversations from '../conversations/conversations.model.js';
 import Activity from '../activity/activity.model';
+import AnalyticsDashboards from '../analyticsDashboards/analyticsDashboards.model';
 import { Credentials } from '../../credentials';
 import { Endpoints } from '../../endpoints/endpoints.collection';
 import { Instances } from '../../instances/instances.collection';
 import { GlobalSettings } from '../../globalSettings/globalSettings.collection';
 import { Slots } from '../../slots/slots.collection';
 import BotResponses from '../botResponses/botResponses.model';
-
+import FormResults from '../forms/form_results.model';
 
 import { CorePolicies } from '../../core_policies';
 import { Projects } from '../../project/project.collection';
@@ -24,6 +25,9 @@ import {
     handleImportCredentials,
     handleImportEndpoints,
     handleImportRasaConfig,
+    handleImportAnalyticsConfig,
+    handleImportWidgetSettings,
+    handleImportFromResults,
 } from './fileImporters';
 import {
     validConversationsParsed,
@@ -59,12 +63,20 @@ import {
     validDefaultDomainParsed,
 } from '../../../lib/importers/test_data/defaultdomain.data.js';
 import {
+    validAnalytics,
+    validAnalyticsParsed,
+} from '../../../lib/importers/test_data/analytics.data.js';
+
+import {
     validDomain,
     validDomainParsed,
     validDomainFr,
     validDomainFrParsed,
     validDomainsMerged,
 } from '../../../lib/importers/test_data/domain.data.js';
+import { createTestUser, removeTestUser } from '../../testUtils';
+import { validWidgetSettings, validWidgetSettingsParsed } from '../../../lib/importers/test_data/widgetsettings.data.js';
+import { validFormResults, validFormResultsParsed } from '../../../lib/importers/test_data/formresults.data.js';
 
 
 chai.use(deepEqualInAnyOrder);
@@ -87,6 +99,15 @@ const removeId = (obj) => {
 
 const removeIds = arr => arr.map(removeId);
 
+const caught = func => async (done) => {
+    try {
+        await func();
+        done();
+    } catch (e) {
+        done(e);
+    }
+};
+
 if (Meteor.isServer) {
     // we only import those here otherwise they  will be loaded when doing client test and make the client side test fail
     import '../../project/project.methods';
@@ -94,6 +115,11 @@ if (Meteor.isServer) {
     import '../../slots/slots.methods';
 
     describe('file importers', () => {
+        before(caught(async () => {
+            await removeTestUser();
+            await createTestUser();
+        }));
+        after(caught(removeTestUser));
         it('should import conversations and wipe the previous ones in existing env', async () => {
             await Conversations.deleteMany({});
             await Conversations.create([{ _id: 'test', test: 'test', projectId: 'bf' }]);
@@ -239,7 +265,13 @@ if (Meteor.isServer) {
             ])[0];
             await expect(importResult).to.eql([]);
             await expect(removeId(instanceDb)).to.eql(removeId(instance));
-            await expect(project).to.eql(compProject);
+            await expect(project).excludingEvery([
+                'allowContextualQuestions',
+                'namespace',
+                'nluThreshold',
+                'timezoneOffset',
+                'deploymentEnvironments',
+            ]).to.eql(compProject);
         });
         it('should import defaultDomain', async () => {
             await Projects.remove({});
@@ -254,25 +286,14 @@ if (Meteor.isServer) {
                 [{ ...validDefaultDomain }],
                 { ...params, defaultDomain: validDefaultDomainParsed },
             );
-            const project = removeDates([Projects.findOne({ _id: 'bf' })])[0];
-            const compProject = removeDates([
-                {
-                    _id: 'bf',
-                    disabled: false,
-                    enableSharing: false,
-                    defaultDomain: {
-                        content:
+            const { defaultDomain } = Projects.findOne({ _id: 'bf' });
+            const compdefaultDomain = {
+                content:
                             // eslint-disable-next-line max-len
                             'slots:\n  test_message:\n    type: unfeaturized\nresponses:\n  utter_goodbye:\n    - language: en\n      text: \'Goodbye :(\'\n  utter_greet:\n    - language: en\n      text: Hey there!\n  utter_double:\n    - language: en\n      text: Hey there!1\nforms:\n  restaurant_form:\n    cuisine:\n      - entity: cuisine\n        type: from_entity\nactions:\n  - action_aaa',
-                    },
-                    name: 'test',
-                    languages: ['fr'],
-                    defaultLanguage: 'fr',
-                    storyGroups: [],
-                },
-            ])[0];
+            };
             await expect(importResult).to.eql([]);
-            await expect(project).to.eql(compProject);
+            await expect(defaultDomain).to.eql(compdefaultDomain);
         });
         it('should import rasaConfig', async () => {
             await Projects.remove({});
@@ -452,7 +473,7 @@ actions:
             const reponses = await BotResponses.find({ projectId: 'bf' }).lean();
             const slots = await Slots.find({ projectId: 'bf' }).fetch();
             const project = Projects.findOne({ _id: 'bf' });
-            await expect(reponses.map(removeId)).to.eql(validDomainsMerged.responses);
+            await expect(reponses.map(removeId)).to.deep.equalInAnyOrder(validDomainsMerged.responses);
             await expect(slots.map(removeId)).to.deep.equalInAnyOrder(validDomainsMerged.slots);
             await expect(project.defaultDomain.content).to.eql(`forms:
   restaurant_form:
@@ -462,6 +483,68 @@ actions:
 actions:
   - action_aaa
   - action_get_help`);
+        });
+        it('should import analytics config', async () => {
+            await AnalyticsDashboards.deleteOne({ projectId: 'bf' });
+            const importResult = await handleImportAnalyticsConfig(
+                [{ ...validAnalytics, analytics: validAnalyticsParsed }],
+                params,
+            );
+            const dashboard = await AnalyticsDashboards.findOne({ projectId: 'bf' }).lean();
+            await expect(importResult).to.eql([]);
+            await expect(removeId(dashboard)).to.eql(removeId({ ...validAnalyticsParsed, projectId: 'bf' }));
+        });
+        
+        it('should import widget settings', async () => {
+            await Projects.remove({});
+            await Projects.insert({
+                _id: 'bf',
+                name: 'test',
+                languages: ['fr'],
+                defaultLanguage: 'fr',
+                namespace: 'bf-ha',
+            });
+            const importResult = await handleImportWidgetSettings(
+                [{ ...validWidgetSettings, widgetsettings: validWidgetSettingsParsed }], params,
+            );
+
+            const project = removeDates([await Projects.findOne({ _id: 'bf' })])[0];
+       
+            await expect(importResult).to.eql([]);
+            await expect(project.chatWidgetSettings).to.eql(validWidgetSettingsParsed);
+        });
+        it('should import form results and wipe the previous ones in existing env', async () => {
+            await FormResults.deleteMany({});
+            await FormResults.create([{ _id: 'test', test: 'test', projectId: 'bf' }]);
+            const importResult = await handleImportFromResults(
+                [{ ...validFormResults, formresults: validFormResultsParsed, env: 'development' }],
+                { ...params, wipeInvolvedCollections: true },
+            );
+            const formresults = await FormResults.find({ projectId: 'bf' }).lean();
+            await expect(importResult).to.eql([]);
+            // we use equalInAnyOrder because the conversation are send to the db in parrallel, so we don't know the order
+            await expect(removeDates(formresults)).to.deep.equalInAnyOrder(removeDates(validFormResultsParsed));
+        });
+        it('should import form results in  existing env', async () => {
+            await FormResults.deleteMany({});
+            const importResult = await handleImportFromResults(
+                [{ ...validFormResults, formresults: validFormResultsParsed, env: 'production' }],
+                { ...params, supportedEnvs: ['development', 'production'] },
+            );
+            const formresults = await FormResults.find({ projectId: 'bf' }).lean();
+            await expect(importResult).to.eql([]);
+            // we use equalInAnyOrder because the conversation are send to the db in parrallel, so we don't know the order
+            await expect(removeDates(formresults)).to.deep.equalInAnyOrder(removeDates(validFormResultsParsed.map(conv => ({ ...conv, environment: 'production' }))));
+        });
+        it('should not import form results if env is not supported', async () => {
+            await FormResults.deleteMany({});
+            const importResult = await handleImportFromResults(
+                [{ ...validFormResults, formresults: validFormResultsParsed, env: 'production' }],
+                params,
+            );
+            const formresults = await FormResults.find({ projectId: 'bf' }).lean();
+            await expect(importResult).to.eql([]);
+            await expect(formresults).to.eql([]);
         });
     });
 }

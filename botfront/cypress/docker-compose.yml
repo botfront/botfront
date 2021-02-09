@@ -55,9 +55,8 @@ services:
     container_name: botfront-test-rasa
     restart: always
     command:
-      - run
-      - --enable-api
-      - --debug
+      - -c
+      - "rasa run --enable-api --debug"
     # ports:
     #   - '5005:5005'
     depends_on:

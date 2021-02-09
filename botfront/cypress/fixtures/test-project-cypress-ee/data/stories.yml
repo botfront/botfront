@@ -1,0 +1,98 @@
+version: "2.0"
+
+
+stories:
+
+- story: thank
+  steps:
+  - intent: thank
+  - action: utter_welcome
+
+- story: greet + give info
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - action: utter_help
+
+- story: say goodbye
+  steps:
+  - intent: goodbye
+  - action: utter_goodbye
+
+- story: open incident form interrupted
+  steps:
+  - or:
+    - intent: open_incident
+    - intent: password_reset
+    - intent: problem_email
+  - action: open_incident_form
+  - active_loop: open_incident_form
+  - intent: help
+  - action: utter_help
+  - action: open_incident_form
+  - active_loop: null
+  - action: action_open_incident
+
+- story: open incident form interrupted
+  steps:
+  - or:
+    - intent: open_incident
+    - intent: password_reset
+    - intent: problem_email
+  - action: open_incident_form
+  - active_loop: open_incident_form
+  - intent: out_of_scope
+  - action: utter_out_of_scope
+  - action: open_incident_form
+  - active_loop: null
+  - action: action_open_incident
+
+- story: incident status form interrupted
+  steps:
+  - intent: incident_status
+  - action: incident_status_form
+  - active_loop: incident_status_form
+  - intent: help
+  - action: utter_help
+  - action: incident_status_form
+  - active_loop: null
+  - action: action_check_incident_status
+
+- story: incident status form interrupted
+  steps:
+  - intent: incident_status
+  - action: incident_status_form
+  - active_loop: incident_status_form
+  - intent: out_of_scope
+  - action: utter_out_of_scope
+  - action: incident_status_form
+  - active_loop: null
+  - action: action_check_incident_status
+
+- story: incident status form switch to open incident
+  steps:
+  - intent: incident_status
+  - action: incident_status_form
+  - active_loop: incident_status_form
+  - or:
+    - intent: open_incident
+    - intent: password_reset
+    - intent: problem_email
+  - action: open_incident_form
+  - active_loop: open_incident_form
+  - active_loop: null
+  - action: action_open_incident
+
+- story: open incident form switch to incident status form
+  steps:
+  - or:
+    - intent: open_incident
+    - intent: password_reset
+    - intent: problem_email
+  - action: open_incident_form
+  - active_loop: open_incident_form
+  - intent: incident_status
+  - action: incident_status_form
+  - active_loop: incident_status_form
+  - active_loop: null
+  - action: action_check_incident_status
