@@ -25,7 +25,10 @@ This integration allows Botfront to offer advanced Natural Language Understandin
 Similarly to human-to-human interactions, human-to-machine interactions are based on dialogue turns.
 A turn consists in a **user input** followed by a **virtual assistant response**.
 
-In Botfront, you can design automated conversations in segments called **stories**.
+In Botfront, you can design automated conversations in fragments called [**stories**](https://rasa.com/docs/rasa/stories) and [**rules**](https://rasa.com/docs/rasa/rules).
+The links point to the official Rasa documentation that explains the difference in greater details, but in short, rules are for very simple interactions not requiring AI, 
+such as FAQ, basic chitchat, and launching a form, and stories are for conversational experiences when you expect AI to complement the cases you provide in your data.
+For logical flows with complex conditional logic, you can use forms (and rules or stories to orchestrate them)  
 
 Let's start with a simple example, A user greets the virtual assistant and the bot answers.
 
@@ -44,6 +47,11 @@ Let's have a closer look to what happened in that video:
 > You cannot edit a user utterance after you save it. If you want to change something, you will need to delete it and add a new one in the same place.
 
 When you save a user utterance, it is also added to your training data to easily develop and enhance your model. If you delete it in the conversation builder, it will still remain in your training data. If you completely want to remove a user utterance from everywhere, you will need to manually delete it from your training data as well.
+
+<Important type="info">
+Rules might be a better fit for these simple conversations as they will take less time to train. 
+</Important>
+
 
 ## Improving Natural Language Understanding
 
