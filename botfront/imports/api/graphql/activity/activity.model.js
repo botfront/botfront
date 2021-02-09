@@ -19,6 +19,9 @@ const model = new Schema({
     }],
     confidence: { type: Number, required: false },
     validated: { type: Boolean, required: false },
+    env: { type: String, required: false },
+    language: String,
+    projectId: String,
     createdAt: {
         type: Date,
         default: Date.now,
@@ -27,9 +30,18 @@ const model = new Schema({
         type: Date,
         default: Date.now,
     },
-    env: { type: String, required: false },
-    language: String,
-    projectId: String,
+    ooS: {
+        type: Boolean,
+        defaultValue: false,
+    },
+    message_id: {
+        type: String,
+        required: false,
+    },
+    conversation_id: {
+        type: String,
+        required: false,
+    },
 });
 model.index({
     text: 1, modelId: 1, env: 1, language: 1, projectId: 1,

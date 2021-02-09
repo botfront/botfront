@@ -6,6 +6,7 @@ import { wrapMeteorCallback } from '../utils/Errors';
 import LookupTable from './LookupTable';
 import InlineSearch from '../utils/InlineSearch';
 import MinScoreEdit from './MinScoreEdit';
+import { can } from '../../../lib/scopes';
 
 function ModeEdit({ gazette, onEdit }) {
     function onUpdateText(value, callback) {
@@ -36,25 +37,35 @@ class GazetteEditor extends React.Component {
     };
 
     extraColumns() {
+        const { projectId } = this.props;
         return [
             {
                 id: 'mode',
                 accessor: e => e,
                 Header: 'Mode',
-                Cell: props => (
-                    <div>
-                        <ModeEdit gazette={props.value} onEdit={this.onItemChanged} />
-                    </div>
-                ),
+                Cell: (props) => {
+                    if (can('nlu-data:w', projectId)) {
+                        return (
+                            <div>
+                                <ModeEdit gazette={props.value} onEdit={this.onItemChanged} />
+                            </div>
+                        );
+                    }
+                    return <span>{props.value.mode}</span>;
+                },
                 width: 130,
                 filterable: false,
-            }, {
+            },
+            {
                 id: 'min_score',
                 accessor: e => e,
                 Header: 'Min Score',
-                Cell: props => (
-                    <MinScoreEdit gazette={props.value} onEdit={this.onItemChanged} />
-                ),
+                Cell: (props) => {
+                    if (can('nlu-data:w', projectId)) {
+                        return <MinScoreEdit gazette={props.value} onEdit={this.onItemChanged} />;
+                    }
+                    return <span>{props.value.min_score}</span>;
+                },
                 width: 100,
                 filterable: false,
             },
@@ -62,7 +73,7 @@ class GazetteEditor extends React.Component {
     }
 
     render() {
-        const { model } = this.props;
+        const { projectId, model } = this.props;
         return (
             <LookupTable
                 data={model.training_data.fuzzy_gazette}
@@ -75,6 +86,7 @@ class GazetteEditor extends React.Component {
                 onItemDeleted={this.onItemDeleted}
                 valuePlaceholder='entity name'
                 listPlaceholder='match1, match2, ...'
+                projectId={projectId}
             />
         );
     }
@@ -82,6 +94,7 @@ class GazetteEditor extends React.Component {
 
 GazetteEditor.propTypes = {
     model: PropTypes.object.isRequired,
+    projectId: PropTypes.string.isRequired,
 };
 
 export default withTracker(props => ({

@@ -173,8 +173,61 @@
     color: #828282 !important; //important is used by semantic-ui, making the usage of important the only way to overide it
     background-color: #f2f2f2 !important; //important is used by semantic-ui, making the usage of important the only way to overide it
     &:hover {
-        background-color:#f2f2f2; //important is used by semantic-ui, making the usage of important the only way to overide it
-    } 
+    background-color: #f2f2f2; //important is used by semantic-ui, making the usage of important the only way to overide it
+  }
+}
+
+
+//Date picker related styling
+.date-picker .ui.menu:not(.vertical) .item > .button {
+  margin: 0rem 0.6rem;
+}
+
+.date-picker .ui.form .field {
+  margin: 0rem 1.5rem;
+  width: auto;
+  text-align: left;
+}
+
+.date-picker .ui.secondary.menu {
+  margin-top: 0rem;
+}
+.date-picker .CalendarDay__selected_span,
+.date-picker .CalendarDay__selected_span:hover {
+  background: #ebf5fa;
+  color: #333333;
+  border: 1px solid #dfe3e8//background;
+}
+
+// Will edit selected date or the endpoints of a range of dates
+.date-picker .CalendarDay__selected {
+  background: #007ace;
+  color: white;
+  border: 1px solid #dfe3e8//ba;
+}
+
+// Will edit when hovered over. _span style also has this property
+.date-picker .CalendarDay__selected:hover {
+  background: #00558d;
+  color: white;
+  border: 1px solid #dfe3e8//background;
+}
+
+// Will edit when the second date (end date) in a range of dates
+// is not yet selected. Edits the dates between your mouse and said date
+.date-picker .CalendarDay__hovered_span:hover,
+.date-picker .CalendarDay__hovered_span {
+  background: #ebf5fa;
+  border: 1px solid #dfe3e8;
+      } 
+
+.date-picker .CalendarMonth_table {
+  margin-top: 1rem;
+}
+
+.date-picker .ui.button.date-picker-button {
+    padding-left: 3.2em !important; // overide semantic-ui
+    padding-right: 1em !important; // overide semantic-ui
 }
 
 
@@ -240,4 +293,140 @@
     // bottom: -2em;
     position: relative;
     z-index: 11;
+}
+
+div.validated-sequence-selector{
+    margin: 1rem;
+}
+
+.ui.horizontal.segments.multiselect-exlcusions > div.segment.and-or-order-segment{
+    flex: 0 0 100px;
+    padding: 0;
+
+    .dropdown.and-or-order{
+        height: 100%;
+        border: none;
+    }
+}
+
+.ui.horizontal.segments.multiselect-exlcusions > div.multiselect-segment{
+    padding: 0;
+    padding-bottom: 0.5rem;
+}
+
+.ui.dropdown.event-selector-dropdown {
+    .menu.transition.visible {
+        .menu.transition.visible{
+            min-width: 250px !important;
+        }
+            width: max-content;
+            .item.dropdown-step {
+            width: 100%;
+            padding: 0 !important; // overide semantic ui
+            margin: 0;
+            .text {
+                padding: .78571429rem 1.14285714rem;
+            }
+            .search-result-item {
+                .text {
+                    padding: 0;
+                }
+            }
+            .dropdown.icon {
+                padding: .78571429rem .78571429rem 0 0;
+                margin:0;
+            }
+            .menu.transition {
+                left: ~"calc(100% + 7px)";
+                top: ~"calc(100% - 38px)" !important;
+            }
+        }
+    }
+}
+.event-dropdown-search-input {
+    padding: 0;
+}
+
+.menu.transition.actions-container {
+    .item.search-menu-item{
+        padding: 0 !important;
+        &:hover {
+            background-color: rgba(0,0,0,0);
+        }
+        .input.search {
+            display: block;
+            input{
+                width: 100%;
+                border: none;
+                margin: 0.5em 0 0 0;
+                &:focus {
+                    border: none;
+                }
+            }
+        }
+    }
+    .divider {
+        margin-top: 0;
+    }
+}
+
+.sequence-addition.button.icon{
+    margin-left: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.event-selector-dropdown.button.icon{
+    margin-left: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.ui.label.sequence-step {
+    margin-left: 0em;
+    margin-top: 0.3em;
+    margin-right: 0.2em;
+    padding-top: 0.4em;
+    padding-bottom: 0.6em;
+    width: max-content;
+}
+
+.right.floated.column.add-event-button {
+    padding-right: 0em;
+    padding-top: 1.1em;
+    .ui.button.icon.event-selector-dropdown {
+        padding: 0.4em 0.5em;
+        .add.icon {
+            font-size: 0.74rem;
+        }
+    }
+    .row-wrapper {
+        // set canonical examples to wrap in the data table
+        white-space: initial;
+    }
+}
+
+
+.ui.segment.multiselect-segment {
+    .left.floated.wide.column.sequence-item-container {
+        padding-left: 0.5em;
+        padding-top: 1.3em;
+        padding-bottom: 1.1em;
+    }
+}
+
+.ui.segment.sequence-selector-wrapper {
+    padding: 0;
+    padding-top: 0.2em;
+    padding-bottom: 0.4em;
+    font-weight: 400 !important;
+    .left.floated.wide.column.sequence-item-container.bordered-sequence-selector {
+        padding-right: 0em;
+        padding-left: 0.6em;
+        margin-bottom: 0em;
+    }
+    .right.floated.column.add-event-button {
+        padding-top: 0.8em;
+        .ui.button.event-selector-dropdown {
+            font-weight: 400;
+        }
+    }
 }

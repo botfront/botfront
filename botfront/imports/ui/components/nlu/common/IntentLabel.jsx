@@ -3,8 +3,9 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import {
-    Icon, Popup, Input, Button, Modal,
+    Icon, Popup, Input, Button, Modal, Item, Label, Dropdown,
 } from 'semantic-ui-react';
+import UserUtteranceViewer from './UserUtteranceViewer';
 import { ProjectContext } from '../../../layouts/context';
 import { OOS_LABEL } from '../../constants.json';
 import DataTable from '../../common/DataTable';
@@ -20,20 +21,34 @@ const Intent = React.forwardRef((props, ref) => {
         detachedModal,
         onClose,
         additionalIntentOption,
+        multiple,
+        width,
+        onlyDataTable,
     } = props;
-    const { intents: contextIntents } = useContext(ProjectContext);
+    const { getCanonicalExamples } = useContext(ProjectContext);
     const [popupOpen, setPopupOpen] = useState(false);
     const [typeInput, setTypeInput] = useState('');
     const labelRef = useRef();
     const tableRef = useRef();
     const showReset = allowEditing && enableReset && ((value && value !== OOS_LABEL) || detachedModal);
 
+    const getIntentsFromValue = () => {
+        if (Array.isArray(value)) {
+            return value.map(intentName => ({ intent: intentName }));
+        }
+        return (value ? [{ intent: value }] : []);
+    };
+
     const intents = [
-        ...(value ? [{ intent: value }] : []),
+        ...getIntentsFromValue(),
         ...(additionalIntentOption ? [{ intent: additionalIntentOption }] : []),
-        ...contextIntents
-            .filter(i => i !== value)
-            .map(i => ({ intent: i })),
+        ...getCanonicalExamples({})
+            .filter((i) => {
+                if (Array.isArray(value)) {
+                    return !value.includes(i.intent);
+                }
+                return i.intent !== value;
+            }),
     ];
 
     useImperativeHandle(ref, () => ({
@@ -47,12 +62,11 @@ const Intent = React.forwardRef((props, ref) => {
         setPopupOpen(false);
         if (onClose) onClose();
     };
-
     const textMatch = (s1, s2) => (s1 || '')
         .replace(/ /g, '')
         .toLowerCase()
         .includes((s2 || '').replace(/ /g, '').toLowerCase());
-    const dataToDisplay = intents.filter(i => textMatch(i.intent, typeInput));
+    const dataToDisplay = intents.filter(i => textMatch(i.intent, typeInput) || textMatch(i.text, typeInput));
 
     const [selection, setSelection] = useState(dataToDisplay.slice(0, 1).map(i => i.intent));
 
@@ -65,7 +79,19 @@ const Intent = React.forwardRef((props, ref) => {
     const handleChange = (intentName) => {
         if (!enableReset && !intentName) return;
         handleClose();
+        if (multiple === true) {
+            if (Array.isArray(value) && value.includes(intentName)) return;
+            onChange([...(value || []), intentName]);
+            return;
+        }
         onChange(intentName);
+    };
+
+    const handleDelete = (intentName) => {
+        if (Array.isArray(value)) {
+            const index = value.indexOf(intentName);
+            onChange([...value.slice(0, index), ...value.slice(index + 1, value.length)]);
+        }
     };
 
     const selectSibling = (key) => {
@@ -139,14 +165,39 @@ const Intent = React.forwardRef((props, ref) => {
             value={typeInput}
         />
     );
-    const columns = [{
-        key: 'intent', selectionKey: true, style: { width: '200px' }, render: renderIntent,
-    }];
+
+    const renderExample = (row) => {
+        const { datum } = row;
+        return (
+            <div className='side-by-side middle'>
+                <UserUtteranceViewer
+                    value={datum}
+                    projectId=''
+                    disableEditing
+                    showIntent={false}
+                />
+                <Icon
+                    name={datum.metadata?.canonical ? 'gem' : 'tag'}
+                />
+            </div>
+        );
+    };
+
+    const columns = [
+        {
+            key: 'intent',
+            selectionKey: true,
+            style: { width: '170px', maxWidth: '170px', minWidth: '170px' },
+            render: renderIntent,
+            class: 'intent',
+        },
+        { key: 'text', style: { width: '100%' }, render: renderExample },
+    ];
 
     const renderContent = () => (
         <div
             style={{
-                width: '300px',
+                width: `${width}px`,
             }}
             className='intent-dropdown'
             data-cy='intent-dropdown'
@@ -156,8 +207,8 @@ const Intent = React.forwardRef((props, ref) => {
             {!!dataToDisplay.length && (
                 <DataTable
                     ref={tableRef}
-                    height={dataToDisplay.length * 40 >= 200 ? 200 : dataToDisplay.length * 40}
-                    width={300}
+                    height={dataToDisplay.length * 50 >= 200 ? 200 : dataToDisplay.length * 50}
+                    width={width}
                     columns={columns}
                     data={dataToDisplay}
                     onClickRow={({ datum: { intent } = {} } = { datum: {} }) => handleChange(intent)}
@@ -172,6 +223,7 @@ const Intent = React.forwardRef((props, ref) => {
                     color='purple'
                     content='Create new intent'
                     onClick={() => handleChange(typeInput)}
+                    className='create-intent-button'
                 />
             )}
         </div>
@@ -197,7 +249,7 @@ const Intent = React.forwardRef((props, ref) => {
     }
 
     const onClickProp = { onClick: () => { if (popupOpen) handleClose(); else setPopupOpen(true); } };
-    return (
+    const renderSingleSelect = () => (
         <div
             className={`intent-label ${extraClass}`}
             data-cy='intent-label'
@@ -238,6 +290,40 @@ const Intent = React.forwardRef((props, ref) => {
             )}
         </div>
     );
+    const renderMultiSelect = () => (
+        <Dropdown
+            className='intent-multiselect'
+            scrolling
+            trigger={(
+                <Item onClick={() => setPopupOpen(true)} className='intent-dropdown-trigger'>
+                    {Array.isArray(value) && value.length ? value.map(intentName => (
+                        <Label onClick={e => e.stopPropagation()} color='purple' className='intent-multiselect-label'>
+                            <Icon name='tag' size='small' />
+                            {intentName}
+                            <Icon
+                                name='delete'
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDelete(intentName);
+                                }}
+                            />
+                        </Label>
+                    )) : <span className='placeholder-text'>Select an intent</span>}
+                </Item>
+            )}
+            open={popupOpen}
+            onClose={handleClose}
+            selection
+        >
+            <Dropdown.Menu><Dropdown.Item>{renderContent()}</Dropdown.Item></Dropdown.Menu>
+        </Dropdown>
+    );
+    if (onlyDataTable) {
+        return renderContent();
+    }
+    return (
+        multiple ? renderMultiSelect() : renderSingleSelect()
+    );
 });
 
 Intent.propTypes = {
@@ -249,6 +335,9 @@ Intent.propTypes = {
     disabled: PropTypes.bool,
     detachedModal: PropTypes.bool,
     onClose: PropTypes.func,
+    multiple: PropTypes.bool,
+    width: PropTypes.number,
+    onlyDataTable: PropTypes.bool,
     additionalIntentOption: PropTypes.string,
 };
 
@@ -261,6 +350,9 @@ Intent.defaultProps = {
     enableReset: false,
     detachedModal: false,
     onClose: null,
+    multiple: false,
+    width: 500,
+    onlyDataTable: false,
     additionalIntentOption: '',
 };
 

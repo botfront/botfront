@@ -33,6 +33,35 @@ export const dropNullValuesFromObject = obj => Object.entries(obj).reduce(
     {},
 );
 
+export const insertSmartPayloads = ({ rules = [], triggerIntent, ...fragment }) => {
+    if (!rules.length) return fragment;
+    let payloads = rules.map(rule => ({
+        intent: triggerIntent,
+        entities: (rule?.trigger?.queryString || []).reduce(
+            (acc, curr) => [
+                ...acc,
+                ...(curr.sendAsEntity ? [{ [curr.param]: curr.param }] : []),
+            ],
+            [],
+        ),
+    }));
+    if (fragment.steps?.[0]?.intent) {
+        payloads.unshift(fragment.steps.shift());
+    } else if (fragment.steps?.[0]?.or) {
+        const { or } = fragment.steps.shift();
+        payloads = or.concat(payloads);
+    }
+    const steps = [
+        payloads.length > 1 ? { or: payloads } : payloads[0],
+        ...(fragment.steps || []),
+    ];
+    return {
+        ...fragment,
+        steps,
+        metadata: { ...(fragment.metadata || {}), rules, triggerIntent },
+    };
+};
+
 export const caught = func => async (done) => {
     try {
         await func();

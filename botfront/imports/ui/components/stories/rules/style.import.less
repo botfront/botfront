@@ -1,0 +1,44 @@
+.submit-rules-buttons {
+    min-height: 32px;
+}
+
+.close.icon.close-rules-editor {
+    float: right;
+    margin: auto;
+}
+
+.add-trigger-field.fitted {
+    float: right;
+}
+
+.story-trigger-form-container{
+    .grouped.fields {
+        .grouped.fields{
+            .ui.grouped.fitted.fields.list{
+                padding-top: 1em;
+                .item {
+                    display: flex;
+                    align-items: stretch;
+                }
+                .field.item{
+                    display: unset;
+                }
+                .ui.fitted.hidden.clearing.horizontal.divider {
+                    height: 0.75em;
+                }
+            }
+        }
+    }    
+}
+
+.ui.checkbox.url-is-sequence-field {
+    // padding-left: 2em;
+    margin-top: 1em;
+    &.checked{
+        label.url-sequence-checkbox::after {
+            content: '\e800';
+            opacity: 1;
+            color: rgba(0,0,0,.95);
+        }
+    }
+}

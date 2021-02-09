@@ -1,8 +1,6 @@
 /* global cy */
 
 describe('nlu tagging in training data', function() {
-    before(function() {});
-
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => {
             cy.login();

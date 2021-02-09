@@ -111,6 +111,7 @@
             .eye.icon,
             .ellipsis.icon,
             .plus.icon,
+            .toggle.on.icon,
             .trash.icon {
                 visibility: hidden;
                 &.focused {
@@ -118,11 +119,17 @@
                     color: @botfront-blue;
                     opacity: 1;
                 }
+            } 
+            .toggle.off.icon {
+                opacity: 0.3;
             }
+
+
             &:hover {
                 .eye.icon,
                 .ellipsis.icon,
                 .plus.icon,
+                .toggle.icon,
                 .trash.icon {
                     visibility: visible;
                     opacity: 0.3;
@@ -161,6 +168,9 @@
                     color: #000;
                     cursor: text;
                 }
+                &.grey{
+                    color: #8e8e8e;
+                }
             }
             .item-edit-box input {
                 width: 100%;
@@ -168,6 +178,15 @@
             .item-actions {
                 white-space: nowrap;
                 margin-left: auto !important;
+                .item.add-form-item {
+                    padding-left: 1em !important; // overide sematic ui
+                    i.wpforms.icon {
+                        margin-right: 0 !important; // overide sematic ui
+                    }
+                    .text {
+                        padding-left: 0.7ch;
+                    }
+                }
             }
             &:hover {
                 .item-actions { max-width: max-content; }
@@ -214,52 +233,10 @@
     z-index: 100;
 }
 
-.stories-container {
-    .container.aligned.center {
-        padding-top: 0.3em;
-        padding-bottom: 0.9em;
-    }
-
-    .menu.vertical .active.item {
-        cursor: default;
-    }
-
-    .menu.vertical {
-        .loader {
-            position: absolute;
-            right: 8px;
-            top: 21px;
-            left: unset;
-            animation-name: fadein;
-            animation-duration: 0.4s;
-            animation-timing-function: cubic-bezier(0.95, 0.26, 0.57, 0.7);
-        }
-    }
-
-    .icon.add {
-        margin-top: 1em;
-    }
-
-    .warning.message {
-        animation-name: warningPopup;
-        animation-duration: 0.2s;
-    }
-
-    a.item span {
-        max-width: 136px;
-        display: block;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-}
-
 .story-editor {
     margin-bottom: 20px;
     box-shadow: 0 1px 5px rgba(34, 36, 38, 0.1);
     .ui.attached.menu.top {
-        &.collapsed {
-            border-radius: 0.3em;
-        }
         border-color: #eeeeee;
         background-color: #f9f9f9;
         .item {
@@ -286,20 +263,13 @@
                     color: rgb(240, 240, 240);
                 }
             }
-            .icon.triangle.right {
-                color: rgb(240, 240, 240);
-                opacity: 1;
-            }
         }
 
-        .icon.triangle.right {
-            margin-left: 0;
-            margin-right: 10px;
-            transition: transform 0.2s ease-in-out;
-            &.opened {
-                transform: rotate(90deg);
-            }
+        .trigger-editor-modal-trigger {
+            margin-bottom: 2px;
+            cursor: pointer;
         }
+        
         .icon.top-menu-clickable {
             color: #767676;
             &:hover {
@@ -330,14 +300,15 @@
         .header {
             width: ~"calc(100% - 425px)";
             padding-right: 0;
+            margin-left: 10px;
             input {
                 margin: 0 5px;
                 border-style: solid;
-                width: 100%;
                 font-size: 16px;
                 border-color: rgba(176, 176, 176, 0);
                 border-radius: 6px;
                 padding: 4px 9px;
+                padding-left: 2px;
                 border-width: 1px;
                 background-color: rgba(0,0,0,0);
                 color: #212121;
@@ -348,10 +319,20 @@
                     color: rgba(0, 0, 0, 1);
                 }
             }
+            .label{
+                margin-left:0.7rem
+            }
         }
 
         .icon {
             margin-left: 8px;
+        }
+
+        .unpublish{
+            margin-bottom: 5px;
+            font-size: 16px;
+            color: #212121;
+            font-weight: 400
         }
 
         //removes borders b/w menu items

@@ -547,7 +547,7 @@ export const validConversationsParsed = [
         ],
         status: 'read',
         tracker: {
-        
+          
             events: [
                 {
                     event: 'action',

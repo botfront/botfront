@@ -5,11 +5,13 @@ describe('incoming page conversation tab', function () {
     beforeEach(function () {
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
+            cy.setTimezoneOffset();
         });
     });
 
     afterEach(function () {
         cy.logout();
+        cy.deleteProject('bf');
     });
 
     it('should show a message if no converastions', function () {
@@ -43,6 +45,7 @@ describe('incoming page conversation tab pagination', function () {
     beforeEach(function () {
         cy.createProject('bf', 'My Project', 'en').then(() => {
             cy.login();
+            cy.setTimezoneOffset();
         });
     });
 
@@ -71,6 +74,12 @@ describe('incoming page conversation tab pagination', function () {
         cy.visit('/project/bf/incoming');
         cy.dataCy('conversations')
             .click();
+        cy.dataCy('duration-filter-to')
+            .find('input')
+            .type('15');
+        // add a filter to check that the query string is not removed by navigation
+        cy.dataCy('apply-filters').click();
+        cy.wait(100);
         cy.dataCy('conversation-item')
             .should('have.length', 20);
         cy.dataCy('pagination').should('exist');
@@ -78,5 +87,6 @@ describe('incoming page conversation tab pagination', function () {
         cy.dataCy('conversation-item').should('have.length', 5);
         cy.reload(); // deep linking should bring the user to the same location after a refresh
         cy.dataCy('conversation-item').should('have.length', 5);
+        cy.dataCy('duration-filter-to').find('input').should('have.value', '15');
     });
 });

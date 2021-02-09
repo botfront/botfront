@@ -1,0 +1,86 @@
+---
+name: Getting started
+title: "Botfront: powerful GUI for Rasa stories, rules and forms"
+route: /docs/rasa/getting-started/
+menu: Authoring conversations
+meta:
+  - name: description
+    content: Botfront is a fully featured conversational platform built on top of Rasa with intuitive interfaces to author stories, rules, forms and logical flows.
+  - name: keywords
+    content: rasa ui frontend
+---
+
+# Getting started
+
+Botfront is a fully featured conversational platform built on top of [Rasa](https://github.com/rasaHQ/rasa)
+with intuitive interfaces to create context-aware virtual assistants.
+
+## Fundamental building blocks: forms and stories
+
+Botfront (and Rasa) provide two main building blocks for dialogue authoring.
+To decide which one to use, one must answer the question: **who is currently driving the conversation?**
+
+**User drives the conversation**: user says something, assistant replies.
+
+Situations where the user drives the conversation are implemented with **stories**.
+Common examples are Q&A, and chitchat, but it can be longer conversations as well.
+
+**Assistant drives the conversation**: assistant asks something, user provides information.
+
+When an assistant is requested to perform an action, it may start by asking relevant questions.
+For example, collecting contact information through a sequence of questions.
+
+Or asking medical or triage questions to someone asking for a medical consultation.
+
+In Botfront (and Rasa), business logic is implemented with **forms**
+
+
+**In reality, the user is always _in charge_.**
+
+They take the initiative of the conversation, for example by asking a medical appointment, and temporarily delegate the control to the assistant until the request is completed.
+
+**Stories** and **forms** work together to achieve that, or to be more specific, **stories** orchestrate **forms**.
+They activate them, pick-up after completion and handle situations where the user interrupts them.
+
+
+## Your first dialogue
+
+In this section we will illustrate with a very simple example how **stories** and **forms** work together.
+
+### Creating a simple contact form
+
+Our simple form will collect the user's first name, last name and email address.
+
+
+[video]
+
+The information collected is stored in **slots**.
+Each node of the graph is a question. When creating a node, you must first decide in which slot the response should be saved.
+
+<Important type="info">
+In this simple example the whole user response is stored in the slot, which is the default setting. 
+Which means that if the user says <i>My name is Nathan</i> the assistant will store <i>My name is Nathan</i> in the slot.
+</Important>
+
+Now that we have created the form, we must create a story to activate it.
+
+### Orchestrating the form with a story
+
+To activate the form, the user must first express the intent to get in contact.
+In the following example, the assistant acknwledges the request and activates the form.
+
+[video]
+
+When the form is activated, the assistant takes control and asks questions until the requested information is collected.
+
+When the form is completed, the story picks up.
+
+As you can see in the video you can access the value of the slots with curly braces (e.g. `{first_name}`).
+
+## What's next?
+
+Now that we have explained the two fundamental dialogue authoring building blocks, you can read further on both stories and forms.
+
+The [Conversation Builder](/docs/rasa/conversation-builder/) and [Conversation Context](/docs/rasa/conversation-context/) sections explain in depth how stories and slot work.
+
+The [Forms and Business Logic](/docs/rasa/forms-slot-filling/) section explain forms in depth, including how to orchestrate them in stories.

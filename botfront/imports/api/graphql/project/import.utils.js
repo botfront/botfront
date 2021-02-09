@@ -9,6 +9,9 @@ import {
     validateIncoming,
     validateConversations,
     validateBfConfig,
+    validateAnalyticsConfig,
+    validateWidgetSettings,
+    validateFormsResults,
 } from '../../../lib/importers/validateMisc.js';
 import { validateRasaConfig } from '../../../lib/importers/validateRasaConfig.js';
 import {
@@ -96,6 +99,10 @@ export async function validateFiles(files, params) {
     [filesWithMessages, newParams] = validateDomain(filesWithMessages, newParams);
     [filesWithMessages, newParams] = validateConversations(filesWithMessages, newParams);
     [filesWithMessages, newParams] = validateIncoming(filesWithMessages, newParams);
+    [filesWithMessages, newParams] = validateAnalyticsConfig(filesWithMessages, newParams);
+    [filesWithMessages, newParams] = validateWidgetSettings(filesWithMessages, newParams);
+    [filesWithMessages, newParams] = validateFormsResults(filesWithMessages, newParams);
+
 
     return [filesWithMessages, newParams];
 }

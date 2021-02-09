@@ -1,0 +1,35 @@
+query IntentFrequencies(
+    $projectId: String!,
+    $envs: [String] = ["development", null],
+    $langs: [String] = [],
+    $from: Float,
+    $to: Float,
+    $excludeIntents: [String] = [],
+    $includeIntents: [String] = [],
+    $first: Int,
+    $last: Int,
+    $beg: Int = 2,
+    $end: Int,
+    $limit: Int = -1, # -1 is used to indicate no limit
+    $intentTypeFilter: IntentType,
+) {
+    intentFrequencies(
+        projectId: $projectId,
+        envs: $envs,
+        langs: $langs,
+        from: $from,
+        to: $to,
+        exclude: $excludeIntents,
+        only: $includeIntents,
+        first: $first,
+        last: $last,
+        beg: $beg,
+        end: $end,
+        limit: $limit,
+        intentTypeFilter: $intentTypeFilter,
+    ) {
+        frequency,
+        count,
+        name
+    }
+}

@@ -1,0 +1,26 @@
+type Query {
+    conversationCounts(
+        projectId: String!,
+        envs: [String],
+        langs: [String] = [],
+        from: Float,
+        to: Float,
+        nBuckets: Int = 7,
+        includeIntents: [String],
+        excludeIntents: [String],
+        triggerConversations: Boolean = true,
+        userInitiatedConversations: Boolean = true,
+        includeActions: [String],
+        excludeActions: [String],
+        conversationLength: Int,
+        eventFilter: [StepInput]
+        eventFilterOperator: IntentsAndActionsOperator
+    ): [ConversationCount!]!
+}
+
+type ConversationCount {
+    bucket: String,
+    count: Int,
+    hits: Int,
+    proportion: Float,
+}

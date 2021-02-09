@@ -195,14 +195,18 @@ const validateADomain = (
         ...(legacyResponsesFromFile || {}),
         ...(modernResponsesFromFile || {}),
     };
-    const formsFromFile = Object.entries(mixedFormsFromFile).reduce(
-        (acc, [name, spec]) => {
+    let formsFromFile = {};
+    if (
+        mixedFormsFromFile
+        && typeof mixedFormsFromFile === 'object'
+        && !Array.isArray(mixedFormsFromFile)
+    ) {
+        formsFromFile = Object.entries(mixedFormsFromFile).reduce((acc, [name, spec]) => {
             if (!('graph_elements' in spec)) return { ...acc, [name]: spec };
             bfForms.push(spec); // "if it has graph elements, it must be a bf form!"
             return acc;
-        },
-        {},
-    );
+        }, {});
+    }
 
     if (!isDefaultDomain) {
         // do not import slots that are in current default domain or are programmatically generated

@@ -3,6 +3,9 @@ import { Meteor } from 'meteor/meteor';
 import { expect } from 'chai';
 import { getNluDataAndConfig } from './instances.methods';
 import { Projects } from '../project/project.collection';
+import { createTestUser } from '../testUtils';
+// eslint-disable-next-line import/named
+import { setUpRoles } from '../roles/roles';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { insertExamples } from '../graphql/examples/mongo/examples';
 import Examples from '../graphql/examples/examples.model';
@@ -116,6 +119,8 @@ if (Meteor.isTest) {
         this.timeout(15000);
         if (Meteor.isServer) {
             before(async (done) => {
+                setUpRoles();
+                await createTestUser();
                 await Projects.insert(testProject);
                 await NLUModels.insert(nluModel);
                 await insertExamples({

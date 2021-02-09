@@ -3,8 +3,8 @@ import { debounce } from 'lodash';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-import { withTracker } from 'meteor/react-meteor-data';
 import React, { useState, useCallback } from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
 
 import { wrapMeteorCallback } from '../../utils/Errors';
 import apolloClient from '../../../../startup/client/apollo';
@@ -28,6 +28,7 @@ const SearchBar = (props) => {
     const [open, setOpen] = useState(false);
     const [results, setResults] = useState([]);
     const [searching, setSearching] = useState(false);
+    const [displayShortcuts, setDisplayShortcuts] = useState(false);
 
     const searchStories = useCallback(
         debounce(async (searchInputValue) => {
@@ -175,18 +176,55 @@ const SearchBar = (props) => {
     const updateSearch = (value) => {
         if (value.length > 0) {
             setOpen(true);
+            setDisplayShortcuts(false);
             setSearching(true);
             searchStories(value);
         }
         if (value.length === 0) {
             setResults([]);
             setOpen(false);
+            setDisplayShortcuts(true);
         }
         setQueryString(value);
     };
 
+    const Shortcut = shortcutProps => (
+        <span
+            onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                updateSearch(shortcutProps.value);
+            }
+            }
+            onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            }}
+            onKeyDown={(event) => {
+                if (event.keycode === 13) updateSearch(shortcutProps.value);
+            }}
+            role='button'
+            tabIndex='0'
+        >
+            <Icon name='magic' />
+            {shortcutProps.text}
+        </span>
+    );
+
+    const renderShortcuts = () => (
+        <div className='search-shortcuts'>
+            <Shortcut value='with:highlights' text='Stories with onscreen guidance' />
+            <Shortcut value='with:triggers' text='Stories with triggers' />
+            <Shortcut value='with:custom_style' text='Stories with custom styles' />
+            <Shortcut value='with:observe_events' text='Stories with user interactions callback' />
+            <Shortcut value='status:unpublished' text='Unpublished stories' />
+            <Shortcut value='status:published' text='Published stories' />
+        </div>
+    );
+
     return (
         <>
+            {displayShortcuts && renderShortcuts()}
             <Search
                 className={`story-search-bar ${queryString.length > 0 && 'has-text'}`}
                 results={results}
@@ -202,11 +240,14 @@ const SearchBar = (props) => {
                     if (e.key === 'Escape') setOpen(false);
                 }}
                 onFocus={() => {
-                    if (queryString.length > 0) {
+                    if (queryString.length === 0) {
+                        setDisplayShortcuts(true);
+                    } else {
                         setOpen(true);
                     }
                 }}
                 onBlur={() => {
+                    setDisplayShortcuts(false);
                     setOpen(false);
                 }}
                 onClick={() => {

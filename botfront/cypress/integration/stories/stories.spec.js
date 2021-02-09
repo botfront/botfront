@@ -9,7 +9,7 @@ describe('stories', function() {
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
     });
-
+    
     it('should autosave stories as you edit them', function() {
         cy.visit('/project/bf/dialogue');
         cy.dataCy('toggle-yaml').click({ force: true });
@@ -24,20 +24,6 @@ describe('stories', function() {
         cy.wait(200);
         cy.browseToStory('Greetings');
         cy.contains('- intent: ha').should('exist');
-    });
-
-    it('should be able to collapse stories and to persist that across application state', function() {
-        cy.visit('/project/bf/dialogue');
-        cy.dataCy('toggle-yaml').click({ force: true });
-        cy.browseToStory('Farewells');
-        cy.dataCy('single-story-editor');
-        cy.dataCy('collapse-story-button').click({ force: true });
-        cy.dataCy('single-story-editor').should('not.exist');
-        cy.contains('NLU').click({ force: true });
-        cy.dataCy('dialogue-sidebar-link').click({ force: true });
-        cy.dataCy('single-story-editor').should('not.exist');
-        cy.dataCy('collapse-story-button').click({ force: true });
-        cy.dataCy('single-story-editor').should('exist');
     });
 
     it('should list all linkable stories', function() {

@@ -1,0 +1,17 @@
+[
+    {
+        "kind": "INTERFACE",
+        "name": "SlotFilling",
+        "possibleTypes": [
+            {
+                "name": "SlotFillingFromEntity"
+            },
+            {
+                "name": "SlotFillingFromIntent"
+            },
+            {
+                "name": "SlotFillingFromText"
+            }
+        ]
+    }
+]

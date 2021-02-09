@@ -1,0 +1,19 @@
+type Query {
+    actionCounts(
+        projectId: String!,
+        envs: [String],
+        langs: [String] = [],
+        from: Float,
+        to: Float,
+        nBuckets: Int = 7,
+        include: [String],
+        exclude: [String]
+    ): [ActionCount!]!
+}
+
+type ActionCount {
+    bucket: String,
+    hits: Int,
+    count: Int,
+    proportion: Float,
+}

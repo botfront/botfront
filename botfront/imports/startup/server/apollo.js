@@ -5,6 +5,7 @@ import { getUser } from 'meteor/apollo';
 import { Accounts } from 'meteor/accounts-base';
 import axios from 'axios';
 import { typeDefs, resolvers } from '../../api/graphql/index';
+import { can } from '../../lib/scopes';
 
 const MONGO_URL = process.env.MONGO_URL || `mongodb://localhost:${(process.env.METEOR_PORT || 3000) + 1}/meteor`;
 
@@ -32,6 +33,13 @@ export const runAppolloServer = () => {
             if (!user) {
                 Accounts.createUser({ username: 'EXTERNAL_CONSUMER' });
                 user = Meteor.users.findOne({ username: 'EXTERNAL_CONSUMER' });
+            }
+            if (user.username === 'EXTERNAL_CONSUMER' && !can('responses:r', null, user._id)) {
+                Meteor.roleAssignment.update(
+                    { 'user._id': user._id },
+                    { user: { _id: user._id }, scope: null, inheritedRoles: [{ _id: 'responses:r' }] },
+                    { upsert: true },
+                );
             }
             return ({ user });
         },
@@ -67,7 +75,7 @@ export const runAppolloServer = () => {
                 res.statusCode = 401;
                 res.end();
             }
-        }).catch(function (error) {
+        }).catch(function () {
             res.statusCode = 500;
             res.end();
         });

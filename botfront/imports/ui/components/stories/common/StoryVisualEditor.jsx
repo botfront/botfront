@@ -15,6 +15,7 @@ import BadLineLabel from '../BadLineLabel';
 import { ProjectContext } from '../../../layouts/context';
 import ExceptionWrapper from './ExceptionWrapper';
 import GenericLabel from '../GenericLabel';
+import { can } from '../../../../lib/scopes';
 import { defaultTemplate } from '../../../../lib/botResponse.utils';
 import { USER_LINE_EDIT_MODE } from '../../../../lib/story.utils';
 
@@ -78,13 +79,15 @@ export default class StoryVisualEditor extends React.Component {
 
     getReadOnlyClass = () => {
         const { mode } = this.props;
-        return mode !== 'test_case' ? '' : 'read-only';
+        const { project: { _id: projectId } } = this.context;
+        return mode !== 'test_case' && can('stories:w', projectId) ? '' : 'read-only';
     }
 
     renderAddLine = (rawIndex) => {
         const { lineInsertIndex } = this.state;
         const { story, mode } = this.props;
-        if (mode === 'test_case') {
+        const { project: { _id: projectId } } = this.context;
+        if (mode === 'test_case' || !can('stories:w', projectId)) {
             // prevent crowding of story elements in read only mode
             return <div className='line-spacer' />;
         }

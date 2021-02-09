@@ -3,11 +3,19 @@ import SimpleSchema from 'simpl-schema';
 const topLevelFields = {
     projectId: { type: String },
     storyGroupId: String,
+    status: { type: String, defaultValue: 'unpublished', allowedValues: ['published', 'unpublished'] },
     selected: { type: true, optional: true },
     textIndex: { type: String, optional: true },
     events: { type: Array, optional: true },
     'events.$': { type: String },
     metadata: { type: Object, blackbox: true, optional: true },
+    triggerIntent: {
+        type: String,
+        unique: true,
+        optional: true,
+    },
+    rules: { type: Array, optional: true },
+    'rules.$': { type: Object, blackbox: true },
 };
 
 const stepFields = {
