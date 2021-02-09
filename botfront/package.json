@@ -1,6 +1,6 @@
 {
   "name": "botfront",
-  "version": "1.0.0-rc.3",
+  "version": "1.0.0-rc.4",
   "repository": "https://github.com/botfront/botfront",
   "license": "Apache-2.0",
   "scripts": {
