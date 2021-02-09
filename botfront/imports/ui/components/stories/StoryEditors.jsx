@@ -6,12 +6,17 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Loading } from '../utils/Utils';
 
+import { can } from '../../../lib/scopes';
 import { Stories } from '../../../api/story/stories.collection';
 import StoryEditorContainer from './StoryEditorContainer';
 import { ProjectContext } from '../../layouts/context';
 
 function StoryEditors(props) {
-    const { stories, workingLanguage } = props;
+    const {
+        stories,
+        workingLanguage,
+        projectId,
+    } = props;
 
     const { addResponses } = useContext(ProjectContext);
     const [lastUpdate, setLastUpdate] = useState(0);
@@ -47,7 +52,7 @@ function StoryEditors(props) {
     const editors = stories.map(story => (
         <StoryEditorContainer
             story={story}
-            disabled={false}
+            disabled={!can('stories:w', projectId)}
             key={story._id}
             title={story.title}
         />
@@ -59,6 +64,7 @@ function StoryEditors(props) {
 StoryEditors.propTypes = {
     stories: PropTypes.array,
     workingLanguage: PropTypes.string.isRequired,
+    projectId: PropTypes.string.isRequired,
 };
 
 StoryEditors.defaultProps = {
@@ -83,6 +89,7 @@ const StoryEditorsTracker = withTracker((props) => {
 
 const mapStateToProps = state => ({
     workingLanguage: state.settings.get('workingLanguage'),
+    projectId: state.settings.get('projectId'),
 });
 
 export default connect(mapStateToProps)(StoryEditorsTracker);

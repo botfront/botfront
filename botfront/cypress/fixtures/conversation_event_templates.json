@@ -4,5 +4,98 @@
         { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" },
         { "type": "user", "text": "goodbye", "name": "chitchat.bye" },
         { "type": "bot", "text": "bye, thank you for visiting", "name": "utter_bye" }
+    ],
+    "len_3": [
+        { "type": "user", "text": "hello", "name": "chitchat.greet" },
+        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" },
+        { "type": "user", "text": "hello", "name": "chitchat.greet" },
+        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" },
+        { "type": "user", "text": "hello", "name": "chitchat.greet" },
+        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" },
+        { "type": "user", "text": "hello", "name": "chitchat.greet" },
+        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" }
+    ],
+    "len_1": [
+        { "type": "user", "text": "hello", "name": "chitchat.greet" },
+        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" },
+        { "type": "user", "text": "hello", "name": "chitchat.greet" },
+        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" }
+    ],
+    "conf_90": [
+        { "type": "user", "text": "hello", "name": "chitchat.greet", "confidence": 0.9 },
+        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" }
+    ],
+    "conf_70": [
+        { "type": "user", "text": "hello", "name": "chitchat.greet", "confidence": 0.7 },
+        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" }
+    ],
+    "action_test": [
+        { "type": "user", "text": "hello", "name": "chitchat.greet" },
+        { "type": "action", "name": "action_test" },
+        { "type": "action", "name": "action_dummy" },
+        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" }
+    ],
+    "action_test_and_autre": [
+        { "type": "user", "text": "hello", "name": "chitchat.greet" },
+        { "type": "action", "name": "action_test" },
+        { "type": "action", "name": "action_dummy" },
+        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" },
+        { "type": "user", "text": "hello", "name": "chitchat.greet" },
+        { "type": "action", "name": "action_autre" },
+        { "type": "action", "name": "action_dummy" },
+        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" }
+    ],
+    "action_autre": [
+        { "type": "user", "text": "hello", "name": "chitchat.greet" },
+        { "type": "action", "name": "action_autre" },
+        { "type": "action", "name": "action_dummy" },
+        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" }
+    ],
+    "intent_test": [
+        { "type": "user", "text": "hello", "name": "intent_test" },
+        { "type": "bot", "text": "test successful", "name": "utter_test" },
+        { "type": "user", "text": "hello", "name": "intent_dummy" },
+        { "type": "bot", "text": "test successful", "name": "utter_dummy" }
+    ],
+    "intent_autre": [
+        { "type": "user", "text": "hello", "name": "intent_autre" },
+        { "type": "bot", "text": "autre test successful", "name": "utter_autre" },
+        { "type": "user", "text": "hello", "name": "intent_dummy" },
+        { "type": "bot", "text": "test successful", "name": "utter_dummy" }
+    ],
+    "intent_test_and_autre": [
+        { "type": "user", "text": "hello", "name": "intent_test" },
+        { "type": "bot", "text": "test successful", "name": "utter_test" },
+        { "type": "user", "text": "hello", "name": "intent_dummy" },
+        { "type": "bot", "text": "test successful", "name": "utter_dummy" },
+        { "type": "user", "text": "hello", "name": "intent_autre" },
+        { "type": "bot", "text": "autre test successful", "name": "utter_autre" },
+        { "type": "user", "text": "hello", "name": "intent_dummy" },
+        { "type": "bot", "text": "test successful", "name": "utter_dummy" }
+    ],
+    "uid_aaa": [
+        { "type": "user", "text": "hello", "name": "chitchat.greet", "userId": "aaa"},
+        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" }
+    ],
+    "uid_bbb": [
+        { "type": "user", "text": "hello", "name": "chitchat.greet", "userId": "bbb"},
+        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" }
+    ],
+    "len_3_conf_70_action_test": [
+        { "type": "user", "text": "hello", "name": "chitchat.greet", "confidence": 0.7},
+        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" },
+        { "type": "user", "text": "hello", "name": "chitchat.greet" },
+        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" },
+        { "type": "user", "text": "hello", "name": "chitchat.greet" },
+        { "type": "action", "name": "action_test" },
+        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" }
+    ],
+    "dev": [
+        { "type": "user", "text": "dev", "name": "chitchat.greet" },
+        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" }
+    ],
+    "prod": [
+        { "type": "user", "text": "prod", "name": "chitchat.greet" },
+        { "type": "bot", "text": "Hi! how are you?", "name": "utter_hi" }
     ]
 }

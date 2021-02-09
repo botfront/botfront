@@ -7,11 +7,13 @@ import { ApolloLink, Observable, split } from 'apollo-link';
 import { DDPSubscriptionLink, isSubscription } from 'apollo-link-ddp';
 
 import botResponseFragmentTypes from '../../api/graphql/botResponses/schemas/botResponseFragmentTypes.json';
+import formFragmentTypes from '../../api/graphql/forms/formFragmentTypes.json';
 
 const introspectionQueryResultData = {
     __schema: {
         types: [
             ...botResponseFragmentTypes,
+            ...formFragmentTypes,
         ],
     },
 };
@@ -72,10 +74,17 @@ const link = split(
     uploadLink,
 );
 
+// this will activate the dev tools when we are testing the application
+// So cypress can acces __APOLLO_CLIENT__
+let devTools = {};
+if (window.Cypress) {
+    devTools = { connectToDevTools: true };
+}
 
 const client = new ApolloClient({
     link: ApolloLink.from([errorLink, requestLink, link]),
     cache: new InMemoryCache({ fragmentMatcher }),
+    ...devTools,
 });
 
 export default client;

@@ -97,6 +97,13 @@
                 content: 'draft'
             }
         }
+
+        .action-icon{
+            color: rgba(0, 0, 0, 0.4);
+            &:hover{
+                color: rgba(0, 0, 0, 0.7);
+            }
+        }
     }
 
     .item {
@@ -185,6 +192,12 @@
     }
 }
 
+.ui.popup.dialogue-popup {
+    max-height: 30rem;
+    min-width: 20rem;
+    overflow-y: auto;
+}
+
 .activity-command-bar {
     position: absolute;
     height: 50px;
@@ -210,11 +223,50 @@
     }
 
     .shortcut {
-        color: #bbb;
+        color: @shortcut-key;
         font-size: small;
     }
 
     & > span:first-child {
         margin-right: 15px;
+    }
+}
+
+.conversation-side-panel {
+    height: 90vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    position: absolute;
+    right: 20px;
+    top: 70px;
+    z-index: 5;
+    background-color: white;
+    width: 25%;
+    min-width: 300px;
+    box-shadow: 1px 0px 8px 3px rgba(250, 167, 167, 0.2);
+    border-radius: 8px;
+    transform: translateX(0px);
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    .ui.comments { 
+        margin: 15px;
+    }
+    &.not-here {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    .header {
+        background-color: @botfront-grey-bg;
+        position: sticky;
+        top: 0;
+        height: 40px;
+        padding: 10px 17px;
+        z-index: 1;
+        span {
+            font-weight: 700;
+        }
+        .icon {
+            position: absolute;
+            right: 10px;
+        }
     }
 }

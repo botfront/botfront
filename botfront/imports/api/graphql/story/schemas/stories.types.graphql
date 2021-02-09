@@ -23,7 +23,7 @@ input TestCaseUpdate {
 
 type DialogueSearchResults {
     dialogueFragments: [Story]
-    forms: [Any]
+    forms: [Form]
 }
 
 type Story {

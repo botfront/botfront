@@ -1,0 +1,68 @@
+---
+name: Behavioral triggers
+title: Proactive conversations based on user behaviour
+route: /docs/proactive-conversations/behavioral-triggers
+menu: Proactive conversations
+meta:
+  - name: description
+    content: "Start a proactive conversation based on user behaviour: when they return, visit a sequence of pages, or click an element."
+  # - name: keywords
+  #   content: botfront stories nlu rasa
+---
+
+Available in: <Premium plan="Botfront Cloud" />  <Premium plan="Botfront Enterprise" />
+<Important type="info">
+Proactive conversations are only available on your website with the Botfront chat widget.
+</Important>
+
+
+
+# Engage with users based on browsing behavior
+
+**Use case example**: an insurance company have a special offer for customers subscribing a bundled home and car policy.
+They want to engage with users browsing both _home insurance_ and _car insurance_ product pages.
+
+You can do that by creating a trigger with browsing history:
+
+<video autoplay muted loop width="100%" controls>
+  <source src="../../videos/triggers_browsing_history.m4v" type="video/mp4"/>
+  Your browser does not support the video tag.
+</video>
+
+<Important type="tip" title="Stories with triggers do not need to start with a user message">
+Since trigger stories are initiated by the virtual assistant, they can start with a bot <i>response</i>.
+However, if you want to make the same story accessible from a user message you can start it with a user utterance or payload.
+</Important>
+
+## Enforce a sequence
+
+The example above does not require that pages are visited in a particular order. We are simply looking for an interest in both products.
+If order matters to you, check this option:
+![](../../images/proactive_conversations/trigger_sequence.png)
+
+## Partial or full match
+
+By default, all subsequent paths will be matched. For example, the url `.../policies/home/condos` would activate the trigger.
+If you don't want that you can uncheck this option:
+![](../../images/proactive_conversations/triggers_subsequent.png)
+
+
+## Protocol, host, and port
+Protocol, host, and port are always ignored. Which means that if you set `http://localhost:8000/product/features` it will also match `https://yoursite.com/product/features`.
+
+## Engage with returning visitors
+
+**Example use case**: visitors returning several times on the _pricing_ page of a Saas company might be interested in scheduling a demo.
+
+The following video shows how to engage with a user coming on [https://botfront.io/pricing](https://botfront.io/pricing) for the third time, after staying 15 seconds on the page:
+
+<video autoplay muted loop width="100%" controls>
+  <source src="../../videos/triggers_returning.m4v" type="video/mp4"/>
+  Your browser does not support the video tag.
+</video>
+
+<Important type="info" title="Number of page visits vs. website visits.">
+If you set <strong>3</strong> website visits, the assistant will engage at the third visit regardless of the page.{' '}
+If you set <strong>3</strong> page visits without specifying a URL, the assistant will engage everytime you visit a page on the site for the third time.
+</Important>
+

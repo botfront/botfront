@@ -7,6 +7,8 @@ function EntityValueEditor({
     entity,
     onChange,
     disallowAdvancedEditing,
+    disallowValueEditing,
+    disabled,
 }) {
     const exists = field => field in entity && entity[field] !== null;
     const capitalize = key => key.charAt(0).toUpperCase() + key.slice(1);
@@ -14,6 +16,7 @@ function EntityValueEditor({
     const renderField = key => (
         <div className='side-by-side middle entity-value-input-container'>
             <Input
+                disabled={disabled}
                 data-cy={`entity-${key}-input`}
                 value={entity[key]}
                 onChange={(_, { value }) => onChange(
@@ -27,7 +30,7 @@ function EntityValueEditor({
                 <Label>{capitalize(key)}</Label>
                 <input />
             </Input>
-            {(key !== 'value' || exists('text')) && (
+            {(key !== 'value' || exists('text')) && !disabled && (
                 <div>
                     <IconButton
                         color='grey'
@@ -47,6 +50,7 @@ function EntityValueEditor({
             onClick={() => onChange({ ...entity, [key]: '' })}
             content={capitalize(key)}
             icon='add'
+            disabled={disabled}
             data-cy={`add-entity-${key}`}
         />
     );
@@ -58,7 +62,7 @@ function EntityValueEditor({
     const renderAddButtons = () => {
         if (showValue && showRole && showGroup) return null;
         return (
-            <Button.Group size='tiny'>
+            <Button.Group size='tiny' className='entity-option-buttons'>
                 {!showValue && renderAddButton('value')}
                 {!showRole && renderAddButton('role')}
                 {!showGroup && renderAddButton('group')}
@@ -68,8 +72,8 @@ function EntityValueEditor({
 
 
     return (
-        <div style={{ display: 'inline' }}>
-            {showValue && renderField('value')}
+        <div className='optional-entity-values-container'>
+            {!disallowValueEditing && showValue && renderField('value')}
             {!disallowAdvancedEditing && showRole && renderField('role')}
             {!disallowAdvancedEditing && showGroup && renderField('group')}
             {!disallowAdvancedEditing && renderAddButtons()}
@@ -81,10 +85,15 @@ EntityValueEditor.propTypes = {
     entity: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired,
     disallowAdvancedEditing: PropTypes.bool,
+    disallowValueEditing: PropTypes.bool,
+    disabled: PropTypes.bool,
 };
 
 EntityValueEditor.defaultProps = {
     disallowAdvancedEditing: false,
+    disallowValueEditing: false,
+    disabled: false,
 };
+
 
 export default EntityValueEditor;

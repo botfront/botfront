@@ -1,0 +1,34 @@
+.ReactTable.table-chart {
+    max-height: 336px;
+    overflow: auto;
+    .rt-resizable-header-content {
+        text-align: left;
+        font-weight: 600;
+        color: #575e64;
+        // padding-left: 0.5rem;
+    }
+    .rt-tbody {
+        .rt-td {
+            border-right-style: solid !important; // required to override react tale default
+            border-right-width: 1px !important; // required to override react tale default
+            border-right-color: rgba(0, 0, 0, 0.05) !important; // required to override react tale default
+            padding-left: 1.2rem;
+            &:last-child {
+                border-right-style: none;
+                border-right-width: none;
+                border-right-color: none;
+            }
+        }
+    }
+    .number-column{
+        text-align: right;
+    }
+    .table-chart-colunm{
+        .rt-tr-group {
+            // height: 1em;
+            line-height: 1.2em;
+            color: rgba(0, 0, 0, 0.87);
+        }
+    }
+
+}

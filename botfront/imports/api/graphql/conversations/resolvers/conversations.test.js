@@ -1,25 +1,25 @@
 /* eslint-disable no-multi-str */
 import { expect } from 'chai';
 import { Meteor } from 'meteor/meteor';
-import resolvers from './conversationsResolver';
-import { conversationTemplate } from './conversations.test.data';
 
-const {
-    Mutation: { importConversations },
-} = resolvers;
-
-const generateConversationFromTemplate = ({ senderId, latestEventTime } = {}) => ({
-    ...conversationTemplate,
-    tracker: {
-        ...conversationTemplate.tracker,
-        ...(senderId ? { sender_id: senderId } : {}),
-        ...(latestEventTime ? { latest_event_time: latestEventTime } : {}),
-    },
-});
 
 if (Meteor.isServer) {
     import Conversations from '../conversations.model.js';
+    import { conversationTemplate } from './conversations.test.data';
+    import resolvers from './conversationsResolver';
 
+    const {
+        Mutation: { importConversations },
+    } = resolvers;
+    
+    const generateConversationFromTemplate = ({ senderId, latestEventTime } = {}) => ({
+        ...conversationTemplate,
+        tracker: {
+            ...conversationTemplate.tracker,
+            ...(senderId ? { sender_id: senderId } : {}),
+            ...(latestEventTime ? { latest_event_time: latestEventTime } : {}),
+        },
+    });
     describe('Import Conversations Route', () => {
         beforeEach(async () => {
             await Conversations.deleteMany();
@@ -102,7 +102,7 @@ if (Meteor.isServer) {
                     }), // diff sender, before
                 ],
                 projectId: 'project1',
-                environment: 'staging', // diff env
+                environment: 'production', // diff env
             });
             expect(result).to.deep.equal({
                 failed: ['839676060a2f44b18724e12c9827c9bf'],

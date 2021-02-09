@@ -1,0 +1,403 @@
+.react-flow {
+    background-color: @botfront-grey-bg;
+    @node-shadow: 0 1px 5px 2px rgba(0,0,0,.08);
+    .react-flow__node {
+        width: 80px;
+        height: 80px;
+        border-radius: 4px;
+        text-align: center;
+        transition: box-shadow 0.1s ease-out;
+        box-shadow: @node-shadow;
+
+        &:hover {
+            box-shadow: 0 1px 5px 4px rgba(0,0,0,.18);
+        }
+
+        &.start-node {
+            background-color: rgba(0,114,201,0.87);
+            .setting {
+                position: absolute;
+                color: white;
+                top: 4px;
+                right: 0px;
+            }
+        }
+        &.expanding-node {
+            max-width: 240px;
+            visibility: hidden;
+            height: auto;
+            width: 240px;
+            .ui.dropdown.icon{
+                left: 115px;
+            }
+            .expanding-node-content {
+                max-height: 84px;
+                width: 240px;
+                visibility: visible;
+                border-radius: 4px;
+                box-shadow: @node-shadow;
+                transition: box-shadow 0.1s ease-out;
+                box-sizing: border-box;
+                background-color: rgb(249, 249, 249, 0.8);
+                color: #212121;
+                margin-bottom: 2px;
+                &:hover {
+                    box-shadow: 0 1px 5px 3px rgba(0,0,0,.13);;
+                }
+                &.slot-set-node-content {
+                    padding: 1em 0.5em 1em 0.5em;
+                    width: max-content;
+                    .icon-button.delete-slot-set {
+                        cursor: pointer;
+                        display: inline;
+                        margin-left: 5px;                   
+                    }
+                    display: table;
+                }
+                &.slot-node-content{
+                    .slot-node-header {
+                        display: block;
+                    }
+                    .ui.dropdown.icon{
+                        left: 115px;
+                    }
+                    .utterances-container {
+                        padding-top: 2px;
+                        width: 226px;
+                        min-width: 226px;
+                        border: none;
+                        .utterance-container {
+                            margin: 0px !important;
+                            margin-left: 7px;
+                            width: 226px;
+                            max-height: 55px;
+                            overflow: hidden;
+                        }
+                    }
+                    .utterances-container {
+                        overflow: hidden;
+                    }
+                    .change-response-type{
+                        margin-bottom: 0.8em;
+                    }
+                    &.expanding-node-selected {
+                        box-shadow: 0px 3px 9px 5px rgba(0, 0, 0, 0.08);
+                        max-height: none;
+                        padding-right: 40px;
+                        width: 280px;
+                        max-height: none;
+                        overflow: visible;
+                        .utterances-container {
+                            width: 240px;
+                            overflow: visible;
+                            .side-by-side.narrow.top-right {
+                                /*
+                                   reverse the column to keep the
+                                   metadata button in the same position
+                                   when the extra option button for button
+                                   and quick reply responses exists
+                                */
+                                flex-direction: column-reverse;
+                                visibility: visible;
+                                right: -20px;
+                                width: 16px;
+                                top: 2px;
+                                display: flex;
+                                .ui.mini.button.icon-button {
+                                    display: block;
+                                    width: 24px;
+                                    margin-bottom: 0.5em;
+                                }
+                                .ui.button.compact.import-from-lang {
+                                    width: 2.8rem;
+                                    margin-bottom: 0.5em;
+                                }
+                            }
+                            .utterance-container {
+                                height: auto;
+                                max-height: none;
+                            }
+                        }
+                        .change-response-type{
+                            margin-bottom: 0.8em;
+                        }
+                    }
+                }
+            }
+        }
+
+        span.start-node-text {
+            color: white;
+            display: inline-block;
+            position: relative;
+            top: 10px;
+            width: 47px;
+        }
+
+        // This is the icon to add nodes, situated at the bottom of nodes
+        .ui.dropdown.icon {
+            .plus.circle.icon {
+                margin: 0;
+                padding: 0;
+                width: 12px;
+                height: 12px;
+                background-color: white;
+                border-radius: 15px;
+                box-sizing: border-box;
+                &::before {
+                    position: relative;
+                    top: -3px;
+                    left: -3px
+                }
+                &:hover {
+                    bottom: -4px;
+                }
+
+            }
+            position: absolute;
+            left: 35px;
+            bottom: -10px;
+            font-size: 16px;
+            cursor: pointer;
+
+            &.disabled {
+                color: #bbb;
+                opacity: 1 !important;
+                cursor: not-allowed;
+                &:hover {
+                    bottom: -5px;
+                }
+            }
+        }
+
+        .slot-choice-modal {
+            position: absolute;
+            bottom: -73px;
+            left: 0;
+            width: 177px;
+            background-color: @botfront-grey-bg;
+            border-radius: 4px;
+            padding: 0.25em 0 0.25em 0;
+            .existing-slot {
+                width: 150px;
+                margin-top:3px;
+                margin-left: -15px;
+                color: rgba(0,114,201,0.7);
+                cursor: pointer;
+            }
+
+            // This is the ok / not ok sign for the slot name input
+            i.icon.large {
+                cursor: default;
+                position: absolute;
+                left: 190px;
+                top: 10px;
+                opacity: 1;
+                transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+                &.check {
+                    &.not-here {
+                        transform: translateY(-20px);
+                        opacity: 0;
+                    }
+                }
+                &.ban {
+                    &.not-here {
+                        transform: translateY(20px);
+                        opacity: 0;
+                    }
+                }
+            }
+
+            i.icon.dropdown {
+                position: relative;
+                left: 9px;
+            }
+
+            .ui.dropdown .menu .menu {
+                max-height: 15em;
+                overflow-y: auto;
+                i.icon.dropdown {
+                    display: none;
+                }
+            }
+        }
+    }
+
+    .react-flow__edge {
+        .if-button {
+            cursor: pointer;
+            &:hover {
+                ellipse {
+                    stroke: #36b03c;
+                    fill: #36b03c;
+                    &.trash {
+                        stroke: #c02121;
+                        fill: #c02121;
+                    }
+                }
+            }
+        }
+        .hover-show {
+            opacity: 0.15;
+            &:hover {
+                opacity: 1;
+            }
+        }
+        &.animated > .react-flow__edge-path {
+            stroke: #747474;
+            stroke-width: 2.5;
+            animation: dashdraw 1s linear infinite;
+        }
+    }
+
+}
+
+.form-graph-help {
+    position: absolute;
+    top: 10px;
+    left: 10px; 
+    z-index: 3;
+}
+
+.ui.toggle.shift-mode-toggle {
+    position: absolute;
+    top: 15px;
+    left: 66px;
+    z-index: 3;
+    label {
+        padding-top: 0;
+        .shortcut {
+            color: @shortcut-key;
+        }
+    }
+}
+
+
+.form-graph-side-panel {
+    z-index: 5;
+    opacity: 0.90;
+    position: absolute;
+    background-color: white;
+    right: 25px;
+    top: 0;
+    height: ~"calc(100% - 40px)";
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 35%;
+    min-width: 435px;
+    box-shadow: 1px 0px 8px 3px rgba(0,0,0,0.2);
+    border-radius: 8px;
+    transform: translateX(0px);
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    &.not-here {
+        transform: translateX(460px);
+        opacity: 0;
+    }
+    button.ui.button.remove-this-slot {
+        bottom: 0;
+        right: 0;
+        position: absolute;
+        margin: 27px;
+        padding-right: 19px;
+    }
+    .ui.segments.story-card {
+        box-shadow: none;
+        border: none;
+        margin: 2px;
+        .slot-name {
+            position: absolute;
+            top: 8px;
+            left: 22px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #a0a0a0;
+            width: 102px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+        .story-card-content {
+            border: none;
+        }
+    }
+
+    .utterances-container {
+        min-width: 28.5rem;
+        width: 28.5rem;
+    }
+    
+    .utterance-container[agent="bot"] {
+        width: 25rem;
+        margin-left: 10px;
+    }
+}
+
+.ui.popup.add-condition-warning {
+    left: -15px !important;
+}
+.slot-condition-modal{
+    .query-builder.qb-lite {
+        overflow: visible;
+        .conjunction-container {
+            display: flex;
+        }
+        .trash.link.icon {
+            color: rgb(180,180,180);
+            &:hover {
+                color: rgb(170,170,170);
+            }
+            &.delete-condition-group {
+                padding-top: 0.5rem;
+            }
+            
+        }
+        .ui.button.basic.compact {
+             // required to overide semantic ui !important
+            background-color: rgba(0,0,0,0) !important;
+        }
+        .ui.buttons.options-button-group.condition-conjunction-buttons {
+            margin-left: 0.5rem;
+            .ui.button.option-button {
+                background-color: rgba(0,0,0,0) !important;
+            }
+            .ui.active.button.option-button {
+                background-color: white !important;
+            }
+        }
+        
+        .rule--field {
+            vertical-align: top;
+        }
+        .rule--operator{
+            vertical-align: top;
+        }
+        .ui.input.condition-input{
+            &.custom-number {
+                width: 100px;
+            }
+        }
+        .ui.dropdown.multiple.condition-multiselect {
+            max-width: 200px;
+        }
+        .group.group-or-rule {
+            background-color: rgb(245, 245, 245);
+            border-color: rgba(0,0,0,0.1);
+        }
+        
+        .delete-condition-button {
+            margin: 1em;
+        }
+        div.group--header:not(:hover) .group--actions {
+            opacity: 1;
+        }
+    }
+    .condition-bottom-options {
+        padding-right: 1.7em;
+        height: 36px;
+    }
+}
+
+.ui.dropdown.set-slot-dropdown {
+    top: 20px;
+    left: -115px;
+    position: relative;
+}

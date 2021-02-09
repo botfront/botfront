@@ -172,7 +172,7 @@ const NluTable = React.forwardRef((props, forwardedRef) => {
                 <div className='side-by-side narrow right'>
                     <IconButton
                         color='black'
-                        className='persistent default-cursor'
+                        className='persistent disabled default-cursor'
                         basic
                         icon='gem'
                         size='small'

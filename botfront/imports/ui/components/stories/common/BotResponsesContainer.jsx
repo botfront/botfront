@@ -15,6 +15,9 @@ import IconButton from '../../common/IconButton';
 import BotResponseEditor from '../../templates/templates-list/BotResponseEditor';
 import ButtonTypeToggle from '../../templates/common/ButtonTypeToggle';
 import BotResponseContainer from './BotResponseContainer';
+import { useUpload } from '../hooks/image.hooks';
+
+import { can } from '../../../../lib/scopes';
 import { ProjectContext } from '../../../layouts/context';
 import {
     checkMetadataSet, toggleButtonPersistence, parseContentType, checkContentEmpty,
@@ -32,10 +35,12 @@ const BotResponsesContainer = (props) => {
         onChange,
         onDeleteAllResponses,
         deletable,
+        renameable,
         enableEditPopup,
         tag,
         responseLocations,
         loadingResponseLocations,
+        disableEnterKey,
         editable: initialEditable,
         theme,
     } = props;
@@ -58,10 +63,11 @@ const BotResponsesContainer = (props) => {
     const [editorOpen, setEditorOpen] = useState(false);
     const [toBeCreated, setToBeCreated] = useState(null);
     const [focus, setFocus] = useState(null);
+    const [uploadImage] = useUpload(name);
     const [deletePopupOpen, setDeletePopupOpen] = useState(false);
     const typeName = useMemo(() => template && template.__typename, [template]);
 
-    const editable = initialEditable; // adds permission check here on ee
+    const editable = can('responses:w', projectId) && initialEditable;
 
     useEffect(() => {
         Promise.resolve(initialValue).then((res) => {
@@ -151,7 +157,9 @@ const BotResponsesContainer = (props) => {
                     onFocus={() => setFocus(index)}
                     editCustom={() => setEditorOpen(true)}
                     hasMetadata={template && checkMetadataSet(template.metadata)}
+                    metadata={(template || {}).metadata}
                     editable={editable}
+                    disableEnterKey={disableEnterKey}
                 />
                 {deletable && sequenceArray.length > 1 && <IconButton onClick={() => handleDeleteResponse(index)} icon='trash' />}
             </div>
@@ -171,7 +179,7 @@ const BotResponsesContainer = (props) => {
     const renderThemeTag = () => (<span className='bot-response theme-tag'>{theme}</span>);
 
     return (
-        <ResponseContext.Provider value={{ name }}>
+        <ResponseContext.Provider value={{ name, uploadImage }}>
             <div className={`utterances-container exception-wrapper-target theme-${theme}`}>
                 {!template && (
                     <div className='loading-bot-response'>
@@ -215,7 +223,10 @@ const BotResponsesContainer = (props) => {
                     {enableEditPopup && (
                         <IconButton
                             icon='ellipsis vertical'
-                            onClick={() => setEditorOpen(true)}
+                            onClick={() => {
+                                setEditorOpen(true);
+                            }}
+                            onMouseDown={(e) => { e.stopPropagation(); }}
                             data-cy='edit-responses'
                             className={template && checkMetadataSet(template.metadata) ? 'light-green' : 'grey'}
                             color={null}
@@ -226,7 +237,7 @@ const BotResponsesContainer = (props) => {
                             open={editorOpen}
                             name={name}
                             closeModal={() => setEditorOpen(false)}
-                            renameable={false}
+                            renameable={renameable}
                         />
                     )}
                     {deletable && onDeleteAllResponses && editable && (
@@ -272,6 +283,8 @@ BotResponsesContainer.propTypes = {
     tag: PropTypes.string,
     responseLocations: PropTypes.array,
     loadingResponseLocations: PropTypes.bool,
+    renameable: PropTypes.bool,
+    disableEnterKey: PropTypes.bool,
     editable: PropTypes.bool,
     theme: PropTypes.string,
 };
@@ -286,6 +299,8 @@ BotResponsesContainer.defaultProps = {
     tag: null,
     responseLocations: [],
     loadingResponseLocations: false,
+    renameable: true,
+    disableEnterKey: false,
     editable: true,
     theme: 'default',
 };

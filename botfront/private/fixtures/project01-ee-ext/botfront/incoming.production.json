@@ -1,0 +1,26 @@
+[
+  {
+    "__v": 0,
+    "confidence": 0.9999978542327881,
+    "createdAt": "2020-12-04T17:25:22.483Z",
+    "entities": [],
+    "env": "production",
+    "intent": "chitchat.this_is_bad",
+    "language": "fr",
+    "projectId": "bf",
+    "text": "AMER!",
+    "updatedAt": "2020-12-04T17:25:22.655Z"
+  },
+  {
+    "__v": 0,
+    "confidence": 0.9999992251396179,
+    "createdAt": "2020-12-04T17:25:08.135Z",
+    "entities": [],
+    "env": "production",
+    "intent": "chitchat.this_is_bad",
+    "language": "en",
+    "projectId": "bf",
+    "text": "ew, wack!",
+    "updatedAt": "2020-12-04T15:54:29.982Z"
+  }
+]

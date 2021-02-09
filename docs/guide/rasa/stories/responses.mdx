@@ -1,0 +1,173 @@
+---
+name: Create rich responses
+title: Create rich responses for your Rasa assistant
+route: /docs/rasa/response-types/
+menu: Authoring conversations
+meta:
+    - name: description
+      content: Create and edit rich responses for your Rasa assistant, including buttons, quick replies, images and carousels
+    - name: keywords
+      content: rasa domain stories
+permalink: /rasa/:slug
+---
+
+import { FaFacebookMessenger } from 'react-icons/fa';
+
+# Rich responses
+
+Botfront allows you to create visually all sort of rich responses for your Rasa assistant such as buttons, quick replies, images and carousels.
+
+## Text responses
+
+Text response are supported by all channels.
+You can split text responses into separate messages by typing `enter`.
+
+<video autoplay muted loop width="100%" controls>
+  <source src="../../../videos/response_text.m4v" type="video/mp4"/>
+  Your browser does not support the video tag.
+</video>
+
+
+### Markdown
+
+Some channels allow you to style responses with Markdown. Here are common styling examples.
+
+| Markdown                                     | Result                                     |
+| -------------------------------------------- | ------------------------------------------ |
+| `**Bold text**`                              | **Bold text**                              |
+| `*Italic text*`                              | _Italic text_                              |
+| `Link to [Botfront.io](https://botfront.io)` | Link to [Botfront.io](https://botfront.io) |
+
+### Features support by channel
+
+| Feature          | Rasa Webchat | <FaFacebookMessenger color='blue' /> |
+| ---------------- | :----------: | :----------------------------------: |
+| General support  | <Supported/> |             <Supported/>             |
+| Multiple bubbles | <Supported/> |             <Supported/>             |
+| Markdown         | <Supported/> |           <NotSupported/>            |
+
+
+## Buttons and quick replies
+
+The main difference between buttons and quick replies is that quick replies disappear from the conversation once a user has clicked on it while buttons persist.
+
+**Quick replies** are used when the underlying payload (intents and entities) is contextual, for example with _yes_ or _no_ responses.
+_Yes_ and _No_ are generally direct answers to the previous bot utterance. Therefore there is no reason to keep the options available in the conversation once the user has responded.
+
+<video autoplay muted loop width="100%" controls>
+  <source src="../../../videos/response_quick_replies.m4v" type="video/mp4"/>
+  Your browser does not support the video tag.
+</video>
+
+
+**Buttons**, however will persist on the screen after the user has selected an answer. Buttons are used when the proposed options remain available later in the conversation.
+
+Simply toggle the **pin** button to make your response a quick reply or a button.
+
+<video autoplay muted loop width="100%" controls>
+  <source src="../../../videos/response_buttons.m4v" type="video/mp4"/>
+  Your browser does not support the video tag.
+</video>
+
+### Attaching actions to buttons
+
+You can attach two types of actions:
+
+-   **Payload**: simply select the intent and optionnally the entities you want to map to a click on this button or quick reply.
+-   **hyperlink**: insert the link to the page you want to link.
+
+<Important type='info'>Drag and drop buttons to re-order them!</Important>
+
+### Features support by channel
+
+| Feature       | Rasa Webchat | <FaFacebookMessenger color='blue' /> |
+| ------------- | :----------: | :----------------------------------: |
+| Quick replies | <Supported/> |             <Supported/>             |
+| Buttons       | <Supported/> |             <Supported/>             |
+| Payload       | <Supported/> |             <Supported/>             |
+| Hyperlink     | <Supported/> |           <NotSupported/>            |
+
+## images
+
+To add an image, simply select the image type. With Botfront Open Source, you must add the link to your image. With Botfront Cloud and Enterprise, you can directly upload an image.
+
+<video autoplay muted loop width="100%" controls>
+  <source src="../../../videos/response_image.m4v" type="video/mp4"/>
+  Your browser does not support the video tag.
+</video>
+
+
+
+### Features support by channel
+
+| Feature |   Webchat    | <FaFacebookMessenger color='blue' /> |
+| ------- | :----------: | :----------------------------------: |
+| Images  | <Supported/> |             <Supported/>             |
+
+## carousels
+
+To create a carousel, select the carousel response type from the options, the start adding your cards.
+A carousel is made of cards, and each card contains a **title**, and **description**, an **image**, and up to 3 **buttons**.
+
+<video autoplay muted loop width="100%" controls>
+  <source src="../../../videos/response_carousels.m4v" type="video/mp4"/>
+  Your browser does not support the video tag.
+</video>
+
+You can also define a **default action** that will be performed if the user click anywhere on the cards (except the buttons).
+
+<Important type='info'>Drag and drop carousels cards re-order them!</Important>
+
+### Features support by channel
+
+| Feature                   |   Webchat    | <FaFacebookMessenger color='blue' /> |
+| ------------------------- | :----------: | :----------------------------------: |
+| Carousels                 | <Supported/> |             <Supported/>             |
+| Default action: payload   | <Supported/> |             <Supported/>             |
+| Default action: hyperlink | <Supported/> |           <NotSupported/>            |
+
+## Variations
+
+Variations are alternative responses your assistant can provide. Variations should convey the same meaning and be used to make your assistant less robotic.
+Click the the ellipsis button and add your variations as follows.
+
+Variations are supported for all channels and response types.
+
+<video autoplay muted loop width="100%" controls>
+  <source src="../../../videos/response_variations.m4v" type="video/mp4"/>
+  Your browser does not support the video tag.
+</video>
+
+## Advanced response configuration
+
+The Rasa Webchat widget gives you some flexibility to further configure your responses. Click on the ellipsis menu and select the **Behaviour** tab.
+
+<video autoplay muted loop width="100%" controls>
+  <source src="../../../videos/response_links_and_more.m4v" type="video/mp4"/>
+  Your browser does not support the video tag.
+</video>
+
+-   **Decide where links should open**. This will only apply to the current response: links are opened in a new tab (`target="_blank"`) by default for all responses.
+-   **Enable, disable or hide the user input field** (e.g. to force the use of buttons). This will only apply to the current response: the input is always enabled by default for all responses.
+-   **Force the widget to open or close**. If you force close the chat widget, the response will appear as a tooltip attached to the chat launcher. You will need to force open again if you want to re-open the chat widget.
+
+Note that these settings are attached to the response
+
+When using the Rasa Webchat you can add further configuration to your responses.
+
+## Renaming responses
+
+When you create a response, Botfront generates a random response name. If you need more human readable names you can rename them as follows
+
+<video autoplay muted loop width="100%" controls>
+  <source src="../../../videos/response_renaming.m4v" type="video/mp4"/>
+  Your browser does not support the video tag.
+</video>
+
+## Emojis 🎉🤔
+
+Since Emojis are characters, they are generally supported by all channels and bot responses.
+
+ - **All users**: simply copy (e.g. from [Emojipedia](https://emojipedia.org)) and paste an emoji in your response.
+ - **Mac users**: `Ctrl+Cmd+[Space]` will open an emoji menu you can pick from.
+ - **Windows users**: `Win + .` or `Win + ;` will open an emoji menu you can pick from.

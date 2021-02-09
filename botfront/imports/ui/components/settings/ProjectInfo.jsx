@@ -17,9 +17,9 @@ import { ProjectContext } from '../../layouts/context';
 import InfoField from '../utils/InfoField';
 import { wrapMeteorCallback } from '../utils/Errors';
 import SelectField from '../form_fields/SelectField';
+import { can } from '../../../lib/scopes';
 import { languages } from '../../../lib/languages';
 import { Info } from '../common/Info';
-import { can } from '../../../lib/scopes';
 
 class ProjectInfo extends React.Component {
     constructor(props) {
@@ -76,23 +76,28 @@ class ProjectInfo extends React.Component {
             name,
             _id,
             defaultLanguage,
-            gitString,
-            publicSshKey,
-            privateSshKey,
+           
+            nluThreshold,
+            deploymentEnvironments,
+            timezoneOffset,
         } = project;
         const notInprojectLanguages = value.filter(
             el => !projectLanguages.some(l => l.value === el),
         );
         this.setState({ saving: true });
+        if (deploymentEnvironments && deploymentEnvironments.length === 0) {
+            Meteor.call('stories.changeStatus', _id, 'unpublished', 'published');
+        }
         Meteor.call(
             'project.update',
             {
                 name,
                 _id,
                 defaultLanguage,
-                ...(gitString ? { gitString } : {}),
-                ...(publicSshKey ? { publicSshKey } : {}),
-                ...(privateSshKey ? { privateSshKey } : {}),
+              
+                nluThreshold,
+                deploymentEnvironments,
+                timezoneOffset,
             },
             wrapMeteorCallback((err) => {
                 if (!err) {
@@ -123,6 +128,10 @@ class ProjectInfo extends React.Component {
             project: { _id: projectId },
         } = this.context;
         const { saving, value, model } = this.state;
+        const hasWritePermission = can('projects:w', projectId);
+        if (model.deploymentEnvironments) {
+            model.deploymentEnvironments = model.deploymentEnvironments.filter(env => env !== 'staging');
+        }
         const bridge = new SimpleSchema2Bridge(ProjectsSchema);
         return (
             <>
@@ -130,13 +139,18 @@ class ProjectInfo extends React.Component {
                     schema={bridge}
                     model={model}
                     onSubmit={updateProject => this.onSave(updateProject)}
-                    disabled={saving}
+                    disabled={saving || !hasWritePermission}
                 >
                     <InfoField
                         name='name'
                         label='Name'
                         className='project-name'
                         data-cy='project-name'
+                    />
+                    <InfoField
+                        name='namespace'
+                        label='Namespace'
+                        disabled
                     />
                     <Form.Field>
                         <label>Languages supported</label>
@@ -152,6 +166,7 @@ class ProjectInfo extends React.Component {
                             options={this.getOptions()}
                             renderLabel={language => this.renderLabel(language)}
                             data-cy='language-selector'
+                            disabled={!hasWritePermission}
                         />
                         {!!projectLanguages.length && this.renderDeleteprojectLanguages()}
                     </Form.Field>
@@ -163,57 +178,45 @@ class ProjectInfo extends React.Component {
                             data-cy='default-langauge-selection'
                         />
                     )}
-                    {can('projects:w', projectId) && (
-                        <Segment className='project-name field'>
+                   
+                    <InfoField
+                        name='nluThreshold'
+                        label='NLU threshold'
+                        info='Botfront will display recommendations on incoming utterances based on that threshold'
+                        data-cy='change-nlu-threshold'
+                    />
+                    <br />
+                    {can('resources:r', projectId) && (
+                        <>
                             <InfoField
-                                name='gitString'
-                                label={(
-                                    <>
-                                        <Icon name='git' />
-                                        Git repository
-                                    </>
-                                )}
-                                info={(
-                                    <span className='small'>
-                                        Use format{' '}
-                                        <span className='monospace break-word'>
-                                            https://user:token@domain/org/repo.git#branch
-                                        </span>{' '}
-                                        or{' '}
-                                        <span className='monospace break-word'>
-                                            git@domain:org/repo.git#branch
-                                        </span>
-                                        .
-                                    </span>
-                                )}
-                                className='project-name'
-                                data-cy='git-string'
+                                name='deploymentEnvironments'
+                                label='Deployment environments'
+                                info='Botfront will enable additional environments for your workflow'
+                                data-cy='deployment-environments'
+                                disabled={!can('resources:w', projectId)}
                             />
-                            <label>
-                                <Icon name='key' /> SSH keys{' '}
-                                <Info info='These are stored as is, so use caution: use this key only for versioning your bot, and give it only the necessary rights to push and pull to above repo.' />
-                            </label>
-                            <AutoField
-                                label='Public'
-                                name='publicSshKey'
-                                className='project-name'
-                                data-cy='public-ssh-key'
+                            <Message
+                                size='tiny'
+                                info
+                                content='If you remove all environments, all stories will be published'
                             />
-                            <LongTextField
-                                label='Private'
-                                name='privateSshKey'
-                                className='project-name'
-                                data-cy='private-ssh-key'
-                            />
-                        </Segment>
+                        </>
                     )}
+                    <AutoField
+                        step='0.5'
+                        name='timezoneOffset'
+                        label='Timezone offset relative to UTC±00:00'
+                        data-cy='change-timezone-offset'
+                    />
                     <br />
                     <ErrorsField />
-                    <SubmitField
-                        className='primary save-project-info-button'
-                        value='Save Changes'
-                        data-cy='save-changes'
-                    />
+                    {hasWritePermission && (
+                        <SubmitField
+                            className='primary save-project-info-button'
+                            value='Save Changes'
+                            data-cy='save-changes'
+                        />
+                    )}
                 </AutoForm>
             </>
         );

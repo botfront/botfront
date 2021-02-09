@@ -2,7 +2,6 @@ import React, {
     useState, useEffect, useMemo, useRef, useContext,
 } from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 import { debounce } from 'lodash';
 import {
     Message, Button, Icon, Confirm,
@@ -12,20 +11,31 @@ import UserUtteranceViewer from '../common/UserUtteranceViewer';
 import { useActivity, useDeleteActivity, useUpsertActivity } from './hooks';
 
 import { populateActivity } from './ActivityInsertions';
+import { getSmartTips } from '../../../../lib/smart_tips';
+import Filters from '../models/Filters';
+
 import DataTable from '../../common/DataTable';
 import ActivityActionsColumn from './ActivityActionsColumn';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { cleanDucklingFromExamples } from '../../../../lib/utils';
 import { isTraining } from '../../../../api/nlu_model/nlu_model.utils';
+import { can, Can } from '../../../../lib/scopes';
 import { useEventListener } from '../../utils/hooks';
 import { useInsertExamples } from '../models/hooks';
 import { ProjectContext } from '../../../layouts/context';
 
 import PrefixDropdown from '../../common/PrefixDropdown';
 import ActivityCommandBar from './ActivityCommandBar';
+import CanonicalPopup from '../common/CanonicalPopup';
+import ConversationSidePanel from './ConversationSidePanel';
+import ConversationIcon from './ConversationIcon';
 
 function Activity(props) {
     const [sortType, setSortType] = useState('Newest');
+    const {
+        intents,
+        entities,
+    } = useContext(ProjectContext);
     const getSortFunction = () => {
         switch (sortType) {
         case 'Newest':
@@ -48,17 +58,26 @@ function Activity(props) {
     const { linkRender } = props;
     const {
         language,
+        environment,
         project,
-        project: { training: { endTime } = {}, _id: projectId },
+        project: { training: { endTime } = {}, _id: projectId, nluThreshold },
         instance,
     } = useContext(ProjectContext);
+    const examples = []; // change me!!!!
+
+    const [openConvPopup, setOpenConvPopup] = useState(false);
+    const [filter, setFilter] = useState({
+        entities: [], intents: [], query: '', dateRange: {},
+    });
 
     const variables = useMemo(() => ({
         projectId,
         language,
+        env: environment,
         pageSize: 20,
+        filter,
         ...getSortFunction(),
-    }), [projectId, language, getSortFunction()]);
+    }), [projectId, language, environment, filter, getSortFunction()]);
 
     const {
         data, hasNextPage, loading, loadMore, refetch,
@@ -73,16 +92,19 @@ function Activity(props) {
     const singleSelectedIntentLabelRef = useRef();
     const activityCommandBarRef = useRef();
     const tableRef = useRef();
-
+    const canEdit = useMemo(() => can('incoming:w', projectId), [projectId]);
+    
     // always refetch on first page load and sortType change
     useEffect(() => {
         if (refetch) refetch();
-    }, [refetch, projectId, language, sortType]);
+    }, [refetch, projectId, language, sortType, filter]);
 
     const [upsertActivity] = useUpsertActivity(variables);
     const [deleteActivity] = useDeleteActivity(variables);
 
-    const isUtteranceOutdated = ({ updatedAt }) => moment(updatedAt).isBefore(moment(endTime));
+    const isUtteranceOutdated = utterance => getSmartTips({
+        nluThreshold, endTime, examples, utterance,
+    }).code === 'outdated';
     const isUtteranceReinterpreting = ({ _id }) => reinterpreting.includes(_id);
 
     const validated = data.filter(a => a.validated);
@@ -106,10 +128,10 @@ function Activity(props) {
 
     const handleAddToTraining = async (utterances) => {
         const fallbackUtterance = getFallbackUtterance(utterances.map(u => u._id));
-        const examples = cleanDucklingFromExamples(clearTypenameField(
-            utterances.map(({ text, intent, entities }) => ({ text, intent, entities })),
+        const toAdd = cleanDucklingFromExamples(clearTypenameField(
+            utterances.map(({ text, intent, entities: ents }) => ({ text, intent, entities: ents })),
         ));
-        insertExamples({ variables: { examples } });
+        insertExamples({ variables: { examples: toAdd } });
         const result = await deleteActivity({
             variables: { ids: utterances.map(u => u._id) },
         });
@@ -160,6 +182,14 @@ function Activity(props) {
             val ? 'validated' : 'invalidated'
         } ?`;
         const action = () => handleUpdate(utterances.map(({ _id }) => ({ _id, validated: val })));
+        return utterances.length > 1 ? setConfirm({ message, action }) : action();
+    };
+
+    const handleMarkOoS = (utterances, ooS = true) => {
+        const fallbackUtterance = getFallbackUtterance(utterances.map(u => u._id));
+        const message = `Mark ${utterances.length} incoming utterances as out of scope?`;
+        const action = () => handleUpdate(utterances.map(({ _id }) => ({ _id, ooS })))
+            .then(mutationCallback(fallbackUtterance, 'upsertActivity'));
         return utterances.length > 1 ? setConfirm({ message, action }) : action();
     };
 
@@ -237,17 +267,21 @@ function Activity(props) {
     const renderIntent = (row) => {
         const { datum } = row;
         return (
-            <IntentLabel
-                {...(selection.length === 1 && datum._id === selection[0]
-                    ? { ref: singleSelectedIntentLabelRef }
-                    : {})}
-                disabled={isUtteranceOutdated(datum)}
-                value={datum.intent ? datum.intent : ''}
-                allowEditing={!isUtteranceOutdated(datum)}
-                allowAdditions
-                onChange={intent => handleSetIntent([{ _id: datum._id }], intent)}
-                enableReset
-                onClose={() => tableRef?.current?.focusTable()}
+            <CanonicalPopup
+                // when CanonicalPopup is present ref to IntentLabel goes via it
+                {...(selection.length === 1 && datum._id === selection[0] ? { ref: singleSelectedIntentLabelRef } : {})}
+                example={datum}
+                trigger={(
+                    <IntentLabel
+                        disabled={isUtteranceOutdated(datum)}
+                        value={datum.intent ? datum.intent : ''}
+                        allowEditing={canEdit && !isUtteranceOutdated(datum)}
+                        allowAdditions
+                        onChange={intent => handleSetIntent([{ _id: datum._id }], intent)}
+                        enableReset
+                        onClose={() => tableRef?.current?.focusTable()}
+                    />
+                )}
             />
         );
     };
@@ -257,10 +291,10 @@ function Activity(props) {
         return (
             <UserUtteranceViewer
                 value={datum}
-                onChange={({ _id, entities }) => handleUpdate([{ _id, entities }])}
+                onChange={({ _id, entities: ents }) => handleUpdate([{ _id, entities: ents }])}
                 projectId={projectId}
                 disabled={isUtteranceOutdated(datum)}
-                disableEditing={isUtteranceOutdated(datum)}
+                disableEditing={isUtteranceOutdated(datum) || !canEdit}
                 showIntent={false}
             />
         );
@@ -272,9 +306,24 @@ function Activity(props) {
             datum={row.datum}
             handleSetValidated={handleSetValidated}
             onDelete={handleDelete}
+            onMarkOoS={handleMarkOoS}
+            data={data}
+            getSmartTips={utterance => getSmartTips({
+                nluThreshold, endTime, examples, utterance,
+            })}
         />
     );
 
+    const renderConvPopup = row => (
+        <ConversationIcon
+            {...row}
+            open={(row.datum || {})._id === openConvPopup._id}
+            setOpen={(open) => {
+                setOpenConvPopup(!!open ? row.datum : false);
+            }}
+        />
+    );
+        
     const columns = [
         { key: '_id', selectionKey: true, hidden: true },
         {
@@ -288,15 +337,20 @@ function Activity(props) {
             render: renderIntent,
         },
         {
+            key: 'conversation-popup', style: { width: '30px', minWidth: '30px' }, render: renderConvPopup,
+        },
+        {
             key: 'text',
             style: { width: '100%' },
             render: renderExample,
         },
-        {
-            key: 'actions',
-            style: { width: '110px' },
-            render: renderActions,
-        },
+        ...(can('incoming:w', projectId) ? [
+            {
+                key: 'actions',
+                style: { width: '110px' },
+                render: renderActions,
+            },
+        ] : []),
     ];
 
     const handleOpenIntentSetterDialogue = () => {
@@ -326,6 +380,11 @@ function Activity(props) {
         if (e.target !== tableRef?.current?.actualTable()) return;
         if (key === 'Escape') setSelection([]);
         if (key.toLowerCase() === 'd') handleDelete(selectionWithFullData);
+        if (key.toLowerCase() === 'o') handleMarkOoS(selectionWithFullData);
+        if (key.toLowerCase() === 'c') {
+            if (openConvPopup._id === selection[0]) setOpenConvPopup(false);
+            else setOpenConvPopup(data.find(datum => datum._id === selection[0]) || false);
+        }
         if (key.toLowerCase() === 'v') {
             if (selectionWithFullData.some(d => !d.intent || isUtteranceOutdated(d))) return;
             handleSetValidated(
@@ -359,42 +418,44 @@ function Activity(props) {
                     }}
                 />
             )}
-            <Button.Group>
-                <Button
-                    className='white'
-                    basic
-                    color='green'
-                    icon
-                    labelPosition='left'
-                    data-cy='run-evaluation'
-                    onClick={() => setConfirm({
-                        message:
+            <Can I='nlu-data:w'>
+                <Button.Group>
+                    <Button
+                        className='white'
+                        basic
+                        color='green'
+                        icon
+                        labelPosition='left'
+                        data-cy='run-evaluation'
+                        onClick={() => setConfirm({
+                            message:
                                 'This will evaluate the model using the validated examples as a validation set and overwrite your current evaluation results.',
-                        action: linkRender,
-                    })
-                    }
-                    disabled={!validated.length}
-                >
-                    <Icon name='lab' />
-                    Run evaluation
-                </Button>
-                <Button
-                    color='green'
-                    icon
-                    labelPosition='right'
-                    data-cy='add-to-training-data'
-                    onClick={() => setConfirm({
-                        message:
+                            action: linkRender,
+                        })
+                        }
+                        disabled={!validated.length}
+                    >
+                        <Icon name='lab' />
+                        Run evaluation
+                    </Button>
+                    <Button
+                        color='green'
+                        icon
+                        labelPosition='right'
+                        data-cy='add-to-training-data'
+                        onClick={() => setConfirm({
+                            message:
                                 'The validated utterances will be added to the training data.',
-                        action: () => handleAddToTraining(validated),
-                    })
-                    }
-                    disabled={!validated.length}
-                >
-                    <Icon name='add square' />
-                    Add to training data
-                </Button>
-            </Button.Group>
+                            action: () => handleAddToTraining(validated),
+                        })
+                        }
+                        disabled={!validated.length}
+                    >
+                        <Icon name='add square' />
+                        Add to training data
+                    </Button>
+                </Button.Group>
+            </Can>
             <PrefixDropdown
                 selection={sortType}
                 updateSelection={option => setSortType(option.value)}
@@ -408,11 +469,19 @@ function Activity(props) {
                 ]}
                 prefix='Sort by'
             />
+            <Filters
+                intents={intents}
+                entities={entities}
+                filter={filter}
+                onChange={f => setFilter(f)}
+                className='left wrap'
+            />
         </div>
     );
 
     return (
         <>
+            {!!openConvPopup && <ConversationSidePanel utterance={openConvPopup} onClose={() => setOpenConvPopup(false)} />}
             {renderTopBar()}
             {data && data.length ? (
                 <>
@@ -424,9 +493,12 @@ function Activity(props) {
                         loadMore={loading ? () => {} : loadMore}
                         onScroll={handleScroll}
                         selection={selection}
-                        onChangeSelection={setSelection}
+                        onChangeSelection={(newSelection) => {
+                            setSelection(newSelection);
+                            setOpenConvPopup(false);
+                        }}
                     />
-                    {selection.length > 1 && (
+                    {can('incoming:w', projectId) && selection.length > 1 && (
                         <ActivityCommandBar
                             ref={activityCommandBarRef}
                             isUtteranceOutdated={isUtteranceOutdated}
@@ -434,6 +506,7 @@ function Activity(props) {
                             onSetValidated={handleSetValidated}
                             onDelete={handleDelete}
                             onSetIntent={handleSetIntent}
+                            onMarkOoS={handleMarkOoS}
                             onCloseIntentPopup={() => tableRef?.current?.focusTable()}
                         />
                     )}

@@ -1,0 +1,23 @@
+query ActionCounts(
+    $projectId: String!,
+    $envs: [String] = ["development", null],
+    $langs: [String] = [],
+    $from: Float,
+    $to: Float,
+    $nBuckets: Int = 7,
+    $includeActions: [String],
+    $excludeActions: [String]
+) {
+    actionCounts(
+        projectId: $projectId,
+        envs: $envs,
+        langs: $langs,
+        from: $from,
+        to: $to,
+        nBuckets: $nBuckets,
+        include: $includeActions,
+        exclude: $excludeActions
+    ) {
+        bucket, hits, count, proportion
+    }
+}

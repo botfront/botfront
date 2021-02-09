@@ -6,11 +6,16 @@ import PropTypes from 'prop-types';
 
 import PageMenu from '../utils/PageMenu';
 import Credentials from './Credentials';
+import Appearance from './Appearance';
 import Endpoints from './Endpoints';
 import ProjectInfo from './ProjectInfo';
+import { can } from '../../../lib/scopes';
 import Instances from './Instances';
+import Integration from './Integration';
 import DefaultDomain from './DefaultDomain';
 import ImportExportProject from './ImportExportProject';
+import ChatWidgetForm from './ChatWidgetForm';
+import GitSettings from './GitSettings';
 
 class Settings extends React.Component {
     componentDidMount() {
@@ -21,11 +26,6 @@ class Settings extends React.Component {
         }
     }
 
-    handleMoreSettings = () => {
-        const { router, projectId } = this.props;
-        router.push(`/project/${projectId}/settings/global`);
-    }
-
     setActiveTab = (index) => {
         const { router } = this.props;
         const { location: { pathname } } = router;
@@ -33,49 +33,74 @@ class Settings extends React.Component {
     };
 
     getSettingsPanes = () => {
+        const { projectId } = this.props;
+        const canViewProjects = can('projects:r', projectId);
+        const canViewResources = can('resources:r', projectId);
+        const canExport = can('export:x', projectId);
+        const canImport = can('import:x', projectId);
+        const canViewGitCredentials = can('git-credentials:r', projectId);
         const panes = [
-            {
-                name: 'info',
-                menuItem: <Menu.Item icon='info' content='Project Info' key='Project Info' />,
-                render: () => <Tab.Pane><ProjectInfo /></Tab.Pane>,
-            },
-            {
-                name: 'credentials',
-                menuItem: <Menu.Item icon='key' content='Credentials' key='Credentials' />,
-                render: () => <Tab.Pane><Credentials /></Tab.Pane>,
-            },
-            {
-                name: 'endpoints',
-                menuItem: <Menu.Item icon='code' content='Endpoints' key='Endpoints' />,
-                render: () => <Tab.Pane><Endpoints /></Tab.Pane>,
-            },
-            {
-                name: 'instance',
-                menuItem: <Menu.Item icon='server' content='Instance' key='Instances' />,
-                render: () => <Tab.Pane><Instances /></Tab.Pane>,
-            },
-            {
-                name: 'default-domain',
-                menuItem: <Menu.Item icon='globe' content='Default Domain' key='Default Domain' />,
-                render: () => <Tab.Pane><DefaultDomain /></Tab.Pane>,
-            },
-            {
-                name: 'import-export',
-                menuItem: <Menu.Item icon='download' content='Import/Export' key='Import/Export' />,
-                render: () => <Tab.Pane><ImportExportProject /></Tab.Pane>,
-            },
-            {
-                menuItem: (
-                    <Menu.Item
-                        icon='ellipsis horizontal'
-                        content='More Settings'
-                        key='More Settings'
-                        onClick={this.handleMoreSettings}
-                    />
-                ),
-            },
-        ];
+            ...(canViewProjects ? [
+                {
+                    name: 'info',
+                    menuItem: <Menu.Item icon='info' content='Project Info' key='Project Info' />,
+                    render: () => <Tab.Pane><ProjectInfo /></Tab.Pane>,
+                },
+                {
+                    name: 'credentials',
+                    menuItem: <Menu.Item icon='key' content='Credentials' key='Credentials' />,
+                    render: () => <Tab.Pane><Credentials /></Tab.Pane>,
+                },
+            ] : []),
+            ...(canViewResources ? [
+                {
+                    name: 'instance',
+                    menuItem: <Menu.Item icon='server' content='Instance' key='Instances' />,
+                    render: () => <Tab.Pane><Instances /></Tab.Pane>,
+                },
+            ] : []),
+            ...(canViewProjects ? [
+                {
+                    name: 'endpoints',
+                    menuItem: <Menu.Item icon='code' content='Endpoints' key='Endpoints' />,
+                    render: () => <Tab.Pane><Endpoints /></Tab.Pane>,
+                },
+                {
+                    name: 'appearance',
+                    menuItem: <Menu.Item icon='eye' content='Appearance' key='Appearance' />,
+                    render: () => <Tab.Pane><Appearance /></Tab.Pane>,
+                },
+                {
+                    name: 'widget',
+                    menuItem: <Menu.Item icon='chat' name='Chat widget settings' content='Chat widget' key='Chat widget' />,
+                    render: () => <Tab.Pane><ChatWidgetForm /></Tab.Pane>,
+                },
+                {
+                    name: 'default-domain',
+                    menuItem: <Menu.Item icon='globe' content='Default Domain' key='Default Domain' />,
+                    render: () => <Tab.Pane><DefaultDomain /></Tab.Pane>,
+                },
+                {
+                    name: 'integration',
+                    menuItem: <Menu.Item icon='cogs' content='Integration' key='Integration' />,
+                    render: () => <Tab.Pane><Integration /></Tab.Pane>,
+                },
+            ] : []),
+            ...(canImport || canExport ? [
+                {
+                    name: 'import-export',
+                    menuItem: <Menu.Item icon='download' content='Import/Export' key='Import/Export' />,
+                    render: () => <Tab.Pane><ImportExportProject /></Tab.Pane>,
+                }] : []),
 
+            ...(canViewGitCredentials ? [{
+                name: 'git-credentials',
+                menuItem: <Menu.Item icon='git' content='Git credentials' key='Git credentials' />,
+                render: () => <Tab.Pane><GitSettings /></Tab.Pane>,
+            }] : []),
+                
+            
+        ];
         return panes;
     };
 

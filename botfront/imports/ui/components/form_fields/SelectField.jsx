@@ -2,11 +2,14 @@
 /* eslint-disable no-shadow */
 /* eslint-disable jsx-a11y/label-has-for */
 /* eslint-disable react/prop-types */
-import React from 'react';
+import React, { useState } from 'react';
 import classnames from 'classnames';
 import connectField from 'uniforms/connectField';
 import filterDOMProps from 'uniforms/filterDOMProps';
-import { Dropdown } from 'semantic-ui-react';
+import {
+    Dropdown, Label, Icon, Popup,
+} from 'semantic-ui-react';
+import ConfirmPopup from '../common/ConfirmPopup';
 
 const getOptions = (allowedValues, props = {}) => {
     const { options } = props;
@@ -15,31 +18,56 @@ const getOptions = (allowedValues, props = {}) => {
 };
 
 const renderCheckboxes = ({
-    allowedValues, placeholder, disabled, fieldType, id, name, onChange, transform, value,
-}) => (
-    <Dropdown
-        placeholder={placeholder}
-        multiple
-        search
-        value={value}
-        selection
-        onChange={(e, { value }) => onChange(value)}
-        options={getOptions(allowedValues)}
-    />
-);
+    allowedValues, placeholder, disabled, fieldType, id, name, onChange, transform, value, confirmDeletions, allowAdditions, onAddItem, props,
+}) => {
+    const [popupOpen, setPopupOpen] = useState(null);
+    const renderLabel = (props, i) => {
+        const { text, value: labelValue } = props;
+        return (
+            <Label key={`label-${labelValue}-${i}`}>
+                {text}
+                <Popup
+                    open={popupOpen === i}
+                    on='click'
+                    content={(
+                        <ConfirmPopup
+                            title={`Remove ${text} from this form?`}
+                            description='This will delete all the slot settings associated with this form'
+                            onYes={() => {
+                                setPopupOpen(null);
+                                if (!Array.isArray()) onChange([labelValue]);
+                                const newValue = [...value.slice(0, i), ...value.slice(i + 1, value.length)];
+                                onChange(newValue);
+                            }}
+                            onNo={() => setPopupOpen(null)}
+                        />
+                    )}
+                    trigger={(<Icon name='close' onClick={() => setPopupOpen(i)} />)}
+                />
+            </Label>
+        );
+    };
+    return (
+        <Dropdown
+            placeholder={placeholder}
+            multiple
+            search
+            allowAdditions={allowAdditions}
+            onAddItem={onAddItem}
+            value={value}
+            selection
+            {...(confirmDeletions ? { renderLabel } : {})}
+            onChange={(e, { value }) => onChange(value)}
+            options={getOptions(allowedValues, props)}
+        />
+    );
+};
 
 const renderSelect = ({
     // eslint-disable-next-line no-unused-vars
     allowedValues,
-    disabled,
-    id,
-    inputRef,
-    label,
-    name,
     onChange,
     placeholder,
-    required,
-    transform,
     value,
     props,
 }) => (
@@ -50,10 +78,13 @@ const renderSelect = ({
         selection
         onChange={(e, { value }) => onChange(value)}
         options={getOptions(allowedValues, props)}
-    />);
+    />
+);
 
 const Select = ({
     allowedValues,
+    allowAdditions,
+    onAddItem,
     checkboxes,
     className,
     disabled,
@@ -70,6 +101,7 @@ const Select = ({
     showInlineError,
     transform,
     value,
+    confirmDeletions,
     ...props
 }) => (
     <div className={classnames({ disabled, error, required }, className, 'field')} {...filterDOMProps(props)}>
@@ -87,6 +119,9 @@ const Select = ({
                 placeholder,
                 value,
                 fieldType,
+                confirmDeletions,
+                allowAdditions,
+                onAddItem,
                 props,
             })
             : renderSelect({

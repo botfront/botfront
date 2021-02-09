@@ -1,0 +1,46 @@
+---
+route: /docs/environments/
+title: Production deployments
+menu: Authoring conversations
+name: Publish and deploy
+meta:
+  - name: description
+    content: "Deploy your Rasa assistant on one click with Botfront environments."
+  # - name: keywords
+  #   content: botfront stories nlu rasa
+---
+
+Available in: <Premium plan="Botfront Cloud" />  <Premium plan="Botfront Enterprise" />
+
+# Publishing and deploying
+
+Production projects often require a minimal workflow to determine what needs to go to production and to make sure the end user experience is isolated from the development of new features.
+Botfront allows to **publish stories** and **deploy your project** to serve those purposes.
+
+## Deploy your project
+
+The **development** environment is the sandbox where you create or edit your project.
+Once you are satisfied with what you have in the development environment, you can deploy your project and make it available to end users.
+The environment in which your project is deployed is call the **production** environment, and is completely isolated from the development environment.
+
+All the changes you make after deploying your project will only be effective in the development environment, and will not affect your end users experience.
+At anytime, you can deploy your project again to bring your changes to the production environment and your end users.
+
+To deploy a project to production, simply expand the **Train everything** button and click on **Deploy to production**.
+
+![](../../images/deploy_to_production.png)
+
+
+## Publish stories
+
+When a new story is created it has the **unpublished** status.
+An unpublished story will not be available to your end users when you deploy your project. However, it will always be available in the development environment once trained.
+
+This allows to selectively deploy stories. For example, some of your stories might not be finished or approved to hit production.
+Or some stories are meant to be published only at certain times when there is a special promotion or a temporary service disruption.
+
+To publish a story, turn the switch on in the story menu:
+<video autoplay muted loop width="100%" controls>
+  <source src="../../videos/publish_story.m4v" type="video/mp4"/>
+  Your browser does not support the video tag.
+</video>
