@@ -12,7 +12,7 @@
   "private": true,
   "dependencies": {
     "@octokit/rest": "^18.0.5",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "chai": "^4.2.0",
     "glob": "^7.1.6",
     "graphql": "^15.4.0",
