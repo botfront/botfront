@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
 
-import { checkIfCan } from '../../lib/scopes';
 import { StoryGroupSchema } from './storyGroups.schema';
 
 export const StoryGroups = new Mongo.Collection('storyGroups');
@@ -28,7 +27,6 @@ Meteor.startup(() => {
 
 if (Meteor.isServer) {
     Meteor.publish('storiesGroup', function(projectId) {
-        checkIfCan(['stories:r', 'nlu-data:x'], projectId);
         check(projectId, String);
         return StoryGroups.find({ projectId });
     });

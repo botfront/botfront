@@ -1,4 +1,4 @@
-/* global cy */
+/* eslint-disable no-undef */
 
 describe('redux working language', function() {
     beforeEach(function() {

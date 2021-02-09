@@ -14,9 +14,7 @@ import {
     changePageTemplatesTable, setWorkingLanguage, changeFilterTemplatesTable, toggleMatchingTemplatesTable,
 } from '../../../store/actions/actions';
 import { languages } from '../../../../lib/languages';
-import { can } from '../../../../lib/scopes';
 import BotResponseEditor from './BotResponseEditor';
-import { ProjectContext } from '../../../layouts/context';
 
 class TemplatesTable extends React.Component {
     constructor(props) {
@@ -32,8 +30,7 @@ class TemplatesTable extends React.Component {
     getTemplateLanguages = () => sortBy(this.props.nluLanguages);
 
     getColumns = (lang) => {
-        const { projectId } = this.props;
-        const { dialogueActions } = this.context;
+        const { events } = this.props;
         const columns = [
             {
                 id: lang,
@@ -49,10 +46,7 @@ class TemplatesTable extends React.Component {
                 Header: () => languages[lang].name,
                 filterAll: true,
             },
-        ];
-
-        if (can('responses:r', projectId)) {
-            columns.push({
+            {
                 id: 'edit',
                 accessor: 'key',
                 className: 'center',
@@ -71,15 +65,16 @@ class TemplatesTable extends React.Component {
                     );
                 },
                 width: 25,
-            });
-        }
-        if (can('responses:w', projectId)) {
-            columns.push({
+            },
+            {
                 id: 'delete',
                 accessor: 'key',
                 className: 'center',
                 Cell: ({ value: key, viewIndex: index }) => {
-                    const isInStory = dialogueActions.includes(key);
+                    const isInStory = events.filter((storyEvents) => {
+                        if (!storyEvents) return false;
+                        return storyEvents.find(responseName => responseName === key);
+                    }).length > 0;
                     return (
                         <Popup
                             trigger={(
@@ -90,7 +85,7 @@ class TemplatesTable extends React.Component {
                                     color='grey'
                                     size='small'
                                     onClick={() => this.deleteTemplate(key)}
-                                    disabled={isInStory || !can('responses:w', projectId)}
+                                    disabled={isInStory}
                                 />
                             )}
                             content='This response cannot be deleted because it is used in a story'
@@ -99,8 +94,8 @@ class TemplatesTable extends React.Component {
                     );
                 },
                 width: 25,
-            });
-        }
+            },
+        ];
 
         columns.unshift({
             id: 'key',
@@ -218,11 +213,9 @@ class TemplatesTable extends React.Component {
         changeWorkingLanguage(this.getTemplateLanguages(templates)[activeIndex]);
     };
 
-    static contextType = ProjectContext;
-
     renderBotResponseEditor() {
         const {
-            activeEditor, setActiveEditor, templates,
+            activeEditor, setActiveEditor, events, templates,
         } = this.props;
         const botResponse = templates.find(({ _id }) => _id === activeEditor) || {};
         return (
@@ -233,7 +226,10 @@ class TemplatesTable extends React.Component {
                 open={activeEditor !== null}
                 botResponse={botResponse || null}
                 closeModal={() => setActiveEditor(null)}
-                renameable
+                renameable={!events.find((storyEvents) => {
+                    if (!storyEvents) return false;
+                    return storyEvents.find(responseName => responseName === botResponse.key);
+                })}
             />
         );
     }
@@ -282,6 +278,7 @@ TemplatesTable.propTypes = {
     changePage: PropTypes.func.isRequired,
     changeWorkingLanguage: PropTypes.func.isRequired,
     deleteBotResponse: PropTypes.func.isRequired,
+    events: PropTypes.array.isRequired,
     activeEditor: PropTypes.string,
     setActiveEditor: PropTypes.func.isRequired,
     newResponse: PropTypes.object,

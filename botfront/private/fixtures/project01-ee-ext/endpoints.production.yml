@@ -1,8 +1,0 @@
-nlg:
-  type: rasa_addons.core.nlg.GraphQLNaturalLanguageGenerator # PROD
-  url: 'http://botfront:3000/graphql'
-action_endpoint:
-  url: 'http://actions:5055/webhook'
-tracker_store:
-  store_type: rasa_addons.core.tracker_stores.botfront.BotfrontTrackerStore
-  url: 'http://botfront:3000/graphql'

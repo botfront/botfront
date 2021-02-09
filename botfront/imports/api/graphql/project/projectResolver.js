@@ -29,7 +29,7 @@ export default {
                 fallbackLang,
                 wipeProject,
             } = args;
-            checkIfCan('import:x', projectId, context.user._id);
+            checkIfCan('projects:w', projectId, context.user._id);
             // files is a list of promises as the files get uploaded to the server
             const filesData = await Promise.all(files);
             // allows Meteor.userId to be called down the stack

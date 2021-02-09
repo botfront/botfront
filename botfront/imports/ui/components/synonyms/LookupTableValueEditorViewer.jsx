@@ -4,7 +4,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import LookupTableValueEditor from './LookupTableValueEditor';
 import LookupTableValueViewer from './LookupTableValueViewer';
-import { can } from '../../../lib/scopes';
 
 export default class LookupTableValueEditorViewer extends React.Component {
     constructor(props) {
@@ -14,10 +13,7 @@ export default class LookupTableValueEditorViewer extends React.Component {
 
     setEditMode = () => {
         const { edit } = this.state;
-        const { projectId } = this.props;
-        if (!edit && can('nlu-data:w', projectId)) {
-            this.setState({ edit: true });
-        }
+        if (!edit) this.setState({ edit: true });
     };
 
     onEditDone = (entitySynonym) => {
@@ -42,7 +38,6 @@ LookupTableValueEditorViewer.propTypes = {
     entitySynonym: PropTypes.object,
     onEdit: PropTypes.func.isRequired,
     listAttribute: PropTypes.string.isRequired,
-    projectId: PropTypes.string.isRequired,
     keyAttribute: PropTypes.string.isRequired,
 };
 

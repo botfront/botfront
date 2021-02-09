@@ -106,19 +106,7 @@ const stories = [
     },
 ];
 
-const forms = [
-    {
-        _id: 'form1',
-        name: 'hey_form',
-        slots: [{ name: 'age' }, { name: 'name' }],
-        isExpanded: true,
-    },
-    {
-        _id: 'form2',
-        name: 'hey_hey_form',
-        slots: [{ name: 'slot1' }, { name: 'slot2' }],
-    },
-];
+const forms = [];
 
 function StoryGroupTreeWrapped() {
     const [activeStories, setActiveStories] = useState([]);
@@ -141,6 +129,8 @@ function StoryGroupTreeWrapped() {
                     forms={forms}
                     stories={stories}
                     storyGroups={storyGroups}
+                    onChangeActiveStories={setActiveStories}
+                    activeStories={activeStories}
                     onChangeStoryMenuSelection={setActiveStories}
                     storyMenuSelection={activeStories}
                 />

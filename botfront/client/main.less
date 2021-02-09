@@ -1,6 +1,5 @@
 @import (css) url('https://fonts.googleapis.com/css?family=Be+Vietnam:400,500,700|Hind:600|Raleway:500');
 @import 'variables.import.less';
-@import 'datepicker.less';
 @import '../imports/ui/layouts/project.import.less';
 @import '../imports/ui/layouts/setup.import.less';
 @import '../imports/ui/components/admin/settings.import.less';
@@ -21,23 +20,20 @@
 @import '../imports/ui/components/stories/common/QuickReply.import.less';
 @import '../imports/ui/components/stories/common/Images.import.less';
 @import '../imports/ui/components/settings/style.import.less';
-@import '../imports/ui/components/analytics/Analytics.import.less';
-@import '../imports/ui/components/charts/style.import.less';
 @import '../imports/ui/components/templates/common/style.import.less';
-@import '../imports/ui/components/templates/style.import.less';
-@import '../imports/ui/components/stories/rules/style.import.less';
 @import '../imports/ui/components/stories/search/style.import.less';
 @import '../imports/ui/components/stories/common/nlu_editor/style.import.less';
 @import '../imports/ui/components/form_fields/style.import.less';
-@import '../imports/ui/components/forms/style.import.less';
-@import '../imports/ui/components/forms/graph/style.import.less';
-
 
 @sidebar-bg: rgb(45, 47, 74);
 @sidebar-size: 190px;
 @small-sidebar-size: 46px;
 @sidebar-offset:~"calc(@{sidebar-size} - @{small-sidebar-size})";
 @top-menu-height: 49px;
+
+:global {
+    @import 'react-select/dist/react-select.css';
+}
 
 @font-face {
     font-family: 'Icons';
@@ -119,7 +115,7 @@ html {
 
 .chat-demo-container {
     text-align: center;
-    background-color: @botfront-grey-bg;
+    background-color: #f4f4f5;
     height: 100%;
     .rw-conversation-container {
         box-shadow: none;
@@ -148,7 +144,7 @@ body {
 }
 
 .Pane.vertical.Pane1 {
-    background-color: @botfront-grey-bg;
+    background-color: #f4f4f5;
     & > .storygroup-browser {
         background-color:#fff;
     }
@@ -189,13 +185,6 @@ i.ui.icon {
 #render-target {
     height: 100%;
     overflow: hidden;
-    > div {
-        overflow: auto;
-    }
-}
-
-div[role="button"] {
-    outline: none;
 }
 
 div[role="button"] {

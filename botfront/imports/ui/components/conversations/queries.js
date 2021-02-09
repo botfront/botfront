@@ -5,44 +5,10 @@ query retreiveConversations(
     $projectId: String!
     $page: Int!
     $pageSize: Int
-    $env: String
-    $lengthFilter: Int
-    $xThanLength: compare
-    $durationFilterLowerBound: Float
-    $durationFilterUpperBound: Float
-    $confidenceFilter: Float
-    $xThanConfidence: compare
-    $startDate: String
-    $endDate: String
-    $userId: String
-    $eventFilterOperator: String
-    $eventFilter: [StepInput]
-    $userInitiatedConversations: Boolean
-    $triggeredConversations: Boolean
     $fetchTrackers: Boolean = false
-    ) {
-    conversationsPage(
-        projectId: $projectId,
-        page: $page, 
-        pageSize: $pageSize,
-        status: ["new", "read", "flagged"],
-        sort: updatedAt_DESC,
-        env: $env,
-        lengthFilter: $lengthFilter,
-        xThanLength: $xThanLength,
-        durationFilterLowerBound: $durationFilterLowerBound,
-        durationFilterUpperBound: $durationFilterUpperBound,
-        confidenceFilter: $confidenceFilter,
-        xThanConfidence: $xThanConfidence,
-        startDate: $startDate,
-        endDate: $endDate,
-        userId: $userId
-        eventFilterOperator: $eventFilterOperator,
-        eventFilter: $eventFilter
-        userInitiatedConversations: $userInitiatedConversations,
-        triggeredConversations: $triggeredConversations,
-    ) {
-        conversations {
+) {
+    conversationsPage(projectId: $projectId, page: $page, pageSize: $pageSize, status: ["new", "read", "flagged"], sort: updatedAt_DESC) {
+        conversations{
             _id
             updatedAt
             status
@@ -67,10 +33,3 @@ query retreiveAConversation($projectId: String!, $conversationId: String, $sende
         userId
     }
 }`;
-
-
-export const GET_INTENTS_IN_CONVERSATIONS = gql`
-    query retrieveIntentsInConversations($projectId: String!) {
-        intentsInConversations(projectId: $projectId)
-    }
-`;

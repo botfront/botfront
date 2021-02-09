@@ -2,7 +2,6 @@
 import { expect } from 'chai';
 import { Meteor } from 'meteor/meteor';
 import { Stories } from './stories.collection';
-import { createTestUser, removeTestUser } from '../testUtils';
 
 const storyIds = ['story_A', 'story_B'];
 export const storyFixtureA = {
@@ -61,13 +60,10 @@ if (Meteor.isServer) {
             await Stories.remove({ _id: { $in: storyIds } });
             await Stories.insert(storyFixtureA);
             await Stories.insert(storyFixtureB);
-            await removeTestUser();
-            await createTestUser();
             done();
         })());
         after(done => (async () => {
             await Stories.remove();
-            await removeTestUser();
             done();
         })());
         it('update an array of stories with matching ids', done => (async () => {
@@ -115,7 +111,7 @@ if (Meteor.isServer) {
                 done(error);
             }
         })());
-        it('update a single story with a branch path', done => (async () => {
+        it('update a single story without a branch path', done => (async () => {
             try {
                 await Meteor.callWithPromise('stories.update', {
                     _id: storyIds[0], projectId: 'bf', path: ['story_A', 'story_A_branch_A'],

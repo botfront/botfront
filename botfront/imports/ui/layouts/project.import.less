@@ -12,7 +12,6 @@
     border-radius: 0;
     .ui.inverted.menu {
         background-color:@sidebar-bg;
-        margin-top: 20px;
     }
     .ui.inverted.placeholder, .ui.inverted.placeholder .image.header:after, .ui.inverted.placeholder .line, .ui.inverted.placeholder .line:after, .ui.inverted.placeholder>:before {
         background-color:@sidebar-bg;
@@ -54,11 +53,6 @@
         opacity: 1;
     }
     .ui.header.simple-logo {
-        opacity: 0;
-        transition-delay: 0s;
-    }
-
-    .ui.header>.ui.image.custom-small-logo {
         opacity: 0;
         transition-delay: 0s;
     }
@@ -118,7 +112,6 @@
     position: absolute;
     bottom: 16px;
     right: 16px;
-    z-index: 6;
 }
 
 .project-children .ui.container {
@@ -238,6 +231,7 @@
     .rw-widget-embedded {
         position: unset;
         // Chat widget
+        height: ~"calc(100% - 46px)";
         .message.typing-indication .response {
             height: 35px;
         }
@@ -262,18 +256,4 @@
 .Pane.vertical.Pane1 > div {
     overflow-x: hidden;
     height: 100vh;
-}
-
-.ui.header>.ui.image.custom-logo {
-    width: 100%;
-    padding-right: 15px;
-    height: 45px;
-    object-fit: contain;
-}
-
-.ui.header>.ui.image.custom-small-logo {
-    width: 100%;
-    padding-right: 8px;
-    height: 27px;
-    object-fit: contain;
 }

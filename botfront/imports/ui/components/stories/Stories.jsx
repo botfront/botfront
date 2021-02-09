@@ -10,7 +10,6 @@ import React, {
 } from 'react';
 import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
-import { useMutation, useQuery, useSubscription } from '@apollo/react-hooks';
 import PropTypes from 'prop-types';
 import SplitPane from 'react-split-pane';
 import shortId from 'shortid';
@@ -26,16 +25,6 @@ import StoryEditors from './StoryEditors';
 import { Loading } from '../utils/Utils';
 import { useEventListener } from '../utils/hooks';
 import { can } from '../../../lib/scopes';
-import { UPSERT_FORM, GET_FORMS, DELETE_FORMS } from './graphql/queries';
-import { FORMS_MODIFIED, FORMS_DELETED, FORMS_CREATED } from './graphql/subscriptions';
-import FormEditors from '../forms/FormEditors';
-import { clearTypenameField } from '../../../lib/client.safe.utils';
-
-const callbackCaller = (args, afterAll = () => {}) => async (res) => {
-    const callback = args[args.length - 1];
-    if (typeof callback === 'function') await callback(res);
-    return afterAll(res);
-};
 
 const SlotsEditor = React.lazy(() => import('./Slots'));
 const PoliciesEditor = React.lazy(() => import('../settings/CorePolicy'));
@@ -89,34 +78,13 @@ function Stories(props) {
 
     const treeRef = useRef();
 
-    const [upsertForm] = useMutation(UPSERT_FORM);
-    const [deleteForms] = useMutation(DELETE_FORMS);
-    const { data: { getForms: forms = [] } = {}, loading, refetch } = useQuery(
-        GET_FORMS,
-        { variables: { projectId, onlySlotList: true } },
-    );
-
-    useSubscription(FORMS_MODIFIED, {
-        variables: { projectId },
-        onSubscriptionData: () => refetch(),
-    });
-
-    useSubscription(FORMS_CREATED, {
-        variables: { projectId },
-        onSubscriptionData: () => refetch(),
-    });
-
-    useSubscription(FORMS_DELETED, {
-        variables: { projectId },
-        onSubscriptionData: () => refetch(),
-    });
-
     const getQueryParams = () => {
         const {
             location: { query },
         } = router;
         let queriedIds = query['ids[]'] || [];
         queriedIds = Array.isArray(queriedIds) ? queriedIds : [queriedIds];
+
         return queriedIds;
     };
 
@@ -136,13 +104,9 @@ function Stories(props) {
     };
 
     useEffect(
-        () => {
-            // forms are reloaded every time we land on that page so after an import the new form are displayed
-            refetch();
-            setStoryMenuSelection(
-                getQueryParams().length ? getQueryParams() : storyMenuSelection,
-            );
-        },
+        () => setStoryMenuSelection(
+            getQueryParams().length ? getQueryParams() : storyMenuSelection,
+        ),
         [],
     );
 
@@ -174,20 +138,6 @@ function Stories(props) {
     ]);
 
     const storiesReshaped = useMemo(reshapeStories, [stories]);
-
-    const handleUpsertForm = useCallback(
-        (formData, ...args) => upsertForm({
-            variables: { form: { ...clearTypenameField(formData), projectId } },
-        }).then(callbackCaller(args), callbackCaller(args)),
-        [projectId],
-    );
-
-    const handleDeleteForm = useCallback(
-        ({ _id }, ...args) => deleteForms({ variables: { projectId, ids: [_id] } }).then(
-            callbackCaller(args),
-        ),
-        [projectId],
-    );
 
     const handleAddStoryGroup = useCallback(
         (storyGroup, f) => Meteor.call(
@@ -294,6 +244,7 @@ function Stories(props) {
         if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
         if (key === 'ArrowLeft') treeRef.current.focusMenu();
     });
+
     return (
         <Loading loading={!ready}>
             <ConversationOptionsContext.Provider
@@ -311,9 +262,6 @@ function Stories(props) {
                     updateStory: handleStoryUpdate,
                     reloadStories: handleReloadStories,
                     getResponseLocations: handleGetResponseLocations,
-                    upsertForm: handleUpsertForm,
-                    deleteForm: handleDeleteForm,
-                    forms,
                 }}
             >
                 {modalWrapper(
@@ -339,12 +287,13 @@ function Stories(props) {
                     <div className='storygroup-browser'>
                         <StoryGroupNavigation
                             allowAddition={can('stories:w', projectId)}
+                            placeholderAddItem='Choose a group name'
                             modals={{ setSlotsModal, setPoliciesModal }}
                         />
-                        <Loading loading={loading}>
+                        <Loading loading={false}>
                             <StoryGroupTree
                                 ref={treeRef}
-                                forms={forms}
+                                forms={[]}
                                 storyGroups={storyGroups}
                                 stories={stories}
                                 onChangeStoryMenuSelection={setStoryMenuSelection}
@@ -353,17 +302,13 @@ function Stories(props) {
                             />
                         </Loading>
                     </div>
-                    {forms.some(({ _id }) => storyMenuSelection[0] === _id) ? (
-                        <FormEditors projectId={projectId} formIds={storyMenuSelection} />
-                    ) : (
-                        <Container>
-                            <StoryEditors
-                                projectId={projectId}
-                                selectedIds={storyMenuSelection.map(cleanId)}
-                                key={storyEditorsKey}
-                            />
-                        </Container>
-                    )}
+                    <Container>
+                        <StoryEditors
+                            projectId={projectId}
+                            selectedIds={storyMenuSelection.map(cleanId)}
+                            key={storyEditorsKey}
+                        />
+                    </Container>
                 </SplitPane>
             </ConversationOptionsContext.Provider>
         </Loading>
@@ -384,22 +329,18 @@ Stories.defaultProps = {};
 
 const StoriesWithTracker = withRouter(
     withTracker((props) => {
-        const { projectId } = props;
-        const storiesHandler = Meteor.subscribe('stories.light', projectId);
+        const { projectId, selectedLanguage } = props;
+        const storiesHandler = Meteor.subscribe('stories.light', projectId, selectedLanguage);
         const storyGroupsHandler = Meteor.subscribe('storiesGroup', projectId);
 
-        const regularStoryGroups = StoryGroups.find({
-            smartGroup: { $exists: false },
-        }).fetch();
+        const regularStoryGroups = StoryGroups.find({ smartGroup: { $exists: false } }).fetch();
         const regularStories = StoriesCollection.find().fetch();
 
         let smartStories = [];
-        const smartStoryGroups = StoryGroups.find({ smartGroup: { $exists: true } })
-            .fetch()
+        const smartStoryGroups = StoryGroups.find({ smartGroup: { $exists: true } }).fetch()
             .map((sg) => {
                 if (!sg.smartGroup.query) return sg;
-                const results = StoriesCollection.find(JSON.parse(sg.smartGroup.query))
-                    .fetch()
+                const results = StoriesCollection.find(JSON.parse(sg.smartGroup.query)).fetch()
                     .map(story => ({
                         ...story,
                         _id: `${sg.smartGroup.prefix}_SMART_${story._id}`,
@@ -409,7 +350,8 @@ const StoriesWithTracker = withRouter(
                 smartStories = smartStories.concat(results);
                 return { ...sg, children: results.map(({ _id }) => _id) };
             });
-        const storyGroups = [...smartStoryGroups, ...regularStoryGroups];
+
+        const storyGroups = [...regularStoryGroups, ...smartStoryGroups];
         const stories = [...regularStories, ...smartStories];
 
         return {

@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import IconButton from '../../common/IconButton';
 import UserUtteranceContainer from './UserUtteranceContainer';
 import UserUtterancePopupContent from './UserUtterancePopupContent';
-import { can } from '../../../../lib/scopes';
 import { ProjectContext } from '../../../layouts/context';
 import { USER_LINE_EDIT_MODE } from '../../../../lib/story.utils';
 
@@ -12,8 +11,9 @@ const UserUtterancesContainer = (props) => {
     const {
         deletable, value, onChange, onDelete, editable: initialEditable, theme, allowEmptyIntent,
     } = props;
-    const { addUtterancesToTrainingData, project: { _id: projectId } } = useContext(ProjectContext);
-    const editable = can('stories:w', projectId) && initialEditable;
+    const editable = initialEditable; // EE adds permission check here
+
+    const { addUtterancesToTrainingData } = useContext(ProjectContext);
 
     const somethingIsBeingInput = useMemo(() => value.some(disjunct => disjunct === USER_LINE_EDIT_MODE), [value]);
 

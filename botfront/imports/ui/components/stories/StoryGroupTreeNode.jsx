@@ -21,7 +21,6 @@ const StoryGroupTreeNode = (props) => {
         handleToggleExpansion,
         handleCollapse,
         handleAddStory,
-        handleAddForm,
         handleToggleFocus,
         handleRenameItem,
         handleTogglePublish,
@@ -122,7 +121,7 @@ const StoryGroupTreeNode = (props) => {
             <Dropdown.Item
                 content={(
                     <>
-                        <StoryPrefix fragment={{ type: fragmentType }} />
+                        <StoryPrefix type={fragmentType} fragment={item} />
                         {title}
                     </>
                 )}
@@ -184,24 +183,6 @@ const StoryGroupTreeNode = (props) => {
                                     <Dropdown.Menu>
                                         {addStoryOrRule('story')}
                                         {addStoryOrRule('rule')}
-                                        <Dropdown.Item
-                                            icon='wpforms'
-                                            content='Form'
-                                            data-cy='add-form'
-                                            className='add-form-item'
-                                            {...(!somethingIsMutating
-                                                ? {
-                                                    onClick: () => handleAddForm(
-                                                        item.id,
-                                                        `${item.title.replace(/[^a-zA-Z0-9-_]/g, '')}_form`,
-                                                    ),
-                                                    onMouseDown: (e) => {
-                                                        e.preventDefault();
-                                                        e.stopPropagation();
-                                                    },
-                                                }
-                                                : {})}
-                                        />
                                     </Dropdown.Menu>
                                 </Dropdown>,
                                 'Add story or form',

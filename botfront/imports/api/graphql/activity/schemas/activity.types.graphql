@@ -2,14 +2,11 @@ type Query {
   getActivity(
     projectId: String!
     language: String!
-    env: String
     pageSize: Int
     sortKey: String
     sortDesc: Boolean
     cursor: String
     validated: Boolean
-    ooS: Boolean
-    filter: ExampleFilterInput
   ): ActivityPage
 }
 
@@ -32,9 +29,6 @@ input ActivityInput {
   validated: Boolean
   createdAt: Date
   updatedAt: Date
-  ooS: Boolean
-  message_id: String
-  conversation_id: String
 }
 
 type Activity {
@@ -48,14 +42,4 @@ type Activity {
   validated: Boolean
   createdAt: Date
   updatedAt: Date
-  ooS: Boolean
-  message_id: String
-  conversation_id: String
-}
-
-input ExampleFilterInput {
-  query: String
-  intents: [String]
-  entities: [String]
-  dateRange: Any
 }

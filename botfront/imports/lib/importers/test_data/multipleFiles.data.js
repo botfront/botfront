@@ -9,23 +9,12 @@ import {
     badRasaConfig,
 } from './rasaconfig.data.js';
 import {
-    validAnalytics,
-    validAnalyticsParsed,
-} from './analytics.data.js';
-import {
     validDefaultDomain, validDefaultDomain2, mergedDefaultDomains, validDefaultDomainParsed, validDefaultDomainParsed2, invalidDefaultDomain,
 } from './defaultdomain.data.js';
 import { validDomain, validDomainParsed } from './domain.data.js';
 import { validConversations, validConversationsParsed } from './conversation.data.js';
 import { storyWithAction, storyWithActionParsed } from './training_data.data';
-import {
-    validWidgetSettings,
-    validWidgetSettingsParsed,
-} from './widgetsettings.data.js';
-import {
-    validFormResults,
-    validFormResultsParsed,
-} from './formresults.data.js';
+
 import { validIncoming, validIncomingParsed } from './incoming.data.js';
 
 const projectId = 'bf';
@@ -454,98 +443,6 @@ export const multipleFiles = [
             supportedEnvs: ['development', 'production'],
             summary: ['You will add 2 incoming in development',
                 'You will add 2 incoming in production'],
-        },
-    },
-    {
-        name: 'should procces a multile valid anlytics config file',
-        files: [validAnalytics, validAnalytics],
-        params,
-        expectedFiles: [
-            {
-                ...validAnalytics,
-                analytics: validAnalyticsParsed,
-                env: 'development',
-                warnings: [],
-            },
-            {
-                ...validAnalytics,
-                env: 'development',
-                analytics: validAnalyticsParsed,
-                warnings: ['Conflicts with analyticsconfig.yml, and thus won\'t be used in the import'],
-            },
-        ],
-        expectedParams: {
-            ...expectedParams,
-            summary: ['Analytics config will be imported from analyticsconfig.yml.'],
-        },
-    },
-    {
-        name: 'should procces  multiple widget config files',
-        files: [validWidgetSettings, validWidgetSettings],
-        params,
-        expectedFiles: [
-            {
-                ...validWidgetSettings,
-                widgetsettings: validWidgetSettingsParsed,
-                env: 'development',
-                warnings: [],
-            },
-            {
-                ...validWidgetSettings,
-                widgetsettings: validWidgetSettingsParsed,
-                env: 'development',
-                warnings: ['Conflicts with widgetsettings.yml, and thus won\'t be used in the import'],
-            },
-        ],
-        expectedParams: {
-            ...expectedParams,
-            summary: ['Widget config will be imported from widgetsettings.yml.'],
-        },
-    },
-    {
-        name: 'should merge the number of fromResults in the files',
-        files: [validFormResults, validFormResults],
-        params,
-        expectedFiles: [{
-            ...validFormResults,
-            formresults: validFormResultsParsed,
-            env: 'development',
-            warnings: [],
-        },
-        {
-            ...validFormResults,
-            formresults: validFormResultsParsed,
-            env: 'development',
-            warnings: [],
-        }],
-        expectedParams: {
-            ...expectedParams,
-            summary: ['You will add 4 form results'],
-        },
-    },
-    {
-        name: 'should count form result separately when importing in differents envs',
-        files: [{ ...validFormResults, filename: 'formresults.development.json' }, { ...validFormResults, filename: 'formresults.production.json' }],
-        params: { ...params, supportedEnvs: ['development', 'production'] },
-        expectedFiles: [{
-            ...validFormResults,
-            formresults: validFormResultsParsed,
-            env: 'development',
-            warnings: [],
-            filename: 'formresults.development.json',
-        },
-        {
-            ...validFormResults,
-            formresults: validFormResultsParsed,
-            env: 'production',
-            warnings: [],
-            filename: 'formresults.production.json',
-        }],
-        expectedParams: {
-            ...expectedParams,
-            supportedEnvs: ['development', 'production'],
-            summary: ['You will add 2 form results in development',
-                'You will add 2 form results in production'],
         },
     },
 ];

@@ -18,7 +18,6 @@ import {
     Button,
     Loader,
     Popup,
-    Image,
 } from 'semantic-ui-react';
 import { useIntentAndEntityList } from '../components/nlu/models/hooks';
 import { wrapMeteorCallback } from '../components/utils/Errors';
@@ -32,13 +31,11 @@ import { Instances } from '../../api/instances/instances.collection';
 import { Slots } from '../../api/slots/slots.collection';
 import { Stories } from '../../api/story/stories.collection';
 import 'semantic-ui-css/semantic.min.css';
-import { GlobalSettings } from '../../api/globalSettings/globalSettings.collection';
 import { ProjectContext } from './context';
 import { setsAreIdentical, cleanDucklingFromExamples } from '../../lib/utils';
 import { INSERT_EXAMPLES } from '../components/nlu/models/graphql';
 import apolloClient from '../../startup/client/apollo';
 import { useResponsesContext } from './response.hooks';
-import { can } from '../../lib/scopes';
 
 const ProjectChat = React.lazy(() => import('../components/project/ProjectChat'));
 
@@ -48,7 +45,6 @@ function Project(props) {
         projectId,
         loading,
         workingLanguage,
-        workingDeploymentEnvironment,
         projectLanguages,
         router: { replace, location: { pathname } } = {},
         showChat,
@@ -58,12 +54,9 @@ function Project(props) {
         dialogueActions,
         channel,
         children,
-        settings,
-        allowContextualQuestions,
         hasNoWhitespace,
     } = props;
     const [resizingChatPane, setResizingChatPane] = useState(false);
-    const [requestedSlot, setRequestedSlot] = useState(null);
     const {
         intents: intentsList = {},
         entities: entitiesList = [],
@@ -82,16 +75,6 @@ function Project(props) {
             refreshEntitiesAndIntents();
         }
     }, [workingLanguage, projectId]);
-
-    useEffect(() => () => {
-        Meteor.call(
-            'project.getContextualSlot',
-            projectId,
-            wrapMeteorCallback((err, res) => {
-                setRequestedSlot(res);
-            }),
-        );
-    }, [allowContextualQuestions]);
 
     const findExactMatch = (canonicals, entities) => {
         const exactMatch = canonicals.filter(ex => setsAreIdentical(
@@ -157,24 +140,12 @@ function Project(props) {
     return (
         <div style={{ height: '100vh' }}>
             <div className='project-sidebar'>
-                {(settings && settings.settings && settings.settings.public && settings.settings.public.logoUrl) || project.logoUrl ? (
-                    <Header as='h1' className='logo'>
-                        <Image src={!loading ? project.logoUrl || settings.settings.public.logoUrl : ''} centered className='custom-logo' />
-                    </Header>
-                ) : (
-                    <Header as='h1' className='logo'>
-                        Botfront.
-                    </Header>
-                )}
-                {(settings && settings.settings && settings.settings.public && settings.settings.public.smallLogoUrl) || project.smallLogoUrl ? (
-                    <Header as='h1' className='simple-logo'>
-                        <Image src={!loading ? project.smallLogoUrl || settings.settings.public.smallLogoUrl : ''} centered className='custom-small-logo' />
-                    </Header>
-                ) : (
-                    <Header as='h1' className='simple-logo'>
-                        B.
-                    </Header>
-                )}
+                <Header as='h1' className='logo'>
+                    Botfront.
+                </Header>
+                <Header as='h1' className='simple-logo'>
+                    B.
+                </Header>
                 {loading && renderPlaceholder(true, false)}
                 {!loading && (
                     <ProjectSidebarComponent
@@ -217,7 +188,6 @@ function Project(props) {
                                 slots,
                                 dialogueActions,
                                 language: workingLanguage,
-                                environment: workingDeploymentEnvironment,
                                 upsertResponse,
                                 responses,
                                 addResponses,
@@ -227,7 +197,6 @@ function Project(props) {
                                 getCanonicalExamples,
                                 resetResponseInCache,
                                 setResponseInCache,
-                                requestedSlot,
                                 hasNoWhitespace,
                             }}
                         >
@@ -240,7 +209,8 @@ function Project(props) {
                                                 <Button
                                                     size='big'
                                                     circular
-                                                    onClick={() => changeShowChat(!showChat)}
+                                                    onClick={() => changeShowChat(!showChat)
+                                                    }
                                                     icon='comment'
                                                     primary
                                                     className='open-chat-button'
@@ -277,27 +247,21 @@ Project.propTypes = {
     projectId: PropTypes.string.isRequired,
     instance: PropTypes.object,
     workingLanguage: PropTypes.string,
-    workingDeploymentEnvironment: PropTypes.string,
     projectLanguages: PropTypes.array.isRequired,
     slots: PropTypes.array.isRequired,
     dialogueActions: PropTypes.array.isRequired,
     loading: PropTypes.bool.isRequired,
     channel: PropTypes.object,
-    settings: PropTypes.object,
     showChat: PropTypes.bool.isRequired,
     changeShowChat: PropTypes.func.isRequired,
-    allowContextualQuestions: PropTypes.bool,
     hasNoWhitespace: PropTypes.bool,
 };
 
 Project.defaultProps = {
     channel: null,
-    settings: {},
     project: {},
     instance: {},
     workingLanguage: 'en',
-    workingDeploymentEnvironment: 'development',
-    allowContextualQuestions: false,
     hasNoWhitespace: false,
 };
 
@@ -318,39 +282,23 @@ const ProjectContainer = withTracker((props) => {
     if (!projectId) return browserHistory.replace({ pathname: '/404' });
     const projectHandler = Meteor.subscribe('projects', projectId);
     const credentialsHandler = Meteor.subscribe('credentials', projectId);
-    const settingsHandler = Meteor.subscribe('settings', projectId);
-    const settings = GlobalSettings.findOne({}, {
-        fields: { 'settings.public.logoUrl': 1, 'settings.public.smallLogoUrl': 1 },
-    });
     const instanceHandler = Meteor.subscribe('nlu_instances', projectId);
     const slotsHandler = Meteor.subscribe('slots', projectId);
-    const allowContextualQuestionsHandler = Meteor.subscribe('project.requestedSlot', projectId);
-    let nluModelsHandler = null;
-    let hasNoWhitespace;
-    if (can('nlu-data:r', projectId)) {
-        nluModelsHandler = Meteor.subscribe('nlu_models', projectId, workingLanguage);
-        ({ hasNoWhitespace } = NLUModels.findOne({ projectId, language: workingLanguage }, { fields: { hasNoWhitespace: 1 } }) || {});
-    } else {
-        hasNoWhitespace = false;
-    }
-    let storiesHandler = null;
-    if (can('responses:r', projectId)) {
-        storiesHandler = Meteor.subscribe('stories.events', projectId);
-    }
-    const dialogueActions = storiesHandler ? Array.from(new Set((Stories
-        .find().fetch() || []).flatMap(story => story.events))) : [];
+    const nluModelsHandler = Meteor.subscribe('nlu_models', projectId, workingLanguage);
+    const { hasNoWhitespace } = NLUModels.findOne({ projectId, language: workingLanguage }, { fields: { hasNoWhitespace: 1 } }) || {};
+    const storiesHandler = Meteor.subscribe('stories.events', projectId, workingLanguage);
+    const dialogueActions = Array.from(new Set((Stories
+        .find().fetch() || []).flatMap(story => story.events)));
     const instance = Instances.findOne({ projectId });
     const readyHandler = handler => handler;
     const readyHandlerList = [
         Meteor.user(),
         credentialsHandler.ready(),
         projectHandler.ready(),
-        settingsHandler.ready(),
         instanceHandler.ready(),
         slotsHandler.ready(),
-        storiesHandler ? storiesHandler.ready() : true,
-        allowContextualQuestionsHandler.ready(),
-        nluModelsHandler ? nluModelsHandler.ready() : true,
+        storiesHandler.ready(),
+        nluModelsHandler.ready(),
     ];
     const ready = readyHandlerList.every(readyHandler);
     const project = Projects.findOne({ _id: projectId });
@@ -370,9 +318,6 @@ const ProjectContainer = withTracker((props) => {
         });
         credentials = credentials ? yaml.safeLoad(credentials.credentials) : {};
         channel = credentials['rasa_addons.core.channels.webchat.WebchatInput'];
-        if (!channel) {
-            channel = credentials['rasa_addons.core.channels.webchat_plus.WebchatPlusInput'];
-        }
     }
 
     // update store if new projectId
@@ -405,15 +350,12 @@ const ProjectContainer = withTracker((props) => {
         slots: Slots.find({}).fetch(),
         dialogueActions,
         projectLanguages,
-        settings,
-        allowContextualQuestions: ready ? project.allowContextualQuestions : false,
         hasNoWhitespace,
     };
 })(Project);
 
 const mapStateToProps = state => ({
     workingLanguage: state.settings.get('workingLanguage'),
-    workingDeploymentEnvironment: state.settings.get('workingDeploymentEnvironment'),
     projectId: state.settings.get('projectId'),
     showChat: state.settings.get('showChat'),
 });

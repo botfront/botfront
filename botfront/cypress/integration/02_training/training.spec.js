@@ -16,7 +16,6 @@ describe('Training', function() {
     });
     
     afterEach(function() {
-        cy.logout();
         cy.deleteProject('bf');
     });
     
@@ -102,24 +101,12 @@ describe('Training', function() {
         cy.visit('/chat/bf/');
         cy.get('body').contains('Sharing not enabled for project').should('exist');
         cy.train();
-        cy.visit('project/bf/dialogue');
         cy.dataCy('share-bot').trigger('mouseover');
         cy.dataCy('toggle-bot-sharing').should('exist').should('not.have.class', 'checked')
             .click()
             .should('have.class', 'checked');
         cy.visit('/chat/bf/');
         cy.get('body').contains('Sharing not enabled for project').should('not.exist');
-        cy.get('body').contains('utter_get_started', { timeout: 10000 }).should('exist');
-        cy.dataCy('environment-dropdown').should('not.exist');
-
-        cy.visit('/project/bf/settings');
-        cy.dataCy('deployment-environments').should('exist');
-        cy.dataCy('deployment-environments').find('.ui.checkbox').last().click();
-        cy.dataCy('save-changes').click();
-        cy.visit('/chat/bf');
-        cy.dataCy('environment-dropdown').click();
-        cy.dataCy('environment-dropdown').find('div').contains('production').click();
-        cy.dataCy('environment-dropdown').click();
-        cy.dataCy('environment-dropdown').find('.active.item').should('have.text', 'production');
+        cy.get('body').contains('utter_get_started').should('exist');
     });
 });

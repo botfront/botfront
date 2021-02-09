@@ -9,7 +9,6 @@ import {
     UPDATE_EXAMPLES,
     SWITCH_CANONICAL,
 } from './graphql.js';
-import { can } from '../../../../lib/scopes';
 
 export const useLazyExamples = (variables) => {
     const getExamples = useImperativeQuery(GET_EXAMPLES, { ...variables, pageSize: -1 });
@@ -61,15 +60,6 @@ export function useExamples(variables) {
 }
 
 export function useIntentAndEntityList(variables) {
-    if (!can('nlu-data:r', variables.projectId)) {
-        return {
-            intents: [],
-            entities: [],
-            loading: false,
-            error: null,
-            refetch: () => {},
-        };
-    }
     const {
         data, loading, error, refetch,
     } = useQuery(LIST_INTENTS_AND_ENTITIES, {

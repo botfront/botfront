@@ -8,10 +8,8 @@ import {
     Dropdown,
     Checkbox,
 } from 'semantic-ui-react';
-import { connect } from 'react-redux';
 import StoryPathPopup from './StoryPathPopup.jsx';
 import { ConversationOptionsContext } from './Context';
-import { can } from '../../../lib/scopes';
 
 class StoryFooter extends React.Component {
     constructor(props) {
@@ -83,11 +81,9 @@ class StoryFooter extends React.Component {
 
     filterDestinations = (data, _id) => data.filter((story) => {
         if (story._id === _id) {
-            if (story.branches && story.branches.length > 0 && !(story.rules && story.rules.length > 0)) return true;
+            if (story.branches && story.branches.length > 0) return true;
             return false;
         }
-        if (story.smart) return false;
-        if (story.rules && story.rules.length > 0) return false;
         return true;
     }).map(({ value, text }) => ({ value, text }));
 
@@ -139,14 +135,13 @@ class StoryFooter extends React.Component {
     }
 
     renderWaitForUserInputToggle = () => {
-        const { fragment, projectId } = this.props;
+        const { fragment } = this.props;
         const { updateStory } = this.context;
         const { _id, type, wait_for_user_input: waitInput = true } = fragment;
         if (type !== 'rule') return null;
         return (
             <Menu.Item position='right'>
                 <Checkbox
-                    disabled={!can('stories:w', projectId)}
                     toggle
                     label='wait for user input'
                     className='story-box-toggle'
@@ -203,7 +198,7 @@ class StoryFooter extends React.Component {
     static contextType = ConversationOptionsContext;
 
     render() {
-        const { destinationStory, fragment: { type } = {}, projectId } = this.props;
+        const { destinationStory, fragment: { type } = {} } = this.props;
         return (
             <Segment data-cy='story-footer' className={`footer-segment ${destinationStory === null ? '' : 'linked'}`} size='mini' attached='bottom'>
                 <div className='breadcrumb-container'>{this.renderPath()}</div>
@@ -211,8 +206,8 @@ class StoryFooter extends React.Component {
                 <Menu fluid size='mini' borderless>
                     {type !== 'test_case' && (
                         <>
-                            {can('stories:w', projectId) && this.renderBranchMenu()}
-                            {can('stories:w', projectId) && this.renderLinkMenu()}
+                            {this.renderBranchMenu()}
+                            {this.renderLinkMenu()}
                             {this.renderContinue()}
                             {this.renderWaitForUserInputToggle()}
                         </>
@@ -234,7 +229,6 @@ StoryFooter.propTypes = {
     onDestinationStorySelection: PropTypes.func.isRequired,
     disableContinue: PropTypes.bool,
     destinationStory: PropTypes.object,
-    projectId: PropTypes.string.isRequired,
 };
 
 StoryFooter.defaultProps = {
@@ -245,8 +239,4 @@ StoryFooter.defaultProps = {
     destinationStory: null,
 };
 
-const mapStateToProps = state => ({
-    projectId: state.settings.get('projectId'),
-});
-
-export default connect(mapStateToProps)(StoryFooter);
+export default StoryFooter;

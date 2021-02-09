@@ -102,12 +102,11 @@ class TestCaseValidator {
         let newSummaryLines = Object.keys(this.fragments).map((groupName) => {
             let testsInGroup = [];
             const groupIsNew = preExistingGroupNames[groupName];
-            const testsByLanguage = Object.keys(this.fragments[groupName]).reduce(((acc, language) => {
-                if (!this.projectLanguages.includes(language)) return acc
+            const testsByLanguage = Object.keys(this.fragments[groupName]).map(((language) => {
                 const children = this.fragments[groupName][language];
                 testsInGroup = [...testsInGroup, ...children];
-                return [...acc, `${children.length} new test${children.length > 1 ? 's' : ''} in ${languages[language]?.name || language}`];
-            }), []);
+                return `${children.length} new test${children.length > 1 ? 's' : ''} in ${languages[language]?.name || language}`;
+            }));
             return {
                 text: `Group '${groupName}' will ${groupIsNew ? 'contain' : 'be added with'} ${testsByLanguage.join(', ')}`,
             };

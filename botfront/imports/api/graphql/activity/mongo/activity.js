@@ -1,45 +1,17 @@
 import shortid from 'shortid';
-import { escapeRegExp } from 'lodash';
 import Activity from '../activity.model.js';
 
 export const getActivity = async ({
     projectId,
     language,
-    env,
     validated = false,
-    ooS = false,
     sortKey = 'createdAt',
     sortDesc = true,
     filter = {},
 }) => {
     const onlyValidated = validated ? { validated: true } : {};
-    const ooSOption = ooS ? { ooS } : { ooS: { $not: { $eq: true } } };
-    const envOption = env
-        ? env === 'development'
-            ? { env: { $in: ['development', null] } }
-            : { env }
-        : {};
-    const {
-        query: textSearch, intents, entities, dateRange: { startDate, endDate } = {},
-    } = filter;
-    const dateRangeOption = startDate && endDate
-        ? { createdAt: { $gte: new Date(startDate), $lt: new Date(endDate) } }
-        : {};
-    const intentsOption = intents && intents.length ? { intent: { $in: intents } } : {};
-    const entitiesOption = entities && entities.length ? { entities: { $all: entities.map(e => ({ $elemMatch: { entity: e } })) } } : {};
-    const textSearchOption = textSearch ? { text: { $regex: new RegExp(escapeRegExp(textSearch), 'i') } } : {};
     const sort = `${sortDesc ? '-' : ''}${sortKey || ''}`;
-    const query = Activity.find({
-        projectId,
-        language,
-        ...onlyValidated,
-        ...ooSOption,
-        ...envOption,
-        ...intentsOption,
-        ...entitiesOption,
-        ...textSearchOption,
-        ...dateRangeOption,
-    });
+    const query = Activity.find({ projectId, language, ...onlyValidated });
     if (!sort) return query.lean();
     return query.sort(sort).lean();
 };

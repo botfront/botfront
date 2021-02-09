@@ -5,10 +5,8 @@ import _ from 'lodash';
 
 import { check, Match } from 'meteor/check';
 import { safeDump } from 'js-yaml';
-import AnalyticsDashboards from '../graphql/analyticsDashboards/analyticsDashboards.model';
 import { Endpoints } from '../endpoints/endpoints.collection';
 import { Credentials } from '../credentials';
-import FormResults from '../graphql/forms/form_results.model';
 import { Stories } from '../story/stories.collection';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 
@@ -21,6 +19,7 @@ import Activity from '../graphql/activity/activity.model';
 import { importSteps } from '../graphql/project/import.utils';
 
 import { formatTestCaseForRasa } from '../../lib/test_case.utils';
+
 
 if (Meteor.isServer) {
     const md5 = require('md5');
@@ -59,9 +58,7 @@ if (Meteor.isServer) {
             if (exclusions.includes(path)) return Promise.resolve();
             if (fs.statSync(join(dir, path)).isDirectory()) {
                 if (`${path}/` in zip.files) return Promise.resolve();
-                return fs.promises.rmdir(join(dir, path), {
-                    recursive: true,
-                });
+                return fs.promises.rmdir(join(dir, path));
             }
             if (path in zip.files) return Promise.resolve();
             return fs.promises.unlink(join(dir, path));
@@ -93,15 +90,20 @@ if (Meteor.isServer) {
             },
         };
         if (url.includes('https')) return opts;
-        opts.fetchOpts.callbacks.credentials = (__, userName) => nodegit.Cred.sshKeyMemoryNew(userName, publicKey, privateKey, '');
+        opts.fetchOpts.callbacks.credentials = (__, userName) => nodegit.Cred.sshKeyMemoryNew(
+            userName,
+            publicKey,
+            privateKey,
+            '',
+        );
         return opts;
     };
 
     const getRemote = async (projectId, forceClone = false) => {
         const nodegit = require('nodegit');
-        const { gitSettings: { gitString = '', publicSshKey = '', privateSshKey = '' } } = Projects.findOne(
+        const { gitString = '', publicSshKey = '', privateSshKey = '' } = Projects.findOne(
             { _id: projectId },
-            { gitSettings: 1 },
+            { gitString: 1, publicSshKey: 1, privateSshKey: 1 },
         ) || {};
         const [url, branchName, ...rest] = gitString.split('#');
         const opts = getConnectionOpts(url, publicSshKey, privateSshKey);
@@ -227,12 +229,7 @@ if (Meteor.isServer) {
     };
 
     const pushToRemote = async ({
-        remote,
-        branch,
-        index,
-        repo,
-        branchCommit,
-        opts: { fetchOpts: pushOpts },
+        remote, branch, index, repo, branchCommit, opts: { fetchOpts: pushOpts },
     }) => {
         try {
             await remote.push([`${branch.toString()}:${branch.toString()}`], pushOpts);
@@ -256,7 +253,6 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         async revertToCommit(projectId, sha, { commitFirst = true } = {}) {
-            checkIfCan('import:x', projectId);
             check(projectId, String);
             check(sha, String);
             check(commitFirst, Boolean);
@@ -334,7 +330,6 @@ if (Meteor.isServer) {
             }
         },
         async getHistoryOfCommits(projectId, { cursor = null, pageSize = 20 } = {}) {
-            checkIfCan('import:x', projectId);
             check(projectId, String);
             check(cursor, Match.Maybe(String));
             check(pageSize, Number);
@@ -342,7 +337,7 @@ if (Meteor.isServer) {
             const { repo, branchCommit, url: repoUrl } = await getRemote(projectId);
             const startCommit = cursor ? await repo.getCommit(cursor) : branchCommit;
             let [, url] = repoUrl.split('@');
-            url = url.replace(':', '/').replace(/.git$/, '');
+            url = url.replace(/.git$/, '');
             const formatUrl = (sha) => {
                 if (url.includes('bitbucket')) return `https://${url}/commits/${sha}`;
                 return `https://${url}/commit/${sha}`; // github, gitlab
@@ -374,7 +369,6 @@ if (Meteor.isServer) {
             });
         },
         async commitAndPushToRemote(projectId, commitMessage) {
-            checkIfCan('import:x', projectId);
             check(projectId, String);
             check(commitMessage, String);
             const repoInfo = await getRemote(projectId);
@@ -421,19 +415,6 @@ if (Meteor.isServer) {
                     };
                 }),
             );
-            const formResults = await Promise.all(
-                envs.map(async (environment) => {
-                    const formResult = await FormResults.find(
-                        { projectId, ...getEnvQuery('environment', environment) },
-                        { _id: 0 },
-                        { sort: { date: -1, language: 1 } },
-                    );
-                    return {
-                        environment,
-                        formResult,
-                    };
-                }),
-            );
             const incoming = options.incoming
                 && (await Promise.all(
                     envs.map(async (environment) => {
@@ -469,18 +450,8 @@ if (Meteor.isServer) {
                     }),
                 ));
 
-            const analyticsConfig = await AnalyticsDashboards.findOne(
-                { projectId },
-                { _id: 0 },
-            ).lean();
-            const storyTests = await Stories.find({
-                projectId,
-                type: 'test_case',
-            }).fetch();
-            const storyGroups = await StoryGroups.find({
-                projectId,
-                smartGroup: { $exists: false },
-            }).fetch();
+            const storyTests = await Stories.find({ projectId, type: 'test_case' }).fetch();
+            const storyGroups = await StoryGroups.find({ projectId, smartGroup: { $exists: false } }).fetch();
             const storyGroupDict = {};
             storyGroups.forEach(({ _id, name }) => {
                 storyGroupDict[_id] = name;
@@ -523,17 +494,18 @@ if (Meteor.isServer) {
                         ? rasaData.nlu
                         : { [language]: rasaData.nlu[language] },
                 fragments: fragmentsByGroup,
-                tests:
-                    language === 'all'
-                        ? testsByLanguage
-                        : { [language]: testsByLanguage[language] },
+                tests: language === 'all'
+                    ? testsByLanguage
+                    : { [language]: testsByLanguage[language] },
             };
 
             const defaultDomain = project?.defaultDomain?.content || '';
             const widgetSettings = project?.chatWidgetSettings || {};
 
             const configData = project;
-            delete configData.gitSettings;
+            delete configData.gitString;
+            delete configData.privateSshKey;
+            delete configData.publicSshKey;
             // exported separately
             delete configData.chatWidgetSettings;
             delete configData.defaultDomain;
@@ -587,10 +559,7 @@ if (Meteor.isServer) {
                         : `data/nlu.${extension}`,
                 );
                 if (exportData.tests[l]) {
-                    rasaZip.addFile(
-                        safeDump({ stories: exportData.tests[l] }),
-                        `data/tests/test_${l}_stories.yml`,
-                    );
+                    rasaZip.addFile(safeDump({ stories: exportData.tests[l] }), `data/tests/test_${l}_stories.yml`);
                 }
             }
 
@@ -607,14 +576,6 @@ if (Meteor.isServer) {
                     credentialsPerEnv,
                     `credentials${envSuffix(environment, credentials)}.yml`,
                 );
-            });
-            formResults.forEach(({ formResult: formResultsPerEnv, environment }) => {
-                if (formResultsPerEnv && formResultsPerEnv.length > 0) {
-                    rasaZip.addFile(
-                        JSON.stringify(formResultsPerEnv, null, 2),
-                        `botfront/formresults${envSuffix(environment, formResults)}.json`,
-                    );
-                }
             });
             (conversations || []).forEach(
                 ({ conversations: conversationsPerEnv, environment }) => {
@@ -637,12 +598,6 @@ if (Meteor.isServer) {
             rasaZip.addFile(exportData.domain, 'domain.yml');
             rasaZip.addFile(bfconfigYaml, 'botfront/bfconfig.yml');
             rasaZip.addFile(defaultDomain, 'botfront/default-domain.yml');
-            if (Object.keys(analyticsConfig).length > 0) {
-                rasaZip.addFile(
-                    safeDump(analyticsConfig),
-                    'botfront/analyticsconfig.yml',
-                );
-            }
             if (Object.keys(widgetSettings).length > 0) {
                 rasaZip.addFile(safeDump(widgetSettings), 'botfront/widgetsettings.yml');
             }

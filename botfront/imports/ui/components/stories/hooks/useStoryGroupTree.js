@@ -345,7 +345,7 @@ const treeReducer = (externalMutators = {}) => (tree, instruction) => {
                                     ],
                                 };
                             }
-                            if (['story', 'rule', 'test_case'].includes(node.type)) {
+                            if (['story', 'rule'].includes(node.type)) {
                                 return {
                                     ...acc,
                                     stories: [

@@ -21,7 +21,16 @@ policies:
     max_history: 5
     batch_size: [32, 64]
   - name: RulePolicy
+    enable_fallback_prediction: false
   - name: AugmentedMemoizationPolicy
+  - name: rasa_addons.core.policies.BotfrontDisambiguationPolicy
+    fallback_trigger: 0.30
+    disambiguation_trigger: '$0 < 2 * $1'
+    disambiguation_template: 'utter_disambiguation'
+    n_suggestions: 2
+    excluded_intents:
+      - ^chitchat\..*
+      - ^basics\..*
 defaultDomain:
   slots:
     disambiguation_message:
@@ -31,24 +40,3 @@ defaultDomain:
     - action_botfront_disambiguation_followup
     - action_botfront_fallback
     - action_botfront_mapping
-webhooks:
-  restartRasaWebhook:
-    name: RestartRasa
-    url: ''
-    method: POST
-  uploadImageWebhook:
-    name: UploadImage
-    url: ''
-    method: POST
-  deleteImageWebhook:
-    name: DeleteImage
-    url: ''
-    method: DELETE
-  deploymentWebhook:
-    name: DeployProject
-    url: ''
-    method: POST
-  reportCrashWebhook:
-    name: ReportCrash
-    url: ''
-    method: POST

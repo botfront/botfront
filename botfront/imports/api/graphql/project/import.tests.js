@@ -15,7 +15,6 @@ if (Meteor.isServer) {
     import { StoryGroups } from '../../storyGroups/storyGroups.collection';
     import Examples from '../examples/examples.model.js';
     import { insertExamples } from '../examples/mongo/examples.js';
-    import { createTestUser, removeTestUser } from '../../testUtils';
 
     chai.use(deepEqualInAnyOrder);
     chai.use(chaiExclude);
@@ -60,20 +59,17 @@ if (Meteor.isServer) {
                     GlobalSettings.remove({ _id: 'SETTINGS' });
                 } finally {
                     await Meteor.callWithPromise(
-                        'initialSetup',
+                        'initialSetup.firstStep',
                         { email: 'a@a.com', password: 'aa' },
                         false,
                     );
                 }
-                await removeTestUser();
-                await createTestUser();
             }),
         );
         beforeEach(
             caught(async () => {
                 await Meteor.callWithPromise('project.delete', 'bf', {
                     failSilently: true,
-                    bypassWithCI: true,
                 });
                 await Meteor.callWithPromise('initialSetup.secondStep', {
                     _id: 'bf',
@@ -83,13 +79,9 @@ if (Meteor.isServer) {
             }),
         );
         after(
-            caught(async () => {
-                await removeTestUser();
-                await Meteor.callWithPromise('project.delete', 'bf', {
-                    failSilently: true,
-                    bypassWithCI: true,
-                });
-            }),
+            caught(() => Meteor.callWithPromise('project.delete', 'bf', {
+                failSilently: true,
+            })),
         );
 
         describe('training data import', () => {
@@ -413,43 +405,6 @@ if (Meteor.isServer) {
                     );
                     delete generatedZip['botfront/analyticsconfig.yml'];
                     delete generatedZip['botfront/widgetsettings.yml'];
-                    expect(
-                        Object.keys(generatedZip),
-                    ).to.deep.equalInAnyOrder(Object.keys(localZip));
-                    expect(generatedZip)
-                        .excludingEvery([
-                            '_id',
-                            'checkpoint',
-                            'updatedAt',
-                            'allowContextualQuestions',
-                            'namespace',
-                            'nluThreshold',
-                            'timezoneOffset',
-                        ])
-                        .to.deep.equal(localZip);
-                }),
-            );
-            it(
-                'should import a stock EE project, and export should match',
-                caught(async () => {
-                    const zip = generateZip(['project01', 'project01-ee-ext']);
-                    // if project doesn't have production env, data won't import
-                    await Meteor.callWithPromise('project.update', {
-                        _id: 'bf',
-                        deploymentEnvironments: ['production'],
-                    });
-                    await importStepsWrapped([zip], { wipeProject: true });
-                    const localZip = await unzipFiles(zip);
-                    delete localZip['data/tests/test_de_stories.yml'];
-                    const b64zip = await Meteor.callWithPromise(
-                        'exportRasa',
-                        'bf',
-                        'all',
-                        { conversations: true, incoming: true },
-                    );
-                    const generatedZip = await unzipFiles(
-                        await JSZip.loadAsync(Buffer.from(b64zip, 'base64')),
-                    );
                     expect(
                         Object.keys(generatedZip),
                     ).to.deep.equalInAnyOrder(Object.keys(localZip));

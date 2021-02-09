@@ -1,31 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useMutation } from '@apollo/react-hooks';
+import requiredIf from 'react-required-if';
+import { useQuery, useMutation } from '@apollo/react-hooks';
 import Alert from 'react-s-alert';
-import { browserHistory } from 'react-router';
+import { browserHistory, withRouter } from 'react-router';
 import {
     Grid, Icon, Menu, Message, Pagination,
 } from 'semantic-ui-react';
-
+import { connect } from 'react-redux';
+import { GET_CONVERSATIONS } from './queries';
 import { DELETE_CONV } from './mutations';
+import 'react-select/dist/react-select.css';
 import ConversationViewer from './ConversationViewer';
-import ConversationFilters from './ConversationFilters';
+import { Loading } from '../utils/Utils';
 import { updateIncomingPath } from '../incoming/incoming.utils';
-import { ConversationBrowserContext } from './context';
 import { wrapMeteorCallback } from '../utils/Errors';
 
 function ConversationsBrowser(props) {
     const {
-        page,
-        pages,
-        trackers,
-        activeConversationId,
-        refetch,
-        router,
-        activeFilters,
-        changeFilters,
-        handleDownloadConversations,
-        projectId,
+        page, pages, trackers, activeConversationId, refetch, router, projectId,
     } = props;
 
     const [deleteConv, { data }] = useMutation(DELETE_CONV);
@@ -64,36 +57,25 @@ function ConversationsBrowser(props) {
     }
 
     const goToConversation = (newPage, conversationId, replace = false) => {
-        // let url = `/project/${projectId}/incoming/${modelId}/conversations/${page || 1}`;
-        const {
-            location: { query },
-        } = router;
         const url = updateIncomingPath({
             ...router.params,
             page: newPage || 1,
             selected_id: conversationId,
         });
-        if (replace) return browserHistory.replace({ pathname: url, query });
-        return browserHistory.push({ pathname: url, query });
+        if (replace) return browserHistory.replace({ pathname: url });
+        return browserHistory.push({ pathname: url });
     };
 
     function handleItemClick(event, { name }) {
         goToConversation(page, name);
     }
 
-    const handleModifyFilters = (updatedFilters) => {
-        changeFilters({ ...activeFilters, ...updatedFilters });
-    };
-
     function pageChange(newPage) {
-        const {
-            location: { query },
-        } = router;
         const url = updateIncomingPath(
             { ...router.params, page: newPage || 1 },
             'selected_id',
         );
-        return browserHistory.push({ pathname: url, query });
+        return browserHistory.push({ pathname: url });
     }
 
     function renderMenuItems() {
@@ -128,7 +110,8 @@ function ConversationsBrowser(props) {
         } else {
             goToConversation(Math.min(page - 1, 1), undefined, true);
         }
-        deleteConv({ variables: { id: conversationId } }).then(() => refetch());
+        deleteConv({ variables: { id: conversationId } });
+        refetch();
     }
 
     const createTestCase = (trackerId, callback) => {
@@ -181,43 +164,93 @@ function ConversationsBrowser(props) {
         </>
     );
 
-    return (
-        <ConversationBrowserContext.Provider
-            value={{
-                modifyFilters: handleModifyFilters,
-            }}
-        >
-            <Grid>
-                <Grid.Row>
-                    <ConversationFilters
-                        activeFilters={activeFilters}
-                        changeFilters={changeFilters}
-                        onDownloadConversations={handleDownloadConversations}
-                    />
-                </Grid.Row>
-                {trackers.length ? renderBody() : renderNoMessages()}
-            </Grid>
-        </ConversationBrowserContext.Provider>
-    );
+    return <Grid>{trackers.length ? renderBody() : renderNoMessages()}</Grid>;
 }
 
 ConversationsBrowser.propTypes = {
-    trackers: PropTypes.array,
+    trackers: requiredIf(PropTypes.array, ({ loading }) => !loading),
     activeConversationId: PropTypes.string,
     page: PropTypes.number.isRequired,
     pages: PropTypes.number,
     refetch: PropTypes.func.isRequired,
     router: PropTypes.object.isRequired,
-    activeFilters: PropTypes.object.isRequired,
-    changeFilters: PropTypes.func.isRequired,
-    handleDownloadConversations: PropTypes.func.isRequired,
     projectId: PropTypes.string.isRequired,
 };
 
 ConversationsBrowser.defaultProps = {
-    pages: 1,
     trackers: [],
     activeConversationId: null,
+    pages: 1,
 };
 
-export default ConversationsBrowser;
+const ConversationsBrowserContainer = (props) => {
+    const { router } = props;
+    if (!router) {
+        return <></>;
+    }
+
+    const projectId = router.params.project_id;
+    let activeConversationId = router.params.selected_id;
+    let page = parseInt(router.params.page, 10) || 1;
+    if (!Number.isInteger(page) || page < 1) {
+        page = 1;
+    }
+
+    const {
+        loading, error, data, refetch,
+    } = useQuery(GET_CONVERSATIONS, {
+        variables: { projectId, page, pageSize: 20 },
+        pollInterval: 5000,
+    });
+
+    const componentProps = {
+        page,
+        projectId,
+        refetch,
+        router,
+    };
+
+    if (!loading && !error) {
+        const { conversations, pages } = data.conversationsPage;
+
+        // If for some reason the conversation is not in the current page, discard it.
+        if (!conversations.some(c => c._id === activeConversationId)) { activeConversationId = null; }
+        if (!activeConversationId && conversations.length) {
+            const url = updateIncomingPath({
+                ...router.params,
+                tab: 'conversations',
+                page: page || 1,
+                selected_id: conversations[0]._id,
+            }); // tab will always be conversations if set on the converesations tab
+            browserHistory.replace({ pathname: url });
+        } else {
+            Object.assign(componentProps, {
+                trackers: conversations,
+                activeConversationId,
+                pages,
+            });
+        }
+    } else {
+        Object.assign(componentProps, {
+            projectId,
+            page,
+        });
+    }
+    return (
+        <Loading loading={loading}>
+            <ConversationsBrowser {...componentProps} />
+        </Loading>
+    );
+};
+
+ConversationsBrowserContainer.propTypes = {
+    router: PropTypes.object.isRequired,
+};
+
+const mapStateToProps = state => ({
+    projectId: state.settings.get('projectId'),
+});
+
+const ConversationsRouter = withRouter(ConversationsBrowserContainer);
+
+export default connect(mapStateToProps)(ConversationsRouter);

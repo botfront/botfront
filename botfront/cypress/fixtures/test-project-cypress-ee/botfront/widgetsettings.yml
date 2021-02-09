@@ -1,8 +1,0 @@
-title: test
-customData:
-  language: en
-subtitle: Happy to test
-inputTextFieldHint: Test your message...
-initPayload: /test
-hideWhenNotConnected: true
-userTextColor: '#784444'

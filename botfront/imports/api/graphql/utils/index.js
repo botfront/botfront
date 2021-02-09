@@ -1,3 +1,4 @@
+// this file is mostly used on ee but lives on ce to makes merges easier
 import { DDP } from 'meteor/ddp-client';
 import { DDPCommon } from 'meteor/ddp-common';
 

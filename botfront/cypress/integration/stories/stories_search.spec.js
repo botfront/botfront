@@ -65,13 +65,4 @@ describe('test stories searching ui', () => {
         cy.dataCy('story-title').should('have.length', 1);
         cy.dataCy('story-title').should('have.value', 'title A');
     });
-    it('should link to forms from stories search', () => {
-        cy.visit('project/bf/dialogue');
-        cy.createCustomStoryGroup('bf', 'FORM_GROUP', 'Form group');
-        cy.dataCy('story-group-menu-item').should('include.text', 'Form group');
-        cy.createForm('bf', 'test_form', { slots: ['color', 'type'], groupId: 'FORM_GROUP' });
-        searchStories('test_form', 'test_form');
-        cy.get('.slot-node-header').should('have.length', 2);
-        cy.get('.slot-node-header').should('have.text', 'colortype');
-    });
 });

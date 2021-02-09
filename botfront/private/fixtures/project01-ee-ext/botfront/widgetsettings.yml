@@ -1,8 +1,0 @@
-mainColor: '#b2a871'
-customData:
-  language: fr
-title: Botfront
-subtitle: Happy to help
-inputTextFieldHint: Type your message...
-initPayload: /get_started
-hideWhenNotConnected: true

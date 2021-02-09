@@ -6,7 +6,7 @@ export default () => (
     <div style={{ textAlign: 'center' }}>
         <Header as='h1' content='Welcome to Botfront' className='setup-welcome-header' />
         <br />
-        <span className='step-text'>Let&apos;s create your admin account</span>
+        <span className='step-text'>Let&apos;s get to know you and create your first project</span>
         <br />
         <br />
         <br />

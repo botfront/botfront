@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import { safeLoad, safeDump } from 'js-yaml';
 import uuidv4 from 'uuid/v4';
 import botResponses from '../botResponses/botResponses.model';
@@ -18,73 +17,15 @@ import { GlobalSettings } from '../../globalSettings/globalSettings.collection';
 import { Endpoints } from '../../endpoints/endpoints.collection';
 import { Stories } from '../../story/stories.collection';
 import { StoryGroups } from '../../storyGroups/storyGroups.collection';
-import AnalyticsDashboards from '../analyticsDashboards/analyticsDashboards.model';
+
 import handleImportTrainingData from './trainingDataFileImporter';
 import Examples from '../examples/examples.model';
-import FormResults from '../forms/form_results.model';
-import { defaultDashboard } from '../analyticsDashboards/generateDefaults';
-
 import { NLUModels } from '../../nlu_model/nlu_model.collection';
 import { onlyValidFiles } from '../../../lib/importers/common';
-import { getGraphElementsFromDomain } from '../../../lib/form.utils';
-import { getForms, upsertForm, deleteForms } from '../forms/mongo/forms';
 
-const handleImportBfForms = async (bfForms = [], projectId) => {
-    const existingStoryGroups = await StoryGroups.find(
-        { projectId, smartGroup: { $exists: false } },
-        { fields: { _id: 1, name: 1 } },
-    ).fetch();
-    const res = await Promise.all(
-        bfForms.map(async ({ groupName = 'forms', _id, ...form }) => {
-            const { _id: groupId } = existingStoryGroups.find(
-                ({ name }) => name === groupName,
-            );
-            const graphElements = getGraphElementsFromDomain(
-                form.graph_elements,
-                form.slots,
-            );
-            return upsertForm(
-                {
-                    form: {
-                        ...form,
-                        projectId,
-                        groupId,
-                        graph_elements: graphElements,
-                    },
-                },
-                true,
-            );
-        }),
-    );
-    if (!res) throw new Error('Forms not inserted.');
-    const notUpserted = [];
-    res.forEach(({ status }, index) => {
-        if (status === 'failed') {
-            notUpserted.push(bfForms[index].name);
-        }
-    });
-    if (notUpserted.length) {
-        throw new Error(`Forms ${notUpserted.join(', ')} not inserted.`);
-    }
-    return true;
-};
+const handleImportBfForms = async () => 'CE';
 
-const handleWipeBfForms = async (projectId) => {
-    try {
-        const forms = await getForms(projectId);
-        const deletedForms = await deleteForms({
-            projectId,
-            ids: forms.map(({ _id }) => _id),
-        });
-        if (
-            !forms.every(({ _id }) => deletedForms.find(({ _id: deletedId }) => _id === deletedId))
-        ) {
-            throw new Error();
-        }
-    } catch (e) {
-        throw new Error('Could not wipe the forms.');
-    }
-};
+const handleWipeBfForms = async () => 'CE';
 
 export const handleImportForms = async (regularForms, bfForms, projectId) => {
     const forms = regularForms;
@@ -172,12 +113,9 @@ const resetProject = async (projectId, { projectLanguages, fallbackLang }) => {
         await Stories.remove({ projectId });
         await StoryGroups.remove({ projectId, smartGroup: { $exists: false } });
         await NLUModels.remove({ projectId });
-        await FormResults.remove({ projectId });
-        await AnalyticsDashboards.remove({ projectId });
         await Examples.deleteMany({ projectId });
         await createCredentials({ _id: projectId });
         await createEndpoints({ _id: projectId });
-        AnalyticsDashboards.create(defaultDashboard({ _id: projectId, defaultLanguage: fallbackLang }));
         const {
             settings: {
                 private: { defaultDefaultDomain },
@@ -196,7 +134,6 @@ const resetProject = async (projectId, { projectLanguages, fallbackLang }) => {
                     languages: [],
                     storyGroups: smartGroups,
                     defaultDomain: { content: defaultDefaultDomain },
-                    chatWidgetSettings: {},
                 },
             },
         );
@@ -375,62 +312,6 @@ export const handleImportCredentials = async (files, { supportedEnvs, projectId 
     return importResult.filter(r => r);
 };
 
-export const handleImportAnalyticsConfig = async (files, { projectId }) => {
-    if (!files.length) return [];
-    const toImport = files[0]; // there could only be one file to import
-    try {
-        await AnalyticsDashboards.deleteOne({ projectId });
-        await AnalyticsDashboards.create({ ...toImport.analytics, projectId, _id: uuidv4() });
-        return [];
-    } catch (e) {
-        return [`error when importing ${toImport.filename}`];
-    }
-};
-
-export const handleImportWidgetSettings = async (files, { projectId }) => {
-    if (!files.length) return [];
-    const toImport = files[0]; // there could only be one file to import
-    try {
-        await Meteor.callWithPromise('project.update', {
-            chatWidgetSettings: toImport.widgetsettings,
-            _id: projectId,
-        });
-        return [];
-    } catch (e) {
-        return [`error when importing ${toImport.filename}`];
-    }
-};
-
-
-export const handleImportFromResults = async (files, { supportedEnvs, projectId, wipeInvolvedCollections }) => {
-    if (!files.length) return [];
-    if (wipeInvolvedCollections) {
-        await FormResults.deleteMany({ projectId });
-    }
-    try {
-        const importer = files.map(async (file) => {
-            const { formresults, env } = file;
-            if (supportedEnvs.includes(env)) {
-                await Promise.all(formresults.map(async (result) => {
-                    const { conversationId, date } = result;
-                    return FormResults.updateOne(
-                        {
-                            conversationId, date, environment: env, projectId,
-                        },
-                        { ...result, date: new Date(result.date), environment: env },
-                        { upsert: true },
-                    );
-                }));
-            }
-        });
-        await Promise.all(importer);
-        return [];
-    } catch (e) {
-        return [`error when importing form results: ${e.message}`];
-    }
-};
-   
-
 export const handleImportRasaConfig = async (files, { projectId, projectLanguages }) => {
     const languagesNotImported = new Set(projectLanguages);
     let policiesImported = false;
@@ -450,7 +331,6 @@ export const handleImportRasaConfig = async (files, { projectId, projectLanguage
                 });
                 policiesImported = true;
             } catch (e) {
-                console.log(e);
                 errors.push(`error when importing policies from ${f.filename}`);
             }
         }
@@ -495,6 +375,7 @@ export const handleImportRasaConfig = async (files, { projectId, projectLanguage
     // return only the results with data in it (if nothing bad happened it shoudl be an array of null)
     return [...errors, ...createResult].filter(r => r);
 };
+
 
 export const handleImportConversations = async (
     files,
@@ -640,14 +521,6 @@ export const handleImportAll = async (files, params) => {
                 params,
             ),
         );
-
-        importers.push(
-            handleImportWidgetSettings(
-                toImport.filter(f => f.dataType === 'widgetsettings'),
-                params,
-            ),
-        );
-
         importers.push(
             handleImportConversations(
                 toImport.filter(f => f.dataType === 'conversations'),
@@ -660,20 +533,6 @@ export const handleImportAll = async (files, params) => {
                 params,
             ),
         );
-        importers.push(
-            handleImportAnalyticsConfig(
-                toImport.filter(f => f.dataType === 'analytics'),
-                params,
-            ),
-        );
-
-        importers.push(
-            handleImportFromResults(
-                toImport.filter(f => f.dataType === 'formresults'),
-                params,
-            ),
-        );
-
         // importers return a arrays of array of errors, we flaten it and remove the null values
         return (await Promise.all(importers)).flat().filter(r => r);
     } catch (e) {

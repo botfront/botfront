@@ -13,7 +13,6 @@ const ResponseNameInput = (props) => {
         errorMessage,
         responseName,
         disabledMessage,
-        className,
     } = props;
     return (
         <Popup
@@ -22,7 +21,7 @@ const ResponseNameInput = (props) => {
             trigger={(
                 // disabling the trigger of a popup prevents it from appearing,
                 // wrapping the trigger in a div allows it to show while the input is disabled
-                <div className={className}>
+                <div>
                     <Input
                         className='response-name'
                         placeholder='utter_response_name'
@@ -53,7 +52,6 @@ ResponseNameInput.propTypes = {
     errorMessage: PropTypes.string,
     responseName: PropTypes.string.isRequired,
     disabledMessage: PropTypes.string,
-    className: PropTypes.string,
 };
 
 ResponseNameInput.defaultProps = {
@@ -62,7 +60,6 @@ ResponseNameInput.defaultProps = {
     renameable: false,
     onChange: () => {},
     saveResponseName: () => {},
-    className: '',
 };
 
 export default ResponseNameInput;

@@ -9,7 +9,7 @@ describe('stories', function() {
     beforeEach(function() {
         cy.createProject('bf', 'My Project', 'fr').then(() => cy.login());
     });
-    
+
     it('should autosave stories as you edit them', function() {
         cy.visit('/project/bf/dialogue');
         cy.dataCy('toggle-yaml').click({ force: true });

@@ -158,38 +158,22 @@ export const getDefaultTemplateFromSequence = (sequence) => {
 export const addResponseLanguage = (response, language) => {
     const updatedResponse = response;
     const newValue = {
-        sequence: response.values
-            ? [
-                {
-                    content: safeDump(
-                        defaultTemplate(
-                            parseContentType(
-                                safeLoad(response.values[0].sequence[0].content),
-                            ),
-                        ),
-                    ),
-                },
-            ]
-            : [{ content: 'text: \'\'' }],
+        sequence: [{ content: safeDump(defaultTemplate(parseContentType(safeLoad(response.values[0].sequence[0].content)))) }],
         lang: language,
     };
-    updatedResponse.values = [...(response.values || []), newValue];
+    updatedResponse.values = [...response.values, newValue];
     return updatedResponse;
 };
 
 export const checkMetadataSet = (metadata) => {
     if (!metadata) return false;
     const {
-        linkTarget, userInput, forceOpen, forceClose, pageChangeCallbacks = null, pageEventCallbacks = null, domHighlight = null, customCss = null,
+        linkTarget, userInput, forceOpen, forceClose,
     } = metadata;
     if (linkTarget === '_blank'
         && userInput === 'show'
         && forceOpen === false
         && forceClose === false
-        && pageChangeCallbacks === null
-        && domHighlight === null
-        && pageEventCallbacks === null
-        && customCss === null
     ) {
         return false;
     }

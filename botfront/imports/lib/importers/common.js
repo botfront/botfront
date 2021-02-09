@@ -13,9 +13,7 @@ export const determineDataType = (f, rawText) => {
         if (/^config((\.|-)[a-z]+)?\.ya?ml$/.test(filename)) return 'rasaconfig';
         if (/^endpoints((\.|-)[a-z]+)?\.ya?ml$/.test(filename)) return 'endpoints';
         if (/^credentials((\.|-)[a-z]+)?\.ya?ml$/.test(filename)) return 'credentials';
-        if (/^widgetsettings\.ya?ml$/.test(filename)) return 'widgetsettings';
         if (filename.match(/^conversations?((\.|-)[a-z]+)?\.json$/)) return 'conversations';
-        if (filename.match(/^formresults((\.|-)[a-z]+)?\.json$/)) return 'formresults';
         if (filename.match(/^incoming((\.|-)[a-z]+)?\.json$/)) return 'incoming';
         if ((/^test_.*?\.ya?ml$/.test(filename))) return 'tests';
         if (filename.match(/\.json$/)) {
@@ -36,7 +34,6 @@ export const determineDataType = (f, rawText) => {
             if (typeof data === 'object' && Object.keys(data).length === 0) return 'empty';
             return 'training_data';
         }
-        if (filename.match(/^analyticsconfig.ya?ml$/)) return 'analytics';
         if (filename.match(/\.ya?ml$/)) {
             let data;
             try {
@@ -58,7 +55,6 @@ export const determineDataType = (f, rawText) => {
             if (Object.keys(data).some(key => trainingKeys.includes(key))) {
                 return 'training_data';
             }
-            if (typeof data === 'object' && data.cards && data.cards.length > 0) return 'analytics';
         }
         if (filename.match(/\.md$/)) {
             return 'training_data';

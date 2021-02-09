@@ -123,11 +123,3 @@ Cypress.Commands.add('addConversationFromTemplate', (projectId = 'bf', template 
         );
     });
 });
-
-Cypress.Commands.add('addConversationEventFilter', (type, text) => {
-    cy.dataCy('sequence-selector').click();
-    cy.dataCy(`${type}-event-dropdown`).click();
-    cy.dataCy(`${type}-event-dropdown`).find('input').should('exist');
-    cy.dataCy(`${type}-event-dropdown`).find('input').click();
-    cy.dataCy(`${type}-event-dropdown`).find('input').type(`${text}{enter}`);
-});

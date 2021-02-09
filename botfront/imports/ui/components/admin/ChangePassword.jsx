@@ -37,7 +37,7 @@ changePasswordSchema.messageBox.messages({
     },
 });
 
-const changePasswordSchemaBridge = new SimpleSchema2Bridge(changePasswordSchema);
+const changePasswordSchemaBridge = new SimpleSchema2Bridge(this.resetPasswordSchema);
 
 export default class ChangePassword extends React.Component {
     constructor(props) {

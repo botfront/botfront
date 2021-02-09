@@ -25,7 +25,6 @@ promise@0.11.2
 email@1.2.3
 ostrio:meteor-root
 dynamic-import@0.5.2
-alanning:roles
 percolate:migrations
 underscore@1.0.10
 #browser-policy
@@ -33,7 +32,6 @@ ddp-rate-limiter@1.0.7
 apollo
 swydo:graphql
 swydo:ddp-apollo
-johanbrook:publication-collector
 static-html
 zodern:standard-minifier-js
 zodern:hide-production-sourcemaps

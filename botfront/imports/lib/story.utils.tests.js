@@ -5,7 +5,6 @@ import {
     extractDomain,
     stringPayloadToObject,
     objectPayloadToString,
-    insertSmartPayloads,
 } from './story.utils';
 import { createResponses } from '../api/graphql/botResponses/mongo/botResponses';
 
@@ -524,104 +523,6 @@ const linkedStoriesCheckpointed = [
     },
 ];
 
-// story rules payload test data
-const triggerNoPayload = {
-    triggerIntent: 'trigger_B2DKHEAMGcxjGkt7t',
-    rules: [{ trigger: { when: 'always', timeOnPage: 10 } }],
-    steps: [{ action: 'utter_jm-ZGwwx' }],
-};
-const triggerNoPayloadResult = [
-    { intent: 'trigger_B2DKHEAMGcxjGkt7t', entities: [] },
-    { action: 'utter_jm-ZGwwx' },
-];
-const withStartingPayload = {
-    triggerIntent: 'trigger_B2DKHEAMGcxjGkt7t',
-    rules: [{ trigger: { when: 'always', timeOnPage: 10 } }],
-    steps: [
-        { intent: 'hallo', entities: [{ shape: 'circle ' }] },
-        { action: 'utter_jm-ZGwwx' },
-    ],
-};
-const withStartingPayloadResult = [
-    {
-        or: [
-            { intent: 'hallo', entities: [{ shape: 'circle ' }] },
-            { intent: 'trigger_B2DKHEAMGcxjGkt7t', entities: [] },
-        ],
-    },
-    { action: 'utter_jm-ZGwwx' },
-];
-const triggerEntitiesAndStartingPayload = {
-    triggerIntent: 'trigger_EoTK7EB8eHwZ2gbW8',
-    rules: [
-        {
-            trigger: {
-                when: 'always',
-                queryString: [{ param: 'color', sendAsEntity: true }],
-            },
-        },
-    ],
-    steps: [
-        { intent: 'hallo', entities: [{ shape: 'circle ' }] },
-        { action: 'utter_jm-ZGwwx' },
-    ],
-};
-const triggerEntitiesAndStartingPayloadResult = [
-    {
-        or: [
-            { intent: 'hallo', entities: [{ shape: 'circle ' }] },
-            { intent: 'trigger_EoTK7EB8eHwZ2gbW8', entities: [{ color: 'color' }] },
-        ],
-    },
-    { action: 'utter_jm-ZGwwx' },
-];
-const multipleTriggers = {
-    triggerIntent: 'trigger_8W4baSfifckG5NkuR',
-    rules: [
-        {
-            trigger: {
-                when: 'always',
-                queryString: [
-                    { param: 'A', sendAsEntity: true },
-                    { param: 'B', sendAsEntity: true },
-                ],
-            },
-        },
-        {
-            trigger: {
-                queryString: [{ param: 'C', sendAsEntity: true }],
-                when: 'always',
-            },
-        },
-        {
-            trigger: { timeOnPage: 10, when: 'always' },
-        },
-        {
-            trigger: {
-                queryString: [{ value: 'paramDvalue', param: 'D' }],
-                when: 'always',
-            },
-        },
-    ],
-    steps: [{ action: 'utter_jm-ZGwwx' }],
-};
-const multipleTriggersResult = [
-    {
-        or: [
-            { intent: 'trigger_8W4baSfifckG5NkuR', entities: [{ A: 'A' }, { B: 'B' }] },
-            { intent: 'trigger_8W4baSfifckG5NkuR', entities: [{ C: 'C' }] },
-            { intent: 'trigger_8W4baSfifckG5NkuR', entities: [] },
-            { intent: 'trigger_8W4baSfifckG5NkuR', entities: [] },
-        ],
-    },
-    { action: 'utter_jm-ZGwwx' },
-];
-const triggerNoStory = {
-    triggerIntent: 'trigger_HqxFAkp68L6hTtaFf',
-    rules: [{ trigger: { when: 'always', timeOnPage: 10 } }],
-};
-const triggerNoStoryResult = [{ intent: 'trigger_HqxFAkp68L6hTtaFf', entities: [] }];
-
 if (Meteor.isServer) {
     before(async () => {
         import { connectToDb } from '../startup/server/apollo.js';
@@ -762,34 +663,6 @@ if (Meteor.isServer) {
                     entities: [],
                 }),
             ).to.be.equal('/hello');
-        });
-    });
-
-    describe('proper addition of smart trigger payloads', () => {
-        it('should add trigger intent when there was no payload in the first place', () => {
-            expect(insertSmartPayloads(triggerNoPayload).steps).to.be.deep.equal(
-                triggerNoPayloadResult,
-            );
-        });
-        it('should add trigger intent to existing payload', () => {
-            expect(insertSmartPayloads(withStartingPayload).steps).to.be.deep.equal(
-                withStartingPayloadResult,
-            );
-        });
-        it('should add trigger intent with entities', () => {
-            expect(
-                insertSmartPayloads(triggerEntitiesAndStartingPayload).steps,
-            ).to.be.deep.equal(triggerEntitiesAndStartingPayloadResult);
-        });
-        it('should add multiple trigger intents', () => {
-            expect(insertSmartPayloads(multipleTriggers).steps).to.be.deep.equal(
-                multipleTriggersResult,
-            );
-        });
-        it('should add trigger intent to empty fragment', () => {
-            expect(insertSmartPayloads(triggerNoStory).steps).to.be.deep.equal(
-                triggerNoStoryResult,
-            );
         });
     });
 }

@@ -56,8 +56,6 @@ describe('Bot responses', function() {
     it('Should delete an existing response from the project when it is deleted in a story', function() {
         createResponse();
         cy.wait(500);
-        cy.dataCy('story-title')
-            .click({ force: true });
         cy.dataCy('icon-trash')
             .click({ force: true });
         cy.dataCy('confirm-yes').click();

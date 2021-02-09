@@ -1,5 +1,5 @@
 import {
-    Container, Tab, Message, Button, Header, Confirm, Segment,
+    Container, Tab, Message, Menu, Button, Header, Confirm, Segment,
 } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -10,14 +10,11 @@ import {
     AutoForm, SubmitField, AutoField, ErrorsField,
 } from 'uniforms-semantic';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
-import { get } from 'lodash';
 import { GlobalSettings } from '../../../../api/globalSettings/globalSettings.collection';
 import { GlobalSettingsSchema } from '../../../../api/globalSettings/globalSettings.schema';
 import AceField from '../../utils/AceField';
 import { wrapMeteorCallback } from '../../utils/Errors';
 import PageMenu from '../../utils/PageMenu';
-import HttpRequestsForm from '../../common/HttpRequestsForm';
-import { can } from '../../../../lib/scopes';
 import MigrationControl from './MigrationControl';
 
 class Settings extends React.Component {
@@ -30,34 +27,30 @@ class Settings extends React.Component {
         const { params: { setting } = {}, router } = this.props;
         const { location: { pathname } } = router;
         if (setting && this.getSettingsPanes().findIndex(p => p.name === setting) < 0) {
-            router.replace({ pathname: `${pathname.split('/settings')[0]}/settings` });
+            router.replace({ pathname: `${pathname.split('/global')[0]}/global` });
         }
     }
 
     setActiveTab = (index) => {
         const { router } = this.props;
         const { location: { pathname } } = router;
-        router.push({ pathname: `${pathname.split('/settings')[0]}/settings/${this.getSettingsPanes()[index].name}` });
+        router.push({ pathname: `${pathname.split('/global')[0]}/global/${this.getSettingsPanes()[index].name}` });
     };
 
-    onSave = (settings, callback = () => {}) => {
+    handleReturnToProjectSettings = () => {
+        const { router, projectId } = this.props;
+        router.push(`/project/${projectId}/settings`);
+    }
+
+    onSave = (settings) => {
         this.setState({ saving: true });
-        Meteor.call(
-            'settings.save',
-            settings,
-            wrapMeteorCallback((...args) => {
-                this.setState({ saving: false });
-                callback(...args);
-            }, 'Settings saved'),
-        );
+        Meteor.call('settings.save', settings, wrapMeteorCallback(() => this.setState({ saving: false }), 'Settings saved'));
     };
 
     renderSubmitButton = () => (
         <>
             <ErrorsField />
-            {can('global-settings:w', { anyScope: true }) && (
-                <SubmitField value='Save' className='primary' data-cy='save-button' />
-            )}
+            <SubmitField value='Save' className='primary' data-cy='save-button' />
         </>
     )
 
@@ -69,11 +62,7 @@ class Settings extends React.Component {
                 content={(
                     <>
                         If you want to secure your login page with a Catpcha. &nbsp;
-                        <a
-                            target='_blank'
-                            rel='noopener noreferrer'
-                            href='https://developers.google.com/recaptcha'
-                        >
+                        <a target='_blank' rel='noopener noreferrer' href='https://developers.google.com/recaptcha'>
                             Get your keys here
                         </a>
                         . Only v2 is supported.
@@ -88,125 +77,16 @@ class Settings extends React.Component {
 
     renderDefaultNLUPipeline = () => (
         <Tab.Pane>
-            <Message
-                info
-                icon='question circle'
-                content='Default NLU pipeline for new NLU models'
-            />
+            <Message info icon='question circle' content='Default NLU pipeline for new NLU models' />
             <AceField name='settings.public.defaultNLUConfig' label='' convertYaml />
             {this.renderSubmitButton()}
         </Tab.Pane>
     );
 
-    renderDefaultPolicies = () => (
-        <Tab.Pane>
-            <Message
-                info
-                icon='question circle'
-                content='Default policies for new projects'
-            />
-            <AceField
-                name='settings.private.defaultPolicies'
-                label=''
-                convertYaml
-            />
-            {this.renderSubmitButton()}
-        </Tab.Pane>
-    );
-
-    renderDefaultEndpoints = () => (
-        <Tab.Pane>
-            <Message
-                info
-                icon='question circle'
-                content={(
-                    <>
-                        Default Rasa (see{' '}
-                        <a
-                            target='_blank'
-                            rel='noopener noreferrer'
-                            href='https://rasa.com/docs/core/server/#endpoint-configuration'
-                        >
-                            Rasa documentation
-                        </a>
-                        ) &nbsp;endpoints for new projects
-                    </>
-                )}
-            />
-            <AceField
-                name='settings.private.defaultEndpoints'
-                label=''
-                convertYaml
-            />
-            {this.renderSubmitButton()}
-        </Tab.Pane>
-    );
-
-    renderDefaultCredentials = () => (
-        <Tab.Pane>
-            <Message
-                info
-                icon='question circle'
-                content={(
-                    <>
-                        Default Rasa (see{' '}
-                        <a
-                            target='_blank'
-                            rel='noopener noreferrer'
-                            href='https://rasa.com/docs/core/connectors/'
-                        >
-                            Rasa documentation
-                        </a>
-                        ) &nbsp;channel credentials for new projects
-                    </>
-                )}
-            />
-            <AceField
-                name='settings.private.defaultCredentials'
-                label=''
-                convertYaml
-            />
-            {this.renderSubmitButton()}
-        </Tab.Pane>
-    );
-
-    renderDefaultDefaultDomain = () => (
-        <Tab.Pane>
-            <Message
-                info
-                icon='question circle'
-                content={<>Default default domain for new projects</>}
-            />
-            <AceField
-                name='settings.private.defaultDefaultDomain'
-                label=''
-                convertYaml
-            />
-            {this.renderSubmitButton()}
-        </Tab.Pane>
-    );
-
-    renderIntegrationSettings = () => (
-        <Tab.Pane>
-            <Header as='h3'>Links for Handoff setup</Header>
-            <AutoField
-                name='settings.private.integrationSettings.slackLink'
-                label='Slack'
-            />
-            {this.renderSubmitButton()}
-        </Tab.Pane>// //
-    );
-
     renderAppearance = () => (
         <Tab.Pane>
-            <Message
-                info
-                icon='question circle'
-                content='Login page background images URLs'
-            />
+            <Message info icon='question circle' content='Login page background images URLs' />
             <AutoField name='settings.public.backgroundImages' />
-            <AutoField name='settings.public.logoUrl' />
-            <AutoField name='settings.public.smallLogoUrl' />
             {this.renderSubmitButton()}
         </Tab.Pane>
     );
@@ -221,77 +101,62 @@ class Settings extends React.Component {
                     <AutoField name='settings.public.docUrl' />
                     {this.renderSubmitButton()}
                 </Segment>
-                {can('global-admin') && (
-                    <Segment>
-                        <MigrationControl />
-                        <Header>Rebuild search indices</Header>
-                        <span>Only use this option if you&apos;re having issues with stories search.</span>
-                        <br />
-                        <br />
-                        <Confirm
-                            data-cy='rebuild-indices-confirm'
-                            open={confirmModalOpen}
-                            header='Rebuild search indices for all projects'
-                            content='This is a safe action that runs in the background, but it may take some time.'
-                            onCancel={() => this.setState({ confirmModalOpen: false })}
-                            onConfirm={() => {
-                                Meteor.call('global.rebuildIndexes');
-                                this.setState({ confirmModalOpen: false });
-                            }}
-                        />
-                        <Button
-                            primary
-                            onClick={(e) => {
-                                e.preventDefault();
-                                this.setState({ confirmModalOpen: true });
-                            }}
-                            data-cy='rebuild-button'
-                        >
+                <Segment>
+                    <MigrationControl />
+                    <Header>Rebuild search indices</Header>
+                    <span>Only use this option if you&apos;re having issues with stories search.</span>
+                    <br />
+                    <br />
+                    <Confirm
+                        data-cy='rebuild-indices-confirm'
+                        open={confirmModalOpen}
+                        header='Rebuild search indices for all projects'
+                        content='This is a safe action that runs in the background, but it may take some time.'
+                        onCancel={() => this.setState({ confirmModalOpen: false })}
+                        onConfirm={() => {
+                            Meteor.call('global.rebuildIndexes');
+                            this.setState({ confirmModalOpen: false });
+                        }}
+                    />
+                    <Button
+                        primary
+                        onClick={(e) => {
+                            e.preventDefault();
+                            this.setState({ confirmModalOpen: true });
+                        }}
+                        data-cy='rebuild-button'
+                    >
                         Rebuild
-                        </Button>
-                    </Segment>
-                )}
+                    </Button>
+                </Segment>
             </>
         );
     }
 
-
     getSettingsPanes = () => {
-        const { settings } = this.props;
-        const panes = [
+        const { projectId } = this.props;
+        let panes = [
             { name: 'default-nlu-pipeline', menuItem: 'Default NLU Pipeline', render: this.renderDefaultNLUPipeline },
-            { name: 'default-policies', menuItem: 'Default policies', render: this.renderDefaultPolicies },
-            { name: 'default-credentials', menuItem: 'Default credentials', render: this.renderDefaultCredentials },
-            { name: 'default-endpoints', menuItem: 'Default endpoints', render: this.renderDefaultEndpoints },
-            {
-                name: 'default-default-domain',
-                menuItem: 'Default default domain',
-                render: this.renderDefaultDefaultDomain,
-            },
-            {
-                name: 'webhooks',
-                menuItem: 'Webhooks',
-                render: () => (
-                    <Tab.Pane>
-                        <HttpRequestsForm
-                            onSave={this.onSave}
-                            path='settings.private.webhooks.'
-                            urls={get(settings, 'settings.private.webhooks', {})}
-                            editable={can('global-settings:w')}
-                        />
-                    </Tab.Pane>
-                ),
-            },
-            {
-                name: 'integration',
-                menuItem: 'Integration',
-                render: this.renderIntegrationSettings,
-            },
             { name: 'security', menuItem: 'Security', render: this.renderSecurityPane },
             { name: 'appearance', menuItem: 'Appearance', render: this.renderAppearance },
             { name: 'misc', menuItem: 'Misc', render: this.renderMisc },
         ];
 
+        if (projectId) {
+            panes = [
+                ...panes,
+                {
+                    menuItem: (
+                        <Menu.Item
+                            icon='backward'
+                            content='Project Settings'
+                            key='Project Settings'
+                            onClick={this.handleReturnToProjectSettings}
+                        />
+                    ),
+                },
+            ];
+        }
         return panes;
     };
 
@@ -301,7 +166,7 @@ class Settings extends React.Component {
             <>
                 <PageMenu icon='setting' title='Global Settings' />
                 <Container id='admin-settings' data-cy='admin-settings-menu'>
-                    <AutoForm schema={new SimpleSchema2Bridge(GlobalSettingsSchema)} model={settings} onSubmit={this.onSave} disabled={saving || !can('global-settings:w', { anyScope: true })}>
+                    <AutoForm schema={new SimpleSchema2Bridge(GlobalSettingsSchema)} model={settings} onSubmit={this.onSave} disabled={saving}>
                         <Tab
                             menu={{ vertical: true, 'data-cy': 'settings-menu' }}
                             grid={{ paneWidth: 13, tabWidth: 3 }}
@@ -321,16 +186,14 @@ class Settings extends React.Component {
 
     render() {
         const { settings, ready } = this.props;
-        const { saving, activePane } = this.state;
-        if (ready) return this.renderSettings(saving, settings, activePane);
+        const { saving } = this.state;
+        if (ready) return this.renderSettings(saving, settings);
         return this.renderLoading();
     }
 }
 
 Settings.propTypes = {
     settings: PropTypes.object,
-    // ⚠️ Don't remove this, it is used on OS
-    // eslint-disable-next-line react/no-unused-prop-types
     projectId: PropTypes.string.isRequired,
     router: PropTypes.object.isRequired,
     params: PropTypes.object.isRequired,

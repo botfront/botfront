@@ -12,7 +12,6 @@ import { initCommand } from './commands/init';
 import {
     dockerComposeUp,
     dockerComposeDown,
-    setProject,
     dockerComposeFollow,
     dockerComposeStop,
     dockerComposeStart,
@@ -86,11 +85,6 @@ program
     .option('--remove-images', 'Will also remove Botfront related Docker images')
     .description('Stops any running Botfront project')
     .action(killAllCommand);
-
-program
-    .command('set-project <project_id>')
-    .description('Set Rasa and Actions service to serve project with a given project ID')
-    .action(setProject);
 
 program
     .command('stop <service>')

@@ -5,12 +5,10 @@ import { Container, Menu } from 'semantic-ui-react';
 import { browserHistory } from 'react-router';
 
 import LanguageDropdown from '../common/LanguageDropdown';
-import EnvSelector from '../common/EnvSelector';
 import PageMenu from '../utils/PageMenu';
 import Activity from '../nlu/activity/Activity';
 import ActivityInsertions from '../nlu/activity/ActivityInsertions';
-import ConversationsBrowserContainer from '../conversations/ConversationsBrowserContainer';
-import FormResults from './FormResults';
+import ConversationBrowser from '../conversations/ConversationsBrowser';
 import { updateIncomingPath } from './incoming.utils';
 import { ProjectContext } from '../../layouts/context';
 
@@ -41,13 +39,7 @@ export default function Incoming(props) {
         case 'newutterances':
             return <Activity linkRender={linkToEvaluation} />;
         case 'conversations':
-            return (
-                <ConversationsBrowserContainer />
-            );
-        case 'forms':
-            return (
-                <FormResults />
-            );
+            return <ConversationBrowser />;
         case 'populate':
             return <ActivityInsertions />;
         default:
@@ -59,7 +51,6 @@ export default function Incoming(props) {
         [
             { value: 'newutterances', text: 'New Utterances' },
             { value: 'conversations', text: 'Conversations' },
-            { value: 'forms', text: 'Form results' },
             { value: 'populate', text: 'Populate' },
         ].map(({ value, text }) => (
             <Menu.Item
@@ -75,13 +66,6 @@ export default function Incoming(props) {
     return (
         <>
             <PageMenu>
-                <Menu.Item>
-                    {['populate'].includes(activeTab) ? (
-                        <></>
-                    ) : (
-                        <EnvSelector />
-                    )}
-                </Menu.Item>
                 <Menu.Item>
                     {['conversations', 'forms'].includes(activeTab)
                         ? null

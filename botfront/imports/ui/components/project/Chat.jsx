@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Widget from 'botfront-assistant';
+import { Widget } from 'rasa-webchat/module';
 
 class Chat extends React.Component {
     // WARNING
@@ -43,7 +43,6 @@ class Chat extends React.Component {
                         </div>
                     );
                 }}
-                withRules
             />
         );
     }

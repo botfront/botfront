@@ -30,27 +30,6 @@ class TrainButton extends React.Component {
             modalOpen: { production: false },
             webhooks: {},
         };
-    }
-
-    componentDidMount() {
-        const {
-            project: { _id: projectId },
-        } = this.context;
-        if (can('projects:w', projectId)) {
-            Meteor.call(
-                'getDeploymentWebhook',
-                projectId,
-                wrapMeteorCallback((err, result) => {
-                    if (err) return;
-                    const webhook = get(
-                        result,
-                        'settings.private.webhooks.deploymentWebhook',
-                        {},
-                    );
-                    this.setState({ webhook });
-                }),
-            );
-        }
         this.commitMessage = React.createRef();
         this.revertTable = React.createRef();
     }
@@ -110,10 +89,7 @@ class TrainButton extends React.Component {
                 header='Commit and push'
                 onClick={e => e.stopPropagation()}
                 content={(
-                    <div
-                        className='side-by-side middle ui form'
-                        style={{ padding: '1em' }}
-                    >
+                    <div className='side-by-side middle ui form' style={{ padding: '1em' }}>
                         <input
                             className='ui input'
                             placeholder='Commit message'
@@ -342,14 +318,11 @@ class TrainButton extends React.Component {
 
     renderGitButton = () => {
         const {
-            project: { gitSettings: { gitString } = {} },
-            instance,
+            project: { gitString },
         } = this.context;
-        const { status } = this.props;
-        const rasaDown = !instance || status === 'notReachable';
         const { modalOpen, gitWorking } = this.state;
         if (!gitString) return null;
-        const button = (
+        return (
             <>
                 <Dropdown
                     trigger={(
@@ -362,7 +335,6 @@ class TrainButton extends React.Component {
                             disabled={gitWorking}
                         />
                     )}
-                    disabled={rasaDown}
                     className='dropdown-button-trigger'
                 >
                     <Dropdown.Menu direction='left'>
@@ -383,15 +355,6 @@ class TrainButton extends React.Component {
                 {modalOpen['commit-and-push'] && this.renderCommitModal()}
                 {modalOpen['revert-to-previous'] && this.renderRevertModal()}
             </>
-        );
-        if (!rasaDown) return button;
-        return (
-            <Popup
-                size='tiny'
-                trigger={<div>{button}</div>}
-                inverted
-                content='Rasa instance not reachable'
-            />
         );
     };
 

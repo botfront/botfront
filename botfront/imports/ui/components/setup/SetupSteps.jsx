@@ -5,13 +5,18 @@ import { Meteor } from 'meteor/meteor';
 import React from 'react';
 
 import StepAccount from './StepAccount';
+import StepProject from './StepProject';
+import StepConsent from './StepConsent';
 import { wrapMeteorCallback } from '../utils/Errors';
 
 class SetupSteps extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            activeStep: 'account',
             loading: false,
+            accountData: undefined,
+            projectData: undefined,
         };
         Meteor.call('users.checkEmpty', (err, empty) => {
             if (!empty) {
@@ -22,33 +27,38 @@ class SetupSteps extends React.Component {
     }
 
     handleAccountSubmit = (doc) => {
-        const { router } = this.props;
         doc.firstName = doc.firstName.trim();
         doc.lastName = doc.lastName.trim();
         doc.email = doc.email.trim();
-        doc.password = doc.password.trim();
+        this.setState({ activeStep: 'project', accountData: doc });
+    };
+
+    handleProjectSubmit = (doc) => {
+        this.setState({ activeStep: 'consent', projectData: doc });
+    };
+
+    handleConsentSubmit = (consent) => {
         this.setState({ loading: true });
+        const { accountData, projectData } = this.state;
+        const { router } = this.props;
         Meteor.call(
-            'initialSetup',
-            doc,
+            'initialSetup.firstStep',
+            accountData,
+            consent,
             wrapMeteorCallback((err) => {
-                if (err) {
-                    this.setState({ loading: false });
-                    throw new Error(err);
-                }
+                if (err) throw new Error(err);
                 Meteor.loginWithPassword(
-                    doc.email,
-                    doc.password,
+                    accountData.email,
+                    accountData.password,
                     wrapMeteorCallback(() => {
                         Promise.all([
+                            Meteor.callWithPromise('initialSetup.secondStep', projectData),
                             Meteor.callWithPromise('nlu.chitChatSetup'),
                         ])
-                            .then(() => {
-                                this.setState({ loading: false });
-                                router.push('/admin/projects');
+                            .then((responses) => {
+                                router.push(`/project/${responses[0]}/dialogue`);
                             })
                             .catch((e) => {
-                                this.setState({ loading: false });
                                 // eslint-disable-next-line no-console
                                 console.log(e);
                             });
@@ -58,20 +68,58 @@ class SetupSteps extends React.Component {
         );
     };
 
+    handleAccountClick = () => {
+        this.setState({ activeStep: 'account' });
+    };
+
+    handleProjectClick = () => {
+        const { activeStep } = this.state;
+        if (activeStep === 'consent') {
+            this.setState({ activeStep: 'project' });
+        }
+    };
+
     render() {
-        const { loading } = this.state;
+        const {
+            activeStep, loading, accountData, projectData,
+        } = this.state;
         return (
             <Container>
                 <Segment disabled={loading}>
-                    <Step.Group fluid size='large'>
+                    <Step.Group fluid ordered size='large'>
                         <Step
-                            active
-                            title='Create your admin account'
+                            active={activeStep === 'account'}
+                            title='Your account'
+                            completed={activeStep !== 'account'}
                             onClick={this.handleAccountClick}
                             data-cy='account-step'
                         />
+                        <Step
+                            active={activeStep === 'project'}
+                            title='Your first project'
+                            completed={activeStep === 'consent'}
+                            onClick={
+                                activeStep === 'consent'
+                                    ? () => this.handleProjectClick()
+                                    : () => {}
+                            }
+                            data-cy='project-step'
+                        />
+                        <Step
+                            active={activeStep === 'consent'}
+                            title='Updates'
+                            data-cy='consent-step'
+                        />
                     </Step.Group>
-                    <StepAccount onSubmit={this.handleAccountSubmit} loading={loading} />
+                    {activeStep === 'account' && (
+                        <StepAccount onSubmit={this.handleAccountSubmit} data={accountData} />
+                    )}
+                    {activeStep === 'project' && (
+                        <StepProject onSubmit={this.handleProjectSubmit} data={projectData} />
+                    )}
+                    {activeStep === 'consent' && (
+                        <StepConsent onSubmit={this.handleConsentSubmit} />
+                    )}
                 </Segment>
             </Container>
         );

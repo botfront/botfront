@@ -15,9 +15,7 @@ describe('NLU Intent warning message displays', function() {
     it('Should add and delete multiple examples', function() {
         cy.visit('/project/bf/nlu/models');
         cy.dataCy('nlu-menu-training-data').click();
-        cy.wait(100);
         // check warning message exists
-        cy.wait(300); // wait for the ui to update
         cy.contains('You need at least two distinct intents to train NLU').should('exist');
 
         cy.addExamples(['cya', 'later'], 'byebye');

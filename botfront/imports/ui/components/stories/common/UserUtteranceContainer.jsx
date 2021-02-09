@@ -23,7 +23,7 @@ const UtteranceContainer = (props) => {
     const modalContentRef = useRef();
 
     useEffect(() => {
-        if (value.text || !value.intent) setStateValue(value);
+        if (value.user || !value.intent) setStateValue(value);
         else setStateValue([...getCanonicalExamples(value), value][0]);
     }, [JSON.stringify(value)]);
 

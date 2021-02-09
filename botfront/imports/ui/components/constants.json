@@ -1,4 +1,3 @@
 {
-    "OOS_LABEL": "pick intent",
-    "ENVIRONMENT_OPTIONS": ["development", "production"]
+    "OOS_LABEL": "pick intent"
 }

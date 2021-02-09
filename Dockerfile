@@ -3,7 +3,6 @@ FROM geoffreybooth/meteor-base:1.10.2
 
 # Copy app package.json and package-lock.json into container
 COPY ./botfront/package*.json $APP_SOURCE_FOLDER/
-COPY ./botfront/postinstall.sh $APP_SOURCE_FOLDER/
 ARG ARG_NODE_ENV=production
 ENV NODE_ENV $ARG_NODE_ENV
 ENV DISABLE_CLIENT_STATS 1

@@ -121,7 +121,7 @@ export const withProjectContext = (story) => {
     return (
         <ProjectContext.Provider
             value={{
-                project: { _id: 'bf', storyGroups: ['0', '1', '2', '3', '4', 'form1', 'form2', '5', '6'] },
+                project: { _id: 'bf', storyGroups: ['0', '1', '2', '3', '4', '5', '6'] },
                 slots,
                 intents,
                 entities,
@@ -145,17 +145,6 @@ export const withProjectContext = (story) => {
                 ],
                 language: 'en',
                 getCanonicalExamples,
-                addResponses: (responses) => {
-                    let newResponses = {};
-                    const emptyResponse = {
-                        __typename: 'TextPayload',
-                        text: '',
-                    };
-                    responses.forEach((response) => {
-                        newResponses = { ...newResponses, [response]: { ...emptyResponse }};
-                    });
-                    updateResponses(prevResponses => ({ ...prevResponses, ...newResponses }));
-                }
             }}
         >
             {story()}

@@ -12,8 +12,8 @@ import StoryPlayButton from './StoryPlayButton';
 import ConfirmPopup from '../common/ConfirmPopup';
 import StoryVisualEditor from './common/StoryVisualEditor';
 import { ConversationOptionsContext } from './Context';
-import StoryRulesEditor from './rules/StoryRulesEditor';
 import { can } from '../../../lib/scopes';
+import { storyTypeCustomizations } from '../../../lib/story.types';
 import StoryPrefix from './common/StoryPrefix';
 
 const StoryTopMenu = ({
@@ -29,13 +29,11 @@ const StoryTopMenu = ({
         _id,
         title,
         checkpoints,
-        rules = [],
         condition = [],
         conversation_start: convStart,
         status,
     } = fragment;
     const [newTitle, setNewTitle] = useState(title);
-    const [triggerEditorOpen, setTriggerEditorOpen] = useState(false);
     const [confirmPopupOpen, setConfirmPopupOpen] = useState(false);
     const [confirmOverwriteOpen, setConfirmOverwriteOpen] = useState(false);
 
@@ -230,7 +228,6 @@ const StoryTopMenu = ({
                     {status === 'unpublished' && <Label content='Unpublished' /> }
                     <input
                         data-cy='story-title'
-                        disabled={!can('stories:w', projectId)}
                         value={newTitle}
                         onChange={event => setNewTitle(event.target.value.replace('_', ''))}
                         onKeyDown={handleInputKeyDown}
@@ -241,24 +238,6 @@ const StoryTopMenu = ({
                     {!testCaseFailing && renderWarnings()}
                     {!testCaseFailing && renderErrors()}
                     {renderConvStartToggle()}
-                    {can('triggers:r', projectId) && type !== 'test_case' && (
-                        <StoryRulesEditor
-                        // the trigger element will have it's onClick, disabled, and className props modified
-                            trigger={(
-                            
-                                <Icon
-                                    name='stopwatch'
-                                    color={rules && rules.length ? 'green' : 'grey'}
-                                    data-cy='edit-trigger-rules'
-                                />
-                            )}
-                            storyId={_id}
-                            rules={rules}
-                            open={triggerEditorOpen}
-                            setOpen={setTriggerEditorOpen}
-                            isDestinationStory={isDestinationStory}
-                        />
-                    )}
                     {renderTestCaseButtons()}
                     <StoryPlayButton
                         fragment={fragment}
@@ -291,18 +270,6 @@ const StoryTopMenu = ({
                 >
                     {renderConnectedStories()}
                 </Popup>
-            )}
-            {rules && rules.length > 0 && (
-                <Message
-                    className='connected-story-alert'
-                    attached
-                    warning
-                    size='tiny'
-                    onClick={() => setTriggerEditorOpen(true)}
-                >
-                    <Icon name='info circle' />
-                    This story will be triggered automatically when the conditions set with the stopwatch icon are met.
-                </Message>
             )}
             {type === 'rule' && !convStart && (
                 <Message

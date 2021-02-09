@@ -1,14 +1,16 @@
 /* global cy:true */
 
 describe('Project Instances', function() {
-    beforeEach(function() {
+    before(function() {
         cy.createProject('bf', 'My Project', 'fr');
-        cy.login();
     });
 
-    afterEach(function() {
+    after(function() {
         cy.deleteProject('bf');
-        cy.logout();
+    });
+
+    beforeEach(function() {
+        cy.login();
     });
 
     describe('Instances', function() {

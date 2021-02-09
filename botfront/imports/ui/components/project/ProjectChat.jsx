@@ -57,8 +57,6 @@ class ProjectChat extends React.Component {
 
     handleReloadChat = () => {
         window.localStorage.removeItem('chat_session');
-        clearTimeout(this.clipboardTimeout);
-        this.setState({ savedTest: false });
         this.rerenderChatComponent();
     };
 

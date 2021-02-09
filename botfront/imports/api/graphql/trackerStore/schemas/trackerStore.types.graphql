@@ -22,4 +22,5 @@ type trackerStoreInfo {
 enum Environement { # typo!!!
     development
     production
+    staging
 }

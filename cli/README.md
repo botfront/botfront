@@ -1,4 +1,3 @@
-# Botfront.
 <p align="center">
 <a href="https://botfront.io">
     <img src="botfront_animation.gif" width="100%">
@@ -12,12 +11,13 @@
     <img alt="npm" src="https://img.shields.io/npm/v/botfront.svg">
 </a>
 <a href='https://github.com/botfront/botfront/blob/master/LICENSE'>
-    <img alt="License" src="https://img.shields.io/badge/license-Apache%202.0-blue.svg">
+    <img alt="License" src="https://img.shields.io/badge/license-AGPLv3-blue.svg">
 </a>
 <a href='https://spectrum.chat/botfront'>
-    <img alt="Spectrum link" src="https://withspectrum.github.io/badge/badge.svg">
+    <img alt="License" src="https://withspectrum.github.io/badge/badge.svg">
 </a>
 </p>
+
 
 
 <p align="center">
@@ -60,26 +60,84 @@ Conversational projects require easy prototyping, fast implementation and contin
 <h2 name="features" align="center">Features</h2>
 <table>
 
-## Version Control
+<tr>
+    <td width="33%"><h4>Builds conversation as if you were chatting</h4></td>
+    <td width="67%">Botfront provides a <a href="https://botfront.io/docs/rasa/conversation-builder">unique and natural conversation authoring experience</a>. You can create complex dialog flows in minutes</td>
+</tr>
 
-Clone the project as usual then run `git push -u origin master` to set origin as the default remote. **Don't miss this step** or you might push on the open source repo by accident.
-### Getting started
+<tr>
+    <td width="33%"><h4>Train & evaluate NLU models</h4></td>
+    <td width="67%">Botfront comes with a complete NLU toolbox. You can tag vast amounts of data efficiently, train and evaluate models. <a href="https://botfront.io/docs/rasa/nlu/evaluation/#evaluation-methods">Several evaluation methods</a> are available depending on the development stage of your model</td>
+</tr>
+<tr>
+    <td width="33%"><h4>Annotate incoming data</h4></td>
+    <td width="67%">Botfront is always connected to your agent and conversation data keeps flowing in. You can annotate this data and even use it as an evaluation set and check how this new data improves your model.</td>
+</tr>
+<tr>
+    <td width="33%"><h4>Rasa integration</h4></td>
+    <td width="67%">Botfront exposes all Rasa features and concepts and and makes them accessible at a higher level for faster development. You can <a href="https://botfront.io/docs/import-export/">export a Botfront project and use it with Rasa</a> at any time.</td>
+</tr>
 
-Just...
+</table>
+<br/>
+<h2 name="quick-start" align="center">Quick Start</h2>
+
+Botfront only requires a recent version of Docker. You can install the CLI with the following:
 
 ```bash
 npm install -g botfront
 ```
 
-And...
+Then just run `botfront`to get started.
 
+<!-- broken image. commented out as I'm not sure it should be deleted -->
+<!-- <img src="/botfront/docs/terminalizer/botfront-setup.gif?raw=true" width="100%"> -->
+
+<br/>
+<h2 name="documentation" align="center">Documentation</h2>
+
+The [official documentation](https://botfront.io/docs/getting-started/setup) of Botfront is hosted on [botfront.io](https://botfront.io/docs/getting-started/setup). It is automatically built and updated on every new release. Once you've installed the cli you can also use `botfront docs` to open it.
+
+
+
+<h2 name="development" align="center">Development</h2>
+
+### Installation
+
+1. Botfront is a Meteor app, so the first step is to [install Meteor](https://www.meteor.com/install)
+2. Then clone this repo and install the dependencies:
 ```bash
-botfront
+git clone https://github.com/botfront/botfront
+cd botfront/botfront
+meteor npm install
+```
+3. Install the CLI from the source code:
+```bash
+# if you installed Botfront from npm uninstall it.
+npm uninstall -g botfront
+# Install the cli from the source code
+cd cli && npm link
+```
+Botfront needs to be connected to other services, especially Rasa. To do this, you need to create a regular project, and start Botfront with a dedicated configuration:
+
+1. Create a Botfront project with `botfront init` (somewhere else, not in the repo)
+2. Start your project with `botfront up -e botfront`. This will run all services except the Botfront app, since you are going to run it with Meteor locally
+3. Go back to the botfront checkout `cd botfront/botfront` and run Botfront with `meteor npm run start:docker-compose.dev`. Botfront will be available at [http://localhost:3000](http://localhost:3000) so open your browser and happy editing :smile_cat:
+
+### TroubleShooting
+
+Some [botfront cli](https://github.com/botfront/botfront/blob/master/cli/src/cli.js) commands that may help if you run into problems:
+
+```shell
+botfront init     # create a new botfront project
+botfront logs     # show the logs!
+botfront killall  # stop all docker services
+botfront down     # stop all botfront services
+botfront up       # restart botfront
+botfront docs     # open the docs in your browser
 ```
 
-Then run `git remote add upstream https://github.com/botfront/botfront` to add the open source repo as another remote source.
-
-Now, everytime you want to integrate the latest changes from the open source repo, just run `git pull upstream stable`
+Note that these should be run from the same directory as your botfront project
 
 ### Contribute
 
@@ -146,17 +204,11 @@ As an example, a commit that improved the documentation:
 ```text
 docs(conversation builder): update slots manager screenshot.
 ```
+<br/>
+<h2 align="center">License</h2>
 
-Copyright (C) 2021 Dialogue Technologies Inc.
+Botfront is [AGPLv3](https://github.com/botfront/botfront/blob/master/LICENSE) licensed. You can read the licence [here](https://github.com/botfront/botfront/blob/master/LICENSE).
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+<sub>
+Copyright (C) 2019 9300-2038 Quebec Inc. All rights reserved.
+</sub>

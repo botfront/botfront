@@ -44,6 +44,7 @@ export default class EmbeddedTree extends Tree {
     render() {
         const { isNestingEnabled } = this.props;
         const renderedItems = this.renderItems();
+
         return (
             <DragDropContext
                 onDragStart={this.handleOnDragStart}

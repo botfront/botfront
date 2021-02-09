@@ -2,10 +2,9 @@
 import { Menu, Icon, Popup } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { can } from '../../../lib/scopes';
+
 import ConfirmPopup from '../common/ConfirmPopup';
 import ToolTipPopup from '../common/ToolTipPopup';
-import { ProjectContext } from '../../layouts/context';
 
 class BranchTabLabel extends React.Component {
     constructor(props) {
@@ -85,13 +84,9 @@ class BranchTabLabel extends React.Component {
 
     renderDeleteButton = () => {
         const { isLinked, siblings, isParentLinked } = this.props;
-        const { project: { _id: projectId } } = this.context;
-        if (can('stories:w', projectId)) {
-            return (
-                <Icon name='trash' disabled={isLinked || (siblings.length < 3 && isParentLinked === true)} size='small' data-cy='delete-branch' />
-            );
-        }
-        return (<></>);
+        return (
+            <Icon name='trash' disabled={isLinked || (siblings.length < 3 && isParentLinked === true)} size='small' data-cy='delete-branch' />
+        );
     };
 
     handleOnClick = () => {
@@ -160,13 +155,11 @@ class BranchTabLabel extends React.Component {
 
     renderTitle = () => {
         const { newTitle } = this.state;
-        const { project: { _id: projectId } } = this.context;
         return (
             <>
                 <input
                     data-cy='branch-title-input'
                     value={newTitle}
-                    disabled={!can('stories:w', projectId)}
                     onChange={this.onTextInput}
                     onBlur={this.submitNewTitle}
                     onKeyDown={this.handleKeyDown}
@@ -176,8 +169,6 @@ class BranchTabLabel extends React.Component {
             </>
         );
     };
-
-    static contextType = ProjectContext;
 
     render() {
         const { active } = this.props;

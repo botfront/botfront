@@ -11,10 +11,10 @@
     <img alt="npm" src="https://img.shields.io/npm/v/botfront.svg">
 </a>
 <a href='https://github.com/botfront/botfront/blob/master/LICENSE'>
-    <img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg">
+    <img alt="License" src="https://img.shields.io/badge/license-AGPLv3-blue.svg">
 </a>
 <a href='https://spectrum.chat/botfront'>
-    <img alt="Spectrum link" src="https://withspectrum.github.io/badge/badge.svg">
+    <img alt="License" src="https://withspectrum.github.io/badge/badge.svg">
 </a>
 </p>
 
@@ -207,16 +207,8 @@ docs(conversation builder): update slots manager screenshot.
 <br/>
 <h2 align="center">License</h2>
 
-Copyright (C) 2021 Dialogue Technologies Inc.
+Botfront is [AGPLv3](https://github.com/botfront/botfront/blob/master/LICENSE) licensed. You can read the licence [here](https://github.com/botfront/botfront/blob/master/LICENSE).
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.(C) 2021 Dialogue Technologies Inc. All rights reserved.
+<sub>
+Copyright (C) 2019 9300-2038 Quebec Inc. All rights reserved.
+</sub>

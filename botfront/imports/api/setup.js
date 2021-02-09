@@ -3,6 +3,7 @@ import SimpleSchema from 'simpl-schema';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import slugify from 'slugify';
+import axios from 'axios';
 import { safeLoad, safeDump } from 'js-yaml';
 
 import { GlobalSettings } from './globalSettings/globalSettings.collection';
@@ -64,18 +65,46 @@ export { accountSetupSchema, newProjectSchema };
 
 
 if (Meteor.isServer) {
+    import {
+        getAppLoggerForFile,
+        getAppLoggerForMethod,
+        addLoggingInterceptors,
+    } from '../../server/logger';
+
+    const requestMailSubscription = async (email, firstName, lastName) => {
+        const mailChimpUrl = process.env.MAILING_LIST_URI
+            || 'https://europe-west1-botfront-project.cloudfunctions.net/subscribeToMailchimp';
+        const appMethodLogger = getAppLoggerForMethod(
+            getAppLoggerForFile(__filename),
+            'requestMailSubscription',
+            Meteor.userId(),
+            { email, firstName, lastName },
+        );
+        try {
+            const mailAxios = axios.create();
+            addLoggingInterceptors(mailAxios, appMethodLogger);
+            await mailAxios.post(mailChimpUrl, {
+                email_address: email,
+                status: 'subscribed',
+                merge_fields: {
+                    FNAME: firstName,
+                    LNAME: lastName,
+                },
+            });
+        } catch (e) {
+            appMethodLogger.error(
+                'Email subscription failed, probably because you\'ve already subscribed',
+            );
+        }
+    };
     Meteor.methods({
-        async 'initialSetup'(accountData) {
+        async 'initialSetup.firstStep'(accountData, consent) {
             check(accountData, Object);
-            const empty = await Meteor.callWithPromise('users.checkEmpty');
-            if (!empty) {
-                throw new Meteor.Error('403', 'Not authorized');
-            }
+            check(consent, Boolean);
+
             const publicSettings = safeLoad(Assets.getText('defaults/public.yaml'));
             const privateSettings = safeLoad(Assets.getText(
-                process.env.MODE === 'development'
-                    ? 'defaults/private.dev.yaml'
-                    : process.env.MODE === 'test' ? 'defaults/private.yaml' : 'defaults/private.gke.yaml',
+                process.env.MODE === 'development' ? 'defaults/private.dev.yaml' : 'defaults/private.yaml',
             ));
             
             const settings = {
@@ -86,15 +115,18 @@ if (Meteor.isServer) {
                 private: {
                     bfApiHost: privateSettings.bfApiHost || '',
                     defaultEndpoints: safeDump(privateSettings.endpoints),
-                    defaultCredentials: safeDump(privateSettings.credentials)
-                        .replace(/{SOCKET_HOST}/g, process.env.SOCKET_HOST || 'botfront.io'),
+                    defaultCredentials: safeDump(privateSettings.credentials),
                     defaultPolicies: safeDump({ policies: privateSettings.policies }),
                     defaultDefaultDomain: safeDump(privateSettings.defaultDomain),
-                    webhooks: privateSettings.webhooks,
                 },
             };
             
             GlobalSettings.insert({ _id: 'SETTINGS', settings });
+
+            const empty = await Meteor.callWithPromise('users.checkEmpty');
+            if (!empty) {
+                throw new Meteor.Error('403', 'Not authorized');
+            }
             const {
                 email, password, firstName, lastName,
             } = accountData;
@@ -107,11 +139,9 @@ if (Meteor.isServer) {
                 },
             });
 
-            const { setUpRoles } = await import('./roles/roles');
-            const { Roles } = await import('meteor/alanning:roles');
-            setUpRoles();
-            Roles.createRole('global-admin', { unlessExists: true });
-            Roles.addUsersToRoles(userId, ['global-admin'], null);
+            if (consent) {
+                await requestMailSubscription(accountData.email, accountData.firstName, accountData.lastName);
+            }
         },
 
         async 'initialSetup.secondStep'(projectData) {

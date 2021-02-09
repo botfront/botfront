@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
-import { check } from 'meteor/check';
-import { checkIfCan, checkIfScope } from '../../lib/scopes';
+import { check, Match } from 'meteor/check';
+
 import { StorySchema, RuleSchema, TestSchema } from './stories.schema';
 
 export const Stories = new Mongo.Collection('stories');
@@ -33,30 +33,37 @@ Meteor.startup(() => {
 
 if (Meteor.isServer) {
     Meteor.publish('stories.selected', function(projectId, selectedIds) {
-        checkIfCan('stories:r', projectId);
         check(selectedIds, [String]);
         check(projectId, String);
         return Stories.find({ projectId, _id: { $in: selectedIds } });
     });
 
-    Meteor.publish('stories.light', function(projectId) {
+    Meteor.publish('stories.light', function(projectId, language) {
         check(projectId, String);
-        if (!checkIfCan('stories:r', projectId, null, { backupPlan: true })) {
-            checkIfScope(projectId, ['nlu-data:r', 'response:r', 'nlu-data:x'], this.userId);
-            return Stories.find({ projectId }, { fields: { _id: 1, type: 1 } });
-        }
+        check(language, String);
         return Stories.find({
-            projectId,
+            $or: [
+                { projectId, type: 'test_case', language },
+                { projectId, type: 'test_case', success: false },
+                { projectId, type: { $not: { $eq: 'test_case' } } },
+            ],
         }, {
             fields: {
-                title: true, checkpoints: true, storyGroupId: true, type: true, rules: true, status: true, success: true, language: true,
+                title: true, checkpoints: true, storyGroupId: true, type: true, success: true, language: true,
             },
         });
     });
-    Meteor.publish('stories.events', function(projectId) {
-        checkIfCan('responses:r', projectId);
+    Meteor.publish('stories.events', function(projectId, language) {
         check(projectId, String);
-        return Stories.find({ projectId }, { fields: { title: true, events: true } });
+        check(language, Match.Maybe(String));
+        const query = language ? {
+            $or: [
+                { projectId, type: 'test_case', language },
+                { projectId, type: 'test_case', success: false },
+                { projectId, type: { $not: { $eq: 'test_case' } } },
+            ],
+        } : { projectId };
+        return Stories.find(query, { fields: { title: true, events: true } });
     });
 }
 

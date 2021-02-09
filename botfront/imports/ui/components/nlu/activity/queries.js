@@ -18,10 +18,7 @@ export const activityFields = gql`
         confidence,
         validated,
         createdAt,
-        updatedAt,
-        message_id,
-        conversation_id,
-        ooS
+        updatedAt
     }
 `;
 
@@ -29,26 +26,20 @@ export const activityQuery = gql`
     query (
         $projectId: String!
         $language: String!
-        $env: String
         $sortKey: String = "updatedAt"
         $sortDesc: Boolean = true
-        $pageSize: Int = 10
+        $pageSize: Int = 20
         $cursor: String
         $validated: Boolean = false
-        $ooS: Boolean = false
-        $filter: ExampleFilterInput
     ) {
         getActivity(
             projectId: $projectId
             language: $language
-            env: $env
             sortKey: $sortKey
             sortDesc: $sortDesc
             pageSize: $pageSize
             cursor: $cursor
             validated: $validated
-            ooS: $ooS
-            filter: $filter
         ) {
             activity {
                 ...ActivityFields

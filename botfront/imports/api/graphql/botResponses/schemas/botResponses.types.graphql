@@ -43,7 +43,6 @@ type Mutation {
         # can update the rest of the variations and other languages for this response
         newResponseType: String
         index: Int = -1
-        logging: Boolean
     ): BotResponse
 
     createResponses(projectId: String!, responses: String): updateResponse!

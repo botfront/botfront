@@ -2,10 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import {
-    getUserScopes, areScopeReady, can,
-} from '../../lib/scopes';
-
+import { getScopesForUser, areScopeReady } from '../../lib/scopes';
+import { Projects } from '../../api/project/project.collection';
 
 class Index extends React.Component {
     componentDidMount() {
@@ -19,44 +17,17 @@ class Index extends React.Component {
         }
     }
 
-    roleRouting = (pId) => {
-        if (can('projects:r')) {
-            return '/admin/projects';
-        }
-        if (can('stories:r', pId)) {
-            return `/project/${pId}/dialogue`;
-        }
-        if (can('users:r', { anyScope: true })) {
-            return '/admin/users';
-        }
-        if (can('roles:r', { anyScope: true })) {
-            return '/admin/roles';
-        }
-        if (can('global-settings:r', { anyScope: true })) {
-            return '/admin/settings';
-        }
-        if (can('nlu-data:r', pId)) {
-            return `/project/${pId}/nlu/models`;
-        }
-        if (can('responses:r', pId)) {
-            return `/project/${pId}/responses`;
-        }
-        if (can('export:x', pId) || can('import:x', pId)) {
-            return `/project/${pId}/settings/import-export`;
-        }
-        if (can('git-credentials:r', pId)) {
-            return `/project/${pId}/settings/git-credentials`;
-        }
-        return ('/404');
-    };
-
     route = () => {
         const { router, projectsReady } = this.props;
         if (Meteor.userId()) {
             Tracker.autorun(() => {
                 if (Meteor.user() && areScopeReady() && projectsReady) {
-                    const projects = getUserScopes(Meteor.userId());
-                    router.push(this.roleRouting(projects[0]));
+                    const projectIds = getScopesForUser(Meteor.userId(), 'owner') || Projects.find().fetch().map(project => project._id);
+                    if (projectIds.length === 0) router.push('/404');
+                    const projects = Projects.find({ _id: { $in: projectIds } }, { fields: { name: 1 } }).fetch();
+                    const projectsWithoutChitchat = projects.filter(({ name }) => !name.match('chitchat'));
+                    if (projectsWithoutChitchat.length === 0) router.push('/404');
+                    router.push(`/project/${projectsWithoutChitchat[0]._id}/dialogue`);
                 }
             });
         } else {

@@ -35,20 +35,16 @@ const allowdKeysApp = [
 const allowdKeysAudit = [
     'level',
     'message',
-    'user',
+    'status',
+    'userId',
+    'label',
     'type',
-    'resId',
-    'operation',
     'timestamp',
-    'projectId',
     'before',
     'after',
-    'resType',
 ];
 
 const spaceBeforeIfExist = prop => (prop ? ` ${prop}` : '');
-
-const formatUser = user => (`${user.profile.firstName} ${user.profile.lastName} ${user.emails[0].address}`);
 
 const auditFormat = printf((arg) => {
     Object.keys(arg).forEach((key) => {
@@ -57,15 +53,17 @@ const auditFormat = printf((arg) => {
         }
     });
     const {
-        message, user, type, resId, resType, operation, timestamp, projectId, after, before,
+        level, message, status, userId, label, type, timestamp, before, after,
     } = arg;
 
     let additionalInfo = '';
-    if (before) additionalInfo = `before: ${JSON.stringify(before)} - `;
-    if (after) additionalInfo = additionalInfo.concat(` after: ${JSON.stringify(after)}`);
-    return `${timestamp} [${type}]: ${message} ${user ? `- user: ${formatUser(user)}` : ''
-    }${projectId ? ` - projectId: ${projectId}` : ''
-    } - ressource id: ${resId} - ressource type: ${resType} - operation: ${operation} - ${spaceBeforeIfExist(additionalInfo)} `;
+    if (before) additionalInfo = `before: ${before}`;
+    if (after) additionalInfo = additionalInfo.concat(`after: ${after}`);
+    return `${timestamp} [${label.toUpperCase()}] ${level}:${
+        userId ? ` userId: ${userId}` : ''
+    }${spaceBeforeIfExist(type)}${spaceBeforeIfExist(status)}${spaceBeforeIfExist(
+        message,
+    )}${spaceBeforeIfExist(additionalInfo)}`;
 });
 
 const checkDataType = (dataType, data) => {
@@ -183,21 +181,7 @@ const auditLogger = winston.createLogger({
 
 export const getAppLoggerForFile = filename => appLogger.child({ file: filename });
 
-export const auditLog = (message, metadata) => {
-    const {
-        user, type, resId, resType, projectId,
-    } = metadata;
-    let email = '';
-    try {
-        email = user.emails[0].address;
-    } catch (err) {
-        email = 'user email was not found';
-    }
-    const newMessage = `${message}, User ${email} ${type} ${resType} ${resId} in project ${projectId}`;
-    auditLogger.info(newMessage, {
-        ...metadata,
-    });
-};
+export const getAuditLoggerForFile = label => auditLogger.child({ label });
 
 export const getAppLoggerForMethod = (fileLogger, method, userId, args) => fileLogger.child({ method, userId, args });
 
@@ -262,7 +246,7 @@ export const addLoggingInterceptors = (axios, logger) => {
             const { config, status, data = null } = response;
             const { url } = config;
             // we don't log files or others data type that are not json
-
+          
             const loggedData = checkDataType(dataType, data);
 
             logAfterSuccessApiCall(
@@ -270,7 +254,7 @@ export const addLoggingInterceptors = (axios, logger) => {
                 `${config.method.toUpperCase()} at ${url} succeeded`,
                 { status, data: loggedData, url },
             );
-
+            
             return response;
         },
         (error) => {

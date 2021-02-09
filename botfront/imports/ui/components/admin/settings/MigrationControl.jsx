@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Header, Button, Confirm, Message,
 } from 'semantic-ui-react';
-import { useMethod } from '../../utils/hooks.js';
+import { useMethod } from '../../../../lib/utils';
 import { can } from '../../../../lib/scopes';
 
 const MigrationControl = () => {
