@@ -39,7 +39,7 @@ const StoryPrefix = (props) => {
 
 StoryPrefix.propTypes = {
     className: PropTypes.string,
-    fragment: PropTypes.string,
+    fragment: PropTypes.object,
 };
 
 StoryPrefix.defaultProps = {

@@ -10,17 +10,14 @@ import 'brace/theme/github';
 import 'brace/mode/text';
 import StoryPlayButton from './StoryPlayButton';
 import ConfirmPopup from '../common/ConfirmPopup';
-import { setStoryCollapsed } from '../../store/actions/actions';
 import StoryVisualEditor from './common/StoryVisualEditor';
 import { ConversationOptionsContext } from './Context';
+import StoryRulesEditor from './rules/StoryRulesEditor';
 import { can } from '../../../lib/scopes';
-import { storyTypeCustomizations } from '../../../lib/story.types';
 import StoryPrefix from './common/StoryPrefix';
 
 const StoryTopMenu = ({
     fragment,
-    collapsed,
-    collapseStory,
     warnings,
     errors,
     storyMode,
@@ -32,11 +29,13 @@ const StoryTopMenu = ({
         _id,
         title,
         checkpoints,
+        rules = [],
         condition = [],
         conversation_start: convStart,
         status,
     } = fragment;
     const [newTitle, setNewTitle] = useState(title);
+    const [triggerEditorOpen, setTriggerEditorOpen] = useState(false);
     const [confirmPopupOpen, setConfirmPopupOpen] = useState(false);
     const [confirmOverwriteOpen, setConfirmOverwriteOpen] = useState(false);
 
@@ -220,16 +219,9 @@ const StoryTopMenu = ({
             <Menu
                 attached='top'
                 data-cy='story-top-menu'
-                className={`${collapsed ? 'collapsed' : ''} ${testCaseFailing ? 'test-case-failing' : ''}`}
+                className={`${testCaseFailing ? 'test-case-failing' : ''}`}
             >
                 <Menu.Item header>
-                    <Icon
-                        name='triangle right'
-                        className={`${collapsed ? '' : 'opened'}`}
-                        link
-                        onClick={() => collapseStory(_id, !collapsed)}
-                        data-cy='collapse-story-button'
-                    />
                     {isDestinationStory ? (
                         <Icon name='arrow alternate circle right' color='green' fitted />
                     ) : (
@@ -238,6 +230,7 @@ const StoryTopMenu = ({
                     {status === 'unpublished' && <Label content='Unpublished' /> }
                     <input
                         data-cy='story-title'
+                        disabled={!can('stories:w', projectId)}
                         value={newTitle}
                         onChange={event => setNewTitle(event.target.value.replace('_', ''))}
                         onKeyDown={handleInputKeyDown}
@@ -248,6 +241,24 @@ const StoryTopMenu = ({
                     {!testCaseFailing && renderWarnings()}
                     {!testCaseFailing && renderErrors()}
                     {renderConvStartToggle()}
+                    {can('triggers:r', projectId) && type !== 'test_case' && (
+                        <StoryRulesEditor
+                        // the trigger element will have it's onClick, disabled, and className props modified
+                            trigger={(
+                            
+                                <Icon
+                                    name='stopwatch'
+                                    color={rules && rules.length ? 'green' : 'grey'}
+                                    data-cy='edit-trigger-rules'
+                                />
+                            )}
+                            storyId={_id}
+                            rules={rules}
+                            open={triggerEditorOpen}
+                            setOpen={setTriggerEditorOpen}
+                            isDestinationStory={isDestinationStory}
+                        />
+                    )}
                     {renderTestCaseButtons()}
                     <StoryPlayButton
                         fragment={fragment}
@@ -281,6 +292,18 @@ const StoryTopMenu = ({
                     {renderConnectedStories()}
                 </Popup>
             )}
+            {rules && rules.length > 0 && (
+                <Message
+                    className='connected-story-alert'
+                    attached
+                    warning
+                    size='tiny'
+                    onClick={() => setTriggerEditorOpen(true)}
+                >
+                    <Icon name='info circle' />
+                    This story will be triggered automatically when the conditions set with the stopwatch icon are met.
+                </Message>
+            )}
             {type === 'rule' && !convStart && (
                 <Message
                     className={`top-menu-banner condition-container ${!condition.length ? 'empty' : ''}`}
@@ -311,8 +334,6 @@ const StoryTopMenu = ({
 
 StoryTopMenu.propTypes = {
     fragment: PropTypes.object.isRequired,
-    collapsed: PropTypes.bool.isRequired,
-    collapseStory: PropTypes.func.isRequired,
     warnings: PropTypes.number.isRequired,
     errors: PropTypes.number.isRequired,
     storyMode: PropTypes.string.isRequired,
@@ -321,17 +342,9 @@ StoryTopMenu.propTypes = {
 };
 StoryTopMenu.defaultProps = {};
 
-const mapStateToProps = (state, ownProps) => ({
-    collapsed: state.stories.getIn(['storiesCollapsed', ownProps.fragment?._id], false),
+const mapStateToProps = state => ({
     storyMode: state.stories.get('storyMode'),
     projectId: state.settings.get('projectId'),
 });
 
-const mapDispatchToProps = {
-    collapseStory: setStoryCollapsed,
-};
-
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(StoryTopMenu);
+export default connect(mapStateToProps)(StoryTopMenu);

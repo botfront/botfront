@@ -1,0 +1,10 @@
+type Query {
+    entityDistribution(modelId: String): [EntityCount!]!
+}
+
+type EntityCount {
+  entity: String,
+  count: Int,
+  user: String,
+}
+

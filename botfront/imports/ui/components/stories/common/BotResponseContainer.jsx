@@ -1,5 +1,7 @@
 /* eslint-disable no-underscore-dangle */
-import React, { useState, useEffect, useRef } from 'react';
+import React, {
+    useState, useEffect, useRef,
+} from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'semantic-ui-react';
 import TextareaAutosize from 'react-autosize-textarea';
@@ -9,7 +11,7 @@ import QuickReplies from './QuickReplies';
 
 const BotResponseContainer = (props) => {
     const {
-        value, onDelete, onChange, focus, onFocus, editCustom, tag, hasMetadata, editable,
+        value, onDelete, onChange, focus, onFocus, editCustom, tag, hasMetadata, metadata, editable, disableEnterKey,
     } = props;
 
     const [input, setInput] = useState();
@@ -56,7 +58,7 @@ const BotResponseContainer = (props) => {
             e.preventDefault();
             onDelete();
         }
-        if (key === 'Enter' && isTextResponse) {
+        if (key === 'Enter' && isTextResponse && !disableEnterKey) {
             if (shiftKey) return;
             e.preventDefault();
             onChange({ text: formatNewlines(input) }, true);
@@ -112,11 +114,23 @@ const BotResponseContainer = (props) => {
     if (isCarouselResponse) extraClass = `${extraClass} carousel-response-container`;
     const metadataClass = hasMetadata ? 'metadata-response' : '';
 
+    const getCustomStyle = () => {
+        if (metadata
+            && metadata.customCss
+            && metadata.customCss.style === 'custom'
+            && metadata.customCss.css
+        ) {
+            return { style: { cssText: metadata.customCss.css } };
+        }
+        return {};
+    };
+
     return (
         <div
-            className={`utterance-container ${extraClass} ${metadataClass}`}
+            className={`utterance-container ${extraClass} ${metadataClass} ${editable ? '' : 'read-only'}`}
             agent='bot'
             data-cy='bot-response-input'
+            {...getCustomStyle()}
         >
             <div className={`${hasMetadata ? 'metadata-response' : ''} ${editable ? '' : 'read-only'}`}>
                 {hasText && !isImageResponse && renderText()}
@@ -139,7 +153,9 @@ BotResponseContainer.propTypes = {
     editCustom: PropTypes.func,
     tag: PropTypes.string,
     hasMetadata: PropTypes.bool,
+    metadata: PropTypes.object,
     editable: PropTypes.bool,
+    disableEnterKey: PropTypes.bool,
 };
 
 BotResponseContainer.defaultProps = {
@@ -147,7 +163,9 @@ BotResponseContainer.defaultProps = {
     editCustom: () => {},
     tag: null,
     hasMetadata: false,
-    editable: PropTypes.bool,
+    metadata: {},
+    editable: true,
+    disableEnterKey: false,
 };
 
 export default BotResponseContainer;

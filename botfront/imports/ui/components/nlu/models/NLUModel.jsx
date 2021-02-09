@@ -22,6 +22,7 @@ import Gazette from '../../synonyms/Gazette';
 import RegexFeatures from '../../synonyms/RegexFeatures';
 import NLUPipeline from './settings/NLUPipeline';
 import Statistics from './Statistics';
+import OutOfScope from './OutOfScope';
 import DeleteModel from './DeleteModel';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import LanguageDropdown from '../../common/LanguageDropdown';
@@ -170,7 +171,7 @@ function NLUModel(props) {
 
     const topMenuItems = [
         ['Training Data', 'database', true],
-        ['Evaluation', 'percent', true],
+        ['Evaluation', 'percent', can('nlu-data:x', projectId)],
         ['Statistics', 'pie graph', true],
         ['Settings', 'setting', true],
     ];
@@ -251,6 +252,10 @@ function NLUModel(props) {
                                 render: () => <Gazette model={model} />,
                             },
                             {
+                                menuItem: 'Out Of Scope',
+                                render: () => <OutOfScope />,
+                            },
+                            {
                                 menuItem: 'Regex',
                                 render: () => <RegexFeatures model={model} />,
                             },
@@ -287,10 +292,10 @@ function NLUModel(props) {
                                     <NLUPipeline model={model} projectId={projectId} />
                                 ),
                             },
-                            {
+                            ...(can('projects:w', projectId) ? ([{
                                 menuItem: 'Delete',
                                 render: () => <DeleteModel />,
-                            },
+                            }]) : []),
                         ]}
                     />
                 )}

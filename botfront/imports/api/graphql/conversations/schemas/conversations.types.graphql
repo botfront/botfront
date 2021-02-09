@@ -1,12 +1,47 @@
 type Query {
     conversationsPage(
-        projectId: String!
-        page: Int
-        pageSize: Int
-        status: [String]
-        sort: order #in the future if needed to sort on multiple fields passing and array of orders, and modifying the datasource(mongo/conversation.js) accordingly might to the trick
+        
+        projectId: String!, 
+        """ Page requested (1 if you want all results)"""
+        page: Int,
+        """ The number of conversations per page (-1 for all results in one page) """
+        pageSize: Int,
+        """ filter conversations by status (default ["new", "read", "flagged"]) """
+        status: [String] = ["new", "read", "flagged"]
+        """ (default "development", possible other value is "production")"""
+        env: String
+        """ Sorting order (default updatedAt_DESC (most recent first), possible other value updatedAt_ASC(most recent last)"""
+        sort: order = updatedAt_DESC #in the future if needed to sort on multiple fields passing and array of orders, and modifying the datasource(mongo/conversation.js) accordingly might to the trick
+        """ filter by length of conversation, value for the length filter go with the comparator field xThanLength """
+        lengthFilter: Int
+        """comparison operator for the lengthFilter (one of greaterThan, lessThan, equals)"""
+        xThanLength: compare
+        """exclued conversations with less time elapsed between the first and last event than the value (seconds)"""
+        durationFilterLowerBound: Float
+        """exclude conversations with more time elapsed between the first and last event than the value (seconds)"""
+        durationFilterUpperBound: Float
+        """filter by confidence of predicted intents (between 0 and 1)"""
+        confidenceFilter: Float
+        """ comparison operator for the confidenceFilter (one of greaterThan, lessThan, equals) """
+        xThanConfidence: compare
+        """ filter conversations by actions, goes with operatorActionsFilters"""
+        startDate: String
+        """ keep the conversations before this date using the format ISO 8601 (AAAA-MM-JJThh:mm:ssZ) """
+        endDate: String
+        """ unique identifier of the user"""
+        userId: String
+        """ filter conversation containing the listed intents/ actions goes with eventFilterOperator """
+        eventFilter: [StepInput],
+        """ String (default ‘or’, possible other value ‘and', 'inorder') type of filtering for intents/ actions filters """
+        eventFilterOperator: String,
+        """" include stories that are do NOT start with a trigger intent """
+        userInitiatedConversations: Boolean,
+        """" include stories that are start with a trigger intent """
+        triggeredConversations: Boolean,
+       
     ): Pagination
-     conversation(projectId: String!, id: String, senderId: String): ConversationContainer!
+    conversation(projectId: String!, id: String, senderId: String): ConversationContainer!
+    intentsInConversations(projectId: String!): [String]
     latestImportedEvent(
         projectId: String!
         environment: Environement = development
@@ -16,6 +51,12 @@ type Query {
 enum order {
     updatedAt_ASC
     updatedAt_DESC
+}
+
+enum compare {
+    greaterThan
+    lessThan
+    equals
 }
 
 type Mutation {

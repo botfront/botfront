@@ -6,22 +6,42 @@ import IntentLabel from '../common/IntentLabel';
 
 const ActivityCommandBar = React.forwardRef((props, ref) => {
     const {
-        selection, onSetValidated, onSetIntent, onDelete, onCloseIntentPopup, isUtteranceOutdated,
+        selection, onSetValidated, onSetIntent, onDelete, onCloseIntentPopup, isUtteranceOutdated, onMarkOoS,
     } = props;
     const someValidated = selection.some(d => !!d.validated);
     const someOutdated = selection.some(d => isUtteranceOutdated(d));
     const someNotValidated = selection.some(d => !d.validated);
     const someLackingIntent = selection.some(d => !d.intent);
+    const someHavingIntent = selection.some(d => d.intent);
     const intentLabelRef = useRef();
 
     useImperativeHandle(ref, () => ({
         openIntentPopup: () => intentLabelRef.current.openPopup(),
     }));
-
     return (
         <div className='activity-command-bar' data-cy='activity-command-bar'>
             <span>{selection.length} selected</span>
             <div className='side-by-side narrow right'>
+                <span className='shortcut'>O</span>
+                <Popup
+                    size='mini'
+                    inverted
+                    content='Mark out of scope'
+                    disabled={someHavingIntent}
+                    trigger={(
+                        <div>
+                            <IconButton
+                                basic
+                                size='small'
+                                color='black'
+                                icon='sign-out'
+                                disabled={someHavingIntent}
+                                data-cy='mark-out-of-scope'
+                                onClick={() => onMarkOoS(selection)}
+                            />
+                        </div>
+                    )}
+                />
                 <span className='shortcut'>V</span>
                 <Popup
                     size='mini'
@@ -88,6 +108,7 @@ ActivityCommandBar.propTypes = {
     isUtteranceOutdated: PropTypes.func.isRequired,
     selection: PropTypes.array,
     onSetValidated: PropTypes.func.isRequired,
+    onMarkOoS: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
     onSetIntent: PropTypes.func.isRequired,
     onCloseIntentPopup: PropTypes.func.isRequired,

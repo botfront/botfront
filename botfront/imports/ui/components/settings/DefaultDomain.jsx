@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import { can } from '../../../lib/scopes';
 import { DefaultDomainSchema } from '../../../api/project/project.schema';
 import { Projects } from '../../../api/project/project.collection';
 import { wrapMeteorCallback } from '../utils/Errors';
@@ -43,8 +44,9 @@ class DefaultDomain extends React.Component {
     };
 
     renderDefaultDomain = () => {
-        const { defaultDomain } = this.props;
+        const { defaultDomain, projectId } = this.props;
         const { saved, showConfirmation, saving } = this.state;
+        const hasWritePermission = can('projects:w', projectId);
         return (
             <>
                 <Message
@@ -61,12 +63,12 @@ class DefaultDomain extends React.Component {
                     )}
                 />
                 <AutoForm
-                    disabled={saving}
+                    disabled={saving || !hasWritePermission}
                     schema={DefaultDomainSchema}
                     model={defaultDomain}
                     onSubmit={this.onSave}
                 >
-                    <AceField name='content' label='Default Domain' mode='yaml' />
+                    <AceField name='content' label='Default Domain' mode='yaml' data-cy='ace-field' />
                     <ErrorsField />
                     {showConfirmation && (
                         <ChangesSaved
@@ -78,7 +80,7 @@ class DefaultDomain extends React.Component {
                             )}
                         />
                     )}
-                    <SaveButton saved={saved} saving={saving} />
+                    {hasWritePermission && <SaveButton saved={saved} saving={saving} />}
                 </AutoForm>
             </>
         );

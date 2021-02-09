@@ -7,13 +7,14 @@ import 'react-table-v6/react-table.css';
 import matchSorter from 'match-sorter';
 import AddLookupTableRow from './AddLookupTableRow';
 import LookupTableValueEditorViewer from './LookupTableValueEditorViewer';
+import { can, Can } from '../../../lib/scopes';
 import LookupTableListEditorViewer from './LookupTableListEditorViewer';
 import IconButton from '../common/IconButton';
 
 export default class LookupTable extends React.Component {
     getColumns() {
         const {
-            listAttribute, keyHeader, listHeader, onItemChanged, extraColumns, onItemDeleted, multiple, keyAttribute,
+            listAttribute, keyHeader, listHeader, onItemChanged, extraColumns, onItemDeleted, multiple, keyAttribute, projectId,
         } = this.props;
         let columns = [
             {
@@ -23,7 +24,7 @@ export default class LookupTable extends React.Component {
                 className: 'lookup-value',
                 filterMethod: (filter, rows) => matchSorter(rows, filter.value, { keys: ['value.value'] }),
                 sortMethod: (rowA, rowB) => rowA[keyAttribute].localeCompare(rowB[keyAttribute]),
-                Cell: props => <LookupTableValueEditorViewer keyAttribute={keyAttribute} listAttribute={listAttribute} entitySynonym={props.value} onEdit={onItemChanged} />,
+                Cell: props => <LookupTableValueEditorViewer keyAttribute={keyAttribute} listAttribute={listAttribute} entitySynonym={props.value} onEdit={onItemChanged} projectId={projectId} />,
                 width: 200,
             },
             {
@@ -41,7 +42,14 @@ export default class LookupTable extends React.Component {
                     if (multiple) value[listAttribute] = sortBy(value[listAttribute]);
                     return (
                         <div>
-                            <LookupTableListEditorViewer keyAttribute={keyAttribute} listAttribute={listAttribute} entitySynonym={value} onEdit={onItemChanged} multiple={multiple} />
+                            <LookupTableListEditorViewer
+                                keyAttribute={keyAttribute}
+                                listAttribute={listAttribute}
+                                entitySynonym={value}
+                                onEdit={onItemChanged}
+                                multiple={multiple}
+                                projectId={projectId}
+                            />
                         </div>
                     );
                 },
@@ -55,41 +63,47 @@ export default class LookupTable extends React.Component {
 
         if (extraColumns) columns = columns.concat(extraColumns);
 
-        columns.push({
-            id: 'delete',
-            accessor: s => s,
-            filterable: false,
-            width: 35,
-            className: 'center',
-            Cell: ({ value }) => (
-                <IconButton
-                    icon='trash'
-                    basic
-                    color='white'
-                    onClick={() => onItemDeleted(value)}
-                />
-            ),
-        });
+        if (can('nlu-data:w', projectId)) {
+            columns.push({
+                id: 'delete',
+                accessor: s => s,
+                filterable: false,
+                width: 35,
+                className: 'center',
+                Cell: ({ value }) => (
+                    <IconButton
+                        icon='trash'
+                        basic
+                        color='white'
+                        onClick={() => onItemDeleted(value)}
+                    />
+                ),
+            });
+        }
 
         return columns;
     }
 
     render() {
         const {
-            keyAttribute, listAttribute, data, onItemChanged, valuePlaceholder, listPlaceholder, multiple,
+            keyAttribute, listAttribute, data, onItemChanged, valuePlaceholder, listPlaceholder, multiple, projectId,
         } = this.props;
         const headerStyle = { textAlign: 'left', fontWeight: 800, paddingBottom: '10px' };
         return (
             <Tab.Pane as='div'>
-                <AddLookupTableRow
-                    keyAttribute={keyAttribute}
-                    listAttribute={listAttribute}
-                    onAdd={onItemChanged}
-                    valuePlaceholder={valuePlaceholder}
-                    listPlaceholder={listPlaceholder}
-                    multiple={multiple}
-                />
-                <br />
+                <Can I='nlu-data:w' projectId={projectId}>
+                    <>
+                        <AddLookupTableRow
+                            keyAttribute={keyAttribute}
+                            listAttribute={listAttribute}
+                            onAdd={onItemChanged}
+                            valuePlaceholder={valuePlaceholder}
+                            listPlaceholder={listPlaceholder}
+                            multiple={multiple}
+                        />
+                        <br />
+                    </>
+                </Can>
                 <div className='glow-box extra-padding no-margin'>
                     <ReactTable
                         data={data}
@@ -119,6 +133,7 @@ LookupTable.propTypes = {
     onItemDeleted: PropTypes.func.isRequired,
     valuePlaceholder: PropTypes.string.isRequired,
     listPlaceholder: PropTypes.string.isRequired,
+    projectId: PropTypes.string.isRequired,
     multiple: PropTypes.bool,
 };
 

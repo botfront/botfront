@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import {
     Container, Menu, Dropdown,
 } from 'semantic-ui-react';
-import { withTracker } from 'meteor/react-meteor-data';
 import React, { useState, useEffect, useContext } from 'react';
 import 'react-s-alert/dist/s-alert-default.css';
 import { connect } from 'react-redux';
@@ -13,10 +12,10 @@ import { GET_BOT_RESPONSES } from '../queries';
 import { RESPONSES_MODIFIED, RESPONSES_DELETED } from './subscriptions';
 import { Loading } from '../../utils/Utils';
 import PageMenu from '../../utils/PageMenu';
-import { Stories } from '../../../../api/story/stories.collection';
 import { DELETE_BOT_RESPONSE } from '../mutations';
 import { ProjectContext } from '../../../layouts/context';
 
+import Can from '../../roles/Can';
 
 class Templates extends React.Component {
     constructor(props) {
@@ -70,22 +69,24 @@ class Templates extends React.Component {
         </Dropdown>
     );
 
-    renderMenu = () => (
+    renderMenu = projectId => (
         <PageMenu title='Bot responses' icon='comment alternate'>
-            <Menu.Menu position='right'>
-                <Menu.Item>{this.renderAddResponse()}</Menu.Item>
-            </Menu.Menu>
+            <Can I='responses:w' projectId={projectId}>
+                <Menu.Menu position='right'>
+                    <Menu.Item>{this.renderAddResponse()}</Menu.Item>
+                </Menu.Menu>
+            </Can>
         </PageMenu>
     );
 
     render() {
         const { activeEditor, newResponse } = this.state;
         const {
-            templates, nluLanguages, deleteBotResponse, events, loading,
+            templates, projectId, nluLanguages, deleteBotResponse, loading,
         } = this.props;
         return (
             <div data-cy='responses-screen'>
-                {this.renderMenu()}
+                {this.renderMenu(projectId)}
                 <Loading loading={loading}>
                     <Container>
                         <TemplatesTable
@@ -96,7 +97,6 @@ class Templates extends React.Component {
                             setActiveEditor={this.setActiveEditor}
                             newResponse={newResponse}
                             closeNewResponse={() => this.setState({ newResponse: { open: false } })}
-                            events={events}
                         />
                     </Container>
                 </Loading>
@@ -107,13 +107,13 @@ class Templates extends React.Component {
 
 Templates.propTypes = {
     templates: PropTypes.array.isRequired,
+    projectId: PropTypes.string.isRequired,
     nluLanguages: PropTypes.array.isRequired,
     deleteBotResponse: PropTypes.func.isRequired,
-    events: PropTypes.array.isRequired,
     loading: PropTypes.bool.isRequired,
 };
 
-const TemplatesContainer = ({ params, events, ready }) => {
+const TemplatesContainer = ({ params, ready }) => {
     const [templates, setTemplates] = useState([]);
 
     const { insertResponse } = useContext(ProjectContext);
@@ -184,7 +184,6 @@ const TemplatesContainer = ({ params, events, ready }) => {
     return (
         <Templates
             loading={!ready && loading}
-            events={events}
             templates={templates}
             deleteBotResponse={deleteBotResponse}
             projectId={params.project_id}
@@ -197,7 +196,6 @@ const TemplatesContainer = ({ params, events, ready }) => {
 TemplatesContainer.propTypes = {
     params: PropTypes.object.isRequired,
     ready: PropTypes.bool.isRequired,
-    events: PropTypes.array.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -206,13 +204,4 @@ function mapStateToProps(state) {
     };
 }
 
-const ConnectedTemplates = connect(mapStateToProps)(TemplatesContainer);
-
-export default withTracker((props) => {
-    const storiesHandler = Meteor.subscribe('stories.events', props.params.project_id);
-    const events = Stories
-        .find()
-        .fetch()
-        .map(story => story.events);
-    return { ...props, events, ready: storiesHandler.ready() };
-})(ConnectedTemplates);
+export default connect(mapStateToProps)(TemplatesContainer);

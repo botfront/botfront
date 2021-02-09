@@ -3,19 +3,54 @@
 import React from 'react';
 
 let canExport = () => true;
-let checkIfCanExport = () => {};
-let getUserScopesExport = () => {};
-let checkIfScopeExport = () => {};
-let getScopesForUserExport = () => {};
-let isUserPermissionGlobalExport = () => {};
+let checkIfCanExport = () => { };
+let getUserScopesExport = () => { };
+let checkIfScopeExport = () => { };
+let getScopesForUserExport = () => { };
+let isUserPermissionGlobalExport = () => { };
 let areScopeReadyExport = () => true;
-let setScopesExport = () => {};
+let setScopesExport = () => { };
 let CanExport = props => (
     <>
         {props.children}
     </>
 );
 
+// eslint-disable-next-line import/first
+import {
+    can as canEE, checkIfCan as checkIfCanEE, getUserScopes as getUserScopesEE, checkIfScope as checkIfScopeEE, isUserPermissionGlobal as isUserPermissionGlobalEE,
+} from '../api/roles/roles';
+// eslint-disable-next-line import/first
+import { Roles } from 'meteor/alanning:roles';
+// eslint-disable-next-line import/first
+import { connect } from 'react-redux';
+// eslint-disable-next-line import/first
+import { Children } from 'react';
+
+
+canExport = canEE;
+checkIfCanExport = checkIfCanEE;
+getUserScopesExport = getUserScopesEE;
+checkIfScopeExport = checkIfScopeEE;
+isUserPermissionGlobalExport = isUserPermissionGlobalEE;
+getScopesForUserExport = (userId, permission) => Roles.getScopesForUser(userId, permission);
+areScopeReadyExport = () => Roles.subscription.ready();
+setScopesExport = (user, userId) => {
+    Roles.setUserRoles(userId, [], { anyScope: true });
+    user.roles.forEach((role) => {
+        const project = role.project === 'GLOBAL' ? null : role.project;
+        Roles.setUserRoles(userId, role.roles, project);
+    });
+};
+CanExport = ({ children, I, projectId }) => (canExport(I, projectId) ? Children.only(children) : null);
+
+const mapStateToProps = state => ({
+    projectId: state.settings.get('projectId'),
+});
+
+CanExport = connect(
+    mapStateToProps,
+)(CanExport);
 
 export const getUserScopes = getUserScopesExport;
 export const checkIfScope = checkIfScopeExport;

@@ -1,8 +1,8 @@
 import { Mongo } from 'meteor/mongo';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import { can } from '../../lib/scopes';
 import { EndpointsSchema } from './endpoints.schema';
+import { checkIfCan } from '../../lib/scopes';
 
 export const Endpoints = new Mongo.Collection('endpoints');
 // Deny all client-side updates on the Endpoints collection
@@ -20,9 +20,13 @@ Meteor.startup(() => {
 
 if (Meteor.isServer) {
     Meteor.publish('endpoints', function (projectId) {
+        try {
+            checkIfCan('projects:r', projectId);
+        } catch (err) {
+            return this.ready();
+        }
         check(projectId, String);
-        if (can('project-settings:r', projectId, this.userId)) return Endpoints.find({ projectId });
-        return this.ready();
+        return Endpoints.find({ projectId });
     });
 }
 

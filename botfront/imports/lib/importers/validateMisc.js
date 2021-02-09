@@ -112,6 +112,12 @@ export const validateSimpleJsonFiles = (files, params, type, alias = type) => {
 
 export const validateEndpoints = (files, params) => validateSimpleYamlFiles(files, params, 'endpoints');
 
+export const validateAnalyticsConfig = (files, params) => validateSimpleYamlFiles(files, params, 'analytics', 'analytics config', false);
+
+export const validateWidgetSettings = (files, params) => validateSimpleYamlFiles(files, params, 'widgetsettings', 'widget config', false);
+
+export const validateFormsResults = (files, params) => validateSimpleJsonFiles(files, params, 'formresults', 'form results');
+
 export const validateCredentials = (files, params) => validateSimpleYamlFiles(files, params, 'credentials');
 
 export const validateBfConfig = (files, params) => {
