@@ -56,6 +56,20 @@ export function setStoryPath(storyId, path) {
     };
 }
 
+export function setWorkingDeploymentEnvironment(env) {
+    return {
+        type: types.SET_WORKING_DEPLOYMENT_ENVIRONMENT,
+        env,
+    };
+}
+
+export function setWorkingDashboard(dashboard) {
+    return {
+        type: types.SET_WORKING_DASHBOARD,
+        dashboard,
+    };
+}
+
 export function setChatInitPayload (payload) {
     return {
         type: types.SET_CHAT_INIT_PAYLOAD,
@@ -74,5 +88,12 @@ export function setShouldRefreshChat (shouldRefreshChat) {
     return {
         type: types.SET_SHOULD_REFRESH_CHAT,
         shouldRefreshChat,
+    };
+}
+
+export function setConversationFilters (filters) {
+    return {
+        type: types.SET_CONVERSATION_FILTERS,
+        filters,
     };
 }

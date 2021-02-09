@@ -1,0 +1,122 @@
+---
+name: Server installation
+route: /docs/deployment/installation/
+menu: Deployment
+meta:
+  - name: description
+    content: "Integrate Botfront with your environment"
+  - name: keywords
+    content: botfront webhooks
+---
+
+Available in: <Premium plan="Cloud Pro" /> <Premium plan="Cloud Premium" /> <Premium plan="Enterprise Edition" />
+
+# Webhooks
+
+To map Botfront features with the specificity of your infrastructure, you can implement webhooks that will be invoked by Botfront.
+
+
+## Restart Rasa
+
+If set, this webhook will be invoked when a user edits `endpoints` or `credentials`, or performs any action requiring Rasa to restart.
+
+#### Request
+
+```js
+{
+    "projectId": string,
+    "environment" : string,
+}
+```
+
+#### Response
+
+This route does not return a json. Botfront only expect the http status of the call to your restart rasa
+
+## Upload Image
+
+If set, an upload widget will be available in the dialog builder. The webhook will be invoked when a user uploads an image.
+
+#### Request
+
+```js
+{
+    "projectId": string,
+    "data": string, // image encoded in base64
+    "mimeType": string,
+    "language": string,
+    "responseId": string // template name followed by unix timestamp, e.g. utter_get_started_1588107073256
+}
+```
+
+#### Response
+
+```js
+{
+    "uri": string // the publicly accessible URI for the asset just received
+}
+```
+
+## Delete Image
+
+The webhook will be invoked by Botfront when an image URL is no longer used in a response. The request will be sent whether or not the resource actually exists on the server.
+
+#### Request
+
+```js
+{
+    "projectId": string,
+    "uri": string // the publicly accessible URI for the asset to be deleted
+}
+```
+
+#### Response
+
+Botfront expects a 204 success response, and a 404 if ressource was not found. Any other response may signal an error to the user in the future.
+
+
+## Deploy
+
+If set, and your project has environements, the deploy menu will be available next to the training button.
+
+#### Request
+
+Botfront will send a request to the api with the following information
+
+```js
+{
+    "projectId" : string, 
+    "namespace" : string, 
+    "environment" : string,
+    "data" : string, // base64 conversion of the model archive
+    "mimeType" string, 
+}
+```
+
+#### Response
+ 
+Botfront except a 200 success response, other response are treated as errors. 
+You can and a message property in the error response body that will be displayed to the user.
+
+
+
+## Report Crash
+
+If set, browser crashes caused by Botfront will be reported to the webhook automatically.
+
+#### Request
+
+Botfront will forward the following to the webhook:
+
+```js
+{
+    "version": string,
+    "path": string,
+    "error": string,
+    "trace": string
+}
+```
+
+#### Response
+ 
+Success-like responses (e.g. 200) are treated as successful.

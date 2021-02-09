@@ -1,5 +1,6 @@
 import { check, Match } from 'meteor/check';
 import { safeLoad as yamlLoad } from 'js-yaml';
+import { isEqual } from 'lodash';
 import { Projects, createProject } from './project.collection';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
 import { createInstance } from '../instances/instances.methods';
@@ -10,31 +11,55 @@ import { CorePolicies, createPolicies } from '../core_policies';
 import { createEndpoints } from '../endpoints/endpoints.methods';
 import { Endpoints } from '../endpoints/endpoints.collection';
 import { Credentials, createCredentials } from '../credentials';
+import { checkIfCan, can } from '../../lib/scopes';
 import { Conversations } from '../conversations';
 import {
     createDefaultStoryGroup,
+    createStoriesWithTriggersGroup,
+    createUnpublishedStoriesGroup,
     createFailingTestsGroup,
 } from '../storyGroups/storyGroups.methods';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
 import { Slots } from '../slots/slots.collection';
+import Forms from '../graphql/forms/forms.model';
 import { languages as languageOptions } from '../../lib/languages';
 import BotResponses from '../graphql/botResponses/botResponses.model';
+import FormResults from '../graphql/forms/form_results.model';
+import AnalyticsDashboards from '../graphql/analyticsDashboards/analyticsDashboards.model';
+import { defaultDashboard } from '../graphql/analyticsDashboards/generateDefaults';
+import { getForms } from '../graphql/forms/mongo/forms';
+
 import Examples from '../graphql/examples/examples.model';
 
 if (Meteor.isServer) {
+    import { auditLog } from '../../../server/logger';
+
     Meteor.methods({
-        async 'project.insert'(item) {
+        async 'project.insert'(item, bypassWithCI) {
+            checkIfCan('projects:w', null, null, { bypassWithCI });
             check(item, Object);
+            check(bypassWithCI, Match.Optional(Boolean));
             let _id;
             try {
                 _id = createProject(item);
+                AnalyticsDashboards.create(defaultDashboard({ _id, ...item }));
                 createEndpoints({ _id, ...item });
                 createCredentials({ _id, ...item });
                 createPolicies({ _id, ...item });
+                createStoriesWithTriggersGroup(_id);
+                createUnpublishedStoriesGroup(_id);
                 await createDefaultStoryGroup(_id);
                 createFailingTestsGroup(_id);
                 await createInstance({ _id, ...item });
+                auditLog('Created project', {
+                    user: Meteor.user(),
+                    resId: _id,
+                    type: 'created',
+                    operation: 'project-created',
+                    after: { project: item },
+                    resType: 'project',
+                });
                 return _id;
             } catch (e) {
                 if (_id) Meteor.call('project.delete', _id);
@@ -43,16 +68,38 @@ if (Meteor.isServer) {
         },
 
         'project.update'(item) {
+            checkIfCan(['projects:w', 'import:x', 'git-credentials:w'], item._id, undefined);
             check(item, Match.ObjectIncluding({ _id: String }));
             try {
                 // eslint-disable-next-line no-param-reassign
-                delete item.createdAt;
-                return Projects.update({ _id: item._id }, { $set: item });
+                const projectBefore = Projects.findOne({ _id: item._id });
+                if (projectBefore && 'deploymentEnvironments' in item
+                    && !isEqual(projectBefore.deploymentEnvironments, item.deploymentEnvironments)
+                ) {
+                    checkIfCan('resources:w', item._id);
+                }
+                const update = item;
+                delete update.createdAt;
+                auditLog('Updated project', {
+                    user: Meteor.user(),
+                    resId: update._id,
+                    type: 'updated',
+                    projectId: update._id,
+                    operation: 'project-updated',
+                    before: { project: projectBefore },
+                    after: { project: update },
+                    resType: 'project',
+                });
+                return Projects.update({ _id: update._id }, { $set: update });
             } catch (e) {
                 throw formatError(e);
             }
         },
-        async 'project.delete'(projectId, options = { failSilently: false }) {
+        async 'project.delete'(
+            projectId,
+            options = { failSilently: false, bypassWithCI: false },
+        ) {
+            checkIfCan('projects:w', null, null, options);
             check(projectId, String);
             check(options, Object);
             const { failSilently } = options;
@@ -63,6 +110,7 @@ if (Meteor.isServer) {
 
             try {
                 if (!project) throw new Meteor.Error('Project not found');
+                const projectBefore = Projects.findOne({ _id: projectId });
                 NLUModels.remove({ projectId }); // Delete NLU models
                 Activity.remove({ projectId }).exec(); // Delete Logs
                 Instances.remove({ projectId }); // Delete instances
@@ -74,40 +122,106 @@ if (Meteor.isServer) {
                 Stories.remove({ projectId });
                 Slots.remove({ projectId });
                 Projects.remove({ _id: projectId }); // Delete project
+                // Delete project related permissions for users (note: the role package does not provide
+                const projectUsers = Meteor.users
+                    .find(
+                        { [`roles.${project._id}`]: { $exists: true } },
+                        { fields: { roles: 1 } },
+                    )
+                    .fetch();
+                projectUsers.forEach(u => Meteor.users.update(
+                    { _id: u._id },
+                    { $unset: { [`roles.${project._id}`]: '' } },
+                )); // Roles.removeUsersFromRoles doesn't seem to work so we unset manually
+                auditLog('Deleted project, all related data has been deleted', {
+                    user: Meteor.user(),
+                    resId: projectId,
+                    type: 'deleted',
+                    operation: 'project-deleted',
+                    before: { projectBefore },
+                    resType: 'project',
+                });
                 await Examples.remove({ projectId });
                 await BotResponses.remove({ projectId });
+                await AnalyticsDashboards.deleteOne({ projectId }); // Delete dashboards
+                await Forms.remove({ projectId }); // Delete project
+                await FormResults.remove({ projectId });
             } catch (e) {
                 if (!failSilently) throw e;
             }
         },
 
         'project.markTrainingStarted'(projectId) {
+            checkIfCan('nlu-data:x', projectId);
             check(projectId, String);
-
             try {
-                return Projects.update({ _id: projectId }, { $set: { training: { instanceStatus: 'training', startTime: new Date() } } });
+                const projectBefore = Projects.findOne({ _id: projectId });
+                const result = Projects.update(
+                    { _id: projectId },
+                    {
+                        $set: {
+                            training: {
+                                instanceStatus: 'training',
+                                startTime: new Date(),
+                            },
+                        },
+                    },
+                );
+                const projectAfter = Projects.findOne({ _id: projectId });
+                auditLog('Marked trainning as started', {
+                    user: Meteor.user(),
+                    resId: projectId,
+                    projectId,
+                    type: 'updated',
+                    operation: 'project-updated',
+                    before: { project: projectBefore },
+                    after: { project: projectAfter },
+                    resType: 'project',
+                });
+                return result;
             } catch (e) {
                 throw e;
             }
         },
 
         'project.markTrainingStopped'(projectId, status, error) {
+            checkIfCan('nlu-data:x', projectId);
             check(projectId, String);
             check(status, String);
             check(error, Match.Optional(String));
 
             try {
-                const set = { training: { status, instanceStatus: 'notTraining', endTime: new Date() } };
+                const set = {
+                    training: {
+                        status,
+                        instanceStatus: 'notTraining',
+                        endTime: new Date(),
+                    },
+                };
                 if (error) {
                     set.training.message = error;
                 }
-                return Projects.update({ _id: projectId }, { $set: set });
+                const projectBefore = Projects.findOne({ _id: projectId });
+                const result = Projects.update({ _id: projectId }, { $set: set });
+                const projectAfter = Projects.findOne({ _id: projectId });
+                auditLog('Marked trainning as stopped', {
+                    user: Meteor.user(),
+                    resId: projectId,
+                    type: 'updated',
+                    projectId,
+                    operation: 'project-updated',
+                    before: { projectBefore },
+                    after: { projectAfter },
+                    resType: 'project',
+                });
+                return result;
             } catch (e) {
                 throw e;
             }
         },
 
         async 'project.getDefaultLanguage'(projectId) {
+            checkIfCan(['nlu-data:r', 'responses:r'], projectId);
             check(projectId, String);
             try {
                 const { defaultLanguage } = Projects.findOne(
@@ -120,18 +234,93 @@ if (Meteor.isServer) {
             }
         },
 
-        async 'project.setEnableSharing'(projectId, enableSharing) {
+        async 'project.checkAllowContextualQuestions'(projectId) {
+            checkIfCan(['stories:r'], projectId);
             check(projectId, String);
-            check(enableSharing, Boolean);
-            return Projects.update(
-                { _id: projectId },
-                { $set: { enableSharing } },
-            );
+            try {
+                const project = Projects.findOne(
+                    { _id: projectId },
+                    { fields: { allowContextualQuestions: 1 } },
+                );
+                const { allowContextualQuestions } = project;
+                return !!allowContextualQuestions;
+            } catch (error) {
+                throw error;
+            }
         },
 
-        async 'project.getChatProps'(projectId) {
+        async 'project.setAllowContextualQuestions'(projectId, allowContextualQuestions) {
+            checkIfCan(['stories:w'], projectId);
             check(projectId, String);
+            check(allowContextualQuestions, Boolean);
+            try {
+                const project = Projects.findOne(
+                    { _id: projectId },
+                    { fields: { allowContextualQuestions: 1 } },
+                );
+                const { allowContextualQuestions: aCQBefore } = project;
+                const result = Projects.update(
+                    { _id: projectId },
+                    { $set: { allowContextualQuestions } },
+                );
+                auditLog('Setting allow contextual questions', {
+                    user: Meteor.user(),
+                    resId: projectId,
+                    type: 'updated',
+                    projectId,
+                    operation: 'project-updated',
+                    before: { allowContextualQuestions: aCQBefore },
+                    after: { allowContextualQuestions },
+                    resType: 'project',
+                });
+                return result;
+            } catch (error) {
+                throw error;
+            }
+        },
 
+        async 'project.getContextualSlot'(projectId) {
+            check(projectId, String);
+            if (!can(['stories:r'], projectId)) return null;
+            checkIfCan(['stories:r'], projectId);
+
+            const project = Projects.findOne(
+                { _id: projectId },
+                { fields: { allowContextualQuestions: 1 } },
+            );
+            const { allowContextualQuestions } = project;
+
+            if (!allowContextualQuestions) return null;
+
+            const bfForms = await getForms(projectId);
+            let requestedSlotCategories = [];
+
+            bfForms.forEach((form) => {
+                requestedSlotCategories = requestedSlotCategories.concat(
+                    form.slots.map(slot => slot.name),
+                );
+            });
+
+            const requestedSlot = {
+                name: 'requested_slot',
+                projectId,
+                type: 'categorical',
+                categories: [...new Set(requestedSlotCategories)],
+            };
+
+            return requestedSlot;
+        },
+
+        async 'project.setEnableSharing'(projectId, enableSharing) {
+            checkIfCan('share:x', projectId);
+            check(projectId, String);
+            check(enableSharing, Boolean);
+            return Projects.update({ _id: projectId }, { $set: { enableSharing } });
+        },
+
+        async 'project.getChatProps'(projectId, environment = 'development') {
+            check(projectId, String);
+            check(environment, Match.Maybe(String));
             const {
                 chatWidgetSettings: { initPayload = '/get_started' } = {},
                 enableSharing,
@@ -141,28 +330,54 @@ if (Meteor.isServer) {
             } = Projects.findOne(
                 { _id: projectId },
                 {
-                    chatWidgetSettings: 1, enableSharing: 1, name: 1, defaultLanguage: 1, languages: 1,
+                    chatWidgetSettings: 1,
+                    enableSharing: 1,
+                    name: 1,
+                    defaultLanguage: 1,
+                    languages: 1,
                 },
             ) || {};
 
-            if (!projectName) { throw new Meteor.Error(404, `Project '${projectName}' not found.`); }
-            if (!enableSharing) { throw new Meteor.Error(403, `Sharing not enabled for project '${projectName}'.`); }
+            if (!projectName) {
+                throw new Meteor.Error(404, `Project '${projectName}' not found.`);
+            }
+            if (!enableSharing) {
+                throw new Meteor.Error(
+                    403,
+                    `Sharing not enabled for project '${projectName}'.`,
+                );
+            }
 
-            const query = {
-                $or: [
-                    { projectId, environment: { $exists: false } },
-                    { projectId, environment: 'development' },
-                ],
-            };
+            const query = !environment || environment === 'development'
+                ? {
+                    $or: [
+                        { projectId, environment: { $exists: false } },
+                        { projectId, environment: 'development' },
+                    ],
+                }
+                : { projectId, environment };
             let { credentials = '' } = Credentials.findOne(query, { credentials: 1 }) || {};
             credentials = yamlLoad(credentials);
             const channel = Object.keys(credentials).find(k => ['WebchatInput', 'WebchatPlusInput'].some(c => k.includes(c)));
-            if (!channel) { throw new Meteor.Error(404, `No credentials found for project '${projectName}'.`); }
+            if (!channel) {
+                throw new Meteor.Error(
+                    404,
+                    `No credentials found for project '${projectName}'.`,
+                );
+            }
             const { base_url: socketUrl, socket_path: socketPath } = credentials[channel];
 
-            const languages = langs.map(value => ({ text: languageOptions[value].name, value }));
+            const languages = langs.map(value => ({
+                text: languageOptions[value].name,
+                value,
+            }));
 
-            if (!languages.length) { throw new Meteor.Error(404, `No languages found for project '${projectName}'.`); }
+            if (!languages.length) {
+                throw new Meteor.Error(
+                    404,
+                    `No languages found for project '${projectName}'.`,
+                );
+            }
 
             return {
                 projectName,
@@ -172,6 +387,11 @@ if (Meteor.isServer) {
                 defaultLanguage,
                 initPayload,
             };
+        },
+
+        async 'project.getDeploymentEnvironments'(projectId) {
+            check(projectId, String);
+            return Projects.findOne({ _id: projectId }, { fields: { deploymentEnvironments: 1 } });
         },
     });
 }

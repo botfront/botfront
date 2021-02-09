@@ -1,0 +1,10 @@
+name: my cool project
+defaultLanguage: en
+namespace: bf-bf
+nluThreshold: 0.75
+timezoneOffset: -7.5
+allowContextualQuestions: false
+instance:
+  name: Default Instance
+  host: 'http://rasa:5005'
+  projectId: bf

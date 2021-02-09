@@ -12,6 +12,9 @@ import {
     projectId,
     botResponseFixture,
     botResponsesFixture,
+    botResponsesFixtureWithCustomCss,
+    botResponsesFixtureWithHighlight,
+    botResponseFixtureWithObserve,
 } from './indexTestData';
 import { indexStory } from '../../../story/stories.index';
 import { Projects } from '../../../project/project.collection';
@@ -21,8 +24,15 @@ import BotResponses from '../../botResponses/botResponses.model';
 import { caught } from '../../../../lib/client.safe.utils';
 
 import StoryResolver from '../resolvers/storiesResolver';
+import { createTestUser, removeTestUser } from '../../../testUtils';
 
 if (Meteor.isServer) {
+    import { setUpRoles } from '../../../roles/roles';
+
+    setUpRoles();
+
+    const userId = 'testuserid';
+
     const cleanup = async () => {
         await Stories.remove({});
         await Examples.remove({});
@@ -44,18 +54,32 @@ if (Meteor.isServer) {
 
     const insertDataAndIndex = async () => {
         await cleanup();
+        await removeTestUser();
+        await createResponses(projectId, [
+            botResponsesFixtureWithCustomCss,
+            botResponsesFixtureWithHighlight,
+            botResponseFixtureWithObserve,
+        ]);
         await addData();
+        await createTestUser();
     };
 
-    const removeTestData = cleanup;
+    const removeTestData = async () => {
+        await cleanup();
+        await removeTestUser();
+    };
 
     const searchStories = async (language, queryString, reject) => {
         try {
-            const searchResult = await StoryResolver.Query.dialogueSearch(null, {
-                projectId: 'bf',
-                language,
-                queryString,
-            });
+            const searchResult = await StoryResolver.Query.dialogueSearch(
+                null,
+                {
+                    projectId: 'bf',
+                    language,
+                    queryString,
+                },
+                { user: { _id: userId } },
+            );
             if (!reject) {
                 expect(searchResult.dialogueFragments[0]).to.be.deep.equal({
                     _id: 'TEST_STORY',
@@ -89,6 +113,27 @@ if (Meteor.isServer) {
             await searchStories('en', 'test_slot');
             await searchStories('en', 'story fixture'); // (title)
             await searchStories('en', 'term does not exist', true);
+        }));
+        it('should be able to use smart search', caught(async () => {
+            await searchStories('en', 'status:published second');
+            await searchStories('en', 'status:unpublished', true);
+            await searchStories('en', 'with:highlights');
+            await searchStories('en', 'with:highlights second');
+            await searchStories('en', 'with:custom_style');
+            await searchStories('en', 'with:custom_style story fixture');
+            await searchStories('en', 'with:triggers');
+            await searchStories('en', 'with:triggers Canada');
+            await searchStories(
+                'en',
+                'with:custom_style story fixture with:highlights with:triggers',
+            );
+            await searchStories('en', 'with:observe_events');
+            await searchStories(
+                'en',
+                'with:observe_events string not in the story',
+                true,
+            );
+            await searchStories('en', 'with:some_non_existing_search', true);
         }));
     });
 }

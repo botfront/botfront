@@ -14,7 +14,7 @@ import { GET_BOT_RESPONSE } from '../queries';
 import { ProjectContext } from '../../../layouts/context';
 import { ConversationOptionsContext } from '../../stories/Context';
 import SequenceEditor from './SequenceEditor';
-import MetadataForm from '../MetadataForm.ce';
+import MetadataForm from '../MetadataForm.gke';
 import ResponseNameInput from '../common/ResponseNameInput';
 // utils
 import {
@@ -28,6 +28,7 @@ import {
 } from '../../../../lib/botResponse.utils';
 import { clearTypenameField } from '../../../../lib/client.safe.utils';
 import { Loading } from '../../utils/Utils';
+import { can } from '../../../../lib/scopes';
 
 
 /*
@@ -46,6 +47,7 @@ const BotResponseEditor = (props) => {
         language,
         projectId,
         name,
+        renameable,
     } = props;
 
     const { resetResponseInCache, setResponseInCache } = useContext(ProjectContext); // using the upsert function from the project context ensures the visual story is updated
@@ -64,6 +66,8 @@ const BotResponseEditor = (props) => {
             setNewBotResponse(botResponse);
         }
     }, [botResponse]);
+
+    const editable = can('responses:w', projectId);
 
     const validateResponseName = (err) => {
         const newRenameError = generateRenamingErrorMessage(err);
@@ -228,15 +232,18 @@ const BotResponseEditor = (props) => {
                     onDeleteVariation={handleDeleteVariation}
                     onChangePayloadType={handleChangePayloadType}
                     name={name}
+                    editable={editable}
                 />
-                <Segment attached='bottom' className='response-editor-footer' textAlign='center'>
-                    <Button
-                        className='add-variation-button'
-                        data-cy='add-variation'
-                        icon='plus'
-                        onClick={addSequence}
-                    />
-                </Segment>
+                {editable && (
+                    <Segment attached='bottom' className='response-editor-footer' textAlign='center'>
+                        <Button
+                            className='add-variation-button'
+                            data-cy='add-variation'
+                            icon='plus'
+                            onClick={addSequence}
+                        />
+                    </Segment>
+                )}
             </>
         );
     };
@@ -248,12 +255,13 @@ const BotResponseEditor = (props) => {
                 <Segment attached='top' className='resonse-editor-topbar'>
                     <div className='response-editor-topbar-section'>
                         <ResponseNameInput
-                            renameable
+                            className={editable ? '' : 'read-only'}
+                            renameable={renameable}
                             onChange={(_e, target) => setResponseKey(target.value)}
                             saveResponseName={handleChangeKey}
                             errorMessage={renameError}
                             responseName={responseKey}
-                            disabledMessage='Responses used in a story cannot be renamed.'
+                            disabledMessage='Responses in forms cannot be renamed.'
                         />
                     </div>
                     <div className='response-editor-topbar-section'>
@@ -275,7 +283,13 @@ const BotResponseEditor = (props) => {
             className='response-editor-dimmer'
             content={renderModalContent()}
             open={open}
-            onClose={() => setTriggerClose(true)} // closes the modal the next time it renders using useEffect
+            onClose={() => {
+                if (can('responses:w', projectId)) {
+                    setTriggerClose(true);
+                    return;
+                }
+                closeModal();
+            }} // closes the modal the next time it renders using useEffect
             centered={false}
         />
     );
@@ -289,12 +303,14 @@ BotResponseEditor.propTypes = {
     language: PropTypes.string.isRequired,
     projectId: PropTypes.string.isRequired,
     name: PropTypes.string,
+    renameable: PropTypes.bool,
 };
 
 BotResponseEditor.defaultProps = {
     botResponse: {},
     isNew: false,
     name: null,
+    renameable: true,
 };
 
 const BotResponseEditorWrapper = (props) => {
@@ -362,7 +378,6 @@ BotResponseEditorWrapper.propTypes = {
     botResponse: PropTypes.object,
     open: PropTypes.bool.isRequired,
     closeModal: PropTypes.func.isRequired,
-    renameable: PropTypes.bool,
     isNew: PropTypes.bool,
     responseType: PropTypes.string,
     language: PropTypes.string.isRequired,
@@ -372,7 +387,6 @@ BotResponseEditorWrapper.propTypes = {
 
 BotResponseEditorWrapper.defaultProps = {
     botResponse: null,
-    renameable: true,
     isNew: false,
     responseType: '',
     name: null,

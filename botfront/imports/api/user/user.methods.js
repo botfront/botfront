@@ -1,43 +1,84 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { Accounts } from 'meteor/accounts-base';
-import util from 'util';
+import { Roles } from 'meteor/alanning:roles';
 
 import queryString from 'query-string';
 import axios from 'axios';
 import { GlobalSettings } from '../globalSettings/globalSettings.collection';
-import { checkIfCan, can, setScopes } from '../../lib/scopes';
+import {
+    setScopes, checkIfCan, getUserScopes, can,
+} from '../../lib/scopes';
+
 
 export const passwordComplexityRegex = /^(?:(?=.*[a-z])(?:(?=.*[A-Z])(?=.*[\d\W])|(?=.*\W)(?=.*\d))|(?=.*\W)(?=.*[A-Z])(?=.*\d)).{9,}$/;
 
+
 if (Meteor.isServer) {
-    import { getAppLoggerForMethod, getAppLoggerForFile, addLoggingInterceptors } from '../../../server/logger';
+    import {
+        getAppLoggerForMethod, getAppLoggerForFile, addLoggingInterceptors, auditLog,
+    } from '../../../server/logger';
 
     const userAppLogger = getAppLoggerForFile(__filename);
 
-    Meteor.publish('userData', function() {
-        if (can('global-admin')) {
-            return Meteor.users.find({}, { fields: { emails: 1, profile: 1 } });
+    const canEditUser = (userId) => {
+        checkIfCan('users:w', { anyScope: true });
+        const scopes = Meteor.roleAssignment.find({ user: { _id: userId } }, { scope: 1 }).fetch();
+        if (Array.isArray(scopes)) {
+            scopes.forEach((scope) => {
+                checkIfCan('users:w', scope);
+            });
         }
-        return [];
+    };
+
+    Meteor.publish('userData', function () {
+        if (can('users:r')) {
+            return Meteor.users.find({ username: { $ne: 'EXTERNAL_CONSUMER' } }, { fields: { emails: 1, profile: 1, roles: 1 } });
+        }
+        const permittedScopes = getUserScopes(Meteor.userId(), 'users:r');
+        const allRoleAssignments = Meteor.roleAssignment.find({}, { fields: { user: 1, scope: 1 } }).fetch();
+        const userRoles = {};
+        allRoleAssignments.forEach(({ user, scope }) => {
+            if (!userRoles[user._id]) userRoles[user._id] = [];
+            userRoles[user._id].push(scope);
+        });
+        const userIds = Object.keys(userRoles).filter((key) => {
+            const userScopes = userRoles[key];
+            return userScopes.every(userScope => permittedScopes.some(permittedScope => permittedScope === userScope));
+        });
+        return Meteor.users.find({ _id: { $in: userIds } }, { fields: { emails: 1, profile: 1, roles: 1 } });
     });
 
     Meteor.methods({
         'user.create'(user, sendInviteEmail) {
+            checkIfCan('users:w', { anyScope: true });
+            if (Array.isArray(user.roles)) {
+                user.roles.forEach(({ project }) => {
+                    checkIfCan('users:w', project);
+                });
+            }
             check(user, Object);
             check(sendInviteEmail, Boolean);
-            checkIfCan('global-admin');
             try {
                 const userId = Accounts.createUser({
                     email: user.email.trim(),
                     profile: {
                         firstName: user.profile.firstName,
                         lastName: user.profile.lastName,
+                        preferredLanguage: user.profile.preferredLanguage,
                     },
                 });
                 this.unblock();
                 if (sendInviteEmail) Accounts.sendEnrollmentEmail(userId);
                 setScopes(user, userId);
+                auditLog('Created an user', {
+                    user: Meteor.user(),
+                    type: 'creae',
+                    operation: 'user-created',
+                    after: { user },
+                    resId: userId,
+                    resType: 'user',
+                });
                 return userId;
             } catch (e) {
                 console.log(e);
@@ -46,9 +87,22 @@ if (Meteor.isServer) {
         },
 
         'user.update'(user) {
-            checkIfCan('global-admin');
             check(user, Object);
+            checkIfCan('users:w', { anyScope: true });
+            user.roles.forEach(({ project }) => {
+                checkIfCan('users:w', project === 'GLOBAL' ? null : project);
+            });
             try {
+                const userBefore = Meteor.users.findOne({ _id: user._id });
+                auditLog('Updated an user', {
+                    user: Meteor.user(),
+                    type: 'updated',
+                    resId: user._id,
+                    operation: 'user-updated',
+                    after: { user },
+                    before: { user: userBefore },
+                    resType: 'user',
+                });
                 Meteor.users.update(
                     { _id: user._id },
                     {
@@ -56,6 +110,7 @@ if (Meteor.isServer) {
                             profile: user.profile,
                             'emails.0.address': user.emails[0].address,
                             'emails.0.verified': true,
+                            roles: [], // re-added after
                         },
                     },
                 );
@@ -64,24 +119,85 @@ if (Meteor.isServer) {
                 throw e;
             }
         },
-
-        'user.remove'(userId) {
-            checkIfCan('global-admin');
+        // eslint-disable-next-line consistent-return
+        'user.remove'(userId, options = {}) {
+            canEditUser(userId);
             check(userId, String);
+            check(options, Object);
+            const { failSilently } = options;
             try {
-                return Meteor.users.remove({ _id: userId });
+                const userBefore = Meteor.users.findOne({ _id: userId });
+                auditLog('Deleted an user', {
+                    user: Meteor.user(),
+                    type: 'deleted',
+                    resId: userId,
+                    operation: 'user-deleted',
+                    before: { user: userBefore },
+                    resType: 'user',
+                });
+                Meteor.users.remove({ _id: userId });
+                Meteor.roleAssignment.remove({ user: { _id: userId } });
+            } catch (e) {
+                if (!failSilently) throw e;
+            }
+        },
+
+        'user.removeByEmail'(email) {
+            checkIfCan('users:w');
+            check(email, String);
+            try {
+                const userBefore = Meteor.users.findOne({
+                    emails: [{
+                        address: email,
+                        verified: false,
+                    }],
+                });
+                const result = Meteor.users.remove({
+                    emails: [{
+                        address: email,
+                        verified: false,
+                    }],
+                });
+                const userAfter = Meteor.users.findOne({
+                    emails: [{
+                        address: email,
+                        verified: false,
+                    }],
+                });
+
+                auditLog('Deleted an user by email matching', {
+                    user: Meteor.user(),
+                    type: 'deleted',
+                    operation: 'user-deleted',
+                    before: { user: userBefore },
+                    after: { user: userAfter },
+                    resType: 'user',
+                });
+                return result;
             } catch (e) {
                 throw e;
             }
         },
 
         'user.changePassword'(userId, newPassword) {
-            checkIfCan('global-admin');
+            canEditUser(userId);
             check(userId, String);
             check(newPassword, String);
 
             try {
-                return Promise.await(Accounts.setPassword(userId, newPassword));
+                const userBefore = Meteor.users.findOne({ _id: userId });
+                const result = Promise.await(Accounts.setPassword(userId, newPassword));
+                const userAfter = Meteor.users.findOne({ _id: userId });
+                auditLog('Changed user password', {
+                    user: Meteor.user(),
+                    type: 'updated',
+                    operation: 'user-updated',
+                    resId: userId,
+                    before: { user: userBefore },
+                    after: { user: userAfter },
+                    resType: 'user',
+                });
+                return result;
             } catch (e) {
                 throw e;
             }
@@ -96,11 +212,19 @@ if (Meteor.isServer) {
             }
         },
 
+        'users.getCount'() {
+            try {
+                return Meteor.users.find({ username: { $ne: 'EXTERNAL_CONSUMER' } }).count();
+            } catch (e) {
+                throw e;
+            }
+        },
+
         'user.verifyReCaptcha'(response) {
             const appMethodLogger = getAppLoggerForMethod(
                 userAppLogger,
                 'user.verifyReCaptcha',
-                Meteor.userId(),
+                Meteor.user(),
                 { response },
             );
 

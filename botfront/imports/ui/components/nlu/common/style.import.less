@@ -37,6 +37,40 @@
     }
 }
 
+.virtual-table.intent-dropdown {
+    .item.intent {
+        overflow: hidden;
+        margin-right: 14px;
+        margin-top: 4px;
+    }
+    .side-by-side {
+        min-height: 28px;
+        overflow: hidden;
+    }
+}
+.ui.dropdown.intent-multiselect {
+    .intent-dropdown-trigger{
+        width: 100%;
+    }
+    display: flex;
+    width: 100%;
+    padding: 0.25em;
+    padding-right: 0;
+    .placeholder-text {
+        line-height: 1.9em;
+        color: rgba(0,0,0,0.3);
+        margin: 0.25em;
+    }
+    .intent-multiselect-label {
+        margin: 0.15em;
+    }
+    .dropdown-icon {
+        position: absolute;
+        right: 0.5em;
+        top: calc(50% - 15px);
+        color: rgba(0,0,0,0.87);
+    }
+}
 .intent-label {
     user-select: none;
     display: inline-flex;
@@ -95,7 +129,7 @@
         color: #fff;
         content: 'Set intent for selected utterances';
     }
-    width: 300px;
+    width: 500px;
 }
 
 .ui.popup.intent-popup, 
@@ -223,4 +257,8 @@
     span {
         word-break: break-word;
     }
+}
+
+.ui.purple.fluid.button.create-intent-button {
+    height: 3.4em;
 }

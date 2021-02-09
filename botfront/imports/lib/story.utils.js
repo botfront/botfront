@@ -4,8 +4,9 @@ import { Stories } from '../api/story/stories.collection';
 import { Projects } from '../api/project/project.collection';
 import { Slots } from '../api/slots/slots.collection';
 import { StoryGroups } from '../api/storyGroups/storyGroups.collection';
-import { cleanPayload } from './client.safe.utils';
+import { cleanPayload, insertSmartPayloads } from './client.safe.utils';
 import { newGetBotResponses } from '../api/graphql/botResponses/mongo/botResponses';
+import { getForms } from '../api/graphql/forms/mongo/forms';
 
 let storyAppLogger;
 if (Meteor.isServer) {
@@ -32,6 +33,8 @@ const getSlotsInRasaFormat = (slots = []) => {
     });
     return slotsToAdd;
 };
+
+export { insertSmartPayloads };
 
 export const stepsToYaml = steps => yaml
     .safeDump(steps || [])
@@ -205,7 +208,30 @@ export const getDefaultDomainAndLanguage = (projectId) => {
     return { defaultDomain, defaultLanguage };
 };
 
-export const getFragmentsAndDomain = async (projectId, language) => {
+const addRequestedSlot = async (slots, projectId) => {
+    const newSlots = slots.filter(slot => slot.name !== 'requested_slot');
+    const bfForms = await getForms(projectId);
+    let requestedSlotCategories = [];
+
+    bfForms.forEach((form) => {
+        requestedSlotCategories = requestedSlotCategories.concat(
+            form.slots.map(slot => slot.name),
+        );
+    });
+
+    const requestedSlot = {
+        name: 'requested_slot',
+        projectId,
+        type: 'categorical',
+        categories: [...new Set(requestedSlotCategories)],
+    };
+
+    newSlots.push(requestedSlot);
+
+    return newSlots;
+};
+
+export const getFragmentsAndDomain = async (projectId, language, env = 'development') => {
     const appMethodLogger = storyAppLogger.child({
         method: 'getFragmentsAndDomain',
         args: { projectId, language },
@@ -223,7 +249,7 @@ export const getFragmentsAndDomain = async (projectId, language) => {
         { fields: { _id: 1, name: 1, selected: 1 } },
     ).fetch();
 
-    const selectedGroups = groups.filter(g => g.selected).length
+    const selectedGroups = env === 'development' && groups.filter(g => g.selected).length
         ? groups.filter(g => g.selected)
         : groups;
 
@@ -231,19 +257,77 @@ export const getFragmentsAndDomain = async (projectId, language) => {
     const allFragments = Stories.find({
         projectId,
         storyGroupId: { $in: selectedGroups.map(({ _id }) => _id) },
+        ...(env === 'development' ? {} : { status: 'published' }),
     }).fetch();
 
-    appMethodLogger.debug('Adding checkpoints to stories');
-    const fragmentsWithCheckpoints = addCheckpoints(allFragments);
+    appMethodLogger.debug('Adding checkpoints and smart triggers to stories');
+    const fragmentsWithCheckpoints = addCheckpoints(
+        allFragments.map(insertSmartPayloads),
+    );
+
+    appMethodLogger.debug('Fetching forms');
+    const bfForms = (await getForms(projectId)).map(
+        ({
+            _id, projectId: pid, pinned, isExpanded, ...rest
+        }) => {
+            const newElements = { nodes: [], edges: [] };
+            if (rest.graph_elements) {
+                rest.graph_elements.forEach((elm) => {
+                    if (elm.type === 'start') {
+                        newElements.nodes.push({
+                            id: elm.id,
+                            type: elm.type,
+                            position: elm.position,
+                        });
+                    }
+                    if (elm.type === 'slot') {
+                        newElements.nodes.push({
+                            id: elm.id,
+                            type: elm.type,
+                            slotName: elm.data.slotName,
+                            position: elm.position,
+                        });
+                    }
+                    if (elm.type === 'slotSet') {
+                        newElements.nodes.push({
+                            id: elm.id,
+                            type: elm.type,
+                            slotName: elm.data.slotName,
+                            slotValue: elm.data.slotValue,
+                            position: elm.position,
+                        });
+                    }
+                    if (elm.type === 'condition') {
+                        newElements.edges.push({
+                            id: elm.id,
+                            type: elm.type,
+                            source: elm.source,
+                            target: elm.target,
+                            condition: elm.data.condition,
+                        });
+                    }
+                });
+            }
+            return {
+                ...rest,
+                graph_elements: newElements,
+            };
+        },
+    );
 
     appMethodLogger.debug('Generating domain');
     const responses = await getAllResponses(projectId, language);
-    const slots = Slots.find({ projectId }).fetch();
+    let slots = Slots.find({ projectId }).fetch();
+    const project = Projects.findOne({ _id: projectId }, { allowContextualQuestions: 1 });
+    if (project.allowContextualQuestions) {
+        slots = await addRequestedSlot(slots, projectId);
+    }
     const domain = extractDomain({
         fragments: fragmentsWithCheckpoints,
         slots,
         responses,
         defaultDomain,
+        bfForms,
     });
 
     return {

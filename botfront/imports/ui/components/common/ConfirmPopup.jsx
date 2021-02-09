@@ -3,22 +3,36 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 const ConfirmPopup = ({
-    title, onYes, onNo, description, content,
+    title, onYes, onNo, description, content, negative,
 }) => (
     <Segment basic className='confirm-popup' data-cy='confirm-popup'>
         <Header as='h4'>{title}</Header>
         {description}
         {content}
         <div className='popup-buttons'>
-            <Button primary onClick={onNo} size='tiny' data-cy='confirm-no'>
+            <Button
+                // basic{negative}
+                primary
+                onClick={onNo}
+                size='tiny'
+                data-cy='confirm-no'
+            >
                 Cancel
             </Button>
-            <Button primary basic onClick={onYes} size='tiny' data-cy='confirm-yes'>
+            <Button
+                primary
+                negative={negative}
+                basic
+                onClick={onYes}
+                size='tiny'
+                data-cy='confirm-yes'
+            >
                 Confirm
             </Button>
         </div>
     </Segment>
 );
+
 
 ConfirmPopup.propTypes = {
     title: PropTypes.string,
@@ -26,6 +40,7 @@ ConfirmPopup.propTypes = {
     description: PropTypes.string,
     content: PropTypes.node,
     onNo: PropTypes.func,
+    negative: PropTypes.bool,
 };
 
 ConfirmPopup.defaultProps = {
@@ -34,6 +49,7 @@ ConfirmPopup.defaultProps = {
     onNo: () => {},
     content: null,
     title: '',
+    negative: false,
 };
 
 export default ConfirmPopup;

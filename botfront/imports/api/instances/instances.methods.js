@@ -12,6 +12,7 @@ import path from 'path';
 
 import {
     formatError,
+    uploadFileToGcs,
     getProjectModelLocalFolder,
     getProjectModelFileName,
 } from '../../lib/utils';
@@ -20,6 +21,7 @@ import { getExamples } from '../graphql/examples/mongo/examples';
 import { Instances } from './instances.collection';
 import { CorePolicies } from '../core_policies';
 import { Evaluations } from '../nlu_evaluation';
+import { checkIfCan } from '../../lib/scopes';
 import Activity from '../graphql/activity/activity.model';
 import { getFragmentsAndDomain } from '../../lib/story.utils';
 import { dropNullValuesFromObject } from '../../lib/client.safe.utils';
@@ -46,13 +48,15 @@ export const createInstance = async (project) => {
         Assets.getText(
             process.env.MODE === 'development'
                 ? 'defaults/private.dev.yaml'
-                : 'defaults/private.yaml',
+                : process.env.MODE === 'test'
+                    ? 'defaults/private.yaml'
+                    : 'defaults/private.gke.yaml',
         ),
     );
 
     return Instances.insert({
         name: 'Default Instance',
-        host,
+        host: host.replace(/{PROJECT_NAMESPACE}/g, project.namespace),
         projectId: project._id,
     });
 };
@@ -122,6 +126,7 @@ if (Meteor.isServer) {
         getAppLoggerForFile,
         getAppLoggerForMethod,
         addLoggingInterceptors,
+        auditLog,
     } from '../../../server/logger';
     // eslint-disable-next-line import/order
     import { performance } from 'perf_hooks';
@@ -130,6 +135,7 @@ if (Meteor.isServer) {
 
     Meteor.methods({
         async 'rasa.parse'(instance, examples, options = {}) {
+            checkIfCan('nlu-data:r', instance.projectId);
             check(instance, Object);
             check(examples, Array);
             check(options, Object);
@@ -197,7 +203,11 @@ if (Meteor.isServer) {
             }
         },
 
-        async 'rasa.getTrainingPayload'(projectId, { language = '' } = {}) {
+        async 'rasa.getTrainingPayload'(
+            projectId,
+            { language = '', env = 'development' } = {},
+        ) {
+            checkIfCan(['nlu-data:x', 'projects:r', 'export:x'], projectId);
             check(projectId, String);
             check(language, String);
 
@@ -213,6 +223,7 @@ if (Meteor.isServer) {
             } = await getFragmentsAndDomain(
                 projectId,
                 language,
+                env,
             );
             stories.sort((a, b) => a.story.localeCompare(b.story));
             rules.sort((a, b) => a.rule.localeCompare(b.rule));
@@ -241,11 +252,28 @@ if (Meteor.isServer) {
                 fixed_model_name: getProjectModelFileName(projectId),
                 augmentation_factor: augmentationFactor,
             };
+            auditLog('Retreived training payload for project', {
+                user: Meteor.user(),
+                type: 'execute',
+                projectId,
+                operation: 'nlu-model-execute',
+                resId: projectId,
+                resType: 'nlu-model',
+            });
             return payload;
         },
 
-        async 'rasa.train'(projectId) {
+        async 'rasa.train'(projectId, env = 'development') {
+            checkIfCan('nlu-data:x', projectId);
             check(projectId, String);
+            auditLog('Trained project', {
+                user: Meteor.user(),
+                projectId,
+                type: 'execute',
+                operation: 'nlu-model-trained',
+                resId: projectId,
+                resType: 'nlu-model',
+            });
             const appMethodLogger = getAppLoggerForMethod(
                 trainingAppLogger,
                 'rasa.train',
@@ -255,17 +283,23 @@ if (Meteor.isServer) {
 
             appMethodLogger.debug(`Training project ${projectId}...`);
             const t0 = performance.now();
+            const loadModel = env === 'development';
             try {
-                const { stories = [], rules = [], ...payload } = await Meteor.call(
-                    'rasa.getTrainingPayload',
-                    projectId,
-                );
+                const {
+                    stories = [],
+                    rules = [],
+                    ...payload
+                } = await Meteor.call('rasa.getTrainingPayload', projectId, { env });
                 payload.fragments = yaml.safeDump(
                     { stories, rules },
                     { skipInvalid: true },
                 );
-
                 const instance = await Instances.findOne({ projectId });
+                const client = axios.create({
+                    baseURL: instance.host,
+                    timeout: process.env.TRAINING_TIMEOUT || 0,
+                });
+                addLoggingInterceptors(client, appMethodLogger);
                 const trainingClient = axios.create({
                     baseURL: instance.host,
                     timeout: process.env.TRAINING_TIMEOUT || 0,
@@ -305,13 +339,25 @@ if (Meteor.isServer) {
                         );
                     }
 
-                    await trainingClient.put('/model', { model_file: trainedModelPath });
+                    if (loadModel) {
+                        await client.put('/model', { model_file: trainedModelPath });
+                        if (process.env.ORCHESTRATOR === 'gke') {
+                            const { modelsBucket } = Projects.findOne(
+                                { _id: projectId },
+                                { fields: { modelsBucket: 1 } },
+                            ) || {};
+                            if (modelsBucket) {
+                                await uploadFileToGcs(trainedModelPath, modelsBucket);
+                            }
+                        }
+                    }
                     Activity.update(
                         { projectId, validated: true },
                         { $set: { validated: false } },
                         { multi: true },
                     ).exec();
                 }
+
                 Meteor.call('project.markTrainingStopped', projectId, 'success');
             } catch (e) {
                 console.log(e); // eslint-disable-line no-console
@@ -329,10 +375,18 @@ if (Meteor.isServer) {
         },
 
         async 'rasa.evaluate.nlu'(projectId, language, testData) {
+            checkIfCan('nlu-data:x', projectId);
             check(projectId, String);
             check(language, String);
             check(testData, Match.Maybe(Object));
-
+            auditLog('Evaluated nlu data', {
+                user: Meteor.user(),
+                projectId,
+                type: 'execute',
+                operation: 'nlu-model-evaluate',
+                resId: projectId,
+                resType: 'nlu-model',
+            });
             const appMethodLogger = getAppLoggerForMethod(
                 trainingAppLogger,
                 'rasa.evaluate.nlu',

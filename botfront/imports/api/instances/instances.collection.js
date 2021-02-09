@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
-import { checkIfCan, can } from '../../lib/scopes';
+import { checkIfCan } from '../../lib/scopes';
 import { InstanceSchema } from './instances.schema';
 
 export const Instances = new Mongo.Collection('nlu_instances');
@@ -19,17 +19,34 @@ Instances.deny({
 });
 
 if (Meteor.isServer) {
+    import { auditLog } from '../../../server/logger';
+
     Instances._ensureIndex({ projectId: 1 });
     Meteor.publish('nlu_instances', function(projectId) {
+        try {
+            checkIfCan(['nlu-data:r', 'resources:r', 'responses:r'], projectId);
+        } catch (err) {
+            return this.ready();
+        }
         check(projectId, String);
-        if (can('project-admin', projectId, this.userId)) return Instances.find({ projectId });
-        return this.ready();
+        return Instances.find({ projectId });
     });
 
     Meteor.methods({
         'instance.update'(item) {
+            checkIfCan(['resources:w', 'import:x'], item.projectId);
             check(item, Object);
-            checkIfCan('project-admin', item.projectId);
+            const instanceBefore = Instances.findOne({ _id: item._id });
+            auditLog('Updated instance', {
+                user: Meteor.user(),
+                type: 'updated',
+                projectId: item.projectId,
+                operation: 'project-settings-updated',
+                resId: item.projectId,
+                before: { instance: instanceBefore },
+                after: { instance: item },
+                resType: 'project-settings',
+            });
             return Instances.update({ projectId: item.projectId }, { $set: item });
         },
     });

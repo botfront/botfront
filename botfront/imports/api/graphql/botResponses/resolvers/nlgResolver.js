@@ -4,6 +4,7 @@ import { GraphQLScalarType } from 'graphql';
 import { newGetBotResponses } from '../mongo/botResponses';
 import { parseContentType } from '../../../../lib/botResponse.utils';
 import commonResolvers from '../../common/commonResolver';
+import { checkIfCan } from '../../../../lib/scopes';
 import Projects from '../../project/project.model';
 
 const chooseTemplateSource = (responses, channel) => {
@@ -32,7 +33,8 @@ const resolveTemplate = async ({
 
 export default {
     Query: {
-        getResponse: async (_root, args) => {
+        getResponse: async (_root, args, context) => {
+            checkIfCan('responses:r', args.projectId, context.user._id);
             const {
                 template,
                 arguments: { language: specifiedLang, projectId } = {},
@@ -52,7 +54,8 @@ export default {
         },
         getResponses: async (_root, {
             projectId, templates, language,
-        }) => {
+        }, context) => {
+            checkIfCan('responses:r', projectId, context.user._id);
             const responses = await newGetBotResponses({
                 projectId,
                 template: templates,

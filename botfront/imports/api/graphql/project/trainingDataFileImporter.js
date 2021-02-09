@@ -3,7 +3,15 @@ import uuidv4 from 'uuid/v4';
 import { StoryGroups } from '../../storyGroups/storyGroups.collection';
 import { NLUModels } from '../../nlu_model/nlu_model.collection';
 import { deleteExamples, getExamples, insertExamples } from '../examples/mongo/examples';
+// this is done so it's not loaded by the clientside
+// when it loads examplesResolver referencees audit log that only available on the server and causeing a error saying
+// Cannot find module '../../../../../server/logger'
+let publishIntentsOrEntitiesChanged = () => {};
+if (Meteor.isServer) {
+    import { publishIntentsOrEntitiesChanged as pub } from '../examples/resolvers/examplesResolver';
 
+    publishIntentsOrEntitiesChanged = pub;
+}
 const keepOrReturnEmptyObject = object => object; // on CE, () => ({}), on EE id function
 
 const wipeAndInsertStoryGroups = async ({
@@ -109,6 +117,9 @@ const insertNluData = ({
                         }.`,
                     ),
             ));
+        if (Meteor.isServer) {
+            publishIntentsOrEntitiesChanged(projectId, languageFromFile);
+        }
     }
     if (synonyms.length || gazette.length || regex.length) {
         ops.push(

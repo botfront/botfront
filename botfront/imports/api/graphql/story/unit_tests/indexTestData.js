@@ -154,6 +154,7 @@ export const projectFixture = {
     _id: projectId,
     name: 'My Project',
     defaultLanguage: 'en',
+    namespace: 'bf-wack',
     languages: ['en', 'fr'],
     defaultDomain: {
         content:
@@ -184,6 +185,33 @@ export const botResponseFixture = {
             ],
         },
     ],
+};
+
+export const botResponsesFixtureWithHighlight = {
+    ...botResponseFixture,
+    _id: 'E0TEcQTw',
+    key: 'utter_highlight',
+    metadata: {
+        domHighlight: { style: 'default', selector: '.my-button' },
+    },
+};
+
+export const botResponsesFixtureWithCustomCss = {
+    ...botResponseFixture,
+    _id: 'E0TEcQGw',
+    key: 'utter_css',
+    metadata: {
+        customCss: { style: 'class', css: '.my-button' },
+    },
+};
+
+export const botResponseFixtureWithObserve = {
+    ...botResponseFixture,
+    _id: 'E0TEcQdw',
+    key: 'utter_observe',
+    metadata: {
+        pageEventCallbacks: { pageEvents: [{ event: 'change', selector: '.my-button', payload: 'chitchat.bye' }] },
+    },
 };
 
 export const botResponsesFixture = [

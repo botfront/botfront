@@ -1,0 +1,33 @@
+_id: cb31b9a9-676b-4f4b-8241-52d3976055ef
+cards:
+  - name: Visits & Engagement
+    description: >-
+      Visits: the total number of conversations in a given temporal window.
+      Engagements: of those conversations, those with length one or more.
+    type: conversationCounts
+    visible: true
+    startDate: '2020-11-24T05:00:00.000Z'
+    endDate: '2020-12-01T04:59:59.999Z'
+    chartType: line
+    valueType: absolute
+    includeIntents: null
+    excludeIntents: null
+    includeActions: null
+    excludeActions: null
+    conversationLength: 1
+    userInitiatedConversations: true
+    triggerConversations: true
+    selectedSequence: null
+    wide: true
+    showDenominator: true
+    limit: null
+    eventFilter: []
+    eventFilterOperator: or
+    __typename: AnalyticsCard
+languages:
+  - en
+envs:
+  - development
+name: Default Dashboard
+projectId: bf
+__v: 0

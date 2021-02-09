@@ -9,5 +9,12 @@ query dialogueSearch($projectId: String! $language: String! $queryString: String
             type
             title
         }
+        forms {
+            _id
+            name
+            slots {
+                name
+            }
+        }
     }
 }`;

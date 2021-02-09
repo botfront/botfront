@@ -1,0 +1,130 @@
+{
+    "training1" : {
+        "intent": "FavoriteFood",
+        "entities": [],
+        "_id": "c57c4521-adb0-4237-b72c-3878dbb4bde2"
+    },
+    "training2": {
+        "intent": "FavoriteFood",
+        "entities": [
+            {
+                "value": "beef",
+                "entity": "food"
+            }
+        ],
+        "_id": "0862a940-f3af-4db5-a6a8-3f99a09bcf42"
+    },
+    "training3": {
+        "intent": "FavoriteFood",
+        "entities": [
+            {
+                "value": "beans",
+                "entity": "food"
+            },
+            {
+                "value": "mustard",
+                "entity": "condiment"
+            }
+        ],
+        "_id": "0718e458-8913-4789-8c6d-af246fd6e086"
+    },
+    "outdatedUt" : {
+        "_id": "-t-wE7bna",
+        "intent": "FavoriteFood",
+        "entities": [
+            {
+                "entity": "food",
+                "confidence": 0.96
+            },
+            {
+                "entity": "condiment",
+                "confidence": 0.96
+            }
+        ],
+        "confidence": 0.9625715613365173,
+        "updatedAt": "2000-04-01T16:12:55.601Z"
+    },
+    "lowIntent" : {
+        "_id": "-t-wE7bnb",
+        "intent": "FavoriteFood",
+        "entities": [
+            {
+                "entity": "food",
+                "confidence": 0.96
+            },
+            {
+                "entity": "condiment",
+                "confidence": 0.96
+            }
+        ],
+        "confidence": 0.025715613365173,
+        "updatedAt": "2000-06-01T16:12:55.601Z"
+    },
+    "lowEnt" : {
+        "_id": "-t-wE7bnc",
+        "intent": "FavoriteFood",
+        "entities": [
+            {
+                "entity": "food",
+                "confidence": 0.96
+            },
+            {
+                "entity": "condiment",
+                "confidence": 0.01
+            }
+        ],
+        "confidence": 0.9625715613365173,
+        "updatedAt": "2000-06-01T16:12:55.601Z"
+    },
+    "lowEnts" : {
+        "_id": "-t-wE7bnd",
+        "intent": "FavoriteFood",
+        "entities": [
+            {
+                "entity": "food",
+                "confidence": 0.01
+            },
+            {
+                "entity": "condiment",
+                "confidence": 0.01
+            }
+        ],
+        "confidence": 0.9625715613365173,
+        "updatedAt": "2000-06-01T16:12:55.601Z"
+    },
+    "high1" : {
+        "_id": "-t-wE7bne",
+        "intent": "FavoriteFood",
+        "entities": [],
+        "confidence": 0.9625715613365173,
+        "updatedAt": "2000-06-01T16:12:55.601Z"
+    },
+    "high2" : {
+        "_id": "-t-wE7bnf",
+        "intent": "FavoriteFood",
+        "entities": [
+            {
+                "entity": "food",
+                "confidence": 0.96
+            }
+        ],
+        "confidence": 0.9625715613365173,
+        "updatedAt": "2000-06-01T16:12:55.601Z"
+    },
+    "high3" : {
+        "_id": "-t-wE7bng",
+        "intent": "FavoriteFood",
+        "entities": [
+            {
+                "entity": "food",
+                "confidence": 0.96
+            },
+            {
+                "entity": "condiment",
+                "confidence": 0.96
+            }
+        ],
+        "confidence": 0.9625715613365173,
+        "updatedAt": "2000-06-01T16:12:55.601Z"
+    }
+}
