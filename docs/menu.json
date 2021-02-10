@@ -13,8 +13,8 @@
       "Creating custom actions",
       "Processing incoming utterances",
       "Publish and deploy",
-      "Import (export) from (to) Rasa",
       "Git integration",
+      "Import (export) from (to) Rasa",
       "Advanced topics"
     ]
   },
