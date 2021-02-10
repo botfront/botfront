@@ -93,9 +93,7 @@ Here is an example of duckling configuration:
 
 ```yaml
 - name: DucklingHTTPExtractor
-  # Specify a URL if using Botfront open source or enterprise edition.
-  # Botfront Cloud users must not specify a URL
-  # url: http://duckling:8000
+  url: http://duckling:8000
   locale: en_US
   dimensions:
     - number
@@ -119,7 +117,6 @@ You need to set this configuration in your NLU pipeline, as shown in the followi
 
 A few things to keep in mind:
 
-- **Botfront Cloud users do not need to specify an url.**
 - You need to specify the locale
 - You need to add a Duckling configuration to the NLU pipeline in all languages.
 - You need to specify the entities you want to extract with the `dimensions` parameter. In the example above, only numbers, time/dates and amounts of money will be extracted.
