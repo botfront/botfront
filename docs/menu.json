@@ -12,6 +12,7 @@
       "Slot filling and forms",
       "Creating custom actions",
       "Processing incoming utterances",
+      "Testing conversation flows",
       "Publish and deploy",
       "Import (export) from (to) Rasa",
       "Advanced topics"
@@ -25,7 +26,7 @@
   },
   {
     "name": "Configuring channels",
-    "menu": ["Overview", "Chat widget on your website", "Facebook Messenger"]
+    "menu": ["Overview", "Chat widget on your website", "Facebook Messenger", "Conversation flow testing"]
   },
   {
     "name": "On screen guidance",

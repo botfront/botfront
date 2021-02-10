@@ -1,0 +1,51 @@
+---
+name: Conversation flow testing
+title: Automate conversation flow testing with our custom BotResgressionTesting channel
+route: /docs/channels/bot-regression-testing/
+menu: Configuring channels
+meta:
+  - name: description
+    content: Automate conversation flow testing with our custom BotResgressionTesting channel
+  - name: keywords
+    content: test BotRegressionChannel
+permalink: /channels/:slug
+---
+
+# Automated conversation flow testing in rasa
+
+Botfront provides automated conversation flow testing to enable quick validation of existing your flows.
+
+The BotRegressionTesting channel simulates a user having a conversation with your chatbot. It validates that the text of each user event in a conversation is parsed with the same intents and entities, and that the bot responses generated from a test run match the bot responses in the test.
+
+## Configure the channel
+
+This channel is configured by default when you run Botfront locally with the CLI.
+
+1. Go to **Settings -> Credentials**
+2. Add the following to the yaml
+
+```yaml
+rasa_addons.core.channels.bot_regression_test.BotRegressionTestInput: {}
+```
+
+## Test story format
+
+Test stories must be a sequence of user events and bot utterances in yaml format.
+
+Each user event must have a user key which contains the message that will be parsed by rasa.
+You can refer to the following example test story.
+
+```yaml
+- user: /get_started
+  entities: []
+  intent: get_started
+- action: utter_get_started
+- user: good morning
+  entities:
+    - entity: timeOfDay
+      value: morning
+      start: 5
+      end: 12
+  intent: chitchat.greet
+- action: utter_hi
+```
