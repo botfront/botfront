@@ -224,7 +224,7 @@ describe('use the main form editor interface to', () => {
         cy.import('bf', 'nlu_entity_sample.json', 'en');
         cy.meteorAddSlot('catSlot', 'categorical');
         cy.createForm('bf', 'test1_form', {
-            slots: [catSlot],
+            slots: [],
         });
         cy.createStoryGroup();
         cy.createFragmentInGroup({ type: 'form' });

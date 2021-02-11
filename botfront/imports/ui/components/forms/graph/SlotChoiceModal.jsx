@@ -125,7 +125,7 @@ const SlotChoiceModal = (props) => {
                 onSelect={slot => chooseAddQuestion(slot)}
                 chooseSlotWithoutValue
                 slotsToRemove={slotsUsed}
-                excludeSlotsOfType={['unfeaturized']}
+                excludeSlotsOfType={[]}
             />
         </div>
     );
