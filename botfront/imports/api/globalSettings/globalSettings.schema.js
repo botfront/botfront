@@ -24,6 +24,7 @@ export const privateSettingsSchema = new SimpleSchema({
     'webhooks.deleteImageWebhook': { type: webhookSchema, optional: true },
     'webhooks.deploymentWebhook': { type: webhookSchema, optional: true },
     'webhooks.reportCrashWebhook': { type: webhookSchema, optional: true },
+    'webhooks.afterTraining': { type: webhookSchema, optional: true },
     reCatpchaSecretServerKey: { type: String, optional: true },
 });
 
