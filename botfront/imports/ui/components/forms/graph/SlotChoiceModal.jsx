@@ -173,6 +173,7 @@ const SlotChoiceModal = (props) => {
                 'float',
                 'list',
                 'unfeaturized',
+                'any',
             ]}
         />
     );

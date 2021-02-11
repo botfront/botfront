@@ -24,6 +24,13 @@ const SlotSetNode = (props) => {
                 <SlotLabel
                     value={{ [slotName]: slotValue }}
                     onChange={onChangeSlot}
+                    excludeSlotsOfType={[
+                        'text',
+                        'float',
+                        'list',
+                        'unfeaturized',
+                        'any',
+                    ]}
                 />
                 <IconButton
                     icon='trash'
