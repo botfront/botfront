@@ -16,7 +16,6 @@ export const createEndpoints = async (project) => {
     if (endpoints) {
         ENVIRONMENT_OPTIONS.forEach(environment => Endpoints.insert({
             endpoints: endpoints
-                .replace(/{GCP_MODELS_BUCKET}/g, project.modelsBucket || '<BUCKET>')
                 .replace(/{PROJECT_NAMESPACE}/g, project.namespace)
                 .replace(/{BF_PROJECT_ID}/g, project._id),
             projectId: project._id,

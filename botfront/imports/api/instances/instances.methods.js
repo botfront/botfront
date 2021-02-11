@@ -341,15 +341,7 @@ if (Meteor.isServer) {
 
                     if (loadModel) {
                         await client.put('/model', { model_file: trainedModelPath });
-                        if (process.env.ORCHESTRATOR === 'gke') {
-                            const { modelsBucket } = Projects.findOne(
-                                { _id: projectId },
-                                { fields: { modelsBucket: 1 } },
-                            ) || {};
-                            if (modelsBucket) {
-                                await uploadFileToGcs(trainedModelPath, modelsBucket);
-                            }
-                        }
+                        
                     }
                     Activity.update(
                         { projectId, validated: true },
