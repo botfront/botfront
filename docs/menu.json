@@ -14,6 +14,7 @@
       "Processing incoming utterances",
       "Testing conversation flows",
       "Publish and deploy",
+      "Git integration",
       "Import (export) from (to) Rasa",
       "Advanced topics"
     ]
