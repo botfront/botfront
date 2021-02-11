@@ -76,7 +76,7 @@ class Project extends React.Component {
                                 />
                                 <SelectField name='defaultLanguage' label={null} placeholder='Select the default language of your project' />
                                 <br />
-                                <InfoField name='modelsBucket' label='Models Bucket' info='The name of the storage bucket where trained models will be stored' />
+                               
                                 <AutoField name='disabled' data-cy='disable' />
                                 <ErrorsField />
                                 <SubmitField data-cy='submit-field' />
@@ -127,7 +127,6 @@ const ProjectContainer = withTracker(({ params }) => {
                 fields: {
                     name: 1,
                     namespace: 1,
-                    modelsBucket: 1,
                     disabled: 1,
                     apiKey: 1,
                     defaultLanguage: 1,

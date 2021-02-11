@@ -68,7 +68,6 @@ export const ProjectsSchema = new SimpleSchema({
             return !this.value.match(/^bf-[a-zA-Z0-9-]+$/) ? 'invalidNamespace' : null;
         },
     },
-    modelsBucket: { type: String, regEx: /^[a-z0-9-_]+$/, optional: true },
     nluThreshold: {
         type: Number, defaultValue: 0.75, min: 0.5, max: 0.95,
     },
