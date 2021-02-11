@@ -162,6 +162,8 @@ describe('use the main form editor interface to', () => {
         cy.wait(300);
         cy.createFragmentInGroup({ type: 'form' });
         cy.meteorAddSlot('bool_slot', 'bool');
+        cy.meteorAddSlot('text_slot', 'text');
+        cy.meteorAddSlot('float_slot', 'float');
         cy.selectForm(newFormName);
 
         cy.dataCy('start-node').click();
@@ -171,14 +173,24 @@ describe('use the main form editor interface to', () => {
 
         cy.dataCy('add-node-1').click();
         cy.dataCy('add-node-1').find('[data-cy=set-slot]').click();
+        cy.get('.item.dropdown').should('not.include.text', 'float')
+        cy.get('.item.dropdown').should('not.include.text', 'text')
+        cy.get('.item.dropdown').should('include.text', 'categorical')
         cy.get('.item.dropdown').contains('bool').click();
         cy.get('.item.dropdown').contains('bool_slot').click();
         cy.get('.item.dropdown').contains('true').click();
         cy.get('.label-container.orange').should('contain.text', 'true').click();
+        cy.get('.item.dropdown').should('not.include.text', 'float')
+        cy.get('.item.dropdown').should('not.include.text', 'text')
+        cy.get('.item.dropdown').should('include.text', 'categorical')
         cy.get('.item.dropdown').contains('bool').click();
         cy.get('.item.dropdown').contains('bool_slot').click();
         cy.get('.item.dropdown').contains('false').click();
         cy.get('.label-container.orange').should('contain.text', 'false').click();
+        cy.get('.item.dropdown').contains('bool').click();
+        cy.get('.item.dropdown').contains('bool_slot').click();
+        cy.get('.item.dropdown').contains('null').click();
+        cy.get('.label-container.orange').should('contain.text', 'null').click();
         cy.dataCy('slot-set-node').find('[data-cy=icon-trash]').click();
         cy.dataCy('slot-set-node').should('not.exist');
     });
