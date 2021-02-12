@@ -24,7 +24,7 @@ Stories are great to model conversation flows but they lack essential features t
 A simple business logic might be to collect the necessary information to prepare an API call, ensure this information is correct and notify the user when it's not.
 Advanced business logic can take the form of a decision tree where the next question to be asked depends of an arbitrary combination of previous responses.
 
-Rasa forms, the `FormAction` and the `FormPolicy` are the official response however they rely heavily on code and lack the simplicity and readability of stories.
+Rasa forms and the `FormAction` are the official response however they rely heavily on code and lack the simplicity and readability of stories.
 
 Forms in Botfront expose all the advanced Rasa Forms capabilities in a simple and intuitive graphical user interface.
 
@@ -223,6 +223,17 @@ We can do this by adding conjunctions (`OR`) to **ALL** edges going to _appointm
   Your browser does not support the video tag.
 </video>
 
+#### Explicitely setting a slot
+
+Depending on how your form played out, maybe you also want to set a slot at the end of a particular path.
+This will allow your bot to know how the form ended. More details [over here](/docs/rasa/forms-slot-filling/#after-setting-a-slot).
+
+![](../../../images/forms/set_slot.png)
+
+You can only set categorical or boolean slots using this feature.
+Click _Set a slot_ and choose the slot you want to set and the value you want to set it to.
+
+You can edit the slot and the value after placing it by clicking on the node.
 
 ## Integrating forms in stories.
 
@@ -232,12 +243,12 @@ Now that we have a form we may start using it in our stories.
 
 The simplest integration covers the ideal situation where the user is collaborative and answers all questions.
 You only need to **start the form** in your story.
-Once it is active it is going ti iterate through all slots, ask questions, validate answers, etc.
+Once it is active it is going to iterate through all slots, ask questions, validate answers, etc.
 
 You can **pick up after completion** to continue the conversation once all the slots have been filled succesfully.
 
 <video autoplay muted loop width="100%" controls>
-  <source src="../../../videos/forms/basic_story.m4v" type="video/mp4"/>
+  <source src="../../../videos/forms/basic_story.mp4" type="video/mp4"/>
   Your browser does not support the video tag.
 </video>
 
@@ -257,6 +268,20 @@ Suppose you extract an email address with an _email_ entity, and the NLU does no
 The extraction will fail and you will need a story handling this particular intent (or intente-entities combination) following your forms.
 
 You will see how to do that in the next section.
+
+#### After setting a slot
+
+To react to a particular exit from a form, [you can set a slot](/docs/rasa/forms-slot-filling/#explicitely-setting-a-slot) at one of the ends of your form.
+
+Look at this form, we want to follow up with another story if the user is not authorized by a legal guardian. We're setting a slot to achieve this goal.
+
+![](../../../images/forms/set_slot_form.png)
+
+We can then use that slot in a story, the first story is used for the normal flow, when we end the form without setting anything, we just carry on with our happy path.
+
+In the second story however, we can react to the _forbidden_ slot being set, and continue with the _forbidden_ path.
+
+![](../../../images/forms/set_slot_stories.png)
 
 ### Handling digressions
 
