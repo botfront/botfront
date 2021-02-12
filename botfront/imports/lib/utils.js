@@ -80,15 +80,6 @@ export const getProjectModelLocalFolder = () => process.env.MODELS_LOCAL_PATH ||
 
 export const getProjectModelLocalPath = projectId => path.join(getProjectModelLocalFolder(), getProjectModelFileName(projectId, 'tar.gz'));
 
-export function uploadFileToGcs(filePath, bucket) {
-    const { Storage } = require('@google-cloud/storage');
-    const storage = new Storage();
-    return new Promise((resolve, reject) => storage.bucket(bucket)
-        .upload(filePath)
-        .then(resolve)
-        .catch(reject));
-}
-
 export const getImageUrls = (response, excludeLang = '') => (
     response.values.reduce((vacc, vcurr) => {
         if (vcurr.lang !== excludeLang) {
@@ -167,9 +158,9 @@ if (Meteor.isServer) {
                 const axiosJson = axios.create();
                 addLoggingInterceptors(axiosJson, appMethodLogger);
                 // 400mb
-                const maxContentLength = 400000000;
+                // const maxContentLength = 400000000;
                 const response = await axiosJson({
-                    url, method, data, maxContentLength,
+                    url, method, data, // maxContentLength,
                 });
                 const { status, data: responseData } = response;
                 return { status, data: responseData };
@@ -177,7 +168,8 @@ if (Meteor.isServer) {
                 // if we console log the error here, it will write the image/model as a string, and the error message will be too bike and unusable.
                 // eslint-disable-next-line no-console
                 console.log('ERROR: Botfront encountered an error while calling a webhook');
-                return { status: 500, data: e.response.data };
+                console.log(e.response || e)
+                return { status: 500, data: e?.response?.data || e };
             }
         },
 

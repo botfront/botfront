@@ -12,7 +12,6 @@ import path from 'path';
 
 import {
     formatError,
-    uploadFileToGcs,
     getProjectModelLocalFolder,
     getProjectModelFileName,
 } from '../../lib/utils';
@@ -26,6 +25,7 @@ import Activity from '../graphql/activity/activity.model';
 import { getFragmentsAndDomain } from '../../lib/story.utils';
 import { dropNullValuesFromObject } from '../../lib/client.safe.utils';
 import { Projects } from '../project/project.collection';
+import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 
 const replaceMongoReservedChars = (input) => {
     if (Array.isArray(input)) return input.map(replaceMongoReservedChars);
@@ -40,6 +40,11 @@ const replaceMongoReservedChars = (input) => {
     }
     return input;
 };
+
+const getAfterTrainingWebhook = async () => {
+    const globalSettings = await GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.afterTraining': 1 }})
+    return globalSettings?.settings?.private?.webhooks?.afterTraining;
+}
 
 export const createInstance = async (project) => {
     if (!Meteor.isServer) throw Meteor.Error(401, 'Not Authorized');
@@ -341,7 +346,18 @@ if (Meteor.isServer) {
 
                     if (loadModel) {
                         await client.put('/model', { model_file: trainedModelPath });
-                        
+                    }
+
+                    const trainingWebhook = await getAfterTrainingWebhook();
+                    if (trainingWebhook?.url && trainingWebhook?.method) {
+                        const { namespace } = await Projects.findOne({ _id: projectId }, { fields: { namespace: 1 }})
+                        const body = {
+                            projectId,
+                            namespace,
+                            model: Buffer.from(trainingResponse.data).toString('base64'),
+                            mimeType: 'application/x-tar',
+                        }
+                        Meteor.call('axios.requestWithJsonBody', trainingWebhook.url, trainingWebhook.method, body)
                     }
                     Activity.update(
                         { projectId, validated: true },
