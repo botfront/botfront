@@ -21,7 +21,6 @@ jobs:
     if: "! contains(github.head_ref, 'docs')"
     runs-on: ubuntu-latest
     steps:
-      - run: echo ${{github.head_ref}}
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
         with:
@@ -79,6 +78,7 @@ jobs:
         run: npx license-checker --excludePackages 'botfront@${{ steps.package-version.outputs.current-version }}' --failOn 'GPL-3.0;GPL-2.0;GPL;AGPL-3.0-only;AGPL-3.0'
 
   build-bf: # to do: run meteor build in previous step and build from simplified dockerfile
+    if: "! contains(github.head_ref, 'docs')"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
