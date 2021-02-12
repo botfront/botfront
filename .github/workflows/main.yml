@@ -18,7 +18,7 @@ jobs:
   #       run: echo "$GH_CONTEXT"
 
   unit-cli:
-    if: github.ref != 'ref/head/docs*'
+    if: ${{ !contains(github.ref, 'docs') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -38,7 +38,7 @@ jobs:
         run: npm run test
 
   unit-bf:
-    if: github.ref != 'ref/head/docs*'
+    if: ${{ !contains(github.ref, 'docs') }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -112,7 +112,7 @@ jobs:
           path: botfront-local.tar
 
   integration:
-    if: github.ref != 'ref/head/docs*'
+    if: ${{ !contains(github.ref, 'docs') }}
     runs-on: ubuntu-latest
     needs: [build-bf]
     steps:
