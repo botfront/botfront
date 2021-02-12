@@ -10,7 +10,7 @@ export const slotValueToLabel = value => (
             : value.toString()
 );
 
-export default function SlotLabel({ value, onChange, disableSelection }) {
+export default function SlotLabel({ value, onChange, disableSelection, excludeSlotsOfType }) {
     const [name] = Object.keys(value);
     const slotValue = value[name];
 
@@ -30,7 +30,7 @@ export default function SlotLabel({ value, onChange, disableSelection }) {
             onSelect={slot => onChange(slot)}
             value={value}
             disabled={disableSelection}
-            excludeSlotsOfType={['unfeaturized']}
+            excludeSlotsOfType={excludeSlotsOfType}
         />
     );
 }
@@ -39,8 +39,10 @@ SlotLabel.propTypes = {
     value: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired,
     disableSelection: PropTypes.bool,
+    excludeSlotsOfType: PropTypes.array,
 };
 
 SlotLabel.defaultProps = {
     disableSelection: false,
+    excludeSlotsOfType: ['unfeaturized'],
 };

@@ -99,8 +99,8 @@ if (Meteor.isServer) {
         Roles.addRolesToParent('analytics:r', 'analytics:w');
 
 
-        createRole('git-credentials:r', 'Can access git credentials informations');
-        createRole('git-credentials:w', 'Can access and edit git credentials informations. extends `git-credentials:r`');
+        createRole('git-credentials:r', 'Can view git credentials in project settings. ');
+        createRole('git-credentials:w', 'Can edit git credentials in project settings. extends `git-credentials:r`');
         Roles.addRolesToParent(['git-credentials:r'], 'git-credentials:w');
         
         createRole('export:x', 'Can export project data');
