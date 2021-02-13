@@ -24,7 +24,6 @@ describe('project creation', function () {
             .children()
             .first()
             .click();
-        cy.get('#uniforms-0000-0006').type('test');
         cy.dataCy('submit-field').click();
         cy.location('href').should('match', /http:\/\/\w*:*[0-9]*\/admin\/projects/);
         cy.get(':nth-child(3) > .rt-tr > :nth-child(1)').should('have.text', 'test');
