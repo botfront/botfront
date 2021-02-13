@@ -52,7 +52,7 @@ webhooks:
     name: ReportCrash
     url: ''
     method: POST
-   afterTraining:
+  afterTraining:
     name: AfterTraining
     url: ''
     method: POST
