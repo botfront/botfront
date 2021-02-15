@@ -194,6 +194,7 @@ Migrations.add({
     version: 5,
     up: () => {
         const allStories = Stories.find().fetch();
+        if (allStories.some(s => s.type)) return;
         allStories.forEach((story) => {
             const events = [];
             Stories.update({ _id: story._id }, { $set: { events } });
@@ -387,6 +388,7 @@ Migrations.add({
                 });
             });
         const allStories = Stories.find().fetch();
+        if (allStories.some(s => s.type)) return;
         allStories.forEach((story) => {
             const { textIndex } = indexStory(story);
             Stories.update({ _id: story._id }, { $set: { textIndex } });
@@ -417,6 +419,7 @@ Migrations.add({
     version: 15,
     up: () => {
         const allStories = Stories.find().fetch();
+        if (allStories.some(s => s.type)) return;
         allStories.forEach((story) => {
             const { textIndex, events } = indexStory(story, { includeEventsField: true });
             Stories.update({ _id: story._id }, { $set: { textIndex, events } });
@@ -573,6 +576,7 @@ Migrations.add({
         // update stories to have a trigger intent
         const stories = await Stories.find().fetch();
         if (!stories) return;
+        if (stories.some(s => s.type)) return;
         stories.forEach(({ _id, rules }) => {
             const update = {
                 triggerIntent: `trigger_${shortid.generate()}`,
