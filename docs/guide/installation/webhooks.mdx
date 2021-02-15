@@ -1,5 +1,6 @@
 ---
 name: Server installation
+title: Server installation
 route: /docs/deployment/installation/
 menu: Deployment
 meta:
@@ -8,6 +9,8 @@ meta:
   - name: keywords
     content: botfront webhooks
 ---
+
+Available in: <Premium plan="Cloud Pro" /> <Premium plan="Cloud Premium" /> <Premium plan="Enterprise Edition" />
 
 # Webhooks
 
@@ -96,7 +99,27 @@ Botfront will send a request to the api with the following information
 Botfront except a 200 success response, other response are treated as errors. 
 You can and a message property in the error response body that will be displayed to the user.
 
+### PostTraining
 
+If set, This webhook will be invoked every time a project finishes training.
+
+### Request
+
+Botfront will send a request to the webhook url with the following parameters.
+
+```js
+{
+    "projectId" : string,
+    "namespace" : string,
+    "model" : string, // base64 conversion of the trained model
+    "mimeType" string,
+}
+```
+
+#### Expected response
+
+Botfront except a 200 success response, other response are treated as errors.
+You can add a message property in the error response body that will be displayed to the user.
 
 ## Report Crash
 
