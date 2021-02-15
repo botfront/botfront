@@ -163,9 +163,9 @@ if (Meteor.isServer) {
                 const axiosJson = axios.create();
                 addLoggingInterceptors(axiosJson, appMethodLogger);
                 // 400mb
-                // const maxContentLength = 400000000;
+                const maxContentLength = 400000000;
                 const response = await axiosJson({
-                    url, method, data, // maxContentLength,
+                    url, method, data, maxContentLength,
                 });
                 const { status, data: responseData } = response;
                 return { status, data: responseData };
@@ -259,6 +259,7 @@ if (Meteor.isServer) {
             if (!trainingWebhook.url || !trainingWebhook.method) {
                 return;
             }
+            console.log(trainingWebhook)
             const { namespace } = await Projects.findOne({ _id: projectId }, { fields: { namespace: 1 }})
             const body = {
                 projectId,
