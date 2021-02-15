@@ -19,7 +19,7 @@ RUN bash $SCRIPTS_FOLDER/build-meteor-bundle.sh
 
 # Use Debian, because nodegit is too hard to get to work with
 # Alpine >=3.8
-FROM node:14-buster-slim
+FROM node:12-buster-slim
 RUN apt-get update && apt-get install -y python g++ build-essential
 
 ENV APP_BUNDLE_FOLDER /opt/bundle
