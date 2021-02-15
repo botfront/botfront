@@ -990,7 +990,7 @@ Migrations.add({
     version: 26,
     up: async () => {
         const currentSettings = GlobalSettings.findOne({ _id: 'SETTINGS' });
-        if (currentSettings?.settings?.private?.webhooks?.afterTraining) return
+        if (currentSettings?.settings?.private?.webhooks?.postTraining) return
         const { webhooks } = safeLoad(
             Assets.getText(
                 process.env.MODE === 'development'
@@ -1004,8 +1004,8 @@ Migrations.add({
             { _id: 'SETTINGS' },
             {
                 $set: {
-                    'settings.private.webhooks.afterTraining':
-                        webhooks.afterTraining,
+                    'settings.private.webhooks.postTraining':
+                        webhooks.postTraining,
                 },
             },
         );

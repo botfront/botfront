@@ -128,6 +128,11 @@ export function secondsToDaysHours(sec) {
     return dDisplay + hDisplay;
 }
 
+const getPostTrainingWebhook = async () => {
+    const globalSettings = await GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.postTraining': 1 }})
+    return globalSettings?.settings?.private?.webhooks?.postTraining;
+}
+
 if (Meteor.isServer) {
     import {
         getAppLoggerForMethod,
@@ -247,6 +252,23 @@ if (Meteor.isServer) {
             if (resp.status !== 200) throw new Meteor.Error('500', `Deployment webhook ${get(resp, 'data.message', false) || ' rejected upload.'}`);
             return resp;
         },
+        async 'call.postTraining'(projectId, modelData) {
+            checkIfCan('nlu-data:x')
+            check(projectId, String)
+            const trainingWebhook = await getPostTrainingWebhook();
+            if (!trainingWebhook) {
+                console.log('-- no training webhook --')
+                return;
+            }
+            const { namespace } = await Projects.findOne({ _id: projectId }, { fields: { namespace: 1 }})
+            const body = {
+                projectId,
+                namespace,
+                model: Buffer.from(modelData).toString('base64'),
+                mimeType: 'application/x-tar',
+            }
+            Meteor.call('axios.requestWithJsonBody', trainingWebhook.url, trainingWebhook.method, body)
+        }
     });
 }
 
