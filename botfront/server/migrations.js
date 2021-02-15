@@ -986,6 +986,32 @@ Migrations.add({
     },
 });
 
+Migrations.add({
+    version: 26,
+    up: async () => {
+        const currentSettings = GlobalSettings.findOne({ _id: 'SETTINGS' });
+        if (currentSettings?.settings?.private?.webhooks?.afterTraining) return
+        const { webhooks } = safeLoad(
+            Assets.getText(
+                process.env.MODE === 'development'
+                    ? 'defaults/private.dev.yaml'
+                    : process.env.MODE === 'test'
+                        ? 'defaults/private.yaml'
+                        : 'defaults/private.gke.yaml',
+            ),
+        );
+        GlobalSettings.update(
+            { _id: 'SETTINGS' },
+            {
+                $set: {
+                    'settings.private.webhooks.afterTraining':
+                        webhooks.afterTraining,
+                },
+            },
+        );
+    },
+});
+
 Meteor.startup(() => {
     Migrations.migrateTo('latest');
 });
