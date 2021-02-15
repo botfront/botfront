@@ -1,5 +1,5 @@
 # The tag here should match the Meteor version of your app, per .meteor/release
-FROM geoffreybooth/meteor-base:1.10.2
+FROM geoffreybooth/meteor-base:2.0
 
 # Copy app package.json and package-lock.json into container
 COPY ./botfront/package*.json $APP_SOURCE_FOLDER/
@@ -20,6 +20,7 @@ RUN bash $SCRIPTS_FOLDER/build-meteor-bundle.sh
 # Use Debian, because nodegit is too hard to get to work with
 # Alpine >=3.8
 FROM node:12-buster-slim
+RUN apt-get update && apt-get install -y python g++ build-essential
 
 ENV APP_BUNDLE_FOLDER /opt/bundle
 ENV SCRIPTS_FOLDER /docker
