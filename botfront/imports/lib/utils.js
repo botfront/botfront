@@ -256,8 +256,7 @@ if (Meteor.isServer) {
             checkIfCan('nlu-data:x')
             check(projectId, String)
             const trainingWebhook = await getPostTrainingWebhook();
-            if (!trainingWebhook) {
-                console.log('-- no training webhook --')
+            if (!trainingWebhook.url || !trainingWebhook.method) {
                 return;
             }
             const { namespace } = await Projects.findOne({ _id: projectId }, { fields: { namespace: 1 }})
