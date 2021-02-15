@@ -259,7 +259,6 @@ if (Meteor.isServer) {
             if (!trainingWebhook.url || !trainingWebhook.method) {
                 return;
             }
-            console.log(trainingWebhook)
             const { namespace } = await Projects.findOne({ _id: projectId }, { fields: { namespace: 1 }})
             const body = {
                 projectId,
