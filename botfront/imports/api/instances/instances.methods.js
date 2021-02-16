@@ -12,7 +12,6 @@ import path from 'path';
 
 import {
     formatError,
-    uploadFileToGcs,
     getProjectModelLocalFolder,
     getProjectModelFileName,
 } from '../../lib/utils';
@@ -26,6 +25,7 @@ import Activity from '../graphql/activity/activity.model';
 import { getFragmentsAndDomain } from '../../lib/story.utils';
 import { dropNullValuesFromObject } from '../../lib/client.safe.utils';
 import { Projects } from '../project/project.collection';
+import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 
 const replaceMongoReservedChars = (input) => {
     if (Array.isArray(input)) return input.map(replaceMongoReservedChars);
@@ -341,16 +341,9 @@ if (Meteor.isServer) {
 
                     if (loadModel) {
                         await client.put('/model', { model_file: trainedModelPath });
-                        if (process.env.ORCHESTRATOR === 'gke') {
-                            const { modelsBucket } = Projects.findOne(
-                                { _id: projectId },
-                                { fields: { modelsBucket: 1 } },
-                            ) || {};
-                            if (modelsBucket) {
-                                await uploadFileToGcs(trainedModelPath, modelsBucket);
-                            }
-                        }
                     }
+
+                    Meteor.call('call.postTraining', projectId, trainingResponse.data)
                     Activity.update(
                         { projectId, validated: true },
                         { $set: { validated: false } },

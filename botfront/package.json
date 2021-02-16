@@ -27,7 +27,6 @@
     "@apollo/react-hooks": "^3.1.3",
     "@atlaskit/tree": "^7.1.2",
     "@google-cloud/logging-winston": "^3.0.5",
-    "@google-cloud/storage": "^4.2.0",
     "@graphql-tools/merge": "^6.0.6",
     "@graphql-tools/schema": "^6.0.6",
     "@john-osullivan/react-window-dynamic-fork": "1.9.0-alpha.1",

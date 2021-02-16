@@ -80,15 +80,6 @@ export const getProjectModelLocalFolder = () => process.env.MODELS_LOCAL_PATH ||
 
 export const getProjectModelLocalPath = projectId => path.join(getProjectModelLocalFolder(), getProjectModelFileName(projectId, 'tar.gz'));
 
-export function uploadFileToGcs(filePath, bucket) {
-    const { Storage } = require('@google-cloud/storage');
-    const storage = new Storage();
-    return new Promise((resolve, reject) => storage.bucket(bucket)
-        .upload(filePath)
-        .then(resolve)
-        .catch(reject));
-}
-
 export const getImageUrls = (response, excludeLang = '') => (
     response.values.reduce((vacc, vcurr) => {
         if (vcurr.lang !== excludeLang) {
@@ -137,6 +128,11 @@ export function secondsToDaysHours(sec) {
     return dDisplay + hDisplay;
 }
 
+const getPostTrainingWebhook = async () => {
+    const globalSettings = await GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.postTraining': 1 }})
+    return globalSettings?.settings?.private?.webhooks?.postTraining;
+}
+
 if (Meteor.isServer) {
     import {
         getAppLoggerForMethod,
@@ -177,7 +173,8 @@ if (Meteor.isServer) {
                 // if we console log the error here, it will write the image/model as a string, and the error message will be too bike and unusable.
                 // eslint-disable-next-line no-console
                 console.log('ERROR: Botfront encountered an error while calling a webhook');
-                return { status: 500, data: e.response.data };
+                console.log(e.response || e)
+                return { status: 500, data: e?.response?.data || e };
             }
         },
 
@@ -255,6 +252,22 @@ if (Meteor.isServer) {
             if (resp.status !== 200) throw new Meteor.Error('500', `Deployment webhook ${get(resp, 'data.message', false) || ' rejected upload.'}`);
             return resp;
         },
+        async 'call.postTraining'(projectId, modelData) {
+            checkIfCan('nlu-data:x')
+            check(projectId, String)
+            const trainingWebhook = await getPostTrainingWebhook();
+            if (!trainingWebhook.url || !trainingWebhook.method) {
+                return;
+            }
+            const { namespace } = await Projects.findOne({ _id: projectId }, { fields: { namespace: 1 }})
+            const body = {
+                projectId,
+                namespace,
+                model: Buffer.from(modelData).toString('base64'),
+                mimeType: 'application/x-tar',
+            }
+            Meteor.call('axios.requestWithJsonBody', trainingWebhook.url, trainingWebhook.method, body)
+        }
     });
 }
 
