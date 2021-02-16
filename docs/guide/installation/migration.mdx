@@ -54,6 +54,14 @@ Then process with the following steps:
 
 Check below if specific instructions apply to the version you are migrating to.
 
+### 0.27.x -> 1.0.0
+
+There is no automatic migration to 1.0, however migrating is easy:
+1. Export your project in Rasa format
+2. For each language, copy the content of your pipeline and policies to a `congig-<lang>.yaml` file. E.g. `config-en.yaml`. Yes, the policies need to be copied to every file
+3. Save your credentials and endpoints to `credentials.yaml` and `endpoints.yaml`
+4. Start Botfront 1.x and import all your files
+
 ### 0.25.x -> 0.26.x
 
 The migration should be straightforward, however because there are significant database changes, make sure:
