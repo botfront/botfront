@@ -173,7 +173,6 @@ if (Meteor.isServer) {
                 // if we console log the error here, it will write the image/model as a string, and the error message will be too bike and unusable.
                 // eslint-disable-next-line no-console
                 console.log('ERROR: Botfront encountered an error while calling a webhook');
-                console.log(e.response || e)
                 return { status: 500, data: e?.response?.data || e };
             }
         },
