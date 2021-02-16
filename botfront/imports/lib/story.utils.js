@@ -161,6 +161,7 @@ export const extractDomain = ({
         entities: new Set(defaultDomain.entities || []),
         responses: { ...(defaultDomain.responses || {}), ...responses },
         slots: { ...(defaultDomain.slots || {}), ...getSlotsInRasaFormat(slots) },
+        session_config: defaultDomain.session_config || {},
         forms: {
             ...(defaultDomain.forms || {}),
             ...formGroupIdsToGroupNames(bfForms).reduce(
