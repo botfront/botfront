@@ -7,9 +7,6 @@ credentials:
 instance: http://rasa-service.{PROJECT_NAMESPACE}
 bfApiHost: http://botfront-api-service.botfront
 endpoints:
-  models:
-    url: 'https://storage.googleapis.com/{GCP_MODELS_BUCKET}/model-{BF_PROJECT_ID}.tar.gz'
-    wait_time_between_pulls: 3600
   nlg:
     type: rasa_addons.core.nlg.GraphQLNaturalLanguageGenerator
     url: http://botfront-app-service.botfront/graphql
@@ -53,5 +50,9 @@ webhooks:
     method: POST
   reportCrashWebhook:
     name: ReportCrash
+    url: ''
+    method: POST
+  postTraining:
+    name: PostTraining
     url: ''
     method: POST
