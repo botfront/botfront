@@ -86,7 +86,12 @@ env:
 botfront up
 ```
 
-7. Open Botfront in your browser (`http://123.99.135.3:8888`) and setup your project
+7. Open Botfront in your browser (`http://123.99.135.3:8888`) and setup your project.
+
+Look up the ID of your project. In the example URL `http://123.99.135.3:8888/project/mSvL3ccZaz5RimDpF/`, `mSvL3ccZaz5RimDpF` is the ID.
+
+Run `botfront set-project <project_id>`. Rasa will restart and fetch that project's configuration.
+
 8. Go to settings/credentials and change the `base_url` host to the IP address (keep the host unchanged)
 
 ```yaml
