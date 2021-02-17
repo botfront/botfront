@@ -48,9 +48,9 @@ export const createInstance = async (project) => {
         Assets.getText(
             process.env.MODE === 'development'
                 ? 'defaults/private.dev.yaml'
-                : process.env.MODE === 'test'
-                    ? 'defaults/private.yaml'
-                    : 'defaults/private.gke.yaml',
+                : process.env.ORCHESTRATOR === 'gke'
+                    ? 'defaults/private.gke.yaml'
+                    : 'defaults/private.yaml',
         ),
     );
 

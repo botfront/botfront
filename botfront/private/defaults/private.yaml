@@ -9,12 +9,12 @@ bfApiHost: http://botfront-api:8080
 endpoints:
   nlg:
     type: rasa_addons.core.nlg.GraphQLNaturalLanguageGenerator
-    url: http://botfront:3000/graphql
+    url: http://host.docker.internal:8888/graphql
   action_endpoint:
-    url: http://actions:5055/webhook
+    url: http://host.docker.internal:5055/webhook
   tracker_store:
     store_type:  rasa_addons.core.tracker_stores.botfront.BotfrontTrackerStore
-    url: http://botfront:3000/graphql
+    url: http://host.docker.internal:8888/graphql
 policies:
   - name: TEDPolicy
     epochs: 50

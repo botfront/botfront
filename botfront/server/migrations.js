@@ -77,9 +77,9 @@ Migrations.add({
             Assets.getText(
                 process.env.MODE === 'development'
                     ? 'defaults/private.dev.yaml'
-                    : process.env.MODE === 'test'
-                        ? 'defaults/private.yaml'
-                        : 'defaults/private.gke.yaml',
+                    : process.env.ORCHESTRATOR === 'gke'
+                        ? 'defaults/private.gke.yaml'
+                        : 'defaults/private.yaml',
             ),
         );
         const defaultDefaultDomain = safeDump(privateSettings.defaultDomain);
@@ -275,9 +275,9 @@ Migrations.add({
             Assets.getText(
                 process.env.MODE === 'development'
                     ? 'defaults/private.dev.yaml'
-                    : process.env.MODE === 'test'
-                        ? 'defaults/private.yaml'
-                        : 'defaults/private.gke.yaml',
+                    : process.env.ORCHESTRATOR === 'gke'
+                        ? 'defaults/private.gke.yaml'
+                        : 'defaults/private.yaml',
             ),
         );
         GlobalSettings.update(
@@ -457,9 +457,9 @@ Migrations.add({
             Assets.getText(
                 process.env.MODE === 'development'
                     ? 'defaults/private.dev.yaml'
-                    : process.env.MODE === 'test'
-                        ? 'defaults/private.yaml'
-                        : 'defaults/private.gke.yaml',
+                    : process.env.ORCHESTRATOR === 'gke'
+                        ? 'defaults/private.gke.yaml'
+                        : 'defaults/private.yaml',
             ),
         );
         GlobalSettings.update(
@@ -550,9 +550,9 @@ Migrations.add({
             Assets.getText(
                 process.env.MODE === 'development'
                     ? 'defaults/private.dev.yaml'
-                    : process.env.MODE === 'test'
-                        ? 'defaults/private.yaml'
-                        : 'defaults/private.gke.yaml',
+                    : process.env.ORCHESTRATOR === 'gke'
+                        ? 'defaults/private.gke.yaml'
+                        : 'defaults/private.yaml',
             ),
         );
         GlobalSettings.update(
@@ -995,9 +995,9 @@ Migrations.add({
             Assets.getText(
                 process.env.MODE === 'development'
                     ? 'defaults/private.dev.yaml'
-                    : process.env.MODE === 'test'
-                        ? 'defaults/private.yaml'
-                        : 'defaults/private.gke.yaml',
+                    : process.env.ORCHESTRATOR === 'gke'
+                        ? 'defaults/private.gke.yaml'
+                        : 'defaults/private.yaml',
             ),
         );
         GlobalSettings.update(
