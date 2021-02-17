@@ -157,6 +157,7 @@ entities:
   - utm_campaign
   - utm_keyword
   - utm_source
+session_config: {}
 forms:
   basic_info_form:
     collect_in_botfront: null

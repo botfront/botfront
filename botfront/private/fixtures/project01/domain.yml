@@ -159,6 +159,7 @@ entities:
   - utm_keyword
   - utm_source
   - work_email
+session_config: {}
 forms: {}
 intents:
   - another_triggered_one
