@@ -139,7 +139,7 @@ jobs:
         env:
           RASA_TAG: ${{ steps.versions.outputs.rasa }}
           GITHUB_TOKEN: ${{ secrets.CYPRESS_GITHUB_TOKEN }}
-          GITHUB_TEMPLATE_REPO: botfront/ci_repo_template
+          GITHUB_TEMPLATE_REPO: botfront-ci-bot/ci_repo_template
       - name: persist screenshots as artifact on failure
         if: failure()
         uses: actions/upload-artifact@v1
