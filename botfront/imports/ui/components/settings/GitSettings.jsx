@@ -77,18 +77,16 @@ class GitSettings extends React.Component {
     }
         const isGitSettingsEmpty = this.gitSettingsEmpty(gitSettings)
         return (
-            <>
             
-          
             <AutoForm
                 className='git-settings-form'
                 schema={bridge}
                 model={hidden && !isGitSettingsEmpty ? obfuscation : gitSettings}
                 onSubmit={updateProject => this.onSave(updateProject)}
-                disabled={saving || !hasWritePermission}
+                disabled={hidden || saving || !hasWritePermission}
             >
                 <InfoField
-                    disabled={saving || !hasWritePermission}
+                    disabled={hidden || saving || !hasWritePermission}
                     name='gitString'
                     label={(
                         <>
@@ -112,10 +110,10 @@ class GitSettings extends React.Component {
                     className='project-name'
                     data-cy='git-string'
                 />
-                <label>
+                <div className={`ssh-keys field ${hidden ? 'disabled': ''}`} >
                     <Icon name='key' /> SSH keys{' '}
                     <Info info='These are stored as is, so use caution: use this key only for versioning your bot, and give it only the necessary rights to push and pull to above repo.' />
-                </label>
+                </div>
                 <AutoField
                     label='Public'
                     name='publicSshKey'
@@ -141,7 +139,7 @@ class GitSettings extends React.Component {
             : <></>}
                 
             </AutoForm>
-            </>
+            
         );
     };
 
