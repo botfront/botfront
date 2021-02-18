@@ -34,7 +34,6 @@ describe('Git Integration', function() {
 
     it('shoud obfuscate git settings', function() {
         cy.visit('/project/bf/settings/git-credentials');
-         //we use this obfuscation because it matches the  validation regex, thus no error are shown when obfuscating
         cy.dataCy('git-string').find('input').should('have.value','https://******:******@******.******#******')
         cy.dataCy('public-ssh-key').find('input').should('have.value','**********************')
         cy.dataCy('private-ssh-key').find('textarea').should('have.value','**********************')
