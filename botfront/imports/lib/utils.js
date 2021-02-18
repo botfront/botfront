@@ -163,9 +163,9 @@ if (Meteor.isServer) {
                 const axiosJson = axios.create();
                 addLoggingInterceptors(axiosJson, appMethodLogger);
                 // 400mb
-                const maxContentLength = 400000000;
+                const maxContentLength = maxBodyLength = 400000000;
                 const response = await axiosJson({
-                    url, method, data, maxContentLength,
+                    url, method, data, maxContentLength, maxBodyLength
                 });
                 const { status, data: responseData } = response;
                 return { status, data: responseData };
