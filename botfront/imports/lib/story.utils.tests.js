@@ -661,6 +661,7 @@ if (Meteor.isServer) {
                 entities: ['name'],
                 responses,
                 slots: {},
+                session_config: {},
                 forms: {},
             });
         });
