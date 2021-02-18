@@ -83,10 +83,10 @@ class GitSettings extends React.Component {
                 schema={bridge}
                 model={hidden && !isGitSettingsEmpty ? obfuscation : gitSettings}
                 onSubmit={updateProject => this.onSave(updateProject)}
-                disabled={hidden || saving || !hasWritePermission}
+                disabled={(hidden && !isGitSettingsEmpty) || saving || !hasWritePermission}
             >
                 <InfoField
-                    disabled={hidden || saving || !hasWritePermission}
+                    disabled={(hidden && !isGitSettingsEmpty) || saving || !hasWritePermission}
                     name='gitString'
                     label={(
                         <>
@@ -110,7 +110,7 @@ class GitSettings extends React.Component {
                     className='project-name'
                     data-cy='git-string'
                 />
-                <div className={`ssh-keys field ${hidden ? 'disabled': ''}`} >
+                <div className={`ssh-keys field ${(hidden && !isGitSettingsEmpty) ? 'disabled': ''}`} >
                     <Icon name='key' /> SSH keys{' '}
                     <Info info='These are stored as is, so use caution: use this key only for versioning your bot, and give it only the necessary rights to push and pull to above repo.' />
                 </div>
