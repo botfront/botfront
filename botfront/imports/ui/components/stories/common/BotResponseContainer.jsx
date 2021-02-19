@@ -4,10 +4,14 @@ import React, {
 } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'semantic-ui-react';
+import { MESSAGE_TYPES } from 'botfront-message-types';
 import TextareaAutosize from 'react-autosize-textarea';
+
 import ImageThumbnail from './ImageThumbnail';
 import CarouselEditor from './CarouselEditor';
 import QuickReplies from './QuickReplies';
+
+const messageTypes = Object.keys(MESSAGE_TYPES);
 
 const BotResponseContainer = (props) => {
     const {
@@ -25,6 +29,15 @@ const BotResponseContainer = (props) => {
     const isImageResponse = value.__typename === 'ImagePayload';
     const hasText = Object.keys(value).includes('text') && value.text !== null;
 
+    let RenderComponent = null;
+
+    if (isCustom) {
+        messageTypes.forEach((type) => {
+            if (type === value.custom?.type) {
+                RenderComponent = MESSAGE_TYPES[type].editorComponent;
+            }
+        });
+    }
 
     const unformatNewlines = (response) => {
         if (!response) return response;
@@ -63,6 +76,16 @@ const BotResponseContainer = (props) => {
             e.preventDefault();
             onChange({ text: formatNewlines(input) }, true);
         }
+    };
+
+    const handleChangeRenderComponent = (newValue) => {
+        onChange({
+            ...value,
+            custom: {
+                ...value.custom,
+                value: newValue,
+            },
+        });
     };
 
     const renderText = () => (
@@ -138,7 +161,13 @@ const BotResponseContainer = (props) => {
                 {isCarouselResponse && <CarouselEditor value={value} onChange={onChange} />}
                 {isButtonsResponse && renderButtons()}
                 {isQRResponse && renderQuickReply()}
-                {isCustom && renderCustom()}
+                {isCustom && RenderComponent && (
+                    <RenderComponent
+                        value={value.custom.value}
+                        onChange={handleChangeRenderComponent}
+                    />
+                )}
+                {isCustom && !RenderComponent && renderCustom()}
             </div>
         </div>
     );

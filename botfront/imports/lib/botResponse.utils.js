@@ -92,7 +92,7 @@ export const defaultTemplate = (template) => {
             __typename: 'CarouselPayload',
         };
     default:
-        return null;
+        return { __typename: 'CustomPayload', custom: { type: template } };
     }
 };
 

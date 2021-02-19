@@ -1,0 +1,11 @@
+{
+    "name": "message-types",
+    "version": "1.0.0",
+    "license": "Apache-2.0",
+    "scripts": {
+    },
+    "peerDependencies": {
+        "botfront": "1.0.0"
+    }
+  }
+  

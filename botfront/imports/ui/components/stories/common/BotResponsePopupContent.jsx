@@ -1,3 +1,4 @@
+import { MESSAGE_TYPES } from 'botfront-message-types';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -69,12 +70,19 @@ const BotResponsePopupContent = (props) => {
                     <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('CarouselPayload')} data-cy='from-carousel-template'>Carousel</Dropdown.Item>
                     <Dropdown.Item onClick={() => onCreate('ImagePayload')} data-cy='from-image-template'>Image</Dropdown.Item>
                     <Dropdown.Item onClick={() => onCreate('CustomPayload')} data-cy='from-custom-template'>Custom</Dropdown.Item>
+                    {/* TODO: Pass down default value */}
+                    {Object.keys(MESSAGE_TYPES)
+                        .map(key => (
+                            <Dropdown.Item onClick={() => onCreate(key)}>
+                                {MESSAGE_TYPES[key].name}
+                            </Dropdown.Item>
+                        ))}
                     {!limitedSelection
                         && (
-                        <>
-                            <Dropdown.Item onClick={() => onCreate('VideoPayload')} data-cy='from-video-template'>Video</Dropdown.Item>
-                            <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('ButtonPayload')} data-cy='from-button-template'>Button template</Dropdown.Item>
-                        </>
+                            <>
+                                <Dropdown.Item onClick={() => onCreate('VideoPayload')} data-cy='from-video-template'>Video</Dropdown.Item>
+                                <Dropdown.Item disabled={noButtonResponse} onClick={() => onCreate('ButtonPayload')} data-cy='from-button-template'>Button template</Dropdown.Item>
+                            </>
                         )
                     }
                 </Dropdown.Menu>
