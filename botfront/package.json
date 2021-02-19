@@ -132,7 +132,7 @@
     "babel-loader": "^8.0.6",
     "chai": "^4.1.2",
     "chai-exclude": "^2.0.2",
-    "chromedriver": "^87.0.0",
+    "chromedriver": "^88.0.0",
     "commitizen": "^3.0.7",
     "core-js": "^2.5.3",
     "cypress": "5.6.0",
