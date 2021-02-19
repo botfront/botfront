@@ -32,6 +32,18 @@ describe('Git Integration', function() {
         cy.get('@gitRepo').then(gitRepo => cy.tearDownGitRepo(gitRepo));
     });
 
+    it('shoud obfuscate git settings', function() {
+        cy.visit('/project/bf/settings/git-credentials');
+        cy.dataCy('git-string').find('input').should('have.value','https://******:******@******.******#******')
+        cy.dataCy('public-ssh-key').find('input').should('have.value','**********************')
+        cy.dataCy('private-ssh-key').find('textarea').should('have.value','**********************')
+        cy.dataCy('reveal-button').click()
+        cy.dataCy('git-string').find('input').should('not.have.value','https://******:******@******.******#******')
+        cy.dataCy('public-ssh-key').find('input').should('not.have.value','**********************')
+        cy.dataCy('private-ssh-key').find('textarea').should('not.have.value','**********************')
+            
+    });
+
     it('should commit, and revert to a commit only when current project state differs', function() {
         // push v1
         commitAndPushWithMessage('initial commit -- this is a test');
