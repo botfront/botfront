@@ -30,6 +30,7 @@
     "@graphql-tools/merge": "^6.0.6",
     "@graphql-tools/schema": "^6.0.6",
     "@john-osullivan/react-window-dynamic-fork": "1.9.0-alpha.1",
+    "@nivo/core": "^0.67.0",
     "@nivo/bar": "^0.67.0",
     "@nivo/line": "^0.67.0",
     "@nivo/pie": "^0.67.0",
