@@ -9,7 +9,7 @@ import {
 import Alert from 'react-s-alert';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
 import uuidv4 from 'uuid/v4'
-import { Button } from 'semantic-ui-react';
+import { Button, Confirm } from 'semantic-ui-react';
 import { InstanceSchema } from '../../../api/instances/instances.schema';
 import { Instances as InstancesCollection } from '../../../api/instances/instances.collection';
 import { wrapMeteorCallback } from '../utils/Errors';
@@ -24,6 +24,7 @@ class Instances extends React.Component {
             webhook: {},
             instance: {},
             copied: false,
+            confirmOpen: false
         };
     }
 
@@ -69,6 +70,14 @@ class Instances extends React.Component {
         setTimeout(() => this.setState({ copied: false }), 1000);
     };
 
+    openConfirm = () => {
+        this.setState({confirmOpen: true})
+    }
+
+    closeConfirm = () => {
+        this.setState({confirmOpen: false})
+    }
+
     render() {
         const {
             ready, projectId,
@@ -90,7 +99,7 @@ class Instances extends React.Component {
                         <AutoField name='host' />
                         <div className='token-generate'>
                             <AutoField action='Search'  id='token' name='token' label='Token' /> 
-                            <Button  content='Generate'  onClick={(e) => { e.preventDefault(); this.generateAuthToken() }} />
+                            <Button  content='Generate'  onClick={(e) => { e.preventDefault(); this.openConfirm() }} />
                             <Button
                             positive={copied}
                             onClick={(e) => {
@@ -100,6 +109,11 @@ class Instances extends React.Component {
                             className='copy-button'
                             icon='copy'
                             content={copied ? 'Copied' : 'Copy'}
+                        />
+                        <Confirm
+                            open={this.state.confirmOpen}
+                            onCancel={this.closeConfirm}
+                            onConfirm={() => {this.generateAuthToken(); this.closeConfirm()}}
                         />
 
                            
