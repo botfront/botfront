@@ -82,3 +82,18 @@ botfront set-project 3PEj5txDenAwG5brc # or whatever your project ID is
 ```
  
 Congrats! Your project is now ready!
+
+
+## Secure rasa access (optional)
+
+You might want to secure the communication between botfront and rasa-for-botfront.
+
+- In the instance settings there is a token, you can edit it or generate new ones as you feel.
+![](../../images/auth_token_instance_settings.png)
+
+- Add this token in env part of the botfront.yml under the key auth_token
+![](../../images/auth_token_botfront_yaml.png)
+
+- restart botfront (`botfront down` and then `botfront up`)
+
+The rasa api is now protected !
