@@ -151,6 +151,7 @@ if (Meteor.isServer) {
                 const client = axios.create({
                     baseURL: instance.host,
                     timeout: 100 * 1000,
+                    params: { token: instance.token }
                 });
                 addLoggingInterceptors(client, appMethodLogger);
                 // axiosRetry(client, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
@@ -295,16 +296,19 @@ if (Meteor.isServer) {
                     { skipInvalid: true },
                 );
                 const instance = await Instances.findOne({ projectId });
+                 // this client is used when telling rasa to load a model
                 const client = axios.create({
                     baseURL: instance.host,
                     timeout: process.env.TRAINING_TIMEOUT || 0,
+                    params: { token: instance.token }
                 });
                 addLoggingInterceptors(client, appMethodLogger);
                 const trainingClient = axios.create({
                     baseURL: instance.host,
                     timeout: process.env.TRAINING_TIMEOUT || 0,
                     responseType: 'arraybuffer',
-                });
+                    params: { token: instance.token }
+                })
                 addLoggingInterceptors(trainingClient, appMethodLogger);
                 const trainingResponse = await trainingClient.post(
                     '/model/train',
@@ -392,21 +396,19 @@ if (Meteor.isServer) {
                     rasa_nlu_data: (await getNluDataAndConfig(projectId, language))
                         .rasa_nlu_data,
                 };
-                const params = { language };
-
+              
                 const instance = Instances.findOne({ projectId });
-                if (instance.token) Object.assign(params, { token: instance.token });
-                const qs = queryString.stringify(params);
                 const client = axios.create({
                     baseURL: instance.host,
                     timeout: 60 * 60 * 1000,
+                    params: { language, token: instance.token }
                 });
                 addLoggingInterceptors(client, appMethodLogger);
                 axiosRetry(client, {
                     retries: 3,
                     retryDelay: axiosRetry.exponentialDelay,
                 });
-                const url = `${instance.host}/model/test/intents?${qs}`;
+                const url = `${instance.host}/model/test/intents`;
                 let results = Promise.await(client.post(url, examples));
 
                 results = replaceMongoReservedChars({

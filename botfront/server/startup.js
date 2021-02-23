@@ -58,7 +58,7 @@ Meteor.startup(function() {
                 const newStatuses = await Promise.all(instancesInfo.map(async (instance) => {
                     let instanceState;
                     try {
-                        const data = await axios.get(`${instance.host}/status`);
+                        const data = await axios.get(`${instance.host}/status`, { params: { token: instance.token }});
                         instanceState = get(data, 'data.num_active_training_jobs', -1);
                     } catch {
                         instanceState = -1;

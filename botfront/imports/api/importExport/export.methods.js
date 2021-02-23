@@ -44,13 +44,13 @@ if (Meteor.isServer) {
         );
     };
 
-    const convertJsonToYaml = async (json, instanceHost, language) => {
+    const convertJsonToYaml = async (json, instanceHost, instanceToken, language) => {
         const { data } = await axiosClient.post(`${instanceHost}/data/convert/nlu`, {
             data: json,
             input_format: 'json',
             output_format: 'yaml',
             language,
-        });
+        }, { params: { token: instanceToken }});
         return data.data || '';
     };
 
@@ -574,7 +574,7 @@ if (Meteor.isServer) {
                 try {
                     if (Meteor.isTest) throw new Error(); // keep json for export test
                     // eslint-disable-next-line no-await-in-loop
-                    data = await convertJsonToYaml(exportData.nlu[l], instance.host, l);
+                    data = await convertJsonToYaml(exportData.nlu[l], instance.host, instance.token, l);
                     extension = 'yml';
                 } catch {
                     data = JSON.stringify(exportData.nlu[l], null, 2);

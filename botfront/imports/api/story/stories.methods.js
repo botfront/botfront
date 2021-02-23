@@ -404,6 +404,7 @@ if (Meteor.isServer) {
                 const client = axios.create({
                     baseURL: instance.host,
                     timeout: 1000 * 1000,
+                    params: { language, token: instance.token }
                 });
 
                 auditLog('test model', {
