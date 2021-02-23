@@ -10,11 +10,9 @@ meta:
     content: botfront installation deployment
 ---
 
-Available in: <Premium plan="Botfront Enterprise" />
-
 # RBAC (Role based access control)
 
-The Enterprise Edition allows you to create multiple projects and users.
+Botfront allows you to create multiple projects and users.
 Additionnally you can assign roles to users.
 
 ## Roles and permissions
