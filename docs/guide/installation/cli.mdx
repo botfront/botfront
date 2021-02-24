@@ -22,13 +22,14 @@ Note that You can use the CLI when Botfront is installed on your local machine o
 
 ## Main commands
 
-| Command          | What it does                | Where to run it          |
-| ---------------- | --------------------------- | ------------------------ |
-| `botfront init`  | Create a new project        | Anywhere                 |
-| `botfront up`    | Start Botfront project      | from your project folder |
-| `botfront down`  | Stop Botfront project       | from your project folder |
-| `botfront logs`  | View Botfront logs          | from your project folder |
-| `botfront watch` | Watch actions files changes | from your project folder |
+| Command                               | What it does                 | Where to run it          |
+| ------------------------------------- | ---------------------------- | ------------------------ |
+| `botfront init`                       | Create a new project         | Anywhere                 |
+| `botfront up`                         | Start Botfront project       | from your project folder |
+| `botfront down`                       | Stop Botfront project        | from your project folder |
+| `botfront logs`                       | View Botfront logs           | from your project folder |
+| `botfront watch`                      | Watch actions files changes  | from your project folder |
+| `botfront set-project <project_id>`   | Connects Rasa to a project   | from your project folder |
 
 ## Other commands
 
@@ -47,6 +48,7 @@ Commands:
   down [options]     Stops a Botfront project and releases Docker resources.  Must be executed in your project's directory
   logs [options]     Display botfront logs. Must be executed in your project's directory
   killall [options]  Stops any running Botfront project
+  set-project <project_id>  Set Rasa and Actions service to serve project with a given project ID
   stop <service>     Stop a Botfront service (interactive). Must be executed in your project's directory
   start <service>    Start a Botfront service (interactive). Must be executed in your project's directory
   restart <service>  Restart a Botfront service (interactive). Must be executed in your project's directory
