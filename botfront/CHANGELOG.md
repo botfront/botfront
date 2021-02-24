@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.1](https://github.com/botfront/botfront/compare/v1.0.0...v1.0.1) (2021-02-24)
+
+
+### Features
+
+* **default domain:** support session_config key in default domain ([94298b8](https://github.com/botfront/botfront/commit/94298b83019ac61a92f6a258daa417aec1b49ae8))
+* **git-credentials:** git credentials are obfuscated  ([58410c1](https://github.com/botfront/botfront/commit/58410c16b11a0e71f6ded6e2f097ea6612509f96))
+
+
+### Bug Fixes
+
+* **deploy:** add maxBodyLength to axios request ([fe432b9](https://github.com/botfront/botfront/commit/fe432b91ffe2d8aa0c451dd05a9dab782f52ca4f))
+* default endpoints, instance, and credentials ([077564c](https://github.com/botfront/botfront/commit/077564c82b44c8daf693d5f79f6bbd7b0e1de1a7))
+
 ## [1.0.0](https://github.com/botfront/botfront/compare/v1.0.0-rc.4...v1.0.0) (2021-02-16)
 
 ## [1.0.0-rc.4](https://github.com/botfront/botfront/compare/v1.0.0-rc.3...v1.0.0-rc.4) (2021-02-09)
