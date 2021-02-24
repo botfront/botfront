@@ -13,8 +13,8 @@
 <a href='https://github.com/botfront/botfront/blob/master/LICENSE'>
     <img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg">
 </a>
-<a href='https://spectrum.chat/botfront'>
-    <img alt="Spectrum link" src="https://withspectrum.github.io/badge/badge.svg">
+<a href='https://github.com/botfront/botfront/discussions'>
+    <img alt="Github discussions link" src="https://img.shields.io/badge/Community%20support-Start%20a%20discussion-green">
 </a>
 </p>
 
@@ -29,7 +29,7 @@
 </p>
 <p align="center">
   <a href="./CHANGELOG.md">Release Notes</a> •
-  <a href="https://spectrum.chat/botfront">Get help</a> •
+  <a href="https://github.com/botfront/botfront/discussions">Get community support</a> •
   <a href="https://botfront.io">Botfront.io</a>
 </p>
 
