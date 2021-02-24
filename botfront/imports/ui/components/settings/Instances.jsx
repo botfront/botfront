@@ -98,8 +98,8 @@ class Instances extends React.Component {
                         <HiddenField name='projectId' value={projectId} />
                         <AutoField name='host' />
                         <div className='token-generate'>
-                            <AutoField action='Search'  id='token' name='token' label='Token' /> 
-                            <Button  content='Generate'  onClick={(e) => { e.preventDefault(); this.openConfirm() }} />
+                            <AutoField action='Search' id='token' data-cy='token-field' name='token' label='Token' />
+                            <Button content='Generate' onClick={(e) => { e.preventDefault(); this.openConfirm(); }} />
                             <Button
                             positive={copied}
                             onClick={(e) => {
