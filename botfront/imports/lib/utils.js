@@ -344,7 +344,7 @@ export function createAxiosWithConfig(instance = {}, config = {}, params = {}) {
     });
     return client;
 }
-export function createAxiosForRasa(projectId, config = {}, params = {}) {
-    const instance = Instances.findOne(projectId);
+export async function createAxiosForRasa(projectId, config = {}, params = {}) {
+    const instance = await Instances.findOne({ projectId });
     return createAxiosWithConfig(instance, config, params);
 }
