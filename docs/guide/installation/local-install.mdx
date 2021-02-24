@@ -12,6 +12,11 @@ meta:
 
 # Setup
 
+<Important type="warning">
+  Botfront is multi-project since Botfront 1.x. This feature is more useful on a hosted environment than on a local machine where it's more convenient to have one project per folder. Hence this process might seem a bit convoluted 
+</Important>
+
+
 ## Requirements
 
 Botfront has a few technical requirements. See them [here](/docs/deployment/configuration/#indicative-minimal-technical-requirements).
@@ -27,7 +32,8 @@ Botfront has a few technical requirements. See them [here](/docs/deployment/conf
 npm install -g botfront
 ```
 
-## Create a new project
+## Create a new project folder
+
 
 ```bash
 botfront init
@@ -41,13 +47,38 @@ Botfront will prompt you for a folder name if the current directory is not empty
 botfront up
 ```
 
-When installation is completed, Botfront will propose you to create your first project.
+Botfront will download Docker images and then start. Botfront will open in your browser.
 
-At any time, you can access the Botfront menu to create or run a project by running `botfront` in your shell.
+![](../../images/installation/welcome_to_bf.png)
 
-## Setup your project
+## Create your admin account
 
-<video autoplay muted loop width="740" controls>
-  <source src="../../videos/setup.mp4" type="video/mp4"/>
-  Your browser does not support the video tag.
-</video>
+Just fill the usual details and save.
+
+![](../../images/installation/create_admin_account.png)
+
+## Create your project
+
+> **Do NOT use the chitchat project**
+
+Above the project list click **Add project**
+
+![](../../images/installation/create_admin_account.png)
+
+And enter project details. Namespace doesn't matter in local installations, and submit
+
+![](../../images/installation/set_project_details.png)
+
+## Connect Rasa to your new project
+
+Copy your project id
+
+![](../../images/installation/copy_project_id.png)
+
+Then, in your terminal (from the project folder):
+
+```bash
+botfront set-project 3PEj5txDenAwG5brc # or whatever your project ID is
+```
+ 
+Congrats! Your project is now ready!

@@ -93,6 +93,11 @@ program
     .action(setProject);
 
 program
+    .command('switch <project_id>')
+    .description('Set Rasa and Actions service to serve project with a given project ID')
+    .action(setProject);
+
+program
     .command('stop <service>')
     .description('Stop a Botfront service (interactive). Must be executed in your project\'s directory')
     .action(dockerComposeStop);
