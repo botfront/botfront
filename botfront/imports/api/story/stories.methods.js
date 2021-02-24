@@ -404,7 +404,7 @@ if (Meteor.isServer) {
                 }
             
             
-                const client = createAxiosForRasa(projectId, { timeout: 1000 * 1000 }, { language });
+                const client = await createAxiosForRasa(projectId, { timeout: 1000 * 1000 }, { language });
                 auditLog('test model', {
                     user: Meteor.user(),
                     projectId,

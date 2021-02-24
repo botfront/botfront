@@ -148,7 +148,7 @@ if (Meteor.isServer) {
             );
             appMethodLogger.debug('Parsing nlu');
             try {
-                const client = createAxiosForRasa(instance.projectId, { timeout: 100 * 1000 });
+                const client = await createAxiosForRasa(instance.projectId, { timeout: 100 * 1000 });
                 addLoggingInterceptors(client, appMethodLogger);
                 // axiosRetry(client, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
                 const requests = examples.map(({ text, lang }) => {
@@ -288,9 +288,9 @@ if (Meteor.isServer) {
                     { skipInvalid: true },
                 );
                 // this client is used when telling rasa to load a model
-                const client = createAxiosForRasa(projectId, { timeout: process.env.TRAINING_TIMEOUT || 0 });
+                const client = await createAxiosForRasa(projectId, { timeout: process.env.TRAINING_TIMEOUT || 0 });
                 addLoggingInterceptors(client, appMethodLogger);
-                const trainingClient = createAxiosForRasa(projectId,
+                const trainingClient = await createAxiosForRasa(projectId,
                     { timeout: process.env.TRAINING_TIMEOUT || 0, responseType: 'arraybuffer' });
                 
                 addLoggingInterceptors(trainingClient, appMethodLogger);
@@ -380,7 +380,7 @@ if (Meteor.isServer) {
                     rasa_nlu_data: (await getNluDataAndConfig(projectId, language))
                         .rasa_nlu_data,
                 };
-                const client = createAxiosForRasa(projectId, { timeout: 60 * 60 * 1000 }, { language });
+                const client = await createAxiosForRasa(projectId, { timeout: 60 * 60 * 1000 }, { language });
                 addLoggingInterceptors(client, appMethodLogger);
                 axiosRetry(client, {
                     retries: 3,

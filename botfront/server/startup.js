@@ -58,10 +58,10 @@ Meteor.startup(function() {
                 const newStatuses = await Promise.all(instancesInfo.map(async (instance) => {
                     let instanceState;
                     try {
-                        const client = createAxiosForRasa(instance.projectId);
+                        const client = await createAxiosForRasa(instance.projectId);
                         const data = await client.get('/status');
                         instanceState = get(data, 'data.num_active_training_jobs', -1);
-                    } catch {
+                    } catch (e) {
                         instanceState = -1;
                     }
                     if (instanceState >= 1) return { status: 'training', projectId: instance.projectId };
