@@ -8,7 +8,7 @@ import {
 } from 'uniforms-semantic';
 import Alert from 'react-s-alert';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
-import uuidv4 from 'uuid/v4'
+import uuidv4 from 'uuid/v4';
 import { Button, Confirm } from 'semantic-ui-react';
 import { InstanceSchema } from '../../../api/instances/instances.schema';
 import { Instances as InstancesCollection } from '../../../api/instances/instances.collection';
@@ -24,13 +24,13 @@ class Instances extends React.Component {
             webhook: {},
             instance: {},
             copied: false,
-            confirmOpen: false
+            confirmOpen: false,
         };
     }
 
     componentDidMount() {
         const { projectId, instance } = this.props;
-        this.setState({ instance })
+        this.setState({ instance });
         if (can('resources:w', projectId)) {
             Meteor.call('getRestartRasaWebhook', projectId, wrapMeteorCallback((err, result) => {
                 if (err) return;
@@ -46,7 +46,7 @@ class Instances extends React.Component {
     };
 
     generateAuthToken = () => {
-        this.setState({instance: {...this.state.instance, token: uuidv4()}})
+        this.setState({ instance: { ...this.state.instance, token: uuidv4() } });
     }
 
     onSave = (updatedInstance) => {
@@ -71,11 +71,11 @@ class Instances extends React.Component {
     };
 
     openConfirm = () => {
-        this.setState({confirmOpen: true})
+        this.setState({ confirmOpen: true });
     }
 
     closeConfirm = () => {
-        this.setState({confirmOpen: false})
+        this.setState({ confirmOpen: false });
     }
 
     render() {
@@ -83,7 +83,9 @@ class Instances extends React.Component {
             ready, projectId,
         } = this.props;
      
-        const { webhook, instance, copied } = this.state;
+        const {
+            webhook, instance, copied, confirmOpen,
+        } = this.state;
         const hasWritePermission = can('resources:w', projectId);
         return (
             <>
@@ -101,20 +103,20 @@ class Instances extends React.Component {
                             <AutoField action='Search' id='token' data-cy='token-field' name='token' label='Token' />
                             <Button content='Generate' onClick={(e) => { e.preventDefault(); this.openConfirm(); }} />
                             <Button
-                            positive={copied}
-                            onClick={(e) => {
-                                e.preventDefault();
-                                this.handleCopy();
-                            }}
-                            className='copy-button'
-                            icon='copy'
-                            content={copied ? 'Copied' : 'Copy'}
-                        />
-                        <Confirm
-                            open={this.state.confirmOpen}
-                            onCancel={this.closeConfirm}
-                            onConfirm={() => {this.generateAuthToken(); this.closeConfirm()}}
-                        />
+                                positive={copied}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    this.handleCopy();
+                                }}
+                                className='copy-button'
+                                icon='copy'
+                                content={copied ? 'Copied' : 'Copy'}
+                            />
+                            <Confirm
+                                open={confirmOpen}
+                                onCancel={this.closeConfirm}
+                                onConfirm={() => { this.generateAuthToken(); this.closeConfirm(); }}
+                            />
 
                            
                         </div>
