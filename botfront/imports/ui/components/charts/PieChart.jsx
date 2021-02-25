@@ -22,8 +22,8 @@ function PieChart(props) {
             ...d, id: d.x, value: d.y,
         }));
     
-    const handleOnClick = (target) => {
-        linkToConversations(target, data);
+    const handleOnClick = ({ data: targetData }) => {
+        linkToConversations(targetData, data);
     };
 
     return (
@@ -72,16 +72,16 @@ PieChart.defaultProps = {
         left: 30,
     },
     formats: {},
-    sliceLabel: 'x',
-    radialLabel: d => labelWithPercent(d.y, d.yRel, ''),
-    tooltip: ({ formats, x, y }) => d => (
+    sliceLabel: 'id',
+    radialLabel: ({ data }) => labelWithPercent(data.y, data.yRel, ''),
+    tooltip: ({ formats, x, y }) => ({ datum }) => (
         <div>
-            <strong>{formatOrIdent(formats, x)(d[x])}</strong>
+            <strong>{formatOrIdent(formats, x)(datum.data[x])}</strong>
             <div>
-                <span style={{ color: d.color }}>
+                <span style={{ color: datum.color }}>
                     <Icon name='square' />
                 </span>
-                {labelWithPercent(formatOrIdent(formats, y[0].absolute)(d.y), d.yRel)}
+                {labelWithPercent(formatOrIdent(formats, y[0].absolute)(datum.data.y), datum.data.yRel)}
             </div>
         </div>
     ),
