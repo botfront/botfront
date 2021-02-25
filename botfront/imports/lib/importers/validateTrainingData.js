@@ -36,7 +36,7 @@ const NLU_HEADERS_IN_MD = [
     '## gazette:',
 ];
 const NLU_LINES = new RegExp(`(?:${NLU_HEADERS_IN_MD.join('|')})`, 'm');
-export const axiosClient = createAxiosWithConfig({ host: this.instanceHost, token: this.instanceToken });
+
 
 export class TrainingDataValidator {
     constructor({
@@ -69,6 +69,7 @@ export class TrainingDataValidator {
         this.existingNlu = {};
         this.groupNameMappings = {};
         this.links = [];
+        this.axiosClient = createAxiosWithConfig({ host: this.instanceHost, token: this.instanceToken });
     }
 
     formatRulesAndStoriesFromLoadedYaml = (data, fallbackGroup = 'Unspecified group') => {
@@ -142,7 +143,7 @@ export class TrainingDataValidator {
         // if yaml, we preload to json to avoid mysterious yaml
         // parsing perf issue over at Rasa side
         
-        const { data } = await axiosClient.post('/data/convert/nlu', {
+        const { data } = await this.axiosClient.post('data/convert/nlu', {
             data: extension === 'yaml' ? safeLoad(rawText) : rawText,
             input_format: extension === 'yaml' ? 'parsed_yaml' : extension,
             output_format: 'json',
@@ -175,7 +176,7 @@ export class TrainingDataValidator {
                 const res = await this.convertNluToJson(fileData, extension);
                 ({ rasa_nlu_data: nlu } = res?.data || {});
                 if (!nlu) throw new Error();
-            } catch {
+            } catch (e) {
                 throw new Error(
                     `NLU data in this file could not be parsed by Rasa at ${this.instanceHost}.`,
                 );
@@ -374,8 +375,8 @@ export class TrainingDataValidator {
             };
         }
         try {
-            const { data: { data = '' } = {} } = await axiosClient.post(
-                '/data/convert/core',
+            const { data: { data = '' } = {} } = await this.axiosClient.post(
+                'data/convert/core',
                 {
                     data: mdFragments,
                     input_format: 'md',
