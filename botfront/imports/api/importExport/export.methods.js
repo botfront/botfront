@@ -46,7 +46,7 @@ if (Meteor.isServer) {
     };
 
     const convertJsonToYaml = async (projectId, json, language) => {
-        const axiosClient = createAxiosForRasa(projectId);
+        const axiosClient = await createAxiosForRasa(projectId);
         const { data } = await axiosClient.post('/data/convert/nlu', {
             data: json,
             input_format: 'json',
