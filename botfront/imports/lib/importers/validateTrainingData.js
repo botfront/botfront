@@ -38,6 +38,14 @@ const NLU_HEADERS_IN_MD = [
 const NLU_LINES = new RegExp(`(?:${NLU_HEADERS_IN_MD.join('|')})`, 'm');
 export const axiosClient = axios.create();
 
+const convertMetadataToBotfrontFormat = (nlu) => {
+    const properCommonExamples = nlu.common_examples.map((common_example) => {
+        const { metadata: { intent = {}, example = {} } } = common_example;
+        return { ...common_example, metadata: { ...intent, ...example } };
+    });
+    return { ...nlu, common_examples: properCommonExamples };
+};
+
 export class TrainingDataValidator {
     constructor({
         instanceHost,
@@ -145,6 +153,8 @@ export class TrainingDataValidator {
             output_format: 'json',
             language: 'en',
         });
+
+      
         return data;
     };
 
@@ -170,8 +180,10 @@ export class TrainingDataValidator {
         } else {
             try {
                 const res = await this.convertNluToJson(fileData, extension);
+             
                 ({ rasa_nlu_data: nlu } = res?.data || {});
                 if (!nlu) throw new Error();
+                nlu = convertMetadataToBotfrontFormat(nlu);
             } catch {
                 throw new Error(
                     `NLU data in this file could not be parsed by Rasa at ${this.instanceHost}.`,

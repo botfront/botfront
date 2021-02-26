@@ -61,6 +61,14 @@ export const createInstance = async (project) => {
     });
 };
 
+// rasa store metadata diffrently with key for which level the metadata are
+// eg rasa format : {intent: {}, example: {}}
+// we don't distinguish them so we change the format here to fit rasa expectation
+export const convertMetadataToRasaFormat = (metadata) => {
+    const { language, canonical, ...rest } = metadata;
+    return { intent: { language }, ...(canonical ? { example: { canonical, ...rest } } : rest) };
+};
+
 export const getNluDataAndConfig = async (projectId, language, intents) => {
     const model = await NLUModels.findOne(
         { projectId, language },
@@ -99,15 +107,12 @@ export const getNluDataAndConfig = async (projectId, language, intents) => {
         rasa_nlu_data: {
             common_examples: common_examples.map(
                 ({
-                    text, intent, entities = [], metadata: { canonical, ...metadata } = {},
+                    text, intent, entities = [], metadata = {},
                 }) => ({
                     text,
                     intent,
                     entities: entities.map(({ _id: _, ...rest }) => dropNullValuesFromObject(rest)),
-                    metadata: {
-                        ...metadata,
-                        ...(canonical ? { canonical } : {}),
-                    },
+                    metadata: convertMetadataToRasaFormat(metadata),
                 }),
             ),
             entity_synonyms: entity_synonyms.map(copyAndFilter),
