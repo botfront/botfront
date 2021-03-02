@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.3](https://github.com/botfront/botfront/compare/v1.0.2...v1.0.3) (2021-03-02)
+
+
+### Features
+
+* add an ui to configure the auth token used to call rasa ([#922](https://github.com/botfront/botfront/issues/922)) ([ee18353](https://github.com/botfront/botfront/commit/ee18353cd40205a1cdcdc0adebc5cef273a5b84a))
+
+
+### Bug Fixes
+
+* security vulnerabilities ([efe9164](https://github.com/botfront/botfront/commit/efe916447b354174943ec0f58973361303a6d020))
+
 ### [1.0.2](https://github.com/botfront/botfront/compare/v1.0.1...v1.0.2) (2021-02-24)
 
 ### [1.0.1](https://github.com/botfront/botfront/compare/v1.0.0...v1.0.1) (2021-02-24)
