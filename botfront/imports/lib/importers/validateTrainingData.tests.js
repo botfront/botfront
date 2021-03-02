@@ -240,7 +240,7 @@ describe('nlu data importing', function () {
                 ] = await validateWrapped(['nlu01.md'], {
                     wipeInvolvedCollections: true,
                 });
-                const canonical = examples.filter(ex => ex?.metadata?.canonical);
+                const canonical = examples.filter(ex => ex?.metadata?.example?.canonical);
                 expect(canonical.map(c => c.text)).to.deep.equal([
                     'hey there',
                     'I want to grab lunch',
@@ -248,7 +248,7 @@ describe('nlu data importing', function () {
                     'anywhere in the west',
                 ]);
                 expect(
-                    examples.filter(ex => ex?.metadata?.language !== 'fr'),
+                    examples.filter(ex => ex?.metadata?.intent?.language !== 'fr'),
                 ).to.have.lengthOf(0);
                 expect(examples).to.have.lengthOf(30);
                 expect(regex).to.have.lengthOf(1);
@@ -319,7 +319,7 @@ describe('nlu data importing', function () {
                 expect(warnings).to.be.empty;
                 expect(
                     examples.find(ex => ex?.metadata?.nolanguagespecified).metadata
-                        .language,
+                        .intent.language,
                 ).to.be.equal('fr');
                 expect(summary).to.deep.equal([
                     {

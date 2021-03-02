@@ -5,7 +5,9 @@
                 "text": "how much CO2 will that use?",
                 "intent": "estimate_emissions",
                 "metadata": {
-                    "language": "en"
+                    "intent": {
+                        "language": "en"
+                    }
                 }
             },
             {
@@ -21,35 +23,45 @@
                     }
                 ],
                 "metadata": {
-                    "language": "en"
+                    "intent": {
+                        "language": "en"
+                    }
                 }
             },
             {
                 "text": "hey",
                 "intent": "greet",
                 "metadata": {
-                    "language": "en"
+                    "intent": {
+                        "language": "en"
+                    }
                 }
             },
             {
                 "text": "hello",
                 "intent": "greet",
                 "metadata": {
-                    "language": "en"
+                    "intent": {
+                        "language": "en"
+                    }
                 }
             },
             {
                 "text": "bonjour",
                 "intent": "greet",
                 "metadata": {
-                    "language": "fr"
+                    "intent": {
+                        "language": "fr"
+                    }
                 }
             },
             {
                 "text": "salut",
                 "intent": "greet",
                 "metadata": {
-                    "language": "fr"
+                    "intent": {
+                        "language": "fr"
+                    }
                 }
             },
             {

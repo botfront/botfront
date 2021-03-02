@@ -1,1839 +1,2321 @@
 {
-  "rasa_nlu_data": {
-    "common_examples": [
-      {
-        "text": "Je t'en prie, non",
-        "intent": "basics.no",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Nan",
-        "intent": "basics.no",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Non merci",
-        "intent": "basics.no",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "nah",
-        "intent": "basics.no",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "no way",
-        "intent": "basics.no",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "non",
-        "intent": "basics.no",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "pas vraiment",
-        "intent": "basics.no",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "tu rêves",
-        "intent": "basics.no",
-        "entities": [],
-        "metadata": {
-          "language": "fr",
-          "canonical": true
-        }
-      },
-      {
-        "text": "D'accord",
-        "intent": "basics.yes",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Je fais",
-        "intent": "basics.yes",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Ok faisons-le",
-        "intent": "basics.yes",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Oui",
-        "intent": "basics.yes",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Oui bien sûr",
-        "intent": "basics.yes",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Oui s'il vous plaît",
-        "intent": "basics.yes",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "absolument",
-        "intent": "basics.yes",
-        "entities": [],
-        "metadata": {
-          "language": "fr",
-          "canonical": true
-        }
-      },
-      {
-        "text": "alors ok",
-        "intent": "basics.yes",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "bien sûr",
-        "intent": "basics.yes",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "d'accord",
-        "intent": "basics.yes",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "ouais",
-        "intent": "basics.yes",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "sûr",
-        "intent": "basics.yes",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Etes-vous un robot",
-        "intent": "chitchat.are_you_a_robot",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "es-tu juste un bot",
-        "intent": "chitchat.are_you_a_robot",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "es-tu un chatbot",
-        "intent": "chitchat.are_you_a_robot",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "tu es un bot",
-        "intent": "chitchat.are_you_a_robot",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "tu es un robot",
-        "intent": "chitchat.are_you_a_robot",
-        "entities": [],
-        "metadata": {
-          "language": "fr",
-          "canonical": true
-        }
-      },
-      {
-        "text": "vous êtes chatbot",
-        "intent": "chitchat.are_you_a_robot",
-        "entities": [],
-        "metadata": {
-          "language": "fr",
-          "canonical": true
-        }
-      },
-      {
-        "text": "êtes-vous un programme",
-        "intent": "chitchat.are_you_a_robot",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Au revoir",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Au revoir prends soin de toi",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Bye Bye bonne nuit",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Foutez le camp",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "J'ai dit au revoir",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Je dois y aller",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Laisse-moi tranquille",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "OK au revoir",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Okay au revoir",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Salut à bientôt",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "aller au lit",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "au revoir",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "au revoir pour le moment",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "au revoir à bientôt",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "au revoir, à plus tard",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est tout au revoir",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est ça au revoir",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "d'accord au revoir",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "d'accord on se voit plus tard",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr",
-          "canonical": true
-        }
-      },
-      {
-        "text": "j'espère te voir plus tard",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "jusqu'à la prochaine fois",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "maintenant au revoir",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "merci au revoir",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "ok merci au revoir",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "on se parle plus tard",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "peu importe au revoir",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "tu peux partir maintenant",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "À demain",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "à bientôt",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "à plus",
-        "intent": "chitchat.bye",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Bonjour",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Bonjour bonsoir",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Bonjour encore",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Bonjour à toi",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Bonsoir",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr",
-          "canonical": true
-        }
-      },
-      {
-        "text": "Hey",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Je vous salue",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Matin",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Passe une bonne matinée",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Salut",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "belle journée n'est-ce pas",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "bonjour bonjour",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "bonjour toi",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "bonne soirée à vous",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "bonsoir là",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "hello",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "heya",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "héy",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "je vais juste dire bonjour",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "passez une bonne matinée",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "salut",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "salut bonne matinée",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "salut bonsoir",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "salutations",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "soir",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "ça fait longtemps",
-        "intent": "chitchat.greet",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Comment allez vous",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Comment se passe ta journée",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Comment va la vie",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Comment vas-tu",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Comment ça va",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr",
-          "canonical": true
-        }
-      },
-      {
-        "text": "Comment était ta journée",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "ESt ce que ça va",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Est-ce que tout va bien",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Je vais bien et vous",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Passes tu une bonne journée",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Qu'en est-il de ta journée",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "comment a été votre journée",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "comment allez vous ce matin",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "comment allez-vous",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "comment avez-vous été",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "comment c'est",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "comment est ta journée",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "comment est ta matinée jusqu'à présent",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr",
-          "canonical": true
-        }
-      },
-      {
-        "text": "comment s'est passée ta journée",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "comment se passe ta journée",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "comment se passe ta matinée",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "comment se passe ta soirée",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "comment se passe votre journée",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "comment va ta vie",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "comment vas-tu aujourd'hui",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "comment vont les choses",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "comment vous sentez-vous",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "comment ça va",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "comment était ta journée",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "espère que ta journée se passe bien",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "espérons que vous passerez une agréable soirée",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "est-ce que tu vas bien",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "et vous",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "tout va bien",
-        "intent": "chitchat.how_are_you",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Je vais bien",
-        "intent": "chitchat.i_am_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr",
-          "canonical": true
-        }
-      },
-      {
-        "text": "Je vais bien merci",
-        "intent": "chitchat.i_am_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr",
-          "canonical": true
-        }
-      },
-      {
-        "text": "Je vais très bien",
-        "intent": "chitchat.i_am_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "C'est mauvais",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Ce n'est pas bon",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Et bien c'est dommage",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "J'ai bien peur que ce soit mauvais",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Oh, ce n'est pas bon",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "abyssal",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est dommage",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est mauvais",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est nul",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est tellement mauvais",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est terrible",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est tres mal",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est vraiment mauvais",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'était affreux",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'était boiteux",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'était horrible",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'était mauvais",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'était terrible",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "ce n'est pas bien",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr",
-          "canonical": true
-        }
-      },
-      {
-        "text": "ce n'est pas bon",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "ce n'est pas si bon",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "ce n'était pas bon",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "dommage",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "horrible",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "mal",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "mauvais Très mauvais",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "mauvais vraiment mauvais",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "mauvaise fille",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "mauvaise idée",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "non c'est mauvais",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "pas assez bon",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "pas bien",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "pas bon",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "pas si bon",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "pas trop bon",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "pas un bon",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "plutot mauvais",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr",
-          "canonical": true
-        }
-      },
-      {
-        "text": "si boiteux",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "terrible",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "très mauvais",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "vraiment mauvais",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Ça craint",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "ça ne suffit pas",
-        "intent": "chitchat.this_is_bad",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Bien pour vous",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "C'est bien",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "C'est génial",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "C'est très bien",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "Je suis content de l'entendre",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "OK bien",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "agréable",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "assez bon",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "beaucoup mieux",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "bien",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "bon très bon",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "bon à savoir",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "bonne chose",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est beaucoup mieux",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est bien",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est bon",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est fantastique",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est génial",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est génial merci",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est incroyable",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est merveilleux",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est mieux",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est mignon",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est parfait",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est pas mal",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est plutôt bien",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est très bien",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est très gentil",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est une bonne chose",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est une bonne idée",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est vraiment bon",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'est vraiment sympathique",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'était bien",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'était bon",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'était génial",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'était incroyable",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'était mignon",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "c'était très bien",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "content de l'entendre",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "cool",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "d'accord, bien",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "fantastique",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "génial",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "incroyable",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "merveilleux",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "non c'est bon",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "parfait",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "pas mal",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "splendide",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "sucré",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr",
-          "canonical": true
-        }
-      },
-      {
-        "text": "super",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "super fantastique",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "tant pis",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "tellement bon",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "terrifiant",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "tout droit",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "trop cool",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "très agréable",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "très alors",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr",
-          "canonical": true
-        }
-      },
-      {
-        "text": "très bien",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "très bon",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "vraiment bien",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "vraiment sympa",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      },
-      {
-        "text": "ça c'est bon",
-        "intent": "chitchat.this_is_good",
-        "entities": [],
-        "metadata": {
-          "language": "fr"
-        }
-      }
-    ],
-    "entity_synonyms": [],
-    "gazette": [],
-    "regex_features": []
-  }
+    "rasa_nlu_data": {
+        "common_examples": [
+            {
+                "text": "Je t'en prie, non",
+                "intent": "basics.no",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Nan",
+                "intent": "basics.no",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Non merci",
+                "intent": "basics.no",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "nah",
+                "intent": "basics.no",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "no way",
+                "intent": "basics.no",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "non",
+                "intent": "basics.no",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "pas vraiment",
+                "intent": "basics.no",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "tu r\u00eaves",
+                "intent": "basics.no",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    },
+                    "example": {
+                        "canonical": true
+                    }
+                }
+            },
+            {
+                "text": "D'accord",
+                "intent": "basics.yes",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Je fais",
+                "intent": "basics.yes",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Ok faisons-le",
+                "intent": "basics.yes",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Oui",
+                "intent": "basics.yes",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Oui bien s\u00fbr",
+                "intent": "basics.yes",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Oui s'il vous pla\u00eet",
+                "intent": "basics.yes",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "absolument",
+                "intent": "basics.yes",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    },
+                    "example": {
+                        "canonical": true
+                    }
+                }
+            },
+            {
+                "text": "alors ok",
+                "intent": "basics.yes",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "bien s\u00fbr",
+                "intent": "basics.yes",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "d'accord",
+                "intent": "basics.yes",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "ouais",
+                "intent": "basics.yes",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "s\u00fbr",
+                "intent": "basics.yes",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Etes-vous un robot",
+                "intent": "chitchat.are_you_a_robot",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "es-tu juste un bot",
+                "intent": "chitchat.are_you_a_robot",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "es-tu un chatbot",
+                "intent": "chitchat.are_you_a_robot",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "tu es un bot",
+                "intent": "chitchat.are_you_a_robot",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "tu es un robot",
+                "intent": "chitchat.are_you_a_robot",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    },
+                    "example": {
+                        "canonical": true
+                    }
+                }
+            },
+            {
+                "text": "vous \u00eates chatbot",
+                "intent": "chitchat.are_you_a_robot",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    },
+                    "example": {
+                        "canonical": true
+                    }
+                }
+            },
+            {
+                "text": "\u00eates-vous un programme",
+                "intent": "chitchat.are_you_a_robot",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Au revoir",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Au revoir prends soin de toi",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Bye Bye bonne nuit",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Foutez le camp",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "J'ai dit au revoir",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Je dois y aller",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Laisse-moi tranquille",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "OK au revoir",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Okay au revoir",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Salut \u00e0 bient\u00f4t",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "aller au lit",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "au revoir",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "au revoir pour le moment",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "au revoir \u00e0 bient\u00f4t",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "au revoir, \u00e0 plus tard",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est tout au revoir",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est \u00e7a au revoir",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "d'accord au revoir",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "d'accord on se voit plus tard",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    },
+                    "example": {
+                        "canonical": true
+                    }
+                }
+            },
+            {
+                "text": "j'esp\u00e8re te voir plus tard",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "jusqu'\u00e0 la prochaine fois",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "maintenant au revoir",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "merci au revoir",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "ok merci au revoir",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "on se parle plus tard",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "peu importe au revoir",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "tu peux partir maintenant",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "\u00c0 demain",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "\u00e0 bient\u00f4t",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "\u00e0 plus",
+                "intent": "chitchat.bye",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Bonjour",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Bonjour bonsoir",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Bonjour encore",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Bonjour \u00e0 toi",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Bonsoir",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    },
+                    "example": {
+                        "canonical": true
+                    }
+                }
+            },
+            {
+                "text": "Hey",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Je vous salue",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Matin",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Passe une bonne matin\u00e9e",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Salut",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "belle journ\u00e9e n'est-ce pas",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "bonjour bonjour",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "bonjour toi",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "bonne soir\u00e9e \u00e0 vous",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "bonsoir l\u00e0",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "hello",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "heya",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "h\u00e9y",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "je vais juste dire bonjour",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "passez une bonne matin\u00e9e",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "salut",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "salut bonne matin\u00e9e",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "salut bonsoir",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "salutations",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "soir",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "\u00e7a fait longtemps",
+                "intent": "chitchat.greet",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Comment allez vous",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Comment se passe ta journ\u00e9e",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Comment va la vie",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Comment vas-tu",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Comment \u00e7a va",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    },
+                    "example": {
+                        "canonical": true
+                    }
+                }
+            },
+            {
+                "text": "Comment \u00e9tait ta journ\u00e9e",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "ESt ce que \u00e7a va",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Est-ce que tout va bien",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Je vais bien et vous",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Passes tu une bonne journ\u00e9e",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Qu'en est-il de ta journ\u00e9e",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "comment a \u00e9t\u00e9 votre journ\u00e9e",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "comment allez vous ce matin",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "comment allez-vous",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "comment avez-vous \u00e9t\u00e9",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "comment c'est",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "comment est ta journ\u00e9e",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "comment est ta matin\u00e9e jusqu'\u00e0 pr\u00e9sent",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    },
+                    "example": {
+                        "canonical": true
+                    }
+                }
+            },
+            {
+                "text": "comment s'est pass\u00e9e ta journ\u00e9e",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "comment se passe ta journ\u00e9e",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "comment se passe ta matin\u00e9e",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "comment se passe ta soir\u00e9e",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "comment se passe votre journ\u00e9e",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "comment va ta vie",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "comment vas-tu aujourd'hui",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "comment vont les choses",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "comment vous sentez-vous",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "comment \u00e7a va",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "comment \u00e9tait ta journ\u00e9e",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "esp\u00e8re que ta journ\u00e9e se passe bien",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "esp\u00e9rons que vous passerez une agr\u00e9able soir\u00e9e",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "est-ce que tu vas bien",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "et vous",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "tout va bien",
+                "intent": "chitchat.how_are_you",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Je vais bien",
+                "intent": "chitchat.i_am_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    },
+                    "example": {
+                        "canonical": true
+                    }
+                }
+            },
+            {
+                "text": "Je vais bien merci",
+                "intent": "chitchat.i_am_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    },
+                    "example": {
+                        "canonical": true
+                    }
+                }
+            },
+            {
+                "text": "Je vais tr\u00e8s bien",
+                "intent": "chitchat.i_am_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "C'est mauvais",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Ce n'est pas bon",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Et bien c'est dommage",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "J'ai bien peur que ce soit mauvais",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Oh, ce n'est pas bon",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "abyssal",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est dommage",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est mauvais",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est nul",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est tellement mauvais",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est terrible",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est tres mal",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est vraiment mauvais",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'\u00e9tait affreux",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'\u00e9tait boiteux",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'\u00e9tait horrible",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'\u00e9tait mauvais",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'\u00e9tait terrible",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "ce n'est pas bien",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    },
+                    "example": {
+                        "canonical": true
+                    }
+                }
+            },
+            {
+                "text": "ce n'est pas bon",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "ce n'est pas si bon",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "ce n'\u00e9tait pas bon",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "dommage",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "horrible",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "mal",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "mauvais Tr\u00e8s mauvais",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "mauvais vraiment mauvais",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "mauvaise fille",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "mauvaise id\u00e9e",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "non c'est mauvais",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "pas assez bon",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "pas bien",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "pas bon",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "pas si bon",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "pas trop bon",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "pas un bon",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "plutot mauvais",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    },
+                    "example": {
+                        "canonical": true
+                    }
+                }
+            },
+            {
+                "text": "si boiteux",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "terrible",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "tr\u00e8s mauvais",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "vraiment mauvais",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "\u00c7a craint",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "\u00e7a ne suffit pas",
+                "intent": "chitchat.this_is_bad",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Bien pour vous",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "C'est bien",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "C'est g\u00e9nial",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "C'est tr\u00e8s bien",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "Je suis content de l'entendre",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "OK bien",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "agr\u00e9able",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "assez bon",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "beaucoup mieux",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "bien",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "bon tr\u00e8s bon",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "bon \u00e0 savoir",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "bonne chose",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est beaucoup mieux",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est bien",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est bon",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est fantastique",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est g\u00e9nial",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est g\u00e9nial merci",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est incroyable",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est merveilleux",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est mieux",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est mignon",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est parfait",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est pas mal",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est plut\u00f4t bien",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est tr\u00e8s bien",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est tr\u00e8s gentil",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est une bonne chose",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est une bonne id\u00e9e",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est vraiment bon",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'est vraiment sympathique",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'\u00e9tait bien",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'\u00e9tait bon",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'\u00e9tait g\u00e9nial",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'\u00e9tait incroyable",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'\u00e9tait mignon",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "c'\u00e9tait tr\u00e8s bien",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "content de l'entendre",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "cool",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "d'accord, bien",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "fantastique",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "g\u00e9nial",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "incroyable",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "merveilleux",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "non c'est bon",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "parfait",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "pas mal",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "splendide",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "sucr\u00e9",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    },
+                    "example": {
+                        "canonical": true
+                    }
+                }
+            },
+            {
+                "text": "super",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "super fantastique",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "tant pis",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "tellement bon",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "terrifiant",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "tout droit",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "trop cool",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "tr\u00e8s agr\u00e9able",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "tr\u00e8s alors",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    },
+                    "example": {
+                        "canonical": true
+                    }
+                }
+            },
+            {
+                "text": "tr\u00e8s bien",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "tr\u00e8s bon",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "vraiment bien",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "vraiment sympa",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            },
+            {
+                "text": "\u00e7a c'est bon",
+                "intent": "chitchat.this_is_good",
+                "entities": [],
+                "metadata": {
+                    "intent": {
+                        "language": "fr"
+                    }
+                }
+            }
+        ],
+        "entity_synonyms": [],
+        "gazette": [],
+        "regex_features": []
+    }
 }

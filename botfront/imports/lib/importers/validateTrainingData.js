@@ -40,8 +40,8 @@ export const axiosClient = axios.create();
 
 const convertMetadataToBotfrontFormat = (nlu) => {
     const properCommonExamples = nlu.common_examples.map((common_example) => {
-        const { metadata: { intent = {}, example = {} } } = common_example;
-        return { ...common_example, metadata: { ...intent, ...example } };
+        const { metadata: { intent = {}, example = {}, ...rest } = {} } = common_example;
+        return { ...common_example, metadata: { ...intent, ...example, ...rest } };
     });
     return { ...nlu, common_examples: properCommonExamples };
 };
