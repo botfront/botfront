@@ -3,7 +3,7 @@ import { Meteor } from 'meteor/meteor';
 import { expect } from 'chai';
 import MockAdapter from 'axios-mock-adapter';
 import { safeLoad } from 'js-yaml';
-import { axiosClient, validateTrainingData } from './validateTrainingData';
+import { TrainingDataValidator } from './validateTrainingData';
 import { stories01, stories01_02 } from './test_data/training_data.data';
 import { caught } from '../client.safe.utils';
 
@@ -55,17 +55,6 @@ const responses = Object.entries(fileMappings).reduce((acc, [original, converted
     };
 }, {});
 
-const mock = new MockAdapter(axiosClient);
-mock.onAny().reply((config) => {
-    try {
-        const { data } = JSON.parse(config.data);
-        const key = typeof data === 'string' ? data : JSON.stringify(data);
-        if (!responses[key]) throw new Error();
-        return [200, { data: responses[key] }];
-    } catch {
-        return [500];
-    }
-});
 
 const generateFileListFromFixtureNames = fixtureNames => fixtureNames.map(filename => ({
     filename,
@@ -81,15 +70,30 @@ const generateInitialParams = (overwrite = {}) => ({
     defaultDomain: {},
     wipeInvolvedCollections: false,
     instanceHost: 'https://mocked',
+    instanceToken: undefined,
     existingStoryGroups: [{ _id: 'stock', name: 'stock group' }],
     summary: [],
     ...overwrite,
 });
 
-const validateWrapped = (fixtureNames = [], overwrite = {}) => validateTrainingData(
-    generateFileListFromFixtureNames(fixtureNames),
-    generateInitialParams(overwrite),
-);
+
+const validateWrapped = (fixtureNames = [], overwrite = {}) => {
+    const trainingDataValidator = new TrainingDataValidator(generateInitialParams(overwrite));
+    
+    const mock = new MockAdapter(trainingDataValidator.axiosClient);
+    mock.onAny().reply((config) => {
+        try {
+            const { data } = JSON.parse(config.data);
+            const key = typeof data === 'string' ? data : JSON.stringify(data);
+            if (!responses[key]) throw new Error();
+            return [200, { data: responses[key] }];
+        } catch {
+            return [500];
+        }
+    });
+    return trainingDataValidator.validateTrainingData(generateFileListFromFixtureNames(fixtureNames));
+};
+
 
 describe('stories and rules importing', function () {
     describe('from md', () => {

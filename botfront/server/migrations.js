@@ -3,10 +3,10 @@ import { sortBy, isEqual } from 'lodash';
 import { safeDump, safeLoad } from 'js-yaml';
 import assert from 'assert';
 import { Log } from 'meteor/logging';
-import axios from 'axios';
 import shortid from 'shortid';
 import moment from 'moment';
 import uuidv4 from 'uuid/v4';
+import { createAxiosWithConfig } from '../imports/lib/utils';
 import { Credentials } from '../imports/api/credentials';
 import { Endpoints } from '../imports/api/endpoints/endpoints.collection';
 
@@ -907,6 +907,9 @@ Migrations.add({
         const host = instances.length === 1
             ? instances[0].host
             : process.env.RASA_MIGRATION_INSTANCE_URL;
+        const token = instances.length === 1 && instances[0].token
+            ? instances[0].token
+            : process.env.RASA_MIGRATION_INSTANCE_TOKEN;
         if (!host) {
             throw new Error(
                 'Could not find Rasa instance to convert stories to Rasa 2.0 format. Please set env var RASA_MIGRATION_INSTANCE_URL.',
@@ -918,16 +921,24 @@ Migrations.add({
                 { story: 1, _id: 1, branches: 1 },
             ).fetch();
             const storiesFlattened = flattenStoriesForConversion(stories).join('\n');
-            const axiosClient = axios.create();
-            const { data: { data = '' } = {} } = await axiosClient.post(
-                `${host}/data/convert/core`,
-                {
-                    data: storiesFlattened,
-                    input_format: 'md',
-                    output_format: 'yaml',
-                },
-            );
-            const { stories: parsedStories } = safeLoad(data);
+            const axiosClient = createAxiosWithConfig({ host, token });
+            let parsedStories = [];
+            try {
+                const { data: { data = '' } = {} } = await axiosClient.post(
+                    '/data/convert/core',
+                    {
+                        data: storiesFlattened,
+                        input_format: 'md',
+                        output_format: 'yaml',
+                    },
+                );
+                ({ stories: parsedStories } = safeLoad(data));
+            } catch (e) {
+                throw new Error(
+                    `Conversion of stories to Rasa 2.0 format failed. Please ensure RASA_MIGRATION_INSTANCE_URL. and RASA_MIGRATION_INSTANCE_TOKEN are correct :${e}`,
+                );
+            }
+          
 
             // this filters out stories that rasa could not converts, this happens because the story had only lines that made no sense
             // we can safely delete these.
@@ -990,7 +1001,7 @@ Migrations.add({
     version: 26,
     up: async () => {
         const currentSettings = GlobalSettings.findOne({ _id: 'SETTINGS' });
-        if (currentSettings?.settings?.private?.webhooks?.postTraining) return
+        if (currentSettings?.settings?.private?.webhooks?.postTraining) return;
         const { webhooks } = safeLoad(
             Assets.getText(
                 process.env.MODE === 'development'

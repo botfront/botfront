@@ -9,6 +9,8 @@ import axios from 'axios';
 import BotResponses from '../api/graphql/botResponses/botResponses.model';
 
 import { GlobalSettings } from '../api/globalSettings/globalSettings.collection';
+import { Instances } from '../api/instances/instances.collection';
+
 import { checkIfCan } from './scopes';
 
 import { Projects } from '../api/project/project.collection';
@@ -129,9 +131,9 @@ export function secondsToDaysHours(sec) {
 }
 
 const getPostTrainingWebhook = async () => {
-    const globalSettings = await GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.postTraining': 1 }})
+    const globalSettings = await GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.postTraining': 1 } });
     return globalSettings?.settings?.private?.webhooks?.postTraining;
-}
+};
 
 if (Meteor.isServer) {
     import {
@@ -166,7 +168,7 @@ if (Meteor.isServer) {
                 const maxContentLength = 400000000;
                 const maxBodyLength = 400000000;
                 const response = await axiosJson({
-                    url, method, data, maxContentLength, maxBodyLength
+                    url, method, data, maxContentLength, maxBodyLength,
                 });
                 const { status, data: responseData } = response;
                 return { status, data: responseData };
@@ -253,21 +255,21 @@ if (Meteor.isServer) {
             return resp;
         },
         async 'call.postTraining'(projectId, modelData) {
-            checkIfCan('nlu-data:x')
-            check(projectId, String)
+            checkIfCan('nlu-data:x');
+            check(projectId, String);
             const trainingWebhook = await getPostTrainingWebhook();
             if (!trainingWebhook.url || !trainingWebhook.method) {
                 return;
             }
-            const { namespace } = await Projects.findOne({ _id: projectId }, { fields: { namespace: 1 }})
+            const { namespace } = await Projects.findOne({ _id: projectId }, { fields: { namespace: 1 } });
             const body = {
                 projectId,
                 namespace,
                 model: Buffer.from(modelData).toString('base64'),
                 mimeType: 'application/x-tar',
-            }
-            Meteor.call('axios.requestWithJsonBody', trainingWebhook.url, trainingWebhook.method, body)
-        }
+            };
+            Meteor.call('axios.requestWithJsonBody', trainingWebhook.url, trainingWebhook.method, body);
+        },
     });
 }
 
@@ -330,4 +332,19 @@ export function cleanDucklingFromExamples(examples) {
             entities: example.entities.filter(entity => !duckling.test(entity.extractor)),
         };
     });
+}
+
+
+export function createAxiosWithConfig(instance = {}, config = {}, params = {}) {
+    const client = axios.create({
+        timeout: 100 * 1000,
+        ...config,
+        baseURL: instance.host,
+        params: { ...params, token: instance.token },
+    });
+    return client;
+}
+export async function createAxiosForRasa(projectId, config = {}, params = {}) {
+    const instance = await Instances.findOne({ projectId });
+    return createAxiosWithConfig(instance, config, params);
 }

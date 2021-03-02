@@ -13,9 +13,7 @@ describe('global settings read permissions', () => {
         cy.deleteProject('bf');
     });
     after(() => {
-        cy.logout();
         cy.removeDummyRoleAndUser();
-        cy.deleteProject('bf');
     });
 
     it('should be able to access global settings through the admin sidebar', () => {

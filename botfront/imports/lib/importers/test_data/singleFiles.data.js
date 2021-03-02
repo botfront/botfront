@@ -55,6 +55,7 @@ const expectedParams = {
     projectId,
     defaultDomain,
     instanceHost: 'http://localhost:1234',
+    instanceToken: undefined,
     projectLanguages: ['en'],
     fallbackLang: 'en',
     existingStoryGroups: [],

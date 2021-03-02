@@ -11,8 +11,9 @@ import { Credentials } from '../credentials';
 import FormResults from '../graphql/forms/form_results.model';
 import { Stories } from '../story/stories.collection';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
-
 import { checkIfCan } from '../../lib/scopes';
+
+import { createAxiosForRasa } from '../../lib/utils';
 import { ZipFolder } from './ZipFolder';
 import { Projects } from '../project/project.collection';
 import { Instances } from '../instances/instances.collection';
@@ -27,7 +28,7 @@ if (Meteor.isServer) {
     const glob = require('glob');
     const { join, dirname, basename } = require('path');
     const fs = require('fs');
-    const axiosClient = axios.create();
+    
 
     const signature = () => {
         const nodegit = require('nodegit');
@@ -44,8 +45,9 @@ if (Meteor.isServer) {
         );
     };
 
-    const convertJsonToYaml = async (json, instanceHost, language) => {
-        const { data } = await axiosClient.post(`${instanceHost}/data/convert/nlu`, {
+    const convertJsonToYaml = async (projectId, json, language) => {
+        const axiosClient = await createAxiosForRasa(projectId);
+        const { data } = await axiosClient.post('/data/convert/nlu', {
             data: json,
             input_format: 'json',
             output_format: 'yaml',
@@ -574,7 +576,7 @@ if (Meteor.isServer) {
                 try {
                     if (Meteor.isTest) throw new Error(); // keep json for export test
                     // eslint-disable-next-line no-await-in-loop
-                    data = await convertJsonToYaml(exportData.nlu[l], instance.host, l);
+                    data = await convertJsonToYaml(projectId, exportData.nlu[l], l);
                     extension = 'yml';
                 } catch {
                     data = JSON.stringify(exportData.nlu[l], null, 2);

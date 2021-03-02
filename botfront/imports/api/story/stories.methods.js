@@ -4,6 +4,8 @@ import uuidv4 from 'uuid/v4';
 import shortid from 'shortid';
 import axios from 'axios';
 import { checkIfCan } from '../../lib/scopes';
+import { createAxiosForRasa, auditLogIfOnServer, formatError } from '../../lib/utils';
+
 import { indexStory } from './stories.index';
 import { Instances } from '../instances/instances.collection';
 
@@ -11,7 +13,7 @@ import { Stories } from './stories.collection';
 import Conversations from '../graphql/conversations/conversations.model';
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { deleteResponsesRemovedFromStories } from '../graphql/botResponses/mongo/botResponses';
-import { auditLogIfOnServer, formatError } from '../../lib/utils';
+
 import { getTriggerIntents } from '../graphql/story/mongo/stories';
 import { convertTrackerToStory } from '../../lib/test_case.utils';
 
@@ -400,12 +402,9 @@ if (Meteor.isServer) {
                     }
                     throw new Meteor.Error(400, 'This project contains no tests');
                 }
-                const instance = await Instances.findOne({ projectId });
-                const client = axios.create({
-                    baseURL: instance.host,
-                    timeout: 1000 * 1000,
-                });
-
+            
+            
+                const client = await createAxiosForRasa(projectId, { timeout: 1000 * 1000 }, { language });
                 auditLog('test model', {
                     user: Meteor.user(),
                     projectId,

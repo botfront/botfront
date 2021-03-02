@@ -155,7 +155,7 @@ const wipeDomain = async (projectId) => {
 
 // empty or bring back to default project data
 // we do not reset the instance as the import depends on rasa for certain part of the import
-// reseting it to default does not make sens
+// reseting it to default does not make sense
 // no-unused-vars is used here so the signature is the same on os and ee
 // eslint-disable-next-line no-unused-vars
 const resetProject = async (projectId, { projectLanguages, fallbackLang }) => {

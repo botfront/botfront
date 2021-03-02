@@ -8,8 +8,8 @@ import {
 } from 'uniforms-semantic';
 import Alert from 'react-s-alert';
 import SimpleSchema2Bridge from 'uniforms-bridge-simple-schema-2';
-
-import { Button } from 'semantic-ui-react';
+import uuidv4 from 'uuid/v4';
+import { Button, Confirm } from 'semantic-ui-react';
 import { InstanceSchema } from '../../../api/instances/instances.schema';
 import { Instances as InstancesCollection } from '../../../api/instances/instances.collection';
 import { wrapMeteorCallback } from '../utils/Errors';
@@ -22,11 +22,15 @@ class Instances extends React.Component {
         super(props);
         this.state = {
             webhook: {},
+            instance: {},
+            copied: false,
+            confirmOpen: false,
         };
     }
 
     componentDidMount() {
-        const { projectId } = this.props;
+        const { projectId, instance } = this.props;
+        this.setState({ instance });
         if (can('resources:w', projectId)) {
             Meteor.call('getRestartRasaWebhook', projectId, wrapMeteorCallback((err, result) => {
                 if (err) return;
@@ -41,6 +45,9 @@ class Instances extends React.Component {
         callback();
     };
 
+    generateAuthToken = () => {
+        this.setState({ instance: { ...this.state.instance, token: uuidv4() } });
+    }
 
     onSave = (updatedInstance) => {
         Meteor.call('instance.update', updatedInstance, wrapMeteorCallback((err) => {
@@ -48,11 +55,37 @@ class Instances extends React.Component {
         }, 'Changes Saved'));
     }
 
+
+    // eslint-disable-next-line class-methods-use-this
+    copySnippet = () => {
+        const copyText = document.getElementById('token');
+        copyText.select();
+        document.execCommand('copy');
+        window.getSelection().removeAllRanges();
+    };
+
+    handleCopy = () => {
+        this.copySnippet();
+        this.setState({ copied: true });
+        setTimeout(() => this.setState({ copied: false }), 1000);
+    };
+
+    openConfirm = () => {
+        this.setState({ confirmOpen: true });
+    }
+
+    closeConfirm = () => {
+        this.setState({ confirmOpen: false });
+    }
+
     render() {
         const {
-            ready, instance, projectId,
+            ready, projectId,
         } = this.props;
-        const { webhook } = this.state;
+     
+        const {
+            webhook, instance, copied, confirmOpen,
+        } = this.state;
         const hasWritePermission = can('resources:w', projectId);
         return (
             <>
@@ -66,7 +99,28 @@ class Instances extends React.Component {
                     >
                         <HiddenField name='projectId' value={projectId} />
                         <AutoField name='host' />
-                        <AutoField name='token' label='Token' />
+                        <div className='token-generate'>
+                            <AutoField action='Search' id='token' data-cy='token-field' name='token' label='Token' />
+                            <Button content='Generate' onClick={(e) => { e.preventDefault(); this.openConfirm(); }} />
+                            <Button
+                                positive={copied}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    this.handleCopy();
+                                }}
+                                className='copy-button'
+                                icon='copy'
+                                content={copied ? 'Copied' : 'Copy'}
+                            />
+                            <Confirm
+                                open={confirmOpen}
+                                onCancel={this.closeConfirm}
+                                onConfirm={() => { this.generateAuthToken(); this.closeConfirm(); }}
+                            />
+
+                           
+                        </div>
+
                         <br />
                         {hasWritePermission && (
                             <SubmitField

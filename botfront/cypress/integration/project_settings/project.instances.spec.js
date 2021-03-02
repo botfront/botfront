@@ -18,5 +18,14 @@ describe('Project Instances', function() {
             cy.get('[data-cy=save-instance]').click();
             cy.get('.s-alert-success').should('be.visible');
         });
+
+        it('should be able to edit instance token', function() {
+            cy.visit('/project/bf/settings/instance');
+            cy.dataCy('token-field').find('input').type('testtoken');
+            cy.get('[data-cy=save-instance]').click();
+            cy.get('.s-alert-success').should('be.visible');
+            cy.reload();
+            cy.dataCy('token-field').find('input').should('have.value', 'testtoken');
+        });
     });
 });

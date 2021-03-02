@@ -7,6 +7,8 @@ import { createTestUser } from '../testUtils';
 // eslint-disable-next-line import/named
 import { setUpRoles } from '../roles/roles';
 import { NLUModels } from '../nlu_model/nlu_model.collection';
+import { Instances } from './instances.collection';
+import { createAxiosForRasa } from '../../lib/utils';
 import { insertExamples } from '../graphql/examples/mongo/examples';
 import Examples from '../graphql/examples/examples.model';
 
@@ -159,6 +161,27 @@ if (Meteor.isTest) {
                     rasa_nlu_data: { common_examples },
                 } = await getNluDataAndConfig('test', 'en', ['chitchat.greet']);
                 expect(common_examples).to.deep.equal(selectedExampleAndDummy);
+            });
+        }
+    });
+
+   
+    describe('createAxiosForRasa', function () {
+        this.timeout(15000);
+        if (Meteor.isServer) {
+            before(async (done) => {
+                await Instances.insert({ projectId: 'bf', host: 'http://test.host', token: 'abc' });
+                done();
+            });
+            after(async (done) => {
+                await Instances.remove({ projectId: 'bf' });
+                done();
+            });
+    
+            it('should create an axios client with the right config to call rasa', async function () {
+                const client = await createAxiosForRasa('bf');
+                expect(client.defaults.baseURL).to.equal('http://test.host');
+                expect(client.defaults.params.token).to.equal('abc');
             });
         }
     });

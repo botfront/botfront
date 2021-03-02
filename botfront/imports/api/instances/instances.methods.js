@@ -2,7 +2,6 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
 import { check, Match } from 'meteor/check';
-import queryString from 'query-string';
 import axiosRetry from 'axios-retry';
 import yaml from 'js-yaml';
 import axios from 'axios';
@@ -11,6 +10,7 @@ import { promisify } from 'util';
 import path from 'path';
 
 import {
+    createAxiosForRasa,
     formatError,
     getProjectModelLocalFolder,
     getProjectModelFileName,
@@ -25,7 +25,7 @@ import Activity from '../graphql/activity/activity.model';
 import { getFragmentsAndDomain } from '../../lib/story.utils';
 import { dropNullValuesFromObject } from '../../lib/client.safe.utils';
 import { Projects } from '../project/project.collection';
-import { GlobalSettings } from '../globalSettings/globalSettings.collection';
+
 
 const replaceMongoReservedChars = (input) => {
     if (Array.isArray(input)) return input.map(replaceMongoReservedChars);
@@ -148,19 +148,12 @@ if (Meteor.isServer) {
             );
             appMethodLogger.debug('Parsing nlu');
             try {
-                const client = axios.create({
-                    baseURL: instance.host,
-                    timeout: 100 * 1000,
-                });
+                const client = await createAxiosForRasa(instance.projectId, { timeout: 100 * 1000 });
                 addLoggingInterceptors(client, appMethodLogger);
                 // axiosRetry(client, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
                 const requests = examples.map(({ text, lang }) => {
                     const payload = Object.assign({}, { text, lang });
-                    const params = {};
-                    if (instance.token) params.token = instance.token;
-                    const qs = queryString.stringify(params);
-                    const url = `${instance.host}/model/parse?${qs}`;
-                    return client.post(url, payload);
+                    return client.post('/model/parse', payload);
                 });
 
                 const result = (await axios.all(requests))
@@ -294,17 +287,12 @@ if (Meteor.isServer) {
                     { stories, rules },
                     { skipInvalid: true },
                 );
-                const instance = await Instances.findOne({ projectId });
-                const client = axios.create({
-                    baseURL: instance.host,
-                    timeout: process.env.TRAINING_TIMEOUT || 0,
-                });
+                // this client is used when telling rasa to load a model
+                const client = await createAxiosForRasa(projectId, { timeout: process.env.TRAINING_TIMEOUT || 0 });
                 addLoggingInterceptors(client, appMethodLogger);
-                const trainingClient = axios.create({
-                    baseURL: instance.host,
-                    timeout: process.env.TRAINING_TIMEOUT || 0,
-                    responseType: 'arraybuffer',
-                });
+                const trainingClient = await createAxiosForRasa(projectId,
+                    { timeout: process.env.TRAINING_TIMEOUT || 0, responseType: 'arraybuffer' });
+                
                 addLoggingInterceptors(trainingClient, appMethodLogger);
                 const trainingResponse = await trainingClient.post(
                     '/model/train',
@@ -343,7 +331,7 @@ if (Meteor.isServer) {
                         await client.put('/model', { model_file: trainedModelPath });
                     }
 
-                    Meteor.call('call.postTraining', projectId, trainingResponse.data)
+                    Meteor.call('call.postTraining', projectId, trainingResponse.data);
                     Activity.update(
                         { projectId, validated: true },
                         { $set: { validated: false } },
@@ -392,22 +380,13 @@ if (Meteor.isServer) {
                     rasa_nlu_data: (await getNluDataAndConfig(projectId, language))
                         .rasa_nlu_data,
                 };
-                const params = { language };
-
-                const instance = Instances.findOne({ projectId });
-                if (instance.token) Object.assign(params, { token: instance.token });
-                const qs = queryString.stringify(params);
-                const client = axios.create({
-                    baseURL: instance.host,
-                    timeout: 60 * 60 * 1000,
-                });
+                const client = await createAxiosForRasa(projectId, { timeout: 60 * 60 * 1000 }, { language });
                 addLoggingInterceptors(client, appMethodLogger);
                 axiosRetry(client, {
                     retries: 3,
                     retryDelay: axiosRetry.exponentialDelay,
                 });
-                const url = `${instance.host}/model/test/intents?${qs}`;
-                let results = Promise.await(client.post(url, examples));
+                let results = Promise.await(client.post('/model/test/intents', examples));
 
                 results = replaceMongoReservedChars({
                     intent_evaluation: results.data.intent_evaluation || {},

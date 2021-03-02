@@ -3,12 +3,12 @@ import { Accounts } from 'meteor/accounts-base';
 import dotenv from 'dotenv';
 import { createGraphQLPublication } from 'meteor/swydo:ddp-apollo';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import axios from 'axios';
 import { get } from 'lodash';
 import { typeDefsWithUpload, resolvers } from '../imports/api/graphql/index';
 import { getAppLoggerForFile } from './logger';
 import { Projects } from '../imports/api/project/project.collection';
 import { Instances } from '../imports/api/instances/instances.collection';
+import { createAxiosForRasa } from '../imports/lib/utils';
 
 const fileAppLogger = getAppLoggerForFile(__filename);
 
@@ -58,9 +58,10 @@ Meteor.startup(function() {
                 const newStatuses = await Promise.all(instancesInfo.map(async (instance) => {
                     let instanceState;
                     try {
-                        const data = await axios.get(`${instance.host}/status`);
+                        const client = await createAxiosForRasa(instance.projectId);
+                        const data = await client.get('/status');
                         instanceState = get(data, 'data.num_active_training_jobs', -1);
-                    } catch {
+                    } catch (e) {
                         instanceState = -1;
                     }
                     if (instanceState >= 1) return { status: 'training', projectId: instance.projectId };
