@@ -147,7 +147,8 @@ if (Meteor.isServer) {
     const fileLogger = getAppLoggerForFile(__filename);
     Meteor.methods({
 
-        async 'axios.requestWithJsonBody'(url, method, data) {
+        async 'axios.requestWithJsonBody'(url, method, data, options = {}) {
+            const { ignoreMaxBodyLength } = options
             let loggedData = data;
             // remplace data by placeholder for images or everything not json
             if (data.mimeType && data.mimeType !== 'application/json') loggedData = `Data is ${data.mimeType} and is not logged`;
@@ -168,7 +169,7 @@ if (Meteor.isServer) {
                 const maxContentLength = 400000000;
                 const maxBodyLength = 400000000;
                 const response = await axiosJson({
-                    url, method, data, maxContentLength, maxBodyLength,
+                    url, method, data, maxContentLength, ...(ignoreMaxBodyLength ? {} : maxBodyLength),
                 });
                 const { status, data: responseData } = response;
                 return { status, data: responseData };
@@ -247,7 +248,7 @@ if (Meteor.isServer) {
             const deploymentWebhook = get(settings, 'settings.private.webhooks.deploymentWebhook', {});
             const { url, method } = deploymentWebhook;
             if (!url || !method) throw new Meteor.Error('400', 'No deployment webhook defined.');
-            const resp = Meteor.call('axios.requestWithJsonBody', url, method, data);
+            const resp = Meteor.call('axios.requestWithJsonBody', url, method, data, { ignoreMaxBodyLength: true });
 
             if (resp === undefined) throw new Meteor.Error('500', 'No response from the deployment webhook');
             if (resp.status === 404) throw new Meteor.Error('404', 'Deployment webhook not Found');
@@ -268,7 +269,7 @@ if (Meteor.isServer) {
                 model: Buffer.from(modelData).toString('base64'),
                 mimeType: 'application/x-tar',
             };
-            Meteor.call('axios.requestWithJsonBody', trainingWebhook.url, trainingWebhook.method, body);
+            Meteor.call('axios.requestWithJsonBody', trainingWebhook.url, trainingWebhook.method, body, { ignoreMaxBodyLength: true });
         },
     });
 }
