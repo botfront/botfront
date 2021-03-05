@@ -1,7 +1,7 @@
 from typing import Any, List, Optional, Text, Dict
 from rasa.nlu.components import Component
-from rasa.nlu.training_data import Message
 from rasa.nlu.config import RasaNLUModelConfig
+from rasa.shared.nlu.training_data.message import Message
 from rasa.nlu.model import Metadata
 
 

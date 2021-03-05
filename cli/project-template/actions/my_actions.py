@@ -5,12 +5,11 @@
 from rasa_sdk import Action
 from rasa_sdk.events import SlotSet, ReminderScheduled, ConversationPaused, ConversationResumed, FollowupAction, Restarted, ReminderScheduled
 
-
 class MyAction(Action):
 
     def name(self):
-        return 'action_my_action'
+        return 'action_sample'
 
     def run(self, dispatcher, tracker, domain):
-        # do something.
+        dispatcher.utter_message(text="Actions work")# do something.
         return []
