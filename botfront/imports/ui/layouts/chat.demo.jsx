@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
-    Responsive, Button, Dropdown,
+    Responsive, Button, Dropdown, Image,
 } from 'semantic-ui-react';
 import Widget from 'rasa-webchat';
 import { Loading } from '../components/utils/Utils';
@@ -31,6 +31,7 @@ const ChatDemo = (props) => {
     const [language, setLanguage] = useState();
     const [updateKey, setUpdateKey] = useState();
     const [error, setError] = useState();
+    const [logos, setLogos] = useState({});
 
     const handleChangeLanguage = (lang) => {
         window.localStorage.removeItem('chat_session');
@@ -62,6 +63,10 @@ const ChatDemo = (props) => {
             }
             setLoading(false);
         });
+        Meteor.call('project.getLogo', projectId, (err, res) => {
+            if (err) setError(err.message);
+            else setLogos(res);
+        });
     }, [selectedEnv]);
     useEffect(() => {
         Meteor.call('project.getDeploymentEnvironments', projectId, (err, res) => {
@@ -84,15 +89,19 @@ const ChatDemo = (props) => {
     const renderError = () => <h1>{error}</h1>;
 
     const renderTopMenu = () => (
-        <div className='side-by-side middle'>
+        <div className='side-by-side middle chat-demo-top-menu'>
             <ResponsiveAlternants
                 cutoff={500}
                 as='span'
                 style={{ marginTop: '10px' }}
                 className='logo pale-grey'
             >
-                <>Botfront.</>
-                <>B.</>
+                {logos.logoUrl ? (
+                    <Image src={logos.logoUrl} centered className='custom-logo' />
+                ) : <>Botfront.</>}
+                {logos.smallLogoUrl ? (
+                    <Image src={logos.smallLogoUrl} centered className='small-custom-logo' />
+                ) : <>B.</>}
             </ResponsiveAlternants>
             <ResponsiveAlternants cutoff={1000} as='span' className='large grey'>
                 <>

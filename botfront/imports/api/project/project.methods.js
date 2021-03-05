@@ -22,6 +22,7 @@ import {
 import { StoryGroups } from '../storyGroups/storyGroups.collection';
 import { Stories } from '../story/stories.collection';
 import { Slots } from '../slots/slots.collection';
+import { GlobalSettings } from '../globalSettings/globalSettings.collection';
 import Forms from '../graphql/forms/forms.model';
 import { languages as languageOptions } from '../../lib/languages';
 import BotResponses from '../graphql/botResponses/botResponses.model';
@@ -392,6 +393,18 @@ if (Meteor.isServer) {
         async 'project.getDeploymentEnvironments'(projectId) {
             check(projectId, String);
             return Projects.findOne({ _id: projectId }, { fields: { deploymentEnvironments: 1 } });
+        },
+
+        async 'project.getLogo'(projectId) {
+            check(projectId, String);
+            const settings = GlobalSettings.findOne({}, {
+                fields: { 'settings.public.logoUrl': 1, 'settings.public.smallLogoUrl': 1 },
+            });
+            const project = await Projects.findOne({ _id: projectId }, { fields: { logoUrl: 1, smallLogoUrl: 1 } });
+            return {
+                logoUrl: project?.logoUrl || settings?.settings?.public?.logoUrl,
+                smallLogoUrl: project?.smallLogoUrl || settings?.settings?.public?.smallLogoUrl,
+            };
         },
     });
 }
