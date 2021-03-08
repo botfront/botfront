@@ -65,7 +65,7 @@ describe('Training', function() {
         cy.toggleStoryGroupFocused();
         cy.get('.eye.icon.focused').should('have.length', 1);
         cy.train();
-        cy.newChatSesh();
+        cy.wait(1000);
         cy.newChatSesh();
         cy.typeChatMessage('/get_started');
         cy.get('.rw-message').should('have.length', 1); // no response
@@ -76,7 +76,7 @@ describe('Training', function() {
         cy.wait(500);
         cy.get('.eye.icon.focused').should('have.length', 1);
         cy.train();
-        cy.newChatSesh();
+        cy.wait(1000);
         cy.newChatSesh();
         cy.typeChatMessage('/chitchat.greet');
         cy.get('.rw-message').should('have.length', 2); // no response
