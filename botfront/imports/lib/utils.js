@@ -1,9 +1,7 @@
 import { check } from 'meteor/check';
 import { Meteor } from 'meteor/meteor';
 import { sample, get } from 'lodash';
-import fs from 'fs';
 import yaml from 'js-yaml';
-import path from 'path';
 import React from 'react';
 import axios from 'axios';
 import BotResponses from '../api/graphql/botResponses/botResponses.model';
@@ -78,10 +76,6 @@ export const getProjectModelFileName = (projectId, extension = null) => {
     const modelName = `model-${projectId}`;
     return extension ? `${modelName}.${extension}` : modelName;
 };
-
-export const getProjectModelLocalFolder = () => process.env.MODELS_LOCAL_PATH || '/app/models';
-
-export const getProjectModelLocalPath = projectId => path.join(getProjectModelLocalFolder(), getProjectModelFileName(projectId, 'tar.gz'));
 
 export const getImageUrls = (response, excludeLang = '') => (
     response.values.reduce((vacc, vcurr) => {
@@ -233,22 +227,18 @@ if (Meteor.isServer) {
             checkIfCan('nlu-data:x', projectId);
             check(target, String);
             check(projectId, String);
-           await Meteor.callWithPromise('commitAndPushToRemote', projectId, 'chore: deployment checkpoint')
-           const result = await runTestCases(projectId)
-           if (result.failing !== 0) {
-               throw new Meteor.Error('500', `${result.failing} test${result.failing === 1 ? '' : 's'} failed during the pre-deployment test run`)
-           }
-
-            const trainedModelPath = path.join(getProjectModelLocalPath(projectId));
-            const modelFile = fs.readFileSync(trainedModelPath);
-            const { namespace } = await Projects.findOne({ _id: projectId }, { fields: { namespace: 1 } });
+            await Meteor.callWithPromise('rasa.train', projectId)
+            await Meteor.callWithPromise('commitAndPushToRemote', projectId, 'chore: deployment checkpoint')
+            const result = await runTestCases(projectId)
+            if (result.failing !== 0) {
+                throw new Meteor.Error('500', `${result.failing} test${result.failing === 1 ? '' : 's'} failed during the pre-deployment test run`)
+            }
+            const { namespace, gitSettings } = await Projects.findOne({ _id: projectId }, { fields: { namespace: 1, gitSettings: 1 } });
             const data = {
-                // data: Buffer.from(modelFile).toString('base64'), // convert raw data to base64String so axios can handle it
-                // projectId,
-                // namespace,
-                // environment: target,
-                gitString: gitString,
-                // mimeType: 'application/x-tar',
+                projectId,
+                namespace,
+                environment: target,
+                gitString: gitSettings?.gitString,
             };
             Meteor.call('credentials.appendWidgetSettings', projectId, target);
             const settings = GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.deploymentWebhook': 1 } });
