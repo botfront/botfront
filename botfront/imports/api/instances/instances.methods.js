@@ -286,6 +286,7 @@ if (Meteor.isServer) {
                     { stories, rules },
                     { skipInvalid: true },
                 );
+                payload.load_model_after = true;
                 // this client is used when telling rasa to load a model
                 const client = await createAxiosForRasa(projectId, { timeout: process.env.TRAINING_TIMEOUT || 0 });
                 addLoggingInterceptors(client, appMethodLogger);
