@@ -110,6 +110,24 @@ if (Meteor.isServer) {
         return opts;
     };
 
+    const setCurrentBranch = async (repo, branchName) => {
+        const currentBranch = await repo.getCurrentBranch()
+        if (currentBranch.name() === `refs/heads/${branchName}`) return
+
+        const nodegit = require('nodegit')
+        const branchCommit = await repo.getBranchCommit(`origin/${branchName}`);
+        try {
+            // check if the branch exists locally
+            await nodegit.Branch.lookup(repo, branchName, 1)
+        } catch {
+            // If the branch does not exist locally create it
+            await repo.createBranch(branchName, branchCommit)
+            const localBranch = await repo.getBranch(branchName)
+            await nodegit.Branch.setUpstream(localBranch, `origin/${branchName}`)
+        }
+        await repo.checkoutBranch(branchName)
+    }
+
     const getRemote = async (projectId, forceClone = false) => {
         const nodegit = require('nodegit');
         const { gitSettings: { gitString = '', publicSshKey = '', privateSshKey = '' } } = Projects.findOne(
@@ -134,19 +152,7 @@ if (Meteor.isServer) {
                 if (forceClone) throw new Error();
                 repo = await nodegit.Repository.open(dir);
                 await repo.fetch('origin');
-                const branchExists = await nodegitTry(nodegit.Branch.lookup, repo, branchName, 1)
-                if (!branchExists) {
-                    branch = await repo.getBranch(`origin/${branchName}`);
-                    branchCommit = await repo.getBranchCommit(`origin/${branchName}`);
-                    const currentBranch = await repo.getCurrentBranch()
-                    console.log(currentBranch.name())
-                    await repo.createBranch(branchName, branchCommit)
-                    await repo.checkoutBranch(branchName)
-                    const localBranch = await repo.getBranch('dev')
-                    branch = localBranch
-                    await nodegit.Branch.setUpstream(localBranch, `origin/${branchName}`)
-                    remote = await repo.getRemote(`origin`);
-                }
+                await setCurrentBranch(repo, branchName)
                 await repo.mergeBranches(
                     branchName,
                     `refs/remotes/origin/${branchName}`,
@@ -168,10 +174,11 @@ if (Meteor.isServer) {
                 }
                 if (fs.existsSync(dir)) fs.rmdirSync(dir, { recursive: true });
                 repo = await nodegit.Clone.clone(url, dir, opts);
+                await setCurrentBranch(repo, branchName)
             }
             branch = await repo.getBranch(branchName);
             branchCommit = await repo.getBranchCommit(branchName);
-            remote = await repo.getRemote(`origin`);
+            remote = await repo.getRemote('origin');
         } catch (e) {
             if (process.env.MODE === 'development') {
                 console.info(e)
@@ -320,7 +327,9 @@ if (Meteor.isServer) {
                 await hardResetToCommit(repo, commit, null);
                 // await new Promise(resolve => setTimeout(() => resolve(), 30000));
             } catch (e) {
-                console.log(e)
+                if (process.env.MODE === 'development') {
+                    console.info(e)
+                }
                 hardResetToCommit(repo, originalBranchCommit, branch);
                 throw new Meteor.Error('Could not checkout commit.');
             }
@@ -355,7 +364,9 @@ if (Meteor.isServer) {
                 if (status) return { status };
                 return pushToRemote(repoInfo);
             } catch (e) {
-                console.log(e)
+                if (process.env.MODE === 'development') {
+                    console.info(e)
+                }
                 await importSteps({
                     projectId,
                     wipeProject: true,
