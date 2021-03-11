@@ -14,6 +14,7 @@ import { Instances } from '../api/instances/instances.collection';
 import { checkIfCan } from './scopes';
 
 import { Projects } from '../api/project/project.collection';
+import { runTestCases } from '../api/story/stories.methods'
 
 export const setsAreIdentical = (arr1, arr2) => (
     arr1.every(en => arr2.includes(en))
@@ -232,15 +233,22 @@ if (Meteor.isServer) {
             checkIfCan('nlu-data:x', projectId);
             check(target, String);
             check(projectId, String);
+           await Meteor.callWithPromise('commitAndPushToRemote', projectId, 'chore: deployment checkpoint')
+           const result = await runTestCases(projectId)
+           if (result.failing !== 0) {
+               throw new Meteor.Error('500', `${result.failing} test${result.failing === 1 ? '' : 's'} failed during the pre-deployment test run`)
+           }
+
             const trainedModelPath = path.join(getProjectModelLocalPath(projectId));
-            const modelFile = fs.readFileSync(trainedModelPath);
+            const modelFile = fs.readFileSync('/Users/kenton.rilea/dialogue/botfront-projects/bf-2/models/model-bf.tar.gz' /*trainedModelPath*/);
             const { namespace } = await Projects.findOne({ _id: projectId }, { fields: { namespace: 1 } });
             const data = {
-                data: Buffer.from(modelFile).toString('base64'), // convert raw data to base64String so axios can handle it
-                projectId,
-                namespace,
-                environment: target,
-                mimeType: 'application/x-tar',
+                // data: Buffer.from(modelFile).toString('base64'), // convert raw data to base64String so axios can handle it
+                // projectId,
+                // namespace,
+                // environment: target,
+                gitString: gitString,
+                // mimeType: 'application/x-tar',
             };
             Meteor.call('credentials.appendWidgetSettings', projectId, target);
             const settings = GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.deploymentWebhook': 1 } });

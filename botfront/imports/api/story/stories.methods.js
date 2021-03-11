@@ -372,6 +372,62 @@ if (Meteor.isServer) {
 
     const storiesAppLogger = getAppLoggerForFile(__filename);
 
+    export const runTestCases = async (projectId, options = {}) => {
+        const { language, ids } = options;
+        const query = {
+            type: 'test_case',
+            projectId,
+            ...(ids?.length > 0 ? { _id: { $in: ids } } : {}),
+            ...(language ? { language } : {}),
+        };
+        const testCases = Stories.find({ ...query }, { fields: { _id: 1, steps: 1, language: 1 } })
+        .map(({
+            _id, steps, language: testLanguage,
+        }) => ({
+            _id,
+            steps,
+            language: testLanguage,
+        }));
+        if (testCases?.length < 1) {
+            return { passing: 0, failing: 0 }
+        }
+        const client = await createAxiosForRasa(projectId, { timeout: 1000 * 1000 }, { language });
+        auditLog('test model', {
+            user: Meteor.user(),
+            projectId,
+            type: 'execute',
+            operation: 'stories.runTests',
+            resId: testCases.map(({ _id }) => _id),
+            resType: 'run test cases',
+        });
+        const appMethodLogger = getAppLoggerForMethod(
+            storiesAppLogger,
+            'stories.runTests',
+            Meteor.userId(),
+            { projectId },
+        );
+        addLoggingInterceptors(client, appMethodLogger);
+        const response = await client.request({
+            url: '/webhooks/bot_regression_test/run',
+            data: { test_cases: testCases, project_id: projectId },
+            method: 'post',
+        });
+        let report;
+        if (response.status === 200) {
+            const testResults = response.data;
+            report = testResults.reduce((acc, { success }) => {
+                if (success) {
+                    acc.passing += 1;
+                } else {
+                    acc.failing += 1;
+                }
+                return acc;
+            }, { passing: 0, failing: 0 });
+            Meteor.call('stories.update', testResults);
+        }
+        return report;
+    }
+
     Meteor.methods({
         async 'stories.runTests'(projectId, options = {}) {
             checkIfCan('stories:w', projectId);
