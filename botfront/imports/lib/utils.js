@@ -240,7 +240,7 @@ if (Meteor.isServer) {
            }
 
             const trainedModelPath = path.join(getProjectModelLocalPath(projectId));
-            const modelFile = fs.readFileSync('/Users/kenton.rilea/dialogue/botfront-projects/bf-2/models/model-bf.tar.gz' /*trainedModelPath*/);
+            const modelFile = fs.readFileSync(trainedModelPath);
             const { namespace } = await Projects.findOne({ _id: projectId }, { fields: { namespace: 1 } });
             const data = {
                 // data: Buffer.from(modelFile).toString('base64'), // convert raw data to base64String so axios can handle it
