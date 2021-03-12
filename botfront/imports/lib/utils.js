@@ -223,11 +223,11 @@ if (Meteor.isServer) {
             }
         },
 
-        async 'deploy.model'(projectId, target) {
+        async 'deploy.model'(projectId, target, isTest) {
             checkIfCan('nlu-data:x', projectId);
             check(target, String);
             check(projectId, String);
-            await Meteor.callWithPromise('rasa.train', projectId)
+            await Meteor.callWithPromise('rasa.train', projectId, 'development')
             await Meteor.callWithPromise('commitAndPushToRemote', projectId, 'chore: deployment checkpoint')
             const result = await runTestCases(projectId)
             if (result.failing !== 0) {
@@ -245,7 +245,8 @@ if (Meteor.isServer) {
             const deploymentWebhook = get(settings, 'settings.private.webhooks.deploymentWebhook', {});
             const { url, method } = deploymentWebhook;
             if (!url || !method) throw new Meteor.Error('400', 'No deployment webhook defined.');
-            const resp = Meteor.call('axios.requestWithJsonBody', url, method, data);
+            // calling the webhook in a test causes it to fail
+            const resp = isTest ? { status: 200 } : Meteor.call('axios.requestWithJsonBody', url, method, data)
 
             if (resp === undefined) throw new Meteor.Error('500', 'No response from the deployment webhook');
             if (resp.status === 404) throw new Meteor.Error('404', 'Deployment webhook not Found');

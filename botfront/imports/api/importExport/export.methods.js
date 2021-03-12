@@ -28,17 +28,11 @@ if (Meteor.isServer) {
     const glob = require('glob');
     const { join, dirname, basename } = require('path');
     const fs = require('fs');
-    
-    const nodegitTry = async (callback, ...args) => {
-        let result = null
-        try {
-            result = await callback(...args)
-        } catch (e) {
-            if (process.env.MODE === 'development') {
-                console.info(e)
-            }
-        }
-        return result
+
+    const devInfo = async (e) => {
+        if (process.env.MODE === 'development') {
+            console.info(e)
+        }        
     }
 
     const signature = () => {
@@ -169,9 +163,7 @@ if (Meteor.isServer) {
                 // local is ahead, start from scratch
                 if (localSha !== remoteSha) throw new Error();
             } catch (e) {
-                if (process.env.MODE === 'development') {
-                    console.info(e)
-                }
+                devInfo(e)
                 if (fs.existsSync(dir)) fs.rmdirSync(dir, { recursive: true });
                 repo = await nodegit.Clone.clone(url, dir, opts);
                 await setCurrentBranch(repo, branchName)
@@ -180,9 +172,7 @@ if (Meteor.isServer) {
             branchCommit = await repo.getBranchCommit(branchName);
             remote = await repo.getRemote('origin');
         } catch (e) {
-            if (process.env.MODE === 'development') {
-                console.info(e)
-            }
+            devInfo(e)
             throw new Meteor.Error(
                 `Could not connect to branch '${branchName}' on your git repo. Check your credentials.`,
             );
@@ -327,9 +317,7 @@ if (Meteor.isServer) {
                 await hardResetToCommit(repo, commit, null);
                 // await new Promise(resolve => setTimeout(() => resolve(), 30000));
             } catch (e) {
-                if (process.env.MODE === 'development') {
-                    console.info(e)
-                }
+                devInfo(e)
                 hardResetToCommit(repo, originalBranchCommit, branch);
                 throw new Meteor.Error('Could not checkout commit.');
             }
@@ -364,9 +352,7 @@ if (Meteor.isServer) {
                 if (status) return { status };
                 return pushToRemote(repoInfo);
             } catch (e) {
-                if (process.env.MODE === 'development') {
-                    console.info(e)
-                }
+                devInfo(e)
                 await importSteps({
                     projectId,
                     wipeProject: true,
