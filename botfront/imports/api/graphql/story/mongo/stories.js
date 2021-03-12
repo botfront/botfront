@@ -3,7 +3,7 @@ import BotResponses from '../../botResponses/botResponses.model';
 import { indexStory } from '../../../story/stories.index';
 import { searchForms } from '../../forms/mongo/forms';
 import Examples from '../../examples/examples.model.js';
-
+import { escapeForRegex } from '../../../../lib/client.safe.utils'
 export const combineSearches = (search, ...rest) => {
     const searchRegex = [search];
     rest.forEach((searchArray) => {
@@ -15,7 +15,7 @@ export const combineSearches = (search, ...rest) => {
 };
 
 // eslint-disable-next-line no-useless-escape
-const escape = string => string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+export const escape = string => string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 
 export const searchStories = async (projectId, language, search) => {
     const flags = {
@@ -37,7 +37,7 @@ export const searchStories = async (projectId, language, search) => {
     const cleanedSearch = search
         .replace(new RegExp(stringToRemove.join('|'), 'g'), '')
         .trim();
-    const escapedSearch = escape(cleanedSearch);
+    const escapedSearch = escapeForRegex(cleanedSearch);
     const searchRegex = new RegExp(escapedSearch, 'i');
     const modelExamples = await Examples.find({
         projectId,
@@ -140,7 +140,7 @@ export const replaceStoryLines = (projectId, lineToReplace, newLine) => {
     const matchingStories = Stories.find(
         {
             projectId,
-            textIndex: { $regex: escape(lineToReplace) },
+            textIndex: { $regex: escapeForRegex(lineToReplace) },
         },
         { fields: { _id: 1 } },
     ).fetch();
