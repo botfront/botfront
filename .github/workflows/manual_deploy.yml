@@ -3,7 +3,7 @@ name: manual_deploy
 on:
   workflow_dispatch:
     inputs:
-      spec:
+      tag:
         description: 'tag'
         required: true
         default: 'i-need-this-now'
