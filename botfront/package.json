@@ -79,7 +79,7 @@
     "react-ace": "^6.1.4",
     "react-apollo": "^2.5.8",
     "react-autosize-textarea": "^7.0.0",
-    "react-awesome-query-builder": "^2.1.9",
+    "react-awesome-query-builder": "^3.0.0",
     "react-color": "^2.18.0",
     "react-dates": "21.5.1",
     "react-debounce-input": "^3.2.0",

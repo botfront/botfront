@@ -4,7 +4,7 @@ const { Parser } = require('jison');
 const fs = require('fs');
 const ebnfParser = require('ebnf-parser');
 
-const grammar = fs.readFileSync('/Users/matthieu.joannon/code/dialogue/botfront/botfront/imports/api/graphql/project/pypredGrammar.jison', 'utf8');
+const grammar = fs.readFileSync('/Users/matthieu.joannon/code/dialogue/botfront/botfront/imports/lib/pypred/pypredGrammar.jison', 'utf8');
 // console.log(grammar);
 let compiled = null;
 try {
@@ -15,4 +15,4 @@ try {
 
 const parserFile = new Parser(compiled).generate();
 
-fs.writeFileSync('/Users/matthieu.joannon/code/dialogue/botfront/botfront/imports/api/graphql/project/pypred.parser.js', parserFile);
+fs.writeFileSync('/Users/matthieu.joannon/code/dialogue/botfront/botfront/imports/lib/pypred/pypred.parser.js', parserFile);

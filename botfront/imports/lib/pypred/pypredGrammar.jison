@@ -13,10 +13,12 @@
 " == "|" is "|" = "              { return 'EQ';       }
 " contains anyof "               { return 'ctanyof';  }
 " contains allof "               { return 'ctallof';  }
+" contains "                     { return 'ct';       }
 " >= "                           { return 'GTEQ';     }
 " <= "                           { return 'LTEQ';     }
 " < "                            { return 'LT';       }
 " > "                            { return 'GT';       }
+" matches "                      { return 'matches';  }
 " \#.* "                         { return 'COMMENT';  }
 // No need for these three as they will be displayed as is in Botfront.
 // "null "|"null"                   { return 'NULL';     }
@@ -24,7 +26,7 @@
 // "false "|"false"                 { return 'FALSE';    }
 [0-9]+("."[0-9]+)?\b             { return 'NUMBER';   }
 [\']?[a-zA-Z_0-9]+[\']?          { return 'FACTOR';   }
-[\"]?[a-zA-Z_0-9]+[\"]?          { return 'FACTOR';   }
+[\"][\S]+[\"]                    { return 'FACTOR';   }
 [{][^}]+[}]?                     { return 'COLLECTN'; }
 // Botfront will take care of differentiating strings from quotes
 "("                              { return '(';        }
@@ -55,11 +57,11 @@ wff
         { $$ = $1; }
     | '(' wff ')'
         { $$ = $2; }
-    | '(' wff binaryconnector wff ')'
-        { $$ = {[$3]: [$2, $4]}; }
+    | wff binaryconnector wff { $$ = {[$2]: [$1, $3]}; }
     | unaryconnector wff
         { $$ = {[$1]: $2}; }
-    | wff binaryconnector wff { $$ = {[$2]: [$1, $3]}; }
+    | '(' wff binaryconnector wff ')'
+        { $$ = {[$3]: [$2, $4]}; }
     // | wff binaryconnector wff { $$ = {[$2]: [$1, Array.isArray($3) ? [].concat.apply([], $3) : $3]}; }
     ;
 
@@ -73,8 +75,8 @@ unaryconnector
     ;
 
 atomicprop
-    : factor comparator factor { $$ = {[$2]: [$1, $3]}; }
-    | factor { $$ = $1; }
+    : factor comparator factor { $$ = {[$2]: [{'var': $1}, $3]}; }
+    | factor { $$ = {'truthy': [{'var': $1}, 'truthy']}; }
     ;
 
 // THe order matters
@@ -94,4 +96,6 @@ comparator
     | anyof { $$ = 'anyof'; }
     | ctanyof { $$ = 'ctanyof'; }
     | ctallof { $$ = 'ctallof'; }
+    | ct { $$ = 'ct'; }
+    | matches { $$ = 'matches'; }
     ;

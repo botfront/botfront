@@ -13,8 +13,9 @@ import 'react-awesome-query-builder/lib/css/styles.css';
 
 import { ProjectContext } from '../../../layouts/context';
 import { GraphContext } from './graph.utils';
-import { QbConfig } from './ConditionModal.config';
+import { QbConfig } from '../../../../lib/pypred/ConditionModal.config';
 import ConfirmPopup from '../../common/ConfirmPopup';
+import { defaultSlotField } from '../../../../lib/pypred/pypred.utils';
 
 
 // You can load query value from your backend storage (for saving see `Query.onChange()`)
@@ -31,16 +32,6 @@ export default function ConditionModal(props) {
 
     // useEffect does not seem to work there as it doesn't update the fields in time.
     useMemo(() => {
-        const slotField = {
-            type: 'custom_text',
-            defaultOperator: 'is_exactly',
-            fieldSettings: {
-                allowCustomValues: true,
-                validateValue: () => true,
-            },
-            valueSources: ['value'],
-        };
-
         const elementsSlots = elements.reduce((acc, val) => {
             if (val.type === 'slot') return [...acc, val.id];
             return acc;
@@ -49,7 +40,7 @@ export default function ConditionModal(props) {
         let fields = elementsSlots.reduce((acc, slotName) => ({
             ...acc,
             [slotName]: {
-                ...slotField,
+                ...defaultSlotField,
                 label: slotName,
             },
         }), {});
@@ -57,7 +48,7 @@ export default function ConditionModal(props) {
         fields = slots.reduce((acc, slot) => ({
             ...acc,
             [slot.name]: {
-                ...slotField,
+                ...defaultSlotField,
                 label: slot.name,
             },
         }), fields);

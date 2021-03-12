@@ -1,35 +1,68 @@
 import { BasicConfig } from 'react-awesome-query-builder';
 import React from 'react';
-import ConditionInput from './ConditionSubComponents/ConditionInput';
-import ConditionDropdown from './ConditionSubComponents/ConditionDropdown';
-import ConditionButton from './ConditionSubComponents/ConditionButton';
-import ConditionConjunction from './ConditionSubComponents/ConditionConjunction';
-import ConditionMultiselect from './ConditionSubComponents/ConditionMultiselect';
+import ConditionInput from '../../ui/components/forms/graph/ConditionSubComponents/ConditionInput';
+import ConditionDropdown from '../../ui/components/forms/graph/ConditionSubComponents/ConditionDropdown';
+import ConditionButton from '../../ui/components/forms/graph/ConditionSubComponents/ConditionButton';
+import ConditionConjunction from '../../ui/components/forms/graph/ConditionSubComponents/ConditionConjunction';
+import ConditionMultiselect from '../../ui/components/forms/graph/ConditionSubComponents/ConditionMultiselect';
 
 export const QbConfig = {
     ...BasicConfig,
+    conjunctions: {
+        ...BasicConfig.conjunctions,
+        AND: {
+            ...BasicConfig.conjunctions.AND,
+            formatConj: (children, _, not) => (children.size > 1
+                ? `${(not ? 'not' : '')}(${children.join(' and ')})`
+                : `${not ? 'not ' : ''}${children.first()}`),
+        },
+        OR: {
+            ...BasicConfig.conjunctions.OR,
+            formatConj: (children, _, not) => (children.size > 1
+                ? `${(not ? 'not' : '')}(${children.join(' or ')})`
+                : `${not ? 'not ' : ''}${children.first()}`),
+        },
+    },
     settings: {
         renderField: settings => <ConditionDropdown {...settings} />,
         renderOperator: settings => <ConditionDropdown {...settings} />,
         renderConjs: settings => <ConditionConjunction {...settings} />,
         renderButton: settings => <ConditionButton {...settings} />,
     },
-    fields: {},
+    fields: {
+        text: {
+            type: 'custom_text',
+        },
+    },
     operators: {
         is_exactly: {
             label: 'is exactly',
             reversedOp: '',
-            formatOp: (_, __, value) => value,
+            formatOp: (field, op, value) => `${field} is ${value}`,
         },
         is_in: {
-            label: 'is one of',
+            label: 'is any of',
             reversedOp: '',
-            formatOp: (_, __, value) => value,
+            jsonLogic: 'anyof',
+            formatOp: (field, op, value) => `${field} is anyof ${value}`,
         },
         contains: {
             label: 'contains',
             reversedOp: '',
-            formatOp: (_, __, value) => value,
+            jsonLogic: 'ct',
+            formatOp: (field, op, value) => `${field} contains ${value}`,
+        },
+        ctanyof: {
+            label: 'contains any of',
+            reversedOp: '',
+            jsonLogic: 'ctanyof',
+            formatOp: (field, op, value) => `${field} contains anyof ${value}`,
+        },
+        ctallof: {
+            label: 'contains all of',
+            reversedOp: '',
+            jsonLogic: 'ctallof',
+            formatOp: (field, op, value) => `${field} contains allof ${value}`,
         },
         longer: {
             label: 'has a character count greater than',
@@ -59,124 +92,140 @@ export const QbConfig = {
         starts_with: {
             label: 'starts with',
             reversedOp: '',
-            formatOp: (_, __, value) => value,
+            formatOp: (field, op, value) => `${field} ${op} ${value}`,
 
         },
         ends_with: {
             label: 'ends with',
             reversedOp: '',
-            formatOp: (_, __, value) => value,
+            formatOp: (field, op, value) => `${field} ${op} ${value}`,
         },
         matches: {
             label: 'matches a regex expression',
             reversedOp: '',
-            formatOp: (_, __, value) => value,
+            jsonLogic: 'matches',
+            formatOp: (field, op, value) => `${field} ${op} ${value}`,
         },
         eq: {
-            label: 'is equal to',
-            reversedOp: '',
-            formatOp: (_, __, value) => value,
+            label: 'is',
+            jsonLogic: '==',
+            formatOp: (field, op, value) => `${field} is ${value}`,
+        },
+        neq: {
+            label: 'is not',
+            jsonLogic: '!=',
+            formatOp: (field, op, value) => `${field} is not ${value}`,
+        },
+        truthy: {
+            label: 'is truthy',
+            jsonLogic: 'truthy',
+            formatOp: field => `${field}`,
         },
         gt: {
             label: 'is greater than',
-            reversedOp: '',
-            formatOp: (_, __, value) => value,
+            jsonLogic: '>',
+            formatOp: (field, op, value) => `${field} > ${value}`,
         },
         gte: {
             label: 'is greater than or equal to',
-            reversedOp: '',
-            formatOp: (_, __, value) => value,
+            jsonLogic: '>=',
+            formatOp: (field, op, value) => `${field} >= ${value}`,
         },
         lt: {
             label: 'is less than',
-            reversedOp: '',
-            formatOp: (_, __, value) => value,
+            jsonLogic: '<',
+            formatOp: (field, op, value) => `${field} < ${value}`,
         },
         lte: {
             label: 'is less than or equal to',
-            reversedOp: '',
-            formatOp: (_, __, value) => value,
+            jsonLogic: '<=',
+            formatOp: (field, op, value) => `${field} <= ${value}`,
         },
         email: {
             label: 'is an email',
             reversedOp: '',
-            formatOp: (_, __, value) => value,
+            formatOp: (field, op, value) => `${field} ${op} ${value}`,
         },
     },
     widgets: {
         ...BasicConfig.widgets,
         custom_text: {
             ...BasicConfig.widgets.text,
+            formatValue: val => val,
             type: 'custom_text',
             factory: settings => <ConditionInput {...settings} className='custom-text' />,
         },
         custom_number: {
             ...BasicConfig.widgets.number,
+            formatValue: val => val,
             type: 'custom_text',
             factory: settings => <ConditionInput {...settings} inputType='number' className='custom-number' placeholder='Number' />,
         },
         positive_number: {
             ...BasicConfig.widgets.number,
+            formatValue: val => val,
             type: 'custom_text',
             factory: settings => <ConditionInput {...settings} inputType='number' min={0} className='custom-number' placeholder='Number' />,
         },
         custom_multiselect: {
             ...BasicConfig.widgets.multiselect,
+            formatValue: val => val,
             type: 'custom_text',
             factory: settings => <ConditionMultiselect {...settings} className='custom-multiselect' />,
         },
         custom_blank: {
             type: 'custom_text',
+            formatValue: val => val,
             factory: () => <></>,
         },
     },
     types: {
         custom_text: {
             operators: [
-                'is_exactly',
-                'is_in',
-                'contains',
-                'longer',
-                'longer_or_equal',
-                'shorter',
                 'shorter_or_equal',
-                'word',
+                'longer_or_equal',
                 'starts_with',
+                'is_exactly',
                 'ends_with',
+                'contains',
                 'matches',
+                'is_in',
+                'word',
+                'neq',
                 'eq',
                 'gt',
-                'gte',
-                'gte',
                 'lt',
+                'gte',
                 'lte',
                 'email',
+                'truthy',
+                'longer',
+                'shorter',
+                'ctanyof',
+                'ctallof',
             ],
             widgets: {
                 custom_text: {
                     operators: [
-                        'is_exactly',
-                        'contains',
                         'starts_with',
+                        'is_exactly',
                         'ends_with',
                         'matches',
+                        'neq',
+                        'is',
+                        'is_in',
+                        'matches',
+                        'ctanyof',
+                        'ctallof',
+                        'contains',
                     ],
                 },
                 custom_number: {
                     operators: [
-                        'eq',
                         'gt',
                         'gte',
                         'lt',
                         'lte',
-                    ],
-                },
-                custom_multiselect: {
-                    widgetProps: {
-                        items: [],
-                    },
-                    operators: [
-                        'is_in',
                     ],
                 },
                 positive_number: {
@@ -191,6 +240,7 @@ export const QbConfig = {
                     operators: [
                         'word',
                         'email',
+                        'truthy',
                     ],
                 },
             },

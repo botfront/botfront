@@ -72,12 +72,12 @@
   }
 */
 var parser = (function(){
-var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[1,5],$V1=[1,8],$V2=[1,9],$V3=[1,10],$V4=[1,11],$V5=[1,14],$V6=[1,15],$V7=[5,9,12,13],$V8=[8,14,17,18,19],$V9=[5,9,12,13,20,21,22,23,24,25,26,27,28],$Va=[5,9],$Vb=[17,18,19];
+var o=function(k,v,o,l){for(o=o||{},l=k.length;l--;o[k[l]]=v);return o},$V0=[1,5],$V1=[1,8],$V2=[1,9],$V3=[1,10],$V4=[1,11],$V5=[1,14],$V6=[1,15],$V7=[5,9,12,13],$V8=[8,14,17,18,19],$V9=[5,9,12,13,20,21,22,23,24,25,26,27,28,29,30],$Va=[5,9],$Vb=[17,18,19];
 var parser = {trace: function trace () { },
 yy: {},
-symbols_: {"error":2,"sentence":3,"outerwff":4,"EOF":5,"wff":6,"atomicprop":7,"(":8,")":9,"binaryconnector":10,"unaryconnector":11,"and":12,"or":13,"NEG":14,"factor":15,"comparator":16,"COLLECTN":17,"NUMBER":18,"FACTOR":19,"EQ":20,"GTEQ":21,"LTEQ":22,"NEQ":23,"LT":24,"GT":25,"anyof":26,"ctanyof":27,"ctallof":28,"$accept":0,"$end":1},
-terminals_: {2:"error",5:"EOF",8:"(",9:")",12:"and",13:"or",14:"NEG",17:"COLLECTN",18:"NUMBER",19:"FACTOR",20:"EQ",21:"GTEQ",22:"LTEQ",23:"NEQ",24:"LT",25:"GT",26:"anyof",27:"ctanyof",28:"ctallof"},
-productions_: [0,[3,2],[4,1],[6,1],[6,3],[6,5],[6,2],[6,3],[10,1],[10,1],[11,1],[7,3],[7,1],[15,1],[15,1],[15,1],[16,1],[16,1],[16,1],[16,1],[16,1],[16,1],[16,1],[16,1],[16,1]],
+symbols_: {"error":2,"sentence":3,"outerwff":4,"EOF":5,"wff":6,"atomicprop":7,"(":8,")":9,"binaryconnector":10,"unaryconnector":11,"and":12,"or":13,"NEG":14,"factor":15,"comparator":16,"COLLECTN":17,"NUMBER":18,"FACTOR":19,"EQ":20,"GTEQ":21,"LTEQ":22,"NEQ":23,"LT":24,"GT":25,"anyof":26,"ctanyof":27,"ctallof":28,"ct":29,"matches":30,"$accept":0,"$end":1},
+terminals_: {2:"error",5:"EOF",8:"(",9:")",12:"and",13:"or",14:"NEG",17:"COLLECTN",18:"NUMBER",19:"FACTOR",20:"EQ",21:"GTEQ",22:"LTEQ",23:"NEQ",24:"LT",25:"GT",26:"anyof",27:"ctanyof",28:"ctallof",29:"ct",30:"matches"},
+productions_: [0,[3,2],[4,1],[6,1],[6,3],[6,3],[6,2],[6,5],[10,1],[10,1],[11,1],[7,3],[7,1],[15,1],[15,1],[15,1],[16,1],[16,1],[16,1],[16,1],[16,1],[16,1],[16,1],[16,1],[16,1],[16,1],[16,1]],
 performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* action[1] */, $$ /* vstack */, _$ /* lstack */) {
 /* this == yyval */
 
@@ -86,20 +86,20 @@ switch (yystate) {
 case 1:
  return $$[$0-1]; 
 break;
-case 3: case 12: case 13: case 14: case 15:
+case 3: case 13: case 14: case 15:
  this.$ = $$[$0]; 
 break;
 case 4:
  this.$ = $$[$0-1]; 
 break;
 case 5:
- this.$ = {[$$[$0-2]]: [$$[$0-3], $$[$0-1]]}; 
+ this.$ = {[$$[$0-1]]: [$$[$0-2], $$[$0]]}; 
 break;
 case 6:
  this.$ = {[$$[$0-1]]: $$[$0]}; 
 break;
-case 7: case 11:
- this.$ = {[$$[$0-1]]: [$$[$0-2], $$[$0]]}; 
+case 7:
+ this.$ = {[$$[$0-2]]: [$$[$0-3], $$[$0-1]]}; 
 break;
 case 8:
  this.$ = 'and'; 
@@ -109,6 +109,12 @@ case 9:
 break;
 case 10:
  this.$ = '!'; 
+break;
+case 11:
+ this.$ = {[$$[$0-1]]: [{'var': $$[$0-2]}, $$[$0]]}; 
+break;
+case 12:
+ this.$ = {'truthy': [{'var': $$[$0]}, 'truthy']}; 
 break;
 case 16:
  this.$ = '=='; 
@@ -137,9 +143,15 @@ break;
 case 24:
  this.$ = 'ctallof'; 
 break;
+case 25:
+ this.$ = 'ct'; 
+break;
+case 26:
+ this.$ = 'matches'; 
+break;
 }
 },
-table: [{3:1,4:2,6:3,7:4,8:$V0,11:6,14:$V1,15:7,17:$V2,18:$V3,19:$V4},{1:[3]},{5:[1,12]},{5:[2,2],10:13,12:$V5,13:$V6},o($V7,[2,3]),{6:16,7:4,8:$V0,11:6,14:$V1,15:7,17:$V2,18:$V3,19:$V4},{6:17,7:4,8:$V0,11:6,14:$V1,15:7,17:$V2,18:$V3,19:$V4},o($V7,[2,12],{16:18,20:[1,19],21:[1,20],22:[1,21],23:[1,22],24:[1,23],25:[1,24],26:[1,25],27:[1,26],28:[1,27]}),o($V8,[2,10]),o($V9,[2,13]),o($V9,[2,14]),o($V9,[2,15]),{1:[2,1]},{6:28,7:4,8:$V0,11:6,14:$V1,15:7,17:$V2,18:$V3,19:$V4},o($V8,[2,8]),o($V8,[2,9]),{9:[1,29],10:30,12:$V5,13:$V6},o($Va,[2,6],{10:13,12:$V5,13:$V6}),{15:31,17:$V2,18:$V3,19:$V4},o($Vb,[2,16]),o($Vb,[2,17]),o($Vb,[2,18]),o($Vb,[2,19]),o($Vb,[2,20]),o($Vb,[2,21]),o($Vb,[2,22]),o($Vb,[2,23]),o($Vb,[2,24]),o($Va,[2,7],{10:13,12:$V5,13:$V6}),o($V7,[2,4]),{6:32,7:4,8:$V0,11:6,14:$V1,15:7,17:$V2,18:$V3,19:$V4},o($V7,[2,11]),{9:[1,33],10:13,12:$V5,13:$V6},o($V7,[2,5])],
+table: [{3:1,4:2,6:3,7:4,8:$V0,11:6,14:$V1,15:7,17:$V2,18:$V3,19:$V4},{1:[3]},{5:[1,12]},{5:[2,2],10:13,12:$V5,13:$V6},o($V7,[2,3]),{6:16,7:4,8:$V0,11:6,14:$V1,15:7,17:$V2,18:$V3,19:$V4},{6:17,7:4,8:$V0,11:6,14:$V1,15:7,17:$V2,18:$V3,19:$V4},o($V7,[2,12],{16:18,20:[1,19],21:[1,20],22:[1,21],23:[1,22],24:[1,23],25:[1,24],26:[1,25],27:[1,26],28:[1,27],29:[1,28],30:[1,29]}),o($V8,[2,10]),o($V9,[2,13]),o($V9,[2,14]),o($V9,[2,15]),{1:[2,1]},{6:30,7:4,8:$V0,11:6,14:$V1,15:7,17:$V2,18:$V3,19:$V4},o($V8,[2,8]),o($V8,[2,9]),{9:[1,31],10:32,12:$V5,13:$V6},o($Va,[2,6],{10:13,12:$V5,13:$V6}),{15:33,17:$V2,18:$V3,19:$V4},o($Vb,[2,16]),o($Vb,[2,17]),o($Vb,[2,18]),o($Vb,[2,19]),o($Vb,[2,20]),o($Vb,[2,21]),o($Vb,[2,22]),o($Vb,[2,23]),o($Vb,[2,24]),o($Vb,[2,25]),o($Vb,[2,26]),o($Va,[2,5],{10:13,12:$V5,13:$V6}),o($V7,[2,4]),{6:34,7:4,8:$V0,11:6,14:$V1,15:7,17:$V2,18:$V3,19:$V4},o($V7,[2,11]),{9:[1,35],10:13,12:$V5,13:$V6},o($V7,[2,7])],
 defaultActions: {12:[2,1]},
 parseError: function parseError (str, hash) {
     if (hash.recoverable) {
@@ -678,34 +690,38 @@ case 6: return 27;
 break;
 case 7: return 28;  
 break;
-case 8: return 21;     
+case 8: return 29;       
 break;
-case 9: return 22;     
+case 9: return 21;     
 break;
-case 10: return 24;       
+case 10: return 22;     
 break;
-case 11: return 25;       
+case 11: return 24;       
 break;
-case 12: return 'COMMENT';  
+case 12: return 25;       
 break;
-case 13: return 18;   
+case 13: return 30;  
 break;
-case 14: return 19;   
+case 14: return 'COMMENT';  
 break;
-case 15: return 19;   
+case 15: return 18;   
 break;
-case 16: return 17; 
+case 16: return 19;   
 break;
-case 17: return 8;        
+case 17: return 19;   
 break;
-case 18: return 9;        
+case 18: return 17; 
 break;
-case 19: return 5;      
+case 19: return 8;        
+break;
+case 20: return 9;        
+break;
+case 21: return 5;      
 break;
 }
 },
-rules: [/^(?: and | AND )/,/^(?: or | OR )/,/^(?: not | NOT |not |NOT )/,/^(?: is anyof )/,/^(?: != | is not )/,/^(?: == | is | = )/,/^(?: contains anyof )/,/^(?: contains allof )/,/^(?: >= )/,/^(?: <= )/,/^(?: < )/,/^(?: > )/,/^(?: \\#\.\* )/,/^(?:[0-9]+(\.[0-9]+)?\b)/,/^(?:[\']?[a-zA-Z_0-9]+[\']?)/,/^(?:[\"]?[a-zA-Z_0-9]+[\"]?)/,/^(?:[{][^}]+[}]?)/,/^(?:\()/,/^(?:\))/,/^(?:$)/],
-conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19],"inclusive":true}}
+rules: [/^(?: and | AND )/,/^(?: or | OR )/,/^(?: not | NOT |not |NOT )/,/^(?: is anyof )/,/^(?: != | is not )/,/^(?: == | is | = )/,/^(?: contains anyof )/,/^(?: contains allof )/,/^(?: contains )/,/^(?: >= )/,/^(?: <= )/,/^(?: < )/,/^(?: > )/,/^(?: matches )/,/^(?: \\#\.\* )/,/^(?:[0-9]+(\.[0-9]+)?\b)/,/^(?:[\']?[a-zA-Z_0-9]+[\']?)/,/^(?:[\"][\S]+[\"])/,/^(?:[{][^}]+[}]?)/,/^(?:\()/,/^(?:\))/,/^(?:$)/],
+conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21],"inclusive":true}}
 });
 return lexer;
 })();
