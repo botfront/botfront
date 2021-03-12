@@ -14,9 +14,6 @@ export const combineSearches = (search, ...rest) => {
     return searchRegex.join('|');
 };
 
-// eslint-disable-next-line no-useless-escape
-export const escape = string => string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-
 export const searchStories = async (projectId, language, search) => {
     const flags = {
         withTriggers: search.includes('with:triggers'),
