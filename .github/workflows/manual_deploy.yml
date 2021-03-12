@@ -2,121 +2,24 @@ name: manual_deploy
 
 on:
   workflow_dispatch:
+    inputs:
+      spec:
+        description: 'tag'
+        required: true
+        default: 'i-need-this-now'
 
 jobs:
-  build-api:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - name: build api image
-        run: |
-          docker build \
-          -t botfront-api-local \
-          ./api
-      - run: docker save botfront-api-local $(docker history -q botfront-api-local | awk '!/<missing>/{print}') > botfront-api-local.tar
-      - uses: actions/upload-artifact@v1
-        with:
-          name: botfront-api-local
-          path: botfront-api-local.tar
-
-  build-bf: # to do: run meteor build in previous step and build from simplified dockerfile
+  build-and-push-to-hub:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
       - name: build bf image
         run: |
           docker build \
-          -t botfront-local \
+          -t botfront/botfront:${{github.event.inputs.tag}} \
           .
-      - run: docker save botfront-local $(docker history -q botfront-local | awk '!/<missing>/{print}') > botfront-local.tar
-      - uses: actions/upload-artifact@v1
-        with:
-          name: botfront-local
-          path: botfront-local.tar
-
-  push-api:
-    runs-on: ubuntu-latest
-    needs: [build-api]
-    steps:
-      - uses: actions/checkout@v1
-      - name: 'Get Previous tag'
-        id: previoustag
-        uses: "WyriHaximus/github-action-get-previous-tag@master"
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-        with:
-          version: '270.0.0'
-          service_account_email: ${{ secrets.GCR_SERVICE_ACCOUNT_EMAIL }}
-          service_account_key: ${{ secrets.GCR_SERVICE_ACCOUNT_KEY }}
-      - run: gcloud auth configure-docker
-      - name: download image
-        uses: actions/download-artifact@v1
-        with:
-          name: botfront-api-local
-          path: .
-      - run: docker load < botfront-api-local.tar
-      - name: push image
+      - name: log in
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: push
         run: |
-          echo VERSION=${{ steps.previoustag.outputs.tag }}
-          docker tag botfront-api-local gcr.io/botfront-project/botfront-api:${{ steps.previoustag.outputs.tag }}
-          docker push gcr.io/botfront-project/botfront-api:${{ steps.previoustag.outputs.tag }}
-      - run: touch empty
-      - name: overwrite api artifact with empty file
-        uses: actions/upload-artifact@v1
-        with:
-          name: botfront-api-local
-          path: empty
-
-  push-bf:
-    runs-on: ubuntu-latest
-    needs: [build-bf]
-    steps:
-      - uses: actions/checkout@v1
-      - name: 'Get Previous tag'
-        id: previoustag
-        uses: "WyriHaximus/github-action-get-previous-tag@master"
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-        with:
-          version: '270.0.0'
-          service_account_email: ${{ secrets.GCR_SERVICE_ACCOUNT_EMAIL }}
-          service_account_key: ${{ secrets.GCR_SERVICE_ACCOUNT_KEY }}
-      - run: gcloud auth configure-docker
-      - name: download image
-        uses: actions/download-artifact@v1
-        with:
-          name: botfront-local
-          path: .
-      - run: docker load < botfront-local.tar
-      - name: push image
-        run: |
-          echo VERSION=${{ steps.previoustag.outputs.tag }}
-          docker tag botfront-local gcr.io/botfront-project/botfront:${{ steps.previoustag.outputs.tag }}
-          docker push gcr.io/botfront-project/botfront:${{ steps.previoustag.outputs.tag }}
-      - run: touch empty
-      - name: overwrite bf artifact with empty file
-        uses: actions/upload-artifact@v1
-        with:
-          name: botfront-local
-          path: empty
-
-  create-github-release:
-    runs-on: ubuntu-latest
-    if: contains(github.ref, 'tags')
-    needs: [push-bf]
-    steps:
-      - uses: actions/checkout@v1
-      - name: 'Get Previous tag'
-        id: previoustag
-        uses: "WyriHaximus/github-action-get-previous-tag@master"
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-      - uses: actions/create-release@v1.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.previoustag.outputs.tag }}
-          release_name: ${{ steps.previoustag.outputs.tag }}
-          prerelease: ${{ contains(steps.previoustag.outputs.tag, 'rc') || contains(steps.previoustag.outputs.tag, 'alpha') || contains(steps.previoustag.outputs.tag, 'beta') }}
+          docker push botfront/botfront:${{github.event.inputs.tag}}
