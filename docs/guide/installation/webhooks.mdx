@@ -97,7 +97,14 @@ Botfront will send a request to the api with the following information
 #### Response
  
 Botfront except a 200 success response, other response are treated as errors. 
-You can and a message property in the error response body that will be displayed to the user.
+You can specify a `message` property to provide feedback in the app.
+
+```js
+{
+    "message" : string
+}
+```
+
 
 ### PostTraining
 
