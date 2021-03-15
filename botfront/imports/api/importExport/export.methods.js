@@ -62,56 +62,15 @@ if (Meteor.isServer) {
         return data.data || '';
     };
 
-    const processExclusions = (exclusions) => {
-        const parentPaths = {}
-        const exclusionRegex = new RegExp(exclusions.map((v) => {
-            /*
-                if 'folder_A/folder_B/ignored_file.txt' is ignored we also need to
-                ignore 'folder_A' and 'folder_A/folder_B'
-
-                non-ignored children of folder_A and folder_B will still be removed                
-            */
-
-            // create a dictionary of all the parent path names
-            const segments = v.split('/')
-            parentPaths[segments[0]] = true
-            segments.reduce((acc, newSegment) => {
-                newAcc = `${acc}/${newSegment}`
-                parentPaths[newAcc] = true
-                return newAcc
-            })
-            /*
-                match any folder or file path that starts with the ignored folder.
-
-                ignored: 'folder_A'
-                match: 'folder_A/folder_B', 'folder_A/folder_B/myfile.text'
-            */
-            const escapedValue = escapeForRegex(v)
-            return `^${escapedValue}\/|^${escapedValue}$`
-        }).join('|'))
-        return { parentPaths, exclusionRegex }
-    }
-
-    const deletePathsNotInZip = (dir, zip, exclusions) => {
-        const { parentPaths, exclusionRegex } = processExclusions(exclusions)
-        return Promise.all(
-            glob.sync(join('**', '*'), { cwd: dir }).map((path) => {
-                console.log('---------------')
-                console.log(path)
-                if (path in parentPaths || exclusionRegex.test(path)) {
-                    return Promise.resolve();
-                }
-                if (fs.statSync(join(dir, path)).isDirectory()) {
-                    if (`${path}/` in zip.files) return Promise.resolve();
-                    return fs.promises.rmdir(join(dir, path), {
-                        recursive: true,
-                    });
-                }
-                if (path in zip.files) return Promise.resolve();
+    const deletePathsNotInZip = (dir, zip, exclusions) => Promise.all(
+            glob.sync(join('**', '*'), {
+                cwd: dir,
+                nodir: true,
+                ignore: [...exclusions, ...Object.keys(zip.files)]
+            }).map((path) => {
                 return fs.promises.unlink(join(dir, path));
             }),
         );
-    }
 
     const extractZip = (dir, zip) => Promise.all(
         Object.entries(zip.files).map(async ([path, item]) => {
