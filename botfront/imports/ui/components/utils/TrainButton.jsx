@@ -245,7 +245,7 @@ class TrainButton extends React.Component {
                 if (err || response === undefined || response.status !== 200) {
                     Alert.error(`Deployment failed: ${err.message}`, {
                         position: 'top-right',
-                        timeout: 100000,
+                        timeout: 10000,
                     });
                 }
                 if (response.status === 200) {
