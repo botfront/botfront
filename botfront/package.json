@@ -58,7 +58,6 @@
     "graphql-tag": "^2.11.0",
     "graphql-type-json": "^0.3.1",
     "immutable": "^4.0.0-rc.12",
-    "jison": "nolanlawson/jison#debuggable",
     "ebnf-parser": "^0.1.10",
     "js-yaml": "^3.13.1",
     "jszip": "^3.2.2",
@@ -124,6 +123,7 @@
   "devDependencies": {
     "@babel/core": "^7.5.4",
     "@babel/plugin-proposal-optional-chaining": "^7.10.4",
+    "jison": "^0.4.18",
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^8.2.0",
     "@meteorjs/eslint-config-meteor": "^1.0.5",
