@@ -23,7 +23,6 @@ export const defaultSlotField = {
 const conditionRuleStep = (rule) => {
     const { properties: { value: [value], operator } } = rule;
     switch (operator) {
-    case 'word':
     case 'email':
     case 'truthy':
         return true;
@@ -33,15 +32,9 @@ const conditionRuleStep = (rule) => {
     case 'contains':
     case 'ctanyof':
     case 'ctallof':
-    case 'starts_with':
     case 'eq':
     case 'neq':
-    case 'ends_with':
         return !!value && value.length > 0;
-    case 'longer':
-    case 'longer_or_equal':
-    case 'shorter':
-    case 'shorter_or_equal':
     case 'gt':
     case 'gte':
     case 'lt':
@@ -49,6 +42,53 @@ const conditionRuleStep = (rule) => {
         return value === 0 || !!value || (Number.isNaN(parseInt(value, 10)) ? false : parseInt(value, 10));
     default:
         return false;
+    }
+};
+
+const migrateRule = (rule) => {
+    const { properties: { operator } } = rule;
+    let newValue = null;
+    let alreadyMigrated = false;
+    if (operator === 'is_in') {
+        if (!Array.isArray(rule.properties.value[0])) {
+            alreadyMigrated = true;
+        } else {
+            newValue = [...rule.properties.value[0]];
+            newValue = newValue.map(value => `'${value}'`);
+            newValue = `{${newValue.join(' ')}}`;
+        }
+    }
+    switch (operator) {
+    case 'is_exactly':
+        return {
+            ...rule,
+            properties: {
+                ...rule.properties,
+                operator: 'eq',
+            },
+        };
+    case 'email':
+        return {
+            ...rule,
+            properties: {
+                ...rule.properties,
+                operator: 'matches',
+                value: ['"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$)"'],
+            },
+        };
+    case 'is_in':
+        if (alreadyMigrated) return { ...rule };
+        return {
+            ...rule,
+            properties: {
+                ...rule.properties,
+                value: [newValue],
+            },
+        };
+    default:
+        return {
+            ...rule,
+        };
     }
 };
 
@@ -63,8 +103,12 @@ const conditionGroupStep = (group) => {
     }
     const children1 = Object.keys(group.children1).reduce((acc, key) => {
         const child = group.children1[key];
-        if (child.type === 'rule' && conditionRuleStep(group.children1[key])) {
-            return { ...acc, [key]: group.children1[key] };
+        if (child.type === 'rule') {
+            const rule = migrateRule(child);
+            if (conditionRuleStep(rule)) {
+                return { ...acc, [key]: rule };
+            }
+            return acc;
         } if (child.type === 'group') {
             const filteredChildren = conditionGroupStep(group.children1[key]);
             if (!filteredChildren || !Object.keys(filteredChildren).length) return null;
@@ -110,7 +154,7 @@ export const parseJsonLogicToRAQB = (jsonLogic) => {
     return cleanedTree;
 };
 
-export const exportRQABToPypred = (rqabTree, extraFields) => {
+export const exportRQABToPypred = (raqbTree, extraFields) => {
     const dynamicConfig = { ...QbConfig };
     const configFieldsCopy = { ...QbConfig.fields };
     dynamicConfig.fields = configFieldsCopy;
@@ -122,6 +166,6 @@ export const exportRQABToPypred = (rqabTree, extraFields) => {
         };
     });
 
-    const tree = QbUtils.loadTree(rqabTree, dynamicConfig);
+    const tree = QbUtils.loadTree(raqbTree, dynamicConfig);
     return QbUtils.queryString(tree, dynamicConfig);
 };

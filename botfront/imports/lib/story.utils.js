@@ -7,6 +7,7 @@ import { StoryGroups } from '../api/storyGroups/storyGroups.collection';
 import { cleanPayload, insertSmartPayloads } from './client.safe.utils';
 import { newGetBotResponses } from '../api/graphql/botResponses/mongo/botResponses';
 import { getForms } from '../api/graphql/forms/mongo/forms';
+import { exportRQABToPypred } from './pypred/pypred.utils';
 
 let storyAppLogger;
 if (Meteor.isServer) {
@@ -267,6 +268,11 @@ export const getFragmentsAndDomain = async (projectId, language, env = 'developm
     );
 
     appMethodLogger.debug('Fetching forms');
+
+    let slots = Slots.find({ projectId }).fetch();
+
+    const extraFieldsForPypredConversion = slots.map(slot => slot.name);
+
     const bfForms = (await getForms(projectId)).map(
         ({
             _id, projectId: pid, pinned, isExpanded, ...rest
@@ -304,7 +310,10 @@ export const getFragmentsAndDomain = async (projectId, language, env = 'developm
                             type: elm.type,
                             source: elm.source,
                             target: elm.target,
-                            condition: elm.data.condition,
+                            condition:
+                                elm.data.condition
+                                    ? exportRQABToPypred(elm.data.condition, extraFieldsForPypredConversion)
+                                    : null,
                         });
                     }
                 });
@@ -318,7 +327,6 @@ export const getFragmentsAndDomain = async (projectId, language, env = 'developm
 
     appMethodLogger.debug('Generating domain');
     const responses = await getAllResponses(projectId, language);
-    let slots = Slots.find({ projectId }).fetch();
     const project = Projects.findOne({ _id: projectId }, { allowContextualQuestions: 1 });
     if (project.allowContextualQuestions) {
         slots = await addRequestedSlot(slots, projectId);

@@ -4,7 +4,6 @@ import ConditionInput from '../../ui/components/forms/graph/ConditionSubComponen
 import ConditionDropdown from '../../ui/components/forms/graph/ConditionSubComponents/ConditionDropdown';
 import ConditionButton from '../../ui/components/forms/graph/ConditionSubComponents/ConditionButton';
 import ConditionConjunction from '../../ui/components/forms/graph/ConditionSubComponents/ConditionConjunction';
-import ConditionMultiselect from '../../ui/components/forms/graph/ConditionSubComponents/ConditionMultiselect';
 
 export const QbConfig = {
     ...BasicConfig,
@@ -35,11 +34,6 @@ export const QbConfig = {
         },
     },
     operators: {
-        is_exactly: {
-            label: 'is exactly',
-            reversedOp: '',
-            formatOp: (field, op, value) => `${field} is ${value}`,
-        },
         is_in: {
             label: 'is any of',
             reversedOp: '',
@@ -63,42 +57,6 @@ export const QbConfig = {
             reversedOp: '',
             jsonLogic: 'ctallof',
             formatOp: (field, op, value) => `${field} contains allof ${value}`,
-        },
-        longer: {
-            label: 'has a character count greater than',
-            reversedOp: '',
-            formatOp: (_, __, value) => (value >= 0 ? value : 0),
-        },
-        longer_or_equal: {
-            label: 'has a character count greater than or equal to',
-            reversedOp: '',
-            formatOp: (_, __, value) => (value >= 0 ? value : 0),
-        },
-        shorter: {
-            label: 'has a character count less than',
-            reversedOp: '',
-            formatOp: (_, __, value) => (value >= 0 ? value : 0),
-        },
-        shorter_or_equal: {
-            label: 'has a character count less than or equal to',
-            reversedOp: '',
-            formatOp: (_, __, value) => (value >= 0 ? value : 0),
-        },
-        word: {
-            label: 'is a single word, with no whitespace or special characters',
-            reversedOp: '',
-            formatOp: () => (true),
-        },
-        starts_with: {
-            label: 'starts with',
-            reversedOp: '',
-            formatOp: (field, op, value) => `${field} ${op} ${value}`,
-
-        },
-        ends_with: {
-            label: 'ends with',
-            reversedOp: '',
-            formatOp: (field, op, value) => `${field} ${op} ${value}`,
         },
         matches: {
             label: 'matches a regex expression',
@@ -141,11 +99,6 @@ export const QbConfig = {
             jsonLogic: '<=',
             formatOp: (field, op, value) => `${field} <= ${value}`,
         },
-        email: {
-            label: 'is an email',
-            reversedOp: '',
-            formatOp: (field, op, value) => `${field} ${op} ${value}`,
-        },
     },
     widgets: {
         ...BasicConfig.widgets,
@@ -161,18 +114,6 @@ export const QbConfig = {
             type: 'custom_text',
             factory: settings => <ConditionInput {...settings} inputType='number' className='custom-number' placeholder='Number' />,
         },
-        positive_number: {
-            ...BasicConfig.widgets.number,
-            formatValue: val => val,
-            type: 'custom_text',
-            factory: settings => <ConditionInput {...settings} inputType='number' min={0} className='custom-number' placeholder='Number' />,
-        },
-        custom_multiselect: {
-            ...BasicConfig.widgets.multiselect,
-            formatValue: val => val,
-            type: 'custom_text',
-            factory: settings => <ConditionMultiselect {...settings} className='custom-multiselect' />,
-        },
         custom_blank: {
             type: 'custom_text',
             formatValue: val => val,
@@ -182,37 +123,26 @@ export const QbConfig = {
     types: {
         custom_text: {
             operators: [
-                'shorter_or_equal',
-                'longer_or_equal',
-                'starts_with',
-                'is_exactly',
-                'ends_with',
                 'contains',
                 'matches',
                 'is_in',
-                'word',
                 'neq',
                 'eq',
                 'gt',
                 'lt',
                 'gte',
                 'lte',
-                'email',
                 'truthy',
-                'longer',
-                'shorter',
                 'ctanyof',
                 'ctallof',
             ],
             widgets: {
                 custom_text: {
                     operators: [
-                        'starts_with',
-                        'is_exactly',
-                        'ends_with',
                         'matches',
                         'neq',
                         'is',
+                        'eq',
                         'is_in',
                         'matches',
                         'ctanyof',
@@ -228,18 +158,8 @@ export const QbConfig = {
                         'lte',
                     ],
                 },
-                positive_number: {
-                    operators: [
-                        'longer',
-                        'longer_or_equal',
-                        'shorter',
-                        'shorter_or_equal',
-                    ],
-                },
                 custom_blank: {
                     operators: [
-                        'word',
-                        'email',
                         'truthy',
                     ],
                 },

@@ -1,4 +1,4 @@
-import { parsePypred, parseJsonLogicToRAQB } from './pypred/pypred.utils';
+import { parsePypred, parseJsonLogicToRAQB, conditionCleaner } from './pypred/pypred.utils';
 
 export const createStartElement = position => ({
     id: '1', data: { type: 'start' }, position: position || { x: 200, y: 200 }, type: 'start', className: 'start-node',
@@ -86,8 +86,14 @@ export const getGraphElementsFromDomain = (domainGraphElements, slotData) => {
         let jsonLogic = null;
         let cleanedTree = null;
         if (condition) {
-            jsonLogic = parsePypred(condition);
-            cleanedTree = parseJsonLogicToRAQB(jsonLogic);
+            if (condition.type && condition.properties) {
+                // this is for the old format
+                cleanedTree = conditionCleaner(condition);
+            } else {
+                // This is for pypred
+                jsonLogic = parsePypred(condition);
+                cleanedTree = parseJsonLogicToRAQB(jsonLogic);
+            }
         }
         graphElements.push({
             ...edge,

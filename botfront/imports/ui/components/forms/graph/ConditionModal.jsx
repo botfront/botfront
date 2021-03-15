@@ -15,7 +15,7 @@ import { ProjectContext } from '../../../layouts/context';
 import { GraphContext } from './graph.utils';
 import { QbConfig } from '../../../../lib/pypred/ConditionModal.config';
 import ConfirmPopup from '../../common/ConfirmPopup';
-import { defaultSlotField } from '../../../../lib/pypred/pypred.utils';
+import { defaultSlotField, conditionCleaner } from '../../../../lib/pypred/pypred.utils';
 
 
 // You can load query value from your backend storage (for saving see `Query.onChange()`)
@@ -25,7 +25,7 @@ export default function ConditionModal(props) {
         onClose, condition,
     } = props;
 
-    const [tree, setTree] = useState(QbUtils.checkTree(QbUtils.loadTree(condition || queryValue), QbConfig));
+    const [tree, setTree] = useState(QbUtils.checkTree(QbUtils.loadTree(condition ? conditionCleaner(condition) : queryValue), QbConfig));
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
     const { elements } = useContext(GraphContext);
     const { slots } = useContext(ProjectContext);

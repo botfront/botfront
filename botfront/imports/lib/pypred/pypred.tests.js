@@ -1,7 +1,10 @@
+/* eslint-disable max-len */
 import { Meteor } from 'meteor/meteor';
 import { expect } from 'chai';
 
-import { parsePypred, parseJsonLogicToRAQB, exportRQABToPypred } from './pypred.utils';
+import {
+    parsePypred, parseJsonLogicToRAQB, exportRQABToPypred, conditionCleaner,
+} from './pypred.utils';
 
 if (Meteor.isServer) {
     const testCases = [
@@ -85,7 +88,6 @@ if (Meteor.isServer) {
         },
         {
             predicate:
-                // eslint-disable-next-line max-len
                 '(slot1 == "value1" or not slot1) and slot2 is not null and slot3 is anyof {\'value2\' \'value3\' \'value4\' \'value17\' \'value24\'} and slot4 == "value39" and slot5 is not true and slot6 is not true',
             result: {
                 and: [
@@ -189,7 +191,8 @@ if (Meteor.isServer) {
     ];
 
     const testCasesOnlyJsonLogic = [
-        // eslint-disable-next-line max-len
+        'status is non-urgent',
+        'InitialAudit_S8_Q1 is anyof {\'no\' \'uncertain\'}',
         'location_serviceable is not false and (patient_eligible_feature_labels contains \'mental_health\' or patient_eligible_feature_labels contains \'mental_health_family\' or patient_eligible_feature_labels contains \'mental_health_basic\')',
         'location_serviceable is not false',
         'booking_delay is false and input_health_practitioner_id is null',
@@ -198,7 +201,11 @@ if (Meteor.isServer) {
         'server matches "east-web-([\d]+)" and errors contains "CPU_load" and environment != test',
     ];
 
-    describe('TEST', () => {
+    const testCaseMigrationBefore = '{"type":"group","id":"b98b99b9-0123-4456-b89a-b17828251a2d","children1":{"b8a8b989-0123-4456-b89a-b17828251a2a":{"type":"rule","properties":{"field":"trfd","operator":"is_exactly","value":["\'record_score\'"],"valueSrc":["value"],"valueType":["custom_text"]}},"9a9b9bab-4567-489a-bcde-f17828251a2c":{"type":"group","children1":{"a998a8a9-4567-489a-bcde-f17828251a2b":{"type":"group","children1":{"88b9a8a9-cdef-4012-b456-717828251a2b":{"type":"rule","properties":{"field":"trfd","operator":"email","value":[null],"valueSrc":["value"],"valueType":["custom_text"]}},"8ba9b8ba-89ab-4cde-b012-317828251a2b":{"type":"rule","properties":{"field":"trfd","operator":"truthy","value":["truthy"],"valueSrc":["value"],"valueType":["custom_text"]}}},"properties":{"conjunction":"AND","not":false}},"bb89a898-89ab-4cde-b012-317828251a2c":{"type":"group","children1":{"98999988-0123-4456-b89a-b17828251a2c":{"type":"rule","properties":{"field":"trfd","operator":"lt","value":["10"],"valueSrc":["value"],"valueType":["custom_text"]}},"98bb9b9a-cdef-4012-b456-717828251a2c":{"type":"rule","properties":{"field":"trfd","operator":"truthy","value":["truthy"],"valueSrc":["value"],"valueType":["custom_text"]}}},"properties":{"conjunction":"AND","not":false}}},"properties":{"conjunction":"OR","not":false}}},"properties":{"conjunction":"AND","not":false}}';
+    // eslint-disable-next-line no-useless-escape
+    const testCaseMigrationAfter = '{"type":"group","id":"b98b99b9-0123-4456-b89a-b17828251a2d","children1":{"b8a8b989-0123-4456-b89a-b17828251a2a":{"type":"rule","properties":{"field":"trfd","operator":"eq","value":["\'record_score\'"],"valueSrc":["value"],"valueType":["custom_text"]}},"9a9b9bab-4567-489a-bcde-f17828251a2c":{"type":"group","children1":{"a998a8a9-4567-489a-bcde-f17828251a2b":{"type":"group","children1":{"88b9a8a9-cdef-4012-b456-717828251a2b":{"type":"rule","properties":{"field":"trfd","operator":"matches","value":["\\\"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$)\\\""],"valueSrc":["value"],"valueType":["custom_text"]}},"8ba9b8ba-89ab-4cde-b012-317828251a2b":{"type":"rule","properties":{"field":"trfd","operator":"truthy","value":["truthy"],"valueSrc":["value"],"valueType":["custom_text"]}}},"properties":{"conjunction":"AND","not":false}},"bb89a898-89ab-4cde-b012-317828251a2c":{"type":"group","children1":{"98999988-0123-4456-b89a-b17828251a2c":{"type":"rule","properties":{"field":"trfd","operator":"lt","value":["10"],"valueSrc":["value"],"valueType":["custom_text"]}},"98bb9b9a-cdef-4012-b456-717828251a2c":{"type":"rule","properties":{"field":"trfd","operator":"truthy","value":["truthy"],"valueSrc":["value"],"valueType":["custom_text"]}}},"properties":{"conjunction":"AND","not":false}}},"properties":{"conjunction":"OR","not":false}}},"properties":{"conjunction":"AND","not":false}}';
+
+    describe.only('condition editor utility functions', () => {
         const testPypredImportExport = (pypred) => {
             const jsonLogic = parsePypred(pypred);
     
@@ -247,6 +254,11 @@ if (Meteor.isServer) {
             it(`imports "${predicate}" from pypred to raqb and exports it back`, () => {
                 testPypredImportExport(predicate);
             });
+        });
+
+        it('migrates pre pypred conditions correctly', () => {
+            const postMigration = conditionCleaner(JSON.parse(testCaseMigrationBefore));
+            expect(postMigration).to.deep.equal(JSON.parse(testCaseMigrationAfter));
         });
     });
 }

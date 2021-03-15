@@ -25,8 +25,8 @@
 // "true "|"true"                   { return 'TRUE';     }
 // "false "|"false"                 { return 'FALSE';    }
 [0-9]+("."[0-9]+)?\b             { return 'NUMBER';   }
-[\']?[a-zA-Z_0-9]+[\']?          { return 'FACTOR';   }
 [\"][\S]+[\"]                    { return 'FACTOR';   }
+[\']?[^\s\'{}()]+[\']?           { return 'FACTOR';   }
 [{][^}]+[}]?                     { return 'COLLECTN'; }
 // Botfront will take care of differentiating strings from quotes
 "("                              { return '(';        }
