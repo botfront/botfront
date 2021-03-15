@@ -250,7 +250,7 @@ if (Meteor.isServer) {
             const resp = isTest ? { status: 200 } : Meteor.call('axios.requestWithJsonBody', url, method, data);
             if (resp === undefined) throw new Meteor.Error('500', 'No response from the deployment webhook');
             if (resp.status === 404) throw new Meteor.Error('404', 'Deployment webhook not Found');
-            if (resp.status !== 200) throw new Meteor.Error('500', `Deployment webhook ${get(resp, 'data.detail', false) || ' rejected upload.'}`);
+            if (resp.status !== 200) throw new Meteor.Error('500', `Deployment webhook: ${get(resp, 'data.detail', false) || ' rejected upload.'}`);
             return resp;
         },
         async 'call.postTraining'(projectId, modelData) {
