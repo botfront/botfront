@@ -268,10 +268,7 @@ if (Meteor.isServer) {
             return {
                 status: { code: 201, msg: 'Successfully pushed to Git remote.' },
             };
-        } catch (e1) {
-            console.log("* * * * * * *")
-            console.log(e1)
-            console.log("* * * * * * *")
+        } catch {
             await index.clear();
             await hardResetToCommit(repo, branchCommit, branch);
             throw new Meteor.Error('Could not push current revision.');
@@ -297,8 +294,7 @@ if (Meteor.isServer) {
             let commit;
             try {
                 commit = await repoInfo.repo.getCommit(sha);
-            } catch (e) {
-                console.log(e)
+            } catch {
                 throw new Meteor.Error('Could not find commit.');
             }
             if (commitFirst) {
@@ -611,8 +607,7 @@ if (Meteor.isServer) {
                     // eslint-disable-next-line no-await-in-loop
                     data = await convertJsonToYaml(projectId, exportData.nlu[l], l);
                     extension = 'yml';
-                } catch (e) {
-                    // console.log(e)
+                } catch {
                     data = JSON.stringify(exportData.nlu[l], null, 2);
                     extension = 'json';
                 }
