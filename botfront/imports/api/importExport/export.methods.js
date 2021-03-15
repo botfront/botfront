@@ -22,6 +22,7 @@ import Activity from '../graphql/activity/activity.model';
 import { importSteps } from '../graphql/project/import.utils';
 
 import { formatTestCaseForRasa } from '../../lib/test_case.utils';
+import { escapeForRegex } from '../../lib/client.safe.utils';
 
 if (Meteor.isServer) {
     const md5 = require('md5');
@@ -62,18 +63,14 @@ if (Meteor.isServer) {
     };
 
     const deletePathsNotInZip = (dir, zip, exclusions) => Promise.all(
-        glob.sync(join('**', '*'), { cwd: dir }).map((path) => {
-            if (exclusions.includes(path)) return Promise.resolve();
-            if (fs.statSync(join(dir, path)).isDirectory()) {
-                if (`${path}/` in zip.files) return Promise.resolve();
-                return fs.promises.rmdir(join(dir, path), {
-                    recursive: true,
-                });
-            }
-            if (path in zip.files) return Promise.resolve();
-            return fs.promises.unlink(join(dir, path));
-        }),
-    );
+            glob.sync(join('**', '*'), {
+                cwd: dir,
+                nodir: true,
+                ignore: [...exclusions, ...Object.keys(zip.files)]
+            }).map((path) => {
+                return fs.promises.unlink(join(dir, path));
+            }),
+        );
 
     const extractZip = (dir, zip) => Promise.all(
         Object.entries(zip.files).map(async ([path, item]) => {
