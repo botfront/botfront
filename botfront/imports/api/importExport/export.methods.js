@@ -591,7 +591,7 @@ if (Meteor.isServer) {
                 if (exportData.tests[l]) {
                     rasaZip.addFile(
                         safeDump({ stories: exportData.tests[l] }),
-                        `data/tests/test_${l}_stories.yml`,
+                        `tests/test_${l}_stories.yml`,
                     );
                 }
             }
