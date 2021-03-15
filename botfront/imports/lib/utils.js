@@ -12,7 +12,7 @@ import { Instances } from '../api/instances/instances.collection';
 import { checkIfCan } from './scopes';
 
 import { Projects } from '../api/project/project.collection';
-import { runTestCases } from '../api/story/stories.methods'
+import { runTestCases } from '../api/story/stories.methods';
 
 export const setsAreIdentical = (arr1, arr2) => (
     arr1.every(en => arr2.includes(en))
@@ -223,15 +223,16 @@ if (Meteor.isServer) {
             }
         },
 
-        async 'deploy.model'(projectId, target, isTest) {
+        async 'deploy.model'(projectId, target, isTest = false) {
             checkIfCan('nlu-data:x', projectId);
             check(target, String);
             check(projectId, String);
-            await Meteor.callWithPromise('rasa.train', projectId, 'development')
-            await Meteor.callWithPromise('commitAndPushToRemote', projectId, 'chore: deployment checkpoint')
-            const result = await runTestCases(projectId)
+            check(isTest, Boolean);
+            await Meteor.callWithPromise('rasa.train', projectId, 'development');
+            await Meteor.callWithPromise('commitAndPushToRemote', projectId, 'chore: deployment checkpoint');
+            const result = await runTestCases(projectId);
             if (result.failing !== 0) {
-                throw new Meteor.Error('500', `${result.failing} test${result.failing === 1 ? '' : 's'} failed during the pre-deployment test run`)
+                throw new Meteor.Error('500', `${result.failing} test${result.failing === 1 ? '' : 's'} failed during the pre-deployment test run`);
             }
             const { namespace, gitSettings } = await Projects.findOne({ _id: projectId }, { fields: { namespace: 1, gitSettings: 1 } });
             const data = {
@@ -245,12 +246,11 @@ if (Meteor.isServer) {
             const deploymentWebhook = get(settings, 'settings.private.webhooks.deploymentWebhook', {});
             const { url, method } = deploymentWebhook;
             if (!url || !method) throw new Meteor.Error('400', 'No deployment webhook defined.');
-            // calling the webhook in a test causes it to fail
-            const resp = isTest ? { status: 200 } : Meteor.call('axios.requestWithJsonBody', url, method, data)
-
+            // calling the webhook in a test causes it to fail so we fake a successfull call to the webhook
+            const resp = isTest ? { status: 200 } : Meteor.call('axios.requestWithJsonBody', url, method, data);
             if (resp === undefined) throw new Meteor.Error('500', 'No response from the deployment webhook');
             if (resp.status === 404) throw new Meteor.Error('404', 'Deployment webhook not Found');
-            if (resp.status !== 200) throw new Meteor.Error('500', `Deployment webhook ${get(resp, 'data.message', false) || ' rejected upload.'}`);
+            if (resp.status !== 200) throw new Meteor.Error('500', `Deployment webhook ${get(resp, 'data.detail', false) || ' rejected upload.'}`);
             return resp;
         },
         async 'call.postTraining'(projectId, modelData) {

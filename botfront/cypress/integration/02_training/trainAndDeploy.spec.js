@@ -1,11 +1,11 @@
 /* global cy Cypress:true */
 
-const triggerDeployment = () => { 
+const triggerDeployment = () => {
     cy.dataCy('train-and-deploy').click();
     cy.dataCy('train-and-deploy').should('include.text', 'Deploy to production');
-    cy.dataCy('trigger-deployment').click()
-    cy.dataCy('deployment-confirmation-modal').find('.ui.primary.button').contains('OK').click()
-}
+    cy.dataCy('trigger-deployment').click();
+    cy.dataCy('deployment-confirmation-modal').find('.ui.primary.button').contains('OK').click();
+};
 
 describe('Training and deploy', function() {
     before(function() {
@@ -28,8 +28,8 @@ describe('Training and deploy', function() {
         cy.logout();
         cy.deleteProject('bf');
         cy.get('@gitRepo').then(gitRepo => cy.tearDownGitRepo(gitRepo));
-        cy.visit('/admin/settings/webhooks')
-        cy.dataCy('DeployProject').find('input').clear()
+        cy.visit('/admin/settings/webhooks');
+        cy.dataCy('DeployProject').find('input').clear();
     });
 
     it('should train, run tests, commit, call the deployment webhook, and then fail', function() {
@@ -67,8 +67,8 @@ describe('Training and deploy', function() {
             testResults: [],
         });
 
-        triggerDeployment()
-        cy.get('.s-alert-box').should('include.text', 'Deployment failed: 1 test failed during the pre-deployment test run [500]')
+        triggerDeployment();
+        cy.get('.s-alert-box').should('include.text', 'Deployment failed: 1 test failed during the pre-deployment test run [500]');
     });
 
     it('should train, run tests, commit, call the deployment webhook, and then pass', function() {
@@ -107,7 +107,36 @@ describe('Training and deploy', function() {
         });
 
 
-        triggerDeployment()
-        cy.get('.s-alert-box').should('include.text', 'Your project has been deployed to the production environment')
+        triggerDeployment();
+        cy.get('.s-alert-box').should('include.text', 'Your project has been deployed to the production environment');
+    });
+});
+
+describe('Training and deploy', function() {
+    before(function() {
+        // just in case it's not deleted
+        cy.deleteProject('bf');
+    });
+
+    beforeEach(function() {
+        cy.createProject('bf', 'My Project', 'en').then(() => {
+            cy.login();
+        });
+        cy.waitForResolve(Cypress.env('RASA_URL'));
+        cy.wait(1000);
+        cy.request('DELETE', `${Cypress.env('RASA_URL')}/model`);
+    });
+
+    afterEach(function() {
+        cy.logout();
+        cy.deleteProject('bf');
+    });
+
+    it('Should not show deploy option if deploy hook not set', function() {
+        cy.visit('/admin/settings');
+        cy.contains('Webhooks').click();
+        cy.dataCy('DeployProject').should('have.value', '');
+        cy.visit('/project/bf/dialogue');
+        cy.dataCy('train-and-deploy').should('not.exist');
     });
 });
