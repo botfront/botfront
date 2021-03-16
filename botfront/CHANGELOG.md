@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.4](https://github.com/botfront/botfront/compare/v1.0.3...v1.0.4) (2021-03-16)
+
+
+### Features
+
+*  display custom message returned by deploy webhook ([#957](https://github.com/botfront/botfront/issues/957)) ([ed72d03](https://github.com/botfront/botfront/commit/ed72d03178aef9b476e09630163f1bffc42f9eca))
+* use logos on demo ([6919cbf](https://github.com/botfront/botfront/commit/6919cbf5505e1db2870fee6957cf7998cab25156))
+
 ### [1.0.3](https://github.com/botfront/botfront/compare/v1.0.2...v1.0.3) (2021-03-02)
 
 
