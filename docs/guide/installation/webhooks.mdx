@@ -96,8 +96,8 @@ Botfront will send a request to the api with the following information
 
 #### Response
  
-Botfront except a 200 success response, other response are treated as errors. 
-You can specify a `message` property to provide feedback in the app.
+Botfront expects a successful response to have the status code 200, responses with other status codes are treated as errors. 
+You can specify a `message` property which will be displayed in a notification if the status code is 200.
 
 ```js
 {
@@ -105,6 +105,13 @@ You can specify a `message` property to provide feedback in the app.
 }
 ```
 
+If the status code is not 200 botfront will display the `detail` property in a notification.
+
+```js
+{
+    "detail" : string
+}
+```
 
 ### PostTraining
 
