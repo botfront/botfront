@@ -22,13 +22,19 @@ import Activity from '../graphql/activity/activity.model';
 import { importSteps } from '../graphql/project/import.utils';
 
 import { formatTestCaseForRasa } from '../../lib/test_case.utils';
+import { escapeForRegex } from '../../lib/client.safe.utils';
 
 if (Meteor.isServer) {
     const md5 = require('md5');
     const glob = require('glob');
     const { join, dirname, basename } = require('path');
     const fs = require('fs');
-    
+
+    const devInfo = async (e) => {
+        if (process.env.MODE === 'development') {
+            console.info(e);
+        }
+    };
 
     const signature = () => {
         const nodegit = require('nodegit');
@@ -57,18 +63,14 @@ if (Meteor.isServer) {
     };
 
     const deletePathsNotInZip = (dir, zip, exclusions) => Promise.all(
-        glob.sync(join('**', '*'), { cwd: dir }).map((path) => {
-            if (exclusions.includes(path)) return Promise.resolve();
-            if (fs.statSync(join(dir, path)).isDirectory()) {
-                if (`${path}/` in zip.files) return Promise.resolve();
-                return fs.promises.rmdir(join(dir, path), {
-                    recursive: true,
-                });
-            }
-            if (path in zip.files) return Promise.resolve();
-            return fs.promises.unlink(join(dir, path));
-        }),
-    );
+            glob.sync(join('**', '*'), {
+                cwd: dir,
+                nodir: true,
+                ignore: [...exclusions, ...Object.keys(zip.files)]
+            }).map((path) => {
+                return fs.promises.unlink(join(dir, path));
+            }),
+        );
 
     const extractZip = (dir, zip) => Promise.all(
         Object.entries(zip.files).map(async ([path, item]) => {
@@ -99,6 +101,24 @@ if (Meteor.isServer) {
         return opts;
     };
 
+    const setCurrentBranch = async (repo, branchName) => {
+        const currentBranch = await repo.getCurrentBranch();
+        if (currentBranch.name() === `refs/heads/${branchName}`) return;
+
+        const nodegit = require('nodegit');
+        const branchCommit = await repo.getBranchCommit(`origin/${branchName}`);
+        try {
+            // check if the branch exists locally
+            await nodegit.Branch.lookup(repo, branchName, 1);
+        } catch {
+            // If the branch does not exist locally create it
+            await repo.createBranch(branchName, branchCommit);
+            const localBranch = await repo.getBranch(branchName);
+            await nodegit.Branch.setUpstream(localBranch, `origin/${branchName}`);
+        }
+        await repo.checkoutBranch(branchName);
+    };
+
     const getRemote = async (projectId, forceClone = false) => {
         const nodegit = require('nodegit');
         const { gitSettings: { gitString = '', publicSshKey = '', privateSshKey = '' } } = Projects.findOne(
@@ -112,7 +132,7 @@ if (Meteor.isServer) {
                 'There\'s something wrong with your git connection string.',
             );
         }
-        const dir = `${md5(url)}`;
+        const dir = `/tmp/${md5(url)}`;
 
         let repo;
         let branch;
@@ -123,6 +143,7 @@ if (Meteor.isServer) {
                 if (forceClone) throw new Error();
                 repo = await nodegit.Repository.open(dir);
                 await repo.fetch('origin');
+                await setCurrentBranch(repo, branchName);
                 await repo.mergeBranches(
                     branchName,
                     `refs/remotes/origin/${branchName}`,
@@ -138,14 +159,17 @@ if (Meteor.isServer) {
                     .tostrS();
                 // local is ahead, start from scratch
                 if (localSha !== remoteSha) throw new Error();
-            } catch {
+            } catch (e) {
+                devInfo(e);
                 if (fs.existsSync(dir)) fs.rmdirSync(dir, { recursive: true });
                 repo = await nodegit.Clone.clone(url, dir, opts);
+                await setCurrentBranch(repo, branchName);
             }
             branch = await repo.getBranch(branchName);
             branchCommit = await repo.getBranchCommit(branchName);
             remote = await repo.getRemote('origin');
-        } catch {
+        } catch (e) {
+            devInfo(e);
             throw new Meteor.Error(
                 `Could not connect to branch '${branchName}' on your git repo. Check your credentials.`,
             );
@@ -217,7 +241,7 @@ if (Meteor.isServer) {
             await index.clear();
             return { ...repoInfo, status: { code: 204, msg: 'Nothing to push.' } };
         }
-        await repo.createCommit(
+        result = await repo.createCommit(
             'HEAD',
             signature(),
             signature(),
@@ -285,7 +309,8 @@ if (Meteor.isServer) {
                 // await new Promise(resolve => setTimeout(() => resolve(), 15000));
                 await hardResetToCommit(repo, commit, null);
                 // await new Promise(resolve => setTimeout(() => resolve(), 30000));
-            } catch {
+            } catch (e) {
+                devInfo(e);
                 hardResetToCommit(repo, originalBranchCommit, branch);
                 throw new Meteor.Error('Could not checkout commit.');
             }
@@ -319,7 +344,8 @@ if (Meteor.isServer) {
                 );
                 if (status) return { status };
                 return pushToRemote(repoInfo);
-            } catch {
+            } catch (e) {
+                devInfo(e);
                 await importSteps({
                     projectId,
                     wipeProject: true,

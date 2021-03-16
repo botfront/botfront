@@ -276,7 +276,6 @@ if (Meteor.isServer) {
 
             appMethodLogger.debug(`Training project ${projectId}...`);
             const t0 = performance.now();
-            const loadModel = env === 'development';
             try {
                 const {
                     stories = [],
@@ -287,6 +286,7 @@ if (Meteor.isServer) {
                     { stories, rules },
                     { skipInvalid: true },
                 );
+                payload.load_model_after = true;
                 // this client is used when telling rasa to load a model
                 const client = await createAxiosForRasa(projectId, { timeout: process.env.TRAINING_TIMEOUT || 0 });
                 addLoggingInterceptors(client, appMethodLogger);
@@ -303,34 +303,6 @@ if (Meteor.isServer) {
                     appMethodLogger.debug(
                         `Training project ${projectId} - ${(t1 - t0).toFixed(2)} ms`,
                     );
-                    const {
-                        headers: { filename },
-                    } = trainingResponse;
-                    const trainedModelPath = path.join(
-                        getProjectModelLocalFolder(),
-                        filename,
-                    );
-                    try {
-                        appMethodLogger.debug(`Saving model at ${trainedModelPath}`);
-                        await promisify(fs.writeFile)(
-                            trainedModelPath,
-                            trainingResponse.data,
-                            'binary',
-                        );
-                    } catch (e) {
-                        const error = `${e.message || e.reason} ${(
-                            e.stack.split('\n')[2] || ''
-                        ).trim()}`;
-                        appMethodLogger.error(
-                            `Could not save trained model to ${trainedModelPath}`,
-                            { error },
-                        );
-                    }
-
-                    if (loadModel) {
-                        await client.put('/model', { model_file: trainedModelPath });
-                    }
-
                     Meteor.call('call.postTraining', projectId, trainingResponse.data);
                     Activity.update(
                         { projectId, validated: true },

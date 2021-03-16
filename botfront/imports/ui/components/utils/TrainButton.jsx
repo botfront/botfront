@@ -199,12 +199,14 @@ class TrainButton extends React.Component {
                     {deployOptions.map(opt => (
                         <React.Fragment key={opt.key}>
                             <Dropdown.Item
+                                data-cy='trigger-deployment'
                                 value={opt.value}
                                 onClick={() => this.showModal(opt.value, true)}
                             >
                                 {opt.text}
                             </Dropdown.Item>
                             <Confirm
+                                data-cy='deployment-confirmation-modal'
                                 open={modalOpen[opt.value]}
                                 // we need to stop the propagation, otherwise it reopen the dropdown
                                 onCancel={(e) => {
@@ -230,6 +232,7 @@ class TrainButton extends React.Component {
             project: { _id: projectId },
         } = this.context;
         const { webhook } = this.state;
+        const isTest = !!window.Cypress
 
         try {
             if (!webhook.url || !webhook.method) {
@@ -238,7 +241,7 @@ class TrainButton extends React.Component {
             if (!target) {
                 throw new Error('Deployment failed: the deployment target is missing');
             }
-            Meteor.call('deploy.model', projectId, target, (err, response) => {
+            Meteor.call('deploy.model', projectId, target, isTest, (err, response) => {
                 if (err || response === undefined || response.status !== 200) {
                     Alert.error(`Deployment failed: ${err.message}`, {
                         position: 'top-right',

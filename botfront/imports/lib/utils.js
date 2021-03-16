@@ -1,9 +1,7 @@
 import { check } from 'meteor/check';
 import { Meteor } from 'meteor/meteor';
 import { sample, get } from 'lodash';
-import fs from 'fs';
 import yaml from 'js-yaml';
-import path from 'path';
 import React from 'react';
 import axios from 'axios';
 import BotResponses from '../api/graphql/botResponses/botResponses.model';
@@ -14,6 +12,7 @@ import { Instances } from '../api/instances/instances.collection';
 import { checkIfCan } from './scopes';
 
 import { Projects } from '../api/project/project.collection';
+import { runTestCases } from '../api/story/stories.methods';
 
 export const setsAreIdentical = (arr1, arr2) => (
     arr1.every(en => arr2.includes(en))
@@ -77,10 +76,6 @@ export const getProjectModelFileName = (projectId, extension = null) => {
     const modelName = `model-${projectId}`;
     return extension ? `${modelName}.${extension}` : modelName;
 };
-
-export const getProjectModelLocalFolder = () => process.env.MODELS_LOCAL_PATH || '/app/models';
-
-export const getProjectModelLocalPath = projectId => path.join(getProjectModelLocalFolder(), getProjectModelFileName(projectId, 'tar.gz'));
 
 export const getImageUrls = (response, excludeLang = '') => (
     response.values.reduce((vacc, vcurr) => {
@@ -228,30 +223,34 @@ if (Meteor.isServer) {
             }
         },
 
-        async 'deploy.model'(projectId, target) {
+        async 'deploy.model'(projectId, target, isTest = false) {
             checkIfCan('nlu-data:x', projectId);
             check(target, String);
             check(projectId, String);
-            const trainedModelPath = path.join(getProjectModelLocalPath(projectId));
-            const modelFile = fs.readFileSync(trainedModelPath);
-            const { namespace } = await Projects.findOne({ _id: projectId }, { fields: { namespace: 1 } });
+            check(isTest, Boolean);
+            await Meteor.callWithPromise('rasa.train', projectId, 'development');
+            await Meteor.callWithPromise('commitAndPushToRemote', projectId, 'chore: deployment checkpoint');
+            const result = await runTestCases(projectId);
+            if (result.failing !== 0) {
+                throw new Meteor.Error('500', `${result.failing} test${result.failing === 1 ? '' : 's'} failed during the pre-deployment test run`);
+            }
+            const { namespace, gitSettings } = await Projects.findOne({ _id: projectId }, { fields: { namespace: 1, gitSettings: 1 } });
             const data = {
-                data: Buffer.from(modelFile).toString('base64'), // convert raw data to base64String so axios can handle it
                 projectId,
                 namespace,
                 environment: target,
-                mimeType: 'application/x-tar',
+                gitString: gitSettings?.gitString,
             };
             Meteor.call('credentials.appendWidgetSettings', projectId, target);
             const settings = GlobalSettings.findOne({ _id: 'SETTINGS' }, { fields: { 'settings.private.webhooks.deploymentWebhook': 1 } });
             const deploymentWebhook = get(settings, 'settings.private.webhooks.deploymentWebhook', {});
             const { url, method } = deploymentWebhook;
             if (!url || !method) throw new Meteor.Error('400', 'No deployment webhook defined.');
-            const resp = Meteor.call('axios.requestWithJsonBody', url, method, data);
-
+            // calling the webhook in a test causes it to fail so we fake a successfull call to the webhook
+            const resp = isTest ? { status: 200 } : Meteor.call('axios.requestWithJsonBody', url, method, data);
             if (resp === undefined) throw new Meteor.Error('500', 'No response from the deployment webhook');
             if (resp.status === 404) throw new Meteor.Error('404', 'Deployment webhook not Found');
-            if (resp.status !== 200) throw new Meteor.Error('500', `Deployment webhook ${get(resp, 'data.message', false) || ' rejected upload.'}`);
+            if (resp.status !== 200) throw new Meteor.Error('500', `Deployment webhook: ${get(resp, 'data.detail', false) || ' rejected upload.'}`);
             return resp;
         },
         async 'call.postTraining'(projectId, modelData) {
