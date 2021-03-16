@@ -1,9 +1,0 @@
-stories:
-  - story: test case 3
-    steps:
-      - user: /get_started
-        intent: get_started
-      - action: utter_get_started
-    metadata:
-      group: stories01
-      language: de
