@@ -245,15 +245,15 @@ class TrainButton extends React.Component {
                 if (err || response === undefined || response.status !== 200) {
                     Alert.error(`Deployment failed: ${err.message}`, {
                         position: 'top-right',
-                        timeout: 10000,
+                        timeout: 120000,
                     });
                 }
                 if (response.status === 200) {
                     Alert.success(
-                        `Your project has been deployed to the ${target} environment`,
+                        response.data.message,
                         {
                             position: 'top-right',
-                            timeout: 5000,
+                            timeout: 120000,
                         },
                     );
                 }
@@ -269,11 +269,6 @@ class TrainButton extends React.Component {
     trainAndDeploy = async (target) => {
         try {
             const loadModel = target === 'development'; // automaticly load the model only if we are in development
-            await this.train(target, loadModel);
-            Alert.info(`Deployment to ${target} has started`, {
-                position: 'top-right',
-                timeout: 5000,
-            });
             this.deploy(target);
         } catch (e) {
             Alert.error('Cannot deploy, training failed', {

@@ -108,7 +108,7 @@ describe('Training and deploy', function() {
 
 
         triggerDeployment();
-        cy.get('.s-alert-box').should('include.text', 'Your project has been deployed to the production environment');
+        cy.get('.s-alert-box').should('include.text', 'Your project is being deployed.');
     });
 });
 
