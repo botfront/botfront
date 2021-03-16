@@ -247,13 +247,14 @@ if (Meteor.isServer) {
             const { url, method } = deploymentWebhook;
             if (!url || !method) throw new Meteor.Error('400', 'No deployment webhook defined.');
             // calling the webhook in a test causes it to fail so we fake a successfull call to the webhook
-            const resp = isTest ? { status: 200 } : Meteor.call('axios.requestWithJsonBody', url, method, data);
+            const resp = isTest ? { status: 200, data: {} } : Meteor.call('axios.requestWithJsonBody', url, method, data);
             if (resp === undefined) throw new Meteor.Error('500', 'No response from the deployment webhook');
             if (resp.status === 404) throw new Meteor.Error('404', 'Deployment webhook not Found');
             if (resp.status !== 200) throw new Meteor.Error('500', `Deployment webhook ${get(resp, 'data.message', false) || ' rejected upload.'}`);
             if (!resp.data.message || resp.data.message === ''){
                 resp.data.message = "Your project is being deployed."
             return resp;
+            }
         },
         async 'call.postTraining'(projectId, modelData) {
             checkIfCan('nlu-data:x');
