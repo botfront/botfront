@@ -242,7 +242,6 @@ class TrainButton extends React.Component {
                 throw new Error('Deployment failed: the deployment target is missing');
             }
             Meteor.call('deploy.model', projectId, target, isTest, (err, response) => {
-                console.log(err,response)
                 if (err || response === undefined || response.status !== 200) {
                     Alert.error(`Deployment failed: ${err.message}`, {
                         position: 'top-right',
