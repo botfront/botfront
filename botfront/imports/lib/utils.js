@@ -253,8 +253,8 @@ if (Meteor.isServer) {
             if (resp.status !== 200) throw new Meteor.Error('500', `Deployment webhook ${get(resp, 'data.message', false) || ' rejected upload.'}`);
             if (!resp.data.message || resp.data.message === ''){
                 resp.data.message = "Your project is being deployed."
-            return resp;
             }
+            return resp;
         },
         async 'call.postTraining'(projectId, modelData) {
             checkIfCan('nlu-data:x');
