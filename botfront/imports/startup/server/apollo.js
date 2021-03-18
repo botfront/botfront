@@ -29,7 +29,7 @@ export const runAppolloServer = () => {
         context: async ({ req }) => {
             const { headers: { authorization } } = req;
             let user = await getUser(authorization);
-            const isHealthcheck = req?.query?.query === 'query {healthCheck}';
+            const isHealthcheck = (req?.method === 'GET' && req?.query?.query === 'query {healthCheck}');
             if (!isHealthcheck && !user && process.env.API_KEY && process.env.API_KEY !== authorization) throw new AuthenticationError('Unauthorized');
             if (!user) user = Meteor.users.findOne({ username: 'EXTERNAL_CONSUMER' });
             if (!user) {
