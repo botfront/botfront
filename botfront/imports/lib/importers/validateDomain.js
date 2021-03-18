@@ -231,9 +231,9 @@ const validateADomain = (
         const values = [];
         let firstMetadataFound;
         response.forEach((item) => {
-            const { language, metadata, ...rest } = item;
+            const { language: legacyLang, metadata: { language, ...metadata } = {}, ...rest } = item;
             const content = typeof item === 'string' ? safeDump({ text: item }) : safeDump(rest);
-            const lang = language || fallbackLang;
+            const lang = legacyLang || language || fallbackLang;
             if (!firstMetadataFound && metadata) firstMetadataFound = metadata;
             if (firstMetadataFound && !isEqual(firstMetadataFound, metadata)) {
                 warnings.push(

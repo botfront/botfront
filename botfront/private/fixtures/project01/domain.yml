@@ -186,7 +186,8 @@ intents:
   - that_one_was_triggered
 responses:
   utter_:
-    - language: en
+    - metadata:
+        language: en
       text: ''
   utter_-KcS4gHa:
     - image: 'https://media.giphy.com/media/ZtWmNjSPPnN8Q/giphy.gif'
@@ -196,11 +197,12 @@ responses:
       language: fr
       text: ''
   utter_16xBVt4Z:
-    - language: en
+    - metadata:
+        language: en
       text: Anytime
   utter_1U5W_KBs:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         forceClose: false
         forceOpen: true
         linkTarget: _blank
@@ -211,20 +213,27 @@ responses:
         We send tips and product updates every few weeks to hundreds of
         professionals like you.
   utter_2WFMcrvl:
-    - language: en
+    - metadata:
+        language: en
       text: I love compliments
-    - language: en
+    - metadata:
+        language: en
       text: I train a lot
-    - language: en
+    - metadata:
+        language: en
       text: I'm so good
-    - language: fr
+    - metadata:
+        language: fr
       text: j'adore les compliments
-    - language: fr
+    - metadata:
+        language: fr
       text: I train a lot
-    - language: fr
+    - metadata:
+        language: fr
       text: I'm so good
   utter_2WSptvA6:
-    - language: en
+    - metadata:
+        language: en
       text: >-
         But in practice, it's hard to communicate conversational requirements to
         engineers, even with prototypes. 
@@ -236,8 +245,8 @@ responses:
         But the bigger issue is: **why do software engineers even have to
         implement conversation logic** instead of focusing on... engineering?
   utter_2XnMv-r9:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         forceClose: false
         forceOpen: true
         linkTarget: _blank
@@ -255,7 +264,8 @@ responses:
         I'm proud to say that I was entirely built with the conversation
         builder.
   utter_2nBMX8GX:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /next
           title: What is your solution?
@@ -264,16 +274,20 @@ responses:
         The only reason is because there is generally not a good enough
         interface for non tech team members...
   utter_3w_bjHEr:
-    - language: en
+    - metadata:
+        language: en
       text: "Ok, hope you enjoyed the demo at least \U0001F642"
   utter_4UClXOIe3:
-    - language: en
+    - metadata:
+        language: en
       text: done
   utter_4ZRytPCdr:
-    - language: en
+    - metadata:
+        language: en
       text: this is the end
   utter_4hQLfYhc:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /basics.yes
           title: Sure! Let's schedule a demo
@@ -285,7 +299,8 @@ responses:
         Would you like to schedule a meeting with one of our experts to discuss
         how Botfront can help?
   utter_59HRDl5jQ:
-    - language: en
+    - metadata:
+        language: en
       text: >-
         Sure!
 
@@ -296,20 +311,23 @@ responses:
 
         Otherwise you can try your question here... I'm listening
   utter_5F_4PMm_:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /next
           title: Next
           type: postback
       text: You can see these recommendations in the videos (popup on the right)
   utter_5bNz_SwHD:
-    - language: en
+    - metadata:
+        language: en
       text: |-
         Corousels and buttons are just bot response types.
 
         You can select them in the **Bot** menu
   utter_6Ucf4P3G:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /basics.yes
           title: 'Yes'
@@ -319,10 +337,12 @@ responses:
           type: postback
       text: Would you be open to schedule some time to do that?
   utter_6VcxovKg:
-    - language: en
+    - metadata:
+        language: en
       text: "Oh yeah! Botfront lives and breathes Rasa. Anything you can do with Rasa you can do with Botfront, just faster \U0001F680"
   utter_6e3A13P5:
-    - language: en
+    - metadata:
+        language: en
       text: >-
         Yes, you can install Botfront on your own infrastructure.
 
@@ -330,11 +350,12 @@ responses:
         You can download the open source version and install it right now, or
         get in touchif you're interested in premium features
   utter_6n4_zaFo:
-    - language: en
+    - metadata:
+        language: en
       text: 'Great, let''s to this'
   utter_6rBlu2cQN:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         domHighlight:
           css: tuto-dark-bg
           selector: '#___gatsby > div.chat-widget > div > div > button'
@@ -355,8 +376,8 @@ responses:
       text: |-
         And you can conclude with an invitation to schedule a demo.   
         **Shall we schedule ours**?
-    - language: fr
-      metadata:
+    - metadata:
+        language: fr
         domHighlight:
           css: tuto-dark-bg
           selector: '#___gatsby > div.chat-widget > div > div > button'
@@ -378,8 +399,8 @@ responses:
         And you can conclude with an invitation to schedule a demo.   
         **Shall we schedule ours**?
   utter_71-pmQrU:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         domHighlight:
           css: 'animation: blinker 0.5s linear infinite alternate;'
           selector: >-
@@ -399,14 +420,16 @@ responses:
         There's a video of our interface on this page. I'm highlighting it with
         a blinking green frame
   utter_7UYW2cUs:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /basics.yes
           title: Yep!
           type: postback
       text: Right?
   utter_91ZRibvt:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /basics.yes
           title: Sure!
@@ -416,7 +439,8 @@ responses:
           type: postback
       text: Would you like to join them and receive our newsletter?
   utter_92TNHaNX:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /basics.yes
           title: 'Yes'
@@ -426,24 +450,30 @@ responses:
           type: postback
       text: Sorry to hear that! Do you want to talk about it?
   utter_9MRiOaOM:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /next
           title: Got it!
           type: postback
       text: ''
   utter_9qyL3xc8C:
-    - language: en
+    - metadata:
+        language: en
       text: Do I really need one?
-    - language: fr
+    - metadata:
+        language: fr
       text: est-ce vraiment nécéssaire?
   utter_A9JDKNO0:
-    - language: en
+    - metadata:
+        language: en
       text: That's good to hear
-    - language: fr
+    - metadata:
+        language: fr
       text: je m'en voyez ravi
   utter_AKQzgx68:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /basics.yes
           title: 'Yes, let''s do this'
@@ -456,12 +486,15 @@ responses:
         screen tutorials, analytics, etc, we can schedule a demo with a free
         trial.
   utter_B3Z28yax:
-    - language: en
+    - metadata:
+        language: en
       text: Surprise!
-    - language: fr
+    - metadata:
+        language: fr
       text: Surprise!
   utter_CJPRPjmG:
-    - language: en
+    - metadata:
+        language: en
       text: |-
         You see, it's almost as simple as just chatting.
 
@@ -469,18 +502,21 @@ responses:
 
         and it results in way better designed virtual assistants.
   utter_DzmMYxB6:
-    - language: en
+    - metadata:
+        language: en
       text: |-
         Thank you!
 
         And there's a lot more we'd love to show you!
-    - language: fr
+    - metadata:
+        language: fr
       text: |-
         merci
 
         il y a tellement d'autres choses que j'aimerais vous montrer!
   utter_E5D4UmKBD:
-    - language: en
+    - metadata:
+        language: en
       text: >-
         Rasa is the most advanced conversational AI library.
 
@@ -491,7 +527,8 @@ responses:
         You can find more information on the [Github
         project](https://github.com/rasaHQ/rasa).
   utter_EjOrg994:
-    - language: en
+    - metadata:
+        language: en
       text: >-
         I'm glad you asked!
 
@@ -513,7 +550,8 @@ responses:
 
         It's a gain in efficiency and a huge time saver.
   utter_F2qveQqz:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /reward_travel_comfort
           title: I am looking for comfort A-Z
@@ -523,7 +561,8 @@ responses:
           type: postback
       text: "Great choice. \_We are all different types of travelers. Do you identify more with one the following ways to travel?"
   utter_FGFM_Lu6:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /chitchat.makes_sense
           title: Makes sense!
@@ -535,7 +574,8 @@ responses:
         or comes from a campaign (you can trigger conversations based on **utm**
         tags)
   utter_FQWg5bpD:
-    - language: en
+    - metadata:
+        language: en
       text: >-
         From our interface you can create advanced rules to trigger a specific
         conversation.
@@ -548,7 +588,8 @@ responses:
         or follows a particular sequence on your website (e.g. a feature page
         and then a pricing page)...
   utter_GGmk7zHav:
-    - language: en
+    - metadata:
+        language: en
       text: >-
         Botfront Open Source is
         [AGPL-3](https://en.wikipedia.org/wiki/GNU_Affero_General_Public_License)
@@ -572,7 +613,8 @@ responses:
         If you want to distribute a modified version outside of your
         organization, you must release it under the same license.
   utter_GwQ6GyJA:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /basics.yes
           title: 'Ok, subscribe me'
@@ -584,11 +626,12 @@ responses:
         If you want to get notified the best way is to subscribe to our monthly
         newsletter with product updates. Would you like that?
   utter_H48Wn5f5:
-    - language: en
+    - metadata:
+        language: en
       text: "That's a smart idea \U0001F60E"
   utter_I5mNVmuFh:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         forceClose: false
         forceOpen: false
         linkTarget: _blank
@@ -602,8 +645,8 @@ responses:
       text: >-
         Keep in mind that a non technical person can build this experience in
         about an hour. 
-    - language: fr
-      metadata:
+    - metadata:
+        language: fr
         forceClose: false
         forceOpen: false
         linkTarget: _blank
@@ -616,15 +659,16 @@ responses:
           type: postback
       text: Cette expérience est tout à fait à la portée de tous
   utter_IBoWUih_:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /how_to_get_started_with_botfront
           title: 'That''s great, how do I get started?'
           type: postback
       text: And engineers can do real engineering in parallel.
   utter_IWpnJIayo:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         forceClose: false
         forceOpen: true
         linkTarget: _blank
@@ -636,8 +680,8 @@ responses:
           title: Got it!
           type: postback
       text: "Hopefully, I'll convert you at the end \U0001F642 and you'll accept to book a meeting."
-    - language: fr
-      metadata:
+    - metadata:
+        language: fr
         forceClose: false
         forceOpen: true
         linkTarget: _blank
@@ -650,7 +694,8 @@ responses:
           type: postback
       text: ma mission est de vous convaincre du pouvoir de botfront
   utter_IuySkuur:
-    - language: en
+    - metadata:
+        language: en
       text: >-
         That's interesting!
 
@@ -658,24 +703,29 @@ responses:
         We'd love to learn more about your process and chat about Rasa and
         Botfront
   utter_JaKAfGzT:
-    - language: en
+    - metadata:
+        language: en
       text: |-
         I can answer general questions about Botfront
 
         even demo some features
   utter_KKN5FRF6:
-    - language: en
+    - metadata:
+        language: en
       text: >-
         We provide the missing interface! Prototyping and most of implementation
         steps can be done at once by a non technical person.
   utter_Kn3f4Xco:
-    - language: en
+    - metadata:
+        language: en
       text: I'm listening
   utter_Lxl1aPW8:
-    - language: en
+    - metadata:
+        language: en
       text: That's great
   utter_M9aRvuJFD:
-    - language: en
+    - metadata:
+        language: en
       text: >-
         Botfront open source is free. You can [get it from
         Github](https://github.com/botfront/botfront).
@@ -684,12 +734,15 @@ responses:
         If you are interested in premium features or don't want to deal with
         deployment, check Botfront Cloud.
   utter_N3-8GAPO:
-    - language: en
+    - metadata:
+        language: en
       text: I wish I could help...
-    - language: fr
+    - metadata:
+        language: fr
       text: j'aimerais pouvoir aider!
   utter_NPXhkmGz:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /chitchat.this_is_good
           title: That'd be great!
@@ -701,8 +754,8 @@ responses:
         What if you could hold the hand of every lead filling a form,
         proactively explain, answer questions in context?
   utter_NvgZaSqC:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         forceClose: false
         forceOpen: true
         linkTarget: _blank
@@ -728,20 +781,24 @@ responses:
 
         You help users and qualify leads at the same time.
   utter_P5uXsZeu:
-    - language: en
+    - metadata:
+        language: en
       text: 'Oh, sorry about that'
   utter_RpnGyjqz:
-    - language: en
+    - metadata:
+        language: en
       text: Anytime
   utter_RrZYxxPK:
-    - language: en
+    - metadata:
+        language: en
       text: "No problem, Will be here if you change your mind.\_"
   utter_SmK_2MRd:
-    - language: en
+    - metadata:
+        language: en
       text: "Me too. In that case I recommend our Mastercard World.\_\n\nHere's a quick overview"
   utter_TCwezLwN:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         forceClose: false
         forceOpen: true
         linkTarget: _blank
@@ -755,8 +812,8 @@ responses:
         This is the screen where you will teach your bot to understand what your
         users are saying.
   utter_UHUTZi9Y:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         forceClose: false
         forceOpen: false
         linkTarget: _blank
@@ -764,8 +821,8 @@ responses:
         pageEventCallbacks: null
         userInput: show
       text: 'Hello! '
-    - language: fr
-      metadata:
+    - metadata:
+        language: fr
         forceClose: false
         forceOpen: false
         linkTarget: _blank
@@ -774,8 +831,8 @@ responses:
         userInput: show
       text: Bonjour!
   utter_UgOdq_uj:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         forceClose: false
         forceOpen: true
         linkTarget: _blank
@@ -805,8 +862,8 @@ responses:
     - image: 'https://media.giphy.com/media/5UyNFT88LPINM1Lzyl/giphy.gif'
       language: fr
   utter_Wsr0d7Aw:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         forceClose: false
         forceOpen: true
         linkTarget: _blank
@@ -820,7 +877,8 @@ responses:
 
         Many feel discouraged and just leave, and a lead is lost.
   utter_X62gYFD4:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - title: 'Yes, sign me up'
           type: web_url
@@ -831,18 +889,22 @@ responses:
           type: postback
       text: Interested?
   utter_XMqlJpPj:
-    - language: en
+    - metadata:
+        language: en
       text: "\U0001F44D"
-    - language: fr
+    - metadata:
+        language: fr
       text: "\U0001F44D"
   utter_XUz_I_s_:
-    - language: en
+    - metadata:
+        language: en
       text: |-
         You're probably using a mobile device your menu is probably collapsed.
 
         This feature intended to work on desktop screen sizes.
   utter_YCCduGsaw:
-    - language: en
+    - metadata:
+        language: en
       text: >-
         If you are using the open source [Rasa
         webchat](https://github.com/botfront/rasa-webchat) you can find
@@ -852,7 +914,8 @@ responses:
         If you're a Botfront Cloud user you can change styles directly from the
         Settings -> Chat widget menu.
   utter_Yd0DldDM:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /general.how_does_it_work
           title: How does it work?
@@ -864,7 +927,8 @@ responses:
         Then you can propose a sales call,  a newsletter subscription, or
         activate them in another way.
   utter_YsLRVh00:
-    - language: en
+    - metadata:
+        language: en
       text: >-
         Rasa X is very developer oriented, while Botfront is more accessible to
         non technical conversational designers and copywriters
@@ -878,14 +942,16 @@ responses:
       language: fr
       text: ''
   utter__jCdQSOh:
-    - language: en
+    - metadata:
+        language: en
       text: 'Ok, let me know if I can be of any help'
   utter_apANF7WI:
-    - language: en
+    - metadata:
+        language: en
       text: Exactly!
   utter_ask_company_size:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         forceClose: false
         forceOpen: true
         linkTarget: _blank
@@ -910,14 +976,16 @@ responses:
           type: postback
       text: How many are you in your company?
   utter_ask_company_website:
-    - language: en
+    - metadata:
+        language: en
       text: What is your **company** website URL?
   utter_ask_email_disconnected:
-    - language: en
+    - metadata:
+        language: en
       text: 'What is your email, in case we get disconnected?'
   utter_ask_first_name:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         forceClose: false
         forceOpen: true
         linkTarget: _blank
@@ -925,8 +993,8 @@ responses:
         pageEventCallbacks: null
         userInput: show
       text: What is your first name?
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         forceClose: false
         forceOpen: true
         linkTarget: _blank
@@ -935,8 +1003,8 @@ responses:
         userInput: show
       text: Can you please tell me your first name?
   utter_ask_founding_year:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         forceClose: false
         forceOpen: false
         linkTarget: _blank
@@ -961,16 +1029,20 @@ responses:
           type: postback
       text: 'What year was your company founded? '
   utter_ask_last_name:
-    - language: en
+    - metadata:
+        language: en
       text: What is your last name
   utter_ask_message:
-    - language: en
+    - metadata:
+        language: en
       text: What is your message?
   utter_ask_no_interest_message:
-    - language: en
+    - metadata:
+        language: en
       text: 'Just curious. It would help a lot to know why you''re not interested? '
   utter_ask_primary_service:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: '/inform_primary_service{"primary_service":"botfront_pricing"}'
           title: I want pricing info
@@ -989,8 +1061,8 @@ responses:
           type: postback
       text: What are you primarily interested in?
   utter_ask_project_status:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         forceClose: false
         forceOpen: false
         linkTarget: _blank
@@ -1012,7 +1084,8 @@ responses:
           type: postback
       text: Just curious. What's the status of your project?
   utter_ask_rasa_project_status:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: '/inform_rasa_project_status{"rasa_project_status":"exploring_tech"}'
           title: Exploring the tech
@@ -1029,7 +1102,8 @@ responses:
           type: postback
       text: What is the status of your Rasa project?
   utter_ask_rasa_project_team_size:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: '/inform_rasa_team_size{"rasa_project_team_size":"1"}'
           title: Just me
@@ -1042,8 +1116,8 @@ responses:
           type: postback
       text: How many are you on this Rasa project?
   utter_ask_step1:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         domHighlight:
           css: tuto-dark-bg
           selector: '#___gatsby > div.chat-widget > div > div > button'
@@ -1061,8 +1135,8 @@ responses:
         I will walk you through a mortgage calculator and guide you through your
         first calculations.
   utter_ask_step10:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         domHighlight:
           css: tuto-dark-bg
           selector: '#___gatsby > div.chat-widget > div > div > button'
@@ -1083,8 +1157,8 @@ responses:
           
         But you can also use Botfront as a **help desk**
   utter_ask_step2:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         domHighlight:
           css: tuto-shadow
           selector: .initial-schedule-box .subtitle
@@ -1103,8 +1177,8 @@ responses:
         The **Initial schedule** box contains the initial parameters of your
         loan.
   utter_ask_step3:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         domHighlight:
           css: tuto-shadow
           selector: >-
@@ -1126,8 +1200,8 @@ responses:
         userInput: show
       text: This is the amount of money you borrowed. Type **200000** and **Enter**.
   utter_ask_step4:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         domHighlight:
           css: tuto-shadow
           selector: >-
@@ -1151,8 +1225,8 @@ responses:
         This is the term of your loan. Let's say you want to pay back in 20
         years. Type **20** followed by ✨**Enter**.
   utter_ask_step5:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         domHighlight:
           css: tuto-shadow
           selector: >-
@@ -1176,8 +1250,8 @@ responses:
         And the **interest rate**. Let's say 3%. Type **3**  (no %) followed by
         ✨**Enter**.
   utter_ask_step6:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         domHighlight:
           css: tuto-shadow
           selector: >-
@@ -1198,8 +1272,8 @@ responses:
         The yellow box shows how much you will pay every month given your
         initial schedule.
   utter_ask_step7:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         domHighlight:
           css: tuto-shadow
           selector: >-
@@ -1221,8 +1295,8 @@ responses:
         the years. For example, this is the **amount of interests you will pay
         during the 7th year**.
   utter_ask_step8:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         domHighlight:
           css: tuto-shadow
           selector: >-
@@ -1241,8 +1315,8 @@ responses:
           type: postback
       text: And this is how much you'll owe by the end of the 7th year.
   utter_ask_step9:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         domHighlight:
           css: tuto-shadow
           selector: >-
@@ -1263,11 +1337,12 @@ responses:
         And the total amount of interests paid over the **20** years of your
         loan.
   utter_ask_test:
-    - language: en
+    - metadata:
+        language: en
       text: xxx
   utter_ask_work_email:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         forceClose: false
         forceOpen: true
         linkTarget: _blank
@@ -1276,8 +1351,8 @@ responses:
         userInput: show
       text: 'In case we get disconnected, what is your **work** email address?'
   utter_bJmO2EJnX:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         domHighlight:
           css: tuto-shadow
           selector: '[data-bf="analyze-image"]  '
@@ -1293,8 +1368,8 @@ responses:
           title: Next
           type: postback
       text: Measure your results and optimize your flows
-    - language: fr
-      metadata:
+    - metadata:
+        language: fr
         domHighlight:
           css: tuto-shadow
           selector: '[data-bf="analyze-image"]  '
@@ -1311,7 +1386,8 @@ responses:
           type: postback
       text: Measure your results and optimize your flows
   utter_biV74Z8f:
-    - language: en
+    - metadata:
+        language: en
       text: >-
         Your virtual assistants will also receive requests it can't handle.
         Utterances for which no intent exists in your dataset.
@@ -1324,10 +1400,12 @@ responses:
         Botfront lets you mark utterances as _out of scope_. They are stored in
         a separate place so they don't clutter the interface.
   utter_cVfHs9wj:
-    - language: en
+    - metadata:
+        language: en
       text: Botfront is available as a Saas and on-prem.
   utter_default:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /request_contact
           title: Contact us
@@ -1336,14 +1414,15 @@ responses:
         I didn't get that... If you want us to get back to you, feel free to
         contact us...
   utter_desktop_reminder_sent:
-    - language: en
+    - metadata:
+        language: en
       text: |-
         Thanks {first_name}!
 
         I just sent you a reminder by email. See you soon :)
   utter_dpHJZXdNB:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         forceClose: false
         forceOpen: true
         linkTarget: _blank
@@ -1351,8 +1430,8 @@ responses:
         pageEventCallbacks: null
         userInput: show
       text: "Glad you came!\n\nNow you are in the shoes of someone who clicked an ad while googling **{utm_keyword}**.\n\nA virtual assistant will proactively start a conversation, qualify a lead and try to convert.\n\nHopefully, you'll accept the meeting at the end of this conversation \U0001F600"
-    - language: fr
-      metadata:
+    - metadata:
+        language: fr
         forceClose: false
         forceOpen: true
         linkTarget: _blank
@@ -1361,7 +1440,8 @@ responses:
         userInput: show
       text: "Glad you came!\n\nNow you are in the shoes of someone who clicked an ad while googling **{utm_keyword}**.\n\nA virtual assistant will proactively start a conversation, qualify a lead and try to convert.\n\nHopefully, you'll accept the meeting at the end of this conversation \U0001F600"
   utter_fEKmoghU:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /request_demo
           title: Product Demo
@@ -1373,7 +1453,8 @@ responses:
           title: Newsletter Subscription
           type: postback
       text: Here are a few things I can do. But feel free to ask another question.
-    - language: fr
+    - metadata:
+        language: fr
       quick_replies:
         - payload: /request_demo
           title: Product Demo
@@ -1386,27 +1467,31 @@ responses:
           type: postback
       text: Here are a few things I can do. But feel free to ask another question.
   utter_fHQ_7-NM:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: ''
           title: ''
           type: postback
       text: 'Ok, just pick one'
   utter_fVu5yv569:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /basics.yes
           title: Yeah
           type: postback
       text: Sounds good?
-    - language: fr
+    - metadata:
+        language: fr
       quick_replies:
         - payload: /basics.yes
           title: Yeah
           type: postback
       text: Sounds good?
   utter_ffDwSYcU:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /learn_more.active_support
           title: Demo something
@@ -1416,18 +1501,22 @@ responses:
           type: postback
       text: and put you in touch with our team
   utter_get_started:
-    - language: en
+    - metadata:
+        language: en
       text: Welcome
   utter_glad_you_came:
-    - language: en
+    - metadata:
+        language: en
       text: |-
         Glad you came, {first_name}!  
         Now you're in the shoes of a user that clicked on a link in an email.
   utter_gzt9VeMk:
-    - language: en
+    - metadata:
+        language: en
       text: "You get a concierge service at the Montreal airport, travel insurance, access to our Airport Lounge and super-deals at the NBC travel agency.\n\nAdditionnally get up to 2% on selected purchases.\_"
   utter_hc2Kde5l:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: '/declare_goal{"primary_goal":"campaign"}'
           title: Engage after campaign
@@ -1446,53 +1535,66 @@ responses:
           type: postback
       text: 'Quick question: what would be the most relevant use case for you?'
   utter_iKItyWkk:
-    - language: en
+    - metadata:
+        language: en
       text: Right?
   utter_il7ILqlc:
-    - language: en
+    - metadata:
+        language: en
       text: |-
         It's very simple
 
         If you are a developer you can download our open source version
   utter_invalid_company_size:
-    - language: en
+    - metadata:
+        language: en
       text: Can you please use one of the buttons?
   utter_invalid_email_disconnected:
-    - language: en
+    - metadata:
+        language: en
       text: This doesn't look like a valid email...
   utter_invalid_founding_year:
-    - language: en
+    - metadata:
+        language: en
       text: >-
         Can you please use one of the buttons or type the year your company was
         founded?
   utter_invalid_last_name:
-    - language: en
+    - metadata:
+        language: en
       text: ''
   utter_invalid_project_status:
-    - language: en
+    - metadata:
+        language: en
       text: Can you please use one the buttons?
   utter_invalid_work_email:
-    - language: en
+    - metadata:
+        language: en
       text: |-
         That doesn't seem like a valid email address... 
 
         Note that Gmail and other free email services are not allowed.
-    - language: en
+    - metadata:
+        language: en
       text: |-
         This is not a valid email address...
 
         Note that Gmail and other free email services are not allowed.
-    - language: en
+    - metadata:
+        language: en
       text: |-
         Can you please provide a valid email address
 
         Note that Gmail and other free email services are not allowed.
   utter_jWh2Urjc:
-    - language: en
+    - metadata:
+        language: en
       text: Okay.
-    - language: en
+    - metadata:
+        language: en
       text: Sure
-    - language: en
+    - metadata:
+        language: en
       text: Anytime
   utter_kKw8nEyIU:
     - image: 'https://media.giphy.com/media/YybKRCSHL1OBW/giphy.gif'
@@ -1508,7 +1610,8 @@ responses:
       language: fr
       text: ''
   utter_kZCfZYfp:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /next
           title: And what are those features?
@@ -1517,8 +1620,8 @@ responses:
         Most bot platforms offer this in some flavor, and Botfront has unique
         features that help you get your virtual assistant further
   utter_kzQ8heqVx:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         domHighlight:
           css: tuto-shadow
           selector: '[data-bf="capture-video"]'
@@ -1534,8 +1637,8 @@ responses:
           title: Next
           type: postback
       text: Ask questions to qualify and convert leads.
-    - language: fr
-      metadata:
+    - metadata:
+        language: fr
         domHighlight:
           css: tuto-shadow
           selector: '[data-bf="capture-video"]'
@@ -1552,8 +1655,8 @@ responses:
           type: postback
       text: Ask questions to qualify and convert leads.
   utter_l1kpVSoU0:
-    - language: en
-      metadata:
+    - metadata:
+        language: en
         domHighlight:
           css: tuto-shadow
           selector: '[data-bf="reach-out-video"] '
@@ -1571,8 +1674,8 @@ responses:
       text: >-
         Proactively engage with leads **following patterns** on your site or
         landing from **campaigns**.
-    - language: fr
-      metadata:
+    - metadata:
+        language: fr
         domHighlight:
           css: tuto-shadow
           selector: '[data-bf="reach-out-video"] '
@@ -1591,7 +1694,8 @@ responses:
         Proactively engage with leads **following patterns** on your site or
         landing from **campaigns**.
   utter_lgb09Rlr:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /basics.no
           title: 'No thanks, just browsing'
@@ -1604,15 +1708,18 @@ responses:
           type: postback
       text: "\_Hi I am the new virtual assistant of the National Bank. I can help you find the ideal credit card for you. Interested?\_"
   utter_m5rokvaD:
-    - language: en
+    - metadata:
+        language: en
       text: >-
         Currently you can easily import NLU data, and you will be able to import
         stories very soon.
   utter_m7WNEOOM:
-    - language: en
+    - metadata:
+        language: en
       text: Ok...
   utter_mfjq8Em_:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /reward_cashback
           title: Cashback
@@ -1630,7 +1737,8 @@ responses:
     - image: 'https://media.giphy.com/media/a5viI92PAF89q/giphy.gif'
       language: fr
   utter_nice_to_meet_you:
-    - language: en
+    - metadata:
+        language: en
       text: "Nice to meet you  \U0001F91D"
   utter_oyla1fgu:
     - image: 'https://media.giphy.com/media/mQL9UfzDAE824/giphy.gif'
@@ -1640,12 +1748,15 @@ responses:
       language: fr
       text: ''
   utter_qQA2j43x:
-    - language: en
+    - metadata:
+        language: en
       text: You?
-    - language: fr
+    - metadata:
+        language: fr
       text: et vous?
   utter_qlXn7zfrz:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - title: Botfront setup
           type: web_url
@@ -1655,12 +1766,15 @@ responses:
           url: 'https://botfront.io/docs/deployment/installation/kubernetes'
       text: Here are a few links you might find useful
   utter_r2XmKyouZ:
-    - language: en
+    - metadata:
+        language: en
       text: You're very welcome
-    - language: fr
+    - metadata:
+        language: fr
       text: mon plaisir!
   utter_request_contact_submit:
-    - language: en
+    - metadata:
+        language: en
       text: >-
         Thank you {first_name}.
 
@@ -1668,7 +1782,8 @@ responses:
         Your request has been forwarded to our team and we'll get back to you
         shortly.
   utter_request_demo_submit:
-    - language: en
+    - metadata:
+        language: en
       text: |-
         I just sent an email to **{work_email}** with a link to book our demo.
 
@@ -1676,7 +1791,8 @@ responses:
 
         Looking forward to it
   utter_request_demo_submit_error:
-    - language: en
+    - metadata:
+        language: en
       text: >-
         That's really embarassing...
 
@@ -1687,10 +1803,12 @@ responses:
 
         Can you please send a good old email to **hi@botfront.io**?
   utter_restart:
-    - language: en
+    - metadata:
+        language: en
       text: "Ok. I just reset the conversation.\n\nHello again \U0001F44B"
   utter_sJkdVL43:
-    - language: en
+    - metadata:
+        language: en
       quick_replies:
         - payload: /learn_more.collaboration
           title: Learn more
@@ -1700,12 +1818,15 @@ responses:
         can be implemented by non technical team members while engineers
         actually write code.
   utter_subscribed_to_newsletter:
-    - language: en
+    - metadata:
+        language: en
       text: "Thanks, stay tuned \U0001F4E1"
   utter_suhxWrV0:
-    - language: en
+    - metadata:
+        language: en
       text: Hello
-    - language: fr
+    - metadata:
+        language: fr
       text: bonjour!!!
   utter_sx0MSd0U:
     - image: >-
@@ -1720,62 +1841,82 @@ responses:
     - image: ''
       language: en
   utter_thanks:
-    - language: en
+    - metadata:
+        language: en
       text: Thanks!
   utter_that_is_nice:
-    - language: en
+    - metadata:
+        language: en
       text: Nice!
   utter_thumbs:
-    - language: en
+    - metadata:
+        language: en
       text: "\U0001F44D"
   utter_vMLTko02:
-    - language: en
+    - metadata:
+        language: en
       text: |-
         Got it. 
 
         I just wanted to ask you something real quick...
   utter_valid_company_size:
-    - language: en
+    - metadata:
+        language: en
       text: That's great! We work with orgs of all sizes!
   utter_valid_email_disconnected:
-    - language: en
+    - metadata:
+        language: en
       text: Got it.
   utter_valid_first_name:
-    - language: en
+    - metadata:
+        language: en
       text: 'Nice to meet you {first_name}!'
-    - language: en
+    - metadata:
+        language: en
       text: "\U0001F91D{first_name}!"
-    - language: en
+    - metadata:
+        language: en
       text: 'Great to meet you {first_name}!'
-    - language: en
+    - metadata:
+        language: en
       text: "Hi {first_name} \U0001F642!"
   utter_valid_founding_year:
-    - language: en
+    - metadata:
+        language: en
       text: "\U0001F44D"
   utter_valid_last_name:
-    - language: en
+    - metadata:
+        language: en
       text: Noted.
   utter_valid_no_interest_message:
-    - language: en
+    - metadata:
+        language: en
       text: Thanks for sharing.
   utter_valid_work_email:
-    - language: en
+    - metadata:
+        language: en
       text: '{work_email}, got it!'
-    - language: en
+    - metadata:
+        language: en
       text: "{work_email} \U0001F44D!"
   utter_wrong_company_website:
-    - language: en
+    - metadata:
+        language: en
       text: Hmmm. This URL doesn't seem to point to a working website...
   utter_wrong_email:
-    - language: en
+    - metadata:
+        language: en
       text: Hmm... this emails seems incorrect
-    - language: en
+    - metadata:
+        language: en
       text: That doesn't seem to be a valid email address
   utter_wrong_first_name:
-    - language: en
+    - metadata:
+        language: en
       text: "We'd really love to know your first name \U0001F642"
   utter_zwUggW0qm:
-    - language: en
+    - metadata:
+        language: en
       text: >-
         For open source users the first step is always the [spectrum
         community](https://spectrum.chat/botfront).

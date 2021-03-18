@@ -192,9 +192,15 @@ export const getAllResponses = async (projectId, language = '') => {
     // fetches responses and turns them into nested key-value format
     const responses = await newGetBotResponses({ projectId, language });
     return responses.reduce((acc, curr) => {
-        const { key, payload, ...rest } = curr;
+        const {
+            key, payload, language: currLang, metadata = {}, ...rest
+        } = curr;
         // we do this at the source too, but to be safe here too
-        const content = { ...cleanPayload(yaml.safeLoad(payload)), ...rest };
+        const content = {
+            ...cleanPayload(yaml.safeLoad(payload)),
+            metadata: { ...metadata, language: currLang },
+            ...rest,
+        };
         if (!(key in acc)) return { ...acc, [key]: [content] };
         return { ...acc, [key]: [...acc[key], content] };
     }, {});

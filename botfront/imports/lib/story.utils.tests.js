@@ -85,13 +85,13 @@ const responsesExported = {
                         payload: 'http://google.com',
                     },
                 ],
-                language: 'en',
+                metadata: { language: 'en' },
             },
         ],
         utter_do_you_like_beans: [
             {
                 text: 'Do you like beans?',
-                language: 'en',
+                metadata: { language: 'en' },
             },
         ],
     },
@@ -111,13 +111,13 @@ const responsesExported = {
                         payload: 'http://google.com',
                     },
                 ],
-                language: 'zz',
+                metadata: { language: 'zz' },
             },
         ],
         utter_do_you_like_beans: [
             {
                 text: 'Do you like beans?',
-                language: 'zz',
+                metadata: { language: 'zz' },
             },
         ],
     },
@@ -137,7 +137,7 @@ const responsesExported = {
                         payload: 'http://google.com',
                     },
                 ],
-                language: 'en',
+                metadata: { language: 'en' },
             },
             {
                 text: 'choose',
@@ -153,17 +153,17 @@ const responsesExported = {
                         payload: 'http://google.com',
                     },
                 ],
-                language: 'zz',
+                metadata: { language: 'zz' },
             },
         ],
         utter_do_you_like_beans: [
             {
                 text: 'Do you like beans?',
-                language: 'en',
+                metadata: { language: 'en' },
             },
             {
                 text: 'Do you like beans?',
-                language: 'zz',
+                metadata: { language: 'zz' },
             },
         ],
     },

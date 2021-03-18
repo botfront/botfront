@@ -290,7 +290,7 @@ if (Meteor.isServer) {
             const compdefaultDomain = {
                 content:
                             // eslint-disable-next-line max-len
-                            'slots:\n  test_message:\n    type: unfeaturized\nresponses:\n  utter_goodbye:\n    - language: en\n      text: \'Goodbye :(\'\n  utter_greet:\n    - language: en\n      text: Hey there!\n  utter_double:\n    - language: en\n      text: Hey there!1\nforms:\n  restaurant_form:\n    cuisine:\n      - entity: cuisine\n        type: from_entity\nactions:\n  - action_aaa',
+                            'slots:\n  test_message:\n    type: unfeaturized\nresponses:\n  utter_goodbye:\n    - metadata:\n        language: en\n      text: \'Goodbye :(\'\n  utter_greet:\n    - metadata:\n        language: en\n      text: Hey there!\n  utter_double:\n    - metadata:\n        language: en\n      text: Hey there!1\nforms:\n  restaurant_form:\n    cuisine:\n      - entity: cuisine\n        type: from_entity\nactions:\n  - action_aaa',
             };
             await expect(importResult).to.eql([]);
             await expect(defaultDomain).to.eql(compdefaultDomain);
