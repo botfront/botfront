@@ -26,9 +26,11 @@ export const runAppolloServer = () => {
     const server = new ApolloServer({
         typeDefs,
         resolvers,
-        context: async ({ req: { headers: { authorization } } }) => {
+        context: async ({ req }) => {
+            const { headers: { authorization } } = req;
             let user = await getUser(authorization);
-            if (!user && process.env.API_KEY && process.env.API_KEY !== authorization) throw new AuthenticationError('Unauthorized');
+            const isHealthcheck = req?.query?.query === 'query {healthCheck}';
+            if (!isHealthcheck && !user && process.env.API_KEY && process.env.API_KEY !== authorization) throw new AuthenticationError('Unauthorized');
             if (!user) user = Meteor.users.findOne({ username: 'EXTERNAL_CONSUMER' });
             if (!user) {
                 Accounts.createUser({ username: 'EXTERNAL_CONSUMER' });
