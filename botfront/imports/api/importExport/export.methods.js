@@ -1,6 +1,5 @@
 /* eslint-disable global-require */
 import { Meteor } from 'meteor/meteor';
-import axios from 'axios';
 import _ from 'lodash';
 
 import { check, Match } from 'meteor/check';
@@ -22,7 +21,6 @@ import Activity from '../graphql/activity/activity.model';
 import { importSteps } from '../graphql/project/import.utils';
 
 import { formatTestCaseForRasa } from '../../lib/test_case.utils';
-import { escapeForRegex } from '../../lib/client.safe.utils';
 
 if (Meteor.isServer) {
     const md5 = require('md5');
@@ -32,6 +30,7 @@ if (Meteor.isServer) {
 
     const devInfo = async (e) => {
         if (process.env.MODE === 'development') {
+            // eslint-disable-next-line no-console
             console.info(e);
         }
     };
@@ -63,14 +62,14 @@ if (Meteor.isServer) {
     };
 
     const deletePathsNotInZip = (dir, zip, exclusions) => Promise.all(
-            glob.sync(join('**', '*'), {
+        glob
+            .sync(join('**', '*'), {
                 cwd: dir,
                 nodir: true,
-                ignore: [...exclusions, ...Object.keys(zip.files)]
-            }).map((path) => {
-                return fs.promises.unlink(join(dir, path));
-            }),
-        );
+                ignore: [...exclusions, ...Object.keys(zip.files)],
+            })
+            .map(path => fs.promises.unlink(join(dir, path))),
+    );
 
     const extractZip = (dir, zip) => Promise.all(
         Object.entries(zip.files).map(async ([path, item]) => {
@@ -121,10 +120,9 @@ if (Meteor.isServer) {
 
     const getRemote = async (projectId, forceClone = false) => {
         const nodegit = require('nodegit');
-        const { gitSettings: { gitString = '', publicSshKey = '', privateSshKey = '' } } = Projects.findOne(
-            { _id: projectId },
-            { gitSettings: 1 },
-        ) || {};
+        const {
+            gitSettings: { gitString = '', publicSshKey = '', privateSshKey = '' },
+        } = Projects.findOne({ _id: projectId }, { gitSettings: 1 }) || {};
         const [url, branchName, ...rest] = gitString.split('#');
         const opts = getConnectionOpts(url, publicSshKey, privateSshKey);
         if (rest.length || !branchName) {
@@ -241,7 +239,7 @@ if (Meteor.isServer) {
             await index.clear();
             return { ...repoInfo, status: { code: 204, msg: 'Nothing to push.' } };
         }
-        result = await repo.createCommit(
+        await repo.createCommit(
             'HEAD',
             signature(),
             signature(),
@@ -272,21 +270,12 @@ if (Meteor.isServer) {
         }
     };
 
-    const putCommitMsgInParentheses = (commit) => {
-        let message = commit.message();
-        if (!message) return '';
-        [message] = message.split('\n');
-        message = message.substring(0, 100) + (message.length > 100 ? '...' : '');
-        return ` (${message})`;
-    };
-
     Meteor.methods({
-        async revertToCommit(projectId, sha, { commitFirst = true } = {}) {
+        async revertToCommit(projectId, sha) {
             checkIfCan('import:x', projectId);
             check(projectId, String);
             check(sha, String);
-            check(commitFirst, Boolean);
-            let repoInfo = await getRemote(projectId);
+            const repoInfo = await getRemote(projectId);
             const originalBranchCommit = repoInfo.branchCommit;
             let commit;
             try {
@@ -294,21 +283,12 @@ if (Meteor.isServer) {
             } catch {
                 throw new Meteor.Error('Could not find commit.');
             }
-            if (commitFirst) {
-                repoInfo = await commitChanges(
-                    projectId,
-                    `Project state before revert to ${sha.substring(0, 8)}`,
-                    repoInfo,
-                );
-            }
             const {
                 repo, dir, exclusions, branch,
             } = repoInfo;
             try {
                 await repo.setHeadDetached(sha);
-                // await new Promise(resolve => setTimeout(() => resolve(), 15000));
                 await hardResetToCommit(repo, commit, null);
-                // await new Promise(resolve => setTimeout(() => resolve(), 30000));
             } catch (e) {
                 devInfo(e);
                 hardResetToCommit(repo, originalBranchCommit, branch);
@@ -335,15 +315,9 @@ if (Meteor.isServer) {
                 });
                 if (summary.length) throw new Error('import summary not empty');
                 await repo.setHead(branch.name()); // repoint head
-                // await new Promise(resolve => setTimeout(() => resolve(), 15000));
-                const message = putCommitMsgInParentheses(commit);
-                const { status } = await commitChanges(
-                    projectId,
-                    `Revert to ${sha.substring(0, 8)}${message}`,
-                    repoInfo,
-                );
-                if (status) return { status };
-                return pushToRemote(repoInfo);
+                return {
+                    status: { code: 201, msg: 'Successfully reverted to commit.' },
+                };
             } catch (e) {
                 devInfo(e);
                 await importSteps({

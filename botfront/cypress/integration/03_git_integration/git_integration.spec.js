@@ -1,10 +1,10 @@
 /* global cy */
 
-const commitAndPushWithMessage = (message) => {
+const commitAndPushWithMessage = (message, expected = 'success') => {
     cy.dataCy('git-dropdown').should('exist').click();
     cy.dataCy('commit-and-push').click();
     cy.dataCy('commit-message-input').focus().type(`${message}{enter}`);
-    cy.get('.s-alert-success', { timeout: 8000 }).should('be.visible');
+    cy.get(`.s-alert-${expected}`, { timeout: 8000 }).should('be.visible');
 };
 const getCommitList = () => {
     cy.dataCy('git-dropdown').click();
@@ -34,14 +34,13 @@ describe('Git Integration', function() {
 
     it('shoud obfuscate git settings', function() {
         cy.visit('/project/bf/settings/git-credentials');
-        cy.dataCy('git-string').find('input').should('have.value','https://******:******@******.******#******')
-        cy.dataCy('public-ssh-key').find('input').should('have.value','**********************')
-        cy.dataCy('private-ssh-key').find('textarea').should('have.value','**********************')
-        cy.dataCy('reveal-button').click()
-        cy.dataCy('git-string').find('input').should('not.have.value','https://******:******@******.******#******')
-        cy.dataCy('public-ssh-key').find('input').should('not.have.value','**********************')
-        cy.dataCy('private-ssh-key').find('textarea').should('not.have.value','**********************')
-            
+        cy.dataCy('git-string').find('input').should('have.value', 'https://******:******@******.******#******');
+        cy.dataCy('public-ssh-key').find('input').should('have.value', '**********************');
+        cy.dataCy('private-ssh-key').find('textarea').should('have.value', '**********************');
+        cy.dataCy('reveal-button').click();
+        cy.dataCy('git-string').find('input').should('not.have.value', 'https://******:******@******.******#******');
+        cy.dataCy('public-ssh-key').find('input').should('not.have.value', '**********************');
+        cy.dataCy('private-ssh-key').find('textarea').should('not.have.value', '**********************');
     });
 
     it('should commit, and revert to a commit only when current project state differs', function() {
@@ -66,25 +65,22 @@ describe('Git Integration', function() {
         getCommitList();
         // try to revert to freshly minted commit
         // expect warning saying commit is no different from current project state
-        revertToithCommit(3, 0, 'warning');
+        revertToithCommit(3, 0);
+        commitAndPushWithMessage('revert #1', 'warning');
         // revert to second commit, expect success
-        revertToithCommit(3, 1, 'success');
+        revertToithCommit(3, 1);
+        commitAndPushWithMessage('revert #2', 'success');
         cy.dataCy('story-group-menu-item', 'Example group').should('exist');
         cy.dataCy('story-group-menu-item', 'The real deal').should('not.exist');
         cy.dataCy('story-group-menu-item', 'Farewells').should('exist');
         // try to revert to same commit just reverted to, expect warning
-        revertToithCommit(4, 2, 'warning');
+        revertToithCommit(4, 2);
+        commitAndPushWithMessage('revert #3', 'warning');
         // revert again
-        revertToithCommit(4, 1, 'success');
+        revertToithCommit(4, 1);
+        commitAndPushWithMessage('revert #4', 'success');
         cy.dataCy('story-group-menu-item', 'Example group').should('not.exist');
         cy.dataCy('story-group-menu-item', 'The real deal').should('exist');
         cy.dataCy('story-group-menu-item', 'Farewells').should('not.exist');
-    });
-    it('should commit and push a pre-revert commit when outstanding changes exist', function() {
-        getCommitList();
-        revertToithCommit(1, 0, 'success');
-        cy.get('.row').should('have.length', 3)
-            .eq(1)
-            .should('contain.text', 'Project state before revert');
     });
 });
