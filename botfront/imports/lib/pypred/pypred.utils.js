@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 import { Utils as QbUtils } from 'react-awesome-query-builder';
 
 import { QbConfig } from './ConditionModal.config';
@@ -168,4 +169,29 @@ export const exportRQABToPypred = (raqbTree, extraFields) => {
 
     const tree = QbUtils.loadTree(raqbTree, dynamicConfig);
     return QbUtils.queryString(tree, dynamicConfig);
+};
+
+
+export const parsePypredCollections = (pypredCol) => {
+    if (!(pypredCol.startsWith('{') && pypredCol.endsWith('}'))) {
+        return [];
+    }
+    // This regex matches elements of a pypred collection (check out unit tests)
+    const regex = /["][^"]+["]|['][^']+[']|[0-9.,]+|null|undefined|false|true|empty/g;
+    return [...pypredCol.matchAll(regex)].map(val => val[0]);
+};
+
+export const formatValue = (value) => {
+    if (
+        value.startsWith('\'')
+        || value.startsWith('"')
+        || value.startsWith('{')
+        || value === 'true'
+        || value === 'false'
+        || value === 'null'
+        || value === 'empty'
+        || value === 'undefined'
+        || !Number.isNaN(parseInt(value, 10))
+    ) return value;
+    return `'${value}'`;
 };

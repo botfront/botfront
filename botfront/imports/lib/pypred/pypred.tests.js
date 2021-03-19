@@ -3,7 +3,7 @@ import { Meteor } from 'meteor/meteor';
 import { expect } from 'chai';
 
 import {
-    parsePypred, parseJsonLogicToRAQB, exportRQABToPypred, conditionCleaner,
+    parsePypred, parseJsonLogicToRAQB, exportRQABToPypred, conditionCleaner, parsePypredCollections,
 } from './pypred.utils';
 
 if (Meteor.isServer) {
@@ -188,6 +188,15 @@ if (Meteor.isServer) {
                 ],
             },
         },
+        {
+            predicate: 'all_affected_body_part_groups is not {\'genitalia\'}',
+            result: {
+                '!=': [
+                    { var: 'all_affected_body_part_groups' },
+                    '{\'genitalia\'}',
+                ],
+            },
+        },
     ];
 
     const testCasesOnlyJsonLogic = [
@@ -204,6 +213,33 @@ if (Meteor.isServer) {
     const testCaseMigrationBefore = '{"type":"group","id":"b98b99b9-0123-4456-b89a-b17828251a2d","children1":{"b8a8b989-0123-4456-b89a-b17828251a2a":{"type":"rule","properties":{"field":"trfd","operator":"is_exactly","value":["\'record_score\'"],"valueSrc":["value"],"valueType":["custom_text"]}},"9a9b9bab-4567-489a-bcde-f17828251a2c":{"type":"group","children1":{"a998a8a9-4567-489a-bcde-f17828251a2b":{"type":"group","children1":{"88b9a8a9-cdef-4012-b456-717828251a2b":{"type":"rule","properties":{"field":"trfd","operator":"email","value":[null],"valueSrc":["value"],"valueType":["custom_text"]}},"8ba9b8ba-89ab-4cde-b012-317828251a2b":{"type":"rule","properties":{"field":"trfd","operator":"truthy","value":["truthy"],"valueSrc":["value"],"valueType":["custom_text"]}}},"properties":{"conjunction":"AND","not":false}},"bb89a898-89ab-4cde-b012-317828251a2c":{"type":"group","children1":{"98999988-0123-4456-b89a-b17828251a2c":{"type":"rule","properties":{"field":"trfd","operator":"lt","value":["10"],"valueSrc":["value"],"valueType":["custom_text"]}},"98bb9b9a-cdef-4012-b456-717828251a2c":{"type":"rule","properties":{"field":"trfd","operator":"truthy","value":["truthy"],"valueSrc":["value"],"valueType":["custom_text"]}}},"properties":{"conjunction":"AND","not":false}}},"properties":{"conjunction":"OR","not":false}}},"properties":{"conjunction":"AND","not":false}}';
     // eslint-disable-next-line no-useless-escape
     const testCaseMigrationAfter = '{"type":"group","id":"b98b99b9-0123-4456-b89a-b17828251a2d","children1":{"b8a8b989-0123-4456-b89a-b17828251a2a":{"type":"rule","properties":{"field":"trfd","operator":"eq","value":["\'record_score\'"],"valueSrc":["value"],"valueType":["custom_text"]}},"9a9b9bab-4567-489a-bcde-f17828251a2c":{"type":"group","children1":{"a998a8a9-4567-489a-bcde-f17828251a2b":{"type":"group","children1":{"88b9a8a9-cdef-4012-b456-717828251a2b":{"type":"rule","properties":{"field":"trfd","operator":"matches","value":["\\\"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$)\\\""],"valueSrc":["value"],"valueType":["custom_text"]}},"8ba9b8ba-89ab-4cde-b012-317828251a2b":{"type":"rule","properties":{"field":"trfd","operator":"truthy","value":["truthy"],"valueSrc":["value"],"valueType":["custom_text"]}}},"properties":{"conjunction":"AND","not":false}},"bb89a898-89ab-4cde-b012-317828251a2c":{"type":"group","children1":{"98999988-0123-4456-b89a-b17828251a2c":{"type":"rule","properties":{"field":"trfd","operator":"lt","value":["10"],"valueSrc":["value"],"valueType":["custom_text"]}},"98bb9b9a-cdef-4012-b456-717828251a2c":{"type":"rule","properties":{"field":"trfd","operator":"truthy","value":["truthy"],"valueSrc":["value"],"valueType":["custom_text"]}}},"properties":{"conjunction":"AND","not":false}}},"properties":{"conjunction":"OR","not":false}}},"properties":{"conjunction":"AND","not":false}}';
+
+    const pypredCollectionTestCases = [
+        {
+            collection: '{"alorseuh" \'test\' \' autsej k  jfeks \' 89412,12 95.12 "0"}',
+            result: ['"alorseuh"', '\'test\'', '\' autsej k  jfeks \'', '89412,12', '95.12', '"0"'],
+        },
+        {
+            collection: '{ 1 2 3}',
+            result: ['1', '2', '3'],
+        },
+        {
+            collection: '{\'1\' \'2\' \'3\'}',
+            result: ['\'1\'', '\'2\'', '\'3\''],
+        },
+        {
+            collection: '{"9éïò" \'30-_d\'}',
+            result: ['"9éïò"', '\'30-_d\''],
+        },
+        {
+            collection: '{}',
+            result: [],
+        },
+        {
+            collection: '{null empty 129}',
+            result: ['null', 'empty', '129'],
+        },
+    ];
 
     describe.only('condition editor utility functions', () => {
         const testPypredImportExport = (pypred) => {
@@ -228,6 +264,9 @@ if (Meteor.isServer) {
                 returnValue = returnValue.split('!=').join('');
                 returnValue = returnValue.split('is').join('');
                 returnValue = returnValue.split('==').join('');
+                returnValue = returnValue.split('\'').join('');
+                returnValue = returnValue.split('"').join('');
+                
                 return returnValue;
             };
                 
@@ -259,6 +298,12 @@ if (Meteor.isServer) {
         it('migrates pre pypred conditions correctly', () => {
             const postMigration = conditionCleaner(JSON.parse(testCaseMigrationBefore));
             expect(postMigration).to.deep.equal(JSON.parse(testCaseMigrationAfter));
+        });
+
+        pypredCollectionTestCases.forEach((testCase) => {
+            it(`extract ${testCase.collection} items correctly`, () => {
+                expect(parsePypredCollections(testCase.collection)).to.deep.equal(testCase.result);
+            });
         });
     });
 }

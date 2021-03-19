@@ -54,6 +54,13 @@ Then process with the following steps:
 
 Check below if specific instructions apply to the version you are migrating to.
 
+### 1.0.x -> 1.1.0
+
+From this version, Rasa For Botfront is using [Pypred](https://github.com/dialoguemd/pypred) to evaluate conditions in forms.
+This means that some of the condition types that were available before, are not available anymore.
+Types that will be removed include _is a word_, all the string length comparisons, _starts with_ and _ends with_.
+These types will be automatically removed from your next training and the next time you open your conditions.
+
 ### 0.27.x -> 1.0.0
 
 There is no automatic migration to 1.0, however migrating is easy:

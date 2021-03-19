@@ -1,9 +1,12 @@
+/* eslint-disable import/no-cycle */
 import { BasicConfig } from 'react-awesome-query-builder';
 import React from 'react';
+import { formatValue } from './pypred.utils';
 import ConditionInput from '../../ui/components/forms/graph/ConditionSubComponents/ConditionInput';
 import ConditionDropdown from '../../ui/components/forms/graph/ConditionSubComponents/ConditionDropdown';
 import ConditionButton from '../../ui/components/forms/graph/ConditionSubComponents/ConditionButton';
 import ConditionConjunction from '../../ui/components/forms/graph/ConditionSubComponents/ConditionConjunction';
+import ConditionMultiSelect from '../../ui/components/forms/graph/ConditionSubComponents/ConditionMultiSelect';
 
 export const QbConfig = {
     ...BasicConfig,
@@ -34,6 +37,16 @@ export const QbConfig = {
         },
     },
     operators: {
+        eq: {
+            label: 'is',
+            jsonLogic: '==',
+            formatOp: (field, op, value) => `${field} is ${formatValue(value)}`,
+        },
+        neq: {
+            label: 'is not',
+            jsonLogic: '!=',
+            formatOp: (field, op, value) => `${field} is not ${formatValue(value)}`,
+        },
         is_in: {
             label: 'is any of',
             reversedOp: '',
@@ -44,7 +57,7 @@ export const QbConfig = {
             label: 'contains',
             reversedOp: '',
             jsonLogic: 'ct',
-            formatOp: (field, op, value) => `${field} contains ${value}`,
+            formatOp: (field, op, value) => `${field} contains ${formatValue(value)}`,
         },
         ctanyof: {
             label: 'contains any of',
@@ -63,16 +76,6 @@ export const QbConfig = {
             reversedOp: '',
             jsonLogic: 'matches',
             formatOp: (field, op, value) => `${field} ${op} ${value}`,
-        },
-        eq: {
-            label: 'is',
-            jsonLogic: '==',
-            formatOp: (field, op, value) => `${field} is ${value}`,
-        },
-        neq: {
-            label: 'is not',
-            jsonLogic: '!=',
-            formatOp: (field, op, value) => `${field} is not ${value}`,
         },
         truthy: {
             label: 'is truthy',
@@ -114,6 +117,12 @@ export const QbConfig = {
             type: 'custom_text',
             factory: settings => <ConditionInput {...settings} inputType='number' className='custom-number' placeholder='Number' />,
         },
+        custom_multiselect: {
+            ...BasicConfig.widgets.text,
+            formatValue: val => val,
+            type: 'custom_text',
+            factory: settings => <ConditionMultiSelect {...settings} className='custom-multiselect' />,
+        },
         custom_blank: {
             type: 'custom_text',
             formatValue: val => val,
@@ -143,10 +152,7 @@ export const QbConfig = {
                         'neq',
                         'is',
                         'eq',
-                        'is_in',
                         'matches',
-                        'ctanyof',
-                        'ctallof',
                         'contains',
                     ],
                 },
@@ -156,6 +162,13 @@ export const QbConfig = {
                         'gte',
                         'lt',
                         'lte',
+                    ],
+                },
+                custom_multiselect: {
+                    operators: [
+                        'is_in',
+                        'ctanyof',
+                        'ctallof',
                     ],
                 },
                 custom_blank: {
