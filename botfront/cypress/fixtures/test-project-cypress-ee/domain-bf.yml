@@ -11,15 +11,19 @@ entities: []
 responses:
   utter_greet:
     - text: алло !
-      language: ru
+      metadata:
+        language: ru
     - text: Hallo !
-      language: de
+      metadata:
+        language: de
   utter_bye:
     - text: bye
-      language: en
+      metadata:
+        language: en
   utter_haha:
     - text: haha
-      language: fr
+      metadata:
+        language: fr
 slots:
   disambiguation_message:
     type: unfeaturized

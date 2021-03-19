@@ -257,7 +257,7 @@ const validateADomain = (
         });
         if (values.length) {
             responses.push({
-                ...(firstMetadataFound ? { metadata: firstMetadataFound } : {}),
+                ...(firstMetadataFound && Object.keys(firstMetadataFound).length ? { metadata: firstMetadataFound } : {}),
                 values,
                 key,
             });

@@ -11,13 +11,16 @@ entities: []
 responses:
   utter_cgMeFnuj5:
     - text: hey
-      language: en
+      metadata:
+        language: en
   utter_uCag8LL6z:
     - text: bye
-      language: ru
+      metadata:
+        language: ru
   utter_J5MMvow26:
     - text: haha
-      language: en
+      metadata:
+        language: en
 slots:
   fallback_language:
     type: unfeaturized

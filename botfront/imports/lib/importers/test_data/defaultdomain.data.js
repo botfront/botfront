@@ -9,13 +9,16 @@ actions:
 responses:
     utter_greet:
       - text: "Hey there!"
-        language: en
+        metadata:
+          language: en
     utter_goodbye:
       - text: "Goodbye :("
-        language: en
+        metadata:
+          language: en
     utter_double:
       - text: "Hey there!1"
-        language: en
+        metadata:
+          language: en
 forms:
     restaurant_form:
        cuisine:
@@ -37,16 +40,20 @@ actions:
 responses:
     utter_youarewelcome:
       - text: "You're very welcome."
-        language: en
+        metadata:
+          language: en
     utter_iamabot:
       - text: "I am a bot, powered by Rasa."
-        language: en
+        metadata:
+          language: en
     utter_double:
       - text: "Hey there!2"
-        language: en
+        metadata:
+          language: en
     utter_greet:
       - text: "Salut!"
-        language: fr
+        metadata:
+          language: en
     `,
     dataType: 'defaultdomain',
 };
@@ -73,19 +80,19 @@ export const validDefaultDomainParsed = {
     responses: {
         utter_goodbye: [
             {
-                language: 'en',
+                metadata: { language: 'en' },
                 text: 'Goodbye :(',
             },
         ],
         utter_greet: [
             {
-                language: 'en',
+                metadata: { language: 'en' },
                 text: 'Hey there!',
             },
         ],
         utter_double: [
             {
-                language: 'en',
+                metadata: { language: 'en' },
                 text: 'Hey there!1',
             },
         ],
@@ -115,25 +122,25 @@ export const validDefaultDomainParsed2 = {
     responses: {
         utter_iamabot: [
             {
-                language: 'en',
+                metadata: { language: 'en' },
                 text: 'I am a bot, powered by Rasa.',
             },
         ],
         utter_greet: [
             {
-                language: 'fr',
+                metadata: { language: 'fr' },
                 text: 'Salut!',
             },
         ],
         utter_youarewelcome: [
             {
-                language: 'en',
+                metadata: { language: 'fr' },
                 text: 'You\'re very welcome.',
             },
         ],
         utter_double: [
             {
-                language: 'en',
+                metadata: { language: 'en' },
                 text: 'Hey there!2',
             },
         ],
@@ -157,31 +164,31 @@ export const mergedDefaultDomains = {
     responses: {
         utter_double: [
             {
-                language: 'en',
+                metadata: { language: 'en' },
                 text: 'Hey there!1',
             },
         ],
         utter_goodbye: [
             {
-                language: 'en',
+                metadata: { language: 'en' },
                 text: 'Goodbye :(',
             },
         ],
         utter_greet: [
             {
-                language: 'en',
+                metadata: { language: 'en' },
                 text: 'Hey there!',
             },
         ],
         utter_iamabot: [
             {
-                language: 'en',
+                metadata: { language: 'en' },
                 text: 'I am a bot, powered by Rasa.',
             },
         ],
         utter_youarewelcome: [
             {
-                language: 'en',
+                metadata: { language: 'en' },
                 text: 'You\'re very welcome.',
             },
         ],

@@ -191,10 +191,12 @@ responses:
       text: ''
   utter_-KcS4gHa:
     - image: 'https://media.giphy.com/media/ZtWmNjSPPnN8Q/giphy.gif'
-      language: en
+      metadata:
+        language: en
       text: ''
     - image: 'https://media.giphy.com/media/ZtWmNjSPPnN8Q/giphy.gif'
-      language: fr
+      metadata:
+        language: fr
       text: ''
   utter_16xBVt4Z:
     - metadata:
@@ -858,9 +860,11 @@ responses:
         is left to engineers...
   utter_VhmH2glVu:
     - image: 'https://media.giphy.com/media/5UyNFT88LPINM1Lzyl/giphy.gif'
-      language: en
+      metadata:
+        language: en
     - image: 'https://media.giphy.com/media/5UyNFT88LPINM1Lzyl/giphy.gif'
-      language: fr
+      metadata:
+        language: fr
   utter_Wsr0d7Aw:
     - metadata:
         language: en
@@ -1598,16 +1602,20 @@ responses:
       text: Anytime
   utter_kKw8nEyIU:
     - image: 'https://media.giphy.com/media/YybKRCSHL1OBW/giphy.gif'
-      language: en
+      metadata:
+        language: en
       text: ''
     - image: ''
-      language: en
+      metadata:
+        language: en
       text: ''
     - image: 'https://media.giphy.com/media/YybKRCSHL1OBW/giphy.gif'
-      language: fr
+      metadata:
+        language: fr
       text: ''
     - image: ''
-      language: fr
+      metadata:
+        language: fr
       text: ''
   utter_kZCfZYfp:
     - metadata:
@@ -1733,19 +1741,23 @@ responses:
       text: "Spending is less fun if there is no reward. What benefit are you looking for in a credit card?\_"
   utter_msb9NYLYT:
     - image: 'https://media.giphy.com/media/a5viI92PAF89q/giphy.gif'
-      language: en
+      metadata:
+        language: en
     - image: 'https://media.giphy.com/media/a5viI92PAF89q/giphy.gif'
-      language: fr
+      metadata:
+        language: fr
   utter_nice_to_meet_you:
     - metadata:
         language: en
       text: "Nice to meet you  \U0001F91D"
   utter_oyla1fgu:
     - image: 'https://media.giphy.com/media/mQL9UfzDAE824/giphy.gif'
-      language: en
+      metadata:
+        language: en
       text: ''
     - image: 'https://media.giphy.com/media/mQL9UfzDAE824/giphy.gif'
-      language: fr
+      metadata:
+        language: fr
       text: ''
   utter_qQA2j43x:
     - metadata:
@@ -1831,15 +1843,18 @@ responses:
   utter_sx0MSd0U:
     - image: >-
         https://storage.googleapis.com/prod-media-bf-botfront-botfront-cloud/development/utter_sx0MSd0U_1580231513355-en.gif
-      language: en
+      metadata:
+        language: en
       text: ''
     - image: >-
         https://storage.googleapis.com/prod-media-bf-botfront-botfront-cloud/development/utter_sx0MSd0U_1580231513355-en.gif
-      language: fr
+      metadata:
+        language: fr
       text: ''
   utter_test:
     - image: ''
-      language: en
+      metadata:
+        language: en
   utter_thanks:
     - metadata:
         language: en
