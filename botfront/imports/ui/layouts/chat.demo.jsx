@@ -27,7 +27,7 @@ const ChatDemo = (props) => {
         languages: [],
     });
     const [environments, setEnvironments] = useState([]);
-    const [selectedEnv, setSelectedEnv] = useState('development');
+    const [selectedEnv, setSelectedEnv] = useState(queryParams?.env || 'development');
     const [language, setLanguage] = useState();
     const [updateKey, setUpdateKey] = useState();
     const [error, setError] = useState();
@@ -177,6 +177,8 @@ const ChatDemo = (props) => {
             </div>
         </>
     );
+
+    console.log(selectedEnv);
     return (
         <div className='chat-demo-container'>
             <Loading loading={loading}>{error ? renderError() : render()}</Loading>
