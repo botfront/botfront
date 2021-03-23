@@ -52,6 +52,8 @@ describe('test forms end to end', () => {
         cy.dataCy('condition-modal').contains('Add rule').click();
         cy.dataCy('condition-modal').contains('Select field').click();
         cy.dataCy('condition-modal').find('.dropdown .item').contains('slot1').click();
+        cy.dataCy('condition-modal').find('.rule--body input').eq(1).click({ force: true });
+        cy.dataCy('condition-modal').find('.dropdown .item').contains('is').click();
         cy.dataCy('condition-modal').find('.rule--body input').eq(2).type('oui');
         cy.get('.ui.modals.dimmer').click('topLeft');
 
