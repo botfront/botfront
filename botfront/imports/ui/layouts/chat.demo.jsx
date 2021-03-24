@@ -178,7 +178,6 @@ const ChatDemo = (props) => {
         </>
     );
 
-    console.log(selectedEnv);
     return (
         <div className='chat-demo-container'>
             <Loading loading={loading}>{error ? renderError() : render()}</Loading>
