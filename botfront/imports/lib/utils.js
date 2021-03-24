@@ -1,4 +1,4 @@
-import { check } from 'meteor/check';
+import { check, Match } from 'meteor/check';
 import { Meteor } from 'meteor/meteor';
 import { sample, get } from 'lodash';
 import yaml from 'js-yaml';
@@ -130,6 +130,15 @@ const getPostTrainingWebhook = async () => {
     return globalSettings?.settings?.private?.webhooks?.postTraining;
 };
 
+const capitalizeFirstLetter = v => `${v[0].toUpperCase()}${v.slice(1)}`;
+
+const interpretWebhookErrors = (webhookName, resp) => {
+    // Assumes any error message is in the "detail" property of the webhook response
+    if (resp === undefined) throw new Meteor.Error('500', `No response from the ${webhookName} webhook`);
+    if (resp.status === 404) throw new Meteor.Error('404', `${capitalizeFirstLetter(webhookName)} webhook not Found`);
+    if (resp.status !== 200) throw new Meteor.Error('500', `${capitalizeFirstLetter(webhookName)} webhook: ${get(resp, 'data.detail', false) || ' rejected upload.'}`);
+};
+
 if (Meteor.isServer) {
     import {
         getAppLoggerForMethod,
@@ -248,17 +257,16 @@ if (Meteor.isServer) {
             if (!url || !method) throw new Meteor.Error('400', 'No deployment webhook defined.');
             // calling the webhook in a test causes it to fail so we fake a successfull call to the webhook
             const resp = isTest ? { status: 200, data: {} } : Meteor.call('axios.requestWithJsonBody', url, method, data);
-            if (resp === undefined) throw new Meteor.Error('500', 'No response from the deployment webhook');
-            if (resp.status === 404) throw new Meteor.Error('404', 'Deployment webhook not Found');
-            if (resp.status !== 200) throw new Meteor.Error('500', `Deployment webhook: ${get(resp, 'data.detail', false) || ' rejected upload.'}`);
-            if (!resp.data.message || resp.data.message === ''){
-                resp.data.message = "Your project is being deployed."
+            interpretWebhookErrors('deployment', resp);
+            if (!resp.data.message || resp.data.message === '') {
+                resp.data.message = 'Your project is being deployed.';
             }
             return resp;
         },
         async 'call.postTraining'(projectId, modelData) {
             checkIfCan('nlu-data:x');
             check(projectId, String);
+            check(modelData, Match.Any); // There is no "bytes" type
             const trainingWebhook = await getPostTrainingWebhook();
             if (!trainingWebhook.url || !trainingWebhook.method) {
                 return;
@@ -270,7 +278,8 @@ if (Meteor.isServer) {
                 model: Buffer.from(modelData).toString('base64'),
                 mimeType: 'application/x-tar',
             };
-            Meteor.call('axios.requestWithJsonBody', trainingWebhook.url, trainingWebhook.method, body);
+            const resp = await Meteor.callWithPromise('axios.requestWithJsonBody', trainingWebhook.url, trainingWebhook.method, body);
+            interpretWebhookErrors('post training', resp);
         },
     });
 }
