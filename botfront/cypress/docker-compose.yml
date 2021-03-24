@@ -14,7 +14,6 @@ services:
       - ../cypress:/app/cypress
       - ../imports/lib:/app/imports/lib
       - ../imports/api:/app/imports/api
-      - ./mounted/models:/app/models
     entrypoint: /bin/bash
     command:
       - -c
@@ -37,10 +36,6 @@ services:
     image: botfront-local
     container_name: botfront-test-app
     restart: always
-    volumes:
-      - './mounted/models/:/app/models'
-    # ports:
-    #   - '8888:3000'
     depends_on:
       - mongo
     environment:
@@ -54,11 +49,6 @@ services:
     image: botfront/rasa-for-botfront:${RASA_TAG}
     container_name: botfront-test-rasa
     restart: always
-    command:
-      - -c
-      - "rasa run --enable-api --debug"
-    # ports:
-    #   - '5005:5005'
     depends_on:
       - botfront
     volumes:
@@ -71,7 +61,5 @@ services:
     image: 'mongo:latest'
     container_name: botfront-test-mongo
     restart: always
-    # ports:
-    #   - '27017:27017'
     environment:
       - MONGO_INITDB_DATABASE=bf

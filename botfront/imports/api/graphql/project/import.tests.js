@@ -401,7 +401,7 @@ if (Meteor.isServer) {
                     // how meteor assets work, that file can only be committed once and
                     // thus with one filename for all tests.
                     const localZip = await unzipFiles(zip, [['.development', '']]);
-                    delete localZip['data/tests/test_de_stories.yml'];
+                    delete localZip['tests/test_de_stories.yml'];
                     const b64zip = await Meteor.callWithPromise(
                         'exportRasa',
                         'bf',
@@ -440,7 +440,7 @@ if (Meteor.isServer) {
                     });
                     await importStepsWrapped([zip], { wipeProject: true });
                     const localZip = await unzipFiles(zip);
-                    delete localZip['data/tests/test_de_stories.yml'];
+                    delete localZip['tests/test_de_stories.yml'];
                     const b64zip = await Meteor.callWithPromise(
                         'exportRasa',
                         'bf',

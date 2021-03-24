@@ -1,6 +1,6 @@
 images:
   default:
-    botfront: botfront/botfront:v1.0.3
+    botfront: botfront/botfront:v1.0.5
     rasa: botfront/rasa-for-botfront:v2.3.3-bf.4
     duckling: botfront/duckling:latest
     mongo: mongo:latest

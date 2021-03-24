@@ -103,3 +103,6 @@ export const parseTextEntities = (text = '') => {
     }
     return { user: parsedText, entities: parsedEntities };
 };
+
+// eslint-disable-next-line no-useless-escape
+export const escapeForRegex = string => string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');

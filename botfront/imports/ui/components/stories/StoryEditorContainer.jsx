@@ -372,7 +372,7 @@ const StoryEditorContainer = ({
 
     const renderBranches = (depth = 0) => {
         const pathToRender = branchPath.slice(0, depth + 1);
-        const localBranches = branches[pathToRender.join()].branches;
+        const localBranches = branches[pathToRender.join()]?.branches || [];
         return (
             <Segment
                 attached

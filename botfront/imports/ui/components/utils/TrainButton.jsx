@@ -199,12 +199,14 @@ class TrainButton extends React.Component {
                     {deployOptions.map(opt => (
                         <React.Fragment key={opt.key}>
                             <Dropdown.Item
+                                data-cy='trigger-deployment'
                                 value={opt.value}
                                 onClick={() => this.showModal(opt.value, true)}
                             >
                                 {opt.text}
                             </Dropdown.Item>
                             <Confirm
+                                data-cy='deployment-confirmation-modal'
                                 open={modalOpen[opt.value]}
                                 // we need to stop the propagation, otherwise it reopen the dropdown
                                 onCancel={(e) => {
@@ -230,6 +232,7 @@ class TrainButton extends React.Component {
             project: { _id: projectId },
         } = this.context;
         const { webhook } = this.state;
+        const isTest = !!window.Cypress
 
         try {
             if (!webhook.url || !webhook.method) {
@@ -238,19 +241,19 @@ class TrainButton extends React.Component {
             if (!target) {
                 throw new Error('Deployment failed: the deployment target is missing');
             }
-            Meteor.call('deploy.model', projectId, target, (err, response) => {
+            Meteor.call('deploy.model', projectId, target, isTest, (err, response) => {
                 if (err || response === undefined || response.status !== 200) {
                     Alert.error(`Deployment failed: ${err.message}`, {
                         position: 'top-right',
-                        timeout: 10000,
+                        timeout: 120000,
                     });
                 }
                 if (response.status === 200) {
                     Alert.success(
-                        `Your project has been deployed to the ${target} environment`,
+                        response.data.message,
                         {
                             position: 'top-right',
-                            timeout: 5000,
+                            timeout: 120000,
                         },
                     );
                 }
@@ -266,11 +269,6 @@ class TrainButton extends React.Component {
     trainAndDeploy = async (target) => {
         try {
             const loadModel = target === 'development'; // automaticly load the model only if we are in development
-            await this.train(target, loadModel);
-            Alert.info(`Deployment to ${target} has started`, {
-                position: 'top-right',
-                timeout: 5000,
-            });
             this.deploy(target);
         } catch (e) {
             Alert.error('Cannot deploy, training failed', {
