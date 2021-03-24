@@ -130,7 +130,7 @@ const getPostTrainingWebhook = async () => {
     return globalSettings?.settings?.private?.webhooks?.postTraining;
 };
 
-const capitalizeFirstLetter = v => `${v[0].toUpperCase()}${v.slice(1, v.length)}`;
+const capitalizeFirstLetter = v => `${v[0].toUpperCase()}${v.slice(1)}`;
 
 const interpretWebhookErrors = (webhookName, resp) => {
     // Assumes any error message is in the "detail" property of the webhook response
