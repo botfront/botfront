@@ -36,7 +36,17 @@ This is for experimentation only. The following installation is not secure and n
 </Important>
 
 1. Create a virtual machine with Ubuntu installed, and note the external IP address. For this tutorial, we'll assume the IP address is `123.99.135.3`
-2. Install Node.js
+
+<Important type="warning">
+
+Set up firewall rules for ports:
+1. 8000 for duclking
+2. 5055 for rasa action server
+3. 5005 for rasa server
+4. 8888 for botfront ui
+5. 27017 for mongoDB
+</Important>
+3. Install Node.js
 
 ```bash
 wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
@@ -100,7 +110,10 @@ rasa_addons.core.channels.webchat.WebchatInput:
   base_url: http://123.99.135.3:5005
   socket_path: "/socket.io/"
 ```
+<Important type="tip" title="optional">
 
+Go to `settings` and replace the urls with the urls on credentials, instance and endpoint to your host.(optional)
+</Important>
 9. Botfront is ready to use.
 
 
