@@ -1,7 +1,3 @@
-<p align="center">
-<a href="https://botfront.io">
-    <img src="botfront_animation.gif" width="100%">
-</a>
 
 <p align="center">
 <a href="(https://github.com/botfront/botfront/actions">
@@ -17,20 +13,20 @@
     <img alt="Github discussions link" src="https://img.shields.io/badge/Community%20support-Start%20a%20discussion-green">
 </a>
 </p>
+<br />
 
-
+<H1 align="center">
+    This project is not maintained anymore and will not receive further updates.
+</H1>
 
 <p align="center">
   <a href="#highlights">Highlights</a> •
   <a href="#features">Features</a> •
   <a href="#quick-start">Quick start</a> •
-  <a href="#documentation">Documentation</a> •
   <a href="#development">Development</a>
 </p>
 <p align="center">
   <a href="./CHANGELOG.md">Release Notes</a> •
-  <a href="https://github.com/botfront/botfront/discussions">Get community support</a> •
-  <a href="https://botfront.io">Botfront.io</a>
 </p>
 
 <br/>
